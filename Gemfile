@@ -10,6 +10,10 @@ gem 'sqlite3'
 gem 'json'
 gem 'validates_timeliness'
 
+group :production, :test do
+  gem "devise_ldap_authenticatable"
+end
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
