@@ -5,7 +5,7 @@ gem 'rails', '3.1.0'
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 gem 'hydraulics', :path => '../hydraulics'
-gem 'activeadmin', '0.3.2'
+gem 'activeadmin', :git => "git://github.com/gregbell/active_admin.git"
 gem 'sqlite3'
 gem 'json'
 gem 'validates_timeliness'
