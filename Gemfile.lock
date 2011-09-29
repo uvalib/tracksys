@@ -65,6 +65,9 @@ GEM
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.0.3)
       warden (~> 1.0.3)
+    devise_ldap_authenticatable (0.4.9)
+      devise (~> 1.4.0)
+      net-ldap (~> 0.2.2)
     erubis (2.7.0)
     escape (0.0.4)
     execjs (1.2.9)
@@ -97,6 +100,7 @@ GEM
       polyamorous (~> 0.5.0)
     mime-types (1.16)
     multi_json (1.0.3)
+    net-ldap (0.2.2)
     nokogiri (1.5.0)
     orm_adapter (0.0.5)
     polyamorous (0.5.0)
@@ -172,6 +176,7 @@ PLATFORMS
 DEPENDENCIES
   activeadmin (= 0.3.2)
   coffee-rails (~> 3.1.0)
+  devise_ldap_authenticatable
   hydraulics!
   jquery-rails
   json
