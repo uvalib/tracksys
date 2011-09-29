@@ -9,6 +9,7 @@ gem 'activeadmin', '0.3.2'
 gem 'sqlite3'
 gem 'json'
 gem 'validates_timeliness'
+gem 'annotate', '2.4.1.beta1'
 
 group :production, :test do
   gem "devise_ldap_authenticatable"

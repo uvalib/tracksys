@@ -50,6 +50,7 @@ GEM
       activesupport (= 3.1.0)
     activesupport (3.1.0)
       multi_json (~> 1.0)
+    annotate (2.4.1.beta1)
     arel (2.2.1)
     bcrypt-ruby (3.0.1)
     builder (3.0.0)
@@ -175,6 +176,7 @@ PLATFORMS
 
 DEPENDENCIES
   activeadmin (= 0.3.2)
+  annotate (= 2.4.1.beta1)
   coffee-rails (~> 3.1.0)
   devise_ldap_authenticatable
   hydraulics!
