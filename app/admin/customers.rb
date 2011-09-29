@@ -1,3 +1,5 @@
+require 'carmen'
+
 ActiveAdmin.register Customer do
   menu :priority => 2
 
@@ -38,28 +40,42 @@ ActiveAdmin.register Customer do
 
   show :title => proc { customer.full_name } do
     panel "Orders" do
-      table_for(customer.orders) do
-        column("ID") {|order| link_to "#{order.id}", admin_order_path(order)}
-        column ("Status") {|order| status_tag(order.order_status)}
-        column :date_request_submitted
-        column :date_order_approved
-        column :date_archiving_complete
-        column :date_patron_deliverables_complete
-        column :date_customer_notified
-        column :date_due
-        column :agency
-       end
-     end
+      div :id => "orders" do
+        collection = customer.orders.page(params[:order_page])
+        pagination_options = {:entry_name => Order.model_name.human, :param_name => :order_page, :download_links => false}
+        paginated_collection(collection, pagination_options) do
+          table_options = {:id => 'orders-table', :sortable => true, :class => "order_index_table", :i18n => Order }
+          table_for collection, table_options do
+            column("ID") {|order| link_to "#{order.id}", admin_order_path(order)}
+            column ("Status") {|order| status_tag(order.order_status)}
+            column :date_request_submitted
+            column :date_order_approved
+            column :date_archiving_complete
+            column :date_patron_deliverables_complete
+            column :date_customer_notified
+            column :date_due
+            column :agency
+          end
+        end
+      end
+    end
 
     panel "Units" do
-      table_for (customer.units) do
-        column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
-        column :unit_status
-        column :bibl_title
-        column :bibl_call_number
-        column :date_archived
-        column :date_dl_deliverables_ready
-        column("# of Master Files") {|unit| unit.master_files_count.to_s}
+      div :id => "units" do
+        collection = customer.units.page(params[:unit_page])
+        pagination_options = {:entry_name => Unit.model_name.human, :param_name => :unit_page, :download_links => false}
+        paginated_collection(collection, pagination_options) do
+          table_options = {:id => 'units-table', :sortable => true, :class => "unit_index_table", :i18n => Unit}
+          table_for collection, table_options do
+            column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
+            column :unit_status
+            column :bibl_title
+            column :bibl_call_number
+            column :date_archived
+            column :date_dl_deliverables_ready
+            column("# of Master Files") {|unit| unit.master_files_count.to_s}
+          end
+        end
       end
     end
 
@@ -82,4 +98,3 @@ ActiveAdmin.register Customer do
     end
   end
 end
-
