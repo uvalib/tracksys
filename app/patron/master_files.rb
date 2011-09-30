@@ -14,7 +14,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   
   index :as => :grid, :columns => 3 do |master_file|
     div do
-      link_to(image_tag("#{master_file.link_to_thumbnail}", :width => "250", :alt => "#{master_file.title}"), patron_master_file_path(master_file))
+      link_to(image_tag("#{master_file.link_to_thumbnail}", :height => "350", :alt => "#{master_file.title}"), patron_master_file_path(master_file))
     end
 #    a truncate(master_file.title), :href => patron_master_file_path(master_file)
     div do
