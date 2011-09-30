@@ -6,7 +6,7 @@ gem 'rails', '3.1.0'
 gem 'execjs'
 gem 'therubyracer'
 
-gem 'hydraulics', :path => '../hydraulics'
+gem 'hydraulics', :git => 'git://github.com/acurley/hydraulics.git'
 gem 'activeadmin', :git => "git://github.com/gregbell/active_admin.git"
 gem 'sqlite3'
 gem 'json'
