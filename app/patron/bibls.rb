@@ -1,7 +1,17 @@
 ActiveAdmin.register Bibl, :namespace => :patron do
 
   scope :all, :default => true
- 
+
+  index do
+    column :id
+    column :call_number
+    column :title
+    column "Actions" do |bibl|
+      link_to "Master Files", "master_files?q%5Bbibl_id_eq%5D=#{bibl.id}"
+#      link_to "Master Files", patron_master_file_path(MasterFile.find(bibl.master_files.map(&:id)))
+    end
+  end 
+
   show :title => proc { "#{bibl.call_number} - #{bibl.title}" } do
     panel "Master Files" do
       div :id => "master_files" do
@@ -14,9 +24,9 @@ ActiveAdmin.register Bibl, :namespace => :patron do
             column :filename
             column :title
             column :description
-            column "Actions" do |master_file|
-              link_to "View", admin_master_file_path(master_file)
-            end
+#            column "Actions" do |master_file.bibl|
+#              link_to "View", admin_master_file_path(MasterFile.find(bibl.master_files.map(&:id)))
+#            end
           end
         end
       end

@@ -27,4 +27,20 @@ Tracksys::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+#  Fedora_apim_wsdl = 'http://tracksysdev.lib.virginia.edu:8080/fedora/wsdl?api=API-M'
+#  Fedora_apia_wsdl = 'http://tracksysdev.lib.virginia.edu:8080/fedora/wsdl?api=API-A'
+#  Fedora_username = 'fedoraAdmin'
+#  Fedora_password = 'fedoraAdmin'
+#  FEDORA_REST_URL = 'http://fedora-prod02.lib.virginia.edu:8080/fedora'
+#  SOLR_URL = "http://localhost:8983/solr/staging_solr"
+  
+  TRACKSYS_URL = "http://tracksysdev.lib.virginia.edu/"
+#  TRACKSYS_URL_METADATA = "http://tracksysdev.lib.virginia.edu/metadata"
+#  DELIVERY_DIR = "/digiserv-delivery-test"
+#  TEI_ACCESS_URL = "http://xtf.lib.virginia.edu/xtf/view"
+  
+  # Set the number of threads dedicated to JP2K creation.
+#  NUM_JP2K_THREADS = 1
+
 end
