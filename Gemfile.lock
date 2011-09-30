@@ -109,6 +109,7 @@ GEM
       polyamorous (~> 0.5.0)
     mime-types (1.16)
     multi_json (1.0.3)
+    mysql2 (0.3.7)
     net-ldap (0.2.2)
     nokogiri (1.5.0)
     orm_adapter (0.0.5)
@@ -193,6 +194,7 @@ DEPENDENCIES
   hydraulics!
   jquery-rails
   json
+  mysql2
   rails (= 3.1.0)
   sass-rails (~> 3.1.0)
   sqlite3
