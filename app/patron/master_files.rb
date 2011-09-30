@@ -24,7 +24,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
       "Title: #{truncate(master_file.title)}"
     end
     div do
-      "Description: #{truncate(master_file.description)}" if master_file.description?
+      "Description: #{truncate_words(master_file.description)}" if master_file.description?
     end
   end
 
