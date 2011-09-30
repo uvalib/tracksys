@@ -7,6 +7,15 @@ ActiveAdmin.setup do |config|
   #
   config.site_title = "Tracksys"
 
+  # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer
+  # must load all paths containing namespaced ActiveAdmin assets.
+  #
+  # See https://groups.google.com/group/activeadmin/browse_thread/thread/799ab4350c848162 for more information.
+  config.load_paths = [File.expand_path('app/admin', Rails.root), 
+    File.expand_path('app/transcription', Rails.root), 
+    File.expand_path('app/patron', Rails.root)] 
+
+
   # Set the link url for the title. For example, to take 
   # users to your main site. Defaults to no link.
   #
