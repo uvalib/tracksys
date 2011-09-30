@@ -2,8 +2,10 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.1.0'
 
-# Bundle edge Rails instead:
-# gem 'rails',     :git => 'git://github.com/rails/rails.git'
+# Needed to resolve incompatability with Fedora 12+
+gem 'execjs'
+gem 'therubyracer'
+
 gem 'hydraulics', :path => '../hydraulics'
 gem 'activeadmin', :git => "git://github.com/gregbell/active_admin.git"
 gem 'sqlite3'
