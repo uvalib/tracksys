@@ -12,6 +12,7 @@ gem 'sqlite3'
 gem 'json'
 gem 'validates_timeliness'
 gem 'annotate', '2.4.1.beta1'
+gem 'mysql2'
 
 group :production, :test do
   gem "devise_ldap_authenticatable"
