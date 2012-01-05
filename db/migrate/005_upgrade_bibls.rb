@@ -5,15 +5,16 @@ class UpgradeBibls < ActiveRecord::Migration
     # rename_column :bibls, :availabilty, :availability_policy_id
     # add_index :bibls, :availability_policy_id
     
-    add_column :bibls, :date_ingested_into_dl, :datetime
-    add_column :bibls, :automation_messages_count, :integer
-    add_column :bibls, :orders_count, :integer
-    add_column :bibls, :units_count, :integer
+   add_column :bibls, :date_ingested_into_dl, :datetime
+   add_column :bibls, :automation_messages_count, :integer
+   add_column :bibls, :orders_count, :integer
+   add_column :bibls, :units_count, :integer
+   add_column :bibls, :master_files_count, :integer
     
-    change_column :bibls, :exemplar, :string
-    remove_column :bibls, :content_model_id
+   change_column :bibls, :exemplar, :string
+   remove_column :bibls, :content_model_id
 
-    add_index :bibls, :barcode, :unique => true
+    add_index :bibls, :barcode
     add_index :bibls, :title
     add_index :bibls, :pid
     add_index :bibls, :parent_bibl_id
