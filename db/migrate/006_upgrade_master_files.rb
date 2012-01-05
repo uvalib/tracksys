@@ -6,6 +6,13 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     remove_column :master_files, :locked_desc_metadata
 
     add_column :master_files, :availability_policy_id, :integer
+    add_column :master_files, :automation_messages_count, :integer
+
+    say "Updating master_file.automation_messages_count"
+    MasterFile.find(:all).each {|b|
+      MasterFile.update_counters m.id, :automation_messages_count => m.automation_messages.count
+    }
+
     rename_index :master_files, 'component_id', 'index_master_files_on_component_id'
     rename_index :master_files, 'indexing_scenario_id', 'index_master_files_on_indexing_scenario_id'
     rename_index :master_files, 'index_master_files_on_name_num', 'index_master_files_on_title'
