@@ -8,6 +8,7 @@ class UpgradeUnits < ActiveRecord::Migration
     add_column :units, :availability_policy_id, :integer
     add_column :units, :master_files_count, :integer, :default => 0
     add_column :units, :automation_messages_count, :integer, :default => 0
+    add_column :units, :master_file_discoverability, :boolean, :null => false, :default => 0
 
     say "Updating unit.master_files_count"
     Unit.find(:all).each {|u|
