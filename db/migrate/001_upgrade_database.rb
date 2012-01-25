@@ -1,24 +1,5 @@
 class UpgradeDatabase < ActiveRecord::Migration
   def change
-    # Remove all foreign keys to update names (will reconstruct at end of this migration)
-
-    ##########################
-    # Uncomment in future when foreign key slowness is resolved
-    # Begin
-    ##########################
-    
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_1"
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_2"
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_3"
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_4"
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_5"
-    # remove_foreign_key :automation_messages, :name => "automation_messages_ibfk_6"
-
-    ##########################
-    # Uncomment in future when foreign key slowness is resolved
-    # End
-    ##########################
-
     remove_foreign_key :bibls, :name => "bibls_ibfk_2"
     remove_foreign_key :bibls, :name => "bibls_ibfk_1"
 
