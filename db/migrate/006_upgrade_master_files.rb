@@ -8,8 +8,10 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     add_column :master_files, :availability_policy_id, :integer
     add_column :master_files, :automation_messages_count, :integer
 
+    # Given the large number of MasterFile objects, this migration requires dividing the 
+    # MasterFile array into smaller increments
     say "Updating master_file.automation_messages_count"
-    MasterFile.find(:all).each {|b|
+    MasterFile.where('automation_messages_count is null').limit(1000).each {|m|
       MasterFile.update_counters m.id, :automation_messages_count => m.automation_messages.count
     }
 
