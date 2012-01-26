@@ -8,7 +8,7 @@ ActiveAdmin.register Bibl, :namespace => :patron do
     column :title
     column "Actions" do |bibl|
       link_to "Master Files", "master_files?q%5Bbibl_id_eq%5D=#{bibl.id}&order=filename_asc"
-#      link_to "Master Files", patron_master_file_path(MasterFile.find(bibl.master_files.map(&:id)))
+     # link_to "Master Files", patron_master_file_path(MasterFile.find(bibl.master_files.map(&:id)))
     end
   end 
 
