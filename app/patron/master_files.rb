@@ -12,7 +12,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   filter :bibl_barcode, :as => :string, :label => "Barcode"
   filter :bibl_catalog_id, :as => :string, :label => "Catalog Key"
   
-  index :as => :grid, :columns => 3 do |master_file|
+  index :as => :grid, :columns => 2 do |master_file|
     div do
       link_to(image_tag("#{master_file.link_to_thumbnail}", :height => "350", :alt => "#{master_file.title}"), patron_master_file_path(master_file))
     end
@@ -26,6 +26,11 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
     div do
       "Description: #{truncate_words(master_file.description)}" if master_file.description?
     end
+  end
+
+  show do
+    image_tag("#{master_file.link_to_thumbnail}", :height => "350", :alt => "#{master_file.title}")
+    
   end
 
 end
