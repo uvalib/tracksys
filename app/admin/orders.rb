@@ -21,12 +21,12 @@ ActiveAdmin.register Order do
   index do
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
-    column :date_request_submitted
-    column :date_order_approved
-    column :date_archiving_complete
-    column :date_patron_deliverables_complete
-    column :date_customer_notified
-    column :date_due
+    column ("Date Request Submitted") {|order| order.date_request_submitted.try(:strftime, "%m/%d/%y")}
+    column ("Date Order Approved") {|order| order.date_order_approved.try(:strftime, "%m/%d/%y")}
+    column ("Date Archiving Complete") {|order| order.date_archiving_complete.try(:strftime, "%m/%d/%y")}
+    column ("Date Patron Deliverables Complete") {|order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y")}
+    column ("Date Customer Notified") {|order| order.date_customer_notified.try(:strftime, "%m/%d/%y")}
+    column ("Date Due") {|order| order.date_due.try(:strftime, "%m/%d/%y")}
     column :agency
     column :customer
     default_actions
