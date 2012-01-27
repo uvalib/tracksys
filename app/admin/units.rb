@@ -10,6 +10,7 @@ ActiveAdmin.register Unit do
   # filter :exclude_from_dl, :as => :radio
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
+  filter :indexing_scenario
 
   index do
     column :id
