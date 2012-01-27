@@ -77,6 +77,7 @@ class UpgradeDatabase < ActiveRecord::Migration
     drop_table :ead_refs
     drop_table :ead_refs_master_files
     drop_table :process_notification_refs
+    drop_table :staff_members
     drop_table :record_exports
     drop_table :record_selection_refs
     drop_table :states
