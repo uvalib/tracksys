@@ -1,4 +1,4 @@
-require "#{Hydraulics.models_dir}/intended_use"
+require "#{Hydraulics.models_dir}/indexing_scenario"
 
 class IndexingScenario
 
