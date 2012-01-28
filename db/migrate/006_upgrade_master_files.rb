@@ -4,6 +4,8 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     rename_column :master_files, :staff_notes, :description
     remove_column :master_files, :equipment_id
     remove_column :master_files, :locked_desc_metadata
+    remove_column :master_files, :file_id_ref
+    remove_column :master_files, :screen_preview
 
     add_column :master_files, :availability_policy_id, :integer
     add_column :master_files, :automation_messages_count, :integer
