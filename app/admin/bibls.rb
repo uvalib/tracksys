@@ -24,6 +24,19 @@ ActiveAdmin.register Bibl do
     default_actions
   end
   
+  show do
+    panel "Automation Messages" do
+      table_for bibl.automation_messages do
+        column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
+        column :message_type
+        column :active_error
+        column :workflow_type
+        column(:message) {|am| truncate_words(am.message)}
+        column(:created_at) {|am| format_date(am.created_at)}
+        column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+      end
+    end
+  end
 
   sidebar "Bibliographic Information", :only => :show do
     attributes_table_for bibl, :title, :creator_name, :call_number, :catalog_id, :barcode, :pid

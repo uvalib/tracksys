@@ -47,6 +47,18 @@ ActiveAdmin.register Unit do
   			column :pid
   		end
   	end
+
+    panel "Automation Messages" do
+      table_for unit.automation_messages do
+        column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
+        column :message_type
+        column :active_error
+        column :workflow_type
+        column(:message) {|am| truncate_words(am.message)}
+        column(:created_at) {|am| format_date(am.created_at)}
+        column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+      end
+    end
   end
 
   sidebar "Patron Information", :only => [:show] do
