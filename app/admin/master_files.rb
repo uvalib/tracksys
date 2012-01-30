@@ -143,12 +143,21 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  # sidebar "Technical Metadata", :only => :show do
-  #   if master_file.image_tech_meta
-  #     attributes_table_for master_file.image_tech_meta do
-  #       row :image_format
-  #       row :width
-  #       row :height
+  action_item do
+    link_to_unless(master_file.previous.nil?, "Previous", admin_master_file_path(master_file.previous))
+  end
+
+  action_item do
+    link_to_unless(master_file.next.nil?, "Next", admin_master_file_path(master_file.next))
+  end
+
+  # sidebar "Test" do
+  #   div :class => 'action_items' do
+  #     span :class => 'action_item' do
+  #       link_to_unless(master_file.previous.nil?, "Previous", admin_master_file_path(master_file.previous))
+  #     end
+  #     span :class => 'action_item' do 
+  #       link_to_unless(master_file.next.nil?, "Next", admin_master_file_path(master_file.next))
   #     end
   #   end
   # end
