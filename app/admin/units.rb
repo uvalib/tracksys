@@ -3,6 +3,7 @@ ActiveAdmin.register Unit do
   
   scope :all, :default => true
 
+  filter :id, :as => :numeric
   filter :date_archived
   filter :date_dl_deliverables_ready
   filter :date_queued_for_ingest
@@ -35,6 +36,7 @@ ActiveAdmin.register Unit do
       format_date(unit.date_dl_deliverables_ready)
     end
     column :intended_use
+    column("Master Files") {|mf| mf.master_files_count}
     default_actions
   end
 
