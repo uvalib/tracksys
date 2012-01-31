@@ -143,13 +143,15 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  action_item do
+
+  action_item :only => :show do
     link_to_unless(master_file.previous.nil?, "Previous", admin_master_file_path(master_file.previous))
   end
 
-  action_item do
+  action_item :only => :show do
     link_to_unless(master_file.next.nil?, "Next", admin_master_file_path(master_file.next))
   end
+
 
   # sidebar "Test" do
   #   div :class => 'action_items' do
