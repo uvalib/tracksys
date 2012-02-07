@@ -4,8 +4,11 @@ ActiveAdmin.register Bibl, :namespace => :patron do
 
   index do
     column :id
-    column :call_number
     column :title
+    column :call_number
+    column :barcode
+    column :catalog_id   
+    column :master_files_count
     column "Actions" do |bibl|
       link_to "Master Files", "master_files?q%5Bbibl_id_eq%5D=#{bibl.id}&order=filename_asc"
      # link_to "Master Files", patron_master_file_path(MasterFile.find(bibl.master_files.map(&:id)))
