@@ -35,29 +35,11 @@ ActiveAdmin::Dashboards.build do
   #
   # Will render the "Recent Users" then the "Recent Posts" sections on the dashboard.
 
-  section "Recent Requests", :namespace => :admin do
-    table_for Order.recent.limit(10) do
-      column :id do |order|
-        link_to order.id, [:admin, order]
-      end
-      column :date_due
-      column :agency
-      column "Name" do |order|
-        link_to order.customer_full_name, [:admin, order.customer]
-      end
-    end
-  end
-
-  section "Requests Awaiting Approval", :namespace => :admin do
-    table_for Order.awaiting_approval do
-      column :id do |order|
-        link_to order.id, [:admin, order]
-      end
-      column :date_due
-      column :agency
-      column "Name" do |order|
-        link_to order.customer_full_name, [:admin, order.customer]
-      end
+  section "Errors", :namespace => :admin do
+    table_for AutomationMessage.has_active_error do
+      column :id
+      column :message_type
+      column :active_error
     end
   end
 
