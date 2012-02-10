@@ -20,7 +20,6 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     rename_index :master_files, 'component_id', 'index_master_files_on_component_id'
     rename_index :master_files, 'indexing_scenario_id', 'index_master_files_on_indexing_scenario_id'
     rename_index :master_files, 'index_master_files_on_name_num', 'index_master_files_on_title'
-    add_index :master_files, :availability_policy_id
 
     add_foreign_key :master_files, :components
     add_foreign_key :master_files, :indexing_scenarios

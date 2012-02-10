@@ -10,11 +10,15 @@ class UpgradeBibls < ActiveRecord::Migration
     add_column :bibls, :orders_count, :integer
     add_column :bibls, :units_count, :integer
     add_column :bibls, :master_files_count, :integer
+    add_column :bibls, :availability_policy_id, :integer
 
     change_column :bibls, :exemplar, :string
     remove_column :bibls, :content_model_id
 
+
     add_index :bibls, :barcode
+    add_index :bibls, :call_number
+    add_index :bibls, :catalog_id
     add_index :bibls, :title
     add_index :bibls, :pid
     add_index :bibls, :parent_bibl_id

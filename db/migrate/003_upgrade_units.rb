@@ -3,7 +3,6 @@ class UpgradeUnits < ActiveRecord::Migration
     remove_column :units, :fasttrack
     remove_column :units, :vendor_batch_id
   	remove_column :units, :content_model_id
-    remove_column :units, :use_right_id
 
     add_column :units, :availability_policy_id, :integer
     add_column :units, :master_files_count, :integer, :default => 0
@@ -20,8 +19,8 @@ class UpgradeUnits < ActiveRecord::Migration
     rename_index :units, 'heard_about_resource_id', 'index_units_on_heard_about_resource_id'
     rename_index :units, 'indexing_scenario_id', 'index_units_on_indexing_scenario_id'
 
-    add_index :units, :availability_policy_id
     add_index :units, :date_dl_deliverables_ready
+    add_index :units, :use_right_id
 
     add_foreign_key :units, :archives
     add_foreign_key :units, :bibls
@@ -29,5 +28,6 @@ class UpgradeUnits < ActiveRecord::Migration
     add_foreign_key :units, :indexing_scenarios
     add_foreign_key :units, :intended_uses
     add_foreign_key :units, :orders
+    add_foreign_key :units, :use_rights
   end
 end

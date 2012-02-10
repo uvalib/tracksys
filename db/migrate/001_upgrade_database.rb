@@ -81,7 +81,6 @@ class UpgradeDatabase < ActiveRecord::Migration
     drop_table :record_exports
     drop_table :record_selection_refs
     drop_table :states
-    drop_table :use_rights	
 
     # Transition uva_status to academic_status
     remove_index :uva_statuses, :name => "index_uva_statuses_on_name"
