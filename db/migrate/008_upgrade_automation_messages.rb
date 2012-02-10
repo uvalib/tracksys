@@ -11,10 +11,10 @@
     # The need to keep this in the migration is dependent on Matthew's removal of it before the migration.
     remove_column :automation_messages, :ead_ref_id
 
-    # add_foreign_key :automation_messages, :bibls
-    # add_foreign_key :automation_messages, :components
-    # add_foreign_key :automation_messages, :master_files
-    # add_foreign_key :automation_messages, :orders
-    # add_foreign_key :automation_messages, :units
+    add_foreign_key :automation_messages, :bibls
+    add_foreign_key :automation_messages, :components
+    add_foreign_key :automation_messages, :master_files
+    add_foreign_key :automation_messages, :orders
+    add_foreign_key :automation_messages, :units
   end
 end
