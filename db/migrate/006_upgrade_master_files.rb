@@ -12,6 +12,8 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     add_column :master_files, :automation_messages_count, :integer
     add_column :master_files, :use_right_id, :integer
 
+    change_column :master_files, :description, :string
+
     # Given the large number of MasterFile objects, this migration requires dividing the 
     # MasterFile array into smaller increments
     say "Updating master_file.automation_messages_count"

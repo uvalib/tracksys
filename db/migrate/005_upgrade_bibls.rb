@@ -6,7 +6,7 @@ class UpgradeBibls < ActiveRecord::Migration
     # add_index :bibls, :availability_policy_id
     
     add_column :bibls, :date_ingested_into_dl, :datetime
-    add_column :bibls, :automation_messages_count, :integer
+    add_column :bibls, :automation_messages_count, :integer, :default => 0
     add_column :bibls, :orders_count, :integer, :default => 0
     add_column :bibls, :units_count, :integer, :default => 0
     add_column :bibls, :master_files_count, :integer, :default => 0
