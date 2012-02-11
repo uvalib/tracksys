@@ -3,6 +3,7 @@
     add_column :automation_messages, :workflow_type, :string
     add_index :automation_messages, :workflow_type
     change_column :automation_messages, :active_error, :boolean, :null => false, :default => 0
+    change_column :automation_messages, :message, :string
     
     # Update all existing automation workflow_type based on processor name
     # AutomationMessage.find(:all).each {|am|

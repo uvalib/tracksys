@@ -1,9 +1,10 @@
 class UpgradeOrders < ActiveRecord::Migration
   def change
     add_column :orders, :units_count, :integer, :default => 0
-    add_column :orders, :master_files_count, :integer, :default => 0
     add_column :orders, :automation_messages_count, :integer, :default => 0
     add_column :orders, :invoices_count, :integer, :default => 0
+
+    change_column :orders, :date_due, :date
     
     say "Updating order.units_count, order.invoices_count, order.master_files_count and order.automation_messages_count"
     Order.find(:all).each {|o|

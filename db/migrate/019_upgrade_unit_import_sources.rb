@@ -6,9 +6,9 @@ class UpgradeUnitImportSources < ActiveRecord::Migration
     rename_column :unit_import_sources, :import_source, :source
     remove_column :unit_import_sources, :import_format_basis
 
+    rename_index :unit_import_sources, 'unit_id', 'index_unit_import_sources_on_unit_id'
+
     add_foreign_key :unit_import_sources, :units
 
-    add_index :unit_import_sources, :unit_id
   end
-
 end

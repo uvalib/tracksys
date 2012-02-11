@@ -9,8 +9,6 @@ class UpgradeCustomers < ActiveRecord::Migration
     rename_index :customers, 'heard_about_service_id', 'index_customers_on_heard_about_service_id'
 
     add_column :customers, :orders_count, :integer, :default => 0
-    add_column :customers, :units_count, :integer, :default => 0
-    add_column :customers, :master_files_count, :integer, :default => 0
     
     say "Updating customer.orders_count, customer.units_count and customer.master_files_count"
     Customer.find(:all).each {|c|

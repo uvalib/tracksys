@@ -7,14 +7,14 @@ class UpgradeBibls < ActiveRecord::Migration
     
     add_column :bibls, :date_ingested_into_dl, :datetime
     add_column :bibls, :automation_messages_count, :integer
-    add_column :bibls, :orders_count, :integer
-    add_column :bibls, :units_count, :integer
-    add_column :bibls, :master_files_count, :integer
+    add_column :bibls, :orders_count, :integer, :default => 0
+    add_column :bibls, :units_count, :integer, :default => 0
+    add_column :bibls, :master_files_count, :integer, :default => 0
     add_column :bibls, :availability_policy_id, :integer
 
     change_column :bibls, :exemplar, :string
+    change_column :bibls, :description, :string
     remove_column :bibls, :content_model_id
-
 
     add_index :bibls, :barcode
     add_index :bibls, :call_number

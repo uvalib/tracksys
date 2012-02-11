@@ -2,6 +2,7 @@ class UpgradeMasterFiles < ActiveRecord::Migration
   def change
     rename_column :master_files, :name_num, :title
     rename_column :master_files, :staff_notes, :description
+
     remove_column :master_files, :equipment_id
     remove_column :master_files, :locked_desc_metadata
     remove_column :master_files, :file_id_ref
@@ -9,6 +10,7 @@ class UpgradeMasterFiles < ActiveRecord::Migration
 
     add_column :master_files, :availability_policy_id, :integer
     add_column :master_files, :automation_messages_count, :integer
+    add_column :master_files, :use_right_id, :integer
 
     # Given the large number of MasterFile objects, this migration requires dividing the 
     # MasterFile array into smaller increments
@@ -24,5 +26,8 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     add_foreign_key :master_files, :components
     add_foreign_key :master_files, :indexing_scenarios
     add_foreign_key :master_files, :units
+    add_foreign_key :master_files, :use_rights
+
+    add_index :master_files, :use_right_id
   end
 end
