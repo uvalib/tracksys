@@ -1,10 +1,6 @@
 class UpgradeBibls < ActiveRecord::Migration
   def change
 
-    # Will have to migrate data from availability (string) to availability_policy_id (integer reference)
-    # rename_column :bibls, :availabilty, :availability_policy_id
-    # add_index :bibls, :availability_policy_id
-    
     add_column :bibls, :date_ingested_into_dl, :datetime
     add_column :bibls, :automation_messages_count, :integer, :default => 0
     add_column :bibls, :orders_count, :integer, :default => 0
@@ -12,13 +8,16 @@ class UpgradeBibls < ActiveRecord::Migration
     add_column :bibls, :master_files_count, :integer, :default => 0
     add_column :bibls, :availability_policy_id, :integer
 
+    rename_column :bibls, :catalog_id, :catalog_key
+
     change_column :bibls, :exemplar, :string
     change_column :bibls, :description, :string
+
     remove_column :bibls, :content_model_id
 
     add_index :bibls, :barcode
     add_index :bibls, :call_number
-    add_index :bibls, :catalog_id
+    add_index :bibls, :catalog_key
     add_index :bibls, :title
     add_index :bibls, :pid
     add_index :bibls, :parent_bibl_id

@@ -13,8 +13,6 @@ class UpgradeCustomers < ActiveRecord::Migration
     say "Updating customer.orders_count, customer.units_count and customer.master_files_count"
     Customer.find(:all).each {|c|
       Customer.update_counters c.id, :orders_count => c.orders.count
-      Customer.update_counters c.id, :units_count => c.units.count
-      Customer.update_counters c.id, :master_files_count => c.master_files.count
     }
 
     add_foreign_key :customers, :academic_statuses

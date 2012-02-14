@@ -85,6 +85,5 @@ class UpgradeDatabase < ActiveRecord::Migration
     # Transition uva_status to academic_status
     remove_index :uva_statuses, :name => "index_uva_statuses_on_name"
    	rename_table :uva_statuses, :academic_statuses
-    add_index :academic_statuses, :name, :unique => true
   end
 end

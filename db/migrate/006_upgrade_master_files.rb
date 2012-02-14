@@ -9,8 +9,11 @@ class UpgradeMasterFiles < ActiveRecord::Migration
     remove_column :master_files, :screen_preview
 
     add_column :master_files, :availability_policy_id, :integer
-    add_column :master_files, :automation_messages_count, :integer
+    add_column :master_files, :automation_messages_count, :integer, :default => 0
     add_column :master_files, :use_right_id, :integer
+    add_column :master_files, :date_ingested_into_dl, :datetime
+
+    # TODO: Populate master_file.date_ingested_into_dl from master_file.unit.date_dl_deliverables_ready
 
     change_column :master_files, :description, :string
 

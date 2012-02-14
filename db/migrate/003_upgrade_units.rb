@@ -2,7 +2,7 @@ class UpgradeUnits < ActiveRecord::Migration
   def change
     remove_column :units, :fasttrack
     remove_column :units, :vendor_batch_id
-  	remove_column :units, :content_model_id
+    remove_column :units, :content_model_id
     remove_column :units, :transcription_destination
     remove_column :units, :transcription_format
     remove_column :units, :transcription_vendor_invoice_num
@@ -16,6 +16,8 @@ class UpgradeUnits < ActiveRecord::Migration
     add_column :units, :master_files_count, :integer, :default => 0
     add_column :units, :automation_messages_count, :integer, :default => 0
     add_column :units, :master_file_discoverability, :boolean, :null => false, :default => 0
+
+    change_column :units, :bibl_id, :integer
 
     rename_column :units, :url, :patron_source_url
 
