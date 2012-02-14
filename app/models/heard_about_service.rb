@@ -1,15 +1,3 @@
-# == Schema Information
-#
-# Table name: heard_about_services
-#
-#  id                   :integer         not null, primary key
-#  description          :string(255)
-#  is_approved          :boolean         default(FALSE), not null
-#  is_internal_use_only :boolean         default(FALSE), not null
-#  created_at           :datetime
-#  updated_at           :datetime
-#
-
 require "#{Hydraulics.models_dir}/heard_about_service"
 
 class HeardAboutService
