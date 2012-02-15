@@ -31,39 +31,21 @@ class CreateAvailabilityPolicies < ActiveRecord::Migration
     # in lib/hydra.rb (or whatever this will be renamed) so it can be manipulated by the 
     # admin user.
     # 
-    # Step 1 - Create all appropriate policies:
+    # Create all appropriate policies and for each policy, associate it with pertinent objects.
+    # Legacy objects with this information are:
+    # * Bibls
+    # * Components
+    # * MasterFiles
+    # * Units
+
     Hash[
       "Public" => "http://text.lib.virginia.edu/policy/permit-to-all.xml",
       "VIVA only" => "http://text.lib.virginia.edu/policy/permit-to-viva-only.xml",
       "UVA only" => "http://text.lib.virginia.edu/policy/permit-to-uva-only.xml",
       "Restricted" => "http://text.lib.virginia.edu/policy/deny-to-all.xml"  
-    ].each {|key, value|
-      AvailabilityPolicy.create!(:name => "#{key}", :xacml_policy_url => "#{value}")
-    }
-
-    # Step 2 - Associate all legacy objects with an AvailabilityPolicy object rather than 
-    # the legacy string in the object.availability attribute.  Legacy objects with this information are:
-    # * Bibls
-    # * Components
-    # * MasterFiles
-    # * Units
-    objects = []
-    say "Getting all Bibl objects with an availability value."
-    objects.push(Bibl.where('availability is not null'))
-
-    say "Getting all Component objects with an availability value."
-    objects.push(Component.where('availability is not null'))
-
-    say "Getting all MasterFile objects with an availability value."
-    objects.push(MasterFile.where('availability is not null'))
-
-    say "Getting all Unit objects with an availability value."
-    objects.push(Unit.where('availability is not null'))
-    objects.flatten!
-
-    objects.each {|object|
-      policy = AvailabilityPolicy.where(:name => object.availability).id
-      object.update_attributes!(:availability_policy_id => policy.id, :availability => nil)
+    ].each {|polciy, url|
+      policy_object = AvailabilityPolicy.create!(:name => "#{policy}", :xacml_policy_url => "#{url}")
+      update_availability(policy_object.id, key)
     }
 
     # Step 3 - Remove unncessary columns
@@ -72,5 +54,24 @@ class CreateAvailabilityPolicies < ActiveRecord::Migration
     remove_column :master_files, :availability
     remove_column :units, :availability
 
+    say "Updating availability_policy.orders_count, availability_policy.units_count, availability_policy.components_counts and availability_policy.master_files_count"
+    AvailabilityPolicy.find(:all).each {|a|
+      AvailabilityPolicy.update_counters a.id, :orders_count => a.orders.count
+      AvailabilityPolicy.update_counters a.id, :units_count => a.units.count
+      AvailabilityPolicy.update_counters a.id, :components_count => a.components.count
+      AvailabilityPolicy.update_counters a.id, :master_files_count => a.master_files.count
+    }
+  end
+
+  # Migrate legacy availability string and turn it into a new legacy object of the same meaning.
+  # i.e. master_file.availiability = "Public" becomes 
+  # policy = AvailabilityPolicy.where(:name => "Public"); master_file.availability = policy (or master_file.availability_policy_id = policy.id)
+  #
+  # Note: update_all write a direct SQL UPDATE call and bypasses all validations, callbacks, etc...
+  def update_availability(policy_id, old_value)
+    classes = ['bibl', 'component', 'master_file', 'unit']
+    classes.each {|class_name|
+      class_name.classify.constantize.where(:availability => old_value).update_all(:availability_policy_id => policy_id, :availability => nil)
+    }
   end
 end
