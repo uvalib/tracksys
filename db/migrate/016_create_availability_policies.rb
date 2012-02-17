@@ -7,19 +7,18 @@ class CreateAvailabilityPolicies < ActiveRecord::Migration
       t.integer :components_count, :default => 0
       t.integer :master_files_count, :default => 0
       t.integer :units_count, :default => 0
-
       t.timestamps
     end
 
-    add_index :bibls, :availability_policy_id
-    add_index :components, :availability_policy_id
-    add_index :master_files, :availability_policy_id
-    add_index :units, :availability_policy_id
+    # add_index :bibls, :availability_policy_id
+    # add_index :components, :availability_policy_id
+    # add_index :master_files, :availability_policy_id
+    # add_index :units, :availability_policy_id
 
-    add_foreign_key :bibls, :availability_policies
-    add_foreign_key :components, :availability_policies
-    add_foreign_key :units, :availability_policies
-    add_foreign_key :master_files, :availability_policies
+    # add_foreign_key :bibls, :availability_policies
+    # add_foreign_key :components, :availability_policies
+    # add_foreign_key :units, :availability_policies
+    # add_foreign_key :master_files, :availability_policies
 
     # In previous iteration of Tracksys, availabilities were chosen from an
     # enumerated list available in lib/digital_library_availabilities.rb.  In an
@@ -38,29 +37,25 @@ class CreateAvailabilityPolicies < ActiveRecord::Migration
     # * MasterFiles
     # * Units
 
+    say "Reassign old and new availability information."
     Hash[
       "Public" => "http://text.lib.virginia.edu/policy/permit-to-all.xml",
       "VIVA only" => "http://text.lib.virginia.edu/policy/permit-to-viva-only.xml",
       "UVA only" => "http://text.lib.virginia.edu/policy/permit-to-uva-only.xml",
       "Restricted" => "http://text.lib.virginia.edu/policy/deny-to-all.xml"  
-    ].each {|polciy, url|
+    ].each {|policy, url|
       policy_object = AvailabilityPolicy.create!(:name => "#{policy}", :xacml_policy_url => "#{url}")
-      update_availability(policy_object.id, key)
+      update_availability(policy_object.id, policy)
     }
 
-    # Step 3 - Remove unncessary columns
+    # Remove unncessary columns.
+    # Note: The following cannot be consolidated into their respective change_table methods because an
+    # object.availiability_policy_id must exist before the migration can occur.
     remove_column :bibls, :availability
     remove_column :components, :availability
     remove_column :master_files, :availability
     remove_column :units, :availability
 
-    say "Updating availability_policy.orders_count, availability_policy.units_count, availability_policy.components_counts and availability_policy.master_files_count"
-    AvailabilityPolicy.find(:all).each {|a|
-      AvailabilityPolicy.update_counters a.id, :orders_count => a.orders.count
-      AvailabilityPolicy.update_counters a.id, :units_count => a.units.count
-      AvailabilityPolicy.update_counters a.id, :components_count => a.components.count
-      AvailabilityPolicy.update_counters a.id, :master_files_count => a.master_files.count
-    }
   end
 
   # Migrate legacy availability string and turn it into a new legacy object of the same meaning.

@@ -1,72 +1,106 @@
 class UpgradeDatabase < ActiveRecord::Migration
   def change
-    remove_foreign_key :bibls, :name => "bibls_ibfk_2"
-    remove_foreign_key :bibls, :name => "bibls_ibfk_1"
+    change_table(:bibls, :bulk => true) do |t|
+      t.remove_foreign_key :name => 'bibls_ibfk_2'
+      t.remove_foreign_key :name => 'bibls_ibfk_1'
+    end
 
-    remove_foreign_key :bibls_legacy_identifiers, :name => "bibls_legacy_identifiers_ibfk_1"
-    remove_foreign_key :bibls_legacy_identifiers, :name => "bibls_legacy_identifiers_ibfk_2"
+    change_table(:bibls_legacy_identifiers, :bulk => true) do |t|
+      t.remove_foreign_key :name => "bibls_legacy_identifiers_ibfk_1"
+      t.remove_foreign_key :name => "bibls_legacy_identifiers_ibfk_2"
+    end
 
-    remove_foreign_key :billing_addresses, :name => "billing_addresses_ibfk_1"
-    remove_foreign_key :billing_addresses, :name => "billing_addresses_ibfk_2"
+    change_table(:billing_addresses, :bulk => true) do |t|
+      t.remove_foreign_key :name => "billing_addresses_ibfk_1"
+      t.remove_foreign_key :name => "billing_addresses_ibfk_2"
+    end
 
-    remove_foreign_key :checkins, :name => "checkins_ibfk_1"
-    remove_foreign_key :checkins, :name => "checkins_ibfk_2"
+    change_table(:checkins, :bulk => true) do |t|
+      t.remove_foreign_key :name => "checkins_ibfk_1"
+      t.remove_foreign_key :name => "checkins_ibfk_2"
+    end
 
-    remove_foreign_key :components, :name => "components_ibfk_3"
-    remove_foreign_key :components, :name => "components_ibfk_1"
-    remove_foreign_key :components, :name => "components_ibfk_2"
+    change_table(:components, :bulk => true) do |t|
+      t.remove_foreign_key :name => "components_ibfk_3"
+      t.remove_foreign_key :name => "components_ibfk_1"
+      t.remove_foreign_key :name => "components_ibfk_2"
+    end
 
-    remove_foreign_key :customers, :name => "customers_ibfk_1"
-    remove_foreign_key :customers, :name => "customers_ibfk_2"
-    remove_foreign_key :customers, :name => "customers_ibfk_3"
+    change_table(:customers, :bulk => true) do |t|
+      remove_foreign_key :customers, :name => "customers_ibfk_1"
+      remove_foreign_key :customers, :name => "customers_ibfk_2"
+      remove_foreign_key :customers, :name => "customers_ibfk_3"
+    end
 
-    remove_foreign_key :deliverables, :name => "deliverables_ibfk_1"
-    remove_foreign_key :deliverables, :name => "deliverables_ibfk_2"
+    change_table(:deliverables, :bulk => true) do |t|
+      t.remove_foreign_key :name => "deliverables_ibfk_1"
+      t.remove_foreign_key :name => "deliverables_ibfk_2"
+    end
 
-    remove_foreign_key :delivery_methods_orders, :name => "delivery_methods_orders_ibfk_1"
-    remove_foreign_key :delivery_methods_orders, :name => "delivery_methods_orders_ibfk_2"
+    change_table(:delivery_methods_orders, :bulk => true) do |t|
+      t.remove_foreign_key :name => "delivery_methods_orders_ibfk_1"
+      t.remove_foreign_key :name => "delivery_methods_orders_ibfk_2"
+    end
 
-    remove_foreign_key :ead_refs_master_files, :name => "ead_refs_master_files_ibfk_1"
-    remove_foreign_key :ead_refs_master_files, :name => "ead_refs_master_files_ibfk_2"
+    change_table(:ead_refs_master_files, :bulk => true) do |t|
+      t.remove_foreign_key :name => "ead_refs_master_files_ibfk_1"
+      t.remove_foreign_key :name => "ead_refs_master_files_ibfk_2"
+    end
 
-    remove_foreign_key :image_tech_meta, :name => "image_tech_meta_ibfk_1"
+    change_table(:image_tech_meta, :bulk => true) do |t|
+      t.remove_foreign_key :name => "image_tech_meta_ibfk_1"
+    end
 
-    remove_foreign_key :invoices, :name => "invoices_ibfk_1"
+    change_table(:invoices, :bulk => true) do |t|
+      t.remove_foreign_key :name => "invoices_ibfk_1"
+    end
 
-    remove_foreign_key :legacy_identifiers_master_files, :name => "legacy_identifiers_master_files_ibfk_1"
-    remove_foreign_key :legacy_identifiers_master_files, :name => "legacy_identifiers_master_files_ibfk_2"
+    change_table(:legacy_identifiers_master_files, :bulk => true) do |t|
+      t.remove_foreign_key :name => "legacy_identifiers_master_files_ibfk_1"
+      t.remove_foreign_key :name => "legacy_identifiers_master_files_ibfk_2"
+    end
 
-    remove_foreign_key :master_files, :name => "master_files_ibfk_3"
-    remove_foreign_key :master_files, :name => "master_files_ibfk_1"
-    remove_foreign_key :master_files, :name => "master_files_ibfk_2"
+    change_table(:master_files, :bulk => true) do |t|
+      t.remove_foreign_key :name => 'master_files_ibfk_3'
+      t.remove_foreign_key :name => 'master_files_ibfk_2'
+      t.remove_foreign_key :name => 'master_files_ibfk_1'
+    end
 
-    remove_foreign_key :orders, :name => "orders_ibfk_1"
-    remove_foreign_key :orders, :name => "orders_ibfk_2"
-    remove_foreign_key :orders, :name => "orders_ibfk_3"
+    change_table(:orders, :bulk => true) do |t|
+      t.remove_foreign_key :name => 'orders_ibfk_1'
+      t.remove_foreign_key :name => 'orders_ibfk_2'
+      t.remove_foreign_key :name => 'orders_ibfk_3'
+    end
 
-    remove_foreign_key :staff_members, :name => "staff_members_ibfk_1"
+    change_table(:staff_members, :bulk => true) do |t|
+      t.remove_foreign_key :name => "staff_members_ibfk_1"
+    end
 
-    remove_foreign_key :unit_import_sources, :name => "unit_import_sources_ibfk_1"
+    change_table(:unit_import_sources, :bulk => true) do |t|
+      t.remove_foreign_key :name => "unit_import_sources_ibfk_1"
+    end
 
-    remove_foreign_key :units, :name => "units_ibfk_1"
-    remove_foreign_key :units, :name => "units_ibfk_2"
-    remove_foreign_key :units, :name => "units_ibfk_3"
-    remove_foreign_key :units, :name => "units_ibfk_4"
-    remove_foreign_key :units, :name => "units_ibfk_5"
-    remove_foreign_key :units, :name => "units_ibfk_6"
-    remove_foreign_key :units, :name => "units_ibfk_7"
-    remove_foreign_key :units, :name => "units_ibfk_8"
-    remove_foreign_key :units, :name => "units_ibfk_9"
+    change_table(:units, :bulk => true) do |t|
+      t.remove_foreign_key :name => "units_ibfk_1"
+      t.remove_foreign_key :name => "units_ibfk_2"
+      t.remove_foreign_key :name => "units_ibfk_3"
+      t.remove_foreign_key :name => "units_ibfk_4"
+      t.remove_foreign_key :name => "units_ibfk_5"
+      t.remove_foreign_key :name => "units_ibfk_6"
+      t.remove_foreign_key :name => "units_ibfk_7"
+      t.remove_foreign_key :name => "units_ibfk_8"
+      t.remove_foreign_key :name => "units_ibfk_9"
+    end
 
     drop_table :datastreams
-   	drop_table :deliverables
     drop_table :deliverables_delivery_methods
+   	drop_table :deliverables
     drop_table :delivery_methods_units
    	drop_table :image_specs
    	drop_table :tasks
     drop_table :text_tech_meta
+    drop_table :vendor_batches
    	drop_table :vendors
-   	drop_table :vendor_batches
    	drop_table :workstations
 
     # Potentiall removable drop_table macros

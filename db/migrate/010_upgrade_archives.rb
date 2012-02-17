@@ -1,9 +1,8 @@
 class UpgradeArchives < ActiveRecord::Migration
   def change
-    add_column :archives, :description, :string
-    add_column :archives, :units_count, :integer, :default => 0
-    Archive.find(:all).each {|a|
-      Archive.update_counters a.id, :units_count => a.units.count
-    }
+    change_table(:archives, :bulk => true) do |t|
+      t.string :description
+      t.integer :units_count, :default => 0
+    end
   end
 end

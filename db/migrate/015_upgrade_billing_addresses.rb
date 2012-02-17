@@ -1,6 +1,8 @@
 class UpgradeBillingAddresses < ActiveRecord::Migration
   def change
-    add_foreign_key :billing_addresses, :agencies
-    add_foreign_key :billing_addresses, :customers
+    change_table(:billing_addresses, :bulk => true) do |t|
+      t.foreign_key :agencies
+      t.foreign_key :customers
+    end
   end
 end

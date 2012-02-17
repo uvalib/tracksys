@@ -1,7 +1,7 @@
 class UpgradeHeardAboutServices < ActiveRecord::Migration
-
   def change
-    add_column :heard_about_services, :customers_count, :integer, :default => 0
+    change_table(:heard_about_services, :bulk => true) do |t|
+      t.integer :customers_count, :default => 0
+    end
   end
-  
 end

@@ -1,6 +1,9 @@
 class UpgradeInvoices < ActiveRecord::Migration
   def change
-    rename_index :invoices, 'order_id', 'index_invoices_on_order_id'
-    add_foreign_key :invoices, :orders
+    change_table(:invoices, :bulk => true) do |t|
+      t.remove_index :name => 'order_id'
+      t.index :order_id
+      t.foreign_key :orders
+    end
   end
 end

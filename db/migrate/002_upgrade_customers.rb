@@ -1,22 +1,17 @@
 class UpgradeCustomers < ActiveRecord::Migration
   def change
-    remove_index :customers, :column => :uva_status_id
-
-    rename_column :customers, :uva_status_id, :academic_status_id
-    
-    add_index :customers, :academic_status_id
-    rename_index :customers, 'department_id', 'index_customers_on_department_id'
-    rename_index :customers, 'heard_about_service_id', 'index_customers_on_heard_about_service_id'
-
-    add_column :customers, :orders_count, :integer, :default => 0
-    
-    say "Updating customer.orders_count, customer.units_count and customer.master_files_count"
-    Customer.find(:all).each {|c|
-      Customer.update_counters c.id, :orders_count => c.orders.count
-    }
-
-    add_foreign_key :customers, :academic_statuses
-    add_foreign_key :customers, :departments
-    add_foreign_key :customers, :heard_about_services
+    change_table(:customers, :bulk => true) do |t|
+      t.remove_index :uva_status_id
+      t.rename :uva_status_id, :academic_status_id
+      t.index :academic_status_id
+      t.remove_index :name => 'department_id'
+      t.remove_index :name => 'heard_about_service_id'
+      t.index :department_id
+      t.index :heard_about_service_id
+      t.column :orders_count, :integer, :default => 0
+      t.foreign_key :academic_statuses
+      t.foreign_key :departments
+      t.foreign_key :heard_about_services
+    end
   end
 end
