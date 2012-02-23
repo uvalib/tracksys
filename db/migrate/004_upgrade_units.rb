@@ -28,7 +28,7 @@ class UpgradeUnits < ActiveRecord::Migration
       t.index :heard_about_resource_id
       t.index :date_dl_deliverables_ready
       t.index :availability_policy_id
-      # t.foreign_key :availability_policies
+      t.foreign_key :availability_policies
       t.foreign_key :archives
       t.foreign_key :bibls
       t.foreign_key :heard_about_resources

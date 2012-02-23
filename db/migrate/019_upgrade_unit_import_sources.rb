@@ -7,7 +7,7 @@ class UpgradeUnitImportSources < ActiveRecord::Migration
       t.remove :import_format_basis
       t.remove_index :name => 'unit_id'
       t.index :unit_id
-      t.index :units
+      t.foreign_key :units
     end
   end
 end

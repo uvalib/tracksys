@@ -5,17 +5,17 @@ class UpdateCounters < ActiveRecord::Migration
       Customer.update_counters c.id, :orders_count => c.orders.count
     }
 
-    say "Updating unit.master_files_count and unit.automation_messages_count"
-    Unit.find(:all).each {|u|
-      Unit.update_counters u.id, :master_files_count => u.master_files.count
-      Unit.update_counters u.id, :automation_messages_count => u.automation_messages.count
-    }
-
     say "Updating order.units_count, order.invoices_count, and order.automation_messages_count"
     Order.find(:all).each {|o|
       Order.update_counters o.id, :units_count => o.units.count
       Order.update_counters o.id, :automation_messages_count => o.automation_messages.count
       Order.update_counters o.id, :invoices_count => o.invoices.count
+    }
+
+    say "Updating unit.master_files_count and unit.automation_messages_count"
+    Unit.find(:all).each {|u|
+      Unit.update_counters u.id, :master_files_count => u.master_files.count
+      Unit.update_counters u.id, :automation_messages_count => u.automation_messages.count
     }
 
     say "Updating bibl.units_count, bibl.master_files_count, bibl.orders_count and bibl.automation_messages_count"

@@ -21,7 +21,7 @@ class UpgradeBibls < ActiveRecord::Migration
       t.index :indexing_scenario_id
       t.index :availability_policy_id
       t.foreign_key :indexing_scenarios
-      # t.foreign_key :availability_policies
+      t.foreign_key :availability_policies
     end
  end
 end

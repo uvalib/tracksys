@@ -1,6 +1,6 @@
 class UpgradeImageTechMeta < ActiveRecord::Migration
   def change
-    change_table (:image_tech_meta, :bulk => true) do |t|
+    change_table(:image_tech_meta, :bulk => true) do |t|
       t.change :aperture, :string
       t.change :color_profile, :string
       t.change :equipment, :string
