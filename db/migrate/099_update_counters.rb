@@ -86,5 +86,10 @@ class UpdateCounters < ActiveRecord::Migration
       IndexingScenario.update_counters i.id, :components_count => i.components.count
       IndexingScenario.update_counters i.id, :master_files_count => i.master_files.count
     }
+
+    say "Updating component.master_files_count"
+    Component.find(:all).each {|c|
+      Component.update_counters c.id, :master_files_count => c.master_files.count
+    }
   end
 end
