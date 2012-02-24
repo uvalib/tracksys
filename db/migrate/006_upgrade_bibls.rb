@@ -7,6 +7,7 @@ class UpgradeBibls < ActiveRecord::Migration
       t.integer :units_count, :default => 0
       t.integer :master_files_count, :default => 0
       t.integer :availability_policy_id
+      t.integer :use_right_id
       t.rename :catalog_id, :catalog_key
       t.change :exemplar, :string
       t.change :description, :string
@@ -20,8 +21,10 @@ class UpgradeBibls < ActiveRecord::Migration
       t.remove_index :name => 'indexing_scenario_id'
       t.index :indexing_scenario_id
       t.index :availability_policy_id
+      t.index :use_right_id
       t.foreign_key :indexing_scenarios
       t.foreign_key :availability_policies
+      t.foreign_key :use_rights
     end
  end
 end
