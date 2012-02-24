@@ -16,7 +16,7 @@ class MasterFile
       end
     }
 
-    return "#{TRACKSYS_URL}metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
+    return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
   end
 
   # alias_attributes as CYA for legacy migration.  
