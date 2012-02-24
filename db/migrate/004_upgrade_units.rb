@@ -15,7 +15,7 @@ class UpgradeUnits < ActiveRecord::Migration
       t.integer :availability_policy_id
       t.integer :master_files_count, :default => 0
       t.integer :automation_messages_count, :default => 0
-      t.boolean :master_file_discoverability, :null => false, :default => 0
+      t.rename :discoverability, :master_file_discoverability
       t.change :bibl_id, :integer
       t.rename :url, :patron_source_url
       t.remove_index :name => 'archive_id'
