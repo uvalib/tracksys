@@ -119,5 +119,54 @@ class UpgradeDatabase < ActiveRecord::Migration
     # Transition uva_status to academic_status
     remove_index :uva_statuses, :name => "index_uva_statuses_on_name"
    	rename_table :uva_statuses, :academic_statuses
+
+
+
+
+    #TODO: Remove this after ms3uf changes Tracksys2 DB
+    change_table(:components, :bulk => true) do |t|
+      t.remove :seq_number
+      t.remove :barcode
+      t.remove :idno
+    end
+
+    create_table :containers do |t|
+      t.string :barcode
+      t.string :container_type
+      t.string :label
+      t.integer :parent_container_id, :default => 0, :null => false
+      t.string :sequence_no
+    end
+
+    add_index :containers, :parent_container_id
+
+    create_table :components_containers do |t|
+      t.integer :component_id
+      t.integer :container_id
+    end
+
+    add_index :components_containers, :component_id
+    add_index :components_containers, :container_id
+    add_foreign_key :components_containers, :components
+    add_foreign_key :components_containers, :containers
+
+    create_table :bibls_components do |t|
+      t.integer :bibl_id
+      t.integer :component_id
+    end
+
+    add_index :bibls_components, :bibl_id
+    add_index :bibls_components, :component_id
+    add_foreign_key :bibls_components, :bibls
+    add_foreign_key :bibls_components, :components
+
+    create_table :container_types do |t|
+      t.string :name
+      t.string :description
+    end
+
+    add_index :containers, :name, :unique => true
+    add_foreign_key :containers, :container_types
+
   end
 end
