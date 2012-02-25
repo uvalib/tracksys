@@ -5,7 +5,9 @@ class UpgradeComponents < ActiveRecord::Migration
       t.datetime :date_ingested_into_dl
       t.integer :use_right_id
       t.integer :master_files_count, :default => 0, :null => false
-      t.remove_index :name => 'bibl_id'
+      t.remove :bibl_id
+      t.remove :label
+      t.string :exemplar
       t.remove_index :name => 'component_type_id'
       t.remove_index :name => 'indexing_scenario_id'
       t.index :component_type_id
@@ -17,5 +19,8 @@ class UpgradeComponents < ActiveRecord::Migration
       t.foreign_key :availability_policies
       t.foreign_key :use_rights
     end
+
+    # For some reason this won't work in the above change_table method
+    change_column_default :components, :discoverability, 1
   end
 end
