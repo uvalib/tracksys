@@ -132,7 +132,7 @@ class UpgradeDatabase < ActiveRecord::Migration
 
     create_table :containers do |t|
       t.string :barcode
-      t.string :container_type
+      t.integer :container_type_id
       t.string :label
       t.integer :parent_container_id, :default => 0, :null => false
       t.string :sequence_no
@@ -165,7 +165,7 @@ class UpgradeDatabase < ActiveRecord::Migration
       t.string :description
     end
 
-    add_index :containers, :name, :unique => true
+    add_index :container_types, :name, :unique => true
     add_foreign_key :containers, :container_types
 
   end
