@@ -4,6 +4,7 @@ class UpgradeOrders < ActiveRecord::Migration
       t.integer :units_count, :default => 0
       t.integer :automation_messages_count, :default => 0
       t.integer :invoices_count, :default => 0
+      t.integer :master_files_count, :default => 0
       t.change :date_due, :date
       t.remove_index :name => 'dvd_delivery_location_id'
       t.index :dvd_delivery_location_id
