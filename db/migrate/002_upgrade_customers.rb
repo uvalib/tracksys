@@ -1,6 +1,7 @@
 class UpgradeCustomers < ActiveRecord::Migration
   def change
     change_table(:customers, :bulk => true) do |t|
+      t.integer :master_files_count, :default => 0
       t.remove_index :uva_status_id
       t.rename :uva_status_id, :academic_status_id
       t.index :academic_status_id
