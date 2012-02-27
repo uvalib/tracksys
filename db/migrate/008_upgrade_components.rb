@@ -5,6 +5,7 @@ class UpgradeComponents < ActiveRecord::Migration
       t.datetime :date_ingested_into_dl
       t.integer :use_right_id
       t.integer :master_files_count, :default => 0, :null => false
+      t.integer :automation_messages_count, :default => 0, :null => false
       t.remove :bibl_id
       t.remove :label
       t.string :exemplar
