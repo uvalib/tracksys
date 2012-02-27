@@ -21,8 +21,6 @@
   background-color: rgb(223,225,226);
 }
 
-
-
 /* Override active_admin.css
 default styling */
 
@@ -35,4 +33,8 @@ form input[type="text"], form input[type="password"],
 form input[type="email"], form input[type="url"], 
 form input[type="tel"], form textarea {
   width: 60%;
+}
+
+form fieldset > ol > li fieldset ol {
+  padding: 0 0 0 30%;
 }
