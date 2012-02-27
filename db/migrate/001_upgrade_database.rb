@@ -168,5 +168,16 @@ class UpgradeDatabase < ActiveRecord::Migration
     add_index :container_types, :name, :unique => true
     add_foreign_key :containers, :container_types
 
+    create_table :components_legacy_identifiers do |t|
+      t.integer :component_id
+      t.integer :legacy_identifier_id
+    end
+
+    add_index :components_legacy_identifiers, :component_id
+    add_index :components_legacy_identifiers, :legacy_identifier_id
+
+    add_foreign_key :components_legacy_identifiers, :components
+    add_foreign_key :components_legacy_identifiers, :legacy_identifiers
+
   end
 end
