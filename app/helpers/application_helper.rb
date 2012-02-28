@@ -4,7 +4,7 @@ module ApplicationHelper
 
   def format_date(date)
     begin
-      return date.strftime("%B %d, %Y")
+      return date.strftime("%m-%d-%Y")
     rescue Exception => e
       return nil
     end
