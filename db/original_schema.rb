@@ -65,6 +65,11 @@ ActiveRecord::Schema.define(:version => 0) do
 
   create_table "automation_messages", :force => true do |t|
     t.integer  "unit_id"
+    t.integer  "order_id"
+    t.integer  "master_file_id"
+    t.integer  "bibl_id"
+    t.integer  "component_id"
+    t.boolean  "active_error",   :default => false
     t.string   "pid"
     t.string   "app"
     t.string   "processor"
@@ -73,13 +78,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "class_name"
     t.text     "backtrace"
     t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "order_id"
-    t.integer  "master_file_id"
-    t.integer  "bibl_id"
+    t.datetime "updated_at"    
     t.integer  "ead_ref_id"
-    t.integer  "component_id"
-    t.boolean  "active_error",   :default => false
   end
 
   add_index "automation_messages", ["unit_id"], :name => "index_automation_messages_on_unit_id"
@@ -93,14 +93,18 @@ ActiveRecord::Schema.define(:version => 0) do
   add_index "automation_messages", ["ead_ref_id"], :name => "index_automation_messages_on_ead_ref_id"
 
   create_table "bibls", :force => true do |t|
+    t.integer  "indexing_scenario_id"
+    t.integer  "parent_bibl_id",                             :default => 0,     :null => false
+    t.datetime "date_external_update"
+    t.text     "description"
     t.boolean  "is_approved",                                :default => false, :null => false
+    t.boolean  "is_collection",                              :default => false, :null => false
+    t.boolean  "is_in_catalog",                              :default => false, :null => false
+    t.boolean  "is_manuscript",                              :default => false, :null => false
     t.boolean  "is_personal_item",                           :default => false, :null => false
     t.string   "resource_type"
     t.string   "genre"
-    t.boolean  "is_manuscript",                              :default => false, :null => false
-    t.boolean  "is_collection",                              :default => false, :null => false
     t.string   "title"
-    t.text     "description"
     t.string   "series_title"
     t.string   "creator_name"
     t.string   "creator_name_type"
@@ -113,15 +117,12 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "location"
     t.string   "year"
     t.string   "year_type"
-    t.datetime "date_external_update"
     t.string   "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_in_catalog",                              :default => false, :null => false
     t.string   "issue"
     t.text     "citation"
     t.text     "exemplar"
-    t.integer  "parent_bibl_id",                             :default => 0,     :null => false
     t.text     "desc_metadata"
     t.text     "rels_ext"
     t.text     "solr",                 :limit => 2147483647
@@ -130,23 +131,22 @@ ActiveRecord::Schema.define(:version => 0) do
     t.text     "rels_int"
     t.integer  "content_model_id"
     t.boolean  "discoverability",                            :default => true
-    t.integer  "indexing_scenario_id"
   end
 
   add_index "bibls", ["content_model_id"], :name => "content_model_id"
   add_index "bibls", ["indexing_scenario_id"], :name => "indexing_scenario_id"
 
   create_table "bibls_legacy_identifiers", :id => false, :force => true do |t|
-    t.integer "legacy_identifier_id"
     t.integer "bibl_id"
+    t.integer "legacy_identifier_id"
   end
 
   add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], :name => "legacy_identifier_id"
   add_index "bibls_legacy_identifiers", ["bibl_id"], :name => "bibl_id"
 
   create_table "billing_addresses", :force => true do |t|
-    t.integer  "customer_id"
     t.integer  "agency_id"
+    t.integer  "customer_id"
     t.string   "last_name"
     t.string   "first_name"
     t.string   "address_1"
