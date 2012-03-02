@@ -11,7 +11,7 @@ ActiveAdmin.register AutomationMessage do
 
   filter :active_error, :as => :select
   filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES
-  filter :processor, :as => :select, :collection => AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor)
+  filter :processor, :as => :select, :collection => proc { AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor) }
   filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES
   filter :bibl_id, :as => :numeric
   filter :component_id, :as => :numeric
