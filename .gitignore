@@ -6,3 +6,5 @@ tmp/
 .sass-cache/
 public/admin
 public/assets
+
+tracksys.sublime-workspace
