@@ -7,7 +7,6 @@ gem 'execjs'
 gem 'therubyracer'
 
 gem 'hydraulics', :path => '../hydraulics'
-#gem 'hydraulics', :git => 'git://github.com/acurley/hydraulics.git'
 gem 'activeadmin', :git => 'git://github.com/gregbell/active_admin.git'
 gem 'sass-rails'
 gem 'meta_search',    '>= 1.1.0.pre'
