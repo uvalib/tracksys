@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.1'
+gem 'rails', '3.2.2'
 
 # Needed to resolve incompatability with Fedora 12+
 gem 'execjs'
