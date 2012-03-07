@@ -2,12 +2,14 @@ ActiveAdmin.register Bibl, :namespace => :patron do
 
   scope :all, :default => true
 
+  filter :title
+
   index do
     column :id
     column :title
     column :call_number
     column :barcode
-    column :catalog_id   
+    column :catalog_key   
     column :master_files_count
     column "Actions" do |bibl|
       link_to "Master Files", "master_files?q%5Bbibl_id_eq%5D=#{bibl.id}&order=filename_asc"
@@ -34,5 +36,9 @@ ActiveAdmin.register Bibl, :namespace => :patron do
         end
       end
     end
+  end
+
+  controller do
+    
   end
 end
