@@ -35,6 +35,19 @@ ActiveAdmin::Dashboards.build do
   #
   # Will render the "Recent Users" then the "Recent Posts" sections on the dashboard.
 
+  section "Requests Awaiting Approval", :namespace => :patron, :priority => 1 do
+    table_for Order.awaiting_approval do
+      column :id do |order|
+        link_to order.id, patron_order_path(order)
+      end
+      column (:date_due) {|order| format_date(order.date_due)}
+      column :agency
+      column "Name" do |order|
+        link_to order.customer_full_name, patron_customer_path(order.customer)
+      end
+    end
+  end
+
   section "Deferred Requets", :namespace => :patron do
     table_for Order.deferred do
       column :id do |order|
@@ -49,16 +62,17 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  section "Requests Awaiting Approval", :namespace => :patron, :priority => 1 do
-    table_for Order.awaiting_approval do
-      column :id do |order|
-        link_to order.id, patron_order_path(order)
-      end
-      column (:date_due) {|order| format_date(order.date_due)}
-      column :agency
-      column "Name" do |order|
-        link_to order.customer_full_name, patron_customer_path(order.customer)
-      end
-    end
+  section "Materials Currently in Digitization Services", :namespace => :patron do
   end
+
+  section "Unreturned Material", :namespace => :patron do
+  end
+
+  section "Units Awaiting Condition Review", :namespace => :patron do
+  end
+
+  section "Units Awaiting Copyright/IP Review", :namespace => :patron do
+  end
+
+  
 end
