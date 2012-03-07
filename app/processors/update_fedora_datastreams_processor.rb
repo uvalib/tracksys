@@ -69,7 +69,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           instance_variable_set("@#{mf.class.to_s.underscore}_id", '')
         }
 
-        # TODO: Put in update procedures for component and ead_refs
+        # TODO: Put in update procedures for component
 
         instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
         on_success "All objects related to #{@object.class.to_s} #{@object_id} are being updated."
@@ -143,7 +143,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           instance_variable_set("@#{mf.class.to_s.underscore}_id", '')
         }
         
-        # TODO: Put in update procedures for component and ead_refs
+        # TODO: Put in update procedures for component
       else
         on_error "Datastream variable #{@datastream} is unknown."
       end
