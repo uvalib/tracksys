@@ -14,11 +14,39 @@
 .columns-none {
   clear: both;
   float: left;
-  width: 50%;
+  width: 100%;
 }
 
-[disabled] {
+form input[disabled="disabled"] {
+    color: #777777;
+    cursor: default;
+    opacity: 0.6;
+}
+form input[disabled="disabled"]:hover {
+    color: #777777;
+}
+form input[disable="disabled"]:active {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px white inset;
+}
+
+.index_links {
+  text-align: right;
+}
+
+.master_file_thumbnail_show {
+  text-align :center;
+}
+
+/*form input[type="submit"], form input[disabled="disabled"] {
+  background-color: #ffffff;
+}*/
+
+/*[disabled] input {
   background-color: rgb(223,225,226);
+}*/
+
+.workflow_button {
+  margin-bottom: 1em;
 }
 
 /* Override active_admin.css
@@ -37,4 +65,9 @@ form input[type="tel"], form textarea {
 
 form fieldset > ol > li fieldset ol {
   padding: 0 0 0 30%;
+}
+
+/* sidebar */
+.attributes_table table td {
+  padding-left: 6px;
 }
