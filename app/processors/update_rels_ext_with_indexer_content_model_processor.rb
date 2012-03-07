@@ -25,6 +25,7 @@ class UpdateRelsExtWithIndexerContentModelProcessor < ApplicationProcessor
     @working_unit.bibls.each {|bibl| things << bibl }
     @working_unit.master_files.each {|mf| things << mf }
     @working_unit.components.each {|component| things << component }
+    @working_unit.ead_refs.each {|ead_ref| things << ead_ref }
 
     # For each ingestable thing related to a unit, update the RELS-EXT to include the indexer content model.
     # Then read the RELS-EXT from the repo and replace thing.rels_ext
