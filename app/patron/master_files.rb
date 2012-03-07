@@ -8,7 +8,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   filter :bibl_title, :as => :string, :label => "Bibl Title"
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_barcode, :as => :string, :label => "Barcode"
-  filter :bibl_catalog_id, :as => :string, :label => "Catalog Key"
+  filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
   filter :bibl_id, :as => :numeric, :label => "Bibl"
   filter :unit_id, :as => :numeric, :label => "Unit"
   filter :order_id, :as => :numeric, :label => "Order"
@@ -44,7 +44,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
                   button_to "View", patron_master_file_path(master_file), :method => 'get'
                 end
                 td do
-                  button_to "Download", copy_patron_master_file_path(master_file), :method => 'get'
+                  button_to "Download", copy_from_archive_patron_master_file_path(master_file), :method => 'get'
                 end
               end
             end
@@ -58,21 +58,20 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
     image_tag("#{master_file.link_to_thumbnail}", :height => "350", :alt => "#{master_file.title}")
   end
 
-  # TODO: Change computing_id to something beyond 'aec6v'
-  member_action :copy do
-    master_file = MasterFile.find(params[:id])
-    message = ActiveSupport::JSON.encode( { :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
-    publish :copy_archived_files_to_production, message
-    flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-    redirect_to :back
-  end
-
+  member_action :copy_from_archive
 
   controller do
     require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
 
     publishes_to :copy_archived_files_to_production
-    publishes_to :update_fedora_datastreams
+
+    def copy_from_archive
+      master_file = MasterFile.find(params[:id])
+      message = ActiveSupport::JSON.encode( { :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
+      publish :copy_archived_files_to_production, message
+      flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+      redirect_to :back
+    end
   end
 end
