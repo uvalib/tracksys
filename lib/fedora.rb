@@ -8,13 +8,7 @@ module Fedora
   # Set up REST client
   @resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
 
-  def self.create_or_update_object(thing, label)
-    # TODO: When creating an object, Fedora generates the Dublin Core
-    # datastream automatically (using the object label as the DC title). When
-    # updating an existing object, Fedora updates the object label but does
-    # NOT update the Dublin Core datastream. If we want that datastream
-    # updated, we'll have to do so ourselves.
-    
+  def self.create_or_update_object(thing, label)    
     if thing.exists_in_repo?
       # update object (using Fedora API modifyObject, which uses HTTP PUT)
       http_verb = :put
