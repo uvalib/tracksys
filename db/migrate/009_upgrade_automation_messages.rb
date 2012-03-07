@@ -1,6 +1,9 @@
  class UpgradeAutomationMessages < ActiveRecord::Migration
   def change
     change_table(:automation_messages, :bulk => true) do |t|
+      t.integer :messagable_id, :null => false
+      t.integer :messagable_type, :null => false, :limit => 20
+
       t.string :workflow_type
       t.index :workflow_type
       t.change :active_error, :boolean, :null => false, :default => 0
