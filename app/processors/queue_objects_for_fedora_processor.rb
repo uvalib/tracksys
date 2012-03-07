@@ -35,7 +35,6 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
     @working_unit.master_files.each {|mf| things << mf }
     @working_unit.components.each {|component| things << component }
-    @working_unit.ead_refs.each {|ead_ref| things << ead_ref }
 
     things.each {|thing|
       # Dynamically name the variable for putting the appropriate id in the automation_message
