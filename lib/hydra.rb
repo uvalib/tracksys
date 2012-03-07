@@ -10,29 +10,15 @@ module Hydra
 
   XML_FILE_CREATION_STATEMENT = "Created programmatically by the Digital Curation Services Tracking System."
 
+  # Returns the URL for the MARCXML file, sourced from Virgo, to be used as an 
+  # external referenced dastastream named MARC
   def self.marc(object)
-    marcLocation = "http://search.lib.virginia.edu/catalog/#{object.catalog_id}.xml"
-    return marcLocation
+    return "http://search.lib.virginia.edu/catalog/#{object.catalog_id}.xml" 
   end
 
-  #-----------------------------------------------------------------------------
-
-  # Takes a MasterFile record and returns a string containing access-rights
-  # metadata, in the form of a MODS XML document.
+  # Returns the URL to be used for the POLICY and rightsMetadata datastream
   def self.access(object)
-    case object.availability.to_s
-    when 'Public', '' # default to public
-      dsLocation = "http://text.lib.virginia.edu/policy/permit-to-all.xml"
-    when 'VIVA only'
-      dsLocation = "http://text.lib.virginia.edu/policy/permit-to-viva-only.xml"
-    when 'UVA only'
-      dsLocation = "http://text.lib.virginia.edu/policy/permit-to-uva-only.xml"
-    when 'Restricted'
-      dsLocation = "http://text.lib.virginia.edu/policy/deny-to-all.xml"
-    else
-      raise "Unexpected value for Unit dsLocation: #{master_file.unit.availability}"
-    end
-    return dsLocation
+    return object.availability_policy.xacml_policy_url
   end
   
   #-----------------------------------------------------------------------------
@@ -43,6 +29,7 @@ module Hydra
  
   #-----------------------------------------------------------------------------
 
+  # Returns a Dublic Core XML file.  
   def self.dc(object)
     if object.is_a? Bibl and object.catalog_id
       # MARC XML -> DC
