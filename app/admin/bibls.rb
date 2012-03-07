@@ -8,7 +8,7 @@ ActiveAdmin.register Bibl do
   filter :title
   filter :call_number
   filter :creator_name
-  filter :catalog_id, :label => "Catalog Key"
+  filter :catalog_key
   filter :barcode
   filter :pid
 
@@ -17,7 +17,7 @@ ActiveAdmin.register Bibl do
   	column :title
   	column :creator_name
   	column :call_number
-  	column :catalog_id
+  	column :catalog_key
   	column :barcode
   	column :pid
     column("Units") {|bibl| bibl.units.size.to_s }
@@ -60,8 +60,35 @@ ActiveAdmin.register Bibl do
   end
 
   sidebar "Bibliographic Information", :only => :show do
-    attributes_table_for bibl, :title, :creator_name, :call_number, :catalog_id, :barcode, :pid
+    attributes_table_for bibl, :title, :creator_name, :call_number, :catalog_key, :barcode, :pid
   end
 
+  action_item :only => :show do
+    button_to "Update All XML Datastreams ", update_metadata_admin_bibl_url(bibl), :method => 'get'
+  end
 
+  # controller do
+  #   require 'activemessaging/processor'
+  #   include ActiveMessaging::MessageSender
+        
+  #   publishes_to :update_fedora_datastreams
+
+  #   def update_metadata
+  #     message = ActiveSupport::JSON.encode( { :object_class => params[:object_class], :object_id => params[:object_id], :datastream => params[:datastream] })
+  #     publish :update_fedora_datastreams, message
+  #     flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
+  #     redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
+  #   end
+  # end
+
+  # action_item :only => :show do
+  #   button_to "Update All XML Datastreams ", update_metadata_admin_bibl_path(bibl), :method => 'get'
+  # end
+
+  # member_action :update_metadata do
+  #   message = ActiveSupport::JSON.encode( { :object_class => params[:object_class], :object_id => params[:object_id], :datastream => params[:datastream] })
+  #   publish :update_fedora_datastreams, message
+  #   flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
+  #   redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
+  # end
 end
