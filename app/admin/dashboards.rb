@@ -35,11 +35,16 @@ ActiveAdmin::Dashboards.build do
   #
   # Will render the "Recent Users" then the "Recent Posts" sections on the dashboard.
 
-  section "Errors", :namespace => :admin do
+  # section "Orders Ready for Delivery", :namespace => :admin do
+  #   table_for 
+  # end
+
+  section "Error Notifications", :namespace => :admin do
     table_for AutomationMessage.has_active_error do
-      column :id
+      column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
       column :message_type
       column :active_error
+      column :message
     end
   end
 
