@@ -3,26 +3,33 @@ require 'carmen'
 ActiveAdmin.register Customer do
   menu :priority => 2
 
+  actions :all, :except => [:destroy]
+
   scope :all, :default => true
   
   filter :first_name
   filter :last_name
   filter :email
-  filter :heard_about_service
+  filter :academic_status
+  filter :orders_count
+  filter :master_files_count
 
   index do
-    default_actions
-    # TODO: Need to continue investigating how to multi-sort.  Want to sort by last_name and first_name
-    column("Name", :sortable => false) {|customer| customer.full_name}
+
+    column("Name", :sortable => false) do |customer| 
+      customer.full_name
+    end
     column :email, :sortable => false
     column("Requests") {|customer| customer.requests.size.to_s}
-    column("Orders") {|customer| customer.orders.size.to_s}
+    column("Orders") {|customer| customer.orders_count}
     column("Units") {|customer| customer.units.size.to_s }
     column("Bibliographic Records") {|customer| customer.bibls.size.to_s}
     column("Master Files") do |customer|
       link_to customer.master_files.size.to_s, "master_files?q%5Bcustomer_id_eq%5D=#{customer.id}&order=filename_asc"
+#      link_to customer.master_files.size.to_s, admin_master_files_path(customer.master_files)
     end
-    column :heard_about_service, :sortable => false
+    column :academic_status, :sortable => false
+    default_actions
   end
 
   form do |f|
@@ -47,7 +54,7 @@ ActiveAdmin.register Customer do
         collection = customer.orders.page(params[:order_page])
         pagination_options = {:entry_name => Order.model_name.human, :param_name => :order_page, :download_links => false}
         paginated_collection(collection, pagination_options) do
-          table_options = {:id => 'orders-table', :sortable => true, :class => "order_index_table", :i18n => Order }
+          table_options = {:id => 'orders-table', :sortable => true, :class => "order_index_table"}
           table_for collection, table_options do
             column :id do |order|
               link_to "#{order.id}", admin_order_path(order)
@@ -73,7 +80,9 @@ ActiveAdmin.register Customer do
             end
             column :agency, :sortable => false
             column :units_count, :sortable => false
-            column :master_files_count, :sortable => false
+            column :master_files_count do |order|
+              order.master_files.count
+            end
           end
         end
       end
@@ -112,7 +121,7 @@ ActiveAdmin.register Customer do
           table_for collection, table_options do
             column ("ID") {|bibl| link_to "#{bibl.id}", admin_bibl_path(bibl)}
             column :call_number
-            column ("Catalog ID") {|bibl| bibl.catalog_id.to_s}
+            column ("Catalog Key") {|bibl| bibl.catalog_key.to_s}
             column :barcode
             column :title
             column :creator_name
@@ -138,7 +147,7 @@ ActiveAdmin.register Customer do
       row :date_of_first_order do |customer|
         format_date(customer.date_of_first_order)
       end
-      row :heard_about_service
+      row :academic_status
    end
   end
   
