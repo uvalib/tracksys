@@ -1,6 +1,9 @@
 require "#{Hydraulics.models_dir}/master_file"
 
 class MasterFile
+
+  scope :index_scope, select(["`master_files`.id", :filename, :title, :description, "`master_files`.date_ingested_into_dl", "`master_files`.date_archived", "`master_files`.pid"])
+  
   def link_to_thumbnail
     #master_file = MasterFile.find(params[:id])
     thumbnail_name = self.filename.gsub(/tif/, 'jpg')
