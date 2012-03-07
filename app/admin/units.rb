@@ -42,7 +42,7 @@ ActiveAdmin.register Unit do
 
   show do
   	panel "Master Files" do
-  		table_for(unit.master_files) do
+  		table_for unit.master_files do
   			column ("ID") {|master_file| link_to "#{master_file.id}", admin_master_file_path(master_file) }
   			column :title
   			column :description
@@ -63,8 +63,16 @@ ActiveAdmin.register Unit do
     end
   end
 
+  sidebar "General Information", :only => [:show] do
+    attributes_table_for unit, :unit_status, :special_instructions, :staff_notes
+  end
+
   sidebar "Patron Information", :only => [:show] do
     attributes_table_for unit, :intended_use_id
+  end
+
+  sidebar "Digital Library Information", :only => [:show] do
+    attributes_table_for unit, :date_queued_for_ingest, :date_dl_deliverables_ready, :availability_policy_id, :indexing_scenario_id, :use_right_id
   end
   
 end
