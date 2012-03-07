@@ -11,7 +11,8 @@ class UpgradeMasterFiles < ActiveRecord::Migration
       t.integer :availability_policy_id
       t.integer :automation_messages_count, :default => 0
       t.integer :use_right_id
-      t.datetime :date_ingested_into_dl
+      t.datetime :date_dl_ingest
+      t.datetime :date_dl_update
       t.remove_index :name => 'component_id'
       t.remove_index :name => 'indexing_scenario_id'
       t.index :availability_policy_id
