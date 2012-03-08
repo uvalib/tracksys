@@ -120,8 +120,20 @@ class UpgradeDatabase < ActiveRecord::Migration
     remove_index :uva_statuses, :name => "index_uva_statuses_on_name"
    	rename_table :uva_statuses, :academic_statuses
 
-
-
+    # Create new polymorphic table for handling Addresses
+    create_table :addresses do |t|
+      t.string :last_name
+      t.string :first_name
+      t.string :address_1
+      t.string :address_2
+      t.string :city
+      t.string :state
+      t.string :country
+      t.string :post_code
+      t.string :phone
+      t.string :organization
+      t.timestamps
+    end
 
     #TODO: Remove this after ms3uf changes Tracksys2 DB
     change_table(:components, :bulk => true) do |t|

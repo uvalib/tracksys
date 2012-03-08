@@ -1,5 +1,15 @@
 class UpgradeCustomers < ActiveRecord::Migration
   def change
+
+    Customer.all.each {|c|
+      c.build_primary_address(:address_1 => c.address_1.to_s, :address_2 => c.address_2.to_s, :city => c.city.to_s, :state => c.state.to_s, :country => c.country, :post_code => c.post_code.to_s, :phone => c.phone.to_s, :organization => c.organization.to_s)
+
+      if c.billing_address
+        c.build_billing_address(:address_1 => c.billing_address.address_1.to_s, :address_2 => c.billing_address.address_2.to_s, :city => c.billing_address.city.to_s, :state => c.billing_address.state.to_s, :country => c.billing_address.country, :post_code => c.billing_address.post_code.to_s, :phone => c.billing_address.phone.to_s, :organization => c.billing_address.organization.to_s)
+      end
+      c.save!
+    } 
+
     change_table(:customers, :bulk => true) do |t|
       t.integer :master_files_count, :default => 0
       t.remove_index :uva_status_id
