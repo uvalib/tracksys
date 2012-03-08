@@ -37,6 +37,24 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "active_admin_comments", ["namespace"], :name => "index_active_admin_comments_on_namespace"
   add_index "active_admin_comments", ["resource_type", "resource_id"], :name => "index_admin_notes_on_resource_type_and_resource_id"
 
+  create_table "addresses", :force => true do |t|
+    t.integer  "addressable_id",                 :null => false
+    t.string   "addressable_type", :limit => 20, :null => false
+    t.string   "address_type",     :limit => 20, :null => false
+    t.string   "last_name"
+    t.string   "first_name"
+    t.string   "address_1"
+    t.string   "address_2"
+    t.string   "city"
+    t.string   "state"
+    t.string   "country"
+    t.string   "post_code"
+    t.string   "phone"
+    t.string   "organization"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
+  end
+
   create_table "admin_users", :force => true do |t|
     t.string   "email",                                 :default => "", :null => false
     t.string   "encrypted_password",     :limit => 128, :default => "", :null => false
@@ -61,13 +79,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.boolean  "is_billable",       :default => false, :null => false
     t.string   "last_name"
     t.string   "first_name"
-    t.string   "address_1"
-    t.string   "address_2"
-    t.string   "city"
-    t.string   "state"
-    t.string   "country"
-    t.string   "post_code"
-    t.string   "phone"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
@@ -90,11 +101,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
 
   create_table "automation_messages", :force => true do |t|
     t.integer  "unit_id"
-    t.integer  "order_id"
-    t.integer  "master_file_id"
-    t.integer  "bibl_id"
-    t.integer  "component_id"
-    t.boolean  "active_error",   :default => false, :null => false
     t.string   "pid"
     t.string   "app"
     t.string   "processor"
@@ -104,6 +110,13 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.text     "backtrace"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "order_id"
+    t.integer  "master_file_id"
+    t.integer  "bibl_id"
+    t.integer  "component_id"
+    t.boolean  "active_error",                  :default => false, :null => false
+    t.integer  "messagable_id",                                    :null => false
+    t.string   "messagable_type", :limit => 20,                    :null => false
     t.string   "workflow_type"
   end
 
@@ -129,18 +142,14 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   end
 
   create_table "bibls", :force => true do |t|
-    t.integer  "indexing_scenario_id"
-    t.integer  "parent_bibl_id",                                  :default => 0,     :null => false
-    t.datetime "date_external_update"
-    t.string   "description"
     t.boolean  "is_approved",                                     :default => false, :null => false
-    t.boolean  "is_collection",                                   :default => false, :null => false
-    t.boolean  "is_in_catalog",                                   :default => false, :null => false
-    t.boolean  "is_manuscript",                                   :default => false, :null => false
     t.boolean  "is_personal_item",                                :default => false, :null => false
     t.string   "resource_type"
     t.string   "genre"
+    t.boolean  "is_manuscript",                                   :default => false, :null => false
+    t.boolean  "is_collection",                                   :default => false, :null => false
     t.string   "title"
+    t.string   "description"
     t.string   "series_title"
     t.string   "creator_name"
     t.string   "creator_name_type"
@@ -153,18 +162,22 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.string   "location"
     t.string   "year"
     t.string   "year_type"
+    t.datetime "date_external_update"
     t.string   "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_in_catalog",                                   :default => false, :null => false
     t.string   "issue"
     t.text     "citation"
     t.string   "exemplar"
+    t.integer  "parent_bibl_id",                                  :default => 0,     :null => false
     t.text     "desc_metadata"
     t.text     "rels_ext"
     t.text     "solr",                      :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
     t.boolean  "discoverability",                                 :default => true
+    t.integer  "indexing_scenario_id"
     t.datetime "date_ingested_into_dl"
     t.integer  "automation_messages_count",                       :default => 0
     t.integer  "orders_count",                                    :default => 0
@@ -193,32 +206,12 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "bibls_components", ["component_id"], :name => "index_bibls_components_on_component_id"
 
   create_table "bibls_legacy_identifiers", :id => false, :force => true do |t|
-    t.integer "bibl_id"
     t.integer "legacy_identifier_id"
+    t.integer "bibl_id"
   end
 
   add_index "bibls_legacy_identifiers", ["bibl_id"], :name => "index_bibls_legacy_identifiers_on_bibl_id"
   add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], :name => "index_bibls_legacy_identifiers_on_legacy_identifier_id"
-
-  create_table "billing_addresses", :force => true do |t|
-    t.integer  "agency_id"
-    t.integer  "customer_id"
-    t.string   "last_name"
-    t.string   "first_name"
-    t.string   "address_1"
-    t.string   "address_2"
-    t.string   "city"
-    t.string   "state"
-    t.string   "country"
-    t.string   "post_code"
-    t.string   "phone"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "organization"
-  end
-
-  add_index "billing_addresses", ["agency_id"], :name => "index_billing_addresses_on_agency_id", :unique => true
-  add_index "billing_addresses", ["customer_id"], :name => "index_billing_addresses_on_customer_id", :unique => true
 
   create_table "checkins", :force => true do |t|
     t.integer  "unit_id",         :default => 0, :null => false
@@ -308,17 +301,9 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.integer  "heard_about_service_id"
     t.string   "last_name"
     t.string   "first_name"
-    t.string   "address_1"
-    t.string   "address_2"
-    t.string   "city"
-    t.string   "state"
-    t.string   "country"
-    t.string   "post_code"
-    t.string   "phone"
     t.string   "email"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "organization"
     t.integer  "master_files_count",     :default => 0
     t.integer  "orders_count",           :default => 0
   end
@@ -497,7 +482,8 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.integer  "availability_policy_id"
     t.integer  "automation_messages_count",                       :default => 0
     t.integer  "use_right_id"
-    t.datetime "date_ingested_into_dl"
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
@@ -582,10 +568,9 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "unit_import_sources", ["unit_id"], :name => "index_unit_import_sources_on_unit_id"
 
   create_table "units", :force => true do |t|
-    t.integer  "indexing_scenario_id"
-    t.integer  "archive_id"
     t.integer  "order_id",                       :default => 0,     :null => false
     t.integer  "bibl_id"
+    t.integer  "archive_id"
     t.integer  "heard_about_resource_id"
     t.string   "unit_status"
     t.datetime "date_materials_received"
@@ -597,6 +582,8 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.string   "deliverable_format"
     t.string   "deliverable_resolution"
     t.string   "deliverable_resolution_unit"
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "intended_use_id"
     t.boolean  "exclude_from_dl",                :default => false, :null => false
     t.text     "staff_notes"
@@ -608,9 +595,8 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.datetime "date_dl_deliverables_ready"
     t.boolean  "remove_watermark",               :default => false
     t.boolean  "master_file_discoverability",    :default => false
+    t.integer  "indexing_scenario_id"
     t.boolean  "checked_out",                    :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.integer  "availability_policy_id"
     t.integer  "master_files_count",             :default => 0
     t.integer  "automation_messages_count",      :default => 0
