@@ -30,14 +30,14 @@ ActiveAdmin.register MasterFile do
     column :date_archived do |mf|
       format_date(mf.date_archived)
     end
-    column :date_ingested_into_dl do |mf|
-      format_date(mf.date_ingested_into_dl)
+    column :date_dl_ingest do |mf|
+      format_date(mf.date_dl_ingest)
     end
     column :pid
     column("") do |mf|
       div :class => 'index_links' do
         links = "".html_safe
-        if mf.date_ingested_into_dl
+        if mf.date_dl_ingest
           links += link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
         end
         if mf.date_archived
