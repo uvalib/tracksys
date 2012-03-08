@@ -11,6 +11,14 @@ class UpgradeAgencies < ActiveRecord::Migration
     }
 
     change_table(:agencies, :bulk => true) do |t|
+      t.remove :address_1
+      t.remove :address_2
+      t.remove :city
+      t.remove :state
+      t.remove :country
+      t.remove :post_code
+      t.remove :phone
+      t.remove :organization
       t.integer :orders_count, :default => 0
     end
   end

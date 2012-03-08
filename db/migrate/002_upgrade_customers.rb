@@ -11,6 +11,14 @@ class UpgradeCustomers < ActiveRecord::Migration
     } 
 
     change_table(:customers, :bulk => true) do |t|
+      t.remove :address_1
+      t.remove :address_2
+      t.remove :city
+      t.remove :state
+      t.remove :country
+      t.remove :post_code
+      t.remove :phone
+      t.remove :organization
       t.integer :master_files_count, :default => 0
       t.remove_index :uva_status_id
       t.rename :uva_status_id, :academic_status_id
