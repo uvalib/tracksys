@@ -69,6 +69,12 @@ ActiveAdmin::Dashboards.build do
   end
 
   section "Materials Currently in Digitization Services", :namespace => :patron do
+    table_for Unit.current_materials do
+      column :id
+      column("Checked Out") :date_materials_received
+      column :bibl_title
+      column :bibl_call_number
+    end
   end
 
   section "Unreturned Material", :namespace => :patron do
