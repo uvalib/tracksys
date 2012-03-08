@@ -38,6 +38,33 @@ class UpgradeData < ActiveRecord::Migration
     remove_column :components, :availability
     remove_column :master_files, :availability
     remove_column :units, :availability
+
+    # MasterFile
+    #
+    # Each MasterFile object will now datetime stamps for:
+    # 1. date_archived
+    # 2. date_dl_ingest
+    # 3. date_dl_update
+    #
+    # This change gives the model the flexibility now to manage it's own archiving and DL information.  Previously
+    # the MasterFile object was required to interrogate it's parent Unit for this information and, at that level,
+    # the information was less accurate, representing the information for the batch rather than the individual object.
+    #
+    # As of this migration, there is no information to populate date_dl_update since that information has not been 
+    # recorded heretofore.
+
+    # Update MasterFile.date_archived
+    say "Updating master_file.date_archived values"
+    Unit.where('date_archived is not null').each {|unit|
+      unit.master_files.update_all :date_archived => unit.date_archived
+    }
+
+    # Update MasterFile.date_dl_ingest
+    say "Updating master_file.date_dl_ingest values"
+    Unit.where('date_dl_deliverables_ready').each {|unit|
+      unit.master_files.update_all :date_dl_ingest => unit.date_dl_deliverables_ready
+    }
+
   end
 
   # Migrate legacy availability string and turn it into a new legacy object of the same meaning.
@@ -51,31 +78,4 @@ class UpgradeData < ActiveRecord::Migration
       class_name.classify.constantize.where(:availability => old_value).update_all(:availability_policy_id => policy_id, :availability => nil)
     }
   end
-
-  # MasterFile
-  #
-  # Each MasterFile object will now datetime stamps for:
-  # 1. date_archived
-  # 2. date_dl_ingest
-  # 3. date_dl_update
-  #
-  # This change gives the model the flexibility now to manage it's own archiving and DL information.  Previously
-  # the MasterFile object was required to interrogate it's parent Unit for this information and, at that level,
-  # the information was less accurate, representing the information for the batch rather than the individual object.
-  #
-  # As of this migration, there is no information to populate date_dl_update since that information has not been 
-  # recorded heretofore.
-
-  # Update MasterFile.date_archived
-  say "Updating master_file.date_archived values"
-  Unit.where('date_archived is not null').each {|unit|
-    unit.master_files.update_all :date_archived, unit.date_archived
-  }
-
-  # Update MasterFile.date_dl_ingest
-  say "Updating master_file.date_dl_ingest values"
-  Unit.where('date_dl_deliverables_ready').each {|unit|
-    unit.master_files.update_all :date_dl_ingest, unit.date_dl_deliverables_ready
-  }
-
 end
