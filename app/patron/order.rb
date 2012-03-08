@@ -9,6 +9,19 @@ ActiveAdmin.register Order, :namespace => :patron do
   #   @collection = Order.deferred
   #   column(:id)
   # end
+  filter :id
+
+  index do
+
+  end
+
+  show do
+
+  end
+
+  form do
+
+  end
 
   member_action :approve do
     order = Order.find(params[:id])
