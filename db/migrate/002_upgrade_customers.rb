@@ -1,4 +1,8 @@
 class UpgradeCustomers < ActiveRecord::Migration
+  # Must create legacy BillingAddress class so that we can access the legacy information
+  class BillingAddress < ActiveRecord::Base
+  end
+
   def change
 
     change_table(:customers, :bulk => true) do |t|
@@ -23,8 +27,6 @@ class UpgradeCustomers < ActiveRecord::Migration
     } 
 
     # Build Billing Address
-    class BillingAddress < ActiveRecord::Base
-    end
     BillingAddress.all.each {|ba|
       c = Customer.find(ba.customer_id)
       c.build_billable_address(:address_1 => ba.address_1.to_s, :address_2 => ba.address_2.to_s, :city => ba.city.to_s, :state => ba.state.to_s, :country => ba.country, :post_code => ba.post_code.to_s, :phone => ba.phone.to_s, :organization => ba.organization.to_s)
