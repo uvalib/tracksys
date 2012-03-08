@@ -124,6 +124,7 @@ class UpgradeDatabase < ActiveRecord::Migration
     create_table :addresses do |t|
       t.integer :addressable_id, :null => false
       t.integer :addressable_type, :null => false, :limit => 20
+      t.string :addressable_type, :null => false, :limit => 20
       t.string :last_name
       t.string :first_name
       t.string :address_1
