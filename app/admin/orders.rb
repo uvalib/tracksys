@@ -70,7 +70,7 @@ ActiveAdmin.register Order do
 
   sidebar :approval_workflow, :only => [:show] do
     div :class => 'workflow_button' do
-      if proc {order.approved?}
+      if order.approved?
         button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
       else
         button_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
@@ -111,29 +111,15 @@ ActiveAdmin.register Order do
     end
   end
 
-
-
   member_action :approve_order
   member_action :cancel_order
   member_action :check_order_ready_for_delivery
   member_action :send_fee_estimate_to_customer
   member_action :send_order_email
 
-  action_item :only => :show, :if => proc {not order.approved?} do
-    link_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
-  end
-
-  action_item :only => :show, :if => proc {order.order_status == 'requested' or order.order_status == 'deferred'} do
-    link_to "Cancel Order", approve_order_admin_order_path(order), :method => 'get'
-  end
-
   controller do
     require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
-
-    publishes_to :check_order_ready_for_delivery
-    publishes_to :send_fee_estimate_to_customer
-    publishes_to :send_order_email
 
     def approve_order
       message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
@@ -143,17 +129,17 @@ ActiveAdmin.register Order do
     end
 
     def cancel_order
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
+      message = ActiveSupport::JSON.encode( {:order_id => params[:id]} )
       publish :update_order_status_canceled, message
       flash[:notice] = "The order is now canceled."
-      redirect_to admin_order_pathx
+      redirect_to admin_order_path
     end
 
     def check_order_ready_for_delivery
       message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
       publish :check_order_ready_for_delivery, message
       flash[:notice] = "Workflow started at checking the completeness of the order."
-      redirect_to :action => "show", :id => params[:order_id]
+      redirect_to admin_order_path
     end
 
     def send_fee_estimate_to_customer
