@@ -2,7 +2,7 @@
   def change
     change_table(:automation_messages, :bulk => true) do |t|
       t.integer :messagable_id, :null => false
-      t.integer :messagable_type, :null => false, :limit => 20
+      t.string :messagable_type, :null => false, :limit => 20
 
       t.string :workflow_type
       t.index :workflow_type
