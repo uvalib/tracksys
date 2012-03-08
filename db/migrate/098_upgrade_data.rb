@@ -67,16 +67,18 @@ class UpgradeData < ActiveRecord::Migration
   # recorded heretofore.
 
   # Update MasterFile.date_archived
+  say "Updating master_file.date_archived values"
   Unit.where('date_archived is not null').each {|unit|
     unit.master_files.each {|mf|
-      mf.update_attribute(:date_archived, u.date_archived)
+      mf.update_attribute(:date_archived, unit.date_archived)
     }
   }
 
   # Update MasterFile.date_dl_ingest
+  say "Updating master_file.date_dl_ingest values"
   Unit.where('date_dl_deliverables_ready').each {|unit|
     unit.master_files.each {|mf|
-      mf.udpate_attribute(:date_dl_ingest, u.date_dl_deliverables_ready)
+      mf.udpate_attribute(:date_dl_ingest, unit.date_dl_deliverables_ready)
     }
   }
 
