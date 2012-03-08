@@ -1,13 +1,19 @@
 class UpgradeAgencies < ActiveRecord::Migration
   def change
 
+    # Build Primary Address
     Agency.all.each {|a|
       a.build_primary_address(:address_1 => a.address_1.to_s, :address_2 => a.address_2.to_s, :city => a.city.to_s, :state => a.state.to_s, :country => a.country, :post_code => a.post_code.to_s, :phone => a.phone.to_s)
-    
-      if a.billing_address
-        a.build_billing_address(:address_1 => a.billing_address.address_1.to_s, :address_2 => a.billing_address.address_2.to_s, :city => a.billing_address.city.to_s, :state => a.billing_address.state.to_s, :country => a.billing_address.country, :post_code => a.billing_address.post_code.to_s, :phone => a.billing_address.phone.to_s, :organization => a.billing_address.organization.to_s)
-      end
-      a.save!
+      a.save
+    }
+
+    # Build Billing Address
+    class BillingAddress < ActiveRecord::Base
+    end
+    BillingAddress.all.each {|ba|
+      a = Agency.find(ba.agency_id)
+      a.build_billable_address(:address_1 => ba.address_1.to_s, :address_2 => ba.address_2.to_s, :city => ba.city.to_s, :state => ba.state.to_s, :country => ba.country, :post_code => ba.post_code.to_s, :phone => ba.phone.to_s, :organization => ba.organization.to_s)
+      a.save
     }
 
     change_table(:agencies, :bulk => true) do |t|
