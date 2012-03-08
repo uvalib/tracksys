@@ -1,4 +1,5 @@
 ActiveAdmin.register Order, :namespace => :patron do
+  menu :priority => 2
 
   scope :all
   scope :awaiting_approval, :defaults => true
