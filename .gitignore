@@ -8,3 +8,5 @@ public/admin
 public/assets
 
 tracksys.sublime-workspace
+
+config/database.yml
