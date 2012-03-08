@@ -137,13 +137,6 @@ ActiveAdmin.register Customer do
       row :email do |customer|
         format_email_in_sidebar(customer.email).gsub(/\s/, "")
       end
-      row :organization
-      row :address_1
-      row :address_2
-      row :city
-      row :state
-      row :country
-      row :post_code.to_s
       row :date_of_first_order do |customer|
         format_date(customer.date_of_first_order)
       end
@@ -151,9 +144,9 @@ ActiveAdmin.register Customer do
    end
   end
   
-  sidebar "Billing Address", :only => :show do
-    if customer.billing_address
-      attributes_table_for customer.billing_address do
+  sidebar "Billable Address", :only => :show do
+    if customer.billable_address
+      attributes_table_for customer.billable_address do
         row :last_name
         row :first_name
         row :agency
