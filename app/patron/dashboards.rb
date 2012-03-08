@@ -71,7 +71,7 @@ ActiveAdmin::Dashboards.build do
   section "Materials Currently in Digitization Services", :namespace => :patron do
     table_for Unit.current_materials do
       column :id
-      column("Checked Out") :date_materials_received
+      column("Checked Out") {|unit| unit.date_materials_received}
       column :bibl_title
       column :bibl_call_number
     end
