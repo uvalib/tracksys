@@ -69,7 +69,7 @@ ActiveAdmin::Dashboards.build do
   end
 
   section "Materials Currently in Digitization Services", :namespace => :patron do
-    table_for Unit.current_materials.where('date_materials_received <= "2012-03-01"') do
+    table_for Unit.current_materials.where('date_materials_received >= "2012-03-01"') do
       column :id do |unit|
         link_to unit.id, patron_unit_path(unit)
       end
