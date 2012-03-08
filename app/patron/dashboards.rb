@@ -62,17 +62,19 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
+  section "Units Awaiting Condition Review", :namespace => :patron do
+  end
+
+  section "Units Awaiting Copyright/IP Review", :namespace => :patron do
+  end
+
   section "Materials Currently in Digitization Services", :namespace => :patron do
   end
 
   section "Unreturned Material", :namespace => :patron do
   end
 
-  section "Units Awaiting Condition Review", :namespace => :patron do
-  end
 
-  section "Units Awaiting Copyright/IP Review", :namespace => :patron do
-  end
 
   
 end
