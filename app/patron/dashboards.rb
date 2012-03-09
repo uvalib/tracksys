@@ -71,7 +71,13 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  section "Units Awaiting Copyright/IP Review", :namespace => :patron do
+  section "Units Awaiting Copyright Approval", :namespace => :patron do
+    table_for Unit.awaiting_copyright_approval do
+      column("Unit ID") {|unit| link_to unit.id, patron_unit_path(unit)}
+      column :order_date_due
+      column :bibl_title
+      column :bibl_call_number
+    end
   end
 
   section "Materials Currently in Digitization Services", :namespace => :patron do
