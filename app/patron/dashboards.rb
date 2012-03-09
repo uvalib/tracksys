@@ -62,10 +62,9 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  section "Units Awaiting Condition Review", :namespace => :patron do
+  section "Units Awaiting Condition Approval", :namespace => :patron do
     table_for Unit.awaiting_condition_approval do
       column("Unit ID") {|unit| link_to unit.id, patron_unit_path(unit)}
-      column (:date_due){|unit| format_date(unit.order_date_due)}
       column :bibl_title
       column :bibl_call_number
     end
