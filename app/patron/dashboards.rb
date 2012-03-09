@@ -78,7 +78,7 @@ ActiveAdmin::Dashboards.build do
   end
 
   section "Unreturned Material", :namespace => :patron do
-    table_for Unit.overdue_materials do
+    table_for Unit.overdue_materials.where('date_materials_received >= "2012-03-01"') do
       column("Unit ID") {|unit| link_to unit.id, patron_unit_path(unit)}
       column("Date Checked Out") {|unit| format_date(unit.date_materials_received)}
       column :bibl_title
