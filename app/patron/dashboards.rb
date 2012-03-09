@@ -80,6 +80,12 @@ ActiveAdmin::Dashboards.build do
   end
 
   section "Unreturned Material", :namespace => :patron do
+    table_for Unit.overdue_materials do
+      column("Unit ID") {|unit| link_to unit.id, patron_unit_path(unit)}
+      column("Date Checked Out") {|unit| format_date(unit.date_materials_received)}
+      column :bibl_title
+      column :bibl_call_number
+    end
   end
 
 
