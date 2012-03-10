@@ -21,11 +21,9 @@ ActiveAdmin.register AutomationMessage do
 
   index do
     column :id
-    column :bibl
-    column :component
-    column :master_file
-    column :order
-    column :unit
+    column ("Messagable") {|am| 
+      "#{am.messagable_type} #{am.messagable_id}"
+    }
     column :pid
     column :message_type
     column :workflow_type
