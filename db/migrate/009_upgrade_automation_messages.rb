@@ -10,10 +10,6 @@
       t.change :message, :string
       t.remove :ead_ref_id
     end
-    
-    # TODO: Update all existing automation workflow_type based on processor name
-    # AutomationMessage.find(:all).each {|am|
-    # }
 
     # Transition all legacy *_id to messagable_id and messagable_type
     AutomationMessage.where('bibl_id is not null').find_each(:batch_size => 50000) do |am|
@@ -54,5 +50,113 @@
       t.remove :order_id
       t.remove :component_id
     end
+
+    # Update all AutomationMessages so that each message has a workflow_type appropriate to its processor
+    administrative = %w[CreateStatsReportProcessor]
+
+    administrative.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'administrative'
+    }
+
+    archive = %w[SendUnitToArchiveProcessor 
+    StartManualUploadToArchiveMigrationProcessor 
+    StartManualUploadToArchiveProcessor 
+    StartManualUploadToArchiveProductionProcessor 
+    UpdateOrderDateArchivingCompleteProcessor 
+    UpdateUnitArchiveIdProcessor 
+    UpdateUnitDateArchivedProcessor]
+
+    archive.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'archive'
+    }
+
+    repository = %w[CreateDlDeliverablesProcessor
+    CreateNewFedoraObjectsProcessor
+    IngestDcMetadataProcessor
+    IngestDescMetadataProcessor
+    IngestJp2kProcessor
+    IngestMarcProcessor
+    IngestRelsExtProcessor
+    IngestRelsIntProcessor
+    IngestRightsMetadataProcessor
+    IngestSolrDocProcessor
+    IngestTechMetadataProcessor
+    IngestTranscriptionProcessor
+    PropogateAccessPoliciesProcessor
+    PropogateDiscoverabilityProcessor
+    PropogateIndexingScenariosProcessor
+    QueueObjectsForFedoraProcessor
+    SendCommitToSolrProcessor 
+    StartIngestFromArchiveProcessor 
+    UpdateFedoraDatastreamsProcessor 
+    UpdateUnitDateDlDeliverablesReadyProcessor 
+    UpdateUnitDateQueuedForIngestProcessor]
+
+    repository.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'repository'
+    }
+
+    qa = %w[CheckUnitDeliveryModeProcessor
+    CopyMetadataToMetadataDirectoryProcessor
+    ImportUnitIviewXMLProcessor
+    QaFilesystemAndIviewXmlProcessor
+    QaOrderDataProcessor
+    QaUnitDataProcessor
+    StartFinalizationMigrationProcessor 
+    StartFinalizationProcessor 
+    StartFinalizationProductionProcessor 
+    UpdateOrderDateFinalizationBegunProcessor]
+
+    qa.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'qa'
+    }
+
+    patron = %w[CopyArchivedFilesToProductionProcessor
+    CopyDirectoryFromArchiveProcessor
+    SendFeeEstimateToCustomerProcessor 
+    UpdateOrderDateFeeEstimateSentToCustomerProcessor 
+    UpdateOrderStatusApprovedProcessor 
+    UpdateOrderStatusCanceledProcessor 
+    UpdateOrderStatusDeferredProcessor]
+
+    patron.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'patron'
+    }
+
+    delivery = %w[CheckOrderDateArchivingCompleteProcessor
+    CheckOrderDeliveryMethodProcessor
+    CheckOrderReadyForDeliveryProcessor
+    CheckOrderFeeProcessor
+    CreateInvoiceProcessor
+    CreatePatronDeliverablesProcessor
+    CreateOrderEmailProcessor
+    CreateOrderPdfProcessor
+    CreateOrderZipProcessor
+    CreateUnitDeliverablesProcessor
+    DeleteUnitCopyForDeliverableGenerationProcessor
+    MoveCompletedDirectoryToDeleteDirectoryProcessor
+    MoveDeliverablesToDeliveredOrdersDirectoryProcessor
+    QueueUnitDeliverablesProcessor
+    SendOrderEmailProcessor 
+    UpdateOrderDateCustomerNotifiedProcessor
+    UpdateOrderDatePatronDeliverablesCompleteProcessor
+    UpdateOrderEmailDateProcessor
+    UpdateUnitDatePatronDeliverablesReadyProcessor]
+
+    delivery.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'delivery'
+    }
+
+    production = %w[BurstPdfProcessor
+    CreateImageTechnicalMetadataAndThumbnailProcessor
+    CreateMasterFileRecordsFromTifAndTextProcessor
+    CreateTextFromPdfProcessor
+    CreateTifImagesFromPdfProcessor
+    SendPdfUnitToFinalizationDirProcessor]
+
+    production.each {|processor|
+      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'production'
+    }
+
   end
 end
