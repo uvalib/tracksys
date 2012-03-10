@@ -9,11 +9,6 @@
       t.change :active_error, :boolean, :null => false, :default => 0
       t.change :message, :string
       t.remove :ead_ref_id
-      t.foreign_key :bibls
-      t.foreign_key :components
-      t.foreign_key :master_files
-      t.foreign_key :orders
-      t.foreign_key :units
     end
     
     # TODO: Update all existing automation workflow_type based on processor name
@@ -52,5 +47,12 @@
     AutomationMessage.where('master_file_id is not null').update_all( :master_file_id => nil )
     AutomationMessage.where('unit_id is not null').update_all( :unit_id => nil )
 
+    change_table(:automation_messages, :bulk => true) do |t|
+      t.remove :bibl_id
+      t.remove :unit_id
+      t.remove :master_file_id
+      t.remove :order_id
+      t.remove :component_id
+    end
   end
 end
