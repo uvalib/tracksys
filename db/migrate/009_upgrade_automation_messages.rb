@@ -12,36 +12,33 @@
     end
 
     # Transition all legacy *_id to messagable_id and messagable_type
-    AutomationMessage.where('bibl_id is not null').find_each(:batch_size => 50000) do |am|
-      am.update_attribute(:messagable_type, "Bibl")
-      am.update_attribute(:messagable_id, am.bibl_id)
+    say "Updating AutomationMessage - Bibl relationship"
+    AutomationMessage.where('bibl_id is not null').update_all("messagable_type = 'Bibl', messagable_id = bibl_id")
+
+    say "Updating AutomationMessage - Order relationship"
+     AutomationMessage.where('order_id is not null').update_all("messagable_type = 'Order', messagable_id = order_id")
+
+    say "Updating AutomationMessage - Component relationship"
+    AutomationMessage.where('component_id is not null').update_all("messagable_type = 'Component', messagable_id = component_id")
+
+    say "Updating AutomationMessage - MasterFile relationship"
+    # Have to use a different procedure because this query's resultset is larger than lock table can handle
+    AutomationMessage.where('master_file_id is not null').find_in_batches(:batch_size => 100000) do |am|
+      ids = am.map(&:id)
+      AutomationMessage.update_all ["messagable_type = 'MasterFile', messagable_id = master_file_id"], "id IN (#{ids.join(", ")})"
     end
 
-    AutomationMessage.where('order_id is not null').find_each(:batch_size => 50000) do |am|
-      am.update_attribute(:messagable_type, "Order")
-      am.update_attribute(:messagable_id, am.order_id)
-    end
-
-    AutomationMessage.where('component_id is not null').find_each(:batch_size => 50000) do |am|
-      am.update_attribute(:messagable_type, "Component")
-      am.update_attribute(:messagable_id, am.component_id)
-    end
-
-    AutomationMessage.where('master_file_id is not null').find_each(:batch_size => 50000) do |am|
-      am.update_attribute(:messagable_type, "MasterFile")
-      am.update_attribute(:messagable_id, am.master_file_id)
-    end
-
-    AutomationMessage.where('unit_id is not null').find_each(:batch_size => 50000) do |am|
-      am.update_attribute(:messagable_type, "Unit")
-      am.update_attribute(:messagable_id, am.unit_id)
-    end
+    say "Updating AutomationMessage - Unit relationship"
+    AutomationMessage.where('unit_id is not null').update_all("messagable_type = 'Unit', messagable_id = unit_id")
 
     AutomationMessage.where('bibl_id is not null').update_all( :bibl_id => nil )
     AutomationMessage.where('order_id is not null').update_all( :order_id => nil )
     AutomationMessage.where('component_id is not null').update_all( :component_id => nil )
-    AutomationMessage.where('master_file_id is not null').update_all( :master_file_id => nil )
     AutomationMessage.where('unit_id is not null').update_all( :unit_id => nil )
+    AutomationMessage.where('master_file_id is not null').find_in_batches(:batch_size => 100000) do |am|
+      ids = am.map(&:id)
+      AutomationMessage.update_all(["master_file_id = ''"], "id IN (#{ids.join(", ")})")
+    end
 
     change_table(:automation_messages, :bulk => true) do |t|
       t.remove :bibl_id
