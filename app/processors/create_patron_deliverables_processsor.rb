@@ -50,6 +50,7 @@ class CreatePatronDeliverablesProcessor < ApplicationProcessor
     @mode = hash[:mode]
     @last = hash[:last]
     @master_file_id = hash[:master_file_id]
+    @messagable = MasterFile.find(@master_file_id)
 
     # Watermarking variable
     @remove_watermark = hash[:remove_watermark]
@@ -173,6 +174,7 @@ class CreatePatronDeliverablesProcessor < ApplicationProcessor
         # Create @unit_id so completion message can be posted to Unit.
         @master_file_id = nil
         @unit_id = hash[:unit_id]
+        @messagable = Unit.find(@unit_id)
 
         on_success "All patron deliverables created."
         message = ActiveSupport::JSON.encode({ :unit_id => hash[:unit_id], :mode => @mode })

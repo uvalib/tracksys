@@ -16,6 +16,7 @@ class UpdateUnitDatePatronDeliverablesReadyProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]
 
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
     @working_unit.date_patron_deliverables_ready = Time.now
     @working_unit.save!
     on_success "Date patron deliverables ready for unit #{@unit_id} has been updated."

@@ -21,6 +21,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     @last = hash[:last]
 
     mf = MasterFile.find(@master_file_id)
+    @messagable = mf
     @image_path = File.join(@source, mf.filename)
     
     # Engage garbage cleanup.

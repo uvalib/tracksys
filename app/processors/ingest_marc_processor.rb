@@ -21,6 +21,7 @@ class IngestMarcProcessor < ApplicationProcessor
     @object_class = hash[:object_class]
     @object_id = hash[:object_id]
     @object = @object_class.classify.constantize.find(@object_id)
+    @messagable = @object
 
     @pid = @object.pid
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)     

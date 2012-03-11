@@ -14,6 +14,7 @@ class SendPdfUnitToFinalizationDirProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Paramater 'path_to_pdf' is required" if hash[:path_to_pdf].blank?
     @unit_id = hash[:unit_id]
+    @messagable = Unit.find(@unit_id)
     @unit_dir = "%09d" % @unit_id
     @path_to_pdf = hash[:path_to_pdf]
 

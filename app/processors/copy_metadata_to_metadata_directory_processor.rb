@@ -12,6 +12,7 @@ class CopyMetadataToMetadataDirectoryProcessor < ApplicationProcessor
     raise "Parameter 'unit_path' is required" if hash[:unit_path].blank?
        
     @unit_id = hash[:unit_id]  
+    @messagable = Unit.find(@unit_id)
     @unit_dir = "%09d" % @unit_id
     @unit_path = hash[:unit_path]
     @failure_messages = Array.new

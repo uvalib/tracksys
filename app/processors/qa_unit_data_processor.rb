@@ -19,6 +19,7 @@ class QaUnitDataProcessor < ApplicationProcessor
 
     # If this Unit.find fails, a unit with this id does not exist in Tracksys
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
 
     @working_order = @working_unit.order
 

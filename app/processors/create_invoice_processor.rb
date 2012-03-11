@@ -15,6 +15,7 @@ class CreateInvoiceProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     order = Order.find(hash[:order_id])
+    @messagable = order
 
     # Create invoice
     invoice = Invoice.new

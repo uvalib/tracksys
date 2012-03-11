@@ -10,6 +10,7 @@ class CreateStatsReportProcessor < ApplicationProcessor
     logger.debug "CreateStastsReportProcessor received: " + message
  
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
+    # @messagable = ???
 
     today = Date.today
     query_year = hash[:year]

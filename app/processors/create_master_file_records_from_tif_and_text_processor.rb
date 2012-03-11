@@ -16,6 +16,7 @@ class CreateMasterFileRecordsFromTifAndTextProcessor < ApplicationProcessor
     raise "Paramater 'path_to_pdf' is required" if hash[:path_to_pdf].blank?
     @unit_id = hash[:unit_id]
     @unit_dir = "%09d" % @unit_id
+    @messagable = Unit.find(@unit_id)
     @path_to_pdf = hash[:path_to_pdf]
  
     # The variable i will be used to pull out specific elements from the titles array for use in mf.title

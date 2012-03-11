@@ -23,6 +23,7 @@ class IngestJp2kProcessor < ApplicationProcessor
     @object_class = hash[:object_class]
     @object_id = hash[:object_id]
     @object = @object_class.classify.constantize.find(@object_id)
+    @messagable = @object
     @jp2k_path = hash[:jp2k_path]
     @source = hash[:source]
 

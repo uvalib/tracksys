@@ -30,12 +30,14 @@ class UpdateRelsExtWithIndexerContentModelProcessor < ApplicationProcessor
     # For each ingestable thing related to a unit, update the RELS-EXT to include the indexer content model.
     # Then read the RELS-EXT from the repo and replace thing.rels_ext
     things.each {|thing|
+      @messagable = thing
       @pid = thing.pid
       subject = "info:fedora/#{thing.pid}"
       Fedora.add_relationship(thing.pid, subject, @predicate, @object, @contentType)
       thing.rels_ext = '<?xml version="1.0" encoding="UTF-8"?>' + "\n"
       thing.rels_ext += Fedora.get_datastream(thing.pid, 'RELS-EXT', 'xml')
       thing.save!
+      on_success "#{thing.class} #{thing.id} associated with indexableCModel."
     }
   end
 end

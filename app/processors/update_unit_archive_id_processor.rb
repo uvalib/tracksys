@@ -20,6 +20,7 @@ class UpdateUnitArchiveIdProcessor < ApplicationProcessor
     # Update archive location.  This presumes that StorNext is the only archive and that its
     # value in the archives table is '2'
     working_unit = Unit.find(@unit_id)
+    @messagable = working_unit
     working_unit.archive_id = 2
     working_unit.save!
 

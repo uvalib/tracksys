@@ -10,10 +10,9 @@ class CreateTextFromPdfProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
-    raise "Parameter 'order_id' is required" if hash[:order_id].blank?
     raise "Paramater 'path_to_pdf' is required" if hash[:path_to_pdf].blank?
     @unit_id = hash[:unit_id]
-    @order_id = hash[:order_id]
+    @messagable = Unit.find(@unit_id)
     @path_to_pdf = hash[:path_to_pdf]
 
     contents = Dir.entries(@path_to_pdf).delete_if {|x| x == "." or x == ".." or x !~ /_[0-9][0-9][0-9][0-9].pdf/}
@@ -25,7 +24,7 @@ class CreateTextFromPdfProcessor < ApplicationProcessor
       `pdftotext -layout #{@path_to_pdf}/#{content} #{@path_to_pdf}/#{basename}.txt`
     }
 
-    message = ActiveSupport::JSON.encode({:unit_id => @unit_id, :order_id => @order_id, :path_to_pdf => @path_to_pdf})
+    message = ActiveSupport::JSON.encode({:unit_id => @unit_id, :path_to_pdf => @path_to_pdf})
     publish :create_master_file_records_from_tif_and_text, message
     on_success "Text files successfully created from PDF originals."        
   end

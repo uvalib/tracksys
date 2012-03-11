@@ -18,6 +18,7 @@ class CheckUnitDeliveryModeProcessor < ApplicationProcessor
 
     @unit_id = hash[:unit_id]
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
     @unit_dir = "%09d" % @unit_id
 
     @source_dir = File.join(IN_PROCESS_DIR, @unit_dir)

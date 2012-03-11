@@ -14,7 +14,8 @@ class DeleteUnitCopyForDeliverableGenerationProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     @mode = hash[:mode]
-    @unit_id = hash[:unit_id]    
+    @unit_id = hash[:unit_id]
+    @messagable = Unit.find(@unit_id)    
     @unit_dir = "%09d" % @unit_id
     order_id = Unit.find(@unit_id).order.id
 

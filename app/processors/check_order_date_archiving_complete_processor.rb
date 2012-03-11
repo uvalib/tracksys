@@ -15,6 +15,7 @@ class CheckOrderDateArchivingCompleteProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
 
     @working_order = Unit.find(hash[:unit_id]).order
+    @messagable = @working_order
     @order_id = @working_order.id
     incomplete_units = Array.new
     

@@ -19,6 +19,7 @@ class CreateOrderEmailProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
 
     # Messages coming into this sytem either have hash[:delivery_files] or hash[:dvd_deliery_locaiton]
     # based on whether the order will be delivered via DVD or web

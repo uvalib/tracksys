@@ -13,6 +13,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
     @unit_id = hash[:unit_id]
+    @messagable = Unit.find(@unit_id)
     @source_dir = hash[:source_dir]
 
     if hash[:unit_dir]

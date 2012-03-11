@@ -22,6 +22,7 @@ class QueueUnitDeliverablesProcessor < ApplicationProcessor
 
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
     @working_order = Order.find(@working_unit.parent.id)
     @master_files = @working_unit.master_files
     

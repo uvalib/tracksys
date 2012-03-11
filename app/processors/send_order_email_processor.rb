@@ -14,6 +14,7 @@ class SendOrderEmailProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
     @email = @working_order.email
 
     # send email

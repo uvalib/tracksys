@@ -19,6 +19,7 @@ class UpdateUnitDateQueuedForIngestProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]
     @source = hash[:source]
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
 
     # Update date_unit_queued_for_ingest value
     @working_unit.date_queued_for_ingest = Time.now

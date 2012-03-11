@@ -17,6 +17,7 @@ class UpdateOrderDateFinalizationBegunProcessor < ApplicationProcessor
     
     @working_unit = Unit.find(hash[:unit_id])
     @working_order = @working_unit.order
+    @messagable = @working_order
     @order_id = @working_order.id
 
     @working_order.date_finalization_begun = Time.now

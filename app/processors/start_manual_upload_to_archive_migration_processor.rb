@@ -41,12 +41,15 @@ class StartManualUploadToArchiveMigrationProcessor < ApplicationProcessor
 
               if regex_unit.match(content).nil?
                 @internal_dir = "no"
+                # TODO: Figure out what the messagable class is for this item
+                # @messagable = 
                 on_success "Non-Tracking System managed content (#{content}) sent to StorNext worklfow via manual upload directory from #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{day}."
                 message = ActiveSupport::JSON.encode({:unit_dir => content, :source_dir => MANUAL_ARCHIVE_IN_PROCESS_DIR_MIGRATION, :internal_dir => @internal_dir})
                 publish :send_unit_to_archive, message
               else
                 @internal_dir = "yes"
                 @unit_id = content.to_s.sub(/^0+/, '')
+                @messagable = Unit.find(@unit_id)
                 on_success "Unit #{@unit_id} sent to StorNext workflow via manual upload directory from #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{day}."
                 message = ActiveSupport::JSON.encode( { :unit_id => @unit_id, :unit_dir => content, :source_dir => MANUAL_ARCHIVE_IN_PROCESS_DIR_MIGRATION, :internal_dir => @internal_dir})
                 publish :send_unit_to_archive, message

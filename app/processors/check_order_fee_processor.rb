@@ -15,6 +15,7 @@ class CheckOrderFeeProcessor < ApplicationProcessor
     # Set unit variables
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
 
     # If there is a value for 'fee_estimated' then there must be a value in 'fee_actual'.
     # If there is no value for 'fee_estimated', the workfow sould proceed.

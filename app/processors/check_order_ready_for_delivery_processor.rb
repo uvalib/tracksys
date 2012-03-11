@@ -17,6 +17,7 @@ class CheckOrderReadyForDeliveryProcessor < ApplicationProcessor
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
     
     @working_order = Order.find(hash[:order_id])
+    @messagable = @working_order
     @order_id = @working_order.id
     incomplete_units = Array.new
 

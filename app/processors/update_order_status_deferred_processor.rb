@@ -11,6 +11,7 @@ class UpdateOrderStatusDeferredProcessor < ApplicationProcessor
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
     @working_order.order_status = 'deferred'
     @working_order.save! 
 

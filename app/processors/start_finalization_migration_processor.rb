@@ -38,6 +38,7 @@ class StartFinalizationMigrationProcessor < ApplicationProcessor
                   # Entry passes all tests
                   FileUtils.mv File.join(FINALIZATION_DROPOFF_DIR_MIGRATION, content), File.join(IN_PROCESS_DIR, content)
                   @unit_id = content.to_s.sub(/^0+/, '')
+                  @messagable = Unit.find(@unit_id)
                   message = ActiveSupport::JSON.encode( { :unit_id => @unit_id })
                   publish :qa_unit_data, message
                   on_success "Directory #{content} begins the finalization workflow."

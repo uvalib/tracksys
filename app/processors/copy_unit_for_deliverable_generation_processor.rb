@@ -16,6 +16,7 @@ class CopyUnitForDeliverableGenerationProcessor < ApplicationProcessor
 
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
     @master_files = @working_unit.master_files
     @failure_messages = Array.new
 

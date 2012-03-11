@@ -14,6 +14,7 @@ class UpdateOrderDatePatronDeliverablesCompleteProcessor < ApplicationProcessor
     
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
 
     @working_order.date_patron_deliverables_complete = Time.now
     @working_order.save!

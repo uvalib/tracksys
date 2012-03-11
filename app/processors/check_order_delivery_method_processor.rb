@@ -15,6 +15,7 @@ class CheckOrderDeliveryMethodProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
+    @messagable = @working_order
 
     if @working_order.has_delivery_method?("web delivery")
       on_success "Order #{@order_id} has a delivery method of 'web delivery'"

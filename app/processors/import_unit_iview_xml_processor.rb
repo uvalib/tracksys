@@ -19,6 +19,7 @@ class ImportUnitIviewXMLProcessor < ApplicationProcessor  # See ApplicationProce
 
     # Set unit variables
     @unit_id = hash[:unit_id]
+    @messagable = Unit.find(@unit_id)
     @unit_dir = "%09d" % @unit_id
     @path = hash[:path]
     

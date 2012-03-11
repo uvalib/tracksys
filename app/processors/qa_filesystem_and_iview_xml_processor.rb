@@ -21,6 +21,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
 
     # Create error message holder array
     @error_messages = Array.new

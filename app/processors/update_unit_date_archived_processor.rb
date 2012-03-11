@@ -20,6 +20,7 @@ class UpdateUnitDateArchivedProcessor < ApplicationProcessor
     @source_dir = hash[:source_dir]
 
     @working_unit = Unit.find(@unit_id)
+    @messagable = @working_unit
     @working_unit.date_archived = Time.now
     @working_unit.save!
 
