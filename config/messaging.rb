@@ -91,7 +91,8 @@ ActiveMessaging::Gateway.define do |s|
       :update_unit_date_archived_processor, 
       :update_unit_date_dl_deliverables_ready_processor, 
       :update_unit_date_patron_deliverables_ready_processor, 
-      :update_unit_date_queued_for_ingest_processor],
+      :update_unit_date_queued_for_ingest_processor,
+      :update_unit_status],
     :send_unit_to_archive_group => [
       :send_unit_to_archive_processor],
     :technical_metadata_group => [
@@ -173,4 +174,5 @@ ActiveMessaging::Gateway.define do |s|
   s.destination :update_unit_date_dl_deliverables_ready, '/queue/UpdateUnitDateDlDeliverablesReady'
   s.destination :update_unit_date_patron_deliverables_ready, '/queue/UpdateUnitDatePatronDeliverablesReady'
   s.destination :update_unit_date_queued_for_ingest, '/queue/UpdateUnitDateQueuedForIngest'
+  s.destination :update_unit_status, '/queue/UpdateUnitStatus'
 end
