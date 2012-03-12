@@ -28,12 +28,12 @@ class UpdateCounters < ActiveRecord::Migration
       Bibl.update_counters b.id, :master_files_count => b.master_files.count
     }
 
-    # Given the large number of MasterFile objects, this migration requires dividing the 
-    # MasterFile array into smaller increments
+    # Given the large number of MasterFile objects, this migration will proceede in batches
     say "Updating master_file.automation_messages_count"
-    MasterFile.where('automation_messages_count is null').limit(1000).each {|m|
-      MasterFile.update_counters m.id, :automation_messages_count => m.automation_messages.count
-    }
+    MasterFile.find_in_batches(:batch_size => 5000) do |master_files|
+      ids = master_files.map(&:id)
+      MasterFile.update_all ["automation_messages_count=(select count(*) from automation_messages where automation_messages.messagable_type='MasterFile' and automation_messages.messagable_id=master_files.id)"], "id IN (#{ids.join(", ")})"
+    end
 
     say "Updating agency.orders_count"
     Agency.find(:all).each {|a|
