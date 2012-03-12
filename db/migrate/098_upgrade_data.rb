@@ -64,7 +64,6 @@ class UpgradeData < ActiveRecord::Migration
     Unit.where('date_dl_deliverables_ready').each {|unit|
       unit.master_files.update_all :date_dl_ingest => unit.date_dl_deliverables_ready
     }
-
   end
 
   # Migrate legacy availability string and turn it into a new legacy object of the same meaning.

@@ -97,8 +97,4 @@ ActiveAdmin::Dashboards.build do
       column :bibl_call_number
     end
   end
-
-
-
-  
 end
