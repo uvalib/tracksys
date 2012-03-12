@@ -21,11 +21,7 @@ ActiveAdmin.register AutomationMessage, :namespace => :patron do
 
   index do
     column :id
-    column :bibl
-    column :component
-    column :master_file
-    column :order
-    column :unit
+    column :messagable
     column :pid
     column :message_type
     column :workflow_type
