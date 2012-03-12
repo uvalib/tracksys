@@ -89,8 +89,13 @@
     UpdateUnitDateDlDeliverablesReadyProcessor 
     UpdateUnitDateQueuedForIngestProcessor]
 
+    # Given that there are so many repository based messages, we are forced to break them down into 
+    # increments of 50,000.
     repository.each {|processor|
-      AutomationMessage.where(:processor => processor).update_all :workflow_type => 'repository'
+      AutomationMessage.where(:processor => processor).find_in_batches(:batch_size => 50000) do |am|
+        ids = am.map(&:id)
+        AutomationMessage.update_all(["workflow_type = 'repository'"], "id IN (#{ids.join(", ")})")
+      end
     }
 
     qa = %w[CheckUnitDeliveryModeProcessor
