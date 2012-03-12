@@ -3,6 +3,7 @@
     change_table(:automation_messages, :bulk => true) do |t|
       t.integer :messagable_id, :null => false
       t.string :messagable_type, :null => false, :limit => 20
+      t.index [:messagable_id, :messagable_type]
 
       t.string :workflow_type
       t.index :workflow_type
