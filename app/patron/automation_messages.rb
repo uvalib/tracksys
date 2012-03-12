@@ -13,11 +13,6 @@ ActiveAdmin.register AutomationMessage, :namespace => :patron do
   filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES
   filter :processor, :as => :select, :collection => proc {AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor)}
   filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES
-  filter :bibl_id, :as => :numeric
-  filter :component_id, :as => :numeric
-  filter :master_file_id, :as => :numeric
-  filter :order_id, :as => :numeric
-  filter :unit_id, :as => :numeric
 
   index do
     column :id
