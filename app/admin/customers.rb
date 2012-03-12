@@ -142,6 +142,17 @@ ActiveAdmin.register Customer do
       end
       row :academic_status
    end
+  sidebar "Primary Address", :only => :show do
+    attributes_table_for customer.primary_address do
+      row :organization
+      row :address_1
+      row :address_2
+      row :city
+      row :state
+      row :country
+      row :post_code
+      row :phone
+    end
   end
   
   sidebar "Billable Address", :only => :show do
