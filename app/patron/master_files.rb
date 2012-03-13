@@ -1,4 +1,5 @@
 ActiveAdmin.register MasterFile, :namespace => :patron do
+  menu :priority => 6
 
   filter :title
   filter :filename

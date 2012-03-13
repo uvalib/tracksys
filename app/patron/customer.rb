@@ -1,5 +1,5 @@
 ActiveAdmin.register Customer, :namespace => :patron do
-  menu :priority => 1
+  menu :priority => 2
 
   filter :id
 

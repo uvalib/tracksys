@@ -1,5 +1,6 @@
 ActiveAdmin.register AutomationMessage, :namespace => :patron do
   menu :parent => "Miscellaneous"
+  menu :priority => 7
 
   scope :all, :default => true, :show_count => false
   scope :has_active_error, :label => "Active Error", :show_count => false

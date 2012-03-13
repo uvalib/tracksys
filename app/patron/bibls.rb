@@ -1,4 +1,5 @@
 ActiveAdmin.register Bibl, :namespace => :patron do
+  menu :priority => 5
 
   scope :all, :default => true
 
