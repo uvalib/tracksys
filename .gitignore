@@ -6,7 +6,7 @@ tmp/
 .sass-cache/
 public/admin
 public/assets
-
+public/metadata
 tracksys.sublime-workspace
 
 config/database.yml
