@@ -17,6 +17,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
   sidebar :approval_workflow, :only => [:show] do
     div :class => 'workflow_button' do
       button_to "Approve", change_status_order_patron_order_path(order), :disabled => disabled, :method => 'get'
+    end
     div :class => 'workflow_button' do
       button_to "Cancel", change_status_order_patron_order_path(order), :disabled => disabled, :method => 'get'
     end
@@ -31,6 +32,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
   member_action :change_status
 
   controller do
+    require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
 
     def change_status
@@ -40,5 +42,4 @@ ActiveAdmin.register Unit, :namespace => :patron do
       redirect_to :back      
     end
   end
-
 end
