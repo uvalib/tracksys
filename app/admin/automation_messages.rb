@@ -1,13 +1,13 @@
 ActiveAdmin.register AutomationMessage do
   menu :parent => "Miscellaneous"
 
-  scope :all, :default => true
+  scope :all, :default => true, :show_count => false
   scope :has_active_error, :label => "Active Error"
-  scope :has_inactive_error, :label => "Inactive Error"
-  scope :archive_workflow
-  scope :qa_workflow
-  scope :patron_workflow
-  scope :repository_workflow
+  scope :has_inactive_error, :label => "Inactive Error", :show_count => false
+  scope :archive_workflow, :show_count => false
+  scope :qa_workflow, :show_count => false
+  scope :patron_workflow, :show_count => false
+  scope :repository_workflow, :show_count => false
 
   filter :active_error, :as => :select
   filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES
