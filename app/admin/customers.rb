@@ -15,7 +15,6 @@ ActiveAdmin.register Customer do
   filter :master_files_count
 
   index do
-
     column("Name", :sortable => false) do |customer| 
       customer.full_name
     end
@@ -141,7 +140,9 @@ ActiveAdmin.register Customer do
         format_date(customer.date_of_first_order)
       end
       row :academic_status
-   end
+    end
+  end
+
   sidebar "Primary Address", :only => :show do
     attributes_table_for customer.primary_address do
       row :organization
@@ -160,7 +161,6 @@ ActiveAdmin.register Customer do
       attributes_table_for customer.billable_address do
         row :last_name
         row :first_name
-        row :agency
         row :organization
         row :address_1
         row :address_2
@@ -169,12 +169,6 @@ ActiveAdmin.register Customer do
         row :country
         row :post_code
         row :phone
-        row :created_at do |customer|
-          format_date(customer.created_at)
-        end
-        row :updated_at do |customer|
-          format_date(customer.updated_at)
-        end
       end
     else
       "No information"
