@@ -2,9 +2,25 @@ require "#{Hydraulics.helpers_dir}/application_helper"
 
 module ApplicationHelper
 
+  def format_boolean_as_yes_no(boolean)
+    if boolean
+      return 'Yes'
+    else
+      return 'No'
+    end
+  end
+
   def format_date(date)
     begin
       return date.strftime("%m/%d/%Y")
+    rescue Exception => e
+      return nil
+    end
+  end
+
+  def format_datetime(datetime)
+    begin
+      return datetime.strftime("%m/%d/%Y %l:%M:%S %P")
     rescue Exception => e
       return nil
     end
