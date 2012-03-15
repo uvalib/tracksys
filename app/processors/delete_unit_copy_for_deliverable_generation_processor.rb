@@ -15,7 +15,8 @@ class DeleteUnitCopyForDeliverableGenerationProcessor < ApplicationProcessor
 
     @mode = hash[:mode]
     @unit_id = hash[:unit_id]
-    @messagable = Unit.find(@unit_id)    
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"   
     @unit_dir = "%09d" % @unit_id
     order_id = Unit.find(@unit_id).order.id
 

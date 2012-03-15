@@ -18,7 +18,8 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id] 
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
-    @messagable = @working_unit
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
     @failure_messages = Array.new
     @source_dir = hash[:path_to_archive]
     @destination_dir = File.join('/lib_content37/stornext_dropoff', @unit_dir)

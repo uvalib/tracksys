@@ -50,7 +50,8 @@ class StartManualUploadToArchiveProductionProcessor < ApplicationProcessor
               else
                 @internal_dir = "yes"
                 @unit_id = content.to_s.sub(/^0+/, '')
-                @messagable = Unit.find(@unit_id)
+                @messagable_id = @unit_id
+                @messagable_type = "Unit"
                 on_success "Unit #{@unit_id} sent to StorNext workflow via manual upload directory from #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{day}."
                 message = ActiveSupport::JSON.encode( { :unit_id => @unit_id, :unit_dir => content, :source_dir => MANUAL_ARCHIVE_IN_PROCESS_DIR_PRODUCTION, :internal_dir => @internal_dir})
                 publish :send_unit_to_archive, message

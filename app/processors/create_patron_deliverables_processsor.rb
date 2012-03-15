@@ -50,7 +50,9 @@ class CreatePatronDeliverablesProcessor < ApplicationProcessor
     @mode = hash[:mode]
     @last = hash[:last]
     @master_file_id = hash[:master_file_id]
-    @messagable = MasterFile.find(@master_file_id)
+    
+    @messagable_id = hash[:master_file_id]
+    @messagable_type = "MasterFile"
 
     # Watermarking variable
     @remove_watermark = hash[:remove_watermark]

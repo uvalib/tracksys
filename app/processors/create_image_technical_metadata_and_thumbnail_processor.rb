@@ -16,12 +16,13 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     raise "Parameter 'source' is required" if hash[:source].blank?
     raise "Parameter 'last' is required" if hash[:last].blank?
     
-    @master_file_id = hash[:master_file_id]
+    @messagable_id = hash[:master_file_id]
+    @messagable_type = "MasterFile"
+
     @source = hash[:source]
     @last = hash[:last]
-
     mf = MasterFile.find(@master_file_id)
-    @messagable = mf
+
     @image_path = File.join(@source, mf.filename)
     
     # Engage garbage cleanup.

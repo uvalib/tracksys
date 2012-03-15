@@ -14,7 +14,8 @@ class StartIngestFromArchiveProcessor < ApplicationProcessor
       @unit_id = hash[:unit_id]
       @unit_dir = "%09d" % @unit_id
       @working_unit = Unit.find(@unit_id)
-      @messagable = @working_unit
+      @messagable_id = hash[:unit_id]
+      @messagable_type = "Unit"
       @source = File.join(ARCHIVE_READ_DIR, @unit_dir)
 
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source => @source})
@@ -25,7 +26,8 @@ class StartIngestFromArchiveProcessor < ApplicationProcessor
 
       ingestable_units.each {|ingestable_unit|
         @unit_id = ingestable_unit.id
-        @messagable = Unit.find(@unit_id)
+        @messagable_id = @unit_id
+        @messagable_type = "Unit"
         @unit_dir = "%09d" % @unit_id
 
         @source = File.join(ARCHIVE_READ_DIR, @unit_dir)

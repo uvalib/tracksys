@@ -12,7 +12,8 @@ class CreateTextFromPdfProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Paramater 'path_to_pdf' is required" if hash[:path_to_pdf].blank?
     @unit_id = hash[:unit_id]
-    @messagable = Unit.find(@unit_id)
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
     @path_to_pdf = hash[:path_to_pdf]
 
     contents = Dir.entries(@path_to_pdf).delete_if {|x| x == "." or x == ".." or x !~ /_[0-9][0-9][0-9][0-9].pdf/}

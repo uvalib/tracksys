@@ -12,7 +12,8 @@ class UpdateUnitStatus < ApplicationProcessor
     raise "Parameter 'unit_status is required" if hash[:unit_status].blank?
     raise "Parameter 'unit_status' is not a valid value" if Unit::UNIT_STATUSES.include?(hash[:unit_status])
 
-    @messagable = Unit.find(hash[:unit_id])
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
 
     @messagable.update_attribute(:unit_status, hash[:unit_status])
     on_success "Unit #{hash[:unit_id]} status changed to #{hash[:unit_status]}."

@@ -15,7 +15,8 @@ class CreateOrderZipProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     @order_id = hash[:order_id]
-    @messagable = Order.find(@order_id)
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
 
     # Test for existing order*_1.zip file.  Warn staff if present and stop working.
     if File.exist?(File.join("#{DELIVERY_DIR}", "order_#{@order_id}_1.zip"))

@@ -16,11 +16,13 @@ class UpdateUnitDateArchivedProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'source_dir' is required" if hash[:source_dir].blank?
 
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
+    
     @unit_id = hash[:unit_id]
     @source_dir = hash[:source_dir]
 
     @working_unit = Unit.find(@unit_id)
-    @messagable = @working_unit
     @working_unit.date_archived = Time.now
     @working_unit.save!
 

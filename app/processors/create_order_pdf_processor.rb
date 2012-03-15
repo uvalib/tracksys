@@ -20,7 +20,8 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
-    @messagable = @working_order
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
     @fee = hash[:fee]
     @customer = @working_order.parent
 

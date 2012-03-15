@@ -13,10 +13,12 @@ class CheckOrderDateArchivingCompleteProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
-
     @working_order = Unit.find(hash[:unit_id]).order
-    @messagable = @working_order
     @order_id = @working_order.id
+
+    @messagable_id = @order_id
+    @messagable_type = "Order"
+    
     incomplete_units = Array.new
     
     @working_order.units.each {|unit|

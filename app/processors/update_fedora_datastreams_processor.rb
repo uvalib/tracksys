@@ -26,7 +26,8 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
     @object_class = hash[:object_class]
     @object_id = hash[:object_id]
     @object = @object_class.classify.constantize.find(@object_id)     
-    @messagable = @object         
+    @messagable_id = hash[:object_id]
+    @messagable_type = hash[:object_class]     
     @datastream = hash[:datastream]
 
     if @object.is_a? Unit

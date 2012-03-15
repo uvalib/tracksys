@@ -14,7 +14,8 @@ class SendFeeEstimateToCustomerProcessor < ApplicationProcessor
     @order_id = hash[:order_id]
     @first_name = hash[:first_name]
     @working_order = Order.find(@order_id)
-    @messagable = @working_order
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
     email = OrderMailer.create_send_fee_estimate_to_customer(@working_order, @first_name)
     email.set_content_type("text/html")
     OrderMailer.deliver(email)

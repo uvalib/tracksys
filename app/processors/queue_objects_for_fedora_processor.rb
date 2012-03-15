@@ -15,7 +15,8 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
 
     @source = hash[:source]
     @working_unit = Unit.find(hash[:unit_id])
-    @messagable = @working_unit
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
 
     # Will put all objects to be ingested into repo into an array called things
     things = Array.new

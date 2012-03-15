@@ -9,9 +9,11 @@ class UpdateOrderStatusDeferredProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
+
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
-    @messagable = @working_order
     @working_order.order_status = 'deferred'
     @working_order.save! 
 

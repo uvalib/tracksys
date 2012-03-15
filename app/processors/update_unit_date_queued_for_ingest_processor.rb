@@ -15,6 +15,8 @@ class UpdateUnitDateQueuedForIngestProcessor < ApplicationProcessor
     # Validate incoming message
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'source' is required" if hash[:source].blank?
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
     
     @unit_id = hash[:unit_id]
     @source = hash[:source]

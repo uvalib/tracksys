@@ -10,8 +10,10 @@ class BurstPdfProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
+
     @unit_id = hash[:unit_id]
-    @messagable = Unit.find(@unit_id)
     @unit_dir = "%09d" % @unit_id
 
     path_to_pdf = File.join(PRODUCTION_SCAN_DIR, "10_raw", "%09d" % @unit_id)

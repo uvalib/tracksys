@@ -4,7 +4,9 @@ class SendCommitToSolrProcessor < ApplicationProcessor
   
   def on_message(message)  
     logger.debug "SendCommitToSolrProcessor received: " + message
-    # @messagable = ???
+    # TODO: Figure out what messagable class this processor will belong to
+    # @messagable_id = 
+    # @messagable_type =
     
     solr = Solr::Connection.new("#{SOLR_URL}", :autocommit => :on)
     solr.commit

@@ -53,7 +53,8 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
     @object_class = hash[:object_class]
     @object_id = hash[:object_id]
     @object = @object_class.classify.constantize.find(@object_id)
-    @messagable = @object
+    @messagable_id = hash[:object_id]
+    @messagable_type = hash[:object_class]
 
     @pid = @object.pid
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)   

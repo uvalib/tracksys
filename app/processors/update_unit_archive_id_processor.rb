@@ -13,14 +13,16 @@ class UpdateUnitArchiveIdProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'source_dir' is required" if hash[:source_dir].blank?
-
+    @messagable_id = hash[:unit_id]
+    @messagable_type = "Unit"
+    
     @unit_id = hash[:unit_id]
     @source_dir = hash[:source_dir]
 
     # Update archive location.  This presumes that StorNext is the only archive and that its
     # value in the archives table is '2'
     working_unit = Unit.find(@unit_id)
-    @messagable = working_unit
+
     working_unit.archive_id = 2
     working_unit.save!
 

@@ -12,7 +12,8 @@ class UpdateOrderEmailDateProcessor < ApplicationProcessor
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
-    @messagable = @working_order
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
     @working_order.email.date=Time.now
     @working_order.save!  
  

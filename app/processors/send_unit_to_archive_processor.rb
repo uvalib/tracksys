@@ -33,7 +33,8 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
       raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
       
       @unit_id = hash[:unit_id]
-      @messagable = Unit.find(@unit_id)
+      @messagable_id = hash[:unit_id]
+      @messagable_type = "Unit"
       @unit_dir = "%09d" % @unit_id
 
     # Second, messages coming from the start_manual processor
@@ -43,7 +44,8 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
         raise "Parameter 'unit_dir' is required" if hash[:unit_dir].blank?
 
         @unit_id = hash[:unit_id]
-        @messagable = Unit.find(@unit_id)
+        @messagable_id = hash[:unit_id]
+        @messagable_type = "Unit"
         @unit_dir = hash[:unit_dir]     
       elsif @internal_dir == 'no'
         raise "Parameter 'unit_dir' is required" if hash[:unit_dir].blank?

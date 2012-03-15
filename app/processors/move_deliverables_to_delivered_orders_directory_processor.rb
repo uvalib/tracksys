@@ -13,7 +13,8 @@ class MoveDeliverablesToDeliveredOrdersDirectoryProcessor < ApplicationProcessor
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
     @order_id = hash[:order_id]
-    @messagable = Order.find(@order_id)
+    @messagable_id = hash[:order_id]
+    @messagable_type = "Order"
 
     FileUtils.mv File.join(ASSEMBLE_DELIVERY_DIR, "order_#{@order_id}"), File.join(DELETE_DIR_DELIVERED_ORDERS, "order_#{@order_id}")
     on_success "Directory the deliverables for order #{@order_id} have been moved from #{ASSEMBLE_DELIVERY_DIR} to #{DELETE_DIR_DELIVERED_ORDERS}."
