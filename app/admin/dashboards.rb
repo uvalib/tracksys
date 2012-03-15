@@ -48,12 +48,12 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  # section "Recently Ingested into DL" do
-  #   table_for Unit.in_repo.limit(20) do
-  #     column("Call Number") {|unit| unit.bibl_call_number}
-  #     column("Title") {|unit| unit.bibl_title}
-  #     column "# of Images", :master_files_count
-  #   end
-  # end
+  section "Recently Ingested into DL" do
+    table_for Unit.in_repo.limit(20) do
+      column("Call Number") {|unit| unit.bibl_call_number}
+      column("Title") {|unit| unit.bibl_title}
+      column ("Thumbnail") {|unit| image_tag("#{MasterFile.find_by_filename(unit.bibl_exemplar).link_to_thumbnail}", :height => '100')}
+    end
+  end
 
 end
