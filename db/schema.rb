@@ -100,7 +100,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "archives", ["name"], :name => "index_archives_on_name", :unique => true
 
   create_table "automation_messages", :force => true do |t|
-    t.integer  "unit_id"
     t.string   "pid"
     t.string   "app"
     t.string   "processor"
@@ -110,10 +109,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.text     "backtrace"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "order_id"
-    t.integer  "master_file_id"
-    t.integer  "bibl_id"
-    t.integer  "component_id"
     t.boolean  "active_error",                  :default => false, :null => false
     t.integer  "messagable_id",                                    :null => false
     t.string   "messagable_type", :limit => 20,                    :null => false
@@ -121,13 +116,9 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   end
 
   add_index "automation_messages", ["active_error"], :name => "index_automation_messages_on_active_error"
-  add_index "automation_messages", ["bibl_id"], :name => "index_automation_messages_on_bibl_id"
-  add_index "automation_messages", ["component_id"], :name => "index_automation_messages_on_component_id"
-  add_index "automation_messages", ["master_file_id"], :name => "index_automation_messages_on_master_file_id"
+  add_index "automation_messages", ["messagable_id", "messagable_type"], :name => "index_automation_messages_on_messagable_id_and_messagable_type"
   add_index "automation_messages", ["message_type"], :name => "index_automation_messages_on_message_type"
-  add_index "automation_messages", ["order_id"], :name => "index_automation_messages_on_order_id"
   add_index "automation_messages", ["processor"], :name => "index_automation_messages_on_processor"
-  add_index "automation_messages", ["unit_id"], :name => "index_automation_messages_on_unit_id"
   add_index "automation_messages", ["workflow_type"], :name => "index_automation_messages_on_workflow_type"
 
   create_table "availability_policies", :force => true do |t|
@@ -625,12 +616,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   end
 
   add_index "use_rights", ["name"], :name => "index_use_rights_on_name", :unique => true
-
-  add_foreign_key "automation_messages", "bibls", :name => "automation_messages_bibl_id_fk"
-  add_foreign_key "automation_messages", "components", :name => "automation_messages_component_id_fk"
-  add_foreign_key "automation_messages", "master_files", :name => "automation_messages_master_file_id_fk"
-  add_foreign_key "automation_messages", "orders", :name => "automation_messages_order_id_fk"
-  add_foreign_key "automation_messages", "units", :name => "automation_messages_unit_id_fk"
 
   add_foreign_key "bibls", "availability_policies", :name => "bibls_availability_policy_id_fk"
   add_foreign_key "bibls", "indexing_scenarios", :name => "bibls_indexing_scenario_id_fk"

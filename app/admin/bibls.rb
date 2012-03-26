@@ -11,8 +11,11 @@ ActiveAdmin.register Bibl do
   filter :catalog_key
   filter :barcode
   filter :pid
+  filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type)
+  filter :customers_id, :as => :numeric
+  filter :orders_id, :as => :numeric
 
-  index do
+  index :id => 'bibls' do
   	column :id
   	column :title
   	column :creator_name
@@ -20,13 +23,16 @@ ActiveAdmin.register Bibl do
   	column :catalog_key
   	column :barcode
   	column :pid
+    column ("Date Ingested Into DL") {|bibl| format_date(bibl.date_dl_ingest) }
     column("Units") {|bibl| bibl.units.size.to_s }
-    column("Master Files") {|bibl| bibl.master_files.size.to_s }
+    column("Master Files") do |bibl|
+      link_to bibl.master_files_count, "master_files?q%5Bbibl_id_eq%5D=#{bibl.id}&order=filename_asc"
+    end
     default_actions
   end
   
   show do
-    panel "Units" do
+    panel "Units", :id => 'units' do
       table_for bibl.units do
         column("ID") {|u| link_to "#{u.id}", admin_unit_path(u)}
         column ("DL Status") {|unit|
@@ -46,7 +52,7 @@ ActiveAdmin.register Bibl do
       end
     end
 
-    panel "Automation Messages" do
+    panel "Automation Messages", :id => 'automation_messages', :toggle => 'hide' do
       table_for bibl.automation_messages do
         column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
         column :message_type
@@ -59,13 +65,13 @@ ActiveAdmin.register Bibl do
     end
   end
 
-  sidebar "Bibliographic Information", :only => :show do
+  sidebar "Bibliographic Information", :id => 'bibls', :only => :show do
     attributes_table_for bibl, :title, :creator_name, :call_number, :catalog_key, :barcode, :pid
   end
 
-  action_item :only => :show do
-    button_to "Update All XML Datastreams ", update_metadata_admin_bibl_url(bibl), :method => 'get'
-  end
+  # action_item :only => :show do
+  #   button_to "Update All XML Datastreams ", update_metadata_admin_bibl_url(bibl), :method => 'get'
+  # end
 
   # controller do
   #   require 'activemessaging/processor'

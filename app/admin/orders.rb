@@ -20,7 +20,7 @@ ActiveAdmin.register Order do
   filter :fee_actual
   filter :staff_notes
 
-  index do
+  index :id => 'orders' do
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
     column ("Date Request Submitted") {|order| order.date_request_submitted.try(:strftime, "%m/%d/%y")}
@@ -29,44 +29,73 @@ ActiveAdmin.register Order do
     column ("Date Patron Deliverables Complete") {|order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y")}
     column ("Date Customer Notified") {|order| order.date_customer_notified.try(:strftime, "%m/%d/%y")}
     column ("Date Due") {|order| order.date_due.try(:strftime, "%m/%d/%y")}
+    column ("Units") do |order|
+      link_to order.units_count, "units?q%5Border_id_eq%5D=#{order.id}"
+    end
+    column ("Master Files") do |order|
+      link_to order.master_files_count, "master_files?q%5Bcorder_id_eq%5D=#{order.id}&order=filename_asc"
+    end
     column :agency
     column :customer
     default_actions
   end
 
   show do
-    panel "Units" do
-      table_for (order.units) do
-        column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
-        column :unit_status
-        column :bibl_title
-        column :bibl_call_number
-        column :date_archived
-        column :date_dl_deliverables_ready
-        column("# of Master Files") {|unit| unit.master_files_count.to_s}
+    div :class => 'two-column' do
+
+    end
+    div :class => 'two-column' do 
+      panel "Customer Details", :id => 'customers', :toggle => 'show' do
+        attributes_table_for order.customer do
+          row("Name") {link_to "#{order.customer_full_name}", admin_customer_path(order.customer)}
+          row :email
+        end
       end
     end
 
-    panel "Automation Messages" do
-      table_for order.automation_messages do
-        column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-        column :message_type
-        column :active_error
-        column :workflow_type
-        column(:message) {|am| truncate_words(am.message)}
-        column(:created_at) {|am| format_date(am.created_at)}
-        column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+    div :class => 'two-column' do
+      panel "Agency Details", :id => 'agencies', :toggle => 'show' do
+        attributes_table_for order.agency do 
+          row("Name") {auto_link order.agency_name}
+        end
+      end
+    end
+
+    div :class => 'columns-none' do
+      panel "Units (#{order.units_count})", :id => 'units', :toggle => 'hide' do
+        table_for (order.units) do
+          column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
+          column :unit_status
+          column :bibl_title
+          column :bibl_call_number
+          column :date_archived
+          column :date_dl_deliverables_ready
+          column("# of Master Files") {|unit| unit.master_files_count.to_s}
+        end
+      end
+
+      panel "Automation Messages (#{order.automation_messages_count})", :id => 'automation_messages', :toggle => 'hide' do
+        table_for order.automation_messages do
+          column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
+          column :message_type
+          column :active_error
+          column :workflow_type
+          column(:message) {|am| truncate_words(am.message)}
+          column(:created_at) {|am| format_date(am.created_at)}
+          column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+        end
       end
     end
   end
 
-  form do |f|
-    f.inputs "Details" do
-      f.input :fee_estimated
-      f.input :fee_actual
-    end
-    f.buttons
-  end
+  # form do |f|
+  #   f.inputs "Details" do
+  #     f.input :fee_estimated
+  #     f.input :fee_actual
+  #     f.input :staff_notes
+  #   end
+  #   f.buttons
+  # end
 
   sidebar :approval_workflow, :only => [:show] do
     div :class => 'workflow_button' do
@@ -95,19 +124,6 @@ ActiveAdmin.register Order do
 
     div :class => 'workflow_button' do
       button_to "Deliver Order"
-    end
-  end
-
-  sidebar :customer, :only => [:edit, :show] do
-    attributes_table_for order.customer do
-      row("Name") {link_to "#{order.customer_full_name}", admin_customer_path(order.customer)}
-      row :email
-    end
-  end
-
-  sidebar :agency, :only => [:edit, :show] do
-    attributes_table_for order.agency do
-      row("Name") {auto_link order.agency_name}
     end
   end
 
