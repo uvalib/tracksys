@@ -2,8 +2,7 @@ class UpgradeComponents < ActiveRecord::Migration
   def change
     change_table(:components, :bulk => true) do |t|
       t.integer :availability_policy_id
-      t.datetime :date_dl_ingest
-      t.datetime :date_dl_update
+      t.datetime :date_ingested_into_dl
       t.integer :use_right_id
       t.integer :master_files_count, :default => 0, :null => false
       t.integer :automation_messages_count, :default => 0, :null => false

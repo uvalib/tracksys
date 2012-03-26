@@ -9,7 +9,6 @@ class UpdateOrderStatusDeferredProcessor < ApplicationProcessor
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
-    @workflow_type = 'patron'
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
 

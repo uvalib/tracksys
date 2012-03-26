@@ -38,16 +38,16 @@ class CheckOrderReadyForDeliveryProcessor < ApplicationProcessor
     if incomplete_units.empty?
       if @working_order.date_customer_notified
         # The order appears to have been delivered to the customer already
-        on_failure("The date_customer_notified field on order #{hash[:order_id]} is filled out.  The order appears to have been delivered already.")
+        on_failure("The date_customer_notified field on order #{@working_order.id} is filled out.  The order appears to have been delivered already.")
       else
         # The 'patron' units within the order are complete
-        message = ActiveSupport::JSON.encode({ :order_id => hash[:order_id] })
+        message = ActiveSupport::JSON.encode({ :order_id => @order_id })
         publish :update_order_date_patron_deliverables_complete, message
-        on_success("All units in order #{@hash[:order_id]} are complete and will now begin the delivery process.")
+        on_success("All units in order #{@order_id} are complete and will now begin the delivery process.")
       end
     else  
       # Order incomplete.  List units incomplete units in message
-      on_success("Order #{hash[:order_id]} is incomplete with units #{incomplete_units.join(", ")} still unfinished")
+      on_success("Order #{@order_id} is incomplete with units #{incomplete_units.join(", ")} still unfinished")
     end
   end
 end
