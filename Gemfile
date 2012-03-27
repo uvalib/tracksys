@@ -27,6 +27,7 @@ gem 'exifr'
 gem 'rest-client'
 gem 'solr-ruby'
 gem 'spreadsheet'
+gem 'tweet-button'
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
