@@ -1,8 +1,7 @@
 class UpgradeBibls < ActiveRecord::Migration
   def change
     change_table(:bibls, :bulk => true) do |t|
-      t.datetime :date_dl_ingest
-      t.datetime :date_dl_update
+      t.datetime :date_ingested_into_dl
       t.integer :automation_messages_count, :default => 0
       t.integer :orders_count, :default => 0
       t.integer :units_count, :default => 0

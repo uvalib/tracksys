@@ -1,7 +1,5 @@
 require "#{Hydraulics.helpers_dir}/application_helper"
 
-include TweetButton
-
 module ApplicationHelper
 
   def format_boolean_as_yes_no(boolean)
@@ -9,14 +7,6 @@ module ApplicationHelper
       return 'Yes'
     else
       return 'No'
-    end
-  end
-
-  def format_boolean_as_present(boolean)
-    if boolean
-      return 'Available'
-    else
-      return 'None available'
     end
   end
 

@@ -63,7 +63,6 @@ class UpgradeData < ActiveRecord::Migration
     say "Updating master_file.date_dl_ingest values"
     Unit.where('date_dl_deliverables_ready').each {|unit|
       unit.master_files.update_all :date_dl_ingest => unit.date_dl_deliverables_ready
-      unit.bibl.update_attribute(:date_dl_ingest, unit.date_dl_deliverables_ready)
     }
   end
 
