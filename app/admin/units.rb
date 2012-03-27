@@ -12,6 +12,8 @@ ActiveAdmin.register Unit do
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
   filter :indexing_scenario
+  filter :order_id, :as => :numeric
+  filter :customer_id, :as => :numeric
 
   index do
     column :id
@@ -36,19 +38,25 @@ ActiveAdmin.register Unit do
       format_date(unit.date_dl_deliverables_ready)
     end
     column :intended_use
-    column("Master Files") {|mf| mf.master_files_count}
+    column("Master Files") do |unit| 
+      link_to unit.master_files_count, "master_files?q%5Bunit_id_eq%5D=#{unit.id}&order=filename_asc"
+    end
     default_actions
   end
 
+  form do
+
+  end
+
   show do
-  	panel "Master Files" do
-  		table_for unit.master_files do
-  			column ("ID") {|master_file| link_to "#{master_file.id}", admin_master_file_path(master_file) }
-  			column :title
-  			column :description
-  			column :pid
-  		end
-  	end
+    panel "Master Files" do
+      table_for unit.master_files do
+        column ("ID") {|master_file| link_to "#{master_file.id}", admin_master_file_path(master_file) }
+        column :title
+        column :description
+        column :pid
+      end
+    end
 
     panel "Automation Messages" do
       table_for unit.automation_messages do
@@ -63,16 +71,16 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "General Information", :only => [:show] do
-    attributes_table_for unit, :unit_status, :special_instructions, :staff_notes
-  end
+  # sidebar "General Information", :only => [:show] do
+  #   attributes_table_for unit, :unit_status, :special_instructions, :staff_notes
+  # end
 
-  sidebar "Patron Information", :only => [:show] do
-    attributes_table_for unit, :intended_use_id
-  end
+  # sidebar "Patron Information", :only => [:show] do
+  #   attributes_table_for unit, :intended_use_id
+  # end
 
-  sidebar "Digital Library Information", :only => [:show] do
-    attributes_table_for unit, :date_queued_for_ingest, :date_dl_deliverables_ready, :availability_policy_id, :indexing_scenario_id, :use_right_id
-  end
+  # sidebar "Digital Library Information", :only => [:show] do
+  #   attributes_table_for unit, :date_queued_for_ingest, :date_dl_deliverables_ready, :availability_policy_id, :indexing_scenario_id, :use_right_id
+  # end
   
 end

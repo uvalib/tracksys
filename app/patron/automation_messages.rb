@@ -1,9 +1,8 @@
 ActiveAdmin.register AutomationMessage, :namespace => :patron do
-  menu :parent => "Miscellaneous"
   menu :priority => 7
 
   scope :all, :default => true, :show_count => false
-  scope :has_active_error, :label => "Active Error", :show_count => false
+  scope :has_active_error, :label => "Active Error"
   scope :has_inactive_error, :label => "Inactive Error", :show_count => false
   scope :archive_workflow, :show_count => false
   scope :qa_workflow, :show_count => false
@@ -22,7 +21,7 @@ ActiveAdmin.register AutomationMessage, :namespace => :patron do
     column :message_type
     column :workflow_type
     column :active_error
-    column :message
+    column("Message") {|am| truncate(am.message)}
     default_actions
   end
 
@@ -72,7 +71,7 @@ ActiveAdmin.register AutomationMessage, :namespace => :patron do
       f.input :unit_id, :as => :string, :input_html => { :disabled => true }
     end
     f.inputs :class => 'columns-none' do
-      f.buttons
+      f.actions
     end
   end
 end
