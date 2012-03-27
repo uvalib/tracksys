@@ -6,7 +6,9 @@ ActiveAdmin.register AutomationMessage do
   scope :has_inactive_error, :label => "Inactive Error", :show_count => false
   scope :archive_workflow, :show_count => false
   scope :qa_workflow, :show_count => false
+  scope :deliervy_workflow, :show_count => false
   scope :patron_workflow, :show_count => false
+  scope :production_worklow, :show_count => false
   scope :repository_workflow, :show_count => false
 
   filter :active_error, :as => :select
