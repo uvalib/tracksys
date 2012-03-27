@@ -12,6 +12,14 @@ module ApplicationHelper
     end
   end
 
+  def format_boolean_as_present(boolean)
+    if boolean
+      return 'Available'
+    else
+      return 'None available'
+    end
+  end
+
   def format_date(date)
     begin
       return date.strftime("%m/%d/%Y")
