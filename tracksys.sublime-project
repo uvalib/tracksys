@@ -3,6 +3,12 @@
 	[
 		{
 			"path": "/Volumes/digiserv-production/administrative/coding/tracksys"
+		},
+		{
+			"path": "/Volumes/digiserv-production/administrative/coding/old_tracksys"
+		},
+		{
+			"path": "/Volumes/digiserv-production/administrative/coding/hydraulics"
 		}
 	]
 }
