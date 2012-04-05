@@ -66,7 +66,35 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  section "Recent DL Items", :id => 'test' do
+  section "Finalization", :namespace => :admin do
+    table do
+      tr do
+        td do "Orders Ready for Delivery" end
+        td do link_to "#{Order.ready_for_delivery.count}", "admin/orders?scope=ready_for_delivery" end
+      end
+      tr do
+        td do "Burn Orders to DVD" end
+        td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", "admin/orders?scope=ready_for_dvd_burning" end
+      end
+      tr do
+        td do "Unfinished Units of Partially Finalized Orders" end
+        td do link_to "", "" end
+      end
+    end
+    # div do
+    #   link_to "Orders Ready for Delivery (#{Order.ready_for_delivery.count})", "admin/orders?scope=ready_for_delivery"
+    # end
+  end
+
+  section "Unfinished Units of Partially Finalized Orders" do
+
+  end
+
+  section "Burn to DVD" do
+
+  end
+
+  section "Recent DL Items", :namespace => :admin do
     table_for Bibl.in_dl.limit(30) do
       column :call_number
       column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
