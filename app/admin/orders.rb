@@ -7,6 +7,7 @@ ActiveAdmin.register Order do
   scope :awaiting_approval
   scope :deferred
   scope :in_process
+  scope :ready_for_delivery
   scope :complete
 
   filter :agency
