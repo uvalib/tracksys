@@ -7,9 +7,11 @@ gem 'execjs'
 gem 'therubyracer'
 
 gem 'hydraulics', :path => '../hydraulics'
-gem 'activeadmin', :git => 'git://github.com/gregbell/active_admin.git'
+# gem 'activeadmin', :git => 'git://github.com/gregbell/active_admin.git'
+gem 'activeadmin', :path => '../active_admin'
 gem 'sass-rails'
 gem 'meta_search',    '>= 1.1.0.pre'
+gem 'passenger'
 
 gem 'sqlite3'
 gem 'json'
@@ -28,6 +30,7 @@ gem 'rest-client'
 gem 'solr-ruby'
 gem 'spreadsheet'
 gem 'tweet-button'
+gem 'lazy_high_charts'
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
