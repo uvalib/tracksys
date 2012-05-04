@@ -39,7 +39,7 @@ PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 # Solr URL variables for interacting with sanctioned solr server.  Used in constructing solr records
 # and in engaging lib/bibl_external_update
 SOLR_PRODUCTION_NAME = "solrpowr.lib.virginia.edu"
-SOLR_PRODUCTION_PORT = "8983"
+SOLR_PRODUCTION_PORT = "8984"
 
 # To prevent writing to production archive on Stornext from all but tracksys.production
 # the default write directory will be Test.
