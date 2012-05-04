@@ -1,6 +1,8 @@
 ActiveAdmin.register SqlReport do
   menu :parent => "Miscellaneous"
 
+  scope :all, :default => true
+
   filter :name
   filter :description
   filter :sql

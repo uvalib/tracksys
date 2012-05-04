@@ -1,46 +1,84 @@
 ActiveAdmin.register AcademicStatus do
   menu :parent => "Miscellaneous"
+  config.sort_order = 'name_asc'
+
+  filter :id
+  filter :name
+
+  actions :all, :except => [:destroy]
+
+  scope :all, :default => true
 
   index do
-    column("Name") do |academic_status|
-      link_to "#{academic_status.name}", admin_academic_status_path(academic_status)
+    column :name
+    column :customers do |academic_status|
+      link_to "#{academic_status.customers_count.to_s}", admin_customers_path(:q => {:academic_status_id_eq => academic_status.id})
     end
-    column :customers_count
+    column :requests do |academic_status|
+      link_to "#{academic_status.requests.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
+    end
+    column :orders do |academic_status|
+      link_to "#{academic_status.orders.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
+    end
+    column :units do |academic_status|
+      link_to "#{academic_status.units.size.to_s}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
+    end
+    column :master_files do |academic_status|
+      link_to "#{academic_status.master_files.size.to_s}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
+    end
     column :created_at do |academic_status|
       format_date(academic_status.created_at)
     end
     column :updated_at do |academic_status|
       format_date(academic_status.updated_at)
     end
+    column("") do |academic_status|
+      div do
+        link_to "Details", resource_path(academic_status), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(academic_status), :class => "member_link edit_link"
+      end
+    end
   end 
 
   show :title => proc { academic_status.name } do
-    panel "Customers" do
-      div :id => 'customers' do
-        collection = academic_status.customers.page(params[:customer_page])
-        pagination_options = {:entry_name => Customer.model_name.human, :param_name => :customer_page, :download_links => false}
-        paginated_collection(collection, pagination_options) do
-          table_options = {:id => 'customers-table', :sortable => true, :class => "customer_index_table"}
-          table_for collection, table_options do
-            column :name do |customer|
-              link_to "#{customer.full_name}", admin_customer_path(customer)
-            end
-            column :email
-            column("Requests") {|customer| customer.requests.size.to_s}
-            column("Orders") {|customer| customer.orders_count}
-            column("Units") {|customer| customer.units.size.to_s }
-            column("Bibliographic Records") {|customer| customer.bibls.size.to_s}
-            column("Master Files") do |customer|
-              link_to customer.master_files.size.to_s, "master_files?q%5Bcustomer_id_eq%5D=#{customer.id}&order=filename_asc"
-            end
-          end
+    panel "Detailed Information" do
+      attributes_table_for academic_status do
+        row :name
+        row :created_at do |academic_status|
+          format_date(academic_status.created_at)
         end
+        row :updated_at do |academic_status|
+          format_date(academic_status.updated_at)
+        end
+      end
+    end
+  end
+
+  sidebar "Related Information", :only => :show do
+    attributes_table_for academic_status do
+      row :customers do |academic_status|
+        link_to "#{academic_status.customers_count.to_s}", admin_customers_path(:q => {:academic_status_id_eq => academic_status.id})
+      end
+      row :requests do |academic_status|
+        link_to "#{academic_status.requests.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
+      end
+      row :orders do |academic_status|
+        link_to "#{academic_status.orders.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
+      end
+      row :units do |academic_status|
+        link_to "#{academic_status.units.size.to_s}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
+      end
+      row :master_files do |academic_status|
+        link_to "#{academic_status.master_files.size.to_s}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
       end
     end
   end
 
   sidebar "Orders Complete By Year", :only => :show do
     attributes_table_for academic_status do
+      row("2012") {|academic_status| academic_status.orders.where(:date_archiving_complete => '2012-01-01'..'2012-12-31').count }
       row("2011") {|academic_status| academic_status.orders.where(:date_archiving_complete => '2011-01-01'..'2011-12-31').count }
       row("2010") {|academic_status| academic_status.orders.where(:date_archiving_complete => '2010-01-01'..'2010-12-31').count }
       row("2009") {|academic_status| academic_status.orders.where(:date_archiving_complete => '2009-01-01'..'2009-12-31').count }

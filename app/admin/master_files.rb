@@ -2,9 +2,20 @@ ActiveAdmin.register MasterFile do
   config.sort_order = 'id_asc'
 
   menu :priority => 6
+
   scope :all, :default => true
+  scope :in_digital_library
+  scope :not_in_digital_library
+  
   actions :all, :except => [:destroy]
 
+  batch_action :download_from_archive do |selection|
+    MasterFile.find(selection).each do |mf|
+      copy_from_archive_admin_master_file_path(mf.id)
+    end
+  end
+
+  filter :id
   filter :filename
   filter :title
   filter :description
@@ -21,8 +32,18 @@ ActiveAdmin.register MasterFile do
   filter :bibl_barcode, :as => :string, :label => "Barcode"
   filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
   filter :academic_status, :as => :select
+  filter :availability_policy
+  filter :indexing_scenario
+  filter :date_archived
+  filter :date_dl_ingest
+  filter :date_dl_update
+  filter :agency, :as => :select
+  filter :archive, :as => :select
+  filter :heard_about_service, :as => :select
+  filter :heard_about_resource, :as => :select
   
   index :id => 'master_files' do
+    selectable_column
     column :filename, :sortable => false
     column :title do |mf|
       truncate_words(mf.title)
@@ -37,33 +58,13 @@ ActiveAdmin.register MasterFile do
       format_date(mf.date_dl_ingest)
     end
     column :pid, :sortable => false
+    column ("Bibliographic Title") do |mf|
+      link_to "#{mf.bibl_title}", admin_bibl_path(mf.bibl.id)
+    end
     column("Thumbnail") do |mf|
-      if mf.in_dl?
-        image_tag("http://fedoraproxy.lib.virginia.edu/fedora/get/#{mf.pid}/djatoka:jp2SDef/getRegion?scale=125", :height => '100')
-      end
+      link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
     end
-    column ("Social Media") do |mf|
-      if mf.in_dl?
-        if mf.discoverability
-          div do
-            tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{mf.pid}", :text => truncate("#{mf.bibl_title}", :length => 80), :count => 'horizontal')
-          end
-          div do
-            link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{mf.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{mf.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{mf.title} from #{mf.bibl_title} &#183; #{mf.bibl_creator_name} &#183; #{mf.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button"
-          end
-        else
-          div do
-            tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{mf.bibl.pid}/view?&page=#{mf.pid}", :text => truncate("#{mf.title} from #{mf.bibl_title}", :length => 80), :count => 'horizontal')
-          end
-          div do
-            link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{mf.bibl.pid}/view?&page=#{mf.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{mf.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{mf.title} from #{mf.bibl_title} &#183; #{mf.bibl_creator_name} &#183; #{mf.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button"
-          end
-        end
-      else
-      end
-    end
-    
-    column("Links") do |mf|
+    column("") do |mf|
       div do
         link_to "Details", resource_path(mf), :class => "member_link view_link"
       end
@@ -77,7 +78,7 @@ ActiveAdmin.register MasterFile do
       end
       if mf.date_archived
         div do
-          link_to "Download", copy_from_archive_admin_master_file_path(mf), :class => 'member_link', :method => 'get'
+          link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :class => 'member_link', :method => 'get'
         end
       end
     end
@@ -85,13 +86,14 @@ ActiveAdmin.register MasterFile do
 
   show do
     div :class => 'two-column' do
-      panel "Basic Information", :id => 'master_files' do
+      panel "Basic Information", :id => 'master_files', :toggle => 'show' do
         attributes_table_for master_file do
           row :filename
           row :title
           row :description
-          row :bibl_call_number 
-          row :date_archived
+          row :date_archived do |master_file|
+            format_date(master_file.date_archived)
+          end
           row :transcription_text
         end
       end
@@ -120,6 +122,16 @@ ActiveAdmin.register MasterFile do
       end
 
       panel "Technical Information", :id => 'master_files', :toggle => 'hide' do 
+        attributes_table_for master_file do
+          row :md5
+          row :filesize
+          row :equipment do |master_file|
+            master_file.image_tech_meta.equipment
+          end
+          row :image_format do |master_file|
+            master_file.image_tech_meta.image_format
+          end
+        end
         if master_file.image_tech_meta
           attributes_table_for master_file.image_tech_meta do
             row :image_format
@@ -138,66 +150,23 @@ ActiveAdmin.register MasterFile do
     end
 
     div :class => 'two-column' do
-      div :class => 'master_file_thumbnail_show' do
-        image_tag("#{master_file.link_to_thumbnail}", :alt => "#{master_file.title}", :height => 500)
+      panel "Thumbnail" do
+        link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
       end
     end
+  end
 
-    div :class => 'columns-none' do
-      panel "Bbiliographic Information", :id => 'bibls', :toggle => 'hide' do
-        attributes_table_for master_file.bibl do
-          row :id
-          row :call_number
-          row :title
-        end
+  sidebar "Related Information", :only => [:show] do
+    attributes_table_for master_file do
+      row :unit
+      row :bibl
+      row :order
+      row :customer
+      row :component
+      row :automation_messages do |master_file|
+        link_to "#{master_file.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => master_file.id, :messagable_type_eq => "MasterFile" })
       end
-
-
-      panel "Components (#{format_boolean_as_present(master_file.component.present?)})", :id => 'components', :toggle => 'hide' do
-        if master_file.component.present?
-          attributes_table_for master_file.component do 
-            row("ID") {|component| link_to "#{component.id}", admin_component_path(component)}
-          end
-        end
-      end
-
-      panel "Customer", :id => 'customers', :toggle => 'hide' do
-        attributes_table_for master_file.customer do 
-          row("ID") {|customer| link_to "#{customer.id}", admin_customer_path(customer)}
-          row :full_name
-          row :email
-          row :academic_status
-        end
-      end
-
-      panel "Unit", :id => 'units', :toggle => 'hide' do
-        attributes_table_for master_file.unit do
-          row("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
-          row :order
-          row :unit_status
-          row :bibl
-          row :bibl_call_number
-          row :date_archived do |unit|
-            format_date(unit.date_archived)
-          end
-          row :date_dl_deliverables_ready do |unit|
-            format_date(unit.date_dl_deliverables_ready)
-          end
-          row("# of Master Files") {|unit| unit.master_files_count.to_s}
-        end
-      end
-
-      panel "Automation Messages (#{master_file.automation_messages_count})", :id => 'automation_messages', :toggle => 'hide' do
-        table_for master_file.automation_messages do
-          column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-          column :message_type
-          column :active_error
-          column :workflow_type
-          column(:message) {|am| truncate_words(am.message)}
-          column(:created_at) {|am| format_date(am.created_at)}
-          column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
-        end
-      end
+      row :agency
     end
   end
 
@@ -212,7 +181,7 @@ ActiveAdmin.register MasterFile do
   action_item :only => :show do 
     if master_file.in_dl?
       if master_file.discoverability
-        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{mf.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
       else
         link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
       end
@@ -239,8 +208,8 @@ ActiveAdmin.register MasterFile do
 
     publishes_to :copy_archived_files_to_production
 
-    def copy_from_archive
-      master_file = MasterFile.find(params[:id])
+    def copy_from_archive(id)
+      master_file = MasterFile.find(id)
       message = ActiveSupport::JSON.encode( { :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
       publish :copy_archived_files_to_production, message
       flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."

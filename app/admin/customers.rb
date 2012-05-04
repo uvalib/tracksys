@@ -7,35 +7,86 @@ ActiveAdmin.register Customer do
 
   scope :all, :default => true
   
+  filter :id
   filter :first_name
   filter :last_name
   filter :email
   filter :primary_address_organization, :as => :string, :label => "Primary Organization"
   filter :billable_address_organization, :as => :string, :label => "Billable Organization"
-  filter :department, :collection => proc { Department.order(:name)}
-  filter :academic_status, :collection => proc { AcademicStatus.order(:name) }
-  filter :heard_about_service, :collection => proc { HeardAboutService.order(:description) }
+  filter :academic_status, :as => :select
+  filter :department, :as => :select
+  filter :heard_about_service, :as => :select
+  filter :heard_about_resources_id, :as => :numeric
   filter :orders_count
   filter :master_files_count
+  filter :agencies_id, :as => :numeric
 
-  index :id => 'customers' do
+  index :as => :table do
+    selectable_column
     column("Name", :sortable => false) do |customer| 
       customer.full_name
     end
-    column("Requests") {|customer| customer.requests.size.to_s}
-    column("Orders") {|customer| customer.orders_count}
-    column("Units") do|customer| 
-      link_to customer.units.size.to_s, "units?q%5Bcustomers_id_eq%5D=#{customer.id}"
+    column :requests do |customer|
+       link_to customer.requests.size.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
     end
-    column("Bibliographic Records") do |customer| 
-      link_to customer.bibls.size.to_s, "bibls?q%5Bcustomers_id_eq%5D=#{customer.id}"
+    column :orders do |customer|
+      link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'approved')
     end
-    column("Master Files") do |customer|
-      link_to customer.master_files.size.to_s, "master_files?q%5Bcustomer_id_eq%5D=#{customer.id}"
+    column :units do |customer| 
+      link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
+    end
+    column ("Bibliographic Records") do |customer| 
+      link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
+    end
+    column :master_files do |customer|
+      link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
     end
     column :department, :sortable => false
     column :academic_status, :sortable => false
-    default_actions
+    column("Links") do |customer|
+      div do
+        link_to "Details", resource_path(customer), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(customer), :class => "member_link edit_link"
+      end
+    end
+  end
+
+  show :title => proc { customer.full_name } do
+    div :class => 'three-column' do 
+      panel "Details", :id => 'customers' do
+        attributes_table_for customer do
+          row :full_name
+          row :email do |customer|
+            format_email_in_sidebar(customer.email).gsub(/\s/, "")
+          end
+          row :academic_status
+          row :heard_about_service
+          row :department
+        end
+      end
+    end
+
+    div :class => 'three-column' do
+      panel "Primary Address", :id => 'customers' do
+        if customer.primary_address
+          div { render :partial => 'admin/attribute_table', :object => customer.primary_address }
+        else
+          "No address available."
+        end
+      end
+    end
+
+    div :class => 'three-column' do 
+      panel "Billing Address", :id => 'customers' do
+        if customer.billable_address
+          div { render :partial => 'admin/attribute_table', :object => customer.billable_address }
+        else
+          "No address available."
+        end
+      end
+    end
   end
 
   form do |f|
@@ -87,180 +138,25 @@ ActiveAdmin.register Customer do
     end
   end
 
-  show :title => proc { customer.full_name } do
-    div :class => 'three-column' do 
-      panel "Customer Details", :id => 'customers' do
-        attributes_table_for customer do
-          row :full_name
-          row :email do |customer|
-            format_email_in_sidebar(customer.email).gsub(/\s/, "")
-          end
-          row :date_of_first_order do |customer|
-            format_date(customer.date_of_first_order)
-          end
-          row :academic_status
-          row :department
-        end
+  sidebar "Related Information", :only => [:show] do
+    attributes_table_for customer do
+      row :requests do |customer|
+         link_to customer.requests.size.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
       end
-    end
-
-    div :class => 'three-column' do
-      panel "Primary Address", :id => 'customers' do
-        if customer.primary_address
-          attributes_table_for customer.primary_address do
-            row :address_1
-            row :address_2
-            row :city
-            row :state
-            row :country
-            row :post_code
-            row :phone
-            row :organization
-          end
-        else
-          "No address available."
-        end
+      row :orders do |customer|
+        link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'approved')
       end
-    end
-
-    div :class => 'three-column' do 
-      panel "Billing Address", :id => 'customers' do
-        if customer.billable_address
-          attributes_table_for customer.billable_address do
-            row :last_name
-            row :first_name
-            row :organization
-            row :address_1
-            row :address_2
-            row :city
-            row :state
-            row :country
-            row :post_code
-            row :phone
-            row :organization
-          end
-        else
-          "No address available."
-        end
+      row :units do |customer| 
+        link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
       end
-    end
-
-    div :class => 'columns-none' do
-      div :id => "requests" do
-        panel "Requests (#{customer.requests.count})", :id => 'orders', :toggle => 'hide' do
-          collection = customer.requests.page(params[:requests_page])
-          pagination_options = {:entry_name => Request.model_name.human, :param_name => :order_page, :download_links => false}
-          paginated_collection(collection, pagination_options) do
-              table_options = {:id => 'requests-table', :sortable => true, :class => "order_index_table"}
-              table_for collection, table_options do
-                column :id do |request|
-                  link_to "#{request.id}", admin_order_path(request)
-                end
-                column("Status") {|request| status_tag(request.order_status)}
-                column :date_request_submitted do |request|
-                  format_date(request.date_request_submitted)
-                end
-                column :date_order_approved do |request|
-                  format_date(request.date_order_approved)
-                end
-                column :date_archiving_complete do |request|
-                  format_date(request.date_archiving_complete)
-                end
-                column :date_patron_deliverables_complete do |request|
-                  format_date(request.date_patron_deliverables_complete)
-                end
-                column :date_customer_notified do |request|
-                  format_date(request.date_customer_notified)
-                end
-                column :date_due do |request|
-                  format_date(request.date_due)
-                end
-                column :agency, :sortable => false
-                column :units_count, :sortable => false
-              end
-            end
-          end
-        end
-
-      panel "Orders (#{customer.orders_count})", :id => 'orders', :toggle => 'hide' do
-        div :id => "orders" do
-          collection = customer.orders.page(params[:order_page])
-          pagination_options = {:entry_name => Order.model_name.human, :param_name => :order_page, :download_links => false}
-          paginated_collection(collection, pagination_options) do
-            table_options = {:id => 'orders-table', :sortable => true, :class => "order_index_table"}
-            table_for collection, table_options do
-              column :id do |order|
-                link_to "#{order.id}", admin_order_path(order)
-              end
-              column("Status") {|order| status_tag(order.order_status)}
-              column :date_request_submitted do |order|
-                format_date(order.date_request_submitted)
-              end
-              column :date_order_approved do |order|
-                format_date(order.date_order_approved)
-              end
-              column :date_archiving_complete do |order|
-                format_date(order.date_archiving_complete)
-              end
-              column :date_patron_deliverables_complete do |order|
-                format_date(order.date_patron_deliverables_complete)
-              end
-              column :date_customer_notified do |order|
-                format_date(order.date_customer_notified)
-              end
-              column :date_due do |order|
-                format_date(order.date_due)
-              end
-              column :agency, :sortable => false
-              column :units_count, :sortable => false
-              column :master_files_count do |order|
-                order.master_files.count
-              end
-            end
-          end
-        end
+      row ("Bibliographic Records") do |customer| 
+        link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
       end
-
-      panel "Units (#{customer.units.count})", :id => 'units', :toggle => "hide" do
-        div :id => "units" do
-          collection = customer.units.page(params[:unit_page])
-          pagination_options = {:entry_name => Unit.model_name.human, :param_name => :unit_page, :download_links => false}
-          paginated_collection(collection, pagination_options) do
-            table_options = {:id => 'units-table', :sortable => true, :class => "unit_index_table", :i18n => Unit}
-            table_for collection, table_options do
-              column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
-              column :order, :sortable => false
-              column :unit_status, :sortable => false
-              column :bibl, :sortable => false
-              column :bibl_call_number, :sortable => false
-              column :date_archived do |unit|
-                format_date(unit.date_archived)
-              end
-              column :date_dl_deliverables_ready do |unit|
-                format_date(unit.date_dl_deliverables_ready)
-              end
-              column("# of Master Files") {|unit| unit.master_files_count.to_s}
-            end
-          end
-        end
+      row :master_files do |customer|
+        link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
       end
-
-      panel "Bibliographic Records (#{customer.bibls.count})", :id => 'bibls', :toggle => "hide" do
-        div :id => "bibls" do
-          collection = customer.bibls.page(params[:bibl_page])
-          pagination_options = {:entry_name => Bibl.model_name.human, :param_name => :bibl_page, :download_links => false}
-          paginated_collection(collection, pagination_options) do
-            table_options = {:id => 'bibls-table', :sortable => true, :class => "bibls_index_table", :i18n => Bibl}
-            table_for collection, table_options do
-              column ("ID") {|bibl| link_to "#{bibl.id}", admin_bibl_path(bibl)}
-              column :call_number
-              column ("Catalog Key") {|bibl| bibl.catalog_key.to_s}
-              column :barcode
-              column :title
-              column :creator_name
-            end
-          end
-        end
+      row :date_of_first_order do |customer|
+        format_date(customer.date_of_first_order)
       end
     end
   end

@@ -2,8 +2,13 @@ ActiveAdmin.register Unit do
   menu :priority => 4
   
   scope :all, :default => true
+  actions :all, :except => [:destroy]
 
-  filter :id, :as => :numeric
+  batch_action :print_routing_slips do |selection|
+
+  end
+
+  filter :id
   filter :date_archived
   filter :date_dl_deliverables_ready
   filter :date_queued_for_ingest
@@ -12,14 +17,19 @@ ActiveAdmin.register Unit do
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
   filter :indexing_scenario
-  filter :order_id, :as => :numeric
-  filter :customer_id, :as => :numeric
+  filter :order_id, :as => :numeric, :label => "Order ID"
+  filter :customer_id, :as => :numeric, :label => "Customer ID"
+  filter :agency, :as => :select
+  filter :availability_policy
+  filter :indexing_scenario
 
   index do
+    selectable_column
     column :id
-    column :bibl
-    # column ("Bibl Title") {|unit| unit.bibl_title }
-    # column ("Call Number") {|unit| unit.bibl_call_number}
+    column ("Bibliographic Title") do |unit| 
+      link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}") 
+    end
+    column ("Call Number") {|unit| unit.bibl_call_number}
     column ("DL Status") {|unit|
       case 
         when unit.include_in_dl?
@@ -39,48 +49,132 @@ ActiveAdmin.register Unit do
     end
     column :intended_use
     column("Master Files") do |unit| 
-      link_to unit.master_files_count, "master_files?q%5Bunit_id_eq%5D=#{unit.id}&order=filename_asc"
+      link_to unit.master_files_count, admin_master_files_path(:q => {:unit_id_eq => unit.id})
     end
-    default_actions
+    column("") do |unit|
+      div do
+        link_to "Details", resource_path(unit), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
+      end
+    end
   end
 
-  form do
+  form do |f|
+    f.inputs "General Information", :class => 'two-column panel' do
+      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES
+      f.input :unit_extent_estimated
+      f.input :unit_extent_actual
+      f.input :heard_about_resource, :as => :text, :input_html => { :disabled => true, :rows => 1 }
+      f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 }
+      f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
+      f.input :staff_notes, :as => :text, :input_html => { :rows => 5 }
+    end
+
+    f.inputs "Patron Request", :class => 'two-column panel' do
+      f.input :intended_use, :as => :select, :collection => IntendedUse.all
+      f.input :deliverable_format
+      f.input :deliverable_resolution
+      f.input :remove_watermark
+      f.input :date_materials_received
+      f.input :date_materials_returned
+      f.input :date_archived
+      f.input :date_patron_deliverables_ready
+    end
+
+    f.inputs "Digital Library Information", :class => 'columns-none panel' do
+
+    end
+
+    f.inputs :class => 'columns-none' do
+      f.actions
+    end
 
   end
 
   show do
-    panel "Master Files" do
-      table_for unit.master_files do
-        column ("ID") {|master_file| link_to "#{master_file.id}", admin_master_file_path(master_file) }
-        column :title
-        column :description
-        column :pid
+    div :class => 'two-column' do
+      panel "General Information" do
+        attributes_table_for unit do
+          row :unit_status
+          row :unit_extent_estimated
+          row :unit_extent_actual
+          row :heard_about_resource
+          row :patron_source_url
+          row :special_instructions
+          row :staff_notes
+        end
       end
     end
 
-    panel "Automation Messages" do
-      table_for unit.automation_messages do
-        column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-        column :message_type
-        column :active_error
-        column :workflow_type
-        column(:message) {|am| truncate_words(am.message)}
-        column(:created_at) {|am| format_date(am.created_at)}
-        column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+    div :class => 'two-column' do
+      panel "Patron Request" do
+        attributes_table_for unit do
+          row :intended_use
+          row :deliverable_format
+          row :deliverable_resolution
+          row :remove_watermark do |unit|
+            format_boolean_as_yes_no(unit.remove_watermark)
+          end
+          row :date_materials_received do |unit|
+            format_date(unit.date_materials_received)
+          end
+          row :date_materials_returned do |unit|
+            format_date(unit.date_materials_returned)
+          end
+          row :date_archived do |unit|
+            format_datetime(unit.date_archived)
+          end
+          row :date_patron_deliverables_ready do |unit|
+            format_datetime(unit.date_patron_deliverables_ready)
+          end
+        end
+      end
+    end
+
+    div :class => "columns-none" do
+      panel "Digital Library Information" do
+        attributes_table_for unit do 
+          row :indexing_scenario
+          row :availability_policy
+          row :use_right
+          row ("Digital Library Status") do |unit|
+            case 
+              when unit.include_in_dl?
+                Unit.human_attribute_name(:include_in_dl)
+              when unit.exclude_from_dl?
+                Unit.human_attribute_name(:exclude_from_dl)
+            end
+          end
+          row :master_file_discoverability do |unit|
+            format_boolean_as_yes_no(unit.master_file_discoverability)
+          end
+          row :date_queued_for_ingest do |unit|
+            format_datetime(unit.date_queued_for_ingest)
+          end
+          row :date_dl_deliverables_ready do |unit|
+            format_datetime(unit.date_dl_deliverables_ready)
+          end
+        end
       end
     end
   end
 
-  # sidebar "General Information", :only => [:show] do
-  #   attributes_table_for unit, :unit_status, :special_instructions, :staff_notes
-  # end
-
-  # sidebar "Patron Information", :only => [:show] do
-  #   attributes_table_for unit, :intended_use_id
-  # end
-
-  # sidebar "Digital Library Information", :only => [:show] do
-  #   attributes_table_for unit, :date_queued_for_ingest, :date_dl_deliverables_ready, :availability_policy_id, :indexing_scenario_id, :use_right_id
-  # end
-  
+  sidebar "Related Information", :only => [:show] do
+    attributes_table_for unit do
+      row :bibl
+      row :order do |unit|
+        link_to "##{unit.order.id}", admin_order_path(unit.order.id)
+      end
+      row :master_files do |unit|
+        link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
+      end 
+      row :customer
+      row :automation_messages do |unit|
+        link_to "#{unit.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => unit.id, :messagable_type_eq => "Unit" })
+      end
+      row :agency
+    end
+  end
 end

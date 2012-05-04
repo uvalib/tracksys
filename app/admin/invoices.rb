@@ -1,3 +1,5 @@
 ActiveAdmin.register Invoice do
-  menu :parent => "Miscellaneous"  
+  menu :parent => "Miscellaneous"
+
+  scope :all, :default => true
 end

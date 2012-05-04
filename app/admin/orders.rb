@@ -5,13 +5,19 @@ ActiveAdmin.register Order do
 
   scope :all, :default => true
   scope :awaiting_approval
+  scope :approved
   scope :deferred
   scope :in_process
   scope :ready_for_delivery
   scope :complete
 
+ 
+  filter :id
   filter :agency
-  filter :customer
+  filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq
+  filter :order_title
+  filter :customer_id, :as => :numeric, :label => "Customer ID"
+  filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :date_request_submitted
   filter :date_due
   filter :date_archiving_complete
@@ -20,8 +26,10 @@ ActiveAdmin.register Order do
   filter :fee_estimated
   filter :fee_actual
   filter :staff_notes
+  filter :academic_status, :as => :select
 
   index :id => 'orders' do
+    selectable_column
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
     column ("Date Request Submitted") {|order| order.date_request_submitted.try(:strftime, "%m/%d/%y")}
@@ -31,74 +39,103 @@ ActiveAdmin.register Order do
     column ("Date Customer Notified") {|order| order.date_customer_notified.try(:strftime, "%m/%d/%y")}
     column ("Date Due") {|order| order.date_due.try(:strftime, "%m/%d/%y")}
     column ("Units") do |order|
-      link_to order.units_count, "units?q%5Border_id_eq%5D=#{order.id}"
+      link_to order.units_count, admin_units_path(:q => {:order_id_eq => order.id})
     end
     column ("Master Files") do |order|
-      link_to order.master_files_count, "master_files?q%5Bcorder_id_eq%5D=#{order.id}&order=filename_asc"
+      link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
     column :agency
     column :customer
-    default_actions
+    column("") do |order|
+      div do
+        link_to "Details", resource_path(order), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(order), :class => "member_link edit_link"
+      end
+    end
   end
 
   show do
     div :class => 'two-column' do
-
-    end
-    div :class => 'two-column' do 
-      panel "Customer Details", :id => 'customers', :toggle => 'show' do
-        attributes_table_for order.customer do
-          row("Name") {link_to "#{order.customer_full_name}", admin_customer_path(order.customer)}
-          row :email
+      panel "General Information" do
+        attributes_table_for order do
+          row :order_status
+          row :order_title
+          row :special_instructions
+          row :staff_notes
         end
       end
     end
 
     div :class => 'two-column' do
-      panel "Agency Details", :id => 'agencies', :toggle => 'show' do
-        attributes_table_for order.agency do 
-          row("Name") {auto_link order.agency_name}
+      panel "Approval Information" do
+        attributes_table_for order do
+          row :date_request_submitted do |customer|
+            format_date(customer.date_request_submitted)
+          end
+          row :date_due do |customer|
+            format_date(customer.date_due)
+          end
+          row :fee_estimated do |customer|
+            number_to_currency(customer.fee_estimated)
+          end
+          row :fee_actual do |customer|
+            number_to_currency(customer.fee_actual)
+          end
+          row :date_deferred do |customer|
+            format_date(customer.date_deferred)
+          end
+          row :date_fee_estimate_sent_to_customer do |customer|
+            format_date(customer.date_fee_estimate_sent_to_customer)
+          end
+          row :date_permissions_given do |customer|
+            format_date(customer.date_permissions_given)
+          end
         end
       end
     end
 
     div :class => 'columns-none' do
-      panel "Units (#{order.units_count})", :id => 'units', :toggle => 'hide' do
-        table_for (order.units) do
-          column("ID") {|unit| link_to "#{unit.id}", admin_unit_path(unit) }
-          column :unit_status
-          column :bibl_title
-          column :bibl_call_number
-          column :date_archived
-          column :date_dl_deliverables_ready
-          column("# of Master Files") {|unit| unit.master_files_count.to_s}
-        end
-      end
-
-      panel "Automation Messages (#{order.automation_messages_count})", :id => 'automation_messages', :toggle => 'hide' do
-        table_for order.automation_messages do
-          column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-          column :message_type
-          column :active_error
-          column :workflow_type
-          column(:message) {|am| truncate_words(am.message)}
-          column(:created_at) {|am| format_date(am.created_at)}
-          column("Sent By") {|am| "#{am.app.capitalize}, #{am.processor}"}
+      panel "Delivery Information" do 
+        attributes_table_for order do
+          row :date_finalization_begun do |customer|
+            format_date(customer.date_finalization_begun)
+          end
+          row :date_archiving_complete do |customer|
+            format_date(customer.date_finalization_begun)
+          end
+          row :date_patron_deliverables_complete do |customer|
+            format_date(customer.date_patron_deliverables_complete)
+          end
+          row :date_customer_notified do |customer|
+            format_date(customer.date_customer_notified)
+          end
+          row :email do |customer|
+            raw(customer.email)
+          end
         end
       end
     end
   end
 
-  # form do |f|
-  #   f.inputs "Details" do
-  #     f.input :fee_estimated
-  #     f.input :fee_actual
-  #     f.input :staff_notes
-  #   end
-  #   f.buttons
-  # end
+  sidebar "Relaed Information", :only => :show do
+    attributes_table_for order do
+      row :units do |order|
+        link_to "#{order.units_count.to_s}", admin_units_path(:q => {:order_id_eq => order.id})
+      end
+      row :master_files do |order|
+        link_to "#{order.master_files_count.to_s}", admin_master_files_path(:q => {:order_id_eq => order.id})
+      end
+      row :bibls do |order|
+        link_to "#{order.bibls.size.to_s}", admin_bibls_path(:q => {:order_id_eq => order.id})
+      end
+      row :customer
+      row :agency
+    end
+  end
 
-  sidebar :approval_workflow, :only => [:show] do
+  sidebar :approval_workflow, :only => :show do
     div :class => 'workflow_button' do
       if order.approved?
         button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
@@ -118,7 +155,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar :delivery_workflow, :only => [:show] do
+  sidebar :delivery_workflow, :only => :show do
     div :class => 'workflow_button' do
       button_to "Check Order Ready For Delivery"
     end
