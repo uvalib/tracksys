@@ -14,6 +14,22 @@ $(function(){
   $(e.target).next('.panel_contents', 'ol').slideToggle("fast");
     return false;
   });
+});
+
+
+// Colorbox
+jQuery(document).ready(function(){
+  //Examples of how to assign the ColorBox event to elements
+  jQuery("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
+
+  //Example of preserving a JavaScript event for inline calls.
+  jQuery("#click").click(function(){
+    $('#click').css({"background-color":"#f00", "color":"#fff", "cursor":"inherit"}).text("Open this window again and this message will still be here.");
+    return false;
+  });
+})
+
+
 // Begin JS for Updating Bibl Records
 jQuery(function() {
   // when the #bibl_catalog_key field changes
@@ -40,4 +56,3 @@ $(document).ready(function() {
 });
 //end Begin JS for Updating Bibl Records
 
-});
