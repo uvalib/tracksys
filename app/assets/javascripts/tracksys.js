@@ -14,5 +14,30 @@ $(function(){
   $(e.target).next('.panel_contents', 'ol').slideToggle("fast");
     return false;
   });
+// Begin JS for Updating Bibl Records
+jQuery(function() {
+  // when the #bibl_catalog_key field changes
+  $('#bibl_catalog_key, #bibl_barcode').change(function() {
+    // replace the content of an anchor when an input field changes
+    var bibl_catalog_key = $('#bibl_catalog_key').val();
+    var bibl_barcode = $('#bibl_barcode').val();
+  	var new_url = "/admin/bibls/external_lookup?catalog_key=" + bibl_catalog_key + "&barcode=" + bibl_barcode
+    // update the href attribute with the new_url variable
+  	$('.bibl_update_button').attr('href', new_url);
+  });
+return false;
+})
+
+
+$(document).ready(function() {
+    $('.bibl_update_button').click(function(e) {
+      e.preventDefault();
+  		var bibl_catalog_key = $('#bibl_catalog_key').val();
+      var bibl_barcode = $('#bibl_barcode').val();
+  		var new_url = "/admin/bibls/external_lookup?catalog_key=" + bibl_catalog_key + "&barcode=" + bibl_barcode
+  		$(this).attr('href', new_url );
+    });
+});
+//end Begin JS for Updating Bibl Records
 
 });
