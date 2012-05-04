@@ -7,6 +7,8 @@ module Hydra
   require 'nokogiri'
   require 'solr'
   require 'uri'
+  require 'open-uri'
+  require 'iconv'
 
   XML_FILE_CREATION_STATEMENT = "Created programmatically by the Digital Curation Services Tracking System."
 
