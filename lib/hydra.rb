@@ -6,7 +6,6 @@ module Hydra
   require 'net/https'
   require 'nokogiri'
   require 'solr'
-  require 'uri'
   require 'open-uri'
   require 'iconv'
 
@@ -15,12 +14,20 @@ module Hydra
   # Returns the URL for the MARCXML file, sourced from Virgo, to be used as an 
   # external referenced dastastream named MARC
   def self.marc(object)
-    return "http://search.lib.virginia.edu/catalog/#{object.catalog_id}.xml" 
+    begin 
+      return "http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml" 
+    rescue NoMethodError
+      raise "#{object.class} #{object.id} has no catalog_key set."
+    end
   end
 
   # Returns the URL to be used for the POLICY and rightsMetadata datastream
   def self.access(object)
-    return object.availability_policy.xacml_policy_url
+    begin
+      return object.availability_policy.xacml_policy_url
+    rescue NoMethodError
+      raise "#{object.class} #{object.id} has no availability_policy set."
+    end
   end
   
   #-----------------------------------------------------------------------------
