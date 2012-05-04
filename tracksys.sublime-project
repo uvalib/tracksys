@@ -9,6 +9,9 @@
 		},
 		{
 			"path": "/Volumes/digiserv-production/administrative/coding/hydraulics"
+		},
+		{
+			"path": "/Volumes/digiserv-production/administrative/coding/active_admin"
 		}
 	]
 }
