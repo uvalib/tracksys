@@ -12,4 +12,15 @@ class Bibl
   # Necessary for Active Admin to poplulate pulldown menu
   alias_attribute :name, :title
 
+  def physical_virgo_url
+    return "#{VIRGO_URL}/#{self.catalog_key}"
+  end
+
+  def dl_virgo_url
+    return "#{VIRGO_URL}/#{self.pid}"
+  end
+
+  def fedora_url
+    return "#{FEDORA_REST_URL}/objects/#{self.pid}"
+  end
 end
