@@ -108,8 +108,8 @@ class UpgradeDatabase < ActiveRecord::Migration
     drop_table :access_levels
     drop_table :content_models
     drop_table :countries
-    drop_table :ead_refs
-    drop_table :ead_refs_master_files
+    # drop_table :ead_refs
+    # drop_table :ead_refs_master_files
     drop_table :process_notification_refs
     drop_table :staff_members
     drop_table :record_exports
@@ -140,60 +140,60 @@ class UpgradeDatabase < ActiveRecord::Migration
     end
 
     #TODO: Remove this after ms3uf changes Tracksys2 DB
-    change_table(:components, :bulk => true) do |t|
-      t.remove :seq_number
-      t.remove :barcode
-      t.remove :idno
-    end
+    # change_table(:components, :bulk => true) do |t|
+    #   t.remove :seq_number
+    #   t.remove :barcode
+    #   t.remove :idno
+    # end
 
-    create_table :containers do |t|
-      t.string :barcode
-      t.integer :container_type_id
-      t.string :label
-      t.integer :parent_container_id, :default => 0, :null => false
-      t.string :sequence_no
-    end
+    # create_table :containers do |t|
+    #   t.string :barcode
+    #   t.integer :container_type_id
+    #   t.string :label
+    #   t.integer :parent_container_id, :default => 0, :null => false
+    #   t.string :sequence_no
+    # end
 
-    add_index :containers, :parent_container_id
+    # add_index :containers, :parent_container_id
 
-    create_table :components_containers do |t|
-      t.integer :component_id
-      t.integer :container_id
-    end
+    # create_table :components_containers do |t|
+    #   t.integer :component_id
+    #   t.integer :container_id
+    # end
 
-    add_index :components_containers, :component_id
-    add_index :components_containers, :container_id
-    add_foreign_key :components_containers, :components
-    add_foreign_key :components_containers, :containers
+    # add_index :components_containers, :component_id
+    # add_index :components_containers, :container_id
+    # add_foreign_key :components_containers, :components
+    # add_foreign_key :components_containers, :containers
 
-    create_table :bibls_components do |t|
-      t.integer :bibl_id
-      t.integer :component_id
-    end
+    # create_table :bibls_components do |t|
+    #   t.integer :bibl_id
+    #   t.integer :component_id
+    # end
 
-    add_index :bibls_components, :bibl_id
-    add_index :bibls_components, :component_id
-    add_foreign_key :bibls_components, :bibls
-    add_foreign_key :bibls_components, :components
+    # add_index :bibls_components, :bibl_id
+    # add_index :bibls_components, :component_id
+    # add_foreign_key :bibls_components, :bibls
+    # add_foreign_key :bibls_components, :components
 
-    create_table :container_types do |t|
-      t.string :name
-      t.string :description
-    end
+    # create_table :container_types do |t|
+    #   t.string :name
+    #   t.string :description
+    # end
 
-    add_index :container_types, :name, :unique => true
-    add_foreign_key :containers, :container_types
+    # add_index :container_types, :name, :unique => true
+    # add_foreign_key :containers, :container_types
 
-    create_table :components_legacy_identifiers do |t|
-      t.integer :component_id
-      t.integer :legacy_identifier_id
-    end
+    # create_table :components_legacy_identifiers do |t|
+    #   t.integer :component_id
+    #   t.integer :legacy_identifier_id
+    # end
 
-    add_index :components_legacy_identifiers, :component_id
-    add_index :components_legacy_identifiers, :legacy_identifier_id
+    # add_index :components_legacy_identifiers, :component_id
+    # add_index :components_legacy_identifiers, :legacy_identifier_id
 
-    add_foreign_key :components_legacy_identifiers, :components
-    add_foreign_key :components_legacy_identifiers, :legacy_identifiers
+    # add_foreign_key :components_legacy_identifiers, :components
+    # add_foreign_key :components_legacy_identifiers, :legacy_identifiers
 
   end
 end
