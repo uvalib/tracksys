@@ -7,6 +7,27 @@ class MasterFile
   
   def link_to_thumbnail
     #master_file = MasterFile.find(params[:id])
+    
+  # Within the scope of a current MasterFile's Unit, return the MasterFile object
+  # that follows self.  Used to create links and relationships between objects.
+  def next
+    master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
+      return master_files_sorted[master_files_sorted.find_index(self)+1]
+    else
+      return nil
+  end
+
+  # Within the scope of a current MasterFile's Unit, return the MasterFile object
+  # that preceedes self.  Used to create links and relationships between objects.
+  def previous
+    master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
+    if master_files_sorted.find_index(self) > 0
+      return master_files_sorted[master_files_sorted.find_index(self)-1]
+    else
+      return nil
+    end
+  end
+
     thumbnail_name = self.filename.gsub(/tif/, 'jpg')
     unit_dir = "%09d" % self.unit_id
 
