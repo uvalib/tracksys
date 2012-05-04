@@ -1,0 +1,22 @@
+jQuery('.bibl_update_button').bind('ajax:success', function() {
+  <% @bibl.attributes.each do |attr_name, attr_value| %>
+    <% if Bibl::VIRGO_FIELDS.include?(attr_name) && !attr_value.nil? %>
+      var id = "#bibl_" + "<%= escape_javascript raw attr_name %>"; 
+      $(id).val('<%= escape_javascript raw attr_value %>').attr('class', 'updated');
+      <% end %>
+  <% end %>
+});
+
+// Old way of manually doing each field.
+// jQuery('.bibl_update_button').bind('ajax:success', function() {
+//   $("#bibl_title").val('<%= escape_javascript raw @bibl.title %>').attr('class', 'updated');
+//   $("#bibl_creator_name").val('<%= escape_javascript raw @bibl.creator_name %>').attr('class', 'updated');
+//   $("#bibl_copy").val('<%= escape_javascript raw @bibl.copy %>').attr('class', 'updated');
+//   $("#bibl_call_number").val('<%= escape_javascript raw @bibl.call_number %>').attr('class', 'updated');
+//   $("#bibl_location").val('<%= escape_javascript raw @bibl.location %>').attr('class', 'updated');
+//   $("#bibl_date_external_update").val('<%= escape_javascript raw @bibl.date_external_update %>').attr('class', 'updated');
+//   $("#bibl_title_control").val('<%= escape_javascript raw @bibl.title_control %>').attr('class', 'updated');
+//   $("#bibl_year").val('<%= escape_javascript raw @bibl.year %>').attr('class', 'updated');
+//   $("#bibl_year_type").val('<%= escape_javascript raw @bibl.year_type %>').attr('class', 'updated');
+//   $("#bibl_citation").val('<%= escape_javascript raw @bibl.citation %>').attr('class', 'updated');
+// });
