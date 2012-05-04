@@ -1,5 +1,5 @@
 ActiveAdmin.register MasterFile do
-  config.sort_order = 'id_asc'
+  config.sort_order = 'filename_asc'
 
   menu :priority => 6
 
