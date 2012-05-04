@@ -1,6 +1,8 @@
 ActiveAdmin.register MasterFile, :namespace => :patron do
   menu :priority => 6
 
+  scope :all, :default => true
+
   filter :title
   filter :filename
   filter :description
@@ -35,7 +37,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
                   end
                 end
                 td do
-                  link_to(image_tag("#{master_file.link_to_thumbnail}", :height => '50%', :alt => "#{master_file.title}"), patron_master_file_path(master_file))
+                  link_to(image_tag("#{master_file.link_to_static_thumbnail}", :height => '50%', :alt => "#{master_file.title}"), patron_master_file_path(master_file))
                 end
               end
             end

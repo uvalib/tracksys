@@ -6,14 +6,45 @@ ActiveAdmin.register Unit, :namespace => :patron do
 
   end
 
-  filter :id
-  filter :order_id, :as => :numeric
-  filter :bibl_id, :as => :numeric
+  scope :all, :default => true
 
+  filter :id
+  filter :date_archived
+  filter :date_dl_deliverables_ready
+  filter :date_queued_for_ingest
+  filter :include_in_dl, :as => :select
+  # filter :exclude_from_dl, :as => :radio
+  filter :bibl_call_number, :as => :string, :label => "Call Number"
+  filter :bibl_title, :as => :string, :label => "Bibl. Title"
+  filter :indexing_scenario
+  filter :order_id, :as => :numeric, :label => "Order ID"
+  filter :customer_id, :as => :numeric, :label => "Customer ID"
+  
   index do
     selectable_column
     column :id
-    column :unit_status
+    column :bibl
+    column ("DL Status") {|unit|
+      case 
+        when unit.include_in_dl?
+          Unit.human_attribute_name(:include_in_dl)
+        when unit.exclude_from_dl?
+          Unit.human_attribute_name(:exclude_from_dl)
+      end
+    }
+    column :date_archived do |unit|
+      format_date(unit.date_archived)
+    end
+    column :date_queued_for_ingest do |unit|
+      format_date(unit.date_queued_for_ingest)
+    end
+    column :date_dl_deliverables_ready do |unit|
+      format_date(unit.date_dl_deliverables_ready)
+    end
+    column :intended_use
+    column("Master Files") do |unit| 
+      link_to unit.master_files_count, "master_files?q%5Bunit_id_eq%5D=#{unit.id}&order=filename_asc"
+    end
     default_actions
   end
 

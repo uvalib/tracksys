@@ -4,7 +4,7 @@ ActiveAdmin.register Order, :namespace => :patron do
   actions :all, :except => [:destroy]
 
   scope :all
-  scope :awaiting_approval, :defaults => true
+  scope :awaiting_approval, :default => true
   scope :deferred
   scope :in_process
 
@@ -46,9 +46,13 @@ ActiveAdmin.register Order, :namespace => :patron do
 
     div :class => 'three-column' do
       panel "Agency Information" do
-        attributes_table_for order.agency do
-          row :name
-          row ("Parent Agencies") {|agency| agency.names_depth_cache}
+        if order.agency
+          attributes_table_for order.agency do
+            row :description
+            row ("Parent Agencies") {|agency| agency.names_depth_cache}
+          end
+        else
+          "No associated agency."
         end
       end
     end

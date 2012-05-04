@@ -1,6 +1,8 @@
 ActiveAdmin.register Customer, :namespace => :patron do
   menu :priority => 2
 
+  config.sort_order = 'name_asc'
+
   filter :id
 
   index do
