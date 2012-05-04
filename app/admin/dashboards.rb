@@ -1,45 +1,8 @@
 ActiveAdmin::Dashboards.build do
-  # return the content which you would like to display.
-  # Here is an example of a simple dashboard section
-  #
-  #   section "Recent Posts" do
-  #     ul do
-  #         li link_to(post.title, admin_post_path(post))
-  #     end
   
-  # The block is rendered within the context of the view, so you can
-  # easily render a partial rather than build content in ruby.
-  #
   #     end
-  #   end
-  # == Section Ordering
-  # priority it will be sorted higher. For example:
-  #
-
   section "QA Errors", :namespace => :admin do
-    table_for AutomationMessage.has_active_error.qa_workflow do
-      column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-      column :message_type
       column :active_error
-      column (:message) {|am| truncate(am.message, :length => 160)}
-    end
-  end
-
-  section "Archiving Errors", :namespace => :admin do
-    table_for AutomationMessage.has_active_error.archive_workflow do
-      column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-      column :message_type
-      column :active_error
-      column (:message) {|am| truncate(am.message, :length => 160)}
-    end
-  end
-
-  section "Delivery Errors", :namespace => :admin do
-    table_for AutomationMessage.has_active_error.delivery_workflow do
-      column("ID") {|am| link_to "#{am.id}", admin_automation_message_path(am)}
-      column :message_type
-      column :active_error
-      column (:message) {|am| truncate(am.message, :length => 160)}
     end
   end
 
