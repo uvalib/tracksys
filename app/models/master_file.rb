@@ -4,18 +4,18 @@ class MasterFile
   after_update :fix_updated_counters
 
   # scope :index_scope, select(["`master_files`.id", :filename, :title, :description, "`master_files`.discoverability","`master_files`.date_dl_ingest", "`master_files`.date_archived", "`master_files`.pid"])
-  
-  def link_to_thumbnail
-    #master_file = MasterFile.find(params[:id])
     
   # Within the scope of a current MasterFile's Unit, return the MasterFile object
   # that follows self.  Used to create links and relationships between objects.
   def next
     master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
+    if master_files_sorted.find_index(self) < master_files_sorted.length
       return master_files_sorted[master_files_sorted.find_index(self)+1]
     else
       return nil
+    end
   end
+
 
   # Within the scope of a current MasterFile's Unit, return the MasterFile object
   # that preceedes self.  Used to create links and relationships between objects.
@@ -28,6 +28,11 @@ class MasterFile
     end
   end
 
+  def link_to_dl_thumbnail
+    return "http://fedoraproxy.lib.virginia.edu/fedora/get/#{self.pid}/djatoka:jp2SDef/getRegion?scale=125"
+  end
+
+  def link_to_static_thumbnail
     thumbnail_name = self.filename.gsub(/tif/, 'jpg')
     unit_dir = "%09d" % self.unit_id
 
@@ -40,7 +45,6 @@ class MasterFile
         @range_dir = dir
       end
     }
-
     return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
   end
 
