@@ -7,9 +7,9 @@
         s.type = "text/javascript";
         s.async = true;
         if (window.location.protocol == "https:")
-            s.src = "https://assets.pinterest.com/js/pinit.js";
+            s.src = "/assets/pinit.js";
         else
-            s.src = "http://assets.pinterest.com/js/pinit.js";
+            s.src = "/assets/pinit.js";
         var x = document.getElementsByTagName("script")[0];
         x.parentNode.insertBefore(s, x);
     }
