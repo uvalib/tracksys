@@ -22,7 +22,7 @@ module ApplicationHelper
 
   def format_date(date)
     begin
-      return date.strftime("%m/%d/%Y")
+      return date.strftime("%m / %d / %Y")
     rescue Exception => e
       return nil
     end
@@ -30,7 +30,7 @@ module ApplicationHelper
 
   def format_datetime(datetime)
     begin
-      return datetime.strftime("%m/%d/%Y %l:%M:%S %P")
+      return datetime.strftime("%m / %d / %Y %l:%M:%S %P")
     rescue Exception => e
       return nil
     end
