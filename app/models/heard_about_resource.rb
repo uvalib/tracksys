@@ -1,6 +1,7 @@
 require "#{Hydraulics.models_dir}/heard_about_resource"
 
 class HeardAboutResource
+  default_scope :order => :description
 
   #------------------------------------------------------------------
   # aliases

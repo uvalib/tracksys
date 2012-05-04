@@ -1,6 +1,7 @@
 require "#{Hydraulics.models_dir}/intended_use"
 
 class IntendedUse
+  default_scope :order => :description
 
   #------------------------------------------------------------------
   # aliases
