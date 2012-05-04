@@ -2,6 +2,8 @@ require "#{Hydraulics.models_dir}/bibl"
 
 class Bibl
 
+  after_update :fix_updated_counters
+
   #------------------------------------------------------------------
   # aliases
   #------------------------------------------------------------------
