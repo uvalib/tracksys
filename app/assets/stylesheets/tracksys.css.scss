@@ -14,7 +14,7 @@
 .columns-none {
   clear: both;
   float: left;
-  width: 100%;
+  width: 97%;
 }
 
 form input[disabled="disabled"] {
@@ -27,6 +27,12 @@ form input[disabled="disabled"]:hover {
 }
 form input[disable="disabled"]:active {
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px white inset;
+}
+
+form fieldset {
+  /* Override activeadmin */
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .index_links {
@@ -270,6 +276,19 @@ End color work
   }
 }
 
+fieldset[toggle] {
+  legend span {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+
+fieldset[toggle="hide"] {
+  ol {
+    display: none;
+  }
+}
+
 
 /*form input[type="submit"], form input[disabled="disabled"] {
   background-color: #ffffff;
@@ -304,19 +323,58 @@ form fieldset > ol > li fieldset ol {
 /* sidebar */
 .attributes_table table td {
   padding-left: 6px;
+}
+
+form.filter_form .filter_form_field.filter_numeric input[type="text"],
+.sidebar_section input[type="text"], .sidebar_section input[type="password"], 
+.sidebar_section input[type="email"], .sidebar_section input[type="url"], 
+.sidebar_section input[type="tel"], .sidebar_section textarea {
+  margin-left: 8px;
+  width: 45%;
+}
+
+form.filter_form .filter_form_field.filter_numeric select {
+  width: 40%;
+}
+
+.filter_form_field.filter_select select {
+  width: 100%;
+}
+
+form.filter_form .filter_form_field.filter_date_range input[type="text"] {
+  margin-left: 0px;
+}
+
+.sidebar_section select {
+  width: 40%;
+}
+
+/* Hide form boxes */
+form input[type="text"][value="true"] {
+  display: none
+}
+
 /* Style Metadata Button */
 .bibl_update_button {
+  background-image:linear-gradient(-90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2));
   background-image:-webkit-gradient(linear, left top, left bottom,color-stop(0%, rgba(255, 255, 255, 0.9)), color-stop(100%, rgba(255, 255, 255, 0.2)));
   background-image:-moz-linear-gradient(-90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2));
   filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#90ffffff', EndColorStr='#20ffffff');
   -ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr='#90ffffff', EndColorStr='#20ffffff')";
+  background-color:rgb(51, 51, 51);
   border:1px solid rgb(102, 102, 102);
   border-radius:5px;
+  -moz-border-radius:5px;
   -webkit-border-radius:5px;
+  padding:10px 20px;
+  box-shadow:0px 0px 0px rgb(255, 255, 255);
   -moz-box-shadow:0px 0px 0px rgb(255, 255, 255);
+  -webkit-box-shadow:0px 0px 0px rgb(255, 255, 255);
   font-size:12px;
+  font-weight:normal;
   color:rgb(255, 255, 255);
   text-shadow:1px 1px 1px rgb(0, 0, 0);
+}
 
 .updated {
   /*border: 2px solid #346;*/
