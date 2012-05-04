@@ -34,5 +34,6 @@ class Customer
   # public instance methods
   #------------------------------------------------------------------
 
+  alias_attribute :name, :full_name
 
 end
