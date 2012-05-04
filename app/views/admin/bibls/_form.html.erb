@@ -1,0 +1,52 @@
+<%= semantic_form_for([:admin, @bibl]) do |f| %>
+
+  <%= f.inputs "Basic Information", :class => 'three-column panel' do %>
+
+    <%= f.input :catalog_key %>
+    <%= f.input :barcode %>
+    <%= f.input :title, :as => :text, :input_html => { :rows => 5 } %>
+    <%= f.input :creator_name %>
+    <%= f.input :call_number %>
+    <%= f.input :year %>
+    <%= f.input :year_type %>
+    <%= f.input :copy, :as => :string %>
+    <%= f.input :location %>
+  <% end %>
+
+  <%= f.inputs "Detailed Bibliographic Information", :class => 'three-column panel' do %>
+    <%= f.input :citation, :input_html => { :rows => 5 } %>
+    <%= f.input :description %>
+    <%= f.input :title_control %>
+    <%= f.input :series_title %>
+    <%= f.input :volume %>
+    <%= f.input :issue %>
+    <%= f.input :creator_name_type %>
+  <% end %>
+
+  <%= f.inputs "Administrative Information", :class => 'three-column panel' do %>
+    <%= f.input :is_approved, :as => :radio %>
+    <%= f.input :is_personal_item, :as => :radio %>
+    <%= f.input :is_manuscript, :as => :radio %>
+    <%= f.input :is_collection, :as => :radio %>
+    <%= f.input :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES %>
+    <%= f.input :genre, :as => :select, :collection => Bibl::GENRES %>
+    <%= f.input :date_external_update, :as => :string, :input_html => {:disabled => true, :class => "datepicker"} %>
+  <% end %>
+
+  <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do %>
+      <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
+      <%= f.input :exemplar, :as => :select, :collection => f.object.units.where(:include_in_dl => true).map(&:master_files).flatten %>
+      <%= f.input :discoverability, :as => :select %>
+      <%= f.input :indexing_scenario %>
+      <%= f.input :use_right %>
+      <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
+      <%= f.input :desc_metadata, :input_html => { :disabled => true } %>
+      <%= f.input :dc, :input_html => { :disabled => true } %>
+      <%= f.input :rels_ext, :input_html => { :disabled => true } %>
+      <%= f.input :rels_int, :input_html => { :disabled => true } %>
+      <%= f.input :solr, :input_html => { :disabled => true } %>
+  <% end %>
+
+  <%= f.actions :class => 'columns-none' %>
+
+<% end %>
