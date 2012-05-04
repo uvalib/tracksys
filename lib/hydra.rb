@@ -40,14 +40,14 @@ module Hydra
 
   # Returns a Dublic Core XML file.  
   def self.dc(object)
-    if object.is_a? Bibl and object.catalog_id
+    if object.is_a? Bibl and object.catalog_key
       # MARC XML -> DC
-      xslt = Nokogiri::XSLT(File.read("#{RAILS_ROOT}/lib/xslt/MARC21slim2OAIDC.xsl"))
-      xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_id}.xml"))
+      xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MARC21slim2OAIDC.xsl"))
+      xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
       dc = xslt.transform(xml).to_xml
     else 
       # MODS -> DC
-      xslt = Nokogiri::XSLT(File.read("#{RAILS_ROOT}/lib/xslt/MODS3-22simpleDC.xsl"))
+      xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MODS3-22simpleDC.xsl"))
       mods = Nokogiri::XML(Fedora.get_datastream("#{object.pid}", 'descMetadata', 'xml'))
       dc = xslt.transform(mods).to_xml
     end
@@ -83,7 +83,7 @@ module Hydra
       # external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
       iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
       
-      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_id}"
+      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_key}"
       iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
 
 #      url = "/saxon/SaxonServlet?source=#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content&style=#{object.indexing_scenario.complete_url}&repository=#{FEDORA_PROXY_URL}&pid=#{object.pid}&analogSolrRecord=#{iconv_analog_solr_record}&dateIngestNow=#{Time.now.strftime('%Y%m%d%H')}&contentModel=digital_book&sourceFacet=UVA Library Digital Repository&externalRelations=#{iconv_external_relations}&totalTranscriptions=#{iconv_transcription}&totalTitles=#{iconv_title}&totalDescriptions=#{iconv_description}&clear-stylesheet-cache=yes".gsub(/ /, '%20')
@@ -123,7 +123,7 @@ module Hydra
       # external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
       iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
 
-      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_id}"
+      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_key}"
       iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
 
       url = "/saxon/SaxonServlet?source=#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content&style=#{object.indexing_scenario.complete_url}&repository=#{FEDORA_PROXY_URL}&pid=#{object.pid}&analogSolrRecord=#{iconv_analog_solr_record}&dateIngestNow=#{Time.now.strftime('%Y%m%d%H')}&contentModel=jp2k&sourceFacet=UVA Library Digital Repository&externalRelations=#{iconv_external_relations}&totalTranscriptions=#{iconv_transcription}&totalTitles=#{iconv_title}&totalDescriptions=#{iconv_description}&parentModsRecord=#{iconv_parent_mods}&clear-stylesheet-cache=yes".gsub(/ /, '%20')
@@ -167,7 +167,7 @@ module Hydra
   #     doc = Nokogiri::XML(open("#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content"))
   #     xslt = Nokogiri::XSLT(File.read("/usr/local/projects/tracksys/lib/xslt/defaultModsTransformation.xsl")) 
       
-  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_id}"
+  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_key}"
   #     iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
 
   #     @solr = xslt.transform(doc,
@@ -213,7 +213,7 @@ module Hydra
   #     external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
   #     iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
 
-  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_id}"
+  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_key}"
   #     iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
       
   #     doc = Nokogiri::XML(open("#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content"))
@@ -413,7 +413,7 @@ module Hydra
           end
         elsif object.is_a? Bibl
           if object.parent_bibl
-            parent_pid = object.parent_bibl
+            parent_pid = object.parent_bibl.pid
             xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
           end
         else
@@ -526,7 +526,7 @@ module Hydra
           # TODO?: Conditional transformation of a Bibl object's descMetadata depending on whether that datastreams was populated through a 
           # MARC -> MODS transformation or the MODS is custom created.
 
-          # Create a default transformation for bibl records if they have catalog_id (i.e. their MODS comes from MARC XML
+          # Create a default transformation for bibl records if they have catalog_key (i.e. their MODS comes from MARC XML
 
         elsif object.is_a? Component
         elsif object.is_a? EadRef
@@ -549,7 +549,7 @@ module Hydra
   def self.desc(object, units_filter = nil)
     # If there is a Bibl with MARC XML available, that MARC XML will be transformed into
     # the MODS that will be ingested as the Hydra-compliant descMetadata
-    if object.is_a? Bibl and object.catalog_id
+    if object.is_a? Bibl and object.catalog_key
       output = mods_from_marc(object)
     else
       output = ''
@@ -577,8 +577,8 @@ module Hydra
   end
   
   def self.mods_from_marc(object)
-    xslt = Nokogiri::XSLT(File.read("#{RAILS_ROOT}/lib/xslt/MARC21slim2MODS3-4.xsl"))
-    xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_id}.xml"))
+    xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl"))
+    xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
     mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'", 'identifiers', "'#{TRACKSYS_URL_METADATA}/#{object.class.to_s.underscore}/mods_identifiers/#{object.id}'"])
     return mods.to_xml
   end  
@@ -997,8 +997,8 @@ module Hydra
     xml.mods :relatedItem, :type => 'original' do
       
       # identifiers
-      unless bibl.catalog_id.blank?
-        xml.mods :identifier, bibl.catalog_id, :type => 'local', :displayLabel => 'Catalog key'
+      unless bibl.catalog_key.blank?
+        xml.mods :identifier, bibl.catalog_key, :type => 'local', :displayLabel => 'Catalog key'
       end
       unless bibl.title_control.blank?
         xml.mods :identifier, bibl.title_control, :type => 'local', :displayLabel => 'Title control number'
