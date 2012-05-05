@@ -58,7 +58,7 @@ ActiveAdmin.register Order do
 
   show do
     div :class => 'two-column' do
-      panel "General Information" do
+      panel "Basic Information" do
         attributes_table_for order do
           row :order_status
           row :order_title
