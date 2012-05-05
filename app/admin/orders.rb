@@ -122,13 +122,13 @@ ActiveAdmin.register Order do
   sidebar "Relaed Information", :only => :show do
     attributes_table_for order do
       row :units do |order|
-        link_to "#{order.units_count.to_s}", admin_units_path(:q => {:order_id_eq => order.id})
+        link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
       end
       row :master_files do |order|
-        link_to "#{order.master_files_count.to_s}", admin_master_files_path(:q => {:order_id_eq => order.id})
+        link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
       end
       row :bibls do |order|
-        link_to "#{order.bibls.size.to_s}", admin_bibls_path(:q => {:order_id_eq => order.id})
+        link_to "#{order.bibls.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
       end
       row :customer
       row :agency
