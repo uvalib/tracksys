@@ -276,17 +276,13 @@ End color work
   }
 }
 
-fieldset[toggle] {
-  legend span {
-    cursor: pointer;
-    text-decoration: underline;
-  }
+fieldset[toggle] > legend span {
+  cursor: pointer;
+  text-decoration: underline;
 }
 
-fieldset[toggle="hide"] {
-  ol {
-    display: none;
-  }
+fieldset[toggle="hide"] > ol {
+  display: none;
 }
 
 
