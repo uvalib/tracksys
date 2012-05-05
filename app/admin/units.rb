@@ -61,38 +61,6 @@ ActiveAdmin.register Unit do
     end
   end
 
-  form do |f|
-    f.inputs "General Information", :class => 'two-column panel' do
-      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES
-      f.input :unit_extent_estimated
-      f.input :unit_extent_actual
-      f.input :heard_about_resource, :as => :text, :input_html => { :disabled => true, :rows => 1 }
-      f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 }
-      f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
-      f.input :staff_notes, :as => :text, :input_html => { :rows => 5 }
-    end
-
-    f.inputs "Patron Request", :class => 'two-column panel' do
-      f.input :intended_use, :as => :select, :collection => IntendedUse.all
-      f.input :deliverable_format
-      f.input :deliverable_resolution
-      f.input :remove_watermark
-      f.input :date_materials_received
-      f.input :date_materials_returned
-      f.input :date_archived
-      f.input :date_patron_deliverables_ready
-    end
-
-    f.inputs "Digital Library Information", :class => 'columns-none panel' do
-
-    end
-
-    f.inputs :class => 'columns-none' do
-      f.actions
-    end
-
-  end
-
   show do
     div :class => 'two-column' do
       panel "General Information" do
@@ -159,6 +127,50 @@ ActiveAdmin.register Unit do
         end
       end
     end
+  end
+
+  form do |f|
+    f.inputs "General Information", :class => 'panel three-column ' do
+      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES
+      f.input :unit_extent_estimated
+      f.input :unit_extent_actual
+      f.input :heard_about_resource, :as => :text, :input_html => { :disabled => true, :rows => 1 }
+      f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 }
+      f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
+      f.input :staff_notes, :as => :text, :input_html => { :rows => 5 }
+    end
+
+    f.inputs "Patron Request", :class => 'panel three-column' do
+      f.input :intended_use, :as => :select, :collection => IntendedUse.all
+      f.input :deliverable_format
+      f.input :deliverable_resolution
+      f.input :remove_watermark, :as => :radio
+      f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_patron_deliverables_ready, :as => :string, :input_html => {:class => :datepicker}
+    end
+
+    f.inputs "Related Information", :class => 'panel three-column' do 
+      f.input :order_id, :as => :string, :input_html => { :maxlength => 5}
+      f.input :bibl_id, :as => :string, :input_html => { :maxlength => 5}
+    end
+
+    f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
+      f.input :indexing_scenario
+      f.input :availability_policy
+      f.input :use_right
+      f.input :include_in_dl, :as => :radio
+      f.input :exclude_from_dl, :as => :radio
+      f.input :master_file_discoverability, :as => :radio
+      f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker}
+    end
+
+    f.inputs :class => 'columns-none' do
+      f.actions
+    end
+
   end
 
   sidebar "Related Information", :only => [:show] do
