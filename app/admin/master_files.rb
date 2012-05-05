@@ -156,6 +156,40 @@ ActiveAdmin.register MasterFile do
     end
   end
 
+  form do |f|
+    f.inputs "General Information", :class => 'panel three-column ' do
+      f.input :filename
+      f.input :title
+      f.input :description
+      f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
+      f.input :transcription_text, :input_html => { :rows => 5 }
+    end
+
+    f.inputs "Technical Information", :class => 'three-column panel' do
+      f.input :md5, :input_html => { :disabled => true }
+      f.input :filesize, :as => :string
+    end
+
+    f.inputs "Related Information", :class => 'panel three-column' do
+      f.input :unit_id, :as => :string    
+    end
+
+    f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
+      f.input :pid, :input_html => { :disabled => true }
+      f.input :availability_policy
+      f.input :indexing_scenario
+      f.input :desc_metadata, :input_html => { :rows => 5 }
+      f.input :solr, :input_html => { :rows => 5 }
+      f.input :dc, :input_html => { :rows => 5 }
+      f.input :rels_ext, :input_html => { :rows => 5 }
+      f.input :rels_int, :input_html => { :rows => 5 }
+    end
+
+    f.inputs :class => 'columns-none' do
+      f.actions
+    end
+  end
+
   sidebar "Related Information", :only => [:show] do
     attributes_table_for master_file do
       row :unit
