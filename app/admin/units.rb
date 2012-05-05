@@ -102,7 +102,7 @@ ActiveAdmin.register Unit do
     end
 
     div :class => "columns-none" do
-      panel "Digital Library Information" do
+      panel "Digital Library Information", :toggle => 'hide' do
         attributes_table_for unit do 
           row :indexing_scenario
           row :availability_policy
