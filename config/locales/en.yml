@@ -6,6 +6,8 @@ en:
     models:
       bibl: "Bibliographic Records"
     attributes:
+      staff_member:
+          computing_id: "UVA Computing ID"
       unit:
           include_in_dl: "Include In Digital Library"
           exclude_from_dl: "Exclude From Digital Library"
