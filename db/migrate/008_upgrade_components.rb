@@ -7,8 +7,6 @@ class UpgradeComponents < ActiveRecord::Migration
       t.integer :use_right_id
       t.integer :master_files_count, :default => 0, :null => false
       t.integer :automation_messages_count, :default => 0, :null => false
-      t.remove :bibl_id
-      t.remove :label
       t.string :exemplar
       t.remove_index :name => 'component_type_id'
       t.remove_index :name => 'indexing_scenario_id'
