@@ -16,11 +16,13 @@ $(function(){
   });
 });
 
-
 // Colorbox
 jQuery(document).ready(function(){
   //Examples of how to assign the ColorBox event to elements
   jQuery("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
+  
+  // Chosen javascript library
+  $('.chzn-select').chosen();
 
   //Example of preserving a JavaScript event for inline calls.
   jQuery("#click").click(function(){
