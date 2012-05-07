@@ -36,6 +36,10 @@ public
     end
   end
 
+  def full_name
+    [first_name, last_name].join(' ')
+  end
+
   # Returns a string containing the label that identifies this
   # particular object -- the UVA computing ID of this StaffMember.
   def label
@@ -87,5 +91,7 @@ public
     # boolean fields cannot be NULL at database level
     self.is_active = 0 if self.is_active.nil?
   end
+
+  alias_attribute :name, :full_name
 
 end
