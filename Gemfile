@@ -40,7 +40,7 @@ group :test do
 end
 
 group :production, :test do
-  gem "devise_ldap_authenticatable"
+#  gem "devise_ldap_authenticatable"
 end
 
 # Gems used only for assets and not required
