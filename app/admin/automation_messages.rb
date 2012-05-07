@@ -1,25 +1,38 @@
 ActiveAdmin.register AutomationMessage do
   menu :parent => "Miscellaneous"
 
-  scope :all, :default => true
   actions :all, :except => [:new, :destroy]
 
+  batch_action :remove_active_error do |selection|
+    failure_message = ""
+    successful_changes = []
+    AutomationMessage.find(selection).each do |am|
+      if am.active_error == false
+        failure_message = failure_message + "Failure: #{am.id} active error flag already set to no." + '\n'
+      else
+        am.update_attribute('active_error', false)
+        successful_changes << am.id
+      end
+    end
+    redirect_to :back, :alert => "#{failure_message}Removed active error flag on #{successful_changes.length} Automation Messages."
+  end
+
   scope :all, :default => true, :show_count => false
-  scope :has_active_error, :label => "Active Error"
-  scope :has_inactive_error, :label => "Inactive Error", :show_count => false
-  scope :archive_workflow, :show_count => false
-  scope :qa_workflow, :show_count => false
-  scope :deliervy_workflow, :show_count => false
-  scope :patron_workflow, :show_count => false
-  scope :production_worklow, :show_count => false
-  scope :repository_workflow, :show_count => false
+  scope "Active Error", :has_active_error
+  scope "Inactive Error", :has_inactive_error, :show_count => false
+  scope "Archive", :archive_workflow, :show_count => false
+  scope "QA", :qa_workflow, :show_count => false
+  scope "Delivery", :deliervy_workflow, :show_count => false
+  scope "Patron", :patron_workflow, :show_count => false
+  scope "Production", :production_worklow, :show_count => false
+  scope "Repository", :repository_workflow, :show_count => false
 
   filter :id
-  filter :active_error, :as => :select
-  filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES.sort.map(&:titleize)
-  filter :processor, :as => :select, :collection => proc { AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor).map(&:titleize) }
-  filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES.sort.map(&:titleize)
-  filter :messagable_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object"
+  filter :active_error, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES.sort.map(&:titleize), :input_html => {:class => 'chzn-select'}
+  filter :processor, :as => :select, :collection => proc { AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor).map(&:titleize) }, :input_html => {:class => 'chzn-select'}
+  filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES.sort.map(&:titleize), :input_html => {:class => 'chzn-select'}
+  filter :messagable_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object", :input_html => {:class => 'chzn-select'}
   filter :messagable_id, :as => :numeric, :label => "Object ID"
 
   index do
@@ -56,7 +69,7 @@ ActiveAdmin.register AutomationMessage do
     end
   end
 
-  show do 
+  show :title => proc { automation_message.id } do 
     div :class => 'three-column' do
       panel "Details" do
         attributes_table_for automation_message do
@@ -109,10 +122,10 @@ ActiveAdmin.register AutomationMessage do
       if f.object.new_record? # New Record Logic
        f.inputs "Details", :class => 'two-column panel' do
         f.input :active_error, :as => :radio
-        f.input :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES
-        f.input :processor, :collection => AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor)
-        f.input :message_type, :collection => AutomationMessage::MESSAGE_TYPES
-        f.input :app, :collection => AutomationMessage::APPS
+        f.input :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES, :input_html => {:class => 'chzn-select'}
+        f.input :processor, :collection => AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor), :input_html => {:class => 'chzn-select'}
+        f.input :message_type, :collection => AutomationMessage::MESSAGE_TYPES, :input_html => {:class => 'chzn-select'}
+        f.input :app, :collection => AutomationMessage::APPS, :input_html => {:class => 'chzn-select'}
         f.input :message, :as => :text, :input_html => { :rows => 10}
       end
       f.inputs "Relationships", :class => 'two-column panel' do
@@ -122,7 +135,7 @@ ActiveAdmin.register AutomationMessage do
     else  # Edit existing Record     
       f.inputs "Details", :class => 'three-column panel' do
         f.input :active_error, :as => :radio
-        f.input :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES
+        f.input :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES, :input_html => {:class => 'chzn-select'}
         f.input :processor, :input_html => { :disabled => true }
         f.input :message_type, :input_html => { :disabled => true }
         f.input :app, :input_html => { :disabled => true}
