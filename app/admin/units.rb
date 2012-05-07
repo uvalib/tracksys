@@ -12,16 +12,14 @@ ActiveAdmin.register Unit do
   filter :date_archived
   filter :date_dl_deliverables_ready
   filter :date_queued_for_ingest
-  filter :include_in_dl, :as => :select
-  # filter :exclude_from_dl, :as => :radio
+  filter :include_in_dl, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
-  filter :indexing_scenario
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
-  filter :agency, :as => :select
-  filter :availability_policy
-  filter :indexing_scenario
+  filter :agency, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :indexing_scenario, :input_html => {:class => 'chzn-select'}
+  filter :availability_policy, :input_html => {:class => 'chzn-select'}
 
   index do
     selectable_column
@@ -141,7 +139,7 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Patron Request", :class => 'panel three-column' do
-      f.input :intended_use, :as => :select, :collection => IntendedUse.all
+      f.input :intended_use, :as => :select, :collection => IntendedUse.all, :input_html => {:class => 'chzn-select'}
       f.input :deliverable_format
       f.input :deliverable_resolution
       f.input :remove_watermark, :as => :radio
@@ -152,8 +150,8 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do 
-      f.input :order_id, :as => :string, :input_html => { :maxlength => 5}
-      f.input :bibl_id, :as => :string, :input_html => { :maxlength => 5}
+      f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chzn-select', :style => 'width: 200px'}
+      f.input :bibl, :as => :select, :collection => Bibl.all, :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
     end
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do

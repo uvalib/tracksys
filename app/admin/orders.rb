@@ -11,9 +11,8 @@ ActiveAdmin.register Order do
   scope :ready_for_delivery
   scope :complete
 
- 
   filter :id
-  filter :agency
+  filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
   filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq
   filter :order_title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
@@ -26,7 +25,7 @@ ActiveAdmin.register Order do
   filter :fee_estimated
   filter :fee_actual
   filter :staff_notes
-  filter :academic_status, :as => :select
+  filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
 
   index :id => 'orders' do
     selectable_column
