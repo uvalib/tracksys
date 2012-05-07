@@ -57,4 +57,13 @@ Tracksys::Application.configure do
 
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
+
+  Fedora_username = ''
+  Fedora_password = ''
+  FEDORA_REST_URL = ''
+  FEDORA_PROXY_URL = ''
+  SOLR_URL = ''
+
+  # Set the number of threads dedicated to JP2K creation.
+  NUM_JP2K_THREADS = 2
 end
