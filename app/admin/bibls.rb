@@ -1,7 +1,7 @@
 ActiveAdmin.register Bibl do
   menu :priority => 5
 
-  actions :all, :except => [:destroy]
+  actions :all
 
   scope :all, :default => true
   scope :approved
