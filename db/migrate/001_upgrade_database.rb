@@ -22,8 +22,6 @@ class UpgradeDatabase < ActiveRecord::Migration
 
     change_table(:components, :bulk => true) do |t|
       t.remove_foreign_key :name => "components_ibfk_3"
-      t.remove_foreign_key :name => "components_ibfk_1"
-      t.remove_foreign_key :name => "components_ibfk_2"
     end
 
     change_table(:customers, :bulk => true) do |t|
