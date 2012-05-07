@@ -7,7 +7,7 @@ ActiveAdmin.register MasterFile do
   scope :in_digital_library
   scope :not_in_digital_library
   
-  actions :all, :except => [:destroy]
+  actions :all, :except => [:new, :destroy]
 
   batch_action :download_from_archive do |selection|
     MasterFile.find(selection).each do |mf|
@@ -86,7 +86,7 @@ ActiveAdmin.register MasterFile do
 
   show do
     div :class => 'two-column' do
-      panel "Basic Information", :id => 'master_files', :toggle => 'show' do
+      panel "General Information" do
         attributes_table_for master_file do
           row :filename
           row :title
@@ -97,31 +97,10 @@ ActiveAdmin.register MasterFile do
           row :transcription_text
         end
       end
+    end
 
-      panel "Digital Library Information", :id => 'master_files', :toggle => 'hide' do
-        attributes_table_for master_file do
-          row :pid
-          row :availability_policy
-          row :indexing_scenario
-          row :discoverability do |mf|
-            case mf.discoverability
-            when false
-              "Not uniquely discoverable"
-            when true
-              "Uniquely discoverable"
-            else
-              "Unknown"
-            end
-          end
-          row(:desc_metadata) {|master_file| truncate_words(master_file.desc_metadata)}
-          row(:solr) {|master_file| truncate_words(master_file.solr)}
-          row(:dc) {|master_file| truncate_words(master_file.dc)}
-          row(:rels_ext) {|master_file| truncate_words(master_file.rels_ext)}
-          row(:rels_int) {|master_file| truncate_words(master_file.rels_int)}
-        end
-      end
-
-      panel "Technical Information", :id => 'master_files', :toggle => 'hide' do 
+    div :class => 'two-column' do
+      panel "Technical Information", :id => 'master_files' do 
         attributes_table_for master_file do
           row :md5
           row :filesize
@@ -149,11 +128,32 @@ ActiveAdmin.register MasterFile do
       end
     end
 
-    div :class => 'two-column' do
-      panel "Thumbnail" do
-        link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+    div :class => 'columns-none', :toggle => 'hide' do
+      panel "Digital Library Information", :id => 'master_files', :toggle => 'hide' do
+        attributes_table_for master_file do
+          row :pid
+          row :availability_policy
+          row :indexing_scenario
+          row :discoverability do |mf|
+            case mf.discoverability
+            when false
+              "Not uniquely discoverable"
+            when true
+              "Uniquely discoverable"
+            else
+              "Unknown"
+            end
+          end
+          row(:desc_metadata) {|master_file| truncate_words(master_file.desc_metadata)}
+          row(:solr) {|master_file| truncate_words(master_file.solr)}
+          row(:dc) {|master_file| truncate_words(master_file.dc)}
+          row(:rels_ext) {|master_file| truncate_words(master_file.rels_ext)}
+          row(:rels_int) {|master_file| truncate_words(master_file.rels_int)}
+        end
       end
     end
+
+    
   end
 
   form do |f|
@@ -171,7 +171,7 @@ ActiveAdmin.register MasterFile do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :unit_id, :as => :string    
+      f.input :unit_id, :as => :string
     end
 
     f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
@@ -190,11 +190,19 @@ ActiveAdmin.register MasterFile do
     end
   end
 
+  sidebar "Thumbnail", :only => [:show] do
+    link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+  end
+
   sidebar "Related Information", :only => [:show] do
     attributes_table_for master_file do
-      row :unit
+      row :unit do |master_file|
+        link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
+      end
       row :bibl
-      row :order
+      row :order do |master_file|
+        link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
+      end
       row :customer
       row :component
       row :automation_messages do |master_file|
