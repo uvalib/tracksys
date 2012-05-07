@@ -23,7 +23,7 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
     FileUtils.mkdir_p(@destination_dir)
 
     if hash[:master_file_filename]
-      @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).id
+      @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).first.id
       @messagable_type = "MasterFile"
       master_file_filename = hash[:master_file_filename]
       begin
