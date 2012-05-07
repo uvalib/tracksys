@@ -7,9 +7,9 @@
         s.type = "text/javascript";
         s.async = true;
         if (window.location.protocol == "https:")
-            s.src = "/assets/pinit.js";
+            s.src = "/assets/active_admin.js";
         else
-            s.src = "/assets/pinit.js";
+            s.src = "/assets/active_admin.js";
         var x = document.getElementsByTagName("script")[0];
         x.parentNode.insertBefore(s, x);
     }
