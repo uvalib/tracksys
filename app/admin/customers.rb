@@ -71,7 +71,16 @@ ActiveAdmin.register Customer do
     div :class => 'three-column' do
       panel "Primary Address", :id => 'customers' do
         if customer.primary_address
-          div { render :partial => 'admin/attribute_table', :object => customer.primary_address }
+          attributes_table_for customer.primary_address do
+            row :address_1
+            row :address_2
+            row :city
+            row :state
+            row :country
+            row :post_code
+            row :phone
+            row :organization
+          end
         else
           "No address available."
         end
@@ -81,7 +90,18 @@ ActiveAdmin.register Customer do
     div :class => 'three-column' do 
       panel "Billing Address", :id => 'customers' do
         if customer.billable_address
-          div { render :partial => 'admin/attribute_table', :object => customer.billable_address }
+          attributes_table_for customer.billable_address do
+            row :first_name
+            row :last_name
+            row :address_1
+            row :address_2
+            row :city
+            row :state
+            row :country
+            row :post_code
+            row :phone
+            row :organization
+          end
         else
           "No address available."
         end
@@ -96,9 +116,6 @@ ActiveAdmin.register Customer do
       f.input :first_name
       f.input :last_name
       f.input :email
-      f.input :academic_status, :as => :select, :collection => AcademicStatus.order(:name)
-      f.input :heard_about_service, :as => :select, :collection => HeardAboutService.where(:is_approved => true)
-      f.input :department, :as => :select, :collection => Department.order(:name)
       f.input :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
       f.input :heard_about_service, :as => :select, :collection => HeardAboutService.where(:is_approved => true), :input_html => {:class => 'chzn-select'}
       f.input :department, :as => :select, :collection => Department.order(:name), :input_html => {:class => 'chzn-select', :style => 'width: 250px'}
@@ -110,7 +127,6 @@ ActiveAdmin.register Customer do
           p.input :address_1
           p.input :address_2
           p.input :city
-          p.input :state, :as => :select, :collection => Carmen.state_codes('US')
           p.input :state, :as => :select, :collection => Carmen.state_codes('US'), :input_html => {:class => 'chzn-select', :style => 'width: 100px'}
           p.input :country, :as => :country, :collection => Carmen.country_codes, :priority_countries => ['US'], :include_blank => true, :input_html => {:class => 'chzn-select'}
           p.input :post_code
@@ -128,8 +144,6 @@ ActiveAdmin.register Customer do
           b.input :address_1
           b.input :address_2
           b.input :city
-          b.input :state, {:collection => Carmen::state_codes('US'), :include_blank => true}
-          b.input :country, :as => :country, :collection => Carmen.country_codes, :priority_countries => ['US'], :include_blank => true
           b.input :state, :as => :select, :collection => Carmen.state_codes('US'), :input_html => {:class => 'chzn-select', :style => 'width: 100px'}
           b.input :country, :as => :country, :collection => Carmen.country_codes, :priority_countries => ['US'], :include_blank => true, :input_html => {:class => 'chzn-select'}
           b.input :post_code
