@@ -17,14 +17,14 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id] 
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
-    @messagable_id = hash[:unit_id]
-    @messagable_type = "Unit"
     @failure_messages = Array.new
     @source_dir = File.join(ARCHIVE_READ_DIR, @unit_dir)
     @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, hash[:computing_id])
     FileUtils.mkdir_p(@destination_dir)
 
     if hash[:master_file_filename]
+      @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).id
+      @messagable_type = "MasterFile"
       master_file_filename = hash[:master_file_filename]
       begin
         FileUtils.cp(File.join(@source_dir, master_file_filename), File.join(@destination_dir, master_file_filename))
@@ -39,6 +39,8 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
         @failure_messages << "Failed to copy source file '#{master_file_filename}': MD5 checksums do not match"
       end
     else
+      @messagable_id = hash[:unit_id]
+      @messagable_type = "Unit"
       @master_files = @working_unit.master_files
       @master_files.each {|master_file|
         begin
