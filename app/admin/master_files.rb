@@ -250,9 +250,9 @@ ActiveAdmin.register MasterFile do
 
     publishes_to :copy_archived_files_to_production
 
-    def copy_from_archive(id)
-      master_file = MasterFile.find(id)
-      message = ActiveSupport::JSON.encode( { :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
+    def copy_from_archive
+      master_file = MasterFile.find(params[:id])
+      message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
       publish :copy_archived_files_to_production, message
       flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
       redirect_to :back
