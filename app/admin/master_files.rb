@@ -242,6 +242,12 @@ ActiveAdmin.register MasterFile do
     end
   end
 
+  action_item :only => :show do
+    if master_file.date_archived
+      link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
+    end
+  end
+
   member_action :copy_from_archive, :method => :put do 
     mf = MasterFile.find(params[:id])
     mf.get_from_stornext
