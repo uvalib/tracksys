@@ -78,7 +78,7 @@ ActiveAdmin.register MasterFile do
       end
       if mf.date_archived
         div do
-          button_to "Download", copy_from_archive_admin_master_file_path(mf.id)
+          link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
         end
       end
     end
