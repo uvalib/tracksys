@@ -35,7 +35,7 @@ class Customer
   #------------------------------------------------------------------
   def external?
     # if the customer is Non-UVA (academic_status.id = 1)
-    if self.academic_status_id = 1 
+    if self.academic_status_id == 1 
       return true
     else
       return false
