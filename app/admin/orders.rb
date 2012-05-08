@@ -230,7 +230,7 @@ ActiveAdmin.register Order do
 
   member_action :send_fee_estimate_to_customer, :method => :put do
     order = Order.find(params[:id])
-    order.send_fee_estimate_to_customer
+    order.send_fee_estimate_to_customer(request.env['HTTP_REMOTE_USER'].to_s)
     sleep(0.2)
     redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
   end
