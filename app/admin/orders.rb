@@ -165,6 +165,9 @@ ActiveAdmin.register Order do
       row :bibls do |order|
         link_to "#{order.bibls.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
       end
+      row :automation_messages do |order|
+        link_to "#{order.automation_messages.size}", admin_automation_messages_path(:q => {:order_id_eq => order.id})
+      end
       row :customer
       row :agency
     end
