@@ -136,7 +136,7 @@ ActiveAdmin.register Order do
       f.input :date_permissions_given, :as => :string, :input_html => {:class => :datepicker}
     end
 
-    f.inputs "Related Information", :class => 'panel three-colum' do 
+    f.inputs "Related Information", :class => 'panel three-column' do 
       f.input :agency
       f.input :customer
     end
@@ -149,8 +149,9 @@ ActiveAdmin.register Order do
       f.input :email, :input_html => {:rows => 5}
     end
 
-    f.actions
-
+    f.inputs :class => 'columns-none' do
+      f.actions
+    end
   end
 
   sidebar "Relaed Information", :only => :show do
