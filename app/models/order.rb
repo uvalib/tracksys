@@ -18,7 +18,7 @@ class Order
   end
 
   def send_order_email
-    message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
+    message = ActiveSupport::JSON.encode( {:order_id => self.id})
     publish :update_order_email_date, message
   end
 
@@ -32,7 +32,7 @@ class Order
   def send_fee_estimate_to_customer(computing_id)
     @user = StaffMember.find_by_computing_id(computing_id) 
     @first_name = @user.first_name
-    message = ActiveSupport::JSON.encode( {:order_id => params[:order_id], :first_name => @first_name})
+    message = ActiveSupport::JSON.encode( {:order_id => self.id, :first_name => @first_name})
     publish :send_fee_estimate_to_customer, message
   end
 end
