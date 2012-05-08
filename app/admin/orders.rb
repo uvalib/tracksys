@@ -120,7 +120,7 @@ ActiveAdmin.register Order do
 
   form do |f|
     f.inputs "Basic Information", :class => 'panel three-column' do
-      f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES
+      f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES, :input_html => {:class => 'chzn-select'}
       f.input :order_title
       f.input :special_instructions, :input_html => {:rows => 3}
       f.input :staff_notes, :input_html => {:rows => 3}
