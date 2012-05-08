@@ -1,7 +1,7 @@
 ActiveAdmin.register AutomationMessage do
   menu :parent => "Miscellaneous"
 
-  actions :all, :except => [:new, :destroy]
+  actions :all, :except => [:new]
 
   batch_action :remove_active_error do |selection|
     failure_message = ""
