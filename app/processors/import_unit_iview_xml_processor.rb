@@ -21,6 +21,7 @@ class ImportUnitIviewXMLProcessor < ApplicationProcessor  # See ApplicationProce
     @unit_id = hash[:unit_id]
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @unit_dir = "%09d" % @unit_id
     @path = hash[:path]
     

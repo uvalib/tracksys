@@ -21,6 +21,7 @@ class CreateOrderEmailProcessor < ApplicationProcessor
     @working_order = Order.find(@order_id)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # Messages coming into this sytem either have hash[:delivery_files] or hash[:dvd_deliery_locaiton]
     # based on whether the order will be delivered via DVD or web

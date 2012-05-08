@@ -14,6 +14,7 @@ class UpdateUnitStatus < ApplicationProcessor
 
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     @messagable.update_attribute(:unit_status, hash[:unit_status])
     on_success "Unit #{hash[:unit_id]} status changed to #{hash[:unit_status]}."

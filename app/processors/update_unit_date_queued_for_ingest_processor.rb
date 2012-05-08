@@ -17,6 +17,7 @@ class UpdateUnitDateQueuedForIngestProcessor < ApplicationProcessor
     raise "Parameter 'source' is required" if hash[:source].blank?
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     @unit_id = hash[:unit_id]
     @source = hash[:source]

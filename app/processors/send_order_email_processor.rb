@@ -15,6 +15,7 @@ class SendOrderEmailProcessor < ApplicationProcessor
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
     @messagable = @working_order
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @email = @working_order.email
 
     # send email

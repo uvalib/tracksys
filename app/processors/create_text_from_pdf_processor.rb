@@ -14,6 +14,7 @@ class CreateTextFromPdfProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @path_to_pdf = hash[:path_to_pdf]
 
     contents = Dir.entries(@path_to_pdf).delete_if {|x| x == "." or x == ".." or x !~ /_[0-9][0-9][0-9][0-9].pdf/}

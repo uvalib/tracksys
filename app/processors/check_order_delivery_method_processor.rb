@@ -17,6 +17,7 @@ class CheckOrderDeliveryMethodProcessor < ApplicationProcessor
     @working_order = Order.find(@order_id)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
  
     if @working_order.has_delivery_method?("web delivery")
       on_success "Order #{@order_id} has a delivery method of 'web delivery'"

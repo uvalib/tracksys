@@ -11,6 +11,7 @@ class StartManualUploadToArchiveProductionProcessor < ApplicationProcessor
     now = Time.now
     day = now.strftime("%A")
     regex_unit = Regexp.new('\d{9}$')
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     if not File.exist?(File.join(MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION, day))
       on_error "Manual upload directory #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{day} does not exist."

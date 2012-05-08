@@ -17,6 +17,7 @@ class CreateInvoiceProcessor < ApplicationProcessor
     order = Order.find(hash[:order_id])
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # Create invoice
     invoice = Invoice.new

@@ -10,7 +10,7 @@ class UpdateOrderStatusCanceledProcessor < ApplicationProcessor
 
     raise "Parameter 'order_id' is required" if hash[:order_id].blank?
 
-    @workflow_type = 'patron'
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
 

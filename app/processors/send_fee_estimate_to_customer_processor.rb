@@ -16,9 +16,8 @@ class SendFeeEstimateToCustomerProcessor < ApplicationProcessor
     @working_order = Order.find(@order_id)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
-    email = OrderMailer.create_send_fee_estimate_to_customer(@working_order, @first_name)
-    email.set_content_type("text/html")
-    OrderMailer.deliver(email)
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
+    OrderMailer.send_fee_estimate(@working_order).deliver
 
     message = ActiveSupport::JSON.encode({:order_id => @order_id})
     publish :update_order_date_fee_estimate_sent_to_customer, message

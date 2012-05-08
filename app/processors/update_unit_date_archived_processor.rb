@@ -18,6 +18,7 @@ class UpdateUnitDateArchivedProcessor < ApplicationProcessor
 
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     @unit_id = hash[:unit_id]
     @source_dir = hash[:source_dir]

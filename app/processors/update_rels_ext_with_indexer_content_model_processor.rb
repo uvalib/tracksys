@@ -15,6 +15,7 @@ class UpdateRelsExtWithIndexerContentModelProcessor < ApplicationProcessor
 
     @unit_id = hash[:unit_id]
     @working_unit = Unit.find(@unit_id)
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @predicate = "info:fedora/fedora-system:def/model%23hasModel"
     @object = "info:fedora/uva-lib:indexableCModel"
     @contentType = "text/xml"

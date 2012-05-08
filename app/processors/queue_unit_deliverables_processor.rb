@@ -24,6 +24,7 @@ class QueueUnitDeliverablesProcessor < ApplicationProcessor
     @working_unit = Unit.find(@unit_id)
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @working_order = Order.find(@working_unit.parent.id)
     @master_files = @working_unit.master_files
     

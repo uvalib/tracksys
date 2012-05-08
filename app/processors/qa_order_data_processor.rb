@@ -19,6 +19,7 @@ class QaOrderDataProcessor < ApplicationProcessor
     @working_order = Order.find(@order_id)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # Create error message holder array
     failure_messages = Array.new

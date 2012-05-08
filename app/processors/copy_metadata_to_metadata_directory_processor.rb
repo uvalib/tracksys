@@ -14,6 +14,7 @@ class CopyMetadataToMetadataDirectoryProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]  
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @unit_dir = "%09d" % @unit_id
     @unit_path = hash[:unit_path]
     @failure_messages = Array.new

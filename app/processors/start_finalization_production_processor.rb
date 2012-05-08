@@ -40,6 +40,7 @@ class StartFinalizationProductionProcessor < ApplicationProcessor
                   @unit_id = content.to_s.sub(/^0+/, '')
                   @messagable_id = @unit_id
                   @messagable_type = "Unit"
+                  @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
                   message = ActiveSupport::JSON.encode( { :unit_id => @unit_id })
                   publish :qa_unit_data, message
                   on_success "Directory #{content} begins the finalization workflow."

@@ -18,6 +18,7 @@ class CreateMasterFileRecordsFromTifAndTextProcessor < ApplicationProcessor
     @unit_dir = "%09d" % @unit_id
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @path_to_pdf = hash[:path_to_pdf]
  
     # The variable i will be used to pull out specific elements from the titles array for use in mf.title

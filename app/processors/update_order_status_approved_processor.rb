@@ -12,6 +12,7 @@ class UpdateOrderStatusApprovedProcessor < ApplicationProcessor
     @workflow_type = 'patron'
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @working_order = Order.find(hash[:order_id])
     @working_order.order_status = 'approved'
     @working_order.date_order_approved = Time.now

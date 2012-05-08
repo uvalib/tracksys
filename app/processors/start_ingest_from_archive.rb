@@ -16,6 +16,7 @@ class StartIngestFromArchiveProcessor < ApplicationProcessor
       @working_unit = Unit.find(@unit_id)
       @messagable_id = hash[:unit_id]
       @messagable_type = "Unit"
+      @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
       @source = File.join(ARCHIVE_READ_DIR, @unit_dir)
 
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source => @source})

@@ -15,6 +15,7 @@ class SendPdfUnitToFinalizationDirProcessor < ApplicationProcessor
     raise "Paramater 'path_to_pdf' is required" if hash[:path_to_pdf].blank?
     @unit_id = hash[:unit_id]
     @messagable = Unit.find(@unit_id)
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @unit_dir = "%09d" % @unit_id
     @path_to_pdf = hash[:path_to_pdf]
 

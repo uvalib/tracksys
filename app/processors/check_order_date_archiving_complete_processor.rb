@@ -15,6 +15,7 @@ class CheckOrderDateArchivingCompleteProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     @working_order = Unit.find(hash[:unit_id]).order
     @order_id = @working_order.id
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     @messagable_id = @order_id
     @messagable_type = "Order"

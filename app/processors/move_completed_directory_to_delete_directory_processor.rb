@@ -15,6 +15,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id]
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @source_dir = hash[:source_dir]
 
     if hash[:unit_dir]

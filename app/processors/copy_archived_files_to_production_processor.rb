@@ -17,7 +17,7 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
     @unit_id = hash[:unit_id] 
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
-    @workflow_type = "patron"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @failure_messages = Array.new
     @source_dir = File.join(ARCHIVE_READ_DIR, @unit_dir)
     @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, hash[:computing_id])

@@ -7,6 +7,7 @@ class SendCommitToSolrProcessor < ApplicationProcessor
     # TODO: Figure out what messagable class this processor will belong to
     # @messagable_id = 
     # @messagable_type =
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     solr = Solr::Connection.new("#{SOLR_URL}", :autocommit => :on)
     solr.commit

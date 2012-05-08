@@ -20,6 +20,7 @@ class UpdateOrderDateFinalizationBegunProcessor < ApplicationProcessor
     @order_id = @working_order.id
     @messagable_id = @order_id
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
 
     @working_order.date_finalization_begun = Time.now

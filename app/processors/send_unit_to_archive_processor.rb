@@ -24,6 +24,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
 
     @internal_dir = hash[:internal_dir]
     @source_dir = hash[:source_dir]
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # The next fork is whether the messages are coming from the start_manual processor or the regular finalization workflow
 

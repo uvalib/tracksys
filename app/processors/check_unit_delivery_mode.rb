@@ -20,6 +20,7 @@ class CheckUnitDeliveryModeProcessor < ApplicationProcessor
     @working_unit = Unit.find(@unit_id)
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @unit_dir = "%09d" % @unit_id
 
     @source_dir = File.join(IN_PROCESS_DIR, @unit_dir)

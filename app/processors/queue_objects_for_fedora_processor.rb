@@ -17,6 +17,7 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     @working_unit = Unit.find(hash[:unit_id])
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # Will put all objects to be ingested into repo into an array called things
     things = Array.new

@@ -15,6 +15,7 @@ class MoveDeliverablesToDeliveredOrdersDirectoryProcessor < ApplicationProcessor
     @order_id = hash[:order_id]
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     FileUtils.mv File.join(ASSEMBLE_DELIVERY_DIR, "order_#{@order_id}"), File.join(DELETE_DIR_DELIVERED_ORDERS, "order_#{@order_id}")
     on_success "Directory the deliverables for order #{@order_id} have been moved from #{ASSEMBLE_DELIVERY_DIR} to #{DELETE_DIR_DELIVERED_ORDERS}."

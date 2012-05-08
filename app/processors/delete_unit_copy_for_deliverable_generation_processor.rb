@@ -16,7 +16,8 @@ class DeleteUnitCopyForDeliverableGenerationProcessor < ApplicationProcessor
     @mode = hash[:mode]
     @unit_id = hash[:unit_id]
     @messagable_id = hash[:unit_id]
-    @messagable_type = "Unit"   
+    @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)   
     @unit_dir = "%09d" % @unit_id
     order_id = Unit.find(@unit_id).order.id
 

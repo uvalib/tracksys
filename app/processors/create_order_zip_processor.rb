@@ -17,6 +17,7 @@ class CreateOrderZipProcessor < ApplicationProcessor
     @order_id = hash[:order_id]
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # Test for existing order*_1.zip file.  Warn staff if present and stop working.
     if File.exist?(File.join("#{DELIVERY_DIR}", "order_#{@order_id}_1.zip"))

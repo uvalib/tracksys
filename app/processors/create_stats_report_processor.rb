@@ -13,6 +13,7 @@ class CreateStatsReportProcessor < ApplicationProcessor
     # TODO: Figure out how to message this processor
     # @messagable_id = hash[:master_file_id]
     # @messagable_type = "MasterFile"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     today = Date.today
     query_year = hash[:year]

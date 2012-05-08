@@ -18,6 +18,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     
     @messagable_id = hash[:master_file_id]
     @messagable_type = "MasterFile"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     @source = hash[:source]
     @last = hash[:last]

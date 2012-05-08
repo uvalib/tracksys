@@ -18,6 +18,7 @@ class CopyUnitForDeliverableGenerationProcessor < ApplicationProcessor
     @working_unit = Unit.find(@unit_id)
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @master_files = @working_unit.master_files
     @failure_messages = Array.new
 

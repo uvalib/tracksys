@@ -20,6 +20,7 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
     @working_unit = Unit.find(@unit_id)
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @failure_messages = Array.new
     @source_dir = hash[:path_to_archive]
     @destination_dir = File.join('/lib_content37/stornext_dropoff', @unit_dir)

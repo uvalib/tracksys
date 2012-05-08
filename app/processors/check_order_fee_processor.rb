@@ -17,6 +17,7 @@ class CheckOrderFeeProcessor < ApplicationProcessor
     @working_order = Order.find(@order_id)
     @messagable_id = hash[:order_id]
     @messagable_type = "Order"
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     # If there is a value for 'fee_estimated' then there must be a value in 'fee_actual'.
     # If there is no value for 'fee_estimated', the workfow sould proceed.
