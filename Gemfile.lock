@@ -272,7 +272,7 @@ DEPENDENCIES
   rspec-rails
   sass-rails
   solr-ruby
-  spreadsheet
+  spreadsheet (= 0.6.9)
   sqlite3
   stomp
   therubyracer

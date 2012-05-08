@@ -28,7 +28,7 @@ gem "rmagick"
 gem 'exifr'
 gem 'rest-client'
 gem 'solr-ruby'
-gem 'spreadsheet'
+gem 'spreadsheet', '0.6.9'
 gem 'tweet-button'
 gem 'lazy_high_charts'
 
