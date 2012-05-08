@@ -174,12 +174,35 @@ ActiveAdmin.register Order do
     if order.order_status == 'requested'
       if order.customer.external?
         if order.fee_estimated.nil?
-
-          button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-          button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
+          # External customers (who require a fee estaimte) for which there IS NO estimated fee
+          div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
+          div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => 'get' end
+          div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true, :method => 'get' end
+          div do "Either enter an estimated fee must or cancel this order." end
+        elsif order.fee_estimated
+          if order.fee_actual.nil?
+            # External customers (who require a fee estaimte) for which there IS estimated fee but actual fee is blank.
+            # Actions available: Cancel or Send Fee Estimate
+            div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
+            div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => 'get' end
+            div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => 'get' end
+            div do "Either send fee estimate or cancel this order." end    
+          else
+            # External customers (who require a fee) for which there IS both an estimated fee and actual fee
+            # Actions available: Approve or Cancel
+            div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :method => 'get' end
+            div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => 'get' end
+            div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
+            div do "Either approve or cancel this order." end  
+          end        
         end
+      elsif not order.customer.external?
+        # Internal customers require no fee.
+        div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :method => 'get' end
+        div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => 'get' end
+        div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true end
+        div do "#{order.customer.full_name} is internal to UVA and requires no fee approval"
       end
-    
     elsif order.order_status == 'approved' || order.order_status == 'canceled'
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
