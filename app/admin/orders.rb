@@ -201,7 +201,7 @@ ActiveAdmin.register Order do
         div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :method => 'get' end
         div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => 'get' end
         div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true end
-        div do "#{order.customer.full_name} is internal to UVA and requires no fee approval"
+        div do "#{order.customer.full_name} is internal to UVA and requires no fee approval" end
       end
     elsif order.order_status == 'approved' || order.order_status == 'canceled'
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
@@ -210,36 +210,6 @@ ActiveAdmin.register Order do
       div do "No options avaialable.  Order is #{order.order_status}." end
     end
   end
-
-  #   end
-  #   div :class => 'workflow_button' do
-  #     if order.approved?
-  #       button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-  #     else
-  #       button_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
-  #     end
-  #   end
-  #   div :class => 'workflow_button' do 
-  #     if proc {order.order_status == 'requested' or order.order_status == 'deferred'}
-  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
-  #     else
-  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-  #     end
-  #   end
-  #   div :class => 'workflow_button' do
-  #     button_to "Send Fee Estimate" if order.fee_estimated? and not order.fee_actual?
-  #   end
-  # end
-
-  # sidebar :delivery_workflow, :only => :show do
-  #   div :class => 'workflow_button' do
-  #     button_to "Check Order Ready For Delivery"
-  #   end
-
-  #   div :class => 'workflow_button' do
-  #     button_to "Deliver Order"
-  #   end
-  # end
 
   member_action :approve_order, :method => :put do
     order = Order.find(params[:id])
@@ -262,8 +232,6 @@ ActiveAdmin.register Order do
   # member_action :check_order_ready_for_delivery, :method => :put do
 
   # end
-
-
 
   # member_action :send_order_email, :method => :put do
 
