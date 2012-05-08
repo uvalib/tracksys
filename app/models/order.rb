@@ -29,19 +29,15 @@ class Order
   #   redirect_to admin_order_path
   # end
 
-  # def send_fee_estimate_to_customer
-  #   if RAILS_ENV == 'test' or RAILS_ENV == 'development'
-  #     computing_id = 'localhost'
-  #   else
-  #     computing_id = request.env['HTTP_REMOTE_USER'].to_s
-  #   end
-  #   @user = StaffMember.find_by_computing_id(computing_id) 
-  #   @first_name = @user.first_name
-  #   message = ActiveSupport::JSON.encode( {:order_id => params[:order_id], :first_name => @first_name})
-  #   publish :send_fee_estimate_to_customer, message
-  #   flash[:notice] = "Fee estimate sent to customer."
-  #   redirect_to :action => "show", :id => params[:order_id]
-  # end
-
-
+  def send_fee_estimate_to_customer
+    if Rails.env == 'test' or Rails.env == 'development'
+      computing_id = 'localhost'
+    else
+      computing_id = request.env['HTTP_REMOTE_USER'].to_s
+    end
+    @user = StaffMember.find_by_computing_id(computing_id) 
+    @first_name = @user.first_name
+    message = ActiveSupport::JSON.encode( {:order_id => params[:order_id], :first_name => @first_name})
+    publish :send_fee_estimate_to_customer, message
+  end
 end

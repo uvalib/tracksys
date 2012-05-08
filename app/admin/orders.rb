@@ -137,8 +137,8 @@ ActiveAdmin.register Order do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do 
-      f.input :agency
-      f.input :customer
+      f.input :agency, :as => :select, :input_html => {:class => 'chzn-select'}
+      f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
     end
 
     f.inputs "Delivery Information", :class => 'panel columns-none' do 
@@ -240,6 +240,5 @@ ActiveAdmin.register Order do
   # end
 
   # member_action :send_order_email, :method => :put do
-
   # end
 end
