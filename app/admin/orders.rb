@@ -178,14 +178,12 @@ ActiveAdmin.register Order do
           button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
         end
       end
-
-    elsif order.order_status == 'canceled'
-
-    elsif order.order_status == 'approved' 
-      "No options avaialable.  Order is #{order.order_status}."
+    
+    elsif order.order_status == 'approved' || order.order_status == 'canceled'
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
-      div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_order_path(order.id), :disabled => true end
+      div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true end
+      div do "No options avaialable.  Order is #{order.order_status}." end
     end
   end
 
