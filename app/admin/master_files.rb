@@ -10,9 +10,9 @@ ActiveAdmin.register MasterFile do
   actions :all, :except => [:new, :destroy]
 
   batch_action :download_from_archive do |selection|
-    MasterFile.find(selection).each do |mf|
-      copy_from_archive_admin_master_file_path(mf.id)
-    end
+    selection.each {|s| MasterFile.find(s).get_from_stornext }
+    flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+    redirect_to :back
   end
 
   filter :id
@@ -78,7 +78,7 @@ ActiveAdmin.register MasterFile do
       end
       if mf.date_archived
         div do
-          link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :class => 'member_link', :method => 'get'
+          button_to "Download", copy_from_archive_admin_master_file_path(mf.id)
         end
       end
     end
@@ -242,20 +242,24 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  member_action :copy_from_archive
-
-  controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-
-    publishes_to :copy_archived_files_to_production
-
-    def copy_from_archive
-      master_file = MasterFile.find(params[:id])
-      message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
-      publish :copy_archived_files_to_production, message
-      flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-      redirect_to :back
-    end
+  member_action :copy_from_archive, :method => :put do 
+    mf = MasterFile.find(params[:id])
+    mf.get_from_stornext
+    redirect_to :back, :notice => "Master File #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
+
+#  controller do
+#    require 'activemessaging/processor'
+#    include ActiveMessaging::MessageSender
+
+#    publishes_to :copy_archived_files_to_production
+
+#    def copy_from_archive
+#      master_file = MasterFile.find(params[:id])
+#      message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
+#      publish :copy_archived_files_to_production, message
+#      flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+#      redirect_to :back
+#    end
+#  end
 end
