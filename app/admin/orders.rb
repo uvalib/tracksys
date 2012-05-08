@@ -13,7 +13,7 @@ ActiveAdmin.register Order do
 
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
-  filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq
+  filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq.map(&:order_status).sort
   filter :order_title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
@@ -170,85 +170,80 @@ ActiveAdmin.register Order do
   end
 
   sidebar :approval_workflow, :only => :show do
-    div :class => 'workflow_button' do
-      if order.approved?
-        button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-      else
-        button_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
+    if order.order_status == 'requested'
+      if order.customer.external?
+        if order.fee_estimated.nil?
+
+          button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
+          button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
+        end
       end
-    end
-    div :class => 'workflow_button' do 
-      if proc {order.order_status == 'requested' or order.order_status == 'deferred'}
-        button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
-      else
-        button_to "Cancel Order", cancel_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-      end
-    end
-    div :class => 'workflow_button' do
-      button_to "Send Fee Estimate" if order.fee_estimated? and not order.fee_actual?
+
+    elsif order.order_status == 'canceled'
+
+    elsif order.order_status == 'approved' 
+      "No options avaialable.  Order is #{order.order_status}."
+      div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
+      div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => 'get' end
+      div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_order_path(order.id), :disabled => true end
     end
   end
 
-  sidebar :delivery_workflow, :only => :show do
-    div :class => 'workflow_button' do
-      button_to "Check Order Ready For Delivery"
-    end
+  #   end
+  #   div :class => 'workflow_button' do
+  #     if order.approved?
+  #       button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
+  #     else
+  #       button_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
+  #     end
+  #   end
+  #   div :class => 'workflow_button' do 
+  #     if proc {order.order_status == 'requested' or order.order_status == 'deferred'}
+  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
+  #     else
+  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :disabled => 'true', :method => 'get'
+  #     end
+  #   end
+  #   div :class => 'workflow_button' do
+  #     button_to "Send Fee Estimate" if order.fee_estimated? and not order.fee_actual?
+  #   end
+  # end
 
-    div :class => 'workflow_button' do
-      button_to "Deliver Order"
-    end
+  # sidebar :delivery_workflow, :only => :show do
+  #   div :class => 'workflow_button' do
+  #     button_to "Check Order Ready For Delivery"
+  #   end
+
+  #   div :class => 'workflow_button' do
+  #     button_to "Deliver Order"
+  #   end
+  # end
+
+  member_action :approve_order, :method => :put do
+    order = Order.find(params[:id])
+    order.approve_order
+    redirect :back, :notice => "Order #{params[:id]} is now approved."
   end
 
-  member_action :approve_order
-  member_action :cancel_order
-  member_action :check_order_ready_for_delivery
-  member_action :send_fee_estimate_to_customer
-  member_action :send_order_email
-
-  controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-
-    def approve_order
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
-      publish :update_order_status_approved, message
-      flash[:notice] = "Order #{params[:id]} is now approved."
-      redirect_to admin_order_path
-    end
-
-    def cancel_order
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]} )
-      publish :update_order_status_canceled, message
-      flash[:notice] = "The order is now canceled."
-      redirect_to admin_order_path
-    end
-
-    def check_order_ready_for_delivery
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
-      publish :check_order_ready_for_delivery, message
-      flash[:notice] = "Workflow started at checking the completeness of the order."
-      redirect_to admin_order_path
-    end
-
-    def send_fee_estimate_to_customer
-      if RAILS_ENV == 'test' or RAILS_ENV == 'development'
-        computing_id = 'localhost'
-      else
-        computing_id = request.env['HTTP_REMOTE_USER'].to_s
-      end
-      @user = StaffMember.find_by_computing_id(computing_id) 
-      @first_name = @user.first_name
-      message = ActiveSupport::JSON.encode( {:order_id => params[:order_id], :first_name => @first_name})
-      publish :send_fee_estimate_to_customer, message
-      flash[:notice] = "Fee estimate sent to customer."
-      redirect_to :action => "show", :id => params[:order_id]
-    end
-
-    def send_order_email
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
-      publish :update_order_email_date, message
-      flash[:notice] = "Email sent to patron."
-      redirect_to :action => "show", :id => params[:order_id]
-    end
+  member_action :cancel_order, :method => :put do
+    order = Order.find(params[:id])
+    order.cancel_order
+    redirect :back, :notice => "Order #{params[:id]} is now canceled."
   end
+
+  member_action :send_fee_estimate_to_customer, :method => :put do
+    order = Order.find(params[:id])
+    order.send_fee_estimate_to_customer
+    redirect :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
+  end
+
+  # member_action :check_order_ready_for_delivery, :method => :put do
+
+  # end
+
+
+
+  # member_action :send_order_email, :method => :put do
+
+  # end
 end
