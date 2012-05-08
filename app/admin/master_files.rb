@@ -244,7 +244,7 @@ ActiveAdmin.register MasterFile do
 
   action_item :only => :show do
     if master_file.date_archived
-      link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
+      link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
     end
   end
 
