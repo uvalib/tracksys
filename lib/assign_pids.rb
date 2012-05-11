@@ -6,9 +6,6 @@
 # If a record already has an assigned PID, it is left unchanged; a new PID is
 # not requested.
 module AssignPids
-
-  gem 'soap4r'
-  require 'soap/wsdlDriver'
   
   # Updates Bibl records, and associated MasterFile and Component records as
   # appropriate, with PIDs obtained from an external PID-generating server.
@@ -85,7 +82,7 @@ module AssignPids
     return Array.new if pid_count.to_i == 0
     
     if pid_namespace.nil?
-      if RAILS_ENV == 'production'
+      if Rails.env == 'production'
         pid_namespace = 'uva-lib'
       else
         # If you set the namespace to empty string, the PID generator will use
@@ -95,22 +92,12 @@ module AssignPids
       end
     end
     
-    # create a SOAP client-driver
-    driver = SOAP::WSDLDriverFactory.new(Fedora_apim_wsdl).create_rpc_driver
-    
-    # provide authorization info, using a filter
-    driver.streamhandler.filterchain << SendBasicAuthAlwaysFilterFactory.create(Fedora_username,Fedora_password) 
-    
-    # request pid(s), getting back a SOAP::Mapping::Object, which has a .pid member containing the pid value(s)
-    response = driver.getNextPID(:numPIDs => pid_count, :pidNamespace=> pid_namespace).pid
-    
-    # requesting a single pid returns a String; requesting multiple pids returns an Array
-    if response.class.to_s == 'String'
-      pids = Array.new << response
-    else
-      pids = response
-    end
-    
+    # Set up REST client
+    @resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
+
+    url = "/objects/nextPID?numPIDs=#{pid_count}&namespace=#{pid_namespace}&format=xml"
+    pids = Nokogiri.XML(@resource[url].send :post, '', :content_type => 'text/xml').xpath('//pid').map(&:content)
+  
     return pids
   end
 
