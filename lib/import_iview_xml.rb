@@ -7,7 +7,7 @@ module ImportIviewXml
 
   # Reads the iView XML file passed as XML, and creates records in the
   # database accordingly (one MasterFile record for each iView +MediaItem+
-  # element, Component and EadRef records as needed). Occurrence of any error
+  # element and Component records as needed). Occurrence of any error
   # halts the import process and rolls back any database changes already made.
   #
   # In:
@@ -29,7 +29,6 @@ module ImportIviewXml
   def self.import_iview_xml(file, unit_id, logger = nil, filename = nil)
     @master_file_count = 0
     @component_count = 0
-    @ead_ref_count = 0
     @pid_count = 0
     @pids = Array.new
     @info_prefix = "Info|#{filename}|#{unit_id}|"
@@ -104,7 +103,7 @@ module ImportIviewXml
     begin
       @pids = AssignPids.request_pids(@pid_count)
     rescue Exception => e
-      ErrorMailer.deliver_notify_pid_failure(e)
+      # ErrorMailer.deliver_notify_pid_failure(e)
     end
     
     # Check for processing instruction indicating software name and version
@@ -131,29 +130,19 @@ module ImportIviewXml
         #
         # Delete image MasterFile records for this Unit, if any
         old_components = Array.new
-        old_ead_refs = Array.new
         old_master_files = MasterFile.find(:all, :conditions => "unit_id = #{unit_id} AND tech_meta_type = 'image'")
         old_master_files.each do |old_master_file|
           # Add Component record, if any, to an array for later destruction
           component = old_master_file.component
           hold_component(old_components, component) if component
-          
-          # Add EadRef records, if any, to an array for later destruction
-          ead_refs = old_master_file.ead_refs
-          ead_refs.each do |ead_ref|
-            hold_ead_ref(old_ead_refs, ead_ref)
-          end
-          
+                    
           # Delete this MasterFile
-          if not old_master_file.destroyable?
-            raise ImportError, "Import failed for Unit #{unit_id} because Unit has one or more image MasterFile records that can't be deleted: MasterFile #{old_master_file.id} has Deliverables or other dependent records"
-          end
           if old_master_file.exists_in_repo?
             raise ImportError, "Import failed for Unit #{unit_id} because Unit has one or more image MasterFile records that can't be deleted: MasterFile #{old_master_file.id} (pid = #{old_master_file.pid}) exists in Fedora repo"
           end
           old_master_file.destroy
         end
-        # Delete associated Component and EadRef records, if any
+        # Delete associated Component records, if any
         old_components.each do |component|
           if component.master_files.empty? and component.destroyable?
             if component.exists_in_repo?
@@ -161,9 +150,6 @@ module ImportIviewXml
             end
             component.destroy
           end
-        end
-        old_ead_refs.each do |ead_ref|
-          ead_ref.destroy if ead_ref.destroyable?
         end
         
         # Create one MasterFile record for each iView <MediaItem>
@@ -188,8 +174,9 @@ module ImportIviewXml
             end
             # save MasterFile to database, raising any error that occurs
             master_file.pid = @pids.shift unless @pids.blank?
-            master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
+            # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
             master_file.save!
+            sleep 0.1
             # also store MasterFile in hash for later use (hash key is iView "UniqueID" value)
             master_files[iview_id] = master_file
             
@@ -268,9 +255,8 @@ module ImportIviewXml
         unit_import_source = UnitImportSource.new(:unit_id => unit.id)
         #file.rewind
         #unit_import_source.import_source = file.readlines.join('')
-        unit_import_source.import_format_basis = 'XML'
-        unit_import_source.import_format_software = format_software if format_software
-        unit_import_source.import_format_version = format_version if format_version
+        unit_import_source.standard = format_software if format_software
+        unit_import_source.version = format_version if format_version
         begin
           unit_import_source.save!
         rescue Exception => e
@@ -533,7 +519,7 @@ module ImportIviewXml
         end
         # Set pid
         thing.pid = @pids.shift unless @pids.blank?
-        thing.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
+        # thing.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
       end
       
       # Save Component/EadRef to database; raise any error that occurs
@@ -662,10 +648,6 @@ module ImportIviewXml
     
     element = item.xpath('MediaProperties/Resolution').first
     image_tech_meta.resolution = get_element_value(element)
-    if element
-      value = element['unit']
-      image_tech_meta.resolution_unit = value.downcase unless value.blank?
-    end
     
     image_tech_meta.color_space = get_element_value(item.xpath('MediaProperties/ColorSpace').first)
     
@@ -757,14 +739,14 @@ module ImportIviewXml
       master_file.filesize = value unless value.to_i == 0
     end
     
-    # name_num
-    # In older iView XML files, name_num value is in <Product>
-    master_file.name_num = get_element_value(item.xpath('AnnotationFields/Product').first)
-    # In newer iView XML files, name_num value is in <Headline>
-    master_file.name_num = get_element_value(item.xpath('AnnotationFields/Headline').first)
+    # title
+    # In older iView XML files, title value is in <Product>
+    master_file.title = get_element_value(item.xpath('AnnotationFields/Product').first)
+    # In newer iView XML files, title value is in <Headline>
+    master_file.title = get_element_value(item.xpath('AnnotationFields/Headline').first)
     
     # notes
-    master_file.staff_notes = get_element_value(item.xpath('AnnotationFields/Caption').first)
+    master_file.description = get_element_value(item.xpath('AnnotationFields/Caption').first)
     
     return master_file
   end
