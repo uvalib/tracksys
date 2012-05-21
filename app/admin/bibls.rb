@@ -221,33 +221,4 @@ ActiveAdmin.register Bibl do
       end
     end
   end
-
-  # action_item :only => :show do
-  #   button_to "Update All XML Datastreams ", update_metadata_admin_bibl_url(bibl), :method => 'get'
-  # end
-
-  # controller do
-  #   require 'activemessaging/processor'
-  #   include ActiveMessaging::MessageSender
-        
-  #   publishes_to :update_fedora_datastreams
-
-  #   def update_metadata
-  #     message = ActiveSupport::JSON.encode( { :object_class => params[:object_class], :object_id => params[:object_id], :datastream => params[:datastream] })
-  #     publish :update_fedora_datastreams, message
-  #     flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
-  #     redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
-  #   end
-  # end
-
-  # action_item :only => :show do
-  #   button_to "Update All XML Datastreams ", update_metadata_admin_bibl_path(bibl), :method => 'get'
-  # end
-
-  # member_action :update_metadata do
-  #   message = ActiveSupport::JSON.encode( { :object_class => params[:object_class], :object_id => params[:object_id], :datastream => params[:datastream] })
-  #   publish :update_fedora_datastreams, message
-  #   flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
-  #   redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
-  # end
 end
