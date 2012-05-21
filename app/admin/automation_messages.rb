@@ -22,7 +22,7 @@ ActiveAdmin.register AutomationMessage do
   scope "Inactive Error", :has_inactive_error, :show_count => false
   scope "Archive", :archive_workflow, :show_count => false
   scope "QA", :qa_workflow, :show_count => false
-  scope "Delivery", :deliervy_workflow, :show_count => false
+  scope "Delivery", :delivery_workflow, :show_count => false
   scope "Patron", :patron_workflow, :show_count => false
   scope "Production", :production_worklow, :show_count => false
   scope "Repository", :repository_workflow, :show_count => false
