@@ -27,6 +27,7 @@ ActiveAdmin.register Bibl do
     column :title
     column :creator_name
     column :call_number
+    column :volume
     column :catalog_key do |bibl|
       div do
         bibl.catalog_key
