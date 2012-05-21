@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110928202329) do
+ActiveRecord::Schema.define(:version => 20120517215019) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -55,24 +55,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.datetime "updated_at",                     :null => false
   end
 
-  create_table "admin_users", :force => true do |t|
-    t.string   "email",                                 :default => "", :null => false
-    t.string   "encrypted_password",     :limit => 128, :default => "", :null => false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                         :default => 0
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.datetime "created_at",                                            :null => false
-    t.datetime "updated_at",                                            :null => false
-  end
-
-  add_index "admin_users", ["email"], :name => "index_admin_users_on_email", :unique => true
-  add_index "admin_users", ["reset_password_token"], :name => "index_admin_users_on_reset_password_token", :unique => true
-
   create_table "agencies", :force => true do |t|
     t.string   "name"
     t.string   "description"
@@ -100,7 +82,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "archives", ["name"], :name => "index_archives_on_name", :unique => true
 
   create_table "automation_messages", :force => true do |t|
-    t.integer  "unit_id"
     t.string   "pid"
     t.string   "app"
     t.string   "processor"
@@ -110,10 +91,6 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.text     "backtrace"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "order_id"
-    t.integer  "master_file_id"
-    t.integer  "bibl_id"
-    t.integer  "component_id"
     t.boolean  "active_error",                  :default => false, :null => false
     t.integer  "messagable_id",                                    :null => false
     t.string   "messagable_type", :limit => 20,                    :null => false
@@ -121,13 +98,9 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   end
 
   add_index "automation_messages", ["active_error"], :name => "index_automation_messages_on_active_error"
-  add_index "automation_messages", ["bibl_id"], :name => "index_automation_messages_on_bibl_id"
-  add_index "automation_messages", ["component_id"], :name => "index_automation_messages_on_component_id"
-  add_index "automation_messages", ["master_file_id"], :name => "index_automation_messages_on_master_file_id"
+  add_index "automation_messages", ["messagable_id", "messagable_type"], :name => "index_automation_messages_on_messagable_id_and_messagable_type"
   add_index "automation_messages", ["message_type"], :name => "index_automation_messages_on_message_type"
-  add_index "automation_messages", ["order_id"], :name => "index_automation_messages_on_order_id"
   add_index "automation_messages", ["processor"], :name => "index_automation_messages_on_processor"
-  add_index "automation_messages", ["unit_id"], :name => "index_automation_messages_on_unit_id"
   add_index "automation_messages", ["workflow_type"], :name => "index_automation_messages_on_workflow_type"
 
   create_table "availability_policies", :force => true do |t|
@@ -178,7 +151,8 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.text     "rels_int"
     t.boolean  "discoverability",                                 :default => true
     t.integer  "indexing_scenario_id"
-    t.datetime "date_ingested_into_dl"
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
     t.integer  "automation_messages_count",                       :default => 0
     t.integer  "orders_count",                                    :default => 0
     t.integer  "units_count",                                     :default => 0
@@ -197,13 +171,21 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "bibls", ["title"], :name => "index_bibls_on_title"
   add_index "bibls", ["use_right_id"], :name => "index_bibls_on_use_right_id"
 
-  create_table "bibls_components", :force => true do |t|
+  create_table "bibls_components", :id => false, :force => true do |t|
     t.integer "bibl_id"
     t.integer "component_id"
   end
 
-  add_index "bibls_components", ["bibl_id"], :name => "index_bibls_components_on_bibl_id"
-  add_index "bibls_components", ["component_id"], :name => "index_bibls_components_on_component_id"
+  add_index "bibls_components", ["bibl_id"], :name => "bibl_id"
+  add_index "bibls_components", ["component_id"], :name => "component_id"
+
+  create_table "bibls_ead_refs", :id => false, :force => true do |t|
+    t.integer "bibl_id"
+    t.integer "ead_ref_id"
+  end
+
+  add_index "bibls_ead_refs", ["bibl_id"], :name => "bibl_id"
+  add_index "bibls_ead_refs", ["ead_ref_id"], :name => "ead_ref_id"
 
   create_table "bibls_legacy_identifiers", :id => false, :force => true do |t|
     t.integer "legacy_identifier_id"
@@ -228,6 +210,7 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "components_count"
   end
 
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
@@ -236,8 +219,12 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.integer  "component_type_id",                               :default => 0,    :null => false
     t.integer  "parent_component_id",                             :default => 0,    :null => false
     t.string   "title"
+    t.string   "label"
     t.string   "date"
     t.text     "content_desc"
+    t.string   "idno"
+    t.string   "barcode"
+    t.integer  "seq_number"
     t.string   "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -248,34 +235,42 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.text     "rels_int"
     t.boolean  "discoverability",                                 :default => true
     t.integer  "indexing_scenario_id"
+    t.text     "level"
+    t.string   "ead_id_att"
+    t.integer  "parent_ead_ref_id",                                                 :null => false
+    t.integer  "ead_ref_id"
     t.integer  "availability_policy_id"
-    t.datetime "date_ingested_into_dl"
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
     t.integer  "use_right_id"
     t.integer  "master_files_count",                              :default => 0,    :null => false
     t.integer  "automation_messages_count",                       :default => 0,    :null => false
     t.string   "exemplar"
+    t.string   "ancestry"
   end
 
+  add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
   add_index "components", ["availability_policy_id"], :name => "index_components_on_availability_policy_id"
   add_index "components", ["component_type_id"], :name => "index_components_on_component_type_id"
+  add_index "components", ["ead_ref_id"], :name => "ead_ref_id"
   add_index "components", ["indexing_scenario_id"], :name => "index_components_on_indexing_scenario_id"
   add_index "components", ["use_right_id"], :name => "index_components_on_use_right_id"
 
-  create_table "components_containers", :force => true do |t|
-    t.integer "component_id"
+  create_table "components_containers", :id => false, :force => true do |t|
     t.integer "container_id"
+    t.integer "component_id"
   end
 
-  add_index "components_containers", ["component_id"], :name => "index_components_containers_on_component_id"
-  add_index "components_containers", ["container_id"], :name => "index_components_containers_on_container_id"
+  add_index "components_containers", ["component_id"], :name => "component_id"
+  add_index "components_containers", ["container_id"], :name => "container_id"
 
-  create_table "components_legacy_identifiers", :force => true do |t|
+  create_table "components_legacy_identifiers", :id => false, :force => true do |t|
     t.integer "component_id"
     t.integer "legacy_identifier_id"
   end
 
-  add_index "components_legacy_identifiers", ["component_id"], :name => "index_components_legacy_identifiers_on_component_id"
-  add_index "components_legacy_identifiers", ["legacy_identifier_id"], :name => "index_components_legacy_identifiers_on_legacy_identifier_id"
+  add_index "components_legacy_identifiers", ["component_id"], :name => "component_id"
+  add_index "components_legacy_identifiers", ["legacy_identifier_id"], :name => "legacy_identifier_id"
 
   create_table "container_types", :force => true do |t|
     t.string "name"
@@ -285,15 +280,18 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_index "container_types", ["name"], :name => "index_container_types_on_name", :unique => true
 
   create_table "containers", :force => true do |t|
-    t.string  "barcode"
-    t.integer "container_type_id"
-    t.string  "label"
-    t.integer "parent_container_id", :default => 0, :null => false
-    t.string  "sequence_no"
+    t.string   "barcode"
+    t.string   "container_type"
+    t.string   "label"
+    t.string   "sequence_no"
+    t.integer  "parent_container_id", :default => 0, :null => false
+    t.integer  "legacy_component_id", :default => 0, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "container_type_id"
   end
 
   add_index "containers", ["container_type_id"], :name => "containers_container_type_id_fk"
-  add_index "containers", ["parent_container_id"], :name => "index_containers_on_parent_container_id"
 
   create_table "customers", :force => true do |t|
     t.integer  "department_id"
@@ -350,6 +348,35 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   end
 
   add_index "dvd_delivery_locations", ["name"], :name => "index_dvd_delivery_locations_on_name", :unique => true
+
+  create_table "ead_refs", :force => true do |t|
+    t.integer  "parent_ead_ref_id",                       :default => 0,     :null => false
+    t.integer  "bibl_id",                                 :default => 0
+    t.string   "ead_id_att"
+    t.string   "level"
+    t.string   "label"
+    t.string   "date"
+    t.text     "content_desc"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.text     "desc_metadata"
+    t.text     "rels_ext"
+    t.text     "solr",              :limit => 2147483647
+    t.text     "dc"
+    t.string   "availability"
+    t.text     "rels_int"
+    t.boolean  "discoverability",                         :default => false
+  end
+
+  add_index "ead_refs", ["bibl_id"], :name => "bibl_id"
+
+  create_table "ead_refs_master_files", :id => false, :force => true do |t|
+    t.integer "ead_ref_id"
+    t.integer "master_file_id"
+  end
+
+  add_index "ead_refs_master_files", ["ead_ref_id"], :name => "ead_ref_id"
+  add_index "ead_refs_master_files", ["master_file_id"], :name => "master_file_id"
 
   create_table "heard_about_resources", :force => true do |t|
     t.string   "description"
@@ -556,6 +583,20 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
     t.datetime "updated_at"
   end
 
+  create_table "staff_members", :force => true do |t|
+    t.integer  "access_level_id",           :default => 0,     :null => false
+    t.string   "computing_id"
+    t.string   "last_name"
+    t.string   "first_name"
+    t.boolean  "is_active",                 :default => false, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "automation_messages_count", :default => 0
+  end
+
+  add_index "staff_members", ["access_level_id"], :name => "access_level_id"
+  add_index "staff_members", ["computing_id"], :name => "index_staff_members_on_computing_id", :unique => true
+
   create_table "unit_import_sources", :force => true do |t|
     t.integer  "unit_id",                          :default => 0, :null => false
     t.string   "standard"
@@ -626,18 +667,15 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
 
   add_index "use_rights", ["name"], :name => "index_use_rights_on_name", :unique => true
 
-  add_foreign_key "automation_messages", "bibls", :name => "automation_messages_bibl_id_fk"
-  add_foreign_key "automation_messages", "components", :name => "automation_messages_component_id_fk"
-  add_foreign_key "automation_messages", "master_files", :name => "automation_messages_master_file_id_fk"
-  add_foreign_key "automation_messages", "orders", :name => "automation_messages_order_id_fk"
-  add_foreign_key "automation_messages", "units", :name => "automation_messages_unit_id_fk"
-
   add_foreign_key "bibls", "availability_policies", :name => "bibls_availability_policy_id_fk"
   add_foreign_key "bibls", "indexing_scenarios", :name => "bibls_indexing_scenario_id_fk"
   add_foreign_key "bibls", "use_rights", :name => "bibls_use_right_id_fk"
 
-  add_foreign_key "bibls_components", "bibls", :name => "bibls_components_bibl_id_fk"
-  add_foreign_key "bibls_components", "components", :name => "bibls_components_component_id_fk"
+  add_foreign_key "bibls_components", "bibls", :name => "bibls_components_ibfk_1"
+  add_foreign_key "bibls_components", "components", :name => "bibls_components_ibfk_2"
+
+  add_foreign_key "bibls_ead_refs", "bibls", :name => "bibls_ead_refs_ibfk_1"
+  add_foreign_key "bibls_ead_refs", "ead_refs", :name => "bibls_ead_refs_ibfk_2"
 
   add_foreign_key "bibls_legacy_identifiers", "bibls", :name => "bibls_legacy_identifiers_bibl_id_fk"
   add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", :name => "bibls_legacy_identifiers_legacy_identifier_id_fk"
@@ -647,11 +685,11 @@ ActiveRecord::Schema.define(:version => 20110928202329) do
   add_foreign_key "components", "indexing_scenarios", :name => "components_indexing_scenario_id_fk"
   add_foreign_key "components", "use_rights", :name => "components_use_right_id_fk"
 
-  add_foreign_key "components_containers", "components", :name => "components_containers_component_id_fk"
-  add_foreign_key "components_containers", "containers", :name => "components_containers_container_id_fk"
+  add_foreign_key "components_containers", "components", :name => "components_containers_ibfk_2"
+  add_foreign_key "components_containers", "containers", :name => "components_containers_ibfk_1"
 
-  add_foreign_key "components_legacy_identifiers", "components", :name => "components_legacy_identifiers_component_id_fk"
-  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", :name => "components_legacy_identifiers_legacy_identifier_id_fk"
+  add_foreign_key "components_legacy_identifiers", "components", :name => "components_legacy_identifiers_ibfk_1"
+  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", :name => "components_legacy_identifiers_ibfk_2"
 
   add_foreign_key "containers", "container_types", :name => "containers_container_type_id_fk"
 
