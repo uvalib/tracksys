@@ -25,6 +25,7 @@ ActiveAdmin.register AutomationMessage do
   filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES.sort.map(&:titleize), :input_html => {:class => 'chzn-select'}
   filter :messagable_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object", :input_html => {:class => 'chzn-select'}
   filter :messagable_id, :as => :numeric, :label => "Object ID"
+  filter :created_at, :label => "Date"
 
   index do
     selectable_column
@@ -49,6 +50,9 @@ ActiveAdmin.register AutomationMessage do
     end
     column :message do |automation_message|
       truncate(automation_message.message, :length => 200)
+    end
+    column ("Date") do |automation_message|
+      format_datetime automation_message.created_at
     end
     column("") do |automation_message|
       div do
