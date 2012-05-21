@@ -2,6 +2,12 @@ ActiveAdmin.register Unit do
   menu :priority => 4
   
   scope :all, :default => true
+  scope :approved
+  scope :unapproved
+  scope :awaiting_copyright_approval
+  scope :awaiting_condition_approval
+  scope :canceled
+
   actions :all, :except => [:destroy]
 
   batch_action :print_routing_slips do |selection|
