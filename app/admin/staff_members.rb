@@ -1,4 +1,6 @@
 ActiveAdmin.register StaffMember do
+  config.sort_order = 'last_name_dsc'
+  
   menu :parent => "Miscellaneous"
 
   scope :all, :default => true
@@ -9,6 +11,7 @@ ActiveAdmin.register StaffMember do
   filter :first_name
 
   index do
+    selectable_column
     column :full_name
     column :computing_id
     column("Active?") do |staff_member|
