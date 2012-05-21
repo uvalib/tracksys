@@ -65,7 +65,7 @@ ActiveAdmin.register AutomationMessage do
   end
 
   show :title => proc { automation_message.id } do 
-    div :class => 'three-column' do
+    div :class => 'two-column' do
       panel "Details" do
         attributes_table_for automation_message do
           row :active_error do |automation_message|
@@ -88,7 +88,7 @@ ActiveAdmin.register AutomationMessage do
       end
     end
 
-    div :class => 'three-column' do
+    div :class => 'two-column' do
       panel "Relationships" do
         attributes_table_for automation_message do
           row ("Attached to Object") do |automation_message|
@@ -102,7 +102,7 @@ ActiveAdmin.register AutomationMessage do
       end
     end
 
-    div :class => 'three-column' do
+    div :class => 'columns-none' do
       panel "Technical Information" do
         attributes_table_for automation_message do
           row :created_at
@@ -128,7 +128,7 @@ ActiveAdmin.register AutomationMessage do
         f.input :messagable_id, :as => :string
       end
     else  # Edit existing Record     
-      f.inputs "Details", :class => 'three-column panel' do
+      f.inputs "Details", :class => 'two-column panel' do
         f.input :active_error, :as => :radio
         f.input :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES, :input_html => {:class => 'chzn-select'}
         f.input :processor, :input_html => { :disabled => true }
@@ -136,12 +136,12 @@ ActiveAdmin.register AutomationMessage do
         f.input :app, :input_html => { :disabled => true}
         f.input :message, :as => :text, :input_html => { :rows => 10, :disabled => true }
       end
-      f.inputs "Relationships", :class => 'three-column panel' do
+      f.inputs "Relationships", :class => 'two-column panel' do
         f.input :pid, :as => :string, :input_html => { :disabled => true }
         f.input :messagable_type, :as => :string, :input_html => { :disabled => true }
         f.input :messagable_id, :as => :string, :input_html => { :disabled => true }
       end
-      f.inputs "Technical Information", :class => 'three-column panel' do
+      f.inputs "Technical Information", :class => 'columns-none panel' do
         f.input :created_at, :as => :string, :input_html => { :disabled => true }
         f.input :updated_at, :as => :string, :input_html => { :disabled => true }
         f.input :backtrace, :input_html => { :disabled => true }
