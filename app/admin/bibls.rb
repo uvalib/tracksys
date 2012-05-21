@@ -183,7 +183,9 @@ ActiveAdmin.register Bibl do
       row :automation_messages do |bibl|
         link_to "#{bibl.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => bibl.id, :messagable_type_eq => "Bibl" })
       end
-      # row :component
+      row :components do |bibl|
+        link_to "#{bibl.components.size}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
+      end
     end
   end
 
