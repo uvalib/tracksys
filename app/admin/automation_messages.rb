@@ -4,17 +4,8 @@ ActiveAdmin.register AutomationMessage do
   actions :all, :except => [:new]
 
   batch_action :remove_active_error do |selection|
-    failure_message = ""
-    successful_changes = []
-    AutomationMessage.find(selection).each do |am|
-      if am.active_error == false
-        failure_message = failure_message + "Failure: #{am.id} active error flag already set to no." + '\n'
-      else
-        am.update_attribute('active_error', false)
-        successful_changes << am.id
-      end
-    end
-    redirect_to :back, :alert => "#{failure_message}Removed active error flag on #{successful_changes.length} Automation Messages."
+    AutomationMessage.find(selection).each {|s| s.update_attribute(:active_error, false)}
+    redirect_to :back, :alert => "Removed active error flag on #{successful_changes.length} Automation Messages."
   end
 
   scope :all, :default => true, :show_count => false
