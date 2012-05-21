@@ -175,10 +175,10 @@ ActiveAdmin.register Bibl do
         link_to "#{bibl.units.size}", admin_units_path(:q => {:bibl_id_eq => bibl.id})
       end
       row :orders do |bibl|
-        link_to "#{bibl.orders.size}", admin_orders_path(:q => {:bibl_id_eq => bibl.id})
+        link_to "#{bibl.orders.size}", admin_orders_path(:q => {:bibls_id_eq => bibl.id})
       end
       row :customers do |bibl|
-        link_to "#{bibl.customers.size}", admin_customers_path(:q => {:bibl_id_eq => bibl.id})
+        link_to "#{bibl.customers.size}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
       end
       row :automation_messages do |bibl|
         link_to "#{bibl.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => bibl.id, :messagable_type_eq => "Bibl" })
