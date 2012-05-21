@@ -1,6 +1,6 @@
 ActiveAdmin.register AutomationMessage do
-  menu :parent => "Miscellaneous"
-
+  menu :priority => 8
+  
   actions :all, :except => [:new]
 
   batch_action :remove_active_error do |selection|
