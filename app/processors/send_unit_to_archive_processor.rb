@@ -67,14 +67,14 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
       when File.file?(f)
         # Get pertinent information for creating dirs in REVIEW and DELETE dirs
         p = Pathname.new(f)
-        parent = p.parent
-        basename = p.basename
+        parent = p.parent.to_s
+        basename = p.basename.to_s
 
         # Ignore files that begin with .
-        if /^\./ =~ p.basename
+        if /^\./ =~ basename
         else              
-          File.copy(f, File.join(ARCHIVE_WRITE_DIR, parent, basename))
-          File.chmod(0755, File.join(ARCHIVE_WRITE_DIR, parent, basename))
+          FileUtils.copy(f, File.join(ARCHIVE_WRITE_DIR, parent, basename))
+          FileUtils.chmod(0755, File.join(ARCHIVE_WRITE_DIR, parent, basename))
           # Calculate information for checksums
           source_md5 = Digest::MD5.hexdigest(File.read(f))
           copy_md5 = Digest::MD5.hexdigest(File.read(File.join(ARCHIVE_WRITE_DIR, parent, basename)))
@@ -87,8 +87,8 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
           end
         end
       when File.directory?(f)
-        File.makedirs(File.join(ARCHIVE_WRITE_DIR, f))
-        File.chmod(0755, File.join(ARCHIVE_WRITE_DIR, f))
+        FileUtils.makedirs(File.join(ARCHIVE_WRITE_DIR, f))
+        FileUtils.chmod(0755, File.join(ARCHIVE_WRITE_DIR, f))
         created_dirs << f
       else 
         on_failure("Unknown file #{f} in #{parent}/#{basename}")
