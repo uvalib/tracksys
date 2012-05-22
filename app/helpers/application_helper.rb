@@ -4,6 +4,25 @@ include TweetButton
 
 module ApplicationHelper
 
+  # If input is empty string or nil, returns string "&nbsp;".
+  # Otherwise, cleans input using html_escape and returns resulting
+  # string.
+  #
+  # Useful for forcing a table cell to have content, which forces CSS
+  # styles for table cell to display in browsers (namely IE) where
+  # they wouldn't if the cell were completely empty.
+  def empty2nbsp(input, escape_input = true)
+    if input.blank?
+      return raw('&nbsp;')
+    else
+      if escape_input
+        return html_escape(input)
+      else
+        return input
+      end
+    end
+  end
+
   def format_boolean_as_yes_no(boolean)
     if boolean
       return 'Yes'
