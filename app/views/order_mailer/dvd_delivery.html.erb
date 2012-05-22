@@ -1,0 +1,29 @@
+<%= image_tag "http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg", :size => '640x64' %>
+
+<h3>University of Virginia Digitization Services</h3>
+
+<p>Dear <%= @customer.first_name.capitalize %> <%= @customer.last_name.capitalize %>,</p>
+
+<p><%= @dvd_delivery_location.email_desc %></p>
+
+<p>A PDF included on the DVDs contains all bibiliographic and descriptive information about your digital order.</p>
+
+<% if @fee %>
+<p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days. Please write a check in the above amount made payable to Rector and Board of Visitors of the University of Virginia and send it to the following address:</p>
+<p>Digital Curation Services<br/>
+University of Virginia Library<br/>
+Post Office Box 400155<br/> 
+Charlottesville, Virginia 22904 U.S.A</p>
+<% end %>
+
+<p>Let us know if you have any questions by writing to <%= mail_to 'digitalservices@virginia.edu' %>.  For comments and feedback, please complete our user survey <%= link_to "http://www.lib.virginia.edu/rmds/services/survey.html", 'http://www.lib.virginia.edu/rmds/services/survey.html' %>
+<h3>Material Usage Information</h3>
+<p>For more information regarding the use, reproduction and publication of materials, please refer to the guidelines provided by Special Collections at:
+<%= link_to "http://www2.lib.virginia.edu/small/using/use_of_materials_policy.html", 'http://www2.lib.virginia.edu/small/using/use_of_materials_policy.html' %>
+<p>Sincerely,<br/>
+Digitization Services Staff<br/><br/>
+Digitization Services<br/>
+University of Virginia Library<br/>
+P.O. Box 400155<br/>
+Charlottesville, VA 22904<br/>
+<%= link_to "http://www2.lib.virginia.edu/digitalcuration/", 'http://www2.lib.virginia.edu/digitalcuration/' %></p>

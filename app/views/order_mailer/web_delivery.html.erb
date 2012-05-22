@@ -1,0 +1,34 @@
+<%= image_tag('http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg', :size => '640x64') %>
+<h2>University of Virginia Digitization Services</h2><br/>
+<p>Dear <%= @customer.first_name.capitalize %> <%= @customer.last_name.capitalize %>,<br/>
+<% if @delivery_files.length == 1 %>
+Your digital request is now available and may be downloaded using the link below:
+<% else %>
+Your digital request is now available and may be downloaded using the links below:
+<% end %>
+<% for delivery_file in @delivery_files -%>
+<p><%= DELIVERY_URL %><%= delivery_file %></p>
+<% end -%></p>
+<p>A PDF included in the above zip files contains all bibiliographic and descriptive information about your digital order.</p>
+
+<% if @fee %>
+<p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days. Please write a check in the above amount made payable to Rector and Board of Visitors of the University of Virginia and send it to the following address:</p>
+<p>Digital Curation Services<br/>
+University of Virginia Library<br/>
+Post Office Box 400155<br/> 
+Charlottesville, Virginia 22904 U.S.A</p>
+<% end %>
+
+<p>*** Please note that your image files will only be available for the next ten days ***</p>
+<p>Let us know if you have any questions by writing to <%= mail_to 'digitalservices@virginia.edu' %>.  For comments and feedback, please complete our user survey <%= link_to "http://www.lib.virginia.edu/rmds/services/survey.html", 'http://www.lib.virginia.edu/rmds/services/survey.html' %>
+<h3>Material Usage Information</h3>
+<p>For more information regarding the use, reproduction and publication of materials, please refer to the guidelines provided by Special Collections at:
+<%= link_to "http://www2.lib.virginia.edu/small/using/use_of_materials_policy.html", 'http://www2.lib.virginia.edu/small/using/use_of_materials_policy.html' %>
+<p>Sincerely,<br/>
+Digitization Services Staff<br/><br/>
+Digitization Services<br/>
+University of Virginia Library<br/>
+P.O. Box 400155<br/>
+Charlottesville, VA 22904<br/>
+<%= link_to "http://www2.lib.virginia.edu/digitalcuration/", 'http://www2.lib.virginia.edu/digitalcuration/' %></p>
+
