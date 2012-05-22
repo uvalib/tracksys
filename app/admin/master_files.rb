@@ -10,7 +10,7 @@ ActiveAdmin.register MasterFile do
   actions :all, :except => [:new, :destroy]
 
   batch_action :download_from_archive do |selection|
-    selection.each {|s| MasterFile.find(s).get_from_stornext }
+    MasterFile.find(selection).each {|s| s.get_from_stornext }
     flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
     redirect_to :back
   end
@@ -58,9 +58,15 @@ ActiveAdmin.register MasterFile do
       format_date(mf.date_dl_ingest)
     end
     column :pid, :sortable => false
-    column ("Bibliographic Title") do |mf|
-      link_to "#{mf.bibl_title}", admin_bibl_path(mf.bibl.id)
+    column ("Bibliographic Record") do |mf|
+      div do 
+        link_to "#{mf.bibl_title}", admin_bibl_path("#{mf.bibl_id}") 
+      end
+      div do 
+        mf.bibl_call_number
+      end
     end
+    column :unit
     column("Thumbnail") do |mf|
       link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
     end
@@ -104,26 +110,15 @@ ActiveAdmin.register MasterFile do
         attributes_table_for master_file do
           row :md5
           row :filesize
-          row :equipment do |master_file|
-            master_file.image_tech_meta.equipment
+          if master_file.image_tech_meta
+            attributes_table_for master_file.image_tech_meta do
+              row :image_format
+              row("Height x Width"){|mf| "#{mf.height} x #{mf.width}"}
+              row :color_space
+              row :color_profile
+              row :equipment
+            end
           end
-          row :image_format do |master_file|
-            master_file.image_tech_meta.image_format
-          end
-        end
-        if master_file.image_tech_meta
-          attributes_table_for master_file.image_tech_meta do
-            row :image_format
-            row("Height x Width"){|mf| "#{mf.height} x #{mf.width}"}
-            row :color_space
-            row :color_profile
-            row :equipment
-            # row :filesize
-            # row :tech_meta_type
-            # row :md5
-          end
-        else
-          "No technical metadata available."
         end
       end
     end
@@ -152,8 +147,6 @@ ActiveAdmin.register MasterFile do
         end
       end
     end
-
-    
   end
 
   form do |f|
@@ -204,7 +197,11 @@ ActiveAdmin.register MasterFile do
         link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
       end
       row :customer
-      row :component
+      row :component do |master_file|
+        if master_file.component
+          link_to "#{master_file.component.name}", admin_component_path(master_file.component.id) 
+        end
+      end
       row :automation_messages do |master_file|
         link_to "#{master_file.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => master_file.id, :messagable_type_eq => "MasterFile" })
       end
@@ -250,22 +247,7 @@ ActiveAdmin.register MasterFile do
 
   member_action :copy_from_archive, :method => :put do 
     mf = MasterFile.find(params[:id])
-    mf.get_from_stornext
-    redirect_to :back, :notice => "Master File #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+    mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
-
-#  controller do
-#    require 'activemessaging/processor'
-#    include ActiveMessaging::MessageSender
-
-#    publishes_to :copy_archived_files_to_production
-
-#    def copy_from_archive
-#      master_file = MasterFile.find(params[:id])
-#      message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
-#      publish :copy_archived_files_to_production, message
-#      flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-#      redirect_to :back
-#    end
-#  end
 end
