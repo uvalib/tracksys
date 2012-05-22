@@ -18,6 +18,16 @@ class AutomationMessageProcessor < ApplicationProcessor
       # value passed was not JSON-encoded
       hash = {:message => decoded.to_s}
     end
+
+    # If a message makes it to AutomationMessageProcessor without a messagable object
+    # default to make it aec6v's StaffMember object.
+    if hash[:messagable_id] == nil || hash[:messagable_id] == 'null'
+      hash[:messagable_id] = 2
+    end
+
+    if hash[:messagable_type] == nil || hash[:messagable_type] == 'null'
+      hash[:messagable_type] = "StaffMember"
+    end
     
     # Save values to tracksys database for later review by staff
     am = AutomationMessage.new
