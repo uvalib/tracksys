@@ -438,7 +438,7 @@ module ImportIviewXml
         thing.parent_component_id = parent_id
       end
     end
-    thing.bibl_id = bibl_id if bibl_id
+    thing.bibls << Bibl.find(bibl_id) if bibl_id
     component_type_name = ''
     
     # Get value of <SetName> element, which will be a tilde-separated string of
