@@ -19,17 +19,15 @@ class CheckOrderDeliveryMethodProcessor < ApplicationProcessor
     @messagable_type = "Order"
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
  
-    if @working_order.has_delivery_method?("web delivery")
-      on_success "Order #{@order_id} has a delivery method of 'web delivery'"
-      message = ActiveSupport::JSON.encode({:order_id => @order_id})
-      publish :create_order_zip, message
-    elsif @working_order.has_delivery_method?("data DVD")
+    if @working_order.dvd_delivery_location
       # Send message with the order and id of the dvd_delivery_location
       on_success "Order #{@order_id} has a delivery method of 'data DVD'"
       message = ActiveSupport::JSON.encode({:order_id => @order_id, :dvd_delivery_location_id => @working_order.dvd_delivery_location_id})
       publish :create_order_email, message
     else
-      on_error("#{@order_id} has a non-standard delivery method.  Please investigate!")
+      on_success "Order #{@order_id} has the default delivery method of 'web delivery'"
+      message = ActiveSupport::JSON.encode({:order_id => @order_id})
+      publish :create_order_zip, message
     end
   end
 end
