@@ -7,9 +7,15 @@ class StartManualUploadToArchiveMigrationProcessor < ApplicationProcessor
   publishes_to :send_unit_to_archive
   
   def on_message(message)
+    logger.debug "StartManualUploadToArchiveProductionProcessor received: " + message
+
+    # decode JSON message into Ruby hash
+    hash = ActiveSupport::JSON.decode(message).symbolize_keys
+    
     now = Time.now
     day = now.strftime("%A")
     regex_unit = Regexp.new('\d{9}$')
+    @user = hash[:user]
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     if not File.exist?(File.join(MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION, day))
@@ -41,9 +47,9 @@ class StartManualUploadToArchiveMigrationProcessor < ApplicationProcessor
               FileUtils.mv File.join(@original_source_dir, content), File.join(MANUAL_ARCHIVE_IN_PROCESS_DIR_MIGRATION, content)
 
               if regex_unit.match(content).nil?
+                @messagable_type = @user.class
+                @messagable_id = @user.id
                 @internal_dir = "no"
-                # TODO: Figure out what the messagable class is for this item
-                # @messagable = 
                 on_success "Non-Tracking System managed content (#{content}) sent to StorNext worklfow via manual upload directory from #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{day}."
                 message = ActiveSupport::JSON.encode({:unit_dir => content, :source_dir => MANUAL_ARCHIVE_IN_PROCESS_DIR_MIGRATION, :internal_dir => @internal_dir})
                 publish :send_unit_to_archive, message
