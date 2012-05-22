@@ -37,6 +37,7 @@ class AutomationMessage
     'UpdateUnitDateQueuedForIngestProcessor' => 'repository',
     'CheckUnitDeliveryModeProcessor' => 'qa',
     'CopyMetadataToMetadataDirectoryProcessor' => 'qa',
+    'CopyUnitForDeliverableGenerationProcessor' => 'delivery',
     'ImportUnitIviewXMLProcessor' => 'qa',
     'QaFilesystemAndIviewXmlProcessor' => 'qa',
     'QaOrderDataProcessor' => 'qa',
