@@ -28,15 +28,13 @@ class CreateOrderEmailProcessor < ApplicationProcessor
 
     if hash[:dvd_delivery_location_id]
       @dvd_delivery_location = DvdDeliveryLocation.find(hash[:dvd_delivery_location_id])
-      email = DeliveryMailer.create_dvd_delivery(@working_order, @dvd_delivery_location)
-      email.set_content_type("text/html")
-      @working_order.update_attribute(:email, email)
+      email = OrderMailer.dvd_delivery(@working_order, @dvd_delivery_location)
+      @working_order.update_attribute(:email, email.body)
       on_success "An email for DVD delivery method created for order #{@order_id}"
     elsif hash[:delivery_files]
       @delivery_files = hash[:delivery_files]
-      email = DeliveryMailer.create_web_delivery(@working_order, @delivery_files)
-      email.set_content_type("text/html")
-      @working_order.update_attribute(:email, email)
+      email = OrderMailer.web_delivery(@working_order, @delivery_files)
+      @working_order.update_attribute(:email, email.body)
       on_success "An email for web delivery method created for order #{@order_id}"
     else
     end
