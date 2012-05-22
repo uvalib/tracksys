@@ -17,6 +17,7 @@ ActiveAdmin.register Order do
   filter :order_title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
+  filter :bibls_id, :as => :numeric
   filter :date_request_submitted
   filter :date_due
   filter :date_archiving_complete
@@ -98,20 +99,20 @@ ActiveAdmin.register Order do
     div :class => 'columns-none' do
       panel "Delivery Information" do 
         attributes_table_for order do
-          row :date_finalization_begun do |customer|
-            format_date(customer.date_finalization_begun)
+          row :date_finalization_begun do |order|
+            format_date(order.date_finalization_begun)
           end
-          row :date_archiving_complete do |customer|
-            format_date(customer.date_finalization_begun)
+          row :date_archiving_complete do |order|
+            format_date(order.date_finalization_begun)
           end
-          row :date_patron_deliverables_complete do |customer|
-            format_date(customer.date_patron_deliverables_complete)
+          row :date_patron_deliverables_complete do |order|
+            format_date(order.date_patron_deliverables_complete)
           end
-          row :date_customer_notified do |customer|
-            format_date(customer.date_customer_notified)
+          row :date_customer_notified do |order|
+            format_date(order.date_customer_notified)
           end
-          row :email do |customer|
-            raw(customer.email)
+          row :email do |order|
+            raw(order.email)
           end
         end
       end
@@ -146,30 +147,11 @@ ActiveAdmin.register Order do
       f.input :date_archiving_complete, :as => :string, :input_html => {:class => :datepicker}
       f.input :date_patron_deliverables_complete, :as => :string, :input_html => {:class => :datepicker}
       f.input :date_customer_notified, :as => :string, :input_html => {:class => :datepicker}
-      f.input :email, :input_html => {:rows => 5}
+      f.input :email, :as => :text
     end
 
     f.inputs :class => 'columns-none' do
       f.actions
-    end
-  end
-
-  sidebar "Relaed Information", :only => :show do
-    attributes_table_for order do
-      row :units do |order|
-        link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
-      end
-      row :master_files do |order|
-        link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
-      end
-      row :bibls do |order|
-        link_to "#{order.bibls.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
-      end
-      row :automation_messages do |order|
-        link_to "#{order.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => order.id, :messagable_type_eq => "Order"})
-      end
-      row :customer
-      row :agency
     end
   end
 
@@ -206,6 +188,17 @@ ActiveAdmin.register Order do
         div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put, :disabled => true end
         div do "#{order.customer.full_name} is internal to UVA and requires no fee approval" end
       end
+    elsif order.order_status == 'deferred'
+      if order.customer.external?
+        if order.fee_actual.nil?
+          div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
+          div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put end
+          div do "Please input the actual fee before approving order." end
+        else
+          div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :method => :put end
+          div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put end
+        end
+      end      
     elsif order.order_status == 'approved' || order.order_status == 'canceled'
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
@@ -214,31 +207,82 @@ ActiveAdmin.register Order do
     end
   end
 
+  sidebar "Delivery Workflow", :only => :show do
+    if order.order_status == 'approved'
+      if order.email?
+        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
+        if order.date_customer_notified
+          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put, :disabled => true end
+        else
+          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
+        end
+      else
+        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put end
+        div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+        div do "Order is not yet complete and cannot be delivered." end
+      end
+    else
+      # order not approved
+      div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
+      div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+      div do "Order is not yet approved." end
+    end
+  end
+
+  sidebar "Relaed Information", :only => :show do
+    attributes_table_for order do
+      row :units do |order|
+        link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
+      end
+      row :master_files do |order|
+        link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
+      end
+      row :bibls do |order|
+        link_to "#{order.bibls.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
+      end
+      row :automation_messages do |order|
+        link_to "#{order.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => order.id, :messagable_type_eq => "Order"})
+      end
+      row :customer
+      row :agency
+      row :invoices do |order|
+        link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
+      end
+    end
+  end
+
   member_action :approve_order, :method => :put do
     order = Order.find(params[:id])
     order.approve_order
-    sleep(0.2)
+    sleep(0.5)
     redirect_to :back, :notice => "Order #{params[:id]} is now approved."
   end
 
   member_action :cancel_order, :method => :put do
     order = Order.find(params[:id])
     order.cancel_order
-    sleep(0.2)
+    sleep(0.5)
     redirect_to :back, :notice => "Order #{params[:id]} is now canceled."
   end
 
   member_action :send_fee_estimate_to_customer, :method => :put do
     order = Order.find(params[:id])
     order.send_fee_estimate_to_customer(request.env['HTTP_REMOTE_USER'].to_s)
-    sleep(0.2)
+    sleep(0.5)
     redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
   end
 
-  # member_action :check_order_ready_for_delivery, :method => :put do
+  member_action :check_order_ready_for_delivery, :method => :put do
+    order = Order.find(params[:id])
+    order.check_order_ready_for_delivery
+    sleep(0.5)
+    redirect_to :back, :notice => "Order #{order.id} is being checked to see if it is ready."
+  end
 
-  # end
-
-  # member_action :send_order_email, :method => :put do
-  # end
+  member_action :send_order_email, :method => :put do
+    order = Order.find(params[:id])
+    order.send_order_email
+    sleep(0.5)
+    redirect_to :back, :notice => "Email sent to #{order.customer.full_name}."
+  end
 end
