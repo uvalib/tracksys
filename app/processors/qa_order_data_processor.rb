@@ -32,14 +32,9 @@ class QaOrderDataProcessor < ApplicationProcessor
     if not @working_order.order_status == 'approved'
       failure_messages << "Order #{@order_id} does not have an order status of 'approved'.  Please correct before proceeding."
     end
-  
-    # An order at this stage must have a delivery method because patron deliverables now exist.
-    if not @working_order.delivery_methods
-      failure_messages << "Order #{@order_id} has no delivery methods but has patron deliverables."
-    end
-    
+     
     # An order whose customer is non-UVA and whose actual fee is blank is invalid.  Only if actual_fee has a value is the order valid.
-    if @working_order.customer.uva_status_id == 1 and @working_order.fee_actual.nil?
+    if @working_order.customer.academic_status_id == 1 and @working_order.fee_actual.nil?
       failure_messages << "Order #{@order_id} has a non-UVA customer and the 'Actual Fee' is blank.  Please fill in with a value."
     end
 
