@@ -27,13 +27,11 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
     # If @source_dir matches a stornext manual upload dir, move to DELETE_DIR_FROM_STORNEXT
     if /#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}|#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/ =~ @source_dir
       FileUtils.mv File.join(@source_dir, @unit_dir), File.join(DELETE_DIR_FROM_STORNEXT, @unit_dir)
-#      FileUtils.chmod_R 0775, File.join(DELETE_DIR_FROM_STORNEXT, @unit_dir)
       on_success "All files associated with #{@unit_dir} has been moved to #{DELETE_DIR_FROM_STORNEXT}."
   
     # If @source_dir matches the finalization in process dir, move to DELETE_DIR_FROM_FINALIZATION and look for items in /digiserv-production/scan
     elsif /#{IN_PROCESS_DIR}/ =~ @source_dir
       FileUtils.mv File.join(@source_dir, @unit_dir), File.join(DELETE_DIR_FROM_FINALIZATION, @unit_dir)
-#      FileUtils.chmod_R 0775, File.join(DELETE_DIR_FROM_FINALIZATION, @unit_dir)
       on_success "All files associated with #{@unit_dir} has been moved to #{DELETE_DIR_FROM_FINALIZATION}."
 
       # Once the files are moved from IN_PROCESS_DIR, search /digiserv-production/scan for legacy files and move them to DELETE_DIR_FROM_SCAN
