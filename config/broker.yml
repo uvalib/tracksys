@@ -129,7 +129,6 @@ test:
 
 production:
     adapter: stomp
-    reliable: true
     # properties below are all defaults for this adapter
     # login: ""
     # passcode: ""
