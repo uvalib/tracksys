@@ -2,6 +2,8 @@ require "#{Hydraulics.models_dir}/master_file"
 
 class MasterFile
 
+  include Pidable
+
   after_update :fix_updated_counters
 
   # scope :index_scope, select(["`master_files`.id", :filename, :title, :description, "`master_files`.discoverability","`master_files`.date_dl_ingest", "`master_files`.date_archived", "`master_files`.pid"])
@@ -56,10 +58,11 @@ class MasterFile
   # Processor information
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
+
   publishes_to :copy_archived_files_to_production
 
-  def get_from_stornext
-    message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => 'aec6v' })
+  def get_from_stornext(computing_id)
+    message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
     publish :copy_archived_files_to_production, message
   end
 end
