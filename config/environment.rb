@@ -43,7 +43,7 @@ SOLR_PRODUCTION_PORT = "8984"
 
 # To prevent writing to production archive on Stornext from all but tracksys.production
 # the default write directory will be Test.
-ARCHIVE_WRITE_DIR = "/RMDS_archive/Test"
+ARCHIVE_WRITE_DIR = "/RMDS_archive/CheckSummed_archive"
 ARCHIVE_READ_DIR = "/RMDS_archive/CheckSummed_archive"
 TEI_ARCHIVE_DIR = "#{ARCHIVE_READ_DIR}/tracksys_tei_xml_depository"
 XTF_DELIVERY_DIR = "/xtf_delivery/text"
@@ -53,8 +53,6 @@ BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverab
 
 # VIRGO (Blacklight) URL for catalog linking in UI
 VIRGO_URL = "http://search.lib.virginia.edu/catalog"
-
-
 
 # Initialize the rails application
 Tracksys::Application.initialize!
