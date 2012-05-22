@@ -3,6 +3,7 @@ class StaffMember < ActiveRecord::Base
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------
+  has_many :automation_messages, :as => :messagable, :dependent => :destroy
 
   #------------------------------------------------------------------
   # validation
