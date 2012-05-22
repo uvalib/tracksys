@@ -15,12 +15,13 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'computing_id' is required" if hash[:computing_id].blank?
     @unit_id = hash[:unit_id] 
+    @computing_id = hash[:computing_id]
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @failure_messages = Array.new
     @source_dir = File.join(ARCHIVE_READ_DIR, @unit_dir)
-    @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, hash[:computing_id])
+    @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, @computing_id)
     FileUtils.mkdir_p(@destination_dir)
 
     if hash[:master_file_filename]
@@ -29,6 +30,7 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
       master_file_filename = hash[:master_file_filename]
       begin
         FileUtils.cp(File.join(@source_dir, master_file_filename), File.join(@destination_dir, master_file_filename))
+        File.chmod(0664, File.join(@destination_dir, master_file_filename))
       rescue Exception => e
         @failure_messages << "Can't copy source file '#{master_file_filename}': #{e.message}"
       end
@@ -46,6 +48,8 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
       @master_files.each {|master_file|
         begin
           FileUtils.cp(File.join(@source_dir, master_file.filename), File.join(@destination_dir, master_file.filename))
+          File.chmod(0664, File.join(@destination_dir, master_file.filename))
+          FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, master_file.filename))
         rescue Exception => e
           @failure_messages << "Can't copy source file '#{master_file.filename}': #{e.message}"
         end
@@ -59,6 +63,8 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
       }
       if File.exist?(File.join(@source_dir, "#{@unit_dir}.ivc"))
        	FileUtils.cp(File.join(@source_dir, "#{@unit_dir}.ivc"), File.join(@destination_dir, "#{@unit_dir}.ivc"))
+        File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.ivc"))
+        FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, "#{@unit_dir}.ivc"))
       end
     end
 
