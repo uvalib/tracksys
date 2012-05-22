@@ -25,7 +25,7 @@ class QueueUnitDeliverablesProcessor < ApplicationProcessor
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
-    @working_order = Order.find(@working_unit.parent.id)
+    @working_order = @working_unit.order
     @master_files = @working_unit.master_files
     
     # Get unit level deliverable information (formation, resolution and customer status)
@@ -50,7 +50,7 @@ class QueueUnitDeliverablesProcessor < ApplicationProcessor
         master_file.save!
       end
 
-      @actual_resolution = master_file.resolution
+      @actual_resolution = master_file.image_tech_meta.resolution
       @file_source = File.join(@source, master_file.filename)
 
       message = ActiveSupport::JSON.encode({ :master_file_id => master_file.id, :source => @file_source, :mode => @mode, :format => @format, :actual_resolution => @actual_resolution, :desired_resolution => @desired_resolution, :unit_id => @unit_id, :last => @last, :personal_item => @personal_item, :call_number => @call_number, :title => @title, :location => @location, :remove_watermark => @remove_watermark})  
