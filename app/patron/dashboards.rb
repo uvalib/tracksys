@@ -4,11 +4,11 @@ ActiveAdmin::Dashboards.build do
     table do
       tr do
         td do "Requests Awaiting Approval" end
-        td do link_to "#{Order.awaiting_approval.count}", patron_orders_path(:scope => 'awaiting_approval') end
+        td do link_to "#{Order.awaiting_approval.not_from_fine_arts.count}", patron_orders_path(:scope => 'awaiting_approval') end
       end
       tr do
         td do "Deferred Requests" end
-        td do link_to "#{Order.deferred.count}", patron_orders_path(:scope => 'deferred') end
+        td do link_to "#{Order.deferred.not_from_fine_arts.count}", patron_orders_path(:scope => 'deferred') end
       end
       tr do
         td do "Units Awaiting Copyright Approval" end
