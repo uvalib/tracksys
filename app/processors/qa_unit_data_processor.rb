@@ -45,6 +45,11 @@ class QaUnitDataProcessor < ApplicationProcessor
       failure_messages << "Unit #{@unit_id} already has a value for date_dl_deliverables_ready."
     end
 
+    # Must have a unit status
+    if not @working_unit.unit_status
+      failure_messages << "Unit #{@unit_id} must have a valid unit status."
+    end
+
     # Check if unit is assigned to bibl record
     if not @working_unit.bibl
       failure_messages << "Unit #{@unit_id} is not assigned to a bibl record."
@@ -57,9 +62,9 @@ class QaUnitDataProcessor < ApplicationProcessor
       # Fail if @working_unit.intended_use.description is "Digital Collection Building" and has a value for @working_unit.deliverable_format or @working_unit.deliverable_resolution
       # If the intended use is "Digital Collection Building", the unit is intended for the DL and not patron deliverables.
       if @working_unit.intended_use.description == "Digital Collection Building"
-        if @working_unit.deliverable_format
+        if @working_unit.deliverable_format.blank?
           failure_messages << "Unit #{@unit_id} has an intended use of 'Digital Collection Building' and has a value for deliverable_format.  This is not allowed."
-        elsif @working_unit.deliverable_resolution
+        elsif @working_unit.deliverable_resolution.blank?
           failure_messages << "Unit #{@unit_id} has an intended use of 'Digital Collection Building' and has a value for deliverable_resolution.  This is not allowed."
         else
         end
