@@ -18,8 +18,12 @@ class SendOrderEmailProcessor < ApplicationProcessor
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @email = @working_order.email
 
-    # send email
-    DeliveryMailer.deliver(@email)
+    # recreate the email but there is no longer a need to pass correct
+    # information because the body will be drawn from order.email
+    new_email = OrderMailer.web_delivery(@working_order, ['holding'])
+    new_email.body = @email.to_s
+    new_email.date = Time.now
+    new_email.deliver    
 
     # send message
     message = ActiveSupport::JSON.encode({:order_id => @order_id})
