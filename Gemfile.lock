@@ -34,6 +34,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    Ascii85 (1.0.1)
     actionmailer (3.2.2)
       actionpack (= 3.2.2)
       mail (~> 2.4.0)
@@ -155,9 +156,15 @@ GEM
       fastthread (>= 1.0.1)
       rack
       rake (>= 0.8.1)
+    pdf-reader (1.1.1)
+      Ascii85 (~> 1.0.0)
+      ruby-rc4
     polyamorous (0.5.0)
       activerecord (~> 3.0)
     polyglot (0.3.3)
+    prawn (0.12.0)
+      pdf-reader (>= 0.9.0)
+      ttfunk (~> 1.0.2)
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -188,6 +195,7 @@ GEM
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rmagick (2.13.1)
+    rqrcode (0.4.2)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
       rspec-expectations (~> 2.9.0)
@@ -202,6 +210,7 @@ GEM
       railties (>= 3.0)
       rspec (~> 2.9.0)
     ruby-ole (1.2.11.3)
+    ruby-rc4 (0.1.5)
     rubyzip (0.9.8)
     sass (3.1.16)
     sass-rails (3.2.5)
@@ -231,6 +240,7 @@ GEM
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
+    ttfunk (1.0.3)
     tweet-button (0.1.0)
     tzinfo (0.3.33)
     uglifier (1.2.4)
@@ -266,9 +276,11 @@ DEPENDENCIES
   meta_search (>= 1.1.0.pre)
   mysql2
   passenger
+  prawn
   rails (= 3.2.2)
   rest-client
   rmagick
+  rqrcode
   rspec-rails
   sass-rails
   solr-ruby

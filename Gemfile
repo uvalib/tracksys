@@ -31,6 +31,9 @@ gem 'solr-ruby'
 gem 'spreadsheet', '0.6.9'
 gem 'tweet-button'
 gem 'lazy_high_charts'
+gem 'rqrcode'
+gem 'prawn'
+
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
