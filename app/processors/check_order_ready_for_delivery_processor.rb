@@ -44,7 +44,7 @@ class CheckOrderReadyForDeliveryProcessor < ApplicationProcessor
         # The 'patron' units within the order are complete
         message = ActiveSupport::JSON.encode({ :order_id => hash[:order_id] })
         publish :update_order_date_patron_deliverables_complete, message
-        on_success("All units in order #{@hash[:order_id]} are complete and will now begin the delivery process.")
+        on_success("All units in order #{hash[:order_id]} are complete and will now begin the delivery process.")
       end
     else  
       # Order incomplete.  List units incomplete units in message
