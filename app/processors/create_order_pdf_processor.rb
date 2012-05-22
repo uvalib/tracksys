@@ -6,8 +6,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
   subscribes_to :create_order_pdf, {:ack=>'client', 'activemq.prefetchSize' => 1}
   publishes_to :check_order_delivery_method
   
-#  require 'pdf/writer'
-#  require 'pdf/simpletable'
+  require 'prawn'
   
   def on_message(message)
     logger.debug "CreateOrderPdfProcessor received: " + message
@@ -24,21 +23,22 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     @messagable_type = "Order"
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @fee = hash[:fee]
-    @customer = @working_order.parent
+    @customer = @working_order.customer
 
     @units_in_pdf = Array.new
     @working_order.units.each { |unit|        
-      if unit.active?
+      if unit.unit_status == 'approved'
        	@units_in_pdf.push(unit)
       end
     }
 
-    @pdf = PDF::Writer.new
-    @pdf.select_font "Helvetica", :encoding => nil
-    @pdf.image "#{RAILS_ROOT}/public/images/lib_letterhead.jpg", :justification => :center
-    @pdf.text "Digital Curation Services    University of Virginia Library    Post Office Box 400155    Charlottesville, Virginia 22904 U.S.A.", :justification => :center
+    @pdf = Prawn::Document.new
+    @pdf.font "Helvetica", :encoding => nil
+    @pdf.image "#{RAILS_ROOT}/app/assets/images/lib_letterhead.jpg", :position => :center, :width => 500
+    @pdf.text "Digital Curation Services,  University of Virginia Library", :align => :center
+    @pdf.text "Post Office Box 400155, Charlottesville, Virginia 22904 U.S.A.", :align => :center
     @pdf.text "\n\n"
-    @pdf.text "Order ID: #{@working_order.id}", :justification => :right, :font_size => 14
+    @pdf.text "Order ID: #{@working_order.id}", :align => :right, :font_size => 14
     @pdf.text "\n"
     @pdf.text "Dear #{@customer.first_name.capitalize} #{@customer.last_name.capitalize}, \n\n"  
     
@@ -48,8 +48,8 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitzation Services of the University of Virginia Library.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
     end
     @pdf.text "\n"
-    if not @fee.eql?("none")
-      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  Please write a check in the above amount made payable to <i>Rector and Board of Visitors of the University of Virginia</i> and send it to the following address:"
+    if not @fee.eql?(0)
+      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  Please write a check in the above amount made payable to <i>Rector and Board of Visitors of the University of Virginia</i> and send it to the following address:", :inline_format => true
       @pdf.text "\n"
       @pdf.text "Digital Curation Services", :left => 100
       @pdf.text "University of Virginia Library", :left => 100
@@ -66,40 +66,40 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     # Begin first page of invoice
     @pdf.start_new_page
 
-    @pdf.open_object do |heading| 
-      @pdf.save_state 
-      @pdf.stroke_color! Color::Black 
-      @pdf.stroke_style! PDF::Writer::StrokeStyle::DEFAULT 
-      s = 10
-      if not @fee.eql?("none")
-        t = "Invoice For Order #{@working_order.id}" 
-      else
-        t = "Receipt for Order #{@working_order.id}"
-      end
-      w = @pdf.text_width(t, s) / 2.0 
-      x = @pdf.margin_x_middle 
-      y = @pdf.absolute_top_margin 
-      @pdf.add_text(x - w, y, t, s)
-      x = @pdf.absolute_left_margin 
-      w = @pdf.absolute_right_margin 
-      y -= (@pdf.font_height(s) * 1.01) 
-      @pdf.line(x, y, w, y).stroke 
-      @pdf.restore_state 
-      @pdf.close_object 
-      @pdf.add_object(heading, :all_pages)
-    end
+    # @pdf.open_object do |heading| 
+    #   @pdf.save_state 
+    #   @pdf.stroke_color! Color::Black 
+    #   @pdf.stroke_style! PDF::Writer::StrokeStyle::DEFAULT 
+    #   s = 10
+    #   if not @fee.eql?("none")
+    #     t = "Invoice For Order #{@working_order.id}" 
+    #   else
+    #     t = "Receipt for Order #{@working_order.id}"
+    #   end
+    #   w = @pdf.text_width(t, s) / 2.0 
+    #   x = @pdf.margin_x_middle 
+    #   y = @pdf.absolute_top_margin 
+    #   @pdf.add_text(x - w, y, t, s)
+    #   x = @pdf.absolute_left_margin 
+    #   w = @pdf.absolute_right_margin 
+    #   y -= (@pdf.font_height(s) * 1.01) 
+    #   @pdf.line(x, y, w, y).stroke 
+    #   @pdf.restore_state 
+    #   @pdf.close_object 
+    #   @pdf.add_object(heading, :all_pages)
+    # end
 
-    # The letter sized document is 612 x 792
-    @pdf.start_page_numbering(550, 25, 10)
+    # # The letter sized document is 612 x 792
+    # @pdf.start_page_numbering(550, 25, 10)
 
     @pdf.text "\n"
-    @pdf.text "Digital Order Summary", :justification => :center, :font_size => 16
+    @pdf.text "Digital Order Summary", :align => :center, :font_size => 16
     @pdf.text "\n"
 
     # Iterate through all the units belonging to this order
     @units_in_pdf.each { |unit|       
       # For pretty printing purposes, create pagebreak if there is less than 10 lines remaining on the current page.
-      if @pdf.lines_remaining < 10
+      if @pdf.cursor < 30
         @pdf.start_new_page
       end
 
@@ -238,7 +238,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "\n"
 
       # Create special tables to hold component and EAD reference information
-      if unit.components?
+      if not unit.components.empty?
         parent_components = Array.new
         unit.components.each{|component|
           if component.parent_component.nil?
@@ -252,20 +252,6 @@ class CreateOrderPdfProcessor < ApplicationProcessor
           check_for_child_components(component)
           output_null_text_component(component)
         }
-      elsif not unit.ead_refs.empty?
-        parent_ead_refs = Array.new
-        unit.ead_refs.each{|ref|
-          if ref.parent_ead_ref.nil?
-            parent_ead_refs.push(ref)
-          end
-        }
-
-        parent_ead_refs.each{|ref|
-          output_ead_ref_data(ref)
-          check_for_ead_ref_masterfiles(ref)
-          check_for_child_ead_refs(ref)
-          output_null_text_ead_ref(ref)
-        }
       else
         sorted_master_files = unit.master_files.sort_by { |master_file|
           master_file.filename
@@ -273,7 +259,17 @@ class CreateOrderPdfProcessor < ApplicationProcessor
         output_masterfile_data(sorted_master_files)
       end
     }
-    @pdf.save_as(File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order_id}", "#{@order_id}.pdf"))
+
+    # Page numbering
+    string = "page <page> of <total>"
+    options = { :at => [@pdf.bounds.right - 150, 0],
+              :width => 150,
+              :align => :right,
+              :start_count_at => 1 }
+    @pdf.number_pages string, options
+
+    # Write out the file
+    @pdf.render_file(File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order_id}", "#{@order_id}.pdf"))
 
     # Publish message
     message = ActiveSupport::JSON.encode({:order_id => @order_id})
@@ -283,50 +279,63 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
   # Physical Component Methods
   def output_component_data(component)
-    data = [{"label"=> "#{component.label}", "desc"=> "#{component.content_desc}", "date"=> "#{component.date}", "barcode"=> "#{component.barcode}", "sequence_number"=> "#{component.seq_number}"}]
-          
-    table = PDF::SimpleTable.new
-    table.title = "#{component.component_type.name.capitalize}"
-    table.column_order.push(*%w(label desc date barcode sequence_number))
+    data = Array.new
+    data = [["Label", "Description", "Date"]]
+    data += [["#{component.label}", "#{component.content_desc}", "#{component.date}"]]
 
-    table.columns["label"] = PDF::SimpleTable::Column.new("label")
-    table.columns["label"].heading = "Label"
-    table.columns["label"].width = 200
-  
-    table.columns["desc"] = PDF::SimpleTable::Column.new("desc")
-    table.columns["desc"].heading = "Description"
-    table.columns["desc"].width = 100
-      
-    table.columns["date"] = PDF::SimpleTable::Column.new("date")
-    table.columns["date"].heading = "Date"
-    table.columns["date"].width = 75
-      
-    table.columns["barcode"] = PDF::SimpleTable::Column.new("barcode")
-    table.columns["barcode"].heading = "Barcode"
-    table.columns["barcode"].width = 75
-      
-    table.columns["sequence_number"] = PDF::SimpleTable::Column.new("sequence_number")
-    table.columns["sequence_number"].heading = "Sequence Number"
-    table.columns["sequence_number"].width = 100    
+    @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
+    @pdf.text "\n"
 
-    table.show_lines = :all
-    table.show_headings = true
-    table.orientation = :right
-    table.position = :left
-     
-    table.data.replace data
-
-    # Create pagebreak if necessary
-    if @pdf.lines_remaining < 10
+    if @pdf.cursor < 30
       @pdf.start_new_page
     end
 
-    table.render_on(@pdf)
-    @pdf.text "\n"   
+    @pdf.text "\n"
+
+    # data = [{"label"=> "#{component.label}", "desc"=> "#{component.content_desc}", "date"=> "#{component.date}", "barcode"=> "#{component.barcode}", "sequence_number"=> "#{component.seq_number}"}]
+          
+    # table = PDF::SimpleTable.new
+    # table.title = "#{component.component_type.name.capitalize}"
+    # table.column_order.push(*%w(label desc date barcode sequence_number))
+
+    # table.columns["label"] = PDF::SimpleTable::Column.new("label")
+    # table.columns["label"].heading = "Label"
+    # table.columns["label"].width = 200
+  
+    # table.columns["desc"] = PDF::SimpleTable::Column.new("desc")
+    # table.columns["desc"].heading = "Description"
+    # table.columns["desc"].width = 100
+      
+    # table.columns["date"] = PDF::SimpleTable::Column.new("date")
+    # table.columns["date"].heading = "Date"
+    # table.columns["date"].width = 75
+      
+    # table.columns["barcode"] = PDF::SimpleTable::Column.new("barcode")
+    # table.columns["barcode"].heading = "Barcode"
+    # table.columns["barcode"].width = 75
+      
+    # table.columns["sequence_number"] = PDF::SimpleTable::Column.new("sequence_number")
+    # table.columns["sequence_number"].heading = "Sequence Number"
+    # table.columns["sequence_number"].width = 100    
+
+    # table.show_lines = :all
+    # table.show_headings = true
+    # table.orientation = :right
+    # table.position = :left
+     
+    # table.data.replace data
+
+    # # Create pagebreak if necessary
+    # if @pdf.lines_remaining < 10
+    #   @pdf.start_new_page
+    # end
+
+    # table.render_on(@pdf)
+    # @pdf.text "\n"   
   end
 
   def check_for_component_masterfiles(component)
-    if component.master_files?
+    if not component.master_files.empty?
       sorted_master_files = component.master_files.sort_by {|mf|
         mf.filename
       }
@@ -347,103 +356,25 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
   def output_null_text_component(component)
     if component.child_components.empty? and component.master_files.empty?
-      @pdf.text "There are no master files or physical housing information at this level.", :justification => :center
+      @pdf.text "There are no master files or physical housing information at this level.", :align => :center
     end
   end
 
-  # EAD Reference Methods
-  def check_for_ead_ref_masterfiles(ref)
-    if ref.master_files?
-      sorted_master_files = ref.master_files.sort_by {|mf|
-        mf.filename
-      }
-      output_masterfile_data(sorted_master_files)
-    end
-  end
-
-  def check_for_child_ead_refs(ref)
-    if not ref.child_ead_refs.empty?
-      ref.child_ead_refs.each{|ref|
-        output_ead_ref_data(ref)
-        check_for_ead_ref_masterfiles(ref)
-        check_for_child_ead_refs(ref)
-        output_null_text_ead_ref(ref)
-        }
-    end
-  end
-
-  def output_ead_ref_data(ref)
-    data = [{"description"=> "#{ref.content_desc}", "date"=> "#{ref.date}"}]
-          
-    table = PDF::SimpleTable.new
-    table.title = "#{ref.level.capitalize}"
-    table.column_order.push(*%w(description date))
-
-    table.columns["description"] = PDF::SimpleTable::Column.new("description")
-    table.columns["description"].heading = "Description"
-    table.columns["description"].width = 450
-  
-    table.columns["date"] = PDF::SimpleTable::Column.new("date")
-    table.columns["date"].heading = "Date"
-    table.columns["date"].width = 100
-      
-    table.show_lines = :all
-    table.show_headings = true
-    table.orientation = :right
-    table.position = :left
-     
-    table.data.replace data
-
-    # Create pagebreak if necessary
-    if @pdf.lines_remaining < 10
-      @pdf.start_new_page
-    end
-
-    table.render_on(@pdf)
-    @pdf.text "\n"   
-  end
-
-  def output_null_text_ead_ref(ref)
-    if ref.child_ead_refs.empty? and ref.master_files.empty?
-      @pdf.text "There are no master files or EAD information at this level.", :justification => :center
-    end
-  end
 
   # Methods used by both Component and EAD Ref methods
   def output_masterfile_data(sorted_master_files)
     data = Array.new
+    data = [["Filename", "Title", "Description"]]
     sorted_master_files.each {|master_file|
-      data.concat([{"filename"=> "#{master_file.filename}", "title"=> "#{master_file.name_num}", "desc"=> "#{master_file.staff_notes}"}])              
+      data += [["#{master_file.filename}", "#{master_file.title}", "#{master_file.description}"]]
     }
-              
-    table = PDF::SimpleTable.new
-    table.show_lines    = :all
-    table.show_headings = true
-    table.orientation   = :right
-    table.position = :left
-    table.title = "Digital Files"
-              
-    table.column_order.push(*%w(filename title desc))
-
-    table.columns["filename"] = PDF::SimpleTable::Column.new("filename")
-    table.columns["filename"].heading = "Filename"
-    table.columns["filename"].width = 100
-
-    table.columns["title"] = PDF::SimpleTable::Column.new("title")
-    table.columns["title"].heading = "Title"
-    table.columns["title"].width = 250 
-            
-    table.columns["desc"] = PDF::SimpleTable::Column.new("desc")
-    table.columns["desc"].heading = "Description"
-    table.columns["desc"].width = 200
-
-    table.data.replace data
+    @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
     @pdf.text "\n"
 
-    if @pdf.lines_remaining < 10
+    if @pdf.cursor < 30
       @pdf.start_new_page
     end
-    table.render_on(@pdf)
+
     @pdf.text "\n"
   end
 end
