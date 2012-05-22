@@ -1,80 +1,184 @@
 ActiveAdmin.register MasterFile, :namespace => :patron do
   menu :priority => 6
 
-  scope :all, :default => true
+  config.sort_order = 'filename_asc'
 
-  filter :title
+ scope :all, :show_count => false, :default => true
+  scope :in_digital_library, :show_count => false
+  scope :not_in_digital_library, :show_count => false
+  
+  actions :all, :except => [:new, :destroy]
+
+  batch_action :download_from_archive do |selection|
+    MasterFile.find(selection).each {|s| s.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s) }
+    flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+    redirect_to :back
+  end
+
+  filter :id
   filter :filename
+  filter :title
   filter :description
   filter :transcription_text
   filter :pid
+  filter :unit_id, :as => :numeric, :label => "Unit ID"
+  filter :order_id, :as => :numeric, :label => "Order ID"
+  filter :customer_id, :as => :numeric, :label => "Customer ID"
+  filter :bibl_id, :as => :numeric, :label => "Bibl ID"
+  filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :bibl_title, :as => :string, :label => "Bibl Title"
+  filter :bibl_creator_name, :as => :string, :label => "Author"
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_barcode, :as => :string, :label => "Barcode"
   filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
-  filter :bibl_id, :as => :numeric, :label => "Bibl"
-  filter :unit_id, :as => :numeric, :label => "Unit"
-  filter :order_id, :as => :numeric, :label => "Order"
-
-  index :as => :block do |master_file|
-    table do
-      tr do
-        td do
-          panel "Master File #{master_file.id}" do
-            table do
-              tr do
-                td do
-                  attributes_table_for master_file do
-                    row :title
-                    row :description if master_file.description?
-                    row :transcription_text
-                    row :filename
-                    row (:bibl_call_number) {|master_file| link_to "#{master_file.bibl_call_number}", patron_bibl_path(master_file.bibl)}
-                    row :bibl_title
-                    row :bibl_creator_name
-                    row (:unit_id) {|master_file| link_to "#{master_file.unit_id}", patron_unit_path(master_file.unit)}
-                    row (:customer_full_name) {|master_file| link_to "#{master_file.customer_full_name}", patron_customer_path(master_file.customer)}
-                  end
-                end
-                td do
-                  link_to(image_tag("#{master_file.link_to_static_thumbnail}", :height => '50%', :alt => "#{master_file.title}"), patron_master_file_path(master_file))
-                end
-              end
-            end
-            table :style => 'width:200px' do
-              tr do
-                td do 
-                  button_to "View", patron_master_file_path(master_file), :method => 'get'
-                end
-                td do
-                  button_to "Download", copy_from_archive_patron_master_file_path(master_file), :method => 'get'
-                end
-              end
-            end
-          end
+  filter :academic_status, :as => :select
+  filter :availability_policy
+  filter :indexing_scenario
+  filter :date_archived
+  filter :date_dl_ingest
+  filter :date_dl_update
+  filter :agency, :as => :select
+  filter :archive, :as => :select
+  filter :heard_about_service, :as => :select
+  filter :heard_about_resource, :as => :select
+  
+  index :id => 'master_files' do
+    selectable_column
+    column :filename, :sortable => false
+    column :title do |mf|
+      truncate_words(mf.title)
+    end
+    column :description do |mf|
+      truncate_words(mf.description)
+    end
+    column :date_archived do |mf|
+      format_date(mf.date_archived)
+    end
+    column :date_dl_ingest do |mf|
+      format_date(mf.date_dl_ingest)
+    end
+    column :pid, :sortable => false
+    column ("Bibliographic Title") do |mf|
+      link_to "#{mf.bibl_title}", patron_bibl_path(mf.bibl.id)
+    end
+    column("Thumbnail") do |mf|
+      link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+    end
+    column("") do |mf|
+      div do
+        link_to "Details", resource_path(mf), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
+      end
+      if mf.in_dl?
+        div do
+          link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
+        end
+      end
+      if mf.date_archived
+        div do
+          link_to "Download", copy_from_archive_patron_master_file_path(mf.id), :method => :put
         end
       end
     end
   end
 
   show do
-    image_tag("#{master_file.link_to_thumbnail}", :height => "350", :alt => "#{master_file.title}")
+    div :class => 'two-column' do
+      panel "General Information" do
+        attributes_table_for master_file do
+          row :filename
+          row :title
+          row :description
+          row :date_archived do |master_file|
+            format_date(master_file.date_archived)
+          end
+          row :transcription_text
+        end
+      end
+    end
   end
 
-  member_action :copy_from_archive
-
-  controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-
-    publishes_to :copy_archived_files_to_production
-
-    def copy_from_archive
-      master_file = MasterFile.find(params[:id])
-      message = ActiveSupport::JSON.encode( { :unit_id => master_file.unit_id, :master_file_filename => master_file.filename, :computing_id => 'aec6v' })
-      publish :copy_archived_files_to_production, message
-      flash[:notice] = "The file #{master_file.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-      redirect_to :back
+  form do |f|
+    f.inputs "General Information", :class => 'panel three-column ' do
+      f.input :filename
+      f.input :title
+      f.input :description
+      f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
+      f.input :transcription_text, :input_html => { :rows => 5 }
     end
+
+    f.inputs :class => 'columns-none' do
+      f.actions
+    end
+  end
+
+  sidebar "Thumbnail", :only => [:show] do
+    link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+  end
+
+  sidebar "Related Information", :only => [:show] do
+    attributes_table_for master_file do
+      row :unit do |master_file|
+        link_to "##{master_file.unit.id}", patron_unit_path(master_file.unit.id)
+      end
+      row :bibl
+      row :order do |master_file|
+        link_to "##{master_file.order.id}", patron_order_path(master_file.order.id)
+      end
+      row :customer
+      row :component do |master_file|
+        if not master_file.component.nil?
+          link_to "#{master_file.component.name}", patron_component_path(master_file.component.id) 
+        end
+      end
+      row :automation_messages do |master_file|
+        link_to "#{master_file.automation_messages_count}", patron_automation_messages_path(:q => {:messagable_id_eq => master_file.id, :messagable_type_eq => "MasterFile" })
+      end
+      row :agency
+    end
+  end
+
+  action_item :only => :show do
+    link_to_unless(master_file.previous.nil?, "Previous", patron_master_file_path(master_file.previous))
+  end
+
+  action_item :only => :show do
+    link_to_unless(master_file.next.nil?, "Next", patron_master_file_path(master_file.next))
+  end
+
+  action_item :only => :show do 
+    if master_file.in_dl?
+      if master_file.discoverability
+        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+      else
+        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?scale=800", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+      end
+    else
+    end
+  end
+
+  action_item :only => :show do 
+    if master_file.in_dl?
+      if master_file.discoverability
+        tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.pid}", :text => truncate("#{master_file.bibl_title}", :length => 80), :count => 'vertical')
+      else
+        tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", :text => truncate("#{master_file.title} from #{master_file.bibl_title}", :length => 80), :count => 'vertical')
+      end
+    else
+    end
+  end
+
+  action_item :only => :show do
+    if master_file.date_archived
+      link_to "Download", copy_from_archive_patron_master_file_path(master_file.id), :method => :put
+    end
+  end
+
+  member_action :copy_from_archive, :method => :put do 
+    mf = MasterFile.find(params[:id])
+    mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
 end
