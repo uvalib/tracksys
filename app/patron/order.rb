@@ -3,161 +3,216 @@ ActiveAdmin.register Order, :namespace => :patron do
 
   actions :all, :except => [:destroy]
 
-  scope :all
-  scope :awaiting_approval, :default => true
+  scope :all, :default => true
+  scope :awaiting_approval
   scope :deferred
   scope :in_process
 
   filter :id
+  filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
+  filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq.map(&:order_status).sort
+  filter :order_title
+  filter :customer_id, :as => :numeric, :label => "Customer ID"
+  filter :customer_last_name, :as => :string, :label => "Customer Last Name"
+  filter :bibls_id, :as => :numeric
+  filter :date_request_submitted
+  filter :date_due
+  filter :fee_estimated
+  filter :fee_actual
+  filter :staff_notes
+  filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
+
+  batch_action :set_to_fine_arts do |selection|
+    Order.find(selection).each do |order|
+      order.update_attribute(:agency_id, 37)
+    end
+    redirect_to :back, :alert => "Set agency to Fine Arts Library on #{selection.length} orders."
+  end
 
   index do
     selectable_column
     column :id
-    column (:order_status) {|order| order.order_status.capitalize}
+    column ("Status") {|order| status_tag(order.order_status)}
     column (:date_request_submitted) {|order| format_date(order.date_request_submitted)}
     column (:date_due) {|order| format_date(order.date_due)}
-    default_actions
+    column ("Units") do |order|
+      link_to order.units_count, patron_units_path(:q => {:order_id_eq => order.id})
+    end
+    column :customer
+    column :agency
+    column("") do |order|
+      div do
+        link_to "Details", resource_path(order), :class => "member_link view_link"
+      end
+      div do
+        link_to I18n.t('active_admin.edit'), edit_resource_path(order), :class => "member_link edit_link"
+      end
+    end
   end
 
   show do
-    div :class => 'three-column' do
-      panel "Order Information" do
+    div :class => 'two-column' do
+      panel "Basic Information" do
         attributes_table_for order do
-          row (:order_status) {|order| order.order_status.capitalize}
-          row (:date_request_submitted) {|order| format_date(order.date_request_submitted)}
-          row (:fee_estimated) {|order| number_to_currency(order.fee_estimated, :precision => 0)}
-          row (:fee_actual) {|order| number_to_currency(order.fee_actual, :precision => 0)}
-          row (:special_instructions) {|order| simple_format(order.special_instructions)}
-          row (:staff_notes) {|order| simple_format(order.staff_notes)}
-        end
-      end
-    end
-
-    div :class => 'three-column' do
-      panel "Customer Information" do
-        attributes_table_for order.customer do
-          row ("Name") {|customer| link_to "#{customer.full_name}", patron_customer_path(customer)}
-          row :email
-          row :academic_status
-          row :orders_count
-        end
-      end
-    end
-
-    div :class => 'three-column' do
-      panel "Agency Information" do
-        if order.agency
-          attributes_table_for order.agency do
-            row :description
-            row ("Parent Agencies") {|agency| agency.names_depth_cache}
+          row ("Status") do |order| 
+            status_tag(order.order_status)
           end
-        else
-          "No associated agency."
+          row :order_title
+          row :special_instructions
+          row :staff_notes
         end
       end
     end
 
-    div :class => 'columns-none' do
-      panel "Units" do
-        table_for (order.units) do
-          column("ID") {|unit| link_to "#{unit.id}", patron_unit_path(unit) }
-          column :unit_status
-          column :bibl_title
-          column :bibl_call_number
-        end
-      end
-    end
-
-    div :class => 'columns-none' do
-      panel "Automation Messages" do
-        table_for order.automation_messages do
-          column("ID") {|am| link_to "#{am.id}", patron_automation_message_path(am)}
-          column (:message_type) {|am| am.message_type.capitalize}
-          column (:active_error) {|am| format_boolean_as_yes_no(am.active_error)}
-          column (:workflow_type) {|am| am.workflow_type.capitalize}
-          column (:message) {|am| truncate_words(am.message)}
-          column (:created_at) {|am| format_datetime(am.created_at)}
+    div :class => 'two-column' do
+      panel "Approval Information" do
+        attributes_table_for order do
+          row :date_request_submitted do |customer|
+            format_date(customer.date_request_submitted)
+          end
+          row :date_due do |customer|
+            format_date(customer.date_due)
+          end
+          row :fee_estimated do |customer|
+            number_to_currency(customer.fee_estimated)
+          end
+          row :fee_actual do |customer|
+            number_to_currency(customer.fee_actual)
+          end
+          row :date_deferred do |customer|
+            format_date(customer.date_deferred)
+          end
+          row :date_fee_estimate_sent_to_customer do |customer|
+            format_date(customer.date_fee_estimate_sent_to_customer)
+          end
+          row :date_permissions_given do |customer|
+            format_date(customer.date_permissions_given)
+          end
         end
       end
     end
   end
 
   form do |f|
-    f.inputs "Details" do
-      f.input :fee_estimated, {:step => '25'}
-      f.input :fee_actual, {:step => '25'}
-      f.input :staff_notes
+    f.inputs "Basic Information", :class => 'panel three-column' do
+      f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES, :input_html => {:class => 'chzn-select', :style => 'width: 150px'}
+      f.input :order_title
+      f.input :special_instructions, :input_html => {:rows => 3}
+      f.input :staff_notes, :input_html => {:rows => 3}
     end
-    f.buttons
-  end
 
-  # sidebar :approval_workflow, :only => [:show] do
-  #   div :class => 'workflow_button' do
-  #     if order.approved?
-  #       button_to "Approve Order", approve_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-  #     else
-  #       button_to "Approve Order", approve_order_admin_order_path(order), :method => 'get'
-  #     end
-  #   end
-  #   div :class => 'workflow_button' do 
-  #     if proc {order.order_status == 'requested' or order.order_status == 'deferred'}
-  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :method => 'get'
-  #     else
-  #       button_to "Cancel Order", cancel_order_admin_order_path(order), :disabled => 'true', :method => 'get'
-  #     end
-  #   end
-  #   div :class => 'workflow_button' do
-  #     button_to "Send Fee Estimate" if order.fee_estimated? and not order.fee_actual?
-  #   end
-  # end
+    f.inputs "Approval Information", :class => 'panel three-column' do
+      f.input :date_request_submitted, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_due, :as => :string, :input_html => {:class => :datepicker}
+      f.input :fee_estimated, :as => :string
+      f.input :fee_actual, :as => :string
+      f.input :date_deferred, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_fee_estimate_sent_to_customer, :as => :string, :input_html => {:class => :datepicker}
+      f.input :date_permissions_given, :as => :string, :input_html => {:class => :datepicker}
+    end
 
-  action_item :only => :show do
-    if not order.approved?
-      link_to "Approve", approve_order_patron_order_path(order)
+    f.inputs "Related Information", :class => 'panel three-column' do 
+      f.input :agency, :as => :select, :input_html => {:class => 'chzn-select'}
+      f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
+    end
+
+    f.inputs :class => 'columns-none' do
+      f.actions
     end
   end
 
-  action_item :only => :show do
-    link_to "Cancel", cancel_order_patron_order_path(order) unless order.canceled?
+   sidebar :approval_workflow, :only => :show do
+    if order.order_status == 'requested'
+      if order.customer.external?
+        if order.fee_estimated.nil?
+          # External customers (who require a fee estaimte) for which there IS NO estimated fee
+          div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+          div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
+          div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :disabled => true, :method => :put end
+          div do "Either enter an estimated fee must or cancel this order." end
+        elsif order.fee_estimated
+          if order.fee_actual.nil?
+            # External customers (who require a fee estaimte) for which there IS estimated fee but actual fee is blank.
+            # Actions available: Cancel or Send Fee Estimate
+            div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+            div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
+            div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put end
+            div do "Either send fee estimate or cancel this order." end    
+          else
+            # External customers (who require a fee) for which there IS both an estimated fee and actual fee
+            # Actions available: Approve or Cancel
+            div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+            div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
+            div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :disabled => 'true', :method => :put end
+            div do "Either approve or cancel this order." end  
+          end        
+        end
+      elsif not order.customer.external?
+        # Internal customers require no fee.
+        div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+        div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
+        div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put, :disabled => true end
+        div do "#{order.customer.full_name} is internal to UVA and requires no fee approval" end
+      end
+    elsif order.order_status == 'deferred'
+      if order.customer.external?
+        if order.fee_actual.nil?
+          div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+          div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_patron_order_path(order.id), :method => :put end
+          div do "Please input the actual fee before approving order." end
+        else
+          div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_patron_order_path(order.id), :method => :put end
+          div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_patron_order_path(order.id), :method => :put end
+        end
+      end      
+    elsif order.order_status == 'approved' || order.order_status == 'canceled'
+      div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+      div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+      div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put,  :disabled => true end
+      div do "No options avaialable.  Order is #{order.order_status}." end
+    end
   end
 
-  action_item :only => :show do
-    link_to "Send Fee Estaimte"
+  sidebar "Relaed Information", :only => :show do
+    attributes_table_for order do
+      row :units do |order|
+        link_to "#{order.units.size}", patron_units_path(:q => {:order_id_eq => order.id})
+      end
+      row :master_files do |order|
+        link_to "#{order.master_files.size}", patron_master_files_path(:q => {:order_id_eq => order.id})
+      end
+      row :bibls do |order|
+        link_to "#{order.bibls.size}", patron_bibls_path(:q => {:orders_id_eq => order.id})
+      end
+      row :customer
+      row :agency
+    end
   end
 
-  member_action :approve_order
-  member_action :cancel_order
+  member_action :approve_order, :method => :put do
+    order = Order.find(params[:id])
+    order.approve_order
+    sleep(0.5)
+    redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+  end
+
+  member_action :cancel_order, :method => :put do
+    order = Order.find(params[:id])
+    order.cancel_order
+    sleep(0.5)
+    redirect_to :back, :notice => "Order #{params[:id]} is now canceled."
+  end
+
+  member_action :send_fee_estimate_to_customer, :method => :put do
+    order = Order.find(params[:id])
+    order.send_fee_estimate_to_customer(request.env['HTTP_REMOTE_USER'].to_s)
+    sleep(0.5)
+    redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
+  end
 
   controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-
-    def approve_order
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]})
-      publish :update_order_status_approved, message
-      flash[:notice] = "Order #{params[:id]} is now approved."
-      redirect_to patron_order_path
-    end
-
-    def cancel_order
-      message = ActiveSupport::JSON.encode( {:order_id => params[:id]} )
-      publish :update_order_status_canceled, message
-      flash[:notice] = "The order is now canceled."
-      redirect_to patron_order_path
-    end
-
-    def send_fee_estimate_to_customer
-      if RAILS_ENV == 'test' or RAILS_ENV == 'development'
-        computing_id = 'localhost'
-      else
-        computing_id = request.env['HTTP_REMOTE_USER'].to_s
-      end
-      @user = StaffMember.find_by_computing_id(computing_id) 
-      @first_name = @user.first_name
-      message = ActiveSupport::JSON.encode( {:order_id => params[:order_id], :first_name => @first_name})
-      publish :send_fee_estimate_to_customer, message
-      flash[:notice] = "Fee estimate sent to customer."
-      redirect_to patron_order_path
+    def scoped_collection
+      Order.not_from_fine_arts
     end
   end
 end
