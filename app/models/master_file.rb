@@ -38,7 +38,7 @@ class MasterFile
   def link_to_static_thumbnail
     thumbnail_name = self.filename.gsub(/tif/, 'jpg')
     unit_dir = "%09d" % self.unit_id
-
+	begin
     # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
     # will eliminate other directories that are of non-Tracksys managed content.
     metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
@@ -48,6 +48,9 @@ class MasterFile
         @range_dir = dir
       end
     }
+	rescue
+		@range_dir="fixme"
+	end
     return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
   end
 
