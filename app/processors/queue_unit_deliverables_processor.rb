@@ -30,8 +30,8 @@ class QueueUnitDeliverablesProcessor < ApplicationProcessor
     
     # Get unit level deliverable information (formation, resolution and customer status)
     @remove_watermark = @working_unit.remove_watermark
-    @format = @working_unit.deliverable_format
-    @desired_resolution = @working_unit.deliverable_resolution
+    @format = @working_unit.intended_use_deliverable_format
+    @desired_resolution = @working_unit.intended_use_deliverable_resolution
     @personal_item = @working_unit.bibl.personal_item?
     @call_number = @working_unit.bibl.call_number
     @title = @working_unit.bibl.title

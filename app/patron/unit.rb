@@ -116,8 +116,8 @@ ActiveAdmin.register Unit, :namespace => :patron do
       panel "Patron Request" do
         attributes_table_for unit do
           row :intended_use
-          row :deliverable_format
-          row :deliverable_resolution
+          row :intended_use_deliverable_format
+          row :intended_use_deliverable_resolution
           row :remove_watermark do |unit|
             format_boolean_as_yes_no(unit.remove_watermark)
           end
