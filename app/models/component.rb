@@ -3,6 +3,7 @@ require "#{Hydraulics.models_dir}/component"
 class Component
   has_ancestry
   include Pidable
+  include ExportIviewXML
 
   before_save :add_pid_before_save
 
