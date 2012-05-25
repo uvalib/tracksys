@@ -206,4 +206,14 @@ ActiveAdmin.register Component do
   action_item :only => :show do
     link_to_unless(component.next.nil?, "Next", admin_component_path(component.next))
   end
+
+  action_item :only => :show do
+		link_to "Create iView Catalog", export_iview_admin_component_path, :method => :put
+  end
+
+	# member actions
+	member_action :export_iview, :method => :put do
+		Component.find(params[:id]).create_iview_xml
+		redirect_to :back, :notice => "New Iview Catalog written to file system." 
+	end
 end
