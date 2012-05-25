@@ -1,7 +1,7 @@
 module ExportIviewXML
 
 # given a guide (Component), build an XML file suitable for editing in Expressions (iView) Media
-	def create_iview_xml(arg)
+	def create_iview_xml(arg = nil)
 	  arg ||= self
 	  # check what we've been given before proceeding
 	  case arg
@@ -75,7 +75,12 @@ module ExportIviewXML
 	  when Component
 	    add_component_data(@guide, fragment)
 	  end
-	  return @doc
+	  #return @doc
+		filename= @guide.name.parameterize.underscore.truncate(255)
+		@file=File.open("#{IVIEW_CATALOG_EXPORT_DIR}/#{filename}.xml", 'w') 
+		logger.debug "writing file to #{IVIEW_CATALOG_EXPORT_DIR}/#{filename}.xml"
+		@file << @doc
+		@file.close
 	end
 	
 	def add_component_data(component, xmlfragment)
