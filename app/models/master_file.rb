@@ -5,6 +5,7 @@ class MasterFile
   include Pidable
 
   after_update :fix_updated_counters
+  before_save :add_pid_before_save
 
   # scope :index_scope, select(["`master_files`.id", :filename, :title, :description, "`master_files`.discoverability","`master_files`.date_dl_ingest", "`master_files`.date_archived", "`master_files`.pid"])
     

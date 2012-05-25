@@ -4,6 +4,8 @@ class Component
   has_ancestry
   include Pidable
 
+  before_save :add_pid_before_save
+
 #  after_update :fix_updated_counters
 
   # At this time there is no definitive field that can be used for "naming" purposes.
