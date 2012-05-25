@@ -117,8 +117,8 @@ ActiveAdmin.register Unit do
       panel "Patron Request" do
         attributes_table_for unit do
           row :intended_use
-          row :deliverable_format
-          row :deliverable_resolution
+          row :intended_use_deliverable_format
+          row :intended_use_deliverable_resolution
           row :remove_watermark do |unit|
             format_boolean_as_yes_no(unit.remove_watermark)
           end
@@ -224,8 +224,6 @@ ActiveAdmin.register Unit do
 
     f.inputs "Patron Request", :class => 'panel three-column' do
       f.input :intended_use, :as => :select, :collection => IntendedUse.all, :input_html => {:class => 'chzn-select'}
-      f.input :deliverable_format
-      f.input :deliverable_resolution
       f.input :remove_watermark, :as => :radio
       f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker}
       f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker}

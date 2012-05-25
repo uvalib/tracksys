@@ -58,17 +58,6 @@ class QaUnitDataProcessor < ApplicationProcessor
     # Fail if @working_unit.intended_use is blank 
     if not @working_unit.intended_use
       failure_messages << "Unit #{@unit_id} has no intended use.  All units that participate in this workflow must have an intended use."
-    else
-      # Fail if @working_unit.intended_use.description is "Digital Collection Building" and has a value for @working_unit.deliverable_format or @working_unit.deliverable_resolution
-      # If the intended use is "Digital Collection Building", the unit is intended for the DL and not patron deliverables.
-      if @working_unit.intended_use.description == "Digital Collection Building"
-        if @working_unit.deliverable_format.blank?
-          failure_messages << "Unit #{@unit_id} has an intended use of 'Digital Collection Building' and has a value for deliverable_format.  This is not allowed."
-        elsif @working_unit.deliverable_resolution.blank?
-          failure_messages << "Unit #{@unit_id} has an intended use of 'Digital Collection Building' and has a value for deliverable_resolution.  This is not allowed."
-        else
-        end
-      end
     end
 
     # In response to DSSR staff's inconsistent use of the date_approved field, this logic will now warn but enforce the inclusion of a date_approved value.

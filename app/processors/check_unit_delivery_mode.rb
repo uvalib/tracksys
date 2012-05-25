@@ -48,7 +48,7 @@ class CheckUnitDeliveryModeProcessor < ApplicationProcessor
     end
 
     # All units with no deliverables (either patron or DL) get sent to the archive at this step.
-    if not @working_unit.deliverable_resolution and not @working_unit.deliverable_format and not @working_unit.transcription_format and not @working_unit.include_in_dl
+    if not @working_unit.intended_use_deliverable_resolution and not @working_unit.intended_use_deliverable_format and not @working_unit.transcription_format and not @working_unit.include_in_dl
       on_success "Unit #{@unit_id} has no deliverables so is being sent directly to the archive."
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :internal_dir => 'yes', :source_dir => IN_PROCESS_DIR })
       publish :send_unit_to_archive, message
