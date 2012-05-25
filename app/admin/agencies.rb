@@ -39,6 +39,7 @@ ActiveAdmin.register Agency do
     panel "Detailed Information" do
       attributes_table_for agency do
         row :name
+        row :description
         row :created_at do |agency|
           format_date(agency.created_at)
         end
