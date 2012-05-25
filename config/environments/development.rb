@@ -49,4 +49,12 @@ Tracksys::Application.configure do
   # Set the number of threads dedicated to JP2K creation.
 #  NUM_JP2K_THREADS = 1
 
+config.after_initialize do
+  PRODUCTION_MOUNT = "/Volumes/digiserv-production"
+  MIGRATION_MOUNT = "/Volumes/digiserv-migration"
+
+  ADMINISTRATIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/administrative"
+  IVIEW_CATALOG_EXPORT_DIR = "#{ADMINISTRATIVE_DIR_PRODUCTION}/EAD2iViewXML"
+end
+
 end
