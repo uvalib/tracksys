@@ -57,7 +57,6 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "Charlottesville, Virginia 22904  U.S.A", :left => 100
     end
 
-    @pdf.text "\n"
     @pdf.text "Sincerely,", :left => 350
     @pdf.text "\n"
     @pdf.text "Digitization Services Staff", :left => 350
@@ -145,7 +144,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
       @pdf.text "Please cite this item as follows: \n\n", :left => 10
 
-      if unit.bibl.citation
+      if not unit.bibl.citation.empty?
         @pdf.text "#{unit.bibl.citation}", :left => 10
       else
         # Create and manage a Hash that contains the SIRSI location codes and their human readable values for citation purposes
@@ -215,6 +214,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
           "SC-TATUMXF" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
           "SC-TATUMXZ" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
           "SPEC-COLL" => "Special Collections, University of Virginia Library.",
+          "STACKS" => "Special Collections, University of Virginia Library.",
           "Reading Room" => "Special Collection, University of Virginia Libary"
         }
       
