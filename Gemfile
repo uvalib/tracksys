@@ -33,7 +33,9 @@ gem 'tweet-button'
 gem 'lazy_high_charts'
 gem 'rqrcode'
 gem 'prawn'
-
+# May need to comment out wicked in the future.
+gem 'wicked'
+gem 'nested_form', :git => 'git://github.com/ryanb/nested_form.git'
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
@@ -55,6 +57,7 @@ group :assets do
 end
 
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
 
 # Use unicorn as the web server
 # gem 'unicorn'

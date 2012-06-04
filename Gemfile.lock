@@ -5,6 +5,12 @@ GIT
     activemessaging (0.9.0)
       activesupport (>= 1.0.0)
 
+GIT
+  remote: git://github.com/ryanb/nested_form.git
+  revision: 38c7ef348f0e1b70cd4ca7d9e14548aef3dea607
+  specs:
+    nested_form (0.2.0)
+
 PATH
   remote: ../active_admin
   specs:
@@ -127,6 +133,9 @@ GEM
     jquery-rails (2.0.2)
       railties (>= 3.2.0, < 5.0)
       thor (~> 0.14)
+    jquery-ui-rails (0.4.1)
+      jquery-rails
+      railties (>= 3.1.0)
     json (1.7.0)
     kaminari (0.13.0)
       actionpack (>= 3.0.0)
@@ -250,6 +259,9 @@ GEM
       timeliness (~> 0.3.6)
     warden (1.1.1)
       rack (>= 1.0)
+    wicked (0.1.5)
+      activesupport (>= 3.0.7)
+      rails (>= 3.0.7)
     xpath (0.1.4)
       nokogiri (~> 1.3)
 
@@ -271,10 +283,12 @@ DEPENDENCIES
   guard-rspec
   hydraulics!
   jquery-rails
+  jquery-ui-rails
   json
   lazy_high_charts
   meta_search (>= 1.1.0.pre)
   mysql2
+  nested_form!
   passenger
   prawn
   rails (= 3.2.2)
@@ -291,3 +305,4 @@ DEPENDENCIES
   tweet-button
   uglifier
   validates_timeliness
+  wicked
