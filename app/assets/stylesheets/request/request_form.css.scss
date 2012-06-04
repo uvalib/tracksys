@@ -1,0 +1,22 @@
+/* Customize boostrap forms to tighten proportions */
+.form-horizontal .control-label {
+  width: 70px;
+  padding-right: 10px;
+}
+
+.form-horizontal .controls {
+  margin-left: 60px;
+}
+
+/* end form width customizations */
+
+/* change container width */
+.container, .navbar-fixed-top .container, .navbar-fixed-bottom .container {
+  width: auto;
+}
+
+/* Highlight 'important' text specially */
+.important {
+  color: #C00;
+  font-weight: bold;
+}
