@@ -107,8 +107,12 @@ ActiveAdmin.register Unit do
           row :unit_extent_actual
           row :heard_about_resource
           row :patron_source_url
-          row :special_instructions
-          row :staff_notes
+          row :special_instructions do |unit|
+            raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))
+          end
+          row :staff_notes do |unit|
+            raw(unit.staff_notes.to_s.gsub(/\n/, '<br/>'))
+          end
         end
       end
     end
