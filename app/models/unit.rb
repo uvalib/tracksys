@@ -7,7 +7,7 @@ class Unit
   scope :overdue_materials, where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
   scope :checkedout_materials, where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
 
-  after_update :fix_updated_counters
+  # after_update :fix_updated_counters
 
   # Within the scope of a Unit's order, return the Unit which follows
   # or precedes the current Unit sequentially.
