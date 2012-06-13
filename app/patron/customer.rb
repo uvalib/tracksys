@@ -1,5 +1,3 @@
-require 'carmen'
-
 ActiveAdmin.register Customer, :namespace => :patron do
   menu :priority => 2
 
@@ -127,8 +125,8 @@ ActiveAdmin.register Customer, :namespace => :patron do
           p.input :address_1
           p.input :address_2
           p.input :city
-          p.input :state, :as => :select, :collection => Carmen.state_codes('US'), :input_html => {:class => 'chzn-select', :style => 'width: 100px'}
-          p.input :country, :as => :country, :collection => Carmen.country_codes, :priority_countries => ['US'], :include_blank => true, :input_html => {:class => 'chzn-select'}
+          p.input :state
+          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chzn-select'}
           p.input :post_code
           p.input :phone
           p.input :organization 
@@ -144,8 +142,8 @@ ActiveAdmin.register Customer, :namespace => :patron do
           b.input :address_1
           b.input :address_2
           b.input :city
-          b.input :state, :as => :select, :collection => Carmen.state_codes('US'), :input_html => {:class => 'chzn-select', :style => 'width: 100px'}
-          b.input :country, :as => :country, :collection => Carmen.country_codes, :priority_countries => ['US'], :include_blank => true, :input_html => {:class => 'chzn-select'}
+          b.input :state
+          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chzn-select'}
           b.input :post_code
           b.input :phone
           b.input :organization
