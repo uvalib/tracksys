@@ -54,5 +54,8 @@ BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverab
 # VIRGO (Blacklight) URL for catalog linking in UI
 VIRGO_URL = "http://search.lib.virginia.edu/catalog"
 
+# Library homepage URL for request form footer
+LIBRARY_URL = "http://preview.lib.virginia.edu"
+
 # Initialize the rails application
 Tracksys::Application.initialize!
