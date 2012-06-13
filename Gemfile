@@ -33,8 +33,6 @@ gem 'tweet-button'
 gem 'lazy_high_charts'
 gem 'rqrcode'
 gem 'prawn'
-# May need to comment out wicked in the future.
-gem 'wicked'
 gem 'nested_form', :git => 'git://github.com/ryanb/nested_form.git'
 gem 'net-ldap'
 gem 'country-select'
