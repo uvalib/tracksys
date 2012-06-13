@@ -1,0 +1,301 @@
+<% if not @request.errors.empty? %>
+  <div class="flash flash_type_error">
+    <p>The following errors have occured:</p>
+      <ul>
+        <% @request.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+  </div>
+<% end %>
+
+<%= nested_form_for @request, :html => {:class => 'form-horizontal'} do |f| %>
+  <%= f.fields_for :customer_attributes do |c| %>
+    <div class="span4">
+      <fieldset>
+        <legend>Customer Information</legend>
+        <div class="control-group">
+          <%= c.label :first_name, :class => 'control-label required' %> 
+          <div class="controls">
+            <%= c.text_field :first_name, :value => @request.customer.first_name, :required => required_field_value %>
+          </div>
+        </div>
+        <div class="control-group">
+          <%= c.label :last_name, :class => 'control-label required' %>
+          <div class="controls">
+            <%= c.text_field :last_name, :value => @request.customer.last_name, :required => required_field_value %>
+          </div>
+        </div>
+        <div class="control-group">
+          <%= c.label :email, :class => 'control-label required' %>
+          <div class="controls">
+            <%= c.text_field :email, :value => @request.customer.email, :required => required_field_value %>
+          </div>
+        </div>
+        <div class="control-group">
+          <%= c.label :academic_status, :class => 'control-label required' %>
+          <div class="controls">
+            <%= c.select :academic_status_id, options_for_select(AcademicStatus.all.collect {|a| [a.name, a.id] }, @request.customer.academic_status_id), {:include_blank => true} %>
+          </div>
+        </div>
+        <div class="control-group">
+          <%= c.label "How do you heard about this service?", :class => 'control-label' %>
+          <div class="controls">
+            <%= c.select :heard_about_service_id, HeardAboutService.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="span4">
+      <fieldset>
+        <legend>Primary Address</legend>
+        <%= c.fields_for :primary_address_attributes do |pa| %>
+          <div class="control-group">
+            <%= pa.label "Address Line1", :class => 'control-label required' %>
+            <div class="controls">
+              <%= pa.text_field :address_1, :value => @request.customer.primary_address.address_1, :required => required_field_value %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "Address Line2", :class => 'control-label' %>
+            <div class="controls">
+              <%= pa.text_field :address_2, :value => @request.customer.primary_address.address_2 %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "City", :class => 'control-label required' %>
+            <div class="controls">
+              <%= pa.text_field :city, :value => @request.customer.primary_address.city, :required => required_field_value %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "State", :class => 'control-label' %>
+            <div class="controls">
+              <%= pa.text_field :state, :value => @request.customer.primary_address.state %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "Zip Code", :class => 'control-label' %>
+            <div class="controls">
+              <%= pa.text_field :post_code, :value => @request.customer.primary_address.post_code %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "Country", :class => 'control-label required' %>
+            <div class="controls">
+              <%= pa.select :country, country_options_for_select(@request.customer.primary_address.country, ['United States', 'Canada']), :include_blank => true  %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= pa.label "Phone", :class => 'control-label' %>
+            <div class="controls">
+              <%= pa.text_field :phone, :value => @request.customer.primary_address.phone %>
+            </div>
+          </div>
+        <% end %>
+      </fieldset>
+    </div>
+    <div class="span4">
+      <fieldset>
+        <legend>Billing Address (Optional)</legend>
+        <%= c.fields_for :billable_address_attributes do |ba| %>
+          <div class="control-group">
+            <%= ba.label "First Name", :class => 'control-label required' %>
+            <div class="controls">
+              <%= ba.text_field :first_name, :value => @request.customer.billable_address.first_name %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Last Name", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :last_name, :value => @request.customer.billable_address.last_name %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Address Line1", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :address_1, :value => @request.customer.billable_address.address_1 %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Address Line2", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :address_2, :value => @request.customer.billable_address.address_2 %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "City", :class => 'control-label required' %>
+            <div class="controls">
+              <%= ba.text_field :city, :value => @request.customer.billable_address.city %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "State", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :state, :value => @request.customer.billable_address.state %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Zip Code", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :post_code, :value => @request.customer.billable_address.post_code %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Country", :class => 'control-label required' %>
+            <div class="controls">
+              <%= ba.select :country, country_options_for_select(@request.customer.billable_address.country, ['United States', 'Canada']), :include_blank => true %>
+            </div>
+          </div>
+          <div class="control-group">
+            <%= ba.label "Phone", :class => 'control-label' %>
+            <div class="controls">
+              <%= ba.text_field :phone, :value => @request.customer.billable_address.phone %>
+            </div>
+          </div>
+        <% end %>
+      </fieldset>
+    </div>
+  <% end %>
+
+  <div class="span12">
+    <fieldset>
+      <legend>Request Information</legend>
+      <div class="control-group">
+        <%= f.label :date_due, :class => 'control-label required' %>
+        <div class="controls">
+          <%= f.text_field :date_due, :id => 'datepicker', :required => required_field_value %>
+          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.</p>
+        </div>
+      </div>
+      <div class="control-group">
+        <%= f.label :special_instructions, :class => 'control-label' %>
+        <div class="controls">
+          <%= f.text_area :special_instructions, :rows => 3, :class => 'input-xlarge' %>
+          <p class="help-block">Include any additional information required to fulfill this request.</p>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="twelvecol">
+    <fieldset>
+      <legend>Items for Digitization</legend>
+      <%= f.fields_for :units do |unit| %>
+        <div class="row">
+          <div class="span4">
+            <div class="control-group">
+              <%= unit.label "Image or page numbers", :class => 'control-label required' %>
+              <div class="controls">
+                <%= unit.text_area :request_pages_to_digitize, :rows => 3, :class => 'input-large', :required => required_field_value %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Call Number", :class => 'control-label'%>
+              <div class="controls">
+                <%= unit.text_field :request_call_number %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Title", :class => 'control-label'%>
+              <div class="controls">
+                <%= unit.text_field :request_title %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Author", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_field :request_author %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Year Published", :class => 'control-label'%>
+              <div class="controls">
+                <%= unit.text_field :request_year %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Location", :class => 'control-label'%>
+              <div class="controls">
+                <%= unit.text_field :request_location %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Copy Number", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_field :request_copy_number %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Volume Number", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_field :request_volume_number %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Issue Number", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_field :request_issue_number %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "Web Link for item (if available)", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_area :patron_source_url, :rows => 3, :class => 'input-large' %>
+              </div>
+            </div>
+          </div>
+
+          <div class="span4">
+            <div class="control-group">
+              <%= unit.label "Additional Description", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.text_area :request_description, :rows => 5, :class => 'input-large'  %>
+                <p class="help-block">If the provided fields were insufficient to describe the item, include supplemental information above.</p>
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <%= unit.label "How do you heard about this item?", :class => 'control-label' %>
+              <div class="controls">
+                <%= unit.select :heard_about_resource_id, HeardAboutResource.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
+              </div>
+            </div>
+            <div class="control-group">
+              <%= unit.label "How do you intended to use this digitized resource?", :class => 'control-label required' %>
+              <div class="controls">
+                <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
+              </div>
+            </div>
+            <div id="intended_use_watermarked_jpg" style="display: none;">
+              <p>Deliverables: <strong>300dpi JPEG</strong></p>
+              <p>For this use Digitization Services will deliver <strong>300dpi JPEG</strong> images suitable for your needs.  These images will include a copyright statment within a surrounding gray border similar in apperance to the image below.  The watermark text states:</p>
+              <blockquote>
+                <p>Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.  No further copies should be made. Copyright and other legal restrictions may apply. Special Collections, University of Virginia Library.</p>
+              </blockquote>
+              <div id="watermark_thumb" style="float: center;">
+                <img id="watermark_thumb" src="<%=image_path('request_form/watermark_thumb.jpg')%>" title="Watermarked 300dpi JPG" onclick="" />
+              </div>
+            </div>
+            <div id="intended_use_highest_tif" style="display: none;">
+              <p>Deliverables: <strong>Highest possible dpi TIFF</strong></p>
+              <p>For this use Digitization Services will deliver <strong>Highest possible dpi TIFF</strong> images suitable for your needs.  The resolution of the images is dependent on the size of the physical object.  Generally, if the item is smaller than 11" on the longest side, the resolution will be 600dpi.  If the item is between 11" and 14" on the longest side, the resolution will be 400dpi.  Any item larger than 14" on the long side will generally have a resolution of 300dpi.</p>
+            </div>
+          </div>
+
+          <div class="span4">
+            <%= unit.link_to_remove "Remove this item", :class => 'btn btn-inverse' %>
+          </div>
+        </div>
+      <% end %>
+      <%= f.link_to_add "Add an item", :units, :class => 'btn btn-inverse' %>
+    </fieldset>
+  </div>
+
+  <div class="twelvecol">
+    <div class="form-actions">
+      <%= f.submit 'Submit Request', :class => "btn btn-primary" %>
+    </div>
+  </div>
+
+<% end %>

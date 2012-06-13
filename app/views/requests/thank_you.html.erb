@@ -1,0 +1,123 @@
+<div class="twelvecol">
+  <h1>Thanks!  We've received your request!</h1>
+  <p>You will soon receive an email containing all the information you provided.</p>
+  <div class="twelvecol">
+    <h2>Order Summary</h2>
+    <div class="span4">
+      <h3>Customer Information</h3>
+      <dl class="dl-horizontal">
+          <dt>First Name</dt>
+          <dd><%= empty2nbsp(@customer.first_name) %></dd>
+          <dt>Last Name</dt>
+          <dd><%= empty2nbsp(@customer.last_name) %></dd>
+          <dt>Email</dt>
+          <dd><%= empty2nbsp(@customer.email) %></dd>
+          <dt>Academic Status</dt>
+          <dd><%= empty2nbsp(@customer.academic_status.name) %></dd>
+          <% if @customer.heard_about_service %>
+            <dt>Heard About Service</dt>
+            <dd><%= empty2nbsp(@customer.heard_about_service.description) %></dd>
+          <% end %>
+        </dl>
+    </div>
+
+    <div class="span4">
+      <h3>Primary Address</h3>
+      <dl class="dl-horizontal">
+          <dt>Address1</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.address_1) %></dd>
+          <dt>Address2</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.address_2) %></dd>
+          <dt>City</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.city) %></dd>
+          <dt>State</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.state) %></dd>
+          <dt>Zip Code</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.post_code) %></dd>
+          <dt>Country</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.country) %></dd>
+          <dt>Phone</dt>
+          <dd><%= empty2nbsp(@customer.primary_address.phone) %></dd>
+        </dl>
+    </div>
+
+    <% if @customer.billable_address %>
+      <div class="span4">
+        <h3>Billing Address</h3>
+        <dl class="dl-horizontal">
+          <dt>First Name</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.first_name) %></dd>
+          <dt>Last Name</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.last_name) %></dd>
+          <dt>Address1</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.address_1) %></dd>
+          <dt>Address2</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.address_2) %></dd>
+          <dt>City</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.city) %></dd>
+          <dt>State</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.state) %></dd>
+          <dt>Zip Code</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.post_code) %></dd>
+          <dt>Country</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.country) %></dd>
+          <dt>Phone</dt>
+          <dd><%= empty2nbsp(@customer.billable_address.phone) %></dd>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="span12">
+    <h3>Request Information</h3>
+    <dl class="dl-horizontal">
+      <dt>Due Date</dt>
+      <dd><%= empty2nbsp(@request.date_due) %></dd>
+      <dt>Special Instructions</dt>
+      <dd><%= empty2nbsp(@request.special_instructions) %></dd>
+    </dl>
+  </div>
+
+  <div class="span12">
+    <h3>Item Information</h3>
+    <% @request.units.each do |unit| %>
+      <h4>Item #<%= @request.units.index(unit) + 1 %></h4>
+      <dl class="dl-horizontal">
+        <dt>Description</dt>
+        <dd><%= empty2nbsp(raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))) %></dd>
+        <% if not unit.patron_source_url.blank? %>
+          <dt>Web Link</dt>
+          <dd><%= empty2nbsp(unit.patron_source_url) %></dd>
+        <% end %>
+        <dt>Intended Use</dt>
+        <dd><%= empty2nbsp(unit.intended_use.description) %></dd>
+        <dt>Format</dt>
+        <dd><%= empty2nbsp(unit.intended_use.deliverable_format) %></dd>
+        <dt>Resolution</dt>
+        <dd><%= empty2nbsp(unit.intended_use.deliverable_resolution) %></dd>
+        <% if unit.heard_about_resource %>
+          <dt>Heard About Item</dt>
+          <dd><%= empty2nbsp(unit.heard_about_resource.name) %></dd>
+        <% end %>
+      </dl>
+    <% end %>
+  </div>
+
+  <div class="span12">
+    <h2>Guideline Reminder</h2>
+    <dl>
+      <dt>Processing Time</dt>
+      <dd>Orders generally require at least 20 business days to process.  Rush requests will be honored if possible.</dd>
+      <dt>Fees</dt>
+      <dd><em><strong>(Non-UVA only)</strong></em>  $50 for the first hour, $25 each additional hour.  Special Collections staff will send a fee estimate before digitization.</dd>
+      <dt>Deliverables</dt>
+      <dd>300dpi JPEG or highest resolution TIFF, depending on your intended use.</dd>
+      <dt>Delivery</dt>
+      <dd>All requests are delivered as online downloads. Special delivery needs will be honored at the discretion of Digitization Services staff.</dd>
+      <dt>Further Questions?</dt>
+      <dd>If you have questions about your request, contact <%= mail_to 'digitalservices@virginia.edu' %> and include the following request number: <strong><%= @request.id %></strong></dd>
+    </dl>
+    <%= link_to " Submit another request", requests_url, :class => 'btn btn-inverse' %>
+  </div>
+</div>
+ 

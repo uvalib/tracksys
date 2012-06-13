@@ -1,0 +1,69 @@
+<%= raw(get_flash) %>
+
+<div class="container">
+  <h1 class="page-title">Digitization Services Request Form</h1>
+
+  <p>Because preservation of its materials is of paramount concern, the Special Collections Department reserves the right to decline to digitize materials, or to limit the amount of material that can be safely digitized. If you have questions, please contact Digital Curation Services at <%= mail_to 'digitalservices@virginia.edu' %>.</p>
+
+  <p><span class="important">Notice: Warning Concerning Copyright</span> &#8212; The copyright
+    law of the United States (Title 17, United States Code) governs
+    the making of photocopies or other reproductions of copyrighted material. Under
+    certain conditions specified in the law, libraries and archives are authorized
+    to furnish a photocopy or other reproduction. One of these specified conditions
+    is that the photocopy or reproduction is not to be &#8220;used for any purpose
+    other than private study, scholarship, or research.&#8221; If a user makes a
+    request for, or later uses a photocopy or reproduction for purposes in excess
+    of &#8220;fair use,&#8221; that user may be liable for copyright infringement. The Library&#8217;s
+    provision of a copy does not constitute permission by any copyright holder
+    and is not a substitute for the user&#8217;s diligent compliance with all
+    applicable copyright requirements. This institution reserves the
+    right to refuse to accept a copying order if, in its judgment, fulfillment
+    of the order would involve violation of the copyright law. </p>
+
+  <p><span class="important">Notice: Digitizing Personal Items</span> &#8212; We
+    are not responsible for any damage to materials you provide to us for digitization.</p>
+
+  <h2>What you need to know, before you submit your request</h2>
+  <ul>
+    <li class="bulleted">We normally require at least 20 working days to complete a
+      digitization request. Rush requests will be honored if possible.</li>
+    <li class="bulleted"><strong>Non-UVa Patrons:</strong>  We will charge a fee of $50 for first hour
+      of work and $25 per hour for each additional hour thereafter.  Costs are calculated based on the length
+      of time required for retrieval, identification, imaging and delivery.  Digitization Services staff will contact you soon after your request is received with a quote based on our time estimate.</li>
+    <li class="bulleted">We provide images at various resolutions and formats depending on the intended use of the request.  Generally, we can provide either 300dpi JPEG images or TIF images at the higest resolution possible.</li>
+    <li class="bulleted">All orders will be delivered via the web.  If you wish for your order to be delivered by DVD, please write <%= mail_to 'digitalservices@virginia.edu' %> after submitting your request.  The decision to honor this request is at the sole discretion of Digitization Services staff.</li>
+  </ul>
+
+  <%= form_tag('requests/agree_to_copyright', :method => "get", :class => "form-horizontal") do %>
+    <div class="span8">
+      <fieldset>
+        <legend>Terms of Agreement</legend>
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox">
+                <%= check_box_tag :agree_to_copyright %>
+                I understand and agree to the above copyright statement and will only use the digitized resources as I indicate in my online request. I also understand it is my responsibility to determine who owns the copyright of these materials unless otherwise noted
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>UVA Status</legend>
+          <div class="control-group">
+            <div class="controls">
+              <label for="is_uva_yes" class="radio">
+                <%= radio_button_tag 'is_uva', 'yes', true %>
+                I am UVA faculty, staff, or student.  <span style="font-style: italic;">(You will be asked to verify your identity using <a href="http://itc.virginia.edu/netbadge/" style="text-decoration: underline;">NetBadge</a>.)</span>
+              </label>
+              <label for="is_uva_no" class="radio">I am not affiliated with UVA.
+                <%= radio_button_tag 'is_uva', 'no' %>
+              </label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <%= submit_tag("Create Request", :class => 'btn btn-primary') %>
+          </div>
+      </fieldset>
+    </div>
+  <% end %>
+</div>

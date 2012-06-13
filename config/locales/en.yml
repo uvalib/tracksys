@@ -6,6 +6,8 @@ en:
     models:
       bibl: "Bibliographic Records"
     attributes:
+      request:
+          units: "Items"
       staff_member:
           computing_id: "UVA Computing ID"
       unit:
