@@ -36,6 +36,9 @@ gem 'prawn'
 # May need to comment out wicked in the future.
 gem 'wicked'
 gem 'nested_form', :git => 'git://github.com/ryanb/nested_form.git'
+gem 'net-ldap'
+gem 'country-select'
+gem 'browser' # Browser detection for request form HTML5 attributes
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
