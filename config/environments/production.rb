@@ -48,6 +48,9 @@ Tracksys::Application.configure do
   # Disable delivery errors, bad email addresses will be ignored
   # config.action_mailer.raise_delivery_errors = false
 
+  # Provide path for CSS for Roadie.
+  config.action_mailer.default_url_options = {:host => 'tracksystest.lib.virginia.edu'}
+
   # Enable threaded mode
   # config.threadsafe!
 

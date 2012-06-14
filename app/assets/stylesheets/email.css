@@ -1,0 +1,22 @@
+body {
+  font-size: 12px;
+  font-family: "ff-dagny-web-pro", "Helvetica Neue", Arial, sans-serif;
+}
+
+address {
+  display: block;
+  margin-bottom: 18px;
+  font-style: normal;
+  line-height: 18px;
+}
+
+strong {
+  font-weight: bold;
+}
+
+dl{margin-bottom:18px;}
+dt,dd{line-height:18px;}
+dt{font-weight:bold;line-height:17px;}
+dd{margin-left:9px;}
+.dl-horizontal dt{float:left;width:120px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dl-horizontal dd{margin-left:130px;}
