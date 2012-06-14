@@ -1,5 +1,6 @@
 class OrderMailer < ActionMailer::Base
   default from: "digitalservices@virginia.edu", 
+          cc: "digitalservices@virginia.edu",
           bcc: "andrew.curley@gmail.com",
           reply_to: "digitalservices@virginia.edu"
 
@@ -22,6 +23,13 @@ class OrderMailer < ActionMailer::Base
     end
 
     mail to: @order.customer.email, subject: "UVA Digitization Services - Order #{order.id} Complete"
+  end
+
+  def request_confirmation(request)
+    @request = request
+    @customer = request.customer
+
+    mail to: @customer.email, subject: "UVA Digitization Services - Request ##{@request.id} Confirmation"
   end
   
   def web_delivery(order, delivery_files)
