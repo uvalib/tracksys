@@ -144,7 +144,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
       @pdf.text "Please cite this item as follows: \n\n", :left => 10
 
-      if not unit.bibl.citation.empty?
+      if not unit.bibl.citation.blank?
         @pdf.text "#{unit.bibl.citation}", :left => 10
       else
         # Create and manage a Hash that contains the SIRSI location codes and their human readable values for citation purposes
