@@ -8,6 +8,7 @@ $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
 
 // Chosen javascript library
 $('.chzn-select').chosen();
+$(".chzn-select-deselect").chosen({allow_single_deselect:true});
 
 // Toggle show panels and form sections
 $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
