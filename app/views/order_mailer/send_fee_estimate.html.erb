@@ -1,5 +1,5 @@
 <%= image_tag "http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg", :size => '640x64' %><br/>
-Dear <%= @customer.first_name.capitalize %> <%= @customer.last_name.capitalize %>,<br/>
+Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,<br/>
 <p>Thank you again for your request.  Below you will find an estimated fee for digitization.  We calculated the fee by charging $50.00 for the first hour (or any part thereof)
 and $25.00 for each additional hour of expected work.  <span style="font-weight:bold">Your order will be held pending acceptance of the fee.</span>  To accept this fee, please respond to this email and let us know whether you accept the fee.  Payment is not required prior to digitization and you will be invoiced for this order at the time of delivery.  The two accepted methods of payment are check or money order paid in US dollars.</p>
 <h1>Digitization Fee: $ <%= @order.fee_estimated.to_i %></h1>
