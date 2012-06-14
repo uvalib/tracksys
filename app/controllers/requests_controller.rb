@@ -56,11 +56,11 @@ class RequestsController < ApplicationController
     end
 
     # send confirmation email
-    # begin
-    #   OrderMailer.deliver_confirm(@order) unless @customer.email.blank?
-    # rescue Exception => e
-    #   logger.error "Mailer-related error: #{e.inspect}"
-    # end
+    begin
+      OrderMailer.request_confirmation(@request).deliver unless @customer.email.blank?
+    rescue Exception => e
+      logger.error "Mailer-related error: #{e.inspect}"
+    end
 
     # finish by passing the inherited_resources create method the redirect url with the appropriate request id.
     session[:request_id] = @request.id
