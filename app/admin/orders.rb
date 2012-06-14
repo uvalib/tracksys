@@ -138,7 +138,7 @@ ActiveAdmin.register Order do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do 
-      f.input :agency, :as => :select, :input_html => {:class => 'chzn-select'}
+      f.input :agency, :as => :select, :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}
       f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
     end
 
