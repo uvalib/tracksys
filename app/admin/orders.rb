@@ -60,7 +60,9 @@ ActiveAdmin.register Order do
     div :class => 'two-column' do
       panel "Basic Information" do
         attributes_table_for order do
-          row :order_status
+          row :order_status do |order|
+            status_tag(order.order_status)
+          end
           row :order_title
           row :special_instructions
           row :staff_notes
@@ -138,7 +140,7 @@ ActiveAdmin.register Order do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do 
-      f.input :agency, :as => :select, :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}
+      f.input :agency_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}
       f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
     end
 
