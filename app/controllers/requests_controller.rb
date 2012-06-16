@@ -76,7 +76,6 @@ class RequestsController < ApplicationController
       # Check whether or not UVa user and redirect as appropriate
       if params[:is_uva]
         if params[:is_uva] == 'yes'
-          session[:computing_id] = nil
           redirect_to uva_requests_url
         else
           redirect_to public_requests_url
@@ -93,32 +92,23 @@ class RequestsController < ApplicationController
 
   def new
     @request = Request.new
+    @request.build_customer
+    @request.customer.build_billable_address
+    @request.customer.build_primary_address
 
     if session[:agree_to_copyright]
       if session[:computing_id] == 'Non-UVA'
         # user is not affiliated with UVa
-        @request.build_customer
-        @request.customer.build_billable_address
-        @request.customer.build_primary_address
         @request.customer.academic_status_id = 1 # set academic_status to "Non-UVa"
 
       else
         # UVa user; get LDAP info for user (already authenticated via NetBadge)
         ldap_info = UvaLdap.new(session[:computing_id])
         uva_status = ldap_info.uva_status.first
-        @request.customer = Customer.find_by_email(ldap_info.email.first)
 
-        # Always update Academic Status
-        @request.customer.academic_status_id = AcademicStatus.find_by_name(uva_status).id
-
-        # Must build a Billable Address if the existing customer doesn't have one
-        # so form pre-population doesn't break.
-        if not @request.customer.billable_address
-          @request.customer.build_billable_address
-        end
-
-        # otherwise create a new customer object with LDAP information.
-        if @request.customer.nil?
+	# If a UVa Customer exist, populate @request.customer with Tracksys sourced data.
+        customer_lookup = Customer.find_by_email(ldap_info.email.first)
+        if customer_lookup.nil?
           uva_computing_id = ldap_info.uva_computing_id
           department_name = ldap_info.department.first
         
@@ -134,6 +124,17 @@ class RequestsController < ApplicationController
               :phone => ldap_info.phone  # no need to do first, since uva_ldap does not return an array for this value.
             }
           }
+        else 
+          @request.customer = Customer.find_by_email(ldap_info.email.first)
+        end
+
+        # Always update Academic Status
+        @request.customer.academic_status_id = AcademicStatus.find_by_name(uva_status).id
+
+        # Must build a Billable Address if the existing customer doesn't have one
+        # so form pre-population doesn't break.
+        if not @request.customer.billable_address
+          @request.customer.build_billable_address
         end
       end
     end
@@ -156,11 +157,7 @@ class RequestsController < ApplicationController
     # If the HTTP request is local, use a predefined, existing UVa computing ID.
     # Otherwise, get the user's UVa computing ID from the environment variable
     # set by NetBadge.
-    if session[:computing_id].nil?
-      session[:computing_id] = 'aec6v'
-    else
-      session[:computing_id] = request.env['HTTP_REMOTE_USER'].to_s
-    end
+    session[:computing_id] = request.env['HTTP_REMOTE_USER'].to_s || 'aec6v'
     redirect_to :action => :new
   end
 
