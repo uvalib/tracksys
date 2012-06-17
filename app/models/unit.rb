@@ -10,6 +10,7 @@ class Unit
   # with those materials checkedout a few months before Tracksys 3 goes live (i.e. before March 1st?)
   scope :overdue_materials, where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
   scope :checkedout_materials, where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
+  scope :uncompleted_units_of_partially_completed_orders, includes(:order).where(:unit_status => 'approved', :date_archived => nil).where('intended_use_id != 110').where('orders.date_finalization_begun is not null')
 
   # after_update :fix_updated_counters
 

@@ -29,15 +29,19 @@ ActiveAdmin::Dashboards.build do
       end
       tr do
         td do "Unfinished Units of Partially Finalized Orders" end
-        td do link_to "", "" end
+        td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", "admin/units?scope=uncompleted_units_of_partially_completed_orders" end
       end
     end
-    # div do
-    #   link_to "Orders Ready for Delivery (#{Order.ready_for_delivery.count})", "admin/orders?scope=ready_for_delivery"
-    # end
   end
 
-  section "Recent DL Items (20)", :width => '33%', :priority => 4, :namespace => :admin, :toggle => 'hide' do
+  section "Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
+    div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_workflow_start_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
+    div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+  end
+
+  section "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
     table_for Bibl.in_digital_library.limit(20) do
       column :call_number
       column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
@@ -50,10 +54,5 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-  section "Buttons" do
-    div :class => 'workflow_button' do button_to "Start Finalization on digiserv-production", admin_workflow_start_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-    div :class => 'workflow_button' do button_to "Start Finalization on digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-    div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
-    div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-  end
+
 end

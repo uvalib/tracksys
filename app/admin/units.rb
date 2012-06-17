@@ -7,6 +7,7 @@ ActiveAdmin.register Unit do
   scope :awaiting_copyright_approval
   scope :awaiting_condition_approval
   scope :canceled
+  scope :uncompleted_units_of_partially_completed_orders
 
   actions :all, :except => [:destroy]
 
