@@ -1,4 +1,4 @@
-# Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its Bibl records, citation statement,
+  # Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its Bibl records, citation statement,
 # Component records, EADRef references and a list of the MasterFile images with their individual metadata.
 
 class CreateOrderPdfProcessor < ApplicationProcessor
@@ -98,9 +98,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     # Iterate through all the units belonging to this order
     @units_in_pdf.each { |unit|       
       # For pretty printing purposes, create pagebreak if there is less than 10 lines remaining on the current page.
-      if @pdf.cursor < 30
-        @pdf.start_new_page
-      end
+      @pdf.start_new_page unless @pdf.cursor > 30
 
       # Add 1 to incrementation because index starts at 0
       item_number = @units_in_pdf.index(unit) + 1
@@ -110,31 +108,13 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
       # Begin work on Bibl record
       #
-      # Output all present fields in Bibl record.  Almost all values in Bibl are optional, so tests are required.
-      if unit.bibl.title      
-        @pdf.text "Title: #{unit.bibl.title}", :left => 14
-      end
-
-      if unit.bibl.creator_name
-        @pdf.text "Author: #{unit.bibl.creator_name}", :left => 14
-      end
-
-      if unit.bibl.call_number
-        @pdf.text "Call Number: #{unit.bibl.call_number}", :left => 14
-      end
-
-      if unit.bibl.copy
-        @pdf.text "Copy: #{unit.bibl.copy}", :left => 14
-      end
-
-      if unit.bibl.volume
-        @pdf.text "Volume: #{unit.bibl.volume}", :left => 14
-      end
-
-      if unit.bibl.issue
-        @pdf.text "Issue: #{unit.bibl.issue}", :left => 14
-      end
-
+      # Output all present fields in Bibl record.  Almost all values in Bibl aoptional, so tests are required.
+      @pdf.text "Title: #{unit.bibl.title}", :left => 14 unless unit.bibl.title?
+      @pdf.text "Author: #{unit.bibl.creator_name}", :left => 14 unless unit.bibl.creator_name?
+      @pdf.text "Call Number: #{unit.bibl.call_number}", :left => 14 unless unit.bibl.call_number?
+      @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 unless unit.bibl.copy?
+      @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 unless unit.bibl.volume?
+      @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 unless unit.bibl.issue?
       @pdf.text "\n"
 
       # Begin work on citation
@@ -237,26 +217,15 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
       @pdf.text "\n"
 
-      # Create special tables to hold component and EAD reference information
-      if not unit.components.empty?
-        parent_components = Array.new
-        unit.components.each{|component|
-          if component.parent_component.nil?
-            parent_components.push(component)
-          end
-        }
-     
-        parent_components.each{|component|
+      # Create special tables to hold component information
+      if unit.components.any?
+        unit.components.each do |component|
+          # Output information for this unit using the Component template
           output_component_data(component)
-          check_for_component_masterfiles(component)
-          check_for_child_components(component)
-          output_null_text_component(component)
-        }
+        end
       else
-        sorted_master_files = unit.master_files.sort_by { |master_file|
-          master_file.filename
-        }
-        output_masterfile_data(sorted_master_files)
+        # Output information using the MasterFile only template.
+        output_masterfile_data(unit.master_files.order(:filename))
       end
     }
 
@@ -279,18 +248,23 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
   # Physical Component Methods
   def output_component_data(component)
-    data = Array.new
-    data = [["Label", "Description", "Date"]]
-    data += [["#{component.label}", "#{component.content_desc}", "#{component.date}"]]
+    component.ancestor_ids.each {|component_id|
+      c = Component.find(component_id)
+      data = Array.new
+      data = [["Title", "Description", "Date"]]
+      data += [["#{component.name}", "#{component.content_desc}", "#{component.date}"]]
 
-    @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
-    @pdf.text "\n"
+      @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
+      @pdf.text "\n"
 
-    if @pdf.cursor < 30
-      @pdf.start_new_page
-    end
+      if @pdf.cursor < 30
+        @pdf.start_new_page
+      end
 
-    @pdf.text "\n"
+      @pdf.text "\n"
+    }
+
+    output_masterfile_data(component.master_files.order(:filename))
 
     # data = [{"label"=> "#{component.label}", "desc"=> "#{component.content_desc}", "date"=> "#{component.date}", "barcode"=> "#{component.barcode}", "sequence_number"=> "#{component.seq_number}"}]
           
@@ -334,31 +308,31 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     # @pdf.text "\n"   
   end
 
-  def check_for_component_masterfiles(component)
-    if not component.master_files.empty?
-      sorted_master_files = component.master_files.sort_by {|mf|
-        mf.filename
-      }
-      output_masterfile_data(sorted_master_files)
-    end
-  end
+  # def check_for_component_masterfiles(component)
+  #   if not component.master_files.empty?
+  #     sorted_master_files = component.master_files.sort_by {|mf|
+  #       mf.filename
+  #     }
+  #     output_masterfile_data(sorted_master_files)
+  #   end
+  # end
 
-  def check_for_child_components(component)
-    if not component.child_components.empty?
-      component.child_components.each{|component|
-        output_component_data(component)
-        check_for_component_masterfiles(component)
-        check_for_child_components(component)
-        output_null_text_component(component)
-        }
-    end
-  end
+  # def check_for_child_components(component)
+  #   if not component.child_components.empty?
+  #     component.child_components.each{|component|
+  #       output_component_data(component)
+  #       check_for_component_masterfiles(component)
+  #       check_for_child_components(component)
+  #       output_null_text_component(component)
+  #       }
+  #   end
+  # end
 
-  def output_null_text_component(component)
-    if component.child_components.empty? and component.master_files.empty?
-      @pdf.text "There are no master files or physical housing information at this level.", :align => :center
-    end
-  end
+  # def output_null_text_component(component)
+  #   if component.child_components.empty? and component.master_files.empty?
+  #     @pdf.text "There are no master files or physical housing information at this level.", :align => :center
+  #   end
+  # end
 
 
   # Methods used by both Component and EAD Ref methods
