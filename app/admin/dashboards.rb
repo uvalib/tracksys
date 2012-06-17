@@ -4,15 +4,19 @@ ActiveAdmin::Dashboards.build do
     table do
       tr do
         td do "Archiving Workflow" end
-        td do link_to "#{AutomationMessage.archive_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'archive_workflow') end
+        td do link_to "#{AutomationMessage.archive_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'archive') end
       end
       tr do
         td do "QA Errors" end
-        td do link_to "#{AutomationMessage.qa_workflow.has_active_error.count}", "admin/automation_messages?scope=qa_workflow&q%5Bactive_error_eq%5D=true" end
+        td do link_to "#{AutomationMessage.qa_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'qa') end
       end
       tr do
         td do "Delivery Errors" end
-        td do end
+        td do link_to "#{AutomationMessage.delivery_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'delivery') end
+      end
+      tr do
+        td do "Patron Approval Errors" end
+        td do link_to "#{AutomationMessage.patron_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'patron') end
       end
     end
   end
