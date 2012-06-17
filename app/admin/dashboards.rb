@@ -20,17 +20,17 @@ ActiveAdmin::Dashboards.build do
   section "Finalization", :width => '33%', :namespace => :admin, :priority => 2, :toggle => 'show' do
     table do
       tr do
+        td do "Unfinished Units of Partially Finalized Orders" end
+        td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", "admin/units?scope=uncompleted_units_of_partially_completed_orders" end
+      end
+      tr do
         td do "Orders Ready for Delivery" end
         td do link_to "#{Order.ready_for_delivery.count}", "admin/orders?scope=ready_for_delivery" end
       end
       tr do
         td do "Burn Orders to DVD" end
         td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", "admin/orders?scope=ready_for_dvd_burning" end
-      end
-      tr do
-        td do "Unfinished Units of Partially Finalized Orders" end
-        td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", "admin/units?scope=uncompleted_units_of_partially_completed_orders" end
-      end
+      end 
     end
   end
 
