@@ -65,32 +65,6 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     # Begin first page of invoice
     @pdf.start_new_page
 
-    # @pdf.open_object do |heading| 
-    #   @pdf.save_state 
-    #   @pdf.stroke_color! Color::Black 
-    #   @pdf.stroke_style! PDF::Writer::StrokeStyle::DEFAULT 
-    #   s = 10
-    #   if not @fee.eql?("none")
-    #     t = "Invoice For Order #{@working_order.id}" 
-    #   else
-    #     t = "Receipt for Order #{@working_order.id}"
-    #   end
-    #   w = @pdf.text_width(t, s) / 2.0 
-    #   x = @pdf.margin_x_middle 
-    #   y = @pdf.absolute_top_margin 
-    #   @pdf.add_text(x - w, y, t, s)
-    #   x = @pdf.absolute_left_margin 
-    #   w = @pdf.absolute_right_margin 
-    #   y -= (@pdf.font_height(s) * 1.01) 
-    #   @pdf.line(x, y, w, y).stroke 
-    #   @pdf.restore_state 
-    #   @pdf.close_object 
-    #   @pdf.add_object(heading, :all_pages)
-    # end
-
-    # # The letter sized document is 612 x 792
-    # @pdf.start_page_numbering(550, 25, 10)
-
     @pdf.text "\n"
     @pdf.text "Digital Order Summary", :align => :center, :font_size => 16
     @pdf.text "\n"
@@ -109,12 +83,12 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       # Begin work on Bibl record
       #
       # Output all present fields in Bibl record.  Almost all values in Bibl aoptional, so tests are required.
-      @pdf.text "Title: #{unit.bibl.title}", :left => 14 unless unit.bibl.title?
-      @pdf.text "Author: #{unit.bibl.creator_name}", :left => 14 unless unit.bibl.creator_name?
-      @pdf.text "Call Number: #{unit.bibl.call_number}", :left => 14 unless unit.bibl.call_number?
-      @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 unless unit.bibl.copy?
-      @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 unless unit.bibl.volume?
-      @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 unless unit.bibl.issue?
+      @pdf.text "Title: #{unit.bibl.title}", :left => 14 if unit.bibl.title?
+      @pdf.text "Author: #{unit.bibl.creator_name}", :left => 14 if unit.bibl.creator_name?
+      @pdf.text "Call Number: #{unit.bibl.call_number}", :left => 14 if unit.bibl.call_number?
+      @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 if unit.bibl.copy?
+      @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 if unit.bibl.volume?
+      @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
       @pdf.text "\n"
 
       # Begin work on citation
@@ -122,7 +96,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       # Collections staff write a canonical citation statement here.  Therefore, if bibl.citation exists, this PDF creation
       # processor will use that.  Otherwise, it will create a citation from a template created in consultation with jcp5x.
 
-      @pdf.text "Please cite this item as follows: \n\n", :left => 10
+      @pdf.text "Please cite this item as follows:", :left => 10
 
       if not unit.bibl.citation.blank?
         @pdf.text "#{unit.bibl.citation}", :left => 10
@@ -205,12 +179,12 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
         if location_hash.has_key?(unit.bibl.location)
           citation_location = location_hash.fetch(unit.bibl.location)
-          @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). #{citation_location}", :left => 10
+          @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). #{citation_location}", :left => 10, :style => :italic
         else
           if unit.bibl.is_in_catalog
-            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). University of Virginia Library.", :left => 10      
+            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). University of Virginia Library.", :left => 10, :style => :italic    
           else  
-            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}).", :left => 10      
+            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}).", :left => 10, :style => :italic
           end
         end
       end
@@ -248,92 +222,20 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
   # Physical Component Methods
   def output_component_data(component)
-    component.ancestor_ids.each {|component_id|
+    @pdf.text "Collection Information\n", :style => :bold
+    component.path_ids.each {|component_id|
       c = Component.find(component_id)
-      data = Array.new
-      data = [["Title", "Description", "Date"]]
-      data += [["#{component.name}", "#{component.content_desc}", "#{component.date}"]]
 
-      @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
-      @pdf.text "\n"
-
-      if @pdf.cursor < 30
-        @pdf.start_new_page
+      # pdf document has a width of 540 at this point, so use that and subtract from there.
+      @pdf.span(540 - component.path_ids.index(component_id) * 10, :position => :right) do
+        @pdf.text"#{c.component_type.name.titleize}: #{c.name}"
       end
 
-      @pdf.text "\n"
+      @pdf.start_new_page if @pdf.cursor < 30
     }
 
     output_masterfile_data(component.master_files.order(:filename))
-
-    # data = [{"label"=> "#{component.label}", "desc"=> "#{component.content_desc}", "date"=> "#{component.date}", "barcode"=> "#{component.barcode}", "sequence_number"=> "#{component.seq_number}"}]
-          
-    # table = PDF::SimpleTable.new
-    # table.title = "#{component.component_type.name.capitalize}"
-    # table.column_order.push(*%w(label desc date barcode sequence_number))
-
-    # table.columns["label"] = PDF::SimpleTable::Column.new("label")
-    # table.columns["label"].heading = "Label"
-    # table.columns["label"].width = 200
-  
-    # table.columns["desc"] = PDF::SimpleTable::Column.new("desc")
-    # table.columns["desc"].heading = "Description"
-    # table.columns["desc"].width = 100
-      
-    # table.columns["date"] = PDF::SimpleTable::Column.new("date")
-    # table.columns["date"].heading = "Date"
-    # table.columns["date"].width = 75
-      
-    # table.columns["barcode"] = PDF::SimpleTable::Column.new("barcode")
-    # table.columns["barcode"].heading = "Barcode"
-    # table.columns["barcode"].width = 75
-      
-    # table.columns["sequence_number"] = PDF::SimpleTable::Column.new("sequence_number")
-    # table.columns["sequence_number"].heading = "Sequence Number"
-    # table.columns["sequence_number"].width = 100    
-
-    # table.show_lines = :all
-    # table.show_headings = true
-    # table.orientation = :right
-    # table.position = :left
-     
-    # table.data.replace data
-
-    # # Create pagebreak if necessary
-    # if @pdf.lines_remaining < 10
-    #   @pdf.start_new_page
-    # end
-
-    # table.render_on(@pdf)
-    # @pdf.text "\n"   
   end
-
-  # def check_for_component_masterfiles(component)
-  #   if not component.master_files.empty?
-  #     sorted_master_files = component.master_files.sort_by {|mf|
-  #       mf.filename
-  #     }
-  #     output_masterfile_data(sorted_master_files)
-  #   end
-  # end
-
-  # def check_for_child_components(component)
-  #   if not component.child_components.empty?
-  #     component.child_components.each{|component|
-  #       output_component_data(component)
-  #       check_for_component_masterfiles(component)
-  #       check_for_child_components(component)
-  #       output_null_text_component(component)
-  #       }
-  #   end
-  # end
-
-  # def output_null_text_component(component)
-  #   if component.child_components.empty? and component.master_files.empty?
-  #     @pdf.text "There are no master files or physical housing information at this level.", :align => :center
-  #   end
-  # end
-
 
   # Methods used by both Component and EAD Ref methods
   def output_masterfile_data(sorted_master_files)
