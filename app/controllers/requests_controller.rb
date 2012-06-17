@@ -81,12 +81,10 @@ class RequestsController < ApplicationController
           redirect_to public_requests_url
         end
       else
-        flash[:notice] = 'You must indicate whether or not you are affiliated with U.Va. to continue.'
-        redirect_to :action => :index
+        redirect_to requests_path, :notice => 'You must indicate whether or not you are affiliated with U.Va. to continue.'
       end
     else
-      flash[:notice] = 'You must agree to the terms and conditions to continue.'
-      redirect_to :action => :index
+      redirect_to requests_path, :notice => 'You must agree to the terms and conditions to continue.'
     end
   end
 
