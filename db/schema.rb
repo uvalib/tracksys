@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120525165817) do
+ActiveRecord::Schema.define(:version => 20120614192218) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -265,6 +265,8 @@ ActiveRecord::Schema.define(:version => 20120525165817) do
     t.integer  "automation_messages_count",                       :default => 0,    :null => false
     t.string   "exemplar"
     t.string   "ancestry"
+    t.string   "pids_depth_cache"
+    t.string   "ead_id_atts_depth_cache"
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
