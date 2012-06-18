@@ -49,7 +49,7 @@ Tracksys::Application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Provide path for CSS for Roadie.
-  config.action_mailer.default_url_options = {:host => 'tracksystest.lib.virginia.edu'}
+  config.action_mailer.default_url_options = {:host => 'tracksys.lib.virginia.edu'}
 
   # Enable threaded mode
   # config.threadsafe!
