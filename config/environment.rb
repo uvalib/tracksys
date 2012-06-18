@@ -57,5 +57,6 @@ VIRGO_URL = "http://search.lib.virginia.edu/catalog"
 # Library homepage URL for request form footer
 LIBRARY_URL = "http://preview.lib.virginia.edu"
 
+IVIEW_CATALOG_EXPORT_DIR = "/digiserv-production/administrative/EAD2iViewXML"
 # Initialize the rails application
 Tracksys::Application.initialize!
