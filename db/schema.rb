@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120614192218) do
+ActiveRecord::Schema.define(:version => 20120618141922) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -404,6 +404,7 @@ ActiveRecord::Schema.define(:version => 20120614192218) do
     t.datetime "updated_at"
     t.boolean  "is_approved",          :default => false, :null => false
     t.boolean  "is_internal_use_only", :default => false, :null => false
+    t.integer  "units_count"
   end
 
   add_index "heard_about_resources", ["description"], :name => "index_heard_about_resources_on_description"
