@@ -30,7 +30,7 @@
     <%= f.input :is_collection, :as => :radio %>
     <%= f.input :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES %>
     <%= f.input :genre, :as => :select, :collection => Bibl::GENRES %>
-    <%= f.input :date_external_update, :as => :string, :input_html => {:disabled => true, :class => "datepicker"} %>
+    <%= f.input :date_external_update, :as => :string, :input_html => {:class => "datepicker"} %>
   <% end %>
 
   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do %>

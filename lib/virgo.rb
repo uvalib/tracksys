@@ -37,6 +37,7 @@ module Virgo
     
     # instantiate a new Bibl object to populate with values and return
     bibl = Bibl.new
+    bibl.date_external_update = Time.now
     
     # open HTTP session
     Net::HTTP.start( @metadata_server, @port ) do |http|
@@ -109,23 +110,6 @@ module Virgo
 
   #-----------------------------------------------------------------------------
   # private methods
-  #-----------------------------------------------------------------------------
-
-  # Creates and saves to the database a new notification (for later display to
-  # the user, after this batch process is completed)
-  def self.add_notification(computing_id, bibl_id, status)
-    begin
-      notif = ProcessNotificationRef.new()
-      notif.computing_id = computing_id
-      notif.process_name = 'bibl_external_update'
-      notif.record_id = bibl_id
-      notif.record_status = status
-      notif.save
-    rescue
-    end
-  end
-  private_class_method :add_notification
-
   #-----------------------------------------------------------------------------
 
   # Reads the XML document (REXML::Document object) passed and gets the main XML

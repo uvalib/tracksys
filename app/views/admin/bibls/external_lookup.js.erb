@@ -3,6 +3,6 @@ jQuery('.bibl_update_button').bind('ajax:success', function() {
     <% if Bibl::VIRGO_FIELDS.include?(attr_name) && !attr_value.nil? %>
       var id = "#bibl_" + "<%= escape_javascript raw attr_name %>"; 
       $(id).val('<%= escape_javascript raw attr_value %>').attr('class', 'updated');
-      <% end %>
+    <% end %>
   <% end %>
 });
