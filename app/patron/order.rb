@@ -190,10 +190,13 @@ ActiveAdmin.register Order, :namespace => :patron do
   end
 
   member_action :approve_order, :method => :put do
-    order = Order.find(params[:id])
-    order.approve_order
-    sleep(0.5)
-    redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+    begin
+      order = Order.find(params[:id])
+      order.update_attributes!(:order_status => "approved")
+      redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+    rescue ActiveRecord::RecordInvalid => invalid
+      redirect_to :back, :alert => "#{invalid.record.errors.full_messages.join(', ')}"
+    end
   end
 
   member_action :cancel_order, :method => :put do
