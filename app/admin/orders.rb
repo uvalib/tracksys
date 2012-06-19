@@ -193,7 +193,8 @@ ActiveAdmin.register Order do
     elsif order.order_status == 'deferred'
       if order.customer.external?
         if order.fee_actual.nil?
-          div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
+          div :class => 'workflow_button' do button_to "Customer Accepts Fee", 
+          approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
           div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put end
           div do "Please input the actual fee before approving order." end
         else
@@ -254,10 +255,13 @@ ActiveAdmin.register Order do
   end
 
   member_action :approve_order, :method => :put do
-    order = Order.find(params[:id])
-    order.approve_order
-    sleep(0.5)
-    redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+    begin
+      order = Order.find(params[:id])
+      order.update_attributes!(:order_status => "approved")
+      redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+    rescue ActiveRecord::RecordInvalid => invalid
+      redirect_to :back, :alert => "#{invalid.record.errors.full_messages.join(', ')}"
+    end
   end
 
   member_action :cancel_order, :method => :put do
