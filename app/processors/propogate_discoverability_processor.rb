@@ -35,10 +35,10 @@ class PropogateDiscoverabilityProcessor < ApplicationProcessor
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
         
     # This should never fail becuase discoverability is checked at an earlier stage, but I will keep it here for sanity checking.
-    if @working_unit.discoverability.nil?
+    if @working_unit.master_file_discoverability.nil?
       on_error "Unit #{hash[:unit_id]} has no discoverability value.  Please fill in and restart ingestion."
     else
-      discoverability = @working_unit.discoverability
+      discoverability = @working_unit.master_file_discoverability
     end
 
     if not @object.discoverability
