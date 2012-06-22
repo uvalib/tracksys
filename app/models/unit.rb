@@ -75,10 +75,19 @@ class Unit
   def send_unit_to_archive
     message = ActiveSupport::JSON.encode( {:unit_id => self.id, :internal_dir => 'yes', :source_dir => "#{IN_PROCESS_DIR}"})
     publish :send_unit_to_archive, message   
-  end  # End processors
+  end  
+
+  def start_ingest_from_archive
+    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :order_id => self.order_id })   
+    publish :start_ingest_from_archive, message
+  end
+
+  # End processors
 
   def qr
     code = RQRCode::QRCode.new("#{TRACKSYS_URL}admin/unit/checkin/#{self.id}", :size => 7)
     return code
   end
+
+
 end
