@@ -35,18 +35,18 @@ class PropogateAccessPoliciesProcessor < ApplicationProcessor
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
         
     # This should never fail becuase availability is checked at an earlier stage, but I will keep it here for sanity checking.
-    if @working_unit.availability.nil?
+    if @working_unit.availability_policy.nil?
       on_error "Unit #{hash[:unit_id]} has no availability value.  Please fill in and restart ingestion."
     else
-      availability = @working_unit.availability
+      availability_policy = @working_unit.availability_policy
     end
 
-    if not @object.availability
-      @object.availability = availability
+    if not @object.availability_policy
+      @object.availability_policy = availability_policy
       @object.save!
-      on_success "Access policy for object #{@object.class} #{@object.id} is changed to #{availability}."
+      on_success "Access policy for object #{@object.class} #{@object.id} is changed to #{availability_policy.name}."
     else
-      on_success "Access policy for object #{@object.class} #{@object.id} is already set to #{@object.availability} and will not be changed."
+      on_success "Access policy for object #{@object.class} #{@object.id} is already set to #{@object.availability_policy.name} and will not be changed."
     end
     
     message = ActiveSupport::JSON.encode({ :unit_id => hash[:unit_id], :source => @source, :object_class => @object_class, :object_id => @object_id, :last => @last })
