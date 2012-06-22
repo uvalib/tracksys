@@ -76,7 +76,15 @@ module ExportIviewXML
 	    add_component_data(@guide, fragment)
 	  end
 	  #return @doc
-		filename= @guide.name.parameterize.underscore.truncate(255)
+
+    filename=String.new
+    case @guide.ead_id_att
+    when /^viu/
+      filename=@guide.ead_id_att
+    else
+      filename= @guide.name.parameterize.underscore.truncate(255)
+    end
+
 		@file=File.open("#{IVIEW_CATALOG_EXPORT_DIR}/#{filename}.xml", 'w') 
 		logger.debug "writing file to #{IVIEW_CATALOG_EXPORT_DIR}/#{filename}.xml"
 		@file << @doc
