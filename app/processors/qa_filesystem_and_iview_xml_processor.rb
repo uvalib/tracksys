@@ -193,6 +193,17 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
         if headline =~ /Endpaper/i && headline !~ /Front|Rear/i
           @error_messages.push("The <Headline> of <MediaItem> #{filename} is an endpaper but does not specify 'front' or 'rear' in conformance with metadata standards: #{headline}")
         end
+
+        # Test to see if the <SetName> <Set> which contains this MasterFile <UniqueID> (if any), has a PID.  Fail if not.
+        iview_id = mediaitem.xpath('AssetProperties/UniqueID').first.text
+        node = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName")
+        if not node.empty?
+          setname = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName").last.text
+          pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
+          if pid.nil?
+            @error_messages.push("Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile")
+          end
+        end
       }
     end
   end
