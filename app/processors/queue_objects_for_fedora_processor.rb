@@ -35,7 +35,7 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     things << @working_unit.bibl
     
     # Add a Unit's Bibl's parents (if in existence)
-    @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
+    # @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
     @working_unit.master_files.each {|mf| things << mf }
     @working_unit.components.each {|component| things << component }
 
