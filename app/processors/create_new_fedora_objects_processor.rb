@@ -45,7 +45,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
     if @object.is_a? Bibl
       label = @object.title
     elsif @object.is_a? MasterFile
-      label = @object.name_num
+      label = @object.title
     elsif @object.is_a? Component
       label = @object.label
     elsif @object.is_a? EadRef
@@ -79,7 +79,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
 #      publish :ingest_solr_doc, default_message
 
       if @object.is_a? Bibl
-        if @object.catalog_id
+        if @object.catalog_key
           publish :ingest_marc, default_message
         end
         
