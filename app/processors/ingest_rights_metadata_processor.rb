@@ -30,8 +30,6 @@ class IngestRightsMetadataProcessor < ApplicationProcessor
     # Since the rightsMetadata is an externally referenced datastream, the xml passed to add_or_update_datastream is empty.    
     xml = nil
     dsLocation = Hydra.access(@object)
-    Fedora.add_or_update_datastream(xml, @pid, 'rightsMetadata', 'Hydra-compliant access rights metadata', :dsLocation => dsLocation, :controlGroup => 'E')
-    on_success "The rightsMetadata datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
  
     # To conform to potentially legacy Fedora requirements, we will create a POLICY datastream.  
     Fedora.add_or_update_datastream(xml, @pid, 'POLICY', 'Fedora-required policy datastream', :dsLocation => dsLocation, :controlGroup => 'E')
