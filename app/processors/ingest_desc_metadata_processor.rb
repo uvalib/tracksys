@@ -31,10 +31,10 @@ class IngestDescMetadataProcessor < ApplicationProcessor
         
     # If an object already has a handcrafted desc_metadata value, this will be used to populate the descMetadata datastream.
     if @object.desc_metadata
-      Fedora.add_or_update_datastream(@object.desc_metadata, @pid, 'descMetadata', 'Hydra-compliant MODS descriptive metadata', :controlGroup => 'M')
+      Fedora.add_or_update_datastream(@object.desc_metadata, @pid, 'descMetadata', 'MODS descriptive metadata', :controlGroup => 'M')
     else
       xml = Hydra.desc(@object)
-      Fedora.add_or_update_datastream(xml, @pid, 'descMetadata', 'Hydra-compliant MODS descriptive metadata', :controlGroup => 'M') 
+      Fedora.add_or_update_datastream(xml, @pid, 'descMetadata', 'MODS descriptive metadata', :controlGroup => 'M') 
     end
 
     message = ActiveSupport::JSON.encode({ :type => @type, :object_class => @object_class, :object_id => @object_id })
