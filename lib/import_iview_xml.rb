@@ -2,7 +2,6 @@
 # Expression Media) XML files.
 module ImportIviewXml
 
-  require 'zip/zip'   # Use rubyzip for zip processing; see http://rubyzip.sourceforge.net/
   require 'nokogiri'  # Use Nokogiri for XML processing; see http://nokogiri.rubyforge.org/
 
   # Reads the iView XML file passed as XML, and creates records in the
@@ -28,7 +27,6 @@ module ImportIviewXml
   #   context)
   def self.import_iview_xml(file, unit_id, logger = nil, filename = nil)
     @master_file_count = 0
-    @component_count = 0
     @pid_count = 0
     @pids = Array.new
     @info_prefix = "Info|#{filename}|#{unit_id}|"
@@ -81,22 +79,7 @@ module ImportIviewXml
       end
     end
     if is_manuscript
-      root.xpath('SetList').each do |list|
-        list.xpath('Set').each do |set|
-          # Determine whether this top-level <Set> pertains to Component
-          # records (which take a pid) or EadRef records (which don't)
-          set_name = set.xpath('SetName').first
-          if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
-            # EadRef records don't take a pid
-          else
-            # Each <Set> where "type=..." indicates anything other than
-            # "ead" becomes a Component record (typically; occasionally a
-            # <Set> is empty or useless, but if we request a few more pids
-            # than we actually use, that's ok)
-            count_set(set)
-          end
-        end
-      end
+      # TODO:  Add validation for bibl requiring sets.
     end
     
     # Request pids
@@ -123,35 +106,6 @@ module ImportIviewXml
     # unhandled exception occurs
     MasterFile.transaction do
       begin
-        # To allow re-importing iView XML files that have been corrected or
-        # enhanced, delete relevant existing records before importing -- but
-        # only if resource has NOT been ingested into Fedora repo. Deletion is
-        # safe since we are in a database transaction.
-        #
-        # Delete image MasterFile records for this Unit, if any
-        old_components = Array.new
-        old_master_files = MasterFile.find(:all, :conditions => "unit_id = #{unit_id} AND tech_meta_type = 'image'")
-        old_master_files.each do |old_master_file|
-          # Add Component record, if any, to an array for later destruction
-          component = old_master_file.component
-          hold_component(old_components, component) if component
-                    
-          # Delete this MasterFile
-          if old_master_file.exists_in_repo?
-            raise ImportError, "Import failed for Unit #{unit_id} because Unit has one or more image MasterFile records that can't be deleted: MasterFile #{old_master_file.id} (pid = #{old_master_file.pid}) exists in Fedora repo"
-          end
-          old_master_file.destroy
-        end
-        # Delete associated Component records, if any
-        old_components.each do |component|
-          if component.master_files.empty? and component.destroyable?
-            if component.exists_in_repo?
-              raise ImportError, "Import failed for Unit #{unit_id} because Unit has one or more related Component records that can't be deleted: Component #{component.id} (pid = #{component.pid}) exists in Fedora repo"
-            end
-            component.destroy
-          end
-        end
-        
         # Create one MasterFile record for each iView <MediaItem>
         root.xpath('MediaItemList').each do |list|
           list.xpath('MediaItem').each do |item|
@@ -177,6 +131,13 @@ module ImportIviewXml
             # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
             master_file.save!
             sleep 0.1
+
+            # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
+            # is part of a <Set> within this Iview XML.  If so
+            setname = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName").last.text
+            pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
+            link_to_component(master_file.id, pid)
+
             # also store MasterFile in hash for later use (hash key is iView "UniqueID" value)
             master_files[iview_id] = master_file
             
@@ -193,62 +154,91 @@ module ImportIviewXml
           end
         end
         
-        # Check for <SetList> element
-        if root.xpath('SetList/Set').empty?
-          has_SetList = false
-        else
-          has_SetList = true
-        end
-        if is_manuscript
-          unless has_SetList
-            raise ImportError, "Unit pertains to a manuscript, but XML has no <SetList> element"
-          end
-        else
-          if has_SetList
-            # Determine whether <SetList> really contains anything meaningful
-            set_count = root.xpath('SetList/Set').length
-            set_name = root.xpath('SetList/Set/SetName').first
-            if set_count == 1 and set_name and set_name.text == '@KeywordsSet'  # this strange value (some kind of placeholder?) occurs regularly in XML files created by iView; ignore it
-              # not a meaningful SetList; ignore
-            else
-              raise ImportWarning, "Unit does NOT pertain to a manuscript, but XML has a <SetList> element"
-            end
-          end
-        end
+        # # Check for <SetList> element
+        # if root.xpath('SetList/Set').empty?
+        #   has_SetList = false
+        # else
+        #   has_SetList = true
+        # end
+
+        # if is_manuscript
+        #   unless has_SetList
+        #     raise ImportError, "Unit pertains to a manuscript, but XML has no <SetList> element"
+        #   end
+        # else
+        #   if has_SetList
+        #     # Determine whether <SetList> really contains anything meaningful
+        #     set_count = root.xpath('SetList/Set').length
+        #     set_name = root.xpath('SetList/Set/SetName').first
+        #     if set_count == 1 and set_name and set_name.text == '@KeywordsSet'  # this strange value (some kind of placeholder?) occurs regularly in XML files created by iView; ignore it
+        #       # not a meaningful SetList; ignore
+        #     else
+        #       raise ImportWarning, "Unit does NOT pertain to a manuscript, but XML has a <SetList> element"
+        #     end
+        #   end
+        # end
         
         # If the Unit pertains to a manuscript, and if the XML file includes a
         # <SetList> element, create Component records and assign the Component id
         # to the component_id field of the associated MasterFile record(s).
-        if is_manuscript
-          root.xpath('SetList').each do |list|
-            list.xpath('Set').each do |set|
-              # Since we're in a loop, rescue warnings, so processing can
-              # continue post-warning if appropriate
-              begin
-                # Determine whether to create Component records or EadRef
-                # records from this top-level <Set>
-                set_name = set.xpath('SetName').first
-                if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
-                  class_name = 'EadRef'
-                else
-                  class_name = 'Component'
-                end
-                create_component_or_ead_ref(class_name, set, master_files, unit.bibl_id, nil, logger)
-              rescue ImportWarning => e
-                if logger.nil?
-                  # not in a batch context
-                  #raise e
-                  warnings += "WARNING: " + e.message + "\n"
-                  next
-                else
-                  # batch context; log and continue
-                  logger.warn "#{@warning_prefix}#{e.message}"
-                  next
-                end
-              end
-            end
-          end
-        end
+        # if is_manuscript
+        #   root.xpath('SetList').each do |list|
+        #     list.xpath('Set').each do |set|
+        #       # Since we're in a loop, rescue warnings, so processing can
+        #       # continue post-warning if appropriate
+        #       begin
+        #         # Determine whether to create Component records or EadRef
+        #         # records from this top-level <Set>
+        #         set_name = set.xpath('SetName').first
+        #         if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
+        #           class_name = 'EadRef'
+        #         else
+        #           class_name = 'Component'
+        #         end
+        #         create_component_or_ead_ref(class_name, set, master_files, unit.bibl_id, nil, logger)
+        #       rescue ImportWarning => e
+        #         if logger.nil?
+        #           # not in a batch context
+        #           #raise e
+        #           warnings += "WARNING: " + e.message + "\n"
+        #           next
+        #         else
+        #           # batch context; log and continue
+        #           logger.warn "#{@warning_prefix}#{e.message}"
+        #           next
+        #         end
+        #       end
+        #     end
+        #   end
+        # end
+        # root.xpath('SetList').each do |list|
+        #   list.xpath('Set').each do |set|
+        #     # Since we're in a loop, rescue warnings, so processing can
+        #     # continue post-warning if appropriate
+        #     begin
+        #       # Determine whether to create Component records or EadRef
+        #       # records from this top-level <Set>
+        #       set_name = set.xpath('SetName').first
+        #       if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
+        #         class_name = 'EadRef'
+        #       else
+        #         class_name = 'Component'
+        #       end
+        #       create_component_or_ead_ref(class_name, set, master_files, unit.bibl_id, nil, logger)
+        #     rescue ImportWarning => e
+        #       if logger.nil?
+        #         # not in a batch context
+        #         #raise e
+        #         warnings += "WARNING: " + e.message + "\n"
+        #         next
+        #       else
+        #         # batch context; log and continue
+        #         logger.warn "#{@warning_prefix}#{e.message}"
+        #         next
+        #       end
+        #     end
+        #   end
+        # end
         
         # Save entire iView XML document for this Unit
         # UPDATE: In practice, some iView XML files exceed the maximum number of bytes MySQL can handle. Instead of storing iView XML documents in database, we should retain them as files on disk.
@@ -315,270 +305,7 @@ module ImportIviewXml
   end
 
   #-----------------------------------------------------------------------------
-
-  # Reads the zip file passed and processes each iView XML file it contains.
-  #
-  # In: Path to zip file
-  #
-  # Out: Returns a hash, where key is Unit id, value is a hash of import
-  # results (same format as return value of import_iview_xml method). Hash
-  # returned also includes the keys +:has_errors+ (boolean indicating whether
-  # any iView XML file in the zip file produced an error) and +:log_path+
-  # (string; path to log file).
-  def self.import_iview_zip(zip_path)
-    has_errors = false
-    retval = Hash.new
-    entries = Array.new
-    
-    # Log to file in Rails 'log' directory; use a different log file for each
-    # import operation
-    #
-    # Log message format is delimited (to make it easy to open in Excel or
-    # whatever for sorting and viewing)
-    #   message type|XML filename|unit ID|message content
-    # For example:
-    #   WARNING|batch_5/000001110.xml|1110|Can't assign any MasterFile to Component 612: This <Set> has no <UniqueID> elements
-    log_path = File.join(RAILS_ROOT, "log/import_iview_zip.#{ Time.now.strftime('%Y-%m-%d_%H-%M-%S') }.log")
-    log_file = File.open(log_path, 'w')
-    logger = Logger.new(log_file)
-    logger.info "Info|||Log started #{Time.now}"
-    
-    unless File.exists? zip_path
-      raise "Can't open zip file: file '#{zip_path}' does not exist"
-    end
-    
-    # Open uploaded zip file, process each zip entry
-    Zip::ZipFile.open(zip_path) do |zipfile|
-      # ZipFile#each doesn't seem to hit the entries in any particular order, so
-      # build an array of entries and sort it prior to processing
-      #
-      # Note: ZipFile#each hits every zip entry, whether at the top level or
-      # in a directory; just need to check whether entry is a file
-      zipfile.each do |entry|
-        next if entry.name =~ /^\./ or entry.name =~ /^__MACOSX/
-        entries.push(entry.name) if entry.file?
-      end
-      entries.sort.each do |entry_name|
-        entry = zipfile.get_entry(entry_name)
-        # filename must end with unit id
-        if entry.name =~ /(\d+)\.xml$/i
-          unit_id = $1.to_i
-          file = entry.get_input_stream
-          begin
-            # import this XML file
-            file_results = import_iview_xml(file, unit_id, logger, entry.name)
-          rescue ImportError, ActiveRecord::RecordInvalid => e
-            logger.error "ERROR|#{entry.name}|#{unit_id}|#{e.message}"
-            has_errors = true
-            next
-          rescue ImportWarning => e
-            logger.warn "WARNING|#{entry.name}|#{unit_id}|#{e.message}"
-            next
-          end
-          # log outcome; if we get here, import succeeded (errors are handled by preceding rescue block)
-          info = "Import succeeded: Added #{file_results[:master_file_count]} Master Files"
-          if file_results[:is_manuscript]
-            info += ", #{file_results[:component_count]} Components"
-            info += ", #{file_results[:ead_ref_count]} #{EadRef.class_label.pluralize}"
-          end
-          logger.info "Info|#{entry.name}|#{unit_id}|#{info}"
-          # add unit to hash to be returned
-          retval[unit_id.to_s] = Hash[ :master_file_count => file_results[:master_file_count], :component_count => file_results[:component_count], :ead_ref_count => file_results[:ead_ref_count], :is_manuscript => file_results[:is_manuscript] ]
-        end
-      end
-    end
-    
-    logger.info "Info|||Log ended #{Time.now}"
-    logger.close
-    
-    retval[:has_errors] = has_errors
-    retval[:log_path] = log_path
-    return retval
-  end
-
-  #-----------------------------------------------------------------------------
   # private methods
-  #-----------------------------------------------------------------------------
-
-  # Increments the pid counter for each +Set+ element; calls itself recursively
-  # to account for child +Set+ elements, which can be nested to any depth.
-  def self.count_set(set)
-    @pid_count += 1
-    # If this <Set> has child <Set> elements, also count those as potential
-    # Component records
-    set.xpath('Set').each do |child_set|
-      count_set(child_set)
-    end
-  end
-  private_class_method :count_set
-
-  # Creates a new Component record or EadRef record (instantiates the object
-  # in memory, populates it with data from a particular iView XML +Set+
-  # element, and saves it to the database).
-  # 
-  # In:
-  # 1. String indicating class name (either 'Component' or 'EadRef')
-  # 2. iView XML +Set+ element (Nokogiri Element object)
-  # 3. Hash of MasterFile objects; used to assign the id of the newly created
-  #    Component/EadRef to the corresponding MasterFile record
-  # 4. id of associated Bibl object (which gets saved to the Component/EadRef
-  #    record being created)
-  # 5. Optional: id of Component/EadRef which is the parent of the
-  #    Component/EadRef being created
-  # 6. Optional Logger object (for writing to a log file in a batch-import context)
-  # 
-  # Out: returns nothing
-  def self.create_component_or_ead_ref(class_name, set, master_files, bibl_id, parent_id = nil, logger = nil)
-    class_name = class_name.classify
-    thing = class_name.constantize.new
-    if parent_id
-      if class_name == 'EadRef'
-        thing.parent_ead_ref_id = parent_id
-      else
-        thing.parent_component_id = parent_id
-      end
-    end
-    thing.bibls << Bibl.find(bibl_id) if bibl_id
-    component_type_name = ''
-    
-    # Get value of <SetName> element, which will be a tilde-separated string of
-    # fields in name=value format.
-    # Example of Component data:
-    # type=folder ~ label=R.E. Lee to C.C. Lee ~ desc= ~ date=1830 May 8 ~ barcode= ~ n=1
-    # Example of EadRef data:
-    # type=ead ~ level=item ~ id=d1e137 ~ date=1830 May 8 ~ label=Robert E. Lee to Charles Carter Lee 1830 May 8 ~ desc=ALS 3 p. on 2 l. #1085
-    element = set.xpath('SetName').first
-    if element.nil?
-      raise ImportWarning, "Can't add #{class_name} record: No <SetName> element"
-    else
-      value = element.text
-      if value.blank?
-        raise ImportWarning, "Can't add #{class_name} record: <SetName> element is empty"
-      end
-      if not value =~ /~/
-        if value.strip == '@KeywordsSet'
-          # this strange value (some kind of placeholder?) occurs regularly in XML files created by iView; ignore it
-          return nil
-        else
-          raise ImportWarning, "Can't add #{class_name} record: <SetName> element does not contain a tilde-separated string|#{value}"
-        end
-      end
-      # split string into its tilde-separated fields
-      fields = value.split(/~/)
-      fields.each do |field|
-        # split field into its name=value parts
-        parts = field.split( /=/ )
-        if parts[0].nil? then next else name = parts[0].strip end
-        value = parts[1].nil? ? '' : parts[1].strip
-        case name
-        when 'type'
-          if value == 'ead'
-            # not a ComponentType name
-          else
-            component_type_name = value
-            # get id of this ComponentType
-            component_type = ComponentType.find(:first, :conditions => ["name = ?", value])
-            if component_type.nil?
-              raise ImportError, "Can't find ComponentType named '#{value}'"
-            else
-              thing.component_type_id = component_type.id
-            end
-          end
-        when 'label'    # applicable to Component or EadRef
-          thing.label = value unless value.blank?
-        when 'desc'     # applicable to Component or EadRef
-          thing.content_desc = value unless value.blank?
-        when 'date'     # applicable to Component or EadRef
-          thing.date = value unless value.blank?
-        when 'barcode'  # applicable to Component only
-          thing.barcode = value unless value.blank?
-        when 'n'        # applicable to Component only
-          if value.blank? or value.to_i == 0
-            # not an integer
-          else
-            thing.seq_number = value.to_i
-          end
-        when 'level'    # applicable to EadRef only
-          thing.level = value if EadRef::LEVELS.include? value
-        when 'id'       # applicable to EadRef only
-          thing.ead_id_att = value unless value.blank?
-        end
-      end
-      
-      if class_name == 'EadRef'
-        if thing.parent_ead_ref_id.nil? and thing.level == 'guide'
-          # Set parent_ead_ref_id to 0 (zero) indicating "no parent", since an
-          # <ead> element without a parent is normal and not an error condition
-          thing.parent_ead_ref_id = 0
-        end
-      else
-        if thing.parent_component_id.nil? and component_type_name == 'box'
-          # Set parent_component_id to 0 (zero) indicating "no parent", since a
-          # box without a parent is normal and not an error condition
-          thing.parent_component_id = 0
-        end
-        # Set pid
-        thing.pid = @pids.shift unless @pids.blank?
-        # thing.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
-      end
-      
-      # Save Component/EadRef to database; raise any error that occurs
-      thing.save!
-      
-      if class_name == 'EadRef'
-        @ead_ref_count += 1
-      else
-        @component_count += 1
-      end
-      
-      set.xpath('UniqueID').each do |unique_id|
-        # Since we're in a loop, rescue warnings, so processing can
-        # continue post-warning if appropriate
-        begin
-          value = unique_id.text
-          if value.blank?
-            raise ImportWarning, "Can't assign MasterFile to #{class_name} #{thing.id}: <UniqueID> is empty"
-          end
-          if set.xpath("descendant::Set[child::UniqueID = '#{value}']").empty?
-            # Assign this Component/EadRef id to the corresponding MasterFile record
-            if master_files.has_key?(value)
-              master_file = master_files[value]
-              if class_name == 'EadRef'
-                master_file.add_ead_ref thing
-              else
-                master_file.component_id = thing.id
-              end
-              master_file.save!
-            else
-              raise ImportWarning, "Can't assign MasterFile to #{class_name} #{thing.id}: No MasterFile corresponding to <UniqueID> value '#{value}'"
-            end
-          else
-            # This <UniqueID> value occurs in a descendant <Set>; skip it for now
-          end
-        rescue ImportWarning => e
-          if logger.nil?
-            # not in a batch context; re-raise
-            raise e
-          else
-            # batch context; log and continue
-            logger.warn "#{@warning_prefix}#{e.message}"
-            next
-          end
-        end
-      end
-      
-      # If this <Set> has child <Set> elements, also save those as
-      # Component/EadRef records, using the id of the Component/EadRef just
-      # saved as the parent id
-      set.xpath('Set').each do |child_set|
-        create_component_or_ead_ref(class_name, child_set, master_files, bibl_id, thing.id, logger)
-      end
-      
-    end
-    return nil
-  end
-  private_class_method :create_component_or_ead_ref
-
   #-----------------------------------------------------------------------------
 
   # Returns the text content of the XML element passed, or nil if element is
@@ -596,19 +323,15 @@ module ImportIviewXml
 
   #-----------------------------------------------------------------------------
 
-  # Adds a Component or EadRef record to an array for later use. Calls itself
-  # recursively to add parent Component/EadRef as well.
-  def self.hold_component(array, thing)
-    array << thing
-    parent = thing.parent
-    hold_component(array, parent) if parent
+  # Given that all components are already in Tracksys and have pids, link the 
+  # newly created master_file record with an already extant component found by
+  # it's pid which is contained in the <SetName> value.
+  def self.link_to_component(master_file_id, pid)
+    mf = MasterFile.find(master_file_id)
+    c = Component.find_by_pid(pid)
+    mf.update_attribute(:component_id, c.id)
   end
-  private_class_method :hold_component
-
-  def self.hold_ead_ref(array, ead_ref)
-    hold_component(array, ead_ref)
-  end
-  private_class_method :hold_ead_ref
+  private_class_method :link_to_component
 
   #-----------------------------------------------------------------------------
 
@@ -740,8 +463,6 @@ module ImportIviewXml
     end
     
     # title
-    # In older iView XML files, title value is in <Product>
-    master_file.title = get_element_value(item.xpath('AnnotationFields/Product').first)
     # In newer iView XML files, title value is in <Headline>
     master_file.title = get_element_value(item.xpath('AnnotationFields/Headline').first)
     
