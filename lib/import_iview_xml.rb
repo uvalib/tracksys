@@ -1,54 +1,36 @@
 # This module provides methods for importing iView (also known as Microsoft
-# Expression Media) XML files.
+# Expression Media) XML files to create new MasterFiles and link to existing components.
 module ImportIviewXml
 
-  require 'nokogiri'  # Use Nokogiri for XML processing; see http://nokogiri.rubyforge.org/
+  require 'nokogiri'
 
-  # Reads the iView XML file passed as XML, and creates records in the
+  # Reads the iView XML file passed as XML, and creates MasterFile records in the
   # database accordingly (one MasterFile record for each iView +MediaItem+
-  # element and Component records as needed). Occurrence of any error
-  # halts the import process and rolls back any database changes already made.
+  # element) and links newly create MasterFiles to existing Components (if necessary). 
+  # Occurrence of any error halts the import process and rolls back any database changes already made.
   #
   # In:
   # 1. An open File object for the XML file to be imported
   # 2. Integer; unit_id value to assign to each new MasterFile object
-  # 3. Optional Logger object (for writing to a log file in a batch-import
-  #    context)
-  # 4. Optional filename (string) of XML file to be imported (for log messages
-  #    in a batch-import context)
   #  
   # Out: Returns a hash with these keys:
   # * +:is_manuscript+ (boolean)
   # * +:has_SetList+ (boolean)
   # * +:master_file_count+ (integer; number of MasterFile records imported)
-  # * +:component_count+ (integer; number of Component records imported)
-  # * +:ead_ref_count+ (integer; number of EadRef records imported)
   # * +:warnings+ (string; warning messages, only applicable in a non-batch
   #   context)
-  def self.import_iview_xml(file, unit_id, logger = nil, filename = nil)
+  def self.import_iview_xml(file, unit_id)
     @master_file_count = 0
     @pid_count = 0
     @pids = Array.new
-    @info_prefix = "Info|#{filename}|#{unit_id}|"
-    @warning_prefix = "WARNING|#{filename}|#{unit_id}|"
-    @error_prefix = "ERROR|#{filename}|#{unit_id}|"
-    master_files = Hash.new
-    has_SetList = false
-    warnings = ''  # When in a non-batch context, in some cases warning messages are concatenated in a string rather than raised
     
     # Get Unit object
     begin
       unit = Unit.find(unit_id)
     rescue ActiveRecord::RecordNotFound
-      raise ImportWarning, "Can't add Master File records for Unit #{unit_id} because Unit does not exist"
+      raise ImportError, "Can't add Master File records for Unit #{unit_id} because Unit does not exist"
     end
-    
-    if unit.bibl
-      is_manuscript = unit.bibl.is_manuscript?
-    else
-      is_manuscript = false
-    end
-    
+     
     # Read XML file
     begin
       doc = Nokogiri.XML(file)
@@ -56,8 +38,10 @@ module ImportIviewXml
       raise ImportError, "Can't read file as XML: #{e.message}"
     end
     
+    # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
+    root = doc.root  
+
     # Check XML for expected elements
-    root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
     unless root.name == 'CatalogType'
       raise ImportError, "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
     end
@@ -66,29 +50,23 @@ module ImportIviewXml
     end
     
     # Read XML to determine number of PIDs needed for this import
-    #
-    # Note: We must do this in advance, because when processing <Set> elements
-    # to add Component records we must save the Component record and use its
-    # database-assigned auto-increment id as the parent id for any child
-    # Component records. Similarly for ImageTechMeta records, which require a
-    # MasterFile id.
+    # This is done in advance to alleviate the number of calls made
+    # to the API for Fedora.
     root.xpath('MediaItemList').each do |list|
       list.xpath('MediaItem').each do |item|
         # Each <MediaItem> becomes a MasterFile record
         @pid_count += 1
       end
     end
-    if is_manuscript
-      # TODO:  Add validation for bibl requiring sets.
-    end
-    
+   
     # Request pids
     begin
       @pids = AssignPids.request_pids(@pid_count)
     rescue Exception => e
+      # TODO: Restore ErrorMailer
       # ErrorMailer.deliver_notify_pid_failure(e)
     end
-    
+
     # Check for processing instruction indicating software name and version
     format_software = 'iview'
     format_version = nil
@@ -105,222 +83,80 @@ module ImportIviewXml
     # Start a database transaction, so all changes get rolled back if an
     # unhandled exception occurs
     MasterFile.transaction do
-      begin
-        # Create one MasterFile record for each iView <MediaItem>
-        root.xpath('MediaItemList').each do |list|
-          list.xpath('MediaItem').each do |item|
-            element = item.xpath('AssetProperties/UniqueID').first
-            iview_id = element.nil? ? nil : element.text
-            if iview_id.blank?
-              raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
-            end
-            
-            # instantiate MasterFile object in memory
-            master_file = new_master_file(item, unit_id)
-            # if a MasterFile with this filename already exists for this Unit, do
-            # not overwrite it
-            if MasterFile.find(:first, :conditions => ["unit_id = :unit_id AND filename = :filename", {:unit_id => unit_id, :filename => master_file.filename}])
-              raise ImportError, "Import failed for Unit #{unit_id}, because a Master File with filename '#{master_file.filename}' already exists for this Unit"
-            end
-            # if MasterFile object fails validity, raise error with custom error message
-            if not master_file.valid?
-              raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
-            end
-            # save MasterFile to database, raising any error that occurs
-            master_file.pid = @pids.shift unless @pids.blank?
-            # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
-            master_file.save!
-            sleep 0.1
+      # Create one MasterFile record for each iView <MediaItem>
+      root.xpath('MediaItemList').each do |list|
+        list.xpath('MediaItem').each do |item|
+          element = item.xpath('AssetProperties/UniqueID').first
+          iview_id = element.nil? ? nil : element.text
+          if iview_id.blank?
+            raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
+          end
+          
+          # instantiate MasterFile object in memory
+          master_file = new_master_file(item, unit_id)
+          # if a MasterFile with this filename already exists for this Unit, do
+          # not overwrite it
+          if MasterFile.find(:first, :conditions => ["unit_id = :unit_id AND filename = :filename", {:unit_id => unit_id, :filename => master_file.filename}])
+            raise ImportError, "Import failed for Unit #{unit_id}, because a Master File with filename '#{master_file.filename}' already exists for this Unit"
+          end
+          # if MasterFile object fails validity, raise error with custom error message
+          if not master_file.valid?
+            raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
+          end
+          # save MasterFile to database, raising any error that occurs
+          master_file.pid = @pids.shift unless @pids.blank?
+          # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
+          master_file.save!
+          sleep 0.1
 
+          # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
+          if unit.bibl.is_manuscript?
             # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
-            # is part of a <Set> within this Iview XML.  If so
+            # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
+            #
+            # If the setname does not include a PID value, raise an error.  
             setname = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName").last.text
             pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
-            link_to_component(master_file.id, pid)
-
-            # also store MasterFile in hash for later use (hash key is iView "UniqueID" value)
-            master_files[iview_id] = master_file
-            
-            # instantiate ImageTechMeta object in memory
-            image_tech_meta = new_image_tech_meta(item, master_file.id)
-            # if object fails validity, raise error with custom error message
-            if not image_tech_meta.valid?
-              raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
+            if pid.nil?
+              raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
+            else
+              link_to_component(master_file.id, pid)
             end
-            # save ImageTechMeta to database, raising any error that occurs
-            image_tech_meta.save!
-            
-            @master_file_count += 1
           end
-        end
-        
-        # # Check for <SetList> element
-        # if root.xpath('SetList/Set').empty?
-        #   has_SetList = false
-        # else
-        #   has_SetList = true
-        # end
 
-        # if is_manuscript
-        #   unless has_SetList
-        #     raise ImportError, "Unit pertains to a manuscript, but XML has no <SetList> element"
-        #   end
-        # else
-        #   if has_SetList
-        #     # Determine whether <SetList> really contains anything meaningful
-        #     set_count = root.xpath('SetList/Set').length
-        #     set_name = root.xpath('SetList/Set/SetName').first
-        #     if set_count == 1 and set_name and set_name.text == '@KeywordsSet'  # this strange value (some kind of placeholder?) occurs regularly in XML files created by iView; ignore it
-        #       # not a meaningful SetList; ignore
-        #     else
-        #       raise ImportWarning, "Unit does NOT pertain to a manuscript, but XML has a <SetList> element"
-        #     end
-        #   end
-        # end
-        
-        # If the Unit pertains to a manuscript, and if the XML file includes a
-        # <SetList> element, create Component records and assign the Component id
-        # to the component_id field of the associated MasterFile record(s).
-        # if is_manuscript
-        #   root.xpath('SetList').each do |list|
-        #     list.xpath('Set').each do |set|
-        #       # Since we're in a loop, rescue warnings, so processing can
-        #       # continue post-warning if appropriate
-        #       begin
-        #         # Determine whether to create Component records or EadRef
-        #         # records from this top-level <Set>
-        #         set_name = set.xpath('SetName').first
-        #         if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
-        #           class_name = 'EadRef'
-        #         else
-        #           class_name = 'Component'
-        #         end
-        #         create_component_or_ead_ref(class_name, set, master_files, unit.bibl_id, nil, logger)
-        #       rescue ImportWarning => e
-        #         if logger.nil?
-        #           # not in a batch context
-        #           #raise e
-        #           warnings += "WARNING: " + e.message + "\n"
-        #           next
-        #         else
-        #           # batch context; log and continue
-        #           logger.warn "#{@warning_prefix}#{e.message}"
-        #           next
-        #         end
-        #       end
-        #     end
-        #   end
-        # end
-        # root.xpath('SetList').each do |list|
-        #   list.xpath('Set').each do |set|
-        #     # Since we're in a loop, rescue warnings, so processing can
-        #     # continue post-warning if appropriate
-        #     begin
-        #       # Determine whether to create Component records or EadRef
-        #       # records from this top-level <Set>
-        #       set_name = set.xpath('SetName').first
-        #       if set_name and set_name.text =~ /(^|\s)type\s*=\s*ead/
-        #         class_name = 'EadRef'
-        #       else
-        #         class_name = 'Component'
-        #       end
-        #       create_component_or_ead_ref(class_name, set, master_files, unit.bibl_id, nil, logger)
-        #     rescue ImportWarning => e
-        #       if logger.nil?
-        #         # not in a batch context
-        #         #raise e
-        #         warnings += "WARNING: " + e.message + "\n"
-        #         next
-        #       else
-        #         # batch context; log and continue
-        #         logger.warn "#{@warning_prefix}#{e.message}"
-        #         next
-        #       end
-        #     end
-        #   end
-        # end
-        
-        # Save entire iView XML document for this Unit
-        # UPDATE: In practice, some iView XML files exceed the maximum number of bytes MySQL can handle. Instead of storing iView XML documents in database, we should retain them as files on disk.
-        unit_import_source = UnitImportSource.new(:unit_id => unit.id)
-        #file.rewind
-        #unit_import_source.import_source = file.readlines.join('')
-        unit_import_source.standard = format_software if format_software
-        unit_import_source.version = format_version if format_version
-        begin
-          unit_import_source.save!
-        rescue Exception => e
-          raise ImportError, "Unable to save UnitImportSource for Unit #{unit.id}: #{e.message}"
+          # instantiate ImageTechMeta object in memory
+          image_tech_meta = new_image_tech_meta(item, master_file.id)
+          # if object fails validity, raise error with custom error message
+          if not image_tech_meta.valid?
+            raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
+          end
+          # save ImageTechMeta to database, raising any error that occurs
+          image_tech_meta.save!
+          
+          @master_file_count += 1
         end
-        
-      # Note: ImportError is not rescued here (only ImportWarning). Any
-      # ImportError will propagate up and roll back the database transaction.
-      rescue ImportWarning => e
-        # For a warning, in a batch-import context we want to log the warning
-        # but continue processing
-        if logger.nil?
-          # We're not in a batch-import context, so re-raise the exception,
-          # thereby rolling back the database transaction
-          raise e.message
-        else
-          # We're in a batch-import context, so log and continue, without
-          # rolling back the database transaction
-          logger.warn "#{@warning_prefix}#{e.message}"
-        end
-      end  # end begin block
+      end
+      
+      # Save entire iView XML document for this Unit
+      # TODO: Save Iview XML to UnitImportSource.source
+      unit_import_source = UnitImportSource.new(:unit_id => unit.id)
+      unit_import_source.standard = format_software if format_software
+      unit_import_source.version = format_version if format_version
+      begin
+        unit_import_source.save!
+      rescue Exception => e
+        raise ImportError, "Unable to save UnitImportSource for Unit #{unit.id}: #{e.message}"
+      end
     end  # end database transaction
     
     # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
     unit.unit_extent_actual = @master_file_count
-    unit.save
-    
-    # If in a batch-import context, compare call number from iView XML
-    # against call number from Bibl record in database
-    unless logger.nil?
-      # get first <Credit> element, which contains the call number
-      element = doc.xpath('//Credit').first
-      iview_call_number = element.text if element
-      bibl_call_number = unit.bibl.call_number if unit.bibl
-      begin
-        if iview_call_number.blank? and bibl_call_number.blank?
-          raise ImportWarning, "Can't compare iView call number to Tracking System call number: no call number value (<Credit> element) in iView XML, and no call number value in Tracking System bibl record"
-        elsif iview_call_number.blank?
-          raise ImportWarning, "Can't compare iView call number to Tracking System call number '#{bibl_call_number.strip}': no call number value (<Credit> element) in iView XML"
-        elsif bibl_call_number.blank?
-          raise ImportWarning, "Can't compare iView call number '#{iview_call_number.strip}' to Tracking System call number: no call number value in Tracking System bibl record"
-        else
-          # compare call number values; warn if not identical
-          if iview_call_number.strip == bibl_call_number.strip
-            logger.info "#{@info_prefix}iView call number '#{iview_call_number.strip}' = Tracking System call number '#{bibl_call_number.strip}'"
-          else
-            raise ImportWarning, "iView call number '#{iview_call_number.strip}' is not identical to Tracking System call number '#{bibl_call_number.strip}'"
-          end
-        end
-      rescue ImportWarning => e
-        logger.warn "#{@warning_prefix}#{e.message}"
-      end
-    end
-    
-    return Hash[:master_file_count => @master_file_count, :component_count => @component_count, :ead_ref_count => @ead_ref_count, :is_manuscript => is_manuscript, :has_SetList => has_SetList, :warnings => warnings]
+    unit.save  
+    return Hash[:master_file_count => @master_file_count, :is_manuscript => unit.bibl.is_manuscript?]
   end
 
   #-----------------------------------------------------------------------------
   # private methods
-  #-----------------------------------------------------------------------------
-
-  # Returns the text content of the XML element passed, or nil if element is
-  # nil/blank.
-  def self.get_element_value(element)
-    if element.nil?
-      value = nil
-    else
-      value = element.text.strip
-      value = nil if value.blank?
-    end
-    return value
-  end
-  private_class_method :get_element_value
-
   #-----------------------------------------------------------------------------
 
   # Given that all components are already in Tracksys and have pids, link the 
@@ -473,6 +309,20 @@ module ImportIviewXml
   end
   private_class_method :new_master_file
 
+  #-----------------------------------------------------------------------------
+
+  # Returns the text content of the XML element passed, or nil if element is
+  # nil/blank.
+  def self.get_element_value(element)
+    if element.nil?
+      value = nil
+    else
+      value = element.text.strip
+      value = nil if value.blank?
+    end
+    return value
+  end
+  private_class_method :get_element_value
 
   #-----------------------------------------------------------------------------
   # private supporting classes
@@ -481,9 +331,6 @@ module ImportIviewXml
 private
 
   class ImportError < RuntimeError  #:nodoc:
-  end
-
-  class ImportWarning < RuntimeError  #:nodoc:
   end
 
 end
