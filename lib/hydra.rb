@@ -2,14 +2,13 @@
 # formats.
 module Hydra
 
-  require 'rubygems'
-  require 'net/https'
-  require 'nokogiri'
-  require 'solr'
-  require 'open-uri'
-  require 'iconv'
+  require 'builder'
 
   XML_FILE_CREATION_STATEMENT = "Created programmatically by the Digital Curation Services Tracking System."
+
+  def self.aptrust_metadata(object)
+
+  end
 
   # Returns the URL for the MARCXML file, sourced from Virgo, to be used as an 
   # external referenced dastastream named MARC
@@ -59,186 +58,78 @@ module Hydra
   # Create SOLR <add><doc> for all types of objects
   def self.solr(object)
     if object.is_a? Bibl
+
       # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
-      total_transcription = String.new; total_description = String.new; total_title = String.new
+      total_transcription = String.new
+      total_description = String.new
+      total_title = String.new
       object.dl_master_files.each {|mf|
         total_transcription << mf.transcription_text + " " unless mf.transcription_text.nil?
         total_description << mf.staff_notes + " " unless mf.staff_notes.nil?
         total_title << mf.name_num + " " unless mf.name_num.nil?
       }
-
       external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
+      external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-#      total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-#      iconv_transcription = Iconv.conv("utf-8//IGNORE", "UTF-8", total_transcription)
-      # 12/8/2011 - Because Saxon is choking on large transcriptions, we will comment out this code until then and supply an empty string
-      iconv_transcription = ""
-            
-      # total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-      iconv_description = Iconv.conv("utf-8//IGNORE", "UTF-8", total_description)
+      total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+      total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+      total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-      # total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-      iconv_title = Iconv.conv("utf-8//IGNORE", "UTF-8", total_title)
+      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.catalog_key}"
 
-      # external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-      iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
-      
-      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_key}"
-      iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
-
-#      url = "/saxon/SaxonServlet?source=#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content&style=#{object.indexing_scenario.complete_url}&repository=#{FEDORA_PROXY_URL}&pid=#{object.pid}&analogSolrRecord=#{iconv_analog_solr_record}&dateIngestNow=#{Time.now.strftime('%Y%m%d%H')}&contentModel=digital_book&sourceFacet=UVA Library Digital Repository&externalRelations=#{iconv_external_relations}&totalTranscriptions=#{iconv_transcription}&totalTitles=#{iconv_title}&totalDescriptions=#{iconv_description}&clear-stylesheet-cache=yes".gsub(/ /, '%20')
-      url = "/saxon/SaxonServlet?source=#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content&style=#{object.indexing_scenario.complete_url}&repository=#{FEDORA_PROXY_URL}&pid=#{object.pid}&analogSolrRecord=#{iconv_analog_solr_record}&dateIngestNow=#{Time.now.strftime('%Y%m%d%H')}&contentModel=digital_book&sourceFacet=UVA Library Digital Repository&externalRelations=#{iconv_external_relations}&totalTranscriptions=#{iconv_transcription}&totalTitles=#{iconv_title}&totalDescriptions=#{iconv_description}&clear-stylesheet-cache=yes"
-
-      Net::HTTP.start( SAXON_URL, SAXON_PORT ) do |http|
-        @solr = http.get(URI.escape(url)).body
-      end
+      uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
+      response = Net::HTTP.post_form(uri, {
+        "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
+        "style" => "#{object.indexing_scenario.complete_url}",
+        "repository" => "#{FEDORA_PROXY_URL}",
+        "pid" => "#{object.pid}",
+        "analogSolrRecord" => "#{analog_solr_record}",
+        "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
+        "contentModel" => "digital_book",
+        "sourceFacet" => "UVA Library Digital Repository",
+        "externalRelations" => "#{external_relations}",
+        "totalTranscriptions" => "#{total_transcription}",
+        "totalTitles" => "#{total_title}",
+        "totalDescriptions" => "#{total_description}",
+        "clear-stylesheet-cache" => "yes"
+      })
+      return response.body
     elsif object.is_a? MasterFile
       parent_mods_record = "#{FEDORA_REST_URL}/objects/#{object.bibl.pid}/datastreams/descMetadata/content"
+      parent_mods_record = parent_mods_record.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+
       external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
-      
-      if object.transcription_text
-        # total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-        iconv_transcription = Iconv.conv("utf-8//IGNORE", "UTF-8", total_transcription)
-      else
-        iconv_transcription = ''
-      end
-     
-      if object.staff_notes
-        # total_description = object.staff_notes.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-        iconv_description = Iconv.conv("utf-8//IGNORE", "UTF-8", total_description)
-      else
-        iconv_description = ''
-      end
-     
-      if object.name_num
-        # total_title = object.name_num.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-        iconv_title = Iconv.conv("utf-8//IGNORE", "UTF-8", total_title)
-      else
-        iconv_title = ''
-      end
+      external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-      # parent_mods_record = parent_mods_record.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-      iconv_parent_mods = Iconv.conv("utf-8//IGNORE", "UTF-8", parent_mods_record)
+      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.bibl.catalog_key}"
+      total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
+      total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
+      total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
 
-      # external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-      iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
-
-      # analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_key}"
-      iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
-
-      url = "/saxon/SaxonServlet?source=#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content&style=#{object.indexing_scenario.complete_url}&repository=#{FEDORA_PROXY_URL}&pid=#{object.pid}&analogSolrRecord=#{iconv_analog_solr_record}&dateIngestNow=#{Time.now.strftime('%Y%m%d%H')}&contentModel=jp2k&sourceFacet=UVA Library Digital Repository&externalRelations=#{iconv_external_relations}&totalTranscriptions=#{iconv_transcription}&totalTitles=#{iconv_title}&totalDescriptions=#{iconv_description}&parentModsRecord=#{iconv_parent_mods}&clear-stylesheet-cache=yes".gsub(/ /, '%20')
-
-      Net::HTTP.start( SAXON_URL, SAXON_PORT ) do |http|
-        @solr = http.get(url).body
-      end
+      uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
+      response = Net::HTTP.post_form(uri, {
+        "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
+        "style" => "#{object.indexing_scenario.complete_url}",
+        "repository" => "#{FEDORA_PROXY_URL}",
+        "pid" => "#{object.pid}",
+        "analogSolrRecord" => "#{analog_solr_record}",
+        "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
+        "contentModel" => "jp2k",
+        "sourceFacet" => "UVA Library Digital Repository",
+        "externalRelations" => "#{external_relations}",
+        "totalTranscriptions" => "#{total_transcription}",
+        "totalTitles" => "#{total_title}",
+        "totalDescriptions" => "#{total_description}",
+        "parentModsRecord" => "#{parent_mods_record}",
+        "clear-stylesheet-cache" => "yes"
+        })
+      return response.body
     elsif object.is_a? Component
     else
       raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
     end
     return @solr
   end
-
-  # Below is the previous version of the Hydra.solr method.  Will remove in time after transition to Saxon is 100% certain.
-
-  # def self.solr(object)
-  #   if object.is_a? Bibl
-  #     # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
-  #     total_transcription = String.new; total_description = String.new; total_title = String.new
-  #     object.dl_master_files.each {|mf|
-  #       total_transcription << mf.transcription_text + " " unless mf.transcription_text.nil?
-  #       total_description << mf.staff_notes + " " unless mf.staff_notes.nil?
-  #       total_title << mf.name_num + " " unless mf.name_num.nil?
-  #     }
-
-  #     external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
-
-  #     total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')  
-  #     iconv_transcription = Iconv.conv("utf-8//IGNORE", "UTF-8", total_transcription)
-      
-  #     total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #     iconv_description = Iconv.conv("utf-8//IGNORE", "UTF-8", total_description)
-
-  #     total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #     iconv_title = Iconv.conv("utf-8//IGNORE", "UTF-8", total_title)
-
-  #     external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #     iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
-      
-  #     doc = Nokogiri::XML(open("#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content"))
-  #     xslt = Nokogiri::XSLT(File.read("/usr/local/projects/tracksys/lib/xslt/defaultModsTransformation.xsl")) 
-      
-  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.catalog_key}"
-  #     iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
-
-  #     @solr = xslt.transform(doc,
-  #       ['pid', "'#{object.pid}'",
-  #       'repository', "'#{FEDORA_PROXY_URL}'",
-  #       'analogSolrRecord', "'#{iconv_analog_solr_record}'",
-  #       'dateIngestNow', "'#{Time.now.strftime("%Y%m%d%H")}'",
-  #       'contentModel', "'digital_book'",
-  #       'sourceFacet', "'UVA Library Digital Repository'",         
-  #       'externalRelations', "'#{iconv_external_relations}'",
-  #       'totalTranscriptions', "'#{iconv_transcription}'",
-  #       'totalTitles', "'#{iconv_title}'",
-  #       'totalDescriptions', "'#{iconv_description}'"])
-      
-  #   elsif object.is_a? MasterFile
-  #     parent_mods_record = "#{FEDORA_REST_URL}/objects/#{object.bibl.pid}/datastreams/descMetadata/content"
-  #     external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
-      
-  #     if object.transcription_text
-  #       total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #       iconv_transcription = Iconv.conv("utf-8//IGNORE", "UTF-8", total_transcription)
-  #     else
-  #       iconv_transcription = ''
-  #     end
-     
-  #     if object.staff_notes
-  #       total_description = object.staff_notes.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #       iconv_description = Iconv.conv("utf-8//IGNORE", "UTF-8", total_description)
-  #     else
-  #       iconv_description = ''
-  #     end
-     
-  #     if object.name_num
-  #       total_title = object.name_num.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #       iconv_title = Iconv.conv("utf-8//IGNORE", "UTF-8", total_title)
-  #     else
-  #       iconv_title = ''
-  #     end
-
-  #     parent_mods_record = parent_mods_record.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #     iconv_parent_mods = Iconv.conv("utf-8//IGNORE", "UTF-8", parent_mods_record)
-
-  #     external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ').gsub(/'/, '’')
-  #     iconv_external_relations = Iconv.conv("utf-8//IGNORE", "UTF-8", external_relations)
-
-  #     analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/select?q=id%3A#{object.bibl.catalog_key}"
-  #     iconv_analog_solr_record = Iconv.conv("utf-8//IGNORE", "UTF-8", analog_solr_record)
-      
-  #     doc = Nokogiri::XML(open("#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content"))
-  #     xslt = Nokogiri::XSLT(File.read("/usr/local/projects/tracksys/lib/xslt/defaultModsTransformation.xsl"))
-    
-  #     @solr = xslt.transform(doc,
-  #       ['pid', "'#{object.pid}'",
-  #       'repository', "'#{FEDORA_PROXY_URL}'",
-  #       'analogSolrRecord', "'#{iconv_analog_solr_record}'",
-  #       'dateIngestNow', "'#{Time.now.strftime("%Y%m%d%H")}'",
-  #       'contentModel', "'jp2k'",
-  #       'sourceFacet', "'UVA Library Digital Repository'",
-  #       'parentModsRecord', "'#{iconv_parent_mods}'",
-  #       'externalRelations', "'#{iconv_external_relations}'",
-  #       'totalTranscriptions', "'#{iconv_transcription}'",
-  #       'totalTitles', "'#{iconv_title}'",
-  #       'totalDescriptions', "'#{iconv_description}'"])
-                                                                                  
-  #   elsif object.is_a? Component
-  #   elsif object.is_a? EadRef
-  #   else
-  #     raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
-  #   end  
-  #   return @solr.to_xml
-  # end
 
   #-----------------------------------------------------------------------------
 
@@ -327,19 +218,15 @@ module Hydra
       end  # </mix:BasicImageInformation>
       
       xml.mix :ImageAssessmentMetadata do
-        # resolution
-        if tech_meta.resolution and tech_meta.resolution_unit
+        # resolution (which wwill always be expressed in dpi.)
+        if tech_meta.resolution 
           xml.mix :SpatialMetrics do
-            if tech_meta.resolution_unit.match(/^dpi$/i)
-              xml.mix :samplingFrequencyUnit, 'in.'
-              xml.mix :xSamplingFrequency do
-                xml.mix :numerator, tech_meta.resolution
-              end
-              xml.mix :ySamplingFrequency do
-                xml.mix :numerator, tech_meta.resolution
-              end
-            else
-              raise "Unexpected value '#{tech_meta.resolution_unit}' for resolution_unit on image_tech_meta #{tech_meta.id}"
+            xml.mix :samplingFrequencyUnit, 'in.'
+            xml.mix :xSamplingFrequency do
+              xml.mix :numerator, tech_meta.resolution
+            end
+            xml.mix :ySamplingFrequency do
+              xml.mix :numerator, tech_meta.resolution
             end
           end  # </mix:SpatialMetrics>
         end
@@ -444,28 +331,22 @@ module Hydra
         
         # Create sequential relationships: hasPreceedingPage, hasFollowingPage
         if object.is_a? MasterFile
-          if object.preceeding_pid
-            xml.uva :hasPreceedingPage, "rdf:resource".to_sym => "info:fedora/#{object.preceeding_pid}"
-            xml.uva :isFollowingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.preceeding_pid}"
+          if object.previous
+            xml.uva :hasPreceedingPage, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
+            xml.uva :isFollowingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
           end
-          if object.following_pid
-            xml.uva :hasFollowingPage, "rdf:resource".to_sym => "info:fedora/#{object.following_pid}"
-            xml.uva :isPreceedingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.following_pid}"
+          if object.next
+            xml.uva :hasFollowingPage, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
+            xml.uva :isPreceedingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
           end
         end
 
         # Indicate content model using <fedora-model:hasModel>
         content_models = Array.new
-        content_models.push(Fedora_content_models['indexable'])
-        content_models.push(Fedora_content_models['hydra-common-metadata'])
         if object.is_a? Bibl or object.is_a? Component
-          content_models.push(Fedora_content_models['hydra-generic-parent'])
           content_models.push(Fedora_content_models['fedora-generic'])
         elsif object.is_a? MasterFile and object.tech_meta_type == 'image'
-          content_models.push(Fedora_content_models['hydra-generic-content'])
           content_models.push(Fedora_content_models['jp2k'])
-        elsif object.is_a? MasterFile and object.tech_meta_type == 'text'
-#          content_models.push(Fedora_content_models['text'])
         else
           content_model = nil
         end
@@ -568,7 +449,6 @@ module Hydra
             mods_component(xml, object)
           elsif object.is_a? MasterFile
             mods_master_file(xml, object)
-          elsif object.is_a? EadRef
           end
         end
       end
@@ -579,64 +459,55 @@ module Hydra
   def self.mods_from_marc(object)
     xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl"))
     xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
-    mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'", 'identifiers', "'#{TRACKSYS_URL_METADATA}/#{object.class.to_s.underscore}/mods_identifiers/#{object.id}'"])
-    return mods.to_xml
+    mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'", 'identifiers', "'#{Hydra.mods_identifier_partial(object)}'"])
+
+    # In order to reformat and pretty print the MODS record after string insertion, the document is reopened and then 
+    # manipulated by Nokogiri.
+    doc = Nokogiri.XML(mods.to_xml) do |config|
+      config.default_xml.noblanks
+    end
+    return doc.to_xml
   end  
-#  private_class_method :mods_from_marc
 
-  #-----------------------------------------------------------------------------
-  # Method definitions for descriptive metadata, using MODS (3.3)
-  # See http://www.loc.gov/standards/mods/
-  #-----------------------------------------------------------------------------
-
+  # Create a series of MODS nodes which contain identifier information
+  # Output is a string meant to be inserted directly into another MODS record.
   def self.mods_identifier_partial(object)
     output = ''
     xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
-    xml.instruct! :xml  # Include XML declaration
- 
-    xml.mods(:mods,
-      "xmlns:mods".to_sym => Fedora_namespaces['mods'],
-      "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
-      "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
-      ) do
-
-      xml.mods :identifier, object.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
+    xml.mods :identifier, object.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
+    if object.is_a? Bibl
+      if object.discoverability
+        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
+      else
+        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
+      end
       
-      if object.is_a? Bibl
-        if object.discoverability
-          xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
-        else
-          xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
-        end
-        
-        if not object.legacy_identifiers.empty?
-          object.legacy_identifiers.each {|li|
-            xml.mods :identifier, "#{li.legacy_identifier}", :type => 'legacy', :displayLabel => "#{li.description}"
-          }
-        end
-
-        xml.mods :identifier, object.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Bibl ID'
-        
-        # Include all the Unit number of units belonging to the Bibl that have include_in_dl = true
-        object.units.each {|unit|
-          if unit.include_in_dl == true
-            xml.mods :identifier, unit.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
-          end
+      if not object.legacy_identifiers.empty?
+        object.legacy_identifiers.each {|li|
+          xml.mods :identifier, "#{li.legacy_identifier}", :type => 'legacy', :displayLabel => "#{li.description}"
         }
-      elsif object.is_a? MasterFile
-        
-        xml.mods :identifier, object.unit.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
-        xml.mods :identifier, object.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys MasterFile ID'
-        xml.mods :identifier, object.filename, :type => 'local', :displayLabel => 'Digitization Services Archive Filename'
+      end
 
-        if object.discoverability
-          xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
-        else
-          xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
+      xml.mods :identifier, object.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Bibl ID'
+      
+      # Include all the Unit number of units belonging to the Bibl that have include_in_dl = true
+      object.units.each {|unit|
+        if unit.include_in_dl == true
+          xml.mods :identifier, unit.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
         end
+      }
+    elsif object.is_a? MasterFile 
+      xml.mods :identifier, object.unit.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
+      xml.mods :identifier, object.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys MasterFile ID'
+      xml.mods :identifier, object.filename, :type => 'local', :displayLabel => 'Digitization Services Archive Filename'
+
+      if object.discoverability
+        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
+      else
+        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
       end
     end
-    return output
+    return output # string
   end
 
   # Outputs descriptive metadata for a Bibl record as a MODS document
@@ -701,42 +572,7 @@ module Hydra
       mods_originInfo(xml, bibl, units_filter)
       mods_physicalDescription(xml, bibl, units_filter)
       mods_location(xml, bibl)
-      mods_recordInfo(xml, bibl)
-      
-      # Include each associated MasterFile as a <mods:relatedItem>
-      
-      # Find the Components, if any, associated with this Bibl. (First, look
-      # for top-level components only; if found, each child component will be
-      # handled later by mods_component() below.)
-#      components = Component.find(:all, :conditions => "bibl_id = #{bibl.id} AND parent_component_id = 0", :order => "seq_number, id")
-#      if components.blank?
-#        # No top-level Components associated with this Bibl; find any/all Components
-#        components = Component.find(:all, :conditions => "bibl_id = #{bibl.id}", :order => "seq_number, id")
-#      end
-      
-#      if components.blank?
-        # No Components associated with this Bibl; output list of MasterFiles
-        # grouped by Units (not Components)
-        # Output a <mods:relatedItem> for each Unit
-#        count = 0
-#        bibl.units.each do |unit|
-#          next unless UnitsFilter.process_unit?(unit, units_filter)
-#          xml.mods :relatedItem, :ID => "unit_#{unit.id}", :type => 'constituent' do
-#            # Output a <mods:relatedItem> for each MasterFile
-#            unit.master_files.sort_by{|mf| mf.filename}.each do |master_file|
-#              count += 1
-#              mods_master_file(xml, master_file, count)
-#            end
-#          end
-#        end
-#      else
-        # This Bibl has associated Components; output list of MasterFiles
-        # grouped by Components (not Units)
-#        components.each do |component|
-#          mods_component(xml, component)
-#        end
-#      end
-      
+      mods_recordInfo(xml, bibl)    
     end  # </mods:mods>
   end
   private_class_method :mods_bibl
