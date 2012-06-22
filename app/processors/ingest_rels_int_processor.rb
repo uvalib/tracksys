@@ -1,5 +1,8 @@
 class IngestRelsIntProcessor < ApplicationProcessor
 
+  # We are going to stop creating RELS-INT for the time being since the indexable CModel is not currently
+  # enforced and won't be for a while.  If it is, it will have a new name and Mike Durbin will tell me.x
+
   require 'fedora'
   require 'hydra'
 

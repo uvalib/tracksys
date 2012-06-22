@@ -5,7 +5,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
   publishes_to :ingest_desc_metadata
   publishes_to :ingest_marc
 #  publishes_to :ingest_rels_ext
-  publishes_to :ingest_rels_int
+  # publishes_to :ingest_rels_int
   publishes_to :ingest_rights_metadata
   publishes_to :ingest_tech_metadata
   publishes_to :ingest_transcription
@@ -75,7 +75,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
       publish :ingest_desc_metadata, default_message
       publish :ingest_rights_metadata, default_message
 #      publish :ingest_rels_ext, default_message
-      publish :ingest_rels_int, default_message
+      # publish :ingest_rels_int, default_message
 #      publish :ingest_solr_doc, default_message
 
       if @object.is_a? Bibl
