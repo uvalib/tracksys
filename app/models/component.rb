@@ -6,12 +6,12 @@ class Component
   include ExportIviewXML
 
   before_save :add_pid_before_save
-	before_save :cache_ancestry
+  before_save :cache_ancestry
 
-	def cache_ancestry
-		self.pids_depth_cache = path.map(&:pid).join('/')
-		self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
-	end
+  def cache_ancestry
+    self.pids_depth_cache = path.map(&:pid).join('/')
+    self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
+  end
 
 #  after_update :fix_updated_counters
 
