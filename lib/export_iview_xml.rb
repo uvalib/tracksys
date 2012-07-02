@@ -100,6 +100,7 @@ module ExportIviewXML
 	  # build SetName and attributes
 	  # metadata is: type=ead ~ level={@level} ~ id={@id} ~ date={date str} ~ desc={description}
 	  data_str="level=#{format_component_strings(component.level)} ~ ComponentId=#{component.id} ~ pid=#{component.pid} ~ date=#{format_component_strings(component.date)} ~ desc=#{format_component_strings(component.name)}"
+		data_str.gsub!(/\s+/, ' ').strip!
 	  
 	  # make a new <SetName> for this object
 	  set_name = xmlfragment.add_child(Nokogiri::XML::Node.new("SetName", @doc))
