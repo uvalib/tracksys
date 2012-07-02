@@ -18,16 +18,21 @@ class Component
   # At this time there is no definitive field that can be used for "naming" purposes.
   # There are several candidates (title, content_desc, label) and until we make 
   # a definitive choice, we must rely upon an aritifical method to provide the string.
+  #
+  # Given the inconsistencies of input data, all newlines and sequences of two or more spaces
+  # will be substituted.
   def name
+    value = String.new
     if title
-      return title
+      value = title
     elsif content_desc
-      return content_desc
+      value = content_desc
     elsif label
-      return label
+      value = label
     else 
-      return id # Everything has an id, so it is the LCD.
+      value = id # Everything has an id, so it is the LCD.
     end
+    return value.gsub(/\n/, ' ').gsub(/  +/, ' ')
   end
   
   # Returns the array of Component objects for which this Component is parent.
