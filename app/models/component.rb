@@ -16,6 +16,17 @@ class Component
     self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
   end
 
+	# overriding method because data lives in several places
+	def level
+		if @level
+			@level
+		elsif self.component_type
+			self.component_type.name
+		else
+			nil
+		end
+	end
+
   # At this time there is no definitive field that can be used for "naming" purposes.
   # There are several candidates (title, content_desc, label) and until we make 
   # a definitive choice, we must rely upon an aritifical method to provide the string.
