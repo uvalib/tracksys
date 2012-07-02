@@ -8,12 +8,13 @@ class Component
   before_save :add_pid_before_save
   before_save :cache_ancestry
 
+  # Intended as a before_save callback, will save to a Component object:
+  # 1.  A pids_depth cache so a hierarchy of pids for each component is available
+  # 2.  An ead_id_atts depth cache for legacy ids on each Component derived from an EAD guide.
   def cache_ancestry
     self.pids_depth_cache = path.map(&:pid).join('/')
     self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
   end
-
-#  after_update :fix_updated_counters
 
   # At this time there is no definitive field that can be used for "naming" purposes.
   # There are several candidates (title, content_desc, label) and until we make 
@@ -32,21 +33,13 @@ class Component
     else 
       value = id # Everything has an id, so it is the LCD.
     end
-    return value.gsub(/\n/, ' ').gsub(/  +/, ' ')
+    return value.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
   end
   
-  # Returns the array of Component objects for which this Component is parent.
-  # def   
-  #   if id.blank?
-  #     # object not saved yet
-  #     return Array.new
-  #   else
-  #     return Component.where(:parent_component_id => self.id)
-  #   end
-  # end
-
-  # Jet-powered super efficient query of the above.
-  # Totally dependent on ancetry gem.
+  # Returns a count of all MasterFiles belonging to both this component (i.e. self) and its children.
+  # The count is used for component views.
+  # 
+  # Dependent on ancestry gem.
   def descendant_master_file_count
     c = 0
     # children = Component.where(:parent_id => self.id).select(:id) # Get the ids of all children of self.  Any other piece of info is extraneous.
@@ -60,6 +53,9 @@ class Component
     return c
   end
 
+  # Returns an array of all MasterFiles belonging to this component (i.e. self) and its children.
+  #
+  # Depdendent on ancestry gem
   def descendant_master_files
     master_files = Array.new
     children = Component.where(:parent_component_id => self.id).select(:id) # Get the ids of all children of self.  Any other piece of info is extraneous.
@@ -71,14 +67,6 @@ class Component
 
     return master_files.flatten
   end
-  
-  # def parent
-  #   if parent_component_id != 0
-  #     return Component.where(:id => self.parent_component_id).first
-  #   else
-  #     return nil
-  #   end
-  # end
     
   # Within the scope of a current component's parent, return the sibling component
   # objects.  Used to create links and relationships between objects.
