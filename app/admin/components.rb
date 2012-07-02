@@ -22,7 +22,7 @@ ActiveAdmin.register Component do
       format_date(component.date_dl_ingest)
     end
     column :exemplar do |component|
-      if component.exemplar
+      if not component.exemplar.blank?
         exemplar_master_file = MasterFile.find_by_filename(component.exemplar)
         link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
       else
