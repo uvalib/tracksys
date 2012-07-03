@@ -205,6 +205,32 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
           end
         end
       }
+
+      # TODO: If unit.bibl.is_manuscript? there should be <SetName> that contain useful information
+      # Check for <SetList> element
+      if root.xpath('SetList/Set').empty?
+        has_SetList = false
+      else
+        has_SetList = true
+      end
+
+      # Raise error if the Bibl record is a manuscript but there are no <SetList> elements or if it has <SetList> elements but is not a manuscript Bibl.  
+      if @working_unit.bibl.is_manuscript?
+        unless has_SetList == true
+          @error_messages.push("Unit pertains to a manuscript, but XML has no <SetList> element.")
+        end
+      else
+        if has_SetList == true
+          # Determine whether <SetList> really contains anything meaningful
+          set_count = root.xpath('SetList/Set').length
+          set_name = root.xpath('SetList/Set/SetName').first
+          if set_count == 1 and set_name and set_name.text == '@KeywordsSet'  # this strange value (some kind of placeholder?) occurs regularly in XML files created by iView; ignore it
+            # not a meaningful SetList; ignore
+          else
+            @error_messages.push("Unit does NOT pertain to a manuscript, but XML has a <SetList> element.")
+          end
+        end
+      end
     end
   end
   
