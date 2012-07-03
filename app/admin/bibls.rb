@@ -90,6 +90,7 @@ ActiveAdmin.register Bibl do
     div :class => 'three-column' do
       panel "Detailed Bibliographic Information", :toggle => 'show' do
         attributes_table_for bibl do
+          row :citation
           row :description
           row :title_control
           row :series_title
