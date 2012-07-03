@@ -195,7 +195,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       if unit.components.any?
         unit.components.each do |component|
           # Output information for this unit using the Component template
-          output_component_data(component)
+          output_component_data(component, unit.id)
         end
       else
         # Output information using the MasterFile only template.
@@ -221,7 +221,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
   end 
 
   # Physical Component Methods
-  def output_component_data(component)
+  def output_component_data(component, unit_id)
     @pdf.text "Collection Information\n", :style => :bold
     component.path_ids.each {|component_id|
       c = Component.find(component_id)
@@ -234,7 +234,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.start_new_page if @pdf.cursor < 30
     }
 
-    output_masterfile_data(component.master_files.order(:filename))
+    output_masterfile_data(component.master_files.where(:unit_id => unit_id).order(:filename))
   end
 
   # Methods used by both Component and EAD Ref methods
