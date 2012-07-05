@@ -92,43 +92,6 @@ module Pidable
     if pid.nil?
       return false
     else
-      resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
-      query = "ASK { <info:fedora/#{pid}> <fedora-model:hasModel> <info:fedora/fedora-system:FedoraObject-3.0> }"
-      url = "/risearch?type=tuples&lang=sparql&format=csv&query=#{URI.escape(query)}"
-
-      begin
-        response = resource[url].get
-      rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
-          return false
-      end
-
-      if response.include? "true"
-        return true
-      else
-        return false
-      end
-
-
-      # # Determine whether this object exists (using Fedora API findObjects, which uses HTTP GET)
-      # # * If Fedora finds the object, no exception occurs
-      # # * If Fedora can't find the object, RestClient::ResourceNotFound exception occurs
-      # # * If any other exception occurs, it remains unhandled and gets raised
-      # resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
-      # url = "/objects?query=pid%3D#{pid}&resultFormat=xml&pid=true"
- 
-      # begin
-      #   response = resource[url].get
-      # rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
-      #   return false
-      # end
-      # return response.include? "#{pid}"
-    end
-  end
-
-    def exists_in_repo2?
-    if pid.nil?
-      return false
-    else
       # Determine whether this object exists (using Fedora API findObjects, which uses HTTP GET)
       # * If Fedora finds the object, no exception occurs
       # * If Fedora can't find the object, RestClient::ResourceNotFound exception occurs
@@ -144,36 +107,4 @@ module Pidable
       return response.include? "#{pid}"
     end
   end
-
-
-
-  # Below is the SOAP approach to the same method
-
-  # def exists_in_repo?
-  #   return false if pid.nil?
-  #   
-  #   # Create SOAP client for Fedora API-A (access API)
-  #   require 'soap/wsdlDriver'
-  #   driver = SOAP::WSDLDriverFactory.new(Fedora_apia_wsdl).create_rpc_driver
-  #   driver.streamhandler.filterchain << SendBasicAuthAlwaysFilterFactory.create(Fedora_username,Fedora_password) 
-  # 
-  #   # begin
-  #   #   driver.getObjectProfile(:pid=>pid)
-  #   #   return true
-  #   # rescue 
-  #   #   return false
-  #   # end
-  #   begin
-  #     result = driver.getObjectProfile(:pid=>pid)
-  #     puts result.inspect #DEBUG
-  #     return true
-  #   rescue SOAP::FaultError => e
-  #     if e.message =~ /ObjectNotInLowlevelStorageException/
-  #       return false
-  #     else
-  #       raise e
-  #     end
-  #   end
-  # end
-
 end
