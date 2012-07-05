@@ -29,7 +29,7 @@ class IngestSolrDocProcessor < ApplicationProcessor
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)   
 
     # Open Solr Connection
-    @solr_connection = Solr::Connection.new("#{SOLR_URL}", :autocommit => :off)
+    @solr_connection = Solr::Connection.new("#{STAGING_SOLR_URL}", :autocommit => :off)
 
     # If an object already has a handcrafted desc_metadata value, this will be used to populate the descMetadata datastream.
     if @object.solr
@@ -47,6 +47,6 @@ class IngestSolrDocProcessor < ApplicationProcessor
       Fedora.add_or_update_datastream(xml, @pid, 'solrArchive', 'Index Data for Posting to Solr', :controlGroup => 'M')
     end
     
-    on_success "The solrArchive datastream has been created for #{@pid} - #{@object_class} #{@object_id} and posted to #{SOLR_URL}."
+    on_success "The solrArchive datastream has been created for #{@pid} - #{@object_class} #{@object_id} and posted to #{STAGING_SOLR_URL}."
   end
 end

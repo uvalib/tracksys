@@ -9,10 +9,10 @@ class SendCommitToSolrProcessor < ApplicationProcessor
     # @messagable_type =
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
-    solr = Solr::Connection.new("#{SOLR_URL}", :autocommit => :on)
+    solr = Solr::Connection.new("#{STAGING_SOLR_URL}", :autocommit => :on)
     solr.commit
     solr.optimize
     
-    on_success "The commit signal has been sent to the Solr index at #{SOLR_URL}."
+    on_success "The commit signal has been sent to the Solr index at #{STAGING_SOLR_URL}."
   end
 end

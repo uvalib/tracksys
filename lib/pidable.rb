@@ -1,5 +1,6 @@
 # Methods common to models that have a "pid" attribute.
 module Pidable
+  require 'solr'
  
   def get_object_label
     resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
@@ -67,11 +68,13 @@ module Pidable
     return true
   end
 
-  def exists_in_index?
+  # Query a given solr index to determine if object's index record is found there.
+  def exists_in_index?(solr_url = nil)
+    solr_url = STAGING_SOLR_URL if solr_url.nil?
     if pid.nil?
       return false
     else
-      @solr_connection = Solr::Connection.new("#{SOLR_URL}", :autocommit => :off)
+      @solr_connection = Solr::Connection.new("#{solr_url}", :autocommit => :off)
 
       begin
         hits = @solr_connection.query("id:#{pid.gsub(/:/, '?')}").hits
@@ -79,7 +82,7 @@ module Pidable
         return false
       end
 
-      return false unless hits.length == 1
+      return true unless hits.length != 1
     end
   end
 
