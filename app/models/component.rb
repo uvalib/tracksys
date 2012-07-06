@@ -6,6 +6,7 @@ class Component
   include ExportIviewXML
 
   before_save :add_pid_before_save
+  before_save :copy_parent_reference
   before_save :cache_ancestry
 
   # Intended as a before_save callback, will save to a Component object:
@@ -14,6 +15,12 @@ class Component
   def cache_ancestry
     self.pids_depth_cache = path.map(&:pid).join('/')
     self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
+  end
+
+  def copy_parent_reference
+    if self.parent_component_id > 0 && self.parent == nil
+      self.parent = Component.find(self.parent_component_id)
+    end 
   end
 
 	# overriding method because data lives in several places
