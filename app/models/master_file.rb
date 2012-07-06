@@ -4,8 +4,6 @@ class MasterFile
 
   include Pidable
 
-  validates :pid, :presence => true
-  
   after_update :fix_updated_counters
   before_save :add_pid_before_save
 
