@@ -5,6 +5,8 @@ class Component
   include Pidable
   include ExportIviewXML
 
+  validates :pid, :presence => true
+
   before_save :add_pid_before_save
   before_save :cache_ancestry
 
