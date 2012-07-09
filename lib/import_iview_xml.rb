@@ -110,7 +110,7 @@ module ImportIviewXml
           sleep 0.1
 
           # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
-          if unit.bibl.is_manuscript?
+          if unit.bibl && unit.bibl.is_manuscript?
             # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
             # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
             #
@@ -152,7 +152,7 @@ module ImportIviewXml
     # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
     unit.unit_extent_actual = @master_file_count
     unit.save  
-    return Hash[:master_file_count => @master_file_count, :is_manuscript => unit.bibl.is_manuscript?]
+    return Hash[:master_file_count => @master_file_count]
   end
 
   #-----------------------------------------------------------------------------
