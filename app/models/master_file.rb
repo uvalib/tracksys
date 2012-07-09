@@ -7,8 +7,6 @@ class MasterFile
   after_update :fix_updated_counters
   before_save :add_pid_before_save
 
-  # scope :index_scope, select(["`master_files`.id", :filename, :title, :description, "`master_files`.discoverability","`master_files`.date_dl_ingest", "`master_files`.date_archived", "`master_files`.pid"])
-    
   # Within the scope of a current MasterFile's Unit, return the MasterFile object
   # that follows self.  Used to create links and relationships between objects.
   def next
