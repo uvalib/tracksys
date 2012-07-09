@@ -17,22 +17,25 @@ class Component
     self.ead_id_atts_depth_cache = path.map(&:ead_id_att).join('/')
   end
 
+  # Using ancestry gem, the "parent" information for a Component lives in the ancestry attribute.
+  # In migrating information during the Tracksys3 rollout, we need a way to translate the legacy attribute
+  # parent_componnet_id to the ancestry parent method.  The following method provides that facility.
   def copy_parent_reference
     if self.parent_component_id > 0 && self.parent == nil
       self.parent = Component.find(self.parent_component_id)
     end 
   end
 
-	# overriding method because data lives in several places
-	def level
-		if @level
-			@level
-		elsif self.component_type
-			self.component_type.name
-		else
-			nil
-		end
-	end
+  # overriding method because data lives in several places
+  def level
+    if @level
+      @level
+    elsif self.component_type
+      self.component_type.name
+    else
+      nil
+    end
+  end
 
   # At this time there is no definitive field that can be used for "naming" purposes.
   # There are several candidates (title, content_desc, label) and until we make 
@@ -50,6 +53,20 @@ class Component
       value = label
     else 
       value = id # Everything has an id, so it is the LCD.
+    end
+    return value.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
+  end
+
+  # For the purposes of digitization, student workers need access to as much of the metadata available
+  # in the Component class as possible.  The 'name' method does not provide enough information in some 
+  # circumstances.  In the circumstances where a Component has both a title and content_desc, pull both.
+  # Otherwise, use the default name method.
+  def iview_description
+    value = String.new
+    if title && content_desc
+      value = "#{title} - #{content_desc}"
+    else
+      value = name
     end
     return value.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
   end
