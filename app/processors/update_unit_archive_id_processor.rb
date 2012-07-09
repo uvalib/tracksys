@@ -22,10 +22,8 @@ class UpdateUnitArchiveIdProcessor < ApplicationProcessor
 
     # Update archive location.  This presumes that StorNext is the only archive and that its
     # value in the archives table is '2'
-    working_unit = Unit.find(@unit_id)
-
-    working_unit.archive_id = 2
-    working_unit.save!
+    @working_unit = Unit.find(@unit_id)
+    @working_unit.update_attribute(:archive_id, 2)
 
     message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source_dir => @source_dir })
     publish :update_unit_date_archived, message

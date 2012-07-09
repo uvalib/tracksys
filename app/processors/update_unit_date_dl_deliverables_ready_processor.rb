@@ -21,9 +21,8 @@ class UpdateUnitDateDlDeliverablesReadyProcessor < ApplicationProcessor
 
     @working_unit = Unit.find(@unit_id)
     @messagable = @working_unit
-    @working_unit.date_dl_deliverables_ready = Time.now
-    @working_unit.save!
-    
+    @working_unit.update_attribute(:date_dl_deliverables_ready, Time.now)
+
     message = ActiveSupport::JSON.encode({ :unit_id => @unit_id })
     publish :send_commit_to_solr,  message   
 

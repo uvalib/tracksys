@@ -15,8 +15,7 @@ class UpdateOrderStatusDeferredProcessor < ApplicationProcessor
 
     @order_id = hash[:order_id]
     @working_order = Order.find(@order_id)
-    @working_order.order_status = 'deferred'
-    @working_order.save! 
+    @working_order.update_attribute(:order_status, 'deferred')
 
     on_success "The order has been deferred."        
   end

@@ -24,8 +24,7 @@ class UpdateUnitDateArchivedProcessor < ApplicationProcessor
     @source_dir = hash[:source_dir]
 
     @working_unit = Unit.find(@unit_id)
-    @working_unit.date_archived = Time.now
-    @working_unit.save!
+    @working_unit.update_attribute(:date_archived, Time.now)
 
     message = ActiveSupport::JSON.encode({ :unit_id => @unit_id })
     publish :check_order_date_archiving_complete, message
