@@ -25,8 +25,7 @@ class UpdateUnitDateQueuedForIngestProcessor < ApplicationProcessor
     @messagable = @working_unit
 
     # Update date_unit_queued_for_ingest value
-    @working_unit.date_queued_for_ingest = Time.now
-    @working_unit.save!
+    @working_unit.update_attribute(:date_queued_for_ingest, Time.now)
 
     message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source => @source })
     publish :queue_objects_for_fedora, message
