@@ -127,6 +127,8 @@ ActiveAdmin.register MasterFile do
       panel "Digital Library Information", :id => 'master_files', :toggle => 'hide' do
         attributes_table_for master_file do
           row :pid
+          row :date_dl_ingest
+          row :date_dl_update
           row :availability_policy
           row :indexing_scenario
           row :discoverability do |mf|
