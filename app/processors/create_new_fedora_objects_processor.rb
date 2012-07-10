@@ -64,6 +64,9 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
 #      end
 #    else
       Fedora.create_or_update_object(@object, label)
+      
+      # All ingestable objects have a date_dl_ingest attribute which can be updated at this time.
+      @object.update_attribute(:date_dl_ingest, Time.now)
 
       # This processor emits two kinds of messages:
       # 1.  Bound for creating text or XML-based datastreams
