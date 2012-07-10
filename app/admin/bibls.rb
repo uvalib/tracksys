@@ -158,7 +158,7 @@ ActiveAdmin.register Bibl do
 
   sidebar "Related Information", :only => [:show, :edit] do
     attributes_table_for bibl do
-      row ("VIRGO Record") do |bibl|
+      row ("Catalog Record") do |bibl|
         if bibl.in_catalog?
           div do
             link_to "VIRGO (Phsyical Record)", bibl.physical_virgo_url, :target => "_blank"
@@ -167,6 +167,13 @@ ActiveAdmin.register Bibl do
         if bibl.in_dl?
           div do
             link_to "VIRGO (Digital Record)", bibl.dl_virgo_url, :target => "_blank"
+          end
+        end
+      end
+      row "Digital Library" do |bibl|
+        if bibl.in_dl?
+          div do
+            link_to "Fedora Object", bibl.fedora_url, :target => "_blank"
           end
         end
       end
