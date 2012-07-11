@@ -7,7 +7,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
   publishes_to :ingest_desc_metadata
   publishes_to :ingest_jp2k
   publishes_to :ingest_rels_ext
-  publishes_to :ingest_rels_int
   publishes_to :ingest_rights_metadata
   publishes_to :ingest_tei_doc
   publishes_to :ingest_solr_doc
@@ -39,7 +38,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_desc_metadata, bibl_xml_message
         publish :ingest_marc, bibl_xml_message
         publish :ingest_rights_metadata, bibl_xml_message
-        publish :ingest_rels_int, bibl_xml_message
         
         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
           publish :ingest_tei_doc, bibl_xml_message
@@ -62,7 +60,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 })
           publish :ingest_desc_metadata, unit_xml_message
           publish :ingest_rights_metadata, unit_xml_message
-          publish :ingest_rels_int, unit_xml_message
           publish :ingest_tech_metadata, unit_xml_message
           publish :create_dl_deliverables, unit_image_message
                                     
@@ -135,7 +132,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_desc_metadata, bibl_xml_message
         publish :ingest_marc, bibl_xml_message
         publish :ingest_rights_metadata, bibl_xml_message
-        publish :ingest_rels_int, bibl_xml_message
         
         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
 	  publish :ingest_tei_doc, bibl_xml_message
@@ -157,7 +153,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 })
           publish :ingest_desc_metadata, unit_xml_message
           publish :ingest_rights_metadata, unit_xml_message
-          publish :ingest_rels_int, unit_xml_message
           publish :ingest_tech_metadata, unit_xml_message
                                     
           if mf.transcription_text  
@@ -195,7 +190,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       if @datastream == 'all'
         publish :ingest_desc_metadata, masterfile_xml_message
         publish :ingest_rights_metadata, masterfile_xml_message
-        publish :ingest_rels_int, masterfile_xml_message
         publish :ingest_tech_metadata, masterfile_xml_message
 
         if @object.transcription_text
@@ -207,7 +201,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       elsif @datastream == 'allxml'
         publish :ingest_desc_metadata, masterfile_xml_message
         publish :ingest_rights_metadata, masterfile_xml_message
-        publish :ingest_rels_int, masterfile_xml_message
         publish :ingest_tech_metadata, masterfile_xml_message
 
         if @object.transcription_text
@@ -225,9 +218,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
       elsif @datastream == 'rels_ext'
         publish :ingest_rels_ext, masterfile_xml_message
-        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
-      elsif @datastream == 'rels_int'
-        publish :ingest_rels_int, masterfile_xml_message
         on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
       elsif @datastream == 'rights_metadata'
         publish :ingest_rights_metadata, masterfile_xml_message
@@ -250,16 +240,15 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       # Update the object's date_dl_update value
       @object.update_attribute(:date_dl_update, Time.now)
 
-      bibl_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id})
+      bibl_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id })
 
       if @datastream == 'allxml'
         publish :ingest_desc_metadata, bibl_xml_message
         publish :ingest_marc, bibl_xml_message
         publish :ingest_rights_metadata, bibl_xml_message                        
-        publish :ingest_rels_int, bibl_xml_message
 
         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.id}.tei.xml"))
-	  publish :ingest_tei_doc, bibl_xml_message
+      	  publish :ingest_tei_doc, bibl_xml_message
         end
 
         on_success "All datastreams for #{@object_class} #{@object_id} will be updated"
@@ -271,9 +260,6 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
       elsif @datastream == 'marc'
         publish :ingest_marc, bibl_xml_message
-        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
-      elsif @datastream == 'rels_int'
-        publish :ingest_rels_int, bibl_xml_message
         on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
       elsif @datastream == 'rights_metadata'
         publish :ingest_rights_metadata, bibl_xml_message
