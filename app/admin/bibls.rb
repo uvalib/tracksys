@@ -136,6 +136,7 @@ ActiveAdmin.register Bibl do
           end
           row :pid
           row :date_dl_ingest
+          row :date_dl_update
           row :exemplar do |bibl|
             link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
           end
