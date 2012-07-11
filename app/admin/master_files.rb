@@ -208,6 +208,11 @@ ActiveAdmin.register MasterFile do
         link_to "#{master_file.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => master_file.id, :messagable_type_eq => "MasterFile" })
       end
       row :agency
+      row "Digital Library" do |master_file|
+        if master_file.in_dl?
+          link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{master_file.pid}", :class => 'member_link', :target => "_blank"
+        end
+      end
     end
   end
 
