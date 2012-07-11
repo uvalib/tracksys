@@ -46,12 +46,16 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         end
 
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
+
+        # Update the object's date_dl_update value
+        @object.bibl.update_attribute(:date_dl_update, Time.now)
+
         on_success "All datastreams for #{@object.bibl.class.to_s} #{@object.bibl.id} will be updated"
+
         # Undo instance_variable_set
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", '')
 
-        @object.master_files.each {|mf|
-         
+        @object.master_files.each {|mf|       
           # Messages coming from this processor should only be for units that have already been archived.
           @source = File.join(ARCHIVE_READ_DIR, @unit_dir, mf.filename)
           unit_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id})
@@ -66,6 +70,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             publish :ingest_transcription, unit_xml_message
           end
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
+
+          # Update the object's date_dl_update value
+          mf.update_attribute(:date_dl_update, Time.now)
+
           on_success "All datastreams for #{mf.class.to_s} #{mf.id} will be updated."
 
           # Undo instance_variable_set
@@ -88,6 +96,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :last => 0 })
           publish :create_dl_deliverables, unit_image_message if mf.datastream_exists?("content")
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
+
+          # Update the object's date_dl_update value
+          mf.update_attribute(:date_dl_update, Time.now)
+
           on_success "JP2K image for #{mf.class.to_s} #{mf.id} will be regenerated."
           instance_variable_set("@#{mf.class.to_s.underscore}_id", '')
         }
@@ -98,6 +110,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_desc_metadata, bibl_xml_message
 
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
+        
+        # Update the object's bibl's date_dl_update value
+        @object.bibl.update_attribute(:date_dl_update, Time.now)
+
         on_success "The descMetadata datastream for #{@object.bibl.class.to_s} #{@object.bibl.id} will be updated"
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", '')
 
@@ -106,6 +122,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           publish :ingest_desc_metadata, mf_xml_message
           
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
+ 
+          # Update the MasterFile's date_dl_update value
+          mf.update_attribute(:date_dl_update, Time.now)
+
           on_success "The descMetadata datastream for #{mf.class.to_s} #{mf.id} will be updated"
           instance_variable_set("@#{mf.class.to_s.underscore}_id", '')
         }
@@ -122,6 +142,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         end
 
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
+
+        # Update the object's bibl's date_dl_update value
+        @object.bibl.update_attribute(:date_dl_update, Time.now)
+
         on_success "All XML datastreams for #{@object.bibl.class.to_s} #{@object.bibl.id} will be updated"
         # Undo instance_variable_set
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", '')
@@ -140,6 +164,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             publish :ingest_transcription, unit_xml_message
           end
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
+
+          # Update the MasterFile's date_dl_update value
+          mf.update_attribute(:date_dl_update, Time.now)
+
           on_success "All XML datastreams for #{mf.class.to_s} #{mf.id} will be updated."
 
           # Undo instance_variable_set
@@ -152,6 +180,10 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       end
     elsif @object.is_a? MasterFile
       instance_variable_set("@#{@object.class.to_s.underscore}_id", @object.id)
+
+      # Update the object's date_dl_update value
+      @object.update_attribute(:date_dl_update, Time.now)
+      
       @unit_dir = "%09d" % @object.unit.id
 
       # Messages coming from this processor should only be for units that have already been archived.
@@ -214,6 +246,9 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       end
     elsif @object.is_a? Bibl
       instance_variable_set("@#{@object.class.to_s.underscore}_id", @object.id)
+
+      # Update the object's date_dl_update value
+      @object.update_attribute(:date_dl_update, Time.now)
 
       bibl_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id})
 
