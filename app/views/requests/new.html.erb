@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="control-group">
-          <%= c.label "How do you heard about this service?", :class => 'control-label' %>
+          <%= c.label "How do you hear about this service?", :class => 'control-label' %>
           <div class="controls">
             <%= c.select :heard_about_service_id, HeardAboutService.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
           </div>
@@ -262,7 +262,7 @@
               </div>
             </div>
             <div class="control-group">
-              <%= unit.label "How do you intended to use this digitized resource?", :class => 'control-label required' %>
+              <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
               <div class="controls">
                 <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
               </div>
