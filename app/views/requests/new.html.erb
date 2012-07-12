@@ -256,7 +256,7 @@
             </div>
             
             <div class="control-group">
-              <%= unit.label "How do you heard about this item?", :class => 'control-label' %>
+              <%= unit.label "How did you hear about this item?", :class => 'control-label' %>
               <div class="controls">
                 <%= unit.select :heard_about_resource_id, HeardAboutResource.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
               </div>
