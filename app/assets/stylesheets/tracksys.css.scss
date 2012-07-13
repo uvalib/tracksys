@@ -74,217 +74,6 @@ li.required > label {
   color: #DB0000;
 }
 
-/*
-  Color work
-*/
-
-/*body {
-  background: white;
-}
-
-#header {
-  background: #7D5C8A;
-  background: -webkit-gradient(linear, left top, left bottom, from(#B097BA), to(#7D5C8A));
-  background: -moz-linear-gradient(-90deg, #B097BA, #7D5C8A);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#B097BA, endColorstr=#7D5C8A);
-  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#B097BA, endColorstr=#7D5C8A);
-}
-
-#header ul#tabs > li ul {
-  background: #7D5C8A;
-}
-
-#header ul#tabs > li.has_nested:hover > a {
-  background-color: #41204C;
-}
-
-#header ul#tabs > li ul li a:hover {
-  background: #41204C;
-}
-
-#header ul#tabs > li:hover > a {
-  background: #41204C;
-}
-
-#header h1, #header a, #header a:link, #header #utility_nav {
-  color: white;
-  font-weight: bold;
-}
-
-#header ul#tabs > li.current > a {
-  background: #41204C;
-}
-*/
-/*#title_bar .action_items a {
-  background: #F5EDE3;
-  background: -webkit-gradient(linear, left top, left bottom, from(#F5EDE3), to(#EFE2D2));
-  background: -moz-linear-gradient(-90deg, #F5EDE3, #EFE2D2);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#F5EDE3, endColorstr=#EFE2D2);
-  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#F5EDE3, endColorstr=#EFE2D2);
-  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.8) inset;
-  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.8) inset;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.8) inset;
-  border: solid 1px #FF8E42;
-  border-color: #FF8E42;
-  border-top-color: #FF8838;
-  border-right-color: #FF8E42;
-  border-bottom-color: #FF8838;
-  border-left-color: #FF8E42;
-  text-shadow: white 0 1px 0;
-  color: #154890;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: black;
-}
-
-.breadcrumb a, .breadcrumb a:link, .breadcrumb a:visited, .breadcrumb a:active {
-  color: black;
-}
-
-table.dashboard .dashboard_section {
-  background: #CEBFD4;
-}
-
-table.dashboard .dashboard_section > h3 {
-  background: #392640;
-  background: -webkit-gradient(linear, left top, left bottom, from(#392640), to(#472753));
-  background: -moz-linear-gradient(-90deg, #392640, #472753);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#392640, endColorstr=#472753);
-  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#392640, endColorstr=#472753);
-  color: white;
-  text-shadow: none;
-}
-
-.panel_contents table th {
-  color: black;
-}
-
-.panel_contents table tr.odd td {
-  background: #DFE1E2;
-  color: black;
-}
-
-.panel_contents table tr.even td {
-  background: #EFEFEF;
-  color: black;
-}
-
-table.index_table th {
-  background: #392640;
-  background: -webkit-gradient(linear, left top, left bottom, from(#392640), to(#472753));
-  background: -moz-linear-gradient(-90deg, #392640, #472753);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#392640, endColorstr=#472753);
-  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#392640, endColorstr=#472753);
-  color: white;
-  text-shadow: none;
-}
-
-table.index_table th a, table.index_table th a:link, table.index_table th a:visited { 
-  color: white;
-}*/
-/*.section, .panel {
-  background: #CEBFD4;
-}
-
-.section > h3, .panel > h3 {
-  background: #3D002E;
-  color: white;
-  text-shadow: none;
-}
-*/
-/*
-Object class color work
-*/
-
-/*#automation_messages {
-  h3 {
-    background: #3D0000;
-  }
-}
-table#automation_messages.index_table th {
-  background: #3D0000;  
-}
-
-#bibls {
-  h3 {
-    background: #003D3D;
-  }
-}
-table#bibls.index_table th {
-  background: #003D3D;
-}
-
-#components {
-  h3 {
-    background: #3D2E00;
-  }
-}
-table#components.index_table th {
-  background: #3D2E00;  
-}
-
-#customers {
-  h3 {
-    background: #3D2B00;
-  }
-}
-table#customers.index_table th {
-  background: #3D2B00;  
-}
-
-
-#master_files {
- h3 {
-    background: #1F003D;
-  }
-}
-table#master_files.index_table th {
-  background: #1F003D;  
-}
-
-#orders {
-  h3 {
-    background: #003D0F;
-  }
-}
-table#orders.index_table th {
-  background: #003D0F;  
-}
-
-
-#units {
-  h3 {
-    background: #00303D;
-  }
-}
-table#units.index_table th {
-  background: #00303D;
-}
-
-.sidebar_section label {
-  color: black;
-}
-
-.attributes_table table td .empty {
-  color: #787878;
-}
-
-a, a:link, a:visited {
-  color: #660085;
-}
-*/
-
-/*
-End class color work
-*/
-
-
-
-/*
-End color work
-*/
-
 .panel[toggle] {
   h3 {
     cursor: pointer;
@@ -397,4 +186,16 @@ form input[type="text"][value="true"] {
 .updated {
   /*border: 2px solid #346;*/
   background-color: #F3F6FD;
+}
+
+/* Deal with ActiveAdmin header wrapping problem */
+#header {
+  height: auto;
+  min-height: 20px;
+}
+
+#header:after {
+    clear: both;
+    content: "";
+    display: table;
 }
