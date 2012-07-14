@@ -257,4 +257,13 @@ ActiveAdmin.register MasterFile do
     mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
     redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
+  
+  controller do
+    # Only cache the index view if it is the base index_url (i.e. /master_files) and is devoid of either params[:page] or params[:q].  
+    # The absence of these params values ensures it is the base url.
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :show
+    cache_sweeper :master_files_sweeper
+  end
 end
+

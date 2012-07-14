@@ -131,4 +131,10 @@ ActiveAdmin.register Agency do
       f.actions
     end
   end
+  
+  controller do
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :show
+    cache_sweeper :agencies_sweeper
+  end
 end

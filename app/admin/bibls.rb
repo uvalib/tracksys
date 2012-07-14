@@ -207,7 +207,13 @@ ActiveAdmin.register Bibl do
     link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
   end
 
-  controller do 
+  controller do
+    # Only cache the index view if it is the base index_url (i.e. /bibls) and is devoid of either params[:page] or params[:q].  
+    # The absence of these params values ensures it is the base url.
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :show
+    cache_sweeper :bibls_sweeper
+
     #-----------------------------------------------------------------------------
     # Methods relating to updating Bibl records with metadata from an external
     # source, namely U.Va. Library catalog / Blacklight
