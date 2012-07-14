@@ -66,7 +66,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           publish :ingest_tech_metadata, unit_xml_message
           publish :create_dl_deliverables, unit_image_message
                                     
-          if mf.transcription_text  
+          if not mf.transcription_text.blank?
             publish :ingest_transcription, unit_xml_message
           end
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
@@ -160,7 +160,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           publish :ingest_rels_int, unit_xml_message
           publish :ingest_tech_metadata, unit_xml_message
                                     
-          if mf.transcription_text  
+          if not mf.transcription_text.blank?
             publish :ingest_transcription, unit_xml_message
           end
           instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
@@ -198,7 +198,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_rels_int, masterfile_xml_message
         publish :ingest_tech_metadata, masterfile_xml_message
 
-        if @object.transcription_text
+        if not @object.transcription_text.blank?
           publish :ingest_transcription, masterfile_xml_message
         end
 
@@ -210,7 +210,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_rels_int, masterfile_xml_message
         publish :ingest_tech_metadata, masterfile_xml_message
 
-        if @object.transcription_text
+        if not @object.transcription_text.blank?
           publish :ingest_transcription, masterfile_xml_message
         end
         on_success "All XML datastreams for #{@object_class} #{@object_id} will be updated."
