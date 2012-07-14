@@ -2,6 +2,14 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
+  # Override display variables from Active Admin default
+  active_admin:
+    new_model: "New"
+    create_model: "New"
+    edit_model: "Edit"
+    update_model: "Edit"
+    delete_model: "Delete"
+    search_field: "%{field}"
   activerecord:
     models:
       bibl: "Bibliographic Records"
