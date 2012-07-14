@@ -96,7 +96,15 @@ module AssignPids
     @resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
 
     url = "/objects/nextPID?numPIDs=#{pid_count}&namespace=#{pid_namespace}&format=xml"
-    pids = Nokogiri.XML(@resource[url].send :post, '', :content_type => 'text/xml').xpath('//pid').map(&:content)
+    xml = Nokogiri.XML(@resource[url].send :post, '', :content_type => 'text/xml')
+    
+    # Given that Fedora 3.6 returns an XML document with different namespacing than previous version of Fedora, we will need to test
+    # for the presence of a namespace and act accordingly.
+    if xml.namespaces["xmlns"]
+      pids = xml.xpath('//xmlns:pid').map(&:content)
+    else
+      pids = xml.xpath('//pid').map(&:content)
+    end
   
     return pids
   end
