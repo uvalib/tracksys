@@ -358,4 +358,12 @@ ActiveAdmin.register Unit do
     Unit.find(params[:id]).send_unit_to_archive
     redirect_to :back, :notice => "Workflow started at the archiving of the unit."
   end
+
+  controller do
+    # Only cache the index view if it is the base index_url (i.e. /units) and is devoid of either params[:page] or params[:q].  
+    # The absence of these params values ensures it is the base url.
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :show, :unless =>  Proc.new { |c| File.exist?(File.join(IN_PROCESS_DIR, "%09d" % c.params[:id])) }
+    cache_sweeper :units_sweeper
+  end
 end

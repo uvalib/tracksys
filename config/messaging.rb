@@ -96,7 +96,8 @@ ActiveMessaging::Gateway.define do |s|
     :send_unit_to_archive_group => [
       :send_unit_to_archive_processor],
     :technical_metadata_group => [
-      :create_image_technical_metadata_and_thumbnail_processor]
+      :create_image_technical_metadata_and_thumbnail_processor,
+      :purge_cache_processor]
   }
 
   s.queue :automation_message, '/queue/AutomationMessage' 
@@ -138,6 +139,7 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :ingest_transcription, '/queue/IngestTranscription'
   s.queue :move_completed_directory_to_delete_directory, '/queue/MoveCompletedDirectorToDeleteDirectory'
   s.queue :move_deliverables_to_delivered_orders_directory, '/queue/MoveDeliverablesToDeliveredOrdersDirectory'
+  s.queue :purge_cache, '/queue/PurgeCache'
   s.queue :propogate_access_policies, '/queue/PropogateAccessPolicies'
   s.queue :propogate_discoverability, '/queue/PropogateDiscoverability'
   s.queue :propogate_indexing_scenarios, '/queue/PropogateIndexingScenario'

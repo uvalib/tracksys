@@ -270,4 +270,13 @@ ActiveAdmin.register MasterFile do
     MasterFile.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
+  
+  controller do
+    # Only cache the index view if it is the base index_url (i.e. /master_files) and is devoid of either params[:page] or params[:q].  
+    # The absence of these params values ensures it is the base url.
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :show
+    cache_sweeper :master_files_sweeper
+  end
 end
+
