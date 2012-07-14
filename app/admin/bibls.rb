@@ -199,9 +199,22 @@ ActiveAdmin.register Bibl do
     end
   end
 
+  sidebar "Digital Library Workflow", :only => [:show] do 
+    div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_bibl_path(:datastream => 'allxml'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_bibl_path(:datastream => 'dc_metadata'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_bibl_path(:datastream => 'desc_metadata'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_bibl_path(:datastream => 'rels_ext'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Index Record", update_metadata_admin_bibl_path(:datastream => 'solr_doc'), :method => :put end
+  end
+
   form :partial => "form"
 
   collection_action :external_lookup
+
+  member_action :update_metadata, :method => :put do 
+    Bibl.find(params[:id]).update_metadata(params[:datastream])
+    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
+  end
 
   action_item :only => [:edit, :new] do
     link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
