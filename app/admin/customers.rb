@@ -173,6 +173,13 @@ ActiveAdmin.register Customer do
       row :master_files do |customer|
         link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
       end
+      row "On Behalf of Agencies" do |customer|
+        customer.agencies.sort_by(&:name).each {|agency|
+          div do 
+            link_to "#{agency.name}", admin_agency_path(agency)
+          end
+        }
+      end
       row :date_of_first_order do |customer|
         format_date(customer.date_of_first_order)
       end
