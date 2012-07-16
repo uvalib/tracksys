@@ -1,4 +1,4 @@
-# Methods common to models that have a "pid" attribute.
+# Methods common to models that have a :pid attribute.
 module Pidable
   require 'solr'
 
@@ -72,7 +72,8 @@ module Pidable
     return true
   end
 
-  # Query a given solr index to determine if object's index record is found there.
+  # Query a given Solr index to determine if object's index record is found there.  A default Solr index is used
+  # if none is provided at method invocation.
   def exists_in_index?(solr_url = nil)
     solr_url = STAGING_SOLR_URL if solr_url.nil?
     if pid.nil?
