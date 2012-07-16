@@ -28,7 +28,7 @@ ActiveAdmin.register Customer, :namespace => :patron do
        link_to customer.requests.size.to_s, patron_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
     end
     column :orders do |customer|
-      link_to customer.orders_count.to_s, patron_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'approved')
+      link_to customer.orders_count.to_s, patron_orders_path(:q => {:customer_id_eq => customer.id})
     end
     column :units do |customer| 
       link_to customer.units.size.to_s, patron_units_path(:q => {:customer_id_eq => customer.id})
