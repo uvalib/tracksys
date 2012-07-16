@@ -197,7 +197,7 @@ ActiveAdmin.register Bibl do
         link_to "#{bibl.components.size}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
       end
       row "Agencies Requesting Resource" do |bibl|
-        bibl.agencies.sort_by(&:name).each {|agency|
+        bibl.agencies.uniq.sort_by(&:name).each {|agency|
           div do 
             link_to "#{agency.name}", admin_agency_path(agency)
           end

@@ -112,7 +112,7 @@ ActiveAdmin.register Agency do
         link_to "#{agency.units.size.to_s}", admin_units_path(:q => {:agency_id_eq => agency.id})
       end
       row :bibls do |agency|
-        link_to "#{agency.bibls.size.to_s}", admin_bibls_path(:q => {:agency_id_eq => agency.id})
+        link_to "#{agency.bibls.size.to_s}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
       end
       row :master_files do |agency|
         link_to "#{agency.master_files.size.to_s}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
