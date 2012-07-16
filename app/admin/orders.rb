@@ -32,6 +32,7 @@ ActiveAdmin.register Order do
     selectable_column
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
+    column :order_title
     column ("Date Request Submitted") {|order| order.date_request_submitted.try(:strftime, "%m/%d/%y")}
     column ("Date Order Approved") {|order| order.date_order_approved.try(:strftime, "%m/%d/%y")}
     column ("Date Archiving Complete") {|order| order.date_archiving_complete.try(:strftime, "%m/%d/%y")}
