@@ -4,12 +4,9 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
   publishes_to :create_dl_deliverables
   publishes_to :ingest_desc_metadata
   publishes_to :ingest_marc
-#  publishes_to :ingest_rels_ext
-  # publishes_to :ingest_rels_int
   publishes_to :ingest_rights_metadata
   publishes_to :ingest_tech_metadata
   publishes_to :ingest_transcription
-#  publishes_to :ingest_solr_doc
   
   require 'fedora'
   require 'pidable'
@@ -77,9 +74,6 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
       # All objects get desc_metadata, rights_metadata
       publish :ingest_desc_metadata, default_message
       publish :ingest_rights_metadata, default_message
-#      publish :ingest_rels_ext, default_message
-      # publish :ingest_rels_int, default_message
-#      publish :ingest_solr_doc, default_message
 
       if @object.is_a? Bibl
         if @object.catalog_key
@@ -103,7 +97,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
         publish :ingest_tech_metadata, default_message
 
         # Only MasterFiles with transcritpion need have 
-        if @object.transcription_text
+        if not @object.transcription_text.blank?
           publish :ingest_transcription, default_message
         end
       end
