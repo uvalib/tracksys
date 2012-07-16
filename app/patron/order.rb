@@ -141,7 +141,12 @@ ActiveAdmin.register Order, :namespace => :patron do
           else
             # External customers (who require a fee) for which there IS both an estimated fee and actual fee
             # Actions available: Approve or Cancel
-            div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+            if order.has_units_being_prepared.any?
+              div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+              div do "You must approve or cancel this order's units before approving." end
+            else
+              div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+            end
             div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
             div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :disabled => 'true', :method => :put end
             div do "Either approve or cancel this order." end  
@@ -149,7 +154,12 @@ ActiveAdmin.register Order, :namespace => :patron do
         end
       elsif not order.customer.external?
         # Internal customers require no fee.
-        div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+        if order.has_units_being_prepared.any?
+          div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
+          div do "You must approve or cancel this order's units before approving." end
+        else
+          div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :method => :put end
+        end
         div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
         div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put, :disabled => true end
         div do "#{order.customer.full_name} is internal to UVA and requires no fee approval" end
