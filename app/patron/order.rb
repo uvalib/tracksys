@@ -33,6 +33,7 @@ ActiveAdmin.register Order, :namespace => :patron do
     selectable_column
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
+    column :order_title
     column (:date_request_submitted) {|order| format_date(order.date_request_submitted)}
     column (:date_due) {|order| format_date(order.date_due)}
     column ("Units") do |order|
