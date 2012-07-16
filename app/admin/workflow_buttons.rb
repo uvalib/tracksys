@@ -39,6 +39,13 @@ ActiveAdmin.register_page "WorkflowStart" do
     redirect_to :back
   end
 
+  page_action :update_all_solr_docs do
+    message = ActiveSupport::JSON.encode( {:message => 'go'})
+    publish :send_commit_to_solr, message
+    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
+    redirect_to :back
+  end
+
   controller do 
     require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
