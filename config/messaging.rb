@@ -11,6 +11,8 @@ ActiveMessaging::Gateway.define do |s|
   s.processor_groups = {
     :messages_group => [
       :automation_message_processor],
+    :cache_management_group => [
+      :purge_cache_processor],
     :create_dl_deliverables_group => [
       :create_dl_deliverables_processor],
     :create_patron_deliverables_group => [
@@ -96,8 +98,7 @@ ActiveMessaging::Gateway.define do |s|
     :send_unit_to_archive_group => [
       :send_unit_to_archive_processor],
     :technical_metadata_group => [
-      :create_image_technical_metadata_and_thumbnail_processor,
-      :purge_cache_processor]
+      :create_image_technical_metadata_and_thumbnail_processor]
   }
 
   s.queue :automation_message, '/queue/AutomationMessage' 
