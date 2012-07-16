@@ -6,9 +6,6 @@ class Bibl
 
   VIRGO_FIELDS = ['title', 'creator_name', 'creator_name_type', 'call_number', 'catalog_key', 'barcode', 'copy', 'date_external_update', 'location', 'citation', 'year', 'year_type', 'location', 'copy', 'title_control', 'date_external_update']
 
-#  after_update :fix_updated_counters
-  before_save :add_pid_before_save
-
   #------------------------------------------------------------------
   # aliases
   #------------------------------------------------------------------

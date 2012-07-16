@@ -5,7 +5,6 @@ class MasterFile
   include Pidable
 
   after_update :fix_updated_counters
-  before_save :add_pid_before_save
 
   # Within the scope of a current MasterFile's Unit, return the MasterFile object
   # that follows self.  Used to create links and relationships between objects.

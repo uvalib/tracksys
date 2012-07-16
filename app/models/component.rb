@@ -5,7 +5,6 @@ class Component
   include Pidable
   include ExportIviewXML
 
-  before_save :add_pid_before_save
   before_save :copy_parent_reference
   before_save :cache_ancestry
 
