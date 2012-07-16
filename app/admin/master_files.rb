@@ -217,6 +217,7 @@ ActiveAdmin.register MasterFile do
   end
 
   sidebar "Digital Library Workflow", :only => [:show] do 
+    div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_master_file_path(:datastream => 'all'), :method => :put end
     div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_master_file_path(:datastream => 'allxml'), :method => :put end
     div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_master_file_path(:datastream => 'dc_metadata'), :method => :put end
     div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_master_file_path(:datastream => 'desc_metadata'), :method => :put end
