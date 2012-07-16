@@ -30,7 +30,7 @@ class IngestDescMetadataProcessor < ApplicationProcessor
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
         
     # If an object already has a handcrafted desc_metadata value, this will be used to populate the descMetadata datastream.
-    if @object.desc_metadata
+    if not @object.desc_metadata.blank?
       Fedora.add_or_update_datastream(@object.desc_metadata, @pid, 'descMetadata', 'MODS descriptive metadata', :controlGroup => 'M')
     else
       xml = Hydra.desc(@object)
