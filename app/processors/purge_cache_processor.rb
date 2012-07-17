@@ -35,13 +35,16 @@ class PurgeCacheProcessor < ApplicationProcessor
     case 
     when @relationship == :has_many || @relationship == :has_and_belongs_to_many
       # @associated_class must be pluralized because of the nature of the relationship
+      # If there are no associated_objects of this class, this method will iterate over an empty array and
+      # therefore expire no cached entries.
       @subject.send(@associated_class.classify.underscore.pluralize).each {|associated_object|
         expire_cache(associated_object)
       }
     when @relationship == :belongs_to || @relationship == :has_one
-      # Note that @associated_class lacks a pluralize method
+      # Note that @associated_class lacks a pluralize method.
+      # associated_object may return nil (i.e if a Unit has no Bibl) so do not delete cache if there are no associated objects.
       associated_object = @subject.send(@associated_class.classify.underscore)
-      expire_cache(associated_object)
+      expire_cache(associated_object) unless not associated_object
     else
       logger.debug "Unknown"
     end
