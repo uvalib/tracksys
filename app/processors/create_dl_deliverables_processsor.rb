@@ -58,7 +58,16 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
     @messagable_type = hash[:object_class]
 
     @pid = @object.pid
-    instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)   
+    instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
+
+    # Given the new requirment of recording md5 for MasterFile objects and the prohibition on downloading everything from
+    # tape to record those md5's, we will take the opportunity here to record them as we pull them down from Stornext.
+    #
+    # Only do this if the md5 is empty and respect the old value.
+    if @object.md5.nil?
+      source_md5 = Digest::MD5.hexdigest(File.read(@source))
+      @object.update_attributes(:md5 => source_md5)
+    end
 
     # Introduce error handling for uncompressed images that kakadu will choke on.
     tiff = Magick::Image.read(@source).first
