@@ -40,7 +40,7 @@ class BiblsSweeper < ActionController::Caching::Sweeper
   #
   # TODO: Might possible need to expire if :creator_name is changed.  Currently not displayed on show views.
   def expire_associated(bibl)
-    EXPIRABLE_FIELDS.any? do |key|
+    expirable = EXPIRABLE_FIELDS.any? do |key|
       bibl.changed_attributes.include?(key)
     end
 
