@@ -83,7 +83,12 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
           if copy_md5 != source_md5
             # Introduce logic here to move the entire unit directory to REVIEW_DIR, or 50_fail_checksum
             on_failure("** Warning ** - File #{f} has failed checksum test")
-            @errors += 1         
+            @errors += 1
+          else
+            # While we've got the md5 available, add to MasterFile object.  Record the md5 is a new feature
+            # added in Summer 2012.
+            mf = MasterFile.find_by_filename!(basename)
+            mf.update_attributes(:md5 => source_md5)
           end
         end
       when File.directory?(f)
