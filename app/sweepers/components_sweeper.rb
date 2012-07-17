@@ -1,11 +1,12 @@
 class ComponentsSweeper < ActionController::Caching::Sweeper
-  include Rails.application.routes.url_helpers 
+  observe Component
 
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
+  include Rails.application.routes.url_helpers 
 
-  observe Component
-
+  # The after_update callback has a second expiry method for associated classes that is not required for
+  # the destroy method since there should be no records associated with a destroyed record.
   def after_update(component)
     expire(component)
     expire_associated(component)
@@ -19,20 +20,19 @@ class ComponentsSweeper < ActionController::Caching::Sweeper
   def after_destroy(component)
     expire(component)
   end
-  
+
+  # Expire the index and show views for self.  Additionally, since the Component class uses the ancestry gem, we need to clear 
+  # the cache of self's ancestors and descendants.  Those related components use the name in the show view.
   def expire(component)
-    # Expire the index and show views for self
-    Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_component_path(component)}")
+    Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_component_path(component.id)}")
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_components_path}")
 
-    # Since Agency uses the ancestry gem, we need to clear the cache of self's ancestors and descendants.  
-    # Those related agencies use the name and various counts which are liable to change.
     related = []
     related << component.ancestors
     related << component.descendants
     
     related.flatten.each {|component|
-      Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_component_path(component)}")
+      Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_component_path(component.id)}")
     }
   end
 
