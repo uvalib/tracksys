@@ -2,6 +2,8 @@ require "#{Hydraulics.models_dir}/unit"
 
 class Unit
 
+  include Pidable
+
   # The request form requires having data stored temporarily to the unit model and then concatenated into special instructions.  Those fields are:
   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
 

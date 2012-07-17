@@ -126,7 +126,17 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
           on_success "The descMetadata datastream for #{mf.class.to_s} #{mf.id} will be updated"
           instance_variable_set("@#{mf.class.to_s.underscore}_id", '')
         }
-
+      elsif @datastream == 'solr_doc'
+        @object.master_files.each {|mf|
+          @messagable_id = mf.id
+          @messagable_type = "MasterFile"
+          master_file_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id})
+          publish :ingest_solr_doc, master_file_xml_message
+          on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} Master Files will be updated."
+ 
+          # Update the MasterFile's date_dl_update value
+          mf.update_attribute(:date_dl_update, Time.now)
+        }
       elsif @datastream == 'allxml'
         bibl_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id})
         publish :ingest_desc_metadata, bibl_xml_message
@@ -134,7 +144,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_rights_metadata, bibl_xml_message
         
         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
-	  publish :ingest_tei_doc, bibl_xml_message
+      	  publish :ingest_tei_doc, bibl_xml_message
         end
 
         instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)

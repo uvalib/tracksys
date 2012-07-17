@@ -312,6 +312,15 @@ ActiveAdmin.register Unit do
     end
   end
 
+  sidebar "Digital Library Workflow", :only => [:show] do 
+    div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_unit_path(:datastream => 'desc_metadata'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_unit_path(:datastream => 'rels_ext'), :method => :put end
+    div :class => 'workflow_button' do button_to "Update Index Records", update_metadata_admin_unit_path(:datastream => 'solr_doc'), :method => :put end
+  end
+
   action_item :only => :show do
     link_to_unless(unit.previous.nil?, "Previous", admin_unit_path(unit.previous))
   end
@@ -357,6 +366,11 @@ ActiveAdmin.register Unit do
   member_action :send_unit_to_archive, :method => :put do
     Unit.find(params[:id]).send_unit_to_archive
     redirect_to :back, :notice => "Workflow started at the archiving of the unit."
+  end
+
+  member_action :update_metadata, :method => :put do 
+    Unit.find(params[:id]).update_metadata(params[:datastream])
+    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
   controller do
