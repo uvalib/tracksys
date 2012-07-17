@@ -178,7 +178,7 @@ ActiveAdmin.register Customer do
           div do 
             link_to "#{agency.name}", admin_agency_path(agency)
           end
-        }
+        } unless customer.agencies.empty?
       end
       row :date_of_first_order do |customer|
         format_date(customer.date_of_first_order)

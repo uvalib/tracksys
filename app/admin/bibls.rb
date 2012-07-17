@@ -201,7 +201,7 @@ ActiveAdmin.register Bibl do
           div do 
             link_to "#{agency.name}", admin_agency_path(agency)
           end
-        }
+        } unless bibl.agencies.empty?
       end
     end
   end
