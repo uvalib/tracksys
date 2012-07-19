@@ -26,6 +26,7 @@ ActiveAdmin.register Order do
   filter :fee_estimated
   filter :fee_actual
   filter :staff_notes
+  filter :special_instructions
   filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
 
   index :id => 'orders' do

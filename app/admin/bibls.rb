@@ -16,6 +16,7 @@ ActiveAdmin.register Bibl do
   filter :catalog_key
   filter :barcode
   filter :pid
+  filter :location
   filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type), :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
   filter :customers_id, :as => :numeric

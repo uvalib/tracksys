@@ -44,6 +44,7 @@ ActiveAdmin.register Unit do
   filter :date_archived
   filter :date_dl_deliverables_ready
   filter :date_queued_for_ingest
+  filter :special_instructions
   filter :include_in_dl, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
