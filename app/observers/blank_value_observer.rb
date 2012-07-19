@@ -7,12 +7,13 @@ class BlankValueObserver < ActiveRecord::Observer
   observe ActiveRecord::Base.send(:subclasses)
 
   # Scan each incoming record for attributes == "", if any, set them to nil and update the record
-  # with the nil values.  
+  # with the nil values.  Ignore this behavior if the attribute is an id.
   #
   # Done before validation in order to ensure that nil is a valid value.
-  def before_validation(record)
+  def before_save(record)
   	atts = record.attributes
   	atts.keep_if {|key, value| value == ""}
+    atts.keep_if {|key, value| key !~ /id/}
   	atts.each {|key, value| atts[key] = nil}
 
   	record.update_attributes(atts) if not atts.empty?
