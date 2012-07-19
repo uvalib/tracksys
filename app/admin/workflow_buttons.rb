@@ -8,6 +8,21 @@ ActiveAdmin.register_page "WorkflowStart" do
       div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
       div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
     end
+
+    panel "Digital Library" do
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_workflow_start_push_staging_to_production_path, :method => :get end
+    end
+  end
+
+  page_action :push_staging_to_production do 
+    begin
+      FileUtils.touch '/lib_content27/tracksys_prod_solr/copy_to_production'
+      flash[:notice] = "Records will be available through Virgo at 6am."
+    rescue Errno::EACCES
+      flash[:notice] = "Something went wrong, contact Administrator."
+    end
+    redirect_to :back
   end
 
   page_action :start_finalization_production do

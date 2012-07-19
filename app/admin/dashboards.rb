@@ -47,8 +47,7 @@ ActiveAdmin::Dashboards.build do
     div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
     div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
     div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-    div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-  end
+   end
 
   section "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
     table_for Bibl.in_digital_library.limit(20) do
@@ -63,5 +62,8 @@ ActiveAdmin::Dashboards.build do
     end
   end
 
-
+  section "Digital Library Actions", :priority => 5, :toggle => 'show' do
+    div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_workflow_start_push_staging_to_production_path, :method => :get end
+  end
 end
