@@ -35,7 +35,7 @@
 
   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do %>
       <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
-      <%= f.input :exemplar, :as => :select, :collection => f.object.exemplar_master_file_filenames, :input_html => {:class => 'chzn-select'} %>
+      <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chzn-select',  :style => 'width: 250px'} %>
       <%= f.input :discoverability, :as => :select, :input_html => {:class => 'chzn-select'} %>
       <%= f.input :indexing_scenario, :input_html => {:class => 'chzn-select'} %>
       <%= f.input :use_right, :input_html => {:class => 'chzn-select'} %>

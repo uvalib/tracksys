@@ -23,13 +23,4 @@ class Bibl
   def fedora_url
     return "#{FEDORA_REST_URL}/objects/#{self.pid}"
   end
-
-  # Returns an array of MasterFile objects (:id and :filename only) for the purposes 
-  def exemplar_master_file_filenames
-    if self.new_record?
-      return Array.new
-    else
-      return MasterFile.joins(:bibl).joins(:unit).select(:filename).select('`master_files`.id').where('`units`.include_in_dl = true').where("`bibls`.id = #{self.id}").map(&:filename)
-    end
-  end
 end
