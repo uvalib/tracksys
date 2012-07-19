@@ -93,7 +93,7 @@ ActiveAdmin.register Component do
             column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
           end
         end
-      else
+      else        
         panel "No Child Components"
       end
     end
@@ -187,8 +187,8 @@ ActiveAdmin.register Component do
         link_to "#{component.master_files.size}", admin_master_files_path(:q => {:component_id_eq => component.id})
       end
       row :parent_component do |component|
-        if component.parent_component_id > 0
-          link_to "#{component.parent.name}", admin_component_path(component.parent_component_id)
+        if not component.parent.nil?
+          link_to "#{component.parent.name}", admin_component_path(component.parent.id)
         end
       end
       row :child_components do |component|
