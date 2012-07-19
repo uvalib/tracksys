@@ -96,15 +96,6 @@ fieldset[toggle="hide"] > ol {
   display: none;
 }
 
-
-/*form input[type="submit"], form input[disabled="disabled"] {
-  background-color: #ffffff;
-}*/
-
-/*[disabled] input {
-  background-color: rgb(223,225,226);
-}*/
-
 .workflow_button {
   margin-bottom: 1em;
 }
@@ -119,7 +110,11 @@ form fieldset ol > li label {
 
 form input[type="text"], form input[type="password"], 
 form input[type="email"], form input[type="url"], 
-form input[type="tel"], form textarea {
+form input[type="tel"], form input[type="number"] {
+  width: auto;
+}
+
+form textarea {
   width: 60%;
 }
 

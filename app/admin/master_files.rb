@@ -162,11 +162,11 @@ ActiveAdmin.register MasterFile do
 
     f.inputs "Technical Information", :class => 'three-column panel' do
       f.input :md5, :input_html => { :disabled => true }
-      f.input :filesize, :as => :string
+      f.input :filesize, :as => :number
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :unit_id, :as => :string
+      f.input :unit_id, :as => :number
     end
 
     f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
