@@ -87,8 +87,15 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
           else
             # While we've got the md5 available, add to MasterFile object.  Record the md5 is a new feature
             # added in Summer 2012.
-            mf = MasterFile.find_by_filename!(basename)
-            mf.update_attributes(:md5 => source_md5)
+            #
+            # TODO: We need a way to discriminate between those files being archived that are managed directly by
+            # Tracksys (i.e. those that are "MasterFile" objects) and those that are not (i.e .ivc files).  The following
+            # rescue condition is a hack but is easiest to institute at the time.
+            begin
+              mf = MasterFile.find_by_filename!(basename)
+              mf.update_attributes(:md5 => source_md5)
+            rescue ActiveRecord::RecordNotFound
+            end   
           end
         end
       when File.directory?(f)
