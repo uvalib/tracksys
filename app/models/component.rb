@@ -44,12 +44,14 @@ class Component
   # will be substituted.
   def name
     value = String.new
-    if title
+    if not title.blank?
       value = title
-    elsif content_desc
+    elsif not content_desc.blank?
       value = content_desc
-    elsif label
+    elsif not label.blank?
       value = label
+    elsif not date.blank?
+      value = date
     else 
       value = id # Everything has an id, so it is the LCD.
     end
