@@ -12,8 +12,12 @@ class PurgeCacheProcessor < ApplicationProcessor
     subject_class = hash[:subject_class]
     subject_id = hash[:subject_id]
     associated_class = hash[:associated_class]
-    
-    purge_cache(subject_class.classify.constantize.find(subject_id), associated_class)
+   
+
+    begin 
+      purge_cache(subject_class.classify.constantize.find(subject_id), associated_class)
+    rescue ActiveRecord::RecordNotFound
+    end    
   end
 
   # Given a subject (i.e. an object whose record has just expired), all records associated 
