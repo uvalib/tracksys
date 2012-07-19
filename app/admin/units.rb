@@ -8,6 +8,7 @@ ActiveAdmin.register Unit do
   scope :awaiting_condition_approval
   scope :canceled
   scope :uncompleted_units_of_partially_completed_orders
+  scope :ready_for_repo
 
   actions :all, :except => [:destroy]
 
@@ -313,12 +314,17 @@ ActiveAdmin.register Unit do
   end
 
   sidebar "Digital Library Workflow", :only => [:show] do 
-    div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
-    div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
-    div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
-    div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_unit_path(:datastream => 'desc_metadata'), :method => :put end
-    div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_unit_path(:datastream => 'rels_ext'), :method => :put end
-    div :class => 'workflow_button' do button_to "Update Index Records", update_metadata_admin_unit_path(:datastream => 'solr_doc'), :method => :put end
+    if unit.ready_for_repo?
+      div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
+    end
+    if unit.in_dl?
+      div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_unit_path(:datastream => 'desc_metadata'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_unit_path(:datastream => 'rels_ext'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Index Records", update_metadata_admin_unit_path(:datastream => 'solr_doc'), :method => :put end
+    end
   end
 
   action_item :only => :show do
@@ -366,6 +372,11 @@ ActiveAdmin.register Unit do
   member_action :send_unit_to_archive, :method => :put do
     Unit.find(params[:id]).send_unit_to_archive
     redirect_to :back, :notice => "Workflow started at the archiving of the unit."
+  end
+
+  member_action :start_ingest_from_archive, :method => :put do
+    Unit.find(params[:id]).start_ingest_from_archive
+    redirect_to :back, :notice => "Unit being put into digital library."
   end
 
   member_action :update_metadata, :method => :put do 
