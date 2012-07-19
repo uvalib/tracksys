@@ -77,7 +77,8 @@ class AutomationMessage
     'CreateMasterFileRecordsFromTifAndTextProcessor' => 'production',
     'CreateTextFromPdfProcessor' => 'production',
     'CreateTifImagesFromPdfProcessor' => 'production',
-    'SendPdfUnitToFinalizationDirProcessor' => 'production'    
+    'SendPdfUnitToFinalizationDirProcessor' => 'production',
+    'PurgeCacheProcessor' => 'administrative' 
     }
 
 end
