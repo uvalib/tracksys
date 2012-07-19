@@ -20,7 +20,7 @@ ActiveAdmin::Dashboards.build do
       end
       tr do
         td do "Repository Wofkflow Errors" end
-        td do link_to "#{AutomationMessage.repository_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'patron') end
+        td do link_to "#{AutomationMessage.repository_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'repository') end
       end
     end
   end
