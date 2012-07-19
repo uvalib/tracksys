@@ -12,7 +12,7 @@ class PurgeCacheProcessor < ApplicationProcessor
     subject_class = hash[:subject_class]
     subject_id = hash[:subject_id]
     associated_class = hash[:associated_class]
-   
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     begin 
       purge_cache(subject_class.classify.constantize.find(subject_id), associated_class)
