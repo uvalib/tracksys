@@ -1,8 +1,3 @@
-// Logging baby!
-$("body").click(function(event) {
-  console.log("clicked: " + event.target);
-});
-
 // Colorbox
 $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
 
