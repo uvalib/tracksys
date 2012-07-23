@@ -24,7 +24,7 @@ gem 'activemessaging', :git => 'git://github.com/kookster/activemessaging.git'
 gem "daemons"
 gem "stomp"
 #gem "memcache-client"
-gem "rmagick"
+gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
 gem 'solr-ruby'
