@@ -1,10 +1,10 @@
 class AddFieldsToComponents < ActiveRecord::Migration
   def change
-  	change_table(:components, :bulk => true) do |t|
-      t.integer :followed_by_id
-      t.index :followed_by_id
-      t.text :legacy_ead
-      t.text :physical_desc
-  	end
+		add_column :components, :followed_by_id, :integer
+		add_column :components, :legacy_ead, :text
+		add_column :components, :physical_desc, :text
+		add_column :components, :scope_content, :text
+		add_index  :components, :followed_by_id
+
   end
 end
