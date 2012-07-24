@@ -8,6 +8,7 @@ ActiveAdmin.register Invoice do
   filter :notes
   filter :transmittal_number
   filter :date_invoice, :label => "Date Invoice Sent"
+  filter :date_fee_paid
 
   index do
     column :order
@@ -119,5 +120,12 @@ ActiveAdmin.register Invoice do
   member_action :get_pdf do 
     invoice = Invoice.find(params[:id])
     send_data invoice.invoice_copy, :filename => "order_#{invoice.order_id}.pdf", :type => 'application/pdf'
+  end
+  
+  csv do
+    column :date_fee_paid
+    column :fee_amount_paid
+    column :order_id
+    column :notes
   end
 end
