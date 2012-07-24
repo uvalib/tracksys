@@ -38,6 +38,7 @@ gem 'net-ldap'
 gem 'country-select'
 gem 'browser' # Browser detection for request form HTML5 attributes
 gem 'roadie' # for embedding CSS in request_form emails
+gem 'nokogiri-pretty' # pp xml
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
