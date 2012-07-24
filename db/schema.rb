@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120618141922) do
+ActiveRecord::Schema.define(:version => 20120624151054) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -234,8 +234,8 @@ ActiveRecord::Schema.define(:version => 20120618141922) do
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
 
   create_table "components", :force => true do |t|
-    t.integer  "component_type_id",                               :default => 0,    :null => false
-    t.integer  "parent_component_id",                             :default => 0,    :null => false
+    t.integer  "component_type_id",                                 :default => 0,     :null => false
+    t.integer  "parent_component_id",                               :default => 0,     :null => false
     t.string   "title"
     t.string   "label"
     t.string   "date"
@@ -248,10 +248,10 @@ ActiveRecord::Schema.define(:version => 20120618141922) do
     t.datetime "updated_at"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                      :limit => 2147483647
+    t.text     "solr",                        :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                 :default => true
+    t.boolean  "discoverability",                                   :default => true
     t.integer  "indexing_scenario_id"
     t.text     "level"
     t.string   "ead_id_att"
@@ -261,12 +261,13 @@ ActiveRecord::Schema.define(:version => 20120618141922) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id"
-    t.integer  "master_files_count",                              :default => 0,    :null => false
-    t.integer  "automation_messages_count",                       :default => 0,    :null => false
+    t.integer  "master_files_count",                                :default => 0,     :null => false
+    t.integer  "automation_messages_count",                         :default => 0,     :null => false
     t.string   "exemplar"
     t.string   "ancestry"
     t.string   "pids_depth_cache"
     t.string   "ead_id_atts_depth_cache"
+    t.boolean  "master_file_discoverability",                       :default => false
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"

@@ -43,7 +43,7 @@ ActiveAdmin.register Component do
   end
   
   show :title => proc{"#{truncate(component.name, :length => 60)}"} do
-    div :class => 'two-column' do
+    div :class => 'columns-none' do
       panel "General Information" do
         attributes_table_for component do
           row :id
@@ -58,7 +58,7 @@ ActiveAdmin.register Component do
       end
     end
   
-   div :class => "two-column" do
+   div :class => "columns-none" do
       panel "Digital Library Information" do
         attributes_table_for component do
           row :pid
@@ -74,11 +74,28 @@ ActiveAdmin.register Component do
               "Unknown"
             end
           end
-          row(:desc_metadata) {|component| truncate_words(component.desc_metadata)}
+          row(:desc_metadata) {|component| 
+            if component.desc_metadata
+              pre :class => "no-whitespace" do 
+                code :'data-language' => 'html' do
+                  word_wrap(component.desc_metadata.to_s, :line_width => 80)
+                end
+              end
+            end
+          }
           row(:solr) {|component| truncate_words(component.solr)}
           row(:dc) {|component| truncate_words(component.dc)}
           row(:rels_ext) {|component| truncate_words(component.rels_ext)}
           row(:rels_int) {|component| truncate_words(component.rels_int)}
+          row(:legacy_ead) {|component| 
+            if component.legacy_ead
+              pre :class => "no-whitespace" do 
+                code :'data-language' => 'html' do
+                  word_wrap(component.legacy_ead.to_s, :line_width => 80)
+                end
+              end
+            end
+          }
         end
       end
     end
@@ -171,6 +188,7 @@ ActiveAdmin.register Component do
       f.input :dc, :input_html => {:rows => 5}
       f.input :rels_ext, :input_html => {:rows => 5}
       f.input :rels_int, :input_html => {:rows => 5}
+      f.input :legacy_ead, :input_html => {:rows => 5}
     end
 
     f.inputs :class => 'columns-none' do
