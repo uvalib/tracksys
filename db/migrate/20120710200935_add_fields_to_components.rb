@@ -1,4 +1,4 @@
-class AddFieldsToComponentsa < ActiveRecord::Migration
+class AddFieldsToComponents < ActiveRecord::Migration
   def change
   	change_table(:components, :bulk => true) do |t|
       t.integer :followed_by_id
