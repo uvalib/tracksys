@@ -43,7 +43,7 @@ ActiveAdmin.register Component do
   end
   
   show :title => proc{"#{truncate(component.name, :length => 60)}"} do
-    div :class => 'two-column' do
+    div :class => 'columns-none' do
       panel "General Information" do
         attributes_table_for component do
           row :id
@@ -58,7 +58,7 @@ ActiveAdmin.register Component do
       end
     end
   
-   div :class => "two-column" do
+   div :class => "columns-none" do
       panel "Digital Library Information" do
         attributes_table_for component do
           row :pid
