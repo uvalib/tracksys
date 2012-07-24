@@ -194,3 +194,16 @@ form input[type="text"][value="true"] {
     content: "";
     display: table;
 }
+
+/* Changes to display of code after implement Rainbow.js*/
+pre, code, tt {
+  font-size: 12px;
+}
+
+pre.no-whitespace {
+  white-space: normal;
+}
+
+pre.no-whitespace code.rainbow {
+  white-space: pre;
+}

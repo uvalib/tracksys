@@ -6,4 +6,7 @@
 //= require pinterest
 //= require pinit
 //= require twitter
+//= require rainbow.min
+//= require generic
+//= require html
 //= require tracksys

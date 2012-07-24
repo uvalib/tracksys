@@ -141,7 +141,13 @@ ActiveAdmin.register MasterFile do
               "Unknown"
             end
           end
-          row(:desc_metadata) {|master_file| truncate_words(master_file.desc_metadata)}
+          row(:desc_metadata) {|master_file| 
+            pre :class => "no-whitespace" do 
+              code :'data-language' => 'html' do
+                word_wrap(master_file.desc_metadata, :line_width => 80)
+              end
+            end
+          }
           row(:solr) {|master_file| truncate_words(master_file.solr)}
           row(:dc) {|master_file| truncate_words(master_file.dc)}
           row(:rels_ext) {|master_file| truncate_words(master_file.rels_ext)}
