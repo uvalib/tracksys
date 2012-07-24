@@ -89,7 +89,11 @@ ActiveAdmin.register Component do
           row(:rels_int) {|component| truncate_words(component.rels_int)}
           row(:legacy_ead) {|component| 
             if component.legacy_ead
-              pre do code :'data-language' => 'html' do component.legacy_ead.to_s end end
+              pre :class => "no-whitespace" do 
+                code :'data-language' => 'html' do
+                  word_wrap(component.legacy_ead.to_s, :line_width => 80)
+                end
+              end
             end
           }
         end
