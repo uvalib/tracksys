@@ -19,6 +19,13 @@ $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
   }
 });
 
+// toggle ead display field for components
+$(".code_window").toggle(function () {
+    $(this).animate({height: '100%'}, "fast", "swing");
+}, function () {
+    $(this).animate({height: 100}, "fast", "swing");
+});
+
 // Begin JS for Updating Bibl Records
 $('.bibl_update_button').click(function(e) {
   var bibl_catalog_key = $('#bibl_catalog_key').val();

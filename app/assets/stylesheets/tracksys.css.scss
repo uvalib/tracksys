@@ -202,6 +202,8 @@ pre, code, tt {
 
 pre.no-whitespace {
   white-space: normal;
+  overflow: hidden;
+  height: 100px;
 }
 
 pre.no-whitespace code.rainbow {
