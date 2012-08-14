@@ -12,7 +12,7 @@ module ComponentHelper
   # are only of consequence for student worker legibility, they can be removed.
   def format_component_strings(string)
     begin
-      return string.strip.gsub(/\n/, ' ').gsub(/  +/, ' ').gsub(/,/, '').gsub(/;/, '')
+      return string.strip.gsub(/\n/, ' ').gsub(/  +/, ' ').gsub(/,/, '').gsub(/;/, '').truncate(100)
     rescue Exception => e
       return nil
     end
