@@ -74,7 +74,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
         if /^\./ =~ basename
         else              
           FileUtils.copy(f, File.join(ARCHIVE_WRITE_DIR, parent, basename))
-          FileUtils.chmod(0755, File.join(ARCHIVE_WRITE_DIR, parent, basename))
+          FileUtils.chmod(0664, File.join(ARCHIVE_WRITE_DIR, parent, basename))
           # Calculate information for checksums
           source_md5 = Digest::MD5.hexdigest(File.read(f))
           copy_md5 = Digest::MD5.hexdigest(File.read(File.join(ARCHIVE_WRITE_DIR, parent, basename)))
@@ -100,7 +100,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
         end
       when File.directory?(f)
         FileUtils.makedirs(File.join(ARCHIVE_WRITE_DIR, f))
-        FileUtils.chmod(0755, File.join(ARCHIVE_WRITE_DIR, f))
+        FileUtils.chmod(0775, File.join(ARCHIVE_WRITE_DIR, f))
         created_dirs << f
       else 
         on_failure("Unknown file #{f} in #{parent}/#{basename}")

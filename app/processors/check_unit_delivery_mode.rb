@@ -26,7 +26,7 @@ class CheckUnitDeliveryModeProcessor < ApplicationProcessor
     @source_dir = File.join(IN_PROCESS_DIR, @unit_dir)
 
     # The filter to determine which units get sent to repo must be worked on later at an appropriate time.    
-    if @working_unit.include_in_dl and @working_unit.availability and @working_unit.intended_use.description == "Digital Collection Building"
+    if @working_unit.include_in_dl and @working_unit.availability_policy_id? and @working_unit.intended_use.description == "Digital Collection Building"
       @mode = "dl"
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :mode => @mode, :source_dir => @source_dir })
       publish :copy_unit_for_deliverable_generation, message
@@ -40,7 +40,7 @@ class CheckUnitDeliveryModeProcessor < ApplicationProcessor
       publish :copy_unit_for_deliverable_generation, message
     end
 
-    if @working_unit.include_in_dl and @working_unit.availability and not @working_unit.intended_use.description == "Digital Collection Building"
+    if @working_unit.include_in_dl and @working_unit.availability_policy_id? and not @working_unit.intended_use.description == "Digital Collection Building"
       @mode = "both"
       on_success = "Unit #{@unit_id} requires the creation of patron deliverables."
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :mode => @mode, :source_dir => @source_dir })
