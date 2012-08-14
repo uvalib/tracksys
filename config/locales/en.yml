@@ -10,6 +10,10 @@ en:
     update_model: "Edit"
     delete_model: "Delete"
     search_field: "%{field}"
+    filter: "Search"
+    clear_filters: "Clear Search"
+    sidebars:
+      filters: "Search"
   activerecord:
     models:
       bibl: "Bibliographic Records"

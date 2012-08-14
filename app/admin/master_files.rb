@@ -141,8 +141,16 @@ ActiveAdmin.register MasterFile do
               "Unknown"
             end
           end
-          row(:desc_metadata) {|master_file| 
-            pre :class => "no-whitespace" do 
+          row(:desc_metadata) {|master_file|
+            div do 
+              link_to "Edit", "#inline_content", :class => "inline"
+            end
+            div :style => 'display:none' do 
+              div :id => 'inline_content' do
+                "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+              end
+            end
+            pre :class => "no-whitespace code-window" do 
               code :'data-language' => 'html' do
                 word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
               end
@@ -277,6 +285,15 @@ ActiveAdmin.register MasterFile do
     MasterFile.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
+
+  # Specified in routes.rb to return the XML partial mods.xml.erb
+  member_action :mods do
+    @master_file = MasterFile.find(params[:id])
+  end
+
+  member_action :solr do 
+    @master_file = MasterFile.find(params[:id])
+  end
   
   controller do
     # Only cache the index view if it is the base index_url (i.e. /master_files) and is devoid of either params[:page] or params[:q].  
@@ -284,6 +301,20 @@ ActiveAdmin.register MasterFile do
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
     caches_action :show
     cache_sweeper :master_files_sweeper
+
+    def update
+      if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
+        body = request.body.read
+        params.merge!({"master_file" => {desc_metadata: body.strip}})
+        update! do |format|
+          format.xml { redirect_to root_url }
+        end
+        # update! {root_url}
+        # redirect_to(:id => '558388', :controller => 'admin/master_files', :action => 'show', :format => 'xml')
+      else
+        update!
+      end
+    end
   end
 end
 
