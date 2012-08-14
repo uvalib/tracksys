@@ -144,7 +144,7 @@ ActiveAdmin.register MasterFile do
           row(:desc_metadata) {|master_file| 
             pre :class => "no-whitespace" do 
               code :'data-language' => 'html' do
-                word_wrap(master_file.desc_metadata, :line_width => 80)
+                word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
               end
             end
           }
