@@ -164,6 +164,9 @@ GEM
     net-ldap (0.2.2)
     nokogiri (1.5.2)
     orm_adapter (0.0.7)
+    paper_trail (2.6.3)
+      activerecord (~> 3.0)
+      railties (~> 3.0)
     passenger (3.0.12)
       daemon_controller (>= 0.2.5)
       fastthread (>= 1.0.1)
@@ -298,6 +301,7 @@ DEPENDENCIES
   mysql2
   nested_form!
   net-ldap
+  paper_trail
   passenger
   prawn
   rails (= 3.2.2)
