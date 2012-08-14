@@ -70,3 +70,5 @@ gem 'jquery-ui-rails'
 # To use debugger
 # gem 'ruby-debug'
 
+# To version our models
+gem 'paper_trail'
