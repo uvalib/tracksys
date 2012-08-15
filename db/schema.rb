@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120624151054) do
+ActiveRecord::Schema.define(:version => 20120814202451) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -234,8 +234,8 @@ ActiveRecord::Schema.define(:version => 20120624151054) do
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
 
   create_table "components", :force => true do |t|
-    t.integer  "component_type_id",                                 :default => 0,     :null => false
-    t.integer  "parent_component_id",                               :default => 0,     :null => false
+    t.integer  "component_type_id",                               :default => 0,    :null => false
+    t.integer  "parent_component_id",                             :default => 0,    :null => false
     t.string   "title"
     t.string   "label"
     t.string   "date"
@@ -248,10 +248,10 @@ ActiveRecord::Schema.define(:version => 20120624151054) do
     t.datetime "updated_at"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                        :limit => 2147483647
+    t.text     "solr",                      :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                   :default => true
+    t.boolean  "discoverability",                                 :default => true
     t.integer  "indexing_scenario_id"
     t.text     "level"
     t.string   "ead_id_att"
@@ -261,19 +261,23 @@ ActiveRecord::Schema.define(:version => 20120624151054) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id"
-    t.integer  "master_files_count",                                :default => 0,     :null => false
-    t.integer  "automation_messages_count",                         :default => 0,     :null => false
+    t.integer  "master_files_count",                              :default => 0,    :null => false
+    t.integer  "automation_messages_count",                       :default => 0,    :null => false
     t.string   "exemplar"
     t.string   "ancestry"
     t.string   "pids_depth_cache"
     t.string   "ead_id_atts_depth_cache"
-    t.boolean  "master_file_discoverability",                       :default => false
+    t.integer  "followed_by_id"
+    t.text     "legacy_ead"
+    t.text     "physical_desc"
+    t.text     "scope_content"
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
   add_index "components", ["availability_policy_id"], :name => "index_components_on_availability_policy_id"
   add_index "components", ["component_type_id"], :name => "index_components_on_component_type_id"
   add_index "components", ["ead_ref_id"], :name => "ead_ref_id"
+  add_index "components", ["followed_by_id"], :name => "index_components_on_followed_by_id"
   add_index "components", ["indexing_scenario_id"], :name => "index_components_on_indexing_scenario_id"
   add_index "components", ["use_right_id"], :name => "index_components_on_use_right_id"
 
@@ -688,6 +692,17 @@ ActiveRecord::Schema.define(:version => 20120624151054) do
   end
 
   add_index "use_rights", ["name"], :name => "index_use_rights_on_name", :unique => true
+
+  create_table "versions", :force => true do |t|
+    t.string   "item_type",  :null => false
+    t.integer  "item_id",    :null => false
+    t.string   "event",      :null => false
+    t.string   "whodunnit"
+    t.text     "object"
+    t.datetime "created_at"
+  end
+
+  add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
 
   add_foreign_key "bibls", "availability_policies", :name => "bibls_availability_policy_id_fk"
   add_foreign_key "bibls", "indexing_scenarios", :name => "bibls_indexing_scenario_id_fk"

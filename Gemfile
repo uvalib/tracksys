@@ -38,14 +38,12 @@ gem 'net-ldap'
 gem 'country-select'
 gem 'browser' # Browser detection for request form HTML5 attributes
 gem 'roadie' # for embedding CSS in request_form emails
-gem 'nokogiri-pretty' # pp xml
 
 gem "rspec-rails", :group => [:test, :development]
 group :test do
   gem "factory_girl_rails"
   gem "capybara"
   gem "guard-rspec"
-  gem "awesome_print"
 end
 
 group :production, :test do
@@ -72,3 +70,5 @@ gem 'jquery-ui-rails'
 # To use debugger
 # gem 'ruby-debug'
 
+# To version our models
+gem 'paper_trail'
