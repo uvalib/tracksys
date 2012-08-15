@@ -89,7 +89,11 @@ ActiveAdmin.register Component do
           row(:rels_int) {|component| truncate_words(component.rels_int)}
           row(:legacy_ead) {|component| 
             if component.legacy_ead
-              pre :class => "no-whitespace code_window" do 
+              pre :class => "no-whitespace code-window" do 
+                div :class => "click-advice" do 
+                  span :class => "click-advice" do "default text" end 
+                  span do image_tag( 'zoom.png'  ) end
+                end
                 code :'data-language' => 'html' do
                   word_wrap(component.legacy_ead.to_s, :line_width => 80)
                 end
@@ -226,14 +230,14 @@ ActiveAdmin.register Component do
   end
 
   action_item :only => :show do
-		link_to "Create iView Catalog", export_iview_admin_component_path, :method => :put
+    link_to "Create iView Catalog", export_iview_admin_component_path, :method => :put
   end
 
-	# member actions
-	member_action :export_iview, :method => :put do
-		Component.find(params[:id]).create_iview_xml
-		redirect_to :back, :notice => "New Iview Catalog written to file system." 
-	end
+  # member actions
+  member_action :export_iview, :method => :put do
+    Component.find(params[:id]).create_iview_xml
+    redirect_to :back, :notice => "New Iview Catalog written to file system." 
+  end
 
   controller do
     # Only cache the index view if it is the base index_url (i.e. /components) and is devoid of either params[:page] or params[:q].  

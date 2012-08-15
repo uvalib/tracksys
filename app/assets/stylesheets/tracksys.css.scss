@@ -203,9 +203,14 @@ pre, code, tt {
 pre.no-whitespace {
   white-space: normal;
   overflow: hidden;
-  height: 100px;
+//  height: 150px;
 }
 
 pre.no-whitespace code.rainbow {
   white-space: pre;
+}
+
+div.click-advice {
+  text-align: right;
+  display: block;
 }

@@ -1,6 +1,9 @@
 // Colorbox
 $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
 
+// Inline HTML via colorbox
+$('.inline').colorbox({inline:true, width:"50%"})
+
 // Chosen javascript library
 $('.chzn-select').chosen();
 $(".chzn-select-deselect").chosen({allow_single_deselect:true});
@@ -20,11 +23,31 @@ $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
 });
 
 // toggle ead display field for components
-$(".code_window").toggle(function () {
-    $(this).animate({height: '100%'}, "fast", "swing");
-}, function () {
-    $(this).animate({height: 100}, "fast", "swing");
+$('.code-window').toggle(function expandCode () {
+    var h = $(this).innerHeight();
+    var msg = h + "";
+    if ( h > 99 ) {
+      msg = msg + " click to see less";
+      $(this).animate({height: '100%'}, "fast", "swing");
+      $(this).children('.click-advice').children('span').first().text(msg);
+    } else {
+      msg = msg + " this is the full text";
+      $(this).children('.click-advice').children('span').first().text(msg);
+    }
+}, function reduceCode () {
+    var h = $(this).innerHeight();
+    var msg = h + "";
+    if ( h > 99 ) {
+      msg = msg + " click to see more";
+      $(this).animate({height: 200}, "fast", "swing");
+      $(this).children('.click-advice').children('span').first().text(msg);
+    } else {
+      msg = msg + " full text shown below";
+      $(this).children('.click-advice').children('span').first().text(msg);
+    }
 });
+
+$('.code-window').toggle(expandCode());
 
 // Begin JS for Updating Bibl Records
 $('.bibl_update_button').click(function(e) {
