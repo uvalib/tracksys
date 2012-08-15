@@ -391,5 +391,19 @@ ActiveAdmin.register Unit do
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
     caches_action :show, :unless =>  Proc.new { |c| File.exist?(File.join(IN_PROCESS_DIR, "%09d" % c.params[:id])) }
     cache_sweeper :units_sweeper
+
+    def update
+
+      if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
+        # logger.debug "Request body: #{request.body.read}"
+        
+        body = request.body.read
+        xml = Hash.from_xml(body)
+        logger.debug "xml: #{xml}"
+        params.merge!(xml)
+        logger.debug "Params: #{params}"
+      end
+      update!
+    end
   end
 end

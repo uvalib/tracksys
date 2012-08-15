@@ -87,7 +87,7 @@ class Unit
   # End processors
 
   def qr
-    code = RQRCode::QRCode.new("#{TRACKSYS_URL}admin/unit/checkin/#{self.id}", :size => 7)
+    code = RQRCode::QRCode.new("#{TRACKSYS_URL}/admin/unit/checkin/#{self.id}", :size => 7)
     return code
   end
 

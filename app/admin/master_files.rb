@@ -142,17 +142,19 @@ ActiveAdmin.register MasterFile do
             end
           end
           row(:desc_metadata) {|master_file|
-            div do 
-              link_to "Edit", "#inline_content", :class => "inline"
-            end
-            div :style => 'display:none' do 
-              div :id => 'inline_content' do
-                "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+           if not master_file.desc_metadata.nil?
+              div do 
+                link_to "Edit", "#inline_content", :class => "inline"
               end
-            end
-            pre :class => "no-whitespace code-window" do 
-              code :'data-language' => 'html' do
-                word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+              div :style => 'display:none' do 
+                div :id => 'inline_content' do
+                  "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+                end
+              end
+              pre :class => "no-whitespace code-window" do 
+                code :'data-language' => 'html' do
+                  word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+                end
               end
             end
           }
