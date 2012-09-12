@@ -67,7 +67,6 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     image_tech_meta.width = @image_exif.width if @image_exif.width 
     image_tech_meta.height = @image_exif.height if @image_exif.height
     image_tech_meta.resolution = @image_exif.x_resolution.to_i if @image_exif.x_resolution
-    image_tech_meta.resolution_unit = "dpi"
 
     if @image.colorspace.to_s == 'RGBColorspace'
       image_tech_meta.color_space = 'RGB'
