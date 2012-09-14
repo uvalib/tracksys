@@ -22,6 +22,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
 
     @source = hash[:source]
     @last = hash[:last]
+    @master_file_id = hash[:master_file_id]
     mf = MasterFile.find(@master_file_id)
 
     @image_path = File.join(@source, mf.filename)
@@ -90,6 +91,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     image_tech_meta.focal_length = @image_exif.focal_length.to_s if @image_exif.focal_length
     image_tech_meta.exif_version = @image.get_exif_by_entry('ExifVersion')[0][1] if @image.get_exif_by_entry('ExifVersion')[0][1] 
     mf.filesize = @image.filesize if @image.filesize
+    mf.md5 = Digest::MD5.hexdigest(File.read("#{@image_path}"))
 
     # Pass the RMagick output of the 'color_profile' method so that it may be analyzed,
     # unpacked and queried for the color profile name.  Since this is a binary data
@@ -131,13 +133,25 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
 
   def create_thumbnail(mf)
     unit_dir = "%09d" % mf.unit.id
-    thumbnail = @image.resample(72)
+    thumbnail = @image.resample(100)
 
-    if not File.exist?("/digiserv-production/metadata/newMcRaeMusic/#{unit_dir}/Thumbnails_(#{unit_dir})")
-      FileUtils.mkdir_p("/digiserv-production/metadata/newMcRaeMusic/#{unit_dir}/Thumbnails_(#{unit_dir})")
+    # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
+    # will eliminate other directories that are of non-Tracksys managed content.
+    @metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
+    @metadata_dir_contents.each {|dir|
+      @range = dir.split('-')
+      if mf.unit.id.to_i.between?(@range.first.to_i, @range.last.to_i)
+        @range_dir = dir
+      end
+    }
+
+    logger.info "Range dir: #{@range_dir}"
+
+    if not File.exist?("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
+      FileUtils.mkdir_p("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
     end
     
-    thumbnail.write("/digiserv-production/metadata/newMcRaeMusic/#{unit_dir}/Thumbnails_(#{unit_dir})/#{mf.filename.gsub(/tif/, 'jpg')}")
+    thumbnail.write("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{mf.filename.gsub(/tif/, 'jpg')}")
     thumbnail.destroy!
   end
 
