@@ -24,7 +24,7 @@ class AgenciesSweeper < ActionController::Caching::Sweeper
   def expire(agency)
     # Expire the index and show views for self.  Additionally, since Agency uses the ancestry gem, we need to clear 
     # the cache of self's ancestors and descendants.  Those related agencies use the name in the show view.
-    Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_agency_path(agency)}")
+    Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_agency_path(agency.id)}")
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_agencies_path}")
 
     # Since Agency uses the ancestry gem, we need to clear the cache of self's ancestors and descendants.  
@@ -34,7 +34,7 @@ class AgenciesSweeper < ActionController::Caching::Sweeper
     related << agency.descendants
     
     related.flatten.each {|agency|
-      Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_agencies_path}")
+      Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_agency_path(agency.id)}")
     }
 
     def expire_associated(agency)
