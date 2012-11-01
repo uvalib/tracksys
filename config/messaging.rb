@@ -80,6 +80,7 @@ ActiveMessaging::Gateway.define do |s|
       :start_finalization_production_processor, 
       :start_finalization_migration_processor, 
       :start_ingest_from_archive_processor, 
+      :start_manual_upload_to_archive_batch_migration_processor, 
       :start_manual_upload_to_archive_production_processor, 
       :start_manual_upload_to_archive_migration_processor, 
       :update_order_date_archiving_complete_processor, 
@@ -159,6 +160,7 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :start_finalization_production, '/queue/StartFinalizationProduction'
   s.queue :start_finalization_migration, '/queue/StartFinalizationMigration'
   s.queue :start_ingest_from_archive, '/queue/StartIngestFromArchive'
+  s.queue :start_manual_upload_to_archive_batch_migration, '/queue/StartManuaUploadToArchiveBatchMigration'
   s.queue :start_manual_upload_to_archive_production, '/queue/StartManuaUploadToArchiveProduction'
   s.queue :start_manual_upload_to_archive_migration, '/queue/StartManuaUploadToArchiveMigration'
   s.queue :update_order_date_archiving_complete, '/queue/UpdateOrderDateArchivingComplete'

@@ -36,6 +36,12 @@ PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
 PRODUCTION_METADATA_DIR = "#{PRODUCTION_MOUNT}/metadata"
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 
+# Batch migration variables
+BATCH_MIGRATION_MOUNT = "/lib_content37/Rimage"
+MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff"
+MANUAL_ARCHIVE_IN_PROCESS_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff/in_process"
+BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_delete/from_stornext_manual_upload"
+
 # Solr URL variables for interacting with sanctioned solr server.  Used in constructing solr records
 # and in engaging lib/bibl_external_update
 SOLR_PRODUCTION_NAME = "solrpowr.lib.virginia.edu"
