@@ -100,7 +100,9 @@ ActiveAdmin.register MasterFile do
           row :date_archived do |master_file|
             format_date(master_file.date_archived)
           end
-          row :transcription_text
+          row :transcription_text do |master_file|
+            simple_format(master_file.transcription_text)
+          end
         end
       end
     end
