@@ -10,11 +10,11 @@ ActiveAdmin.register Bibl, :namespace => :patron do
   scope :not_in_digital_library
 
   filter :id
-  filter :title
+  filter :barcode
   filter :call_number
+  filter :title
   filter :creator_name
   filter :catalog_key
-  filter :barcode
   filter :pid
   filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type), :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
