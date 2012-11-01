@@ -46,8 +46,8 @@
     <div class="entry"><%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
   </div>
   <div class="floating">
-    <div class="label"><span class="ib">Equipment:</span></div>
-    <div class="entry">&nbsp;</div>
+    <div class="label"><span class="ib">Title:</span></div>
+    <div class="entry"><%= if @bibl then empty2nbsp(truncate(@bibl.title, :length => 100)) else empty2nbsp('') end %></div>
   </div>
   <br/>
   <br/>
