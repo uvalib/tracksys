@@ -155,7 +155,10 @@ ActiveAdmin.register Bibl do
         end
       end
     end
-
+    
+    div :class => 'columns-none' do
+      active_admin_comments
+    end
   end
 
   sidebar "Related Information", :only => [:show, :edit] do
