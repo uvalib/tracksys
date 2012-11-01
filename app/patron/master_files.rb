@@ -16,6 +16,8 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   end
 
   filter :id
+  filter :bibl_barcode, :as => :string, :label => "Barcode"
+  filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :filename
   filter :title
   filter :description
@@ -28,8 +30,6 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :bibl_title, :as => :string, :label => "Bibl Title"
   filter :bibl_creator_name, :as => :string, :label => "Author"
-  filter :bibl_call_number, :as => :string, :label => "Call Number"
-  filter :bibl_barcode, :as => :string, :label => "Barcode"
   filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
   filter :academic_status, :as => :select
   filter :availability_policy
