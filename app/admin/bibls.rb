@@ -204,6 +204,13 @@ ActiveAdmin.register Bibl do
           end
         } unless bibl.agencies.empty?
       end
+      row "Legacy Identifiers" do |bibl|
+        bibl.legacy_identifiers.each {|li|
+          div do
+            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+          end
+        } unless bibl.legacy_identifiers.empty?
+      end      
     end
   end
 
