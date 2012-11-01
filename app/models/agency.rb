@@ -2,13 +2,19 @@ require "#{Hydraulics.models_dir}/agency"
 
 class Agency
   has_ancestry
-	before_save :cache_ancestry
+  before_save :cache_ancestry
 
   scope :no_parent, where(:ancestry => nil)
 
-	def cache_ancestry
-		self.names_depth_cache = path.map(&:name).join('/')
-	end
+  def cache_ancestry
+    cached_ancestry = String.new
+    if path.empty?
+      cached_ancestry = self.name
+    else
+      cached_ancestry = path.map(&:name).join('/')
+    end
+    self.names_depth_cache = cached_ancestry
+  end
 
   def total_order_count
     # start with self.orders.size and then add all descendant agency's orders.size
