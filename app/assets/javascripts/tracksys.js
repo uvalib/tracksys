@@ -27,17 +27,17 @@ $('.code-window').toggle(function expandCode () {
     var h = $(this).innerHeight();
     if ( h > 99 ) {
       $(this).animate({height: '100%'}, "fast", "swing");
-      $(this).children('.click-advice').children('span').first().text(msg);
+//      $(this).children('.click-advice').children('span').first().text(msg);
     } else {
-      $(this).children('.click-advice').children('span').first().text(msg);
+//      $(this).children('.click-advice').children('span').first().text(msg);
     }
   }, function reduceCode () {
     var h = $(this).innerHeight();
     if ( h > 99 ) {
       $(this).animate({height: 100}, "fast", "swing");
-      $(this).children('.click-advice').children('span').first().text(msg);
+//      $(this).children('.click-advice').children('span').first().text(msg);
     } else {
-      $(this).children('.click-advice').children('span').first().text(msg);
+//      $(this).children('.click-advice').children('span').first().text(msg);
     }
  });
 
@@ -60,5 +60,4 @@ $('#bibl_catalog_key, #bibl_barcode').change(function() {
   console.log("changed url to: " + new_url);
 });
 //end Begin JS for Updating Bibl Records
-
 
