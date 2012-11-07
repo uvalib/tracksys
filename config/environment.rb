@@ -61,7 +61,7 @@ BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverab
 VIRGO_URL = "http://search.lib.virginia.edu/catalog"
 
 # Library homepage URL for request form footer
-LIBRARY_URL = "http://www.lib.virginia.edu"
+LIBRARY_URL = "http://www.library.virginia.edu"
 
 IVIEW_CATALOG_EXPORT_DIR = "/digiserv-production/administrative/EAD2iViewXML"
 
