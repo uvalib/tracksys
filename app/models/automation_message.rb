@@ -7,6 +7,7 @@ class AutomationMessage
     'CreateStatsReportProcessor' => 'administrative', 
     'SendUnitToArchiveProcessor' => 'archive',
     'StartManualUploadToArchiveMigrationProcessor' => 'archive',
+    'StartManualUploadToArchiveBatchMigrationProcessor' => 'archive',
     'StartManualUploadToArchiveProcessor' => 'archive',
     'StartManualUploadToArchiveProductionProcessor' => 'archive',
     'UpdateOrderDateArchivingCompleteProcessor' => 'archive',
