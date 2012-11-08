@@ -55,7 +55,7 @@ class Component
     else 
       value = id # Everything has an id, so it is the LCD.
     end
-    return value.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
+    return value.to_s.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
   end
 
   # For the purposes of digitization, student workers need access to as much of the metadata available
