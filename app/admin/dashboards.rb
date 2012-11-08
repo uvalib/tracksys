@@ -47,6 +47,7 @@ ActiveAdmin::Dashboards.build do
     div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
     div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
     div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_workflow_start_start_manual_upload_to_archive_batch_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
    end
 
   section "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
