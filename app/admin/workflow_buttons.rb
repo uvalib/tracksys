@@ -7,6 +7,7 @@ ActiveAdmin.register_page "WorkflowStart" do
       div :class => 'workflow_button' do button_to "Start Finalization on digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
       div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
       div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on lib_content37", admin_workflow_start_start_manual_upload_to_archive_batch_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
     end
 
     panel "Digital Library" do
@@ -39,6 +40,14 @@ ActiveAdmin.register_page "WorkflowStart" do
     redirect_to :back
   end
 
+  page_action :start_manual_upload_to_archive_batch_migration do
+    @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
+    message = ActiveSupport::JSON.encode( {:user_id => @user.id } )
+    publish :start_manual_upload_to_archive_batch_migration, message
+    flash[:notice] = "Items in /lib_content37/Rimage/stornext_dropoff/#{Time.now.strftime('%A')}."
+    redirect_to :back
+  end
+
   page_action :start_manual_upload_to_archive_production do
     @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
     message = ActiveSupport::JSON.encode( {:user_id => @user.id } )
@@ -65,6 +74,7 @@ ActiveAdmin.register_page "WorkflowStart" do
     require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
 
+    publishes_to :start_manual_upload_to_archive_batch_migration
     publishes_to :start_manual_upload_to_archive_production
   end
 end
