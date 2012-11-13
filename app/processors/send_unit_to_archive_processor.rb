@@ -76,8 +76,21 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
           FileUtils.copy(f, File.join(ARCHIVE_WRITE_DIR, parent, basename))
           FileUtils.chmod(0664, File.join(ARCHIVE_WRITE_DIR, parent, basename))
           # Calculate information for checksums
-          source_md5 = Digest::MD5.hexdigest(File.read(f))
-          copy_md5 = Digest::MD5.hexdigest(File.read(File.join(ARCHIVE_WRITE_DIR, parent, basename)))
+          
+          # Get source MD5
+          source_md5 = Digest::MD5.new       
+          File.open(f, 'r') do |file|
+            source_md5.update(file.read(16384)) until file.eof
+          end
+          
+          # Get copy MD5
+          copy_md5 = Digest::MD5.new
+          File.open(File.join(ARCHIVE_WRITE_DIR, parent, basename), 'r') do |file|
+            copy_md5.update(file.read(16384)) until file.eof
+          end
+          
+          #source_md5 = Digest::MD5.hexdigest(File.read(f))
+          #copy_md5 = Digest::MD5.hexdigest(File.read(File.join(ARCHIVE_WRITE_DIR, parent, basename)))
 
           # Run checksum tests
           if copy_md5 != source_md5
