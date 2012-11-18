@@ -93,7 +93,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
           #copy_md5 = Digest::MD5.hexdigest(File.read(File.join(ARCHIVE_WRITE_DIR, parent, basename)))
 
           # Run checksum tests
-          if copy_md5 != source_md5
+          if copy_md5.hexdigest != source_md5.hexdigest
             # Introduce logic here to move the entire unit directory to REVIEW_DIR, or 50_fail_checksum
             on_failure("** Warning ** - File #{f} has failed checksum test")
             @errors += 1
@@ -106,7 +106,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
             # rescue condition is a hack but is easiest to institute at the time.
             begin
               mf = MasterFile.find_by_filename!(basename)
-              mf.update_attributes(:md5 => source_md5)
+              mf.update_attributes(:md5 => source_md5.hexdigest)
             rescue ActiveRecord::RecordNotFound
             end   
           end
