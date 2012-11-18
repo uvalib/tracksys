@@ -284,6 +284,31 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
         publish :ingest_solr_doc, bibl_xml_message
         on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
       end
+    elsif @object.is_a? Component
+      instance_variable_set("@#{@object.class.to_s.underscore}_id", @object.id)
+
+      # Update the object's date_dl_update value
+      @object.update_attribute(:date_dl_update, Time.now)
+
+      component_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id})
+
+      if @datastream == 'allxml'
+        publish :ingest_desc_metadata, component_message             
+
+        on_success "All datastreams for #{@object_class} #{@object_id} will be updated"
+      elsif @datastream == 'desc_metadata'
+        publish :ingest_desc_metadata, component_message
+        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
+      elsif @datastream == 'rels_ext'
+        publish :ingest_rels_ext, component_message
+        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
+      elsif @datastream == 'dc_metadata'
+        publish :ingest_dc_metadata, component_message
+        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
+      elsif @datastream == 'solr_doc'
+        publish :ingest_solr_doc, component_message
+        on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
+      end      
     else
       on_error "Object #{@object_class} #{@object_id} is of an unknown class.  Check incoming message."
     end
