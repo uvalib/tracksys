@@ -26,8 +26,7 @@ ActiveMessaging::Gateway.define do |s|
       :create_order_zip_processor],
     :delete_unit_copy_for_deliverable_generation_group => [
       :delete_unit_copy_for_deliverable_generation_processor],
-    :dl_ingestion_group => [
-      :create_new_fedora_objects_processor,
+    :dl_ingestion_group => [    
       :ingest_dc_metadata_processor,
       :ingest_desc_metadata_processor,
       :ingest_jp2k_processor,
@@ -36,16 +35,19 @@ ActiveMessaging::Gateway.define do |s|
       :ingest_rels_int_processor,
       :ingest_rights_metadata_processor,
       :ingest_solr_doc_processor,
-      :ingest_tei_doc_processor,
       :ingest_tech_metadata_processor,
+      :ingest_tei_doc_processor,
       :ingest_transcription_processor,
-      :propogate_access_policies_processor,
-      :propogate_discoverability_processor,
-      :propogate_indexing_scenarios_processor,
-      :queue_objects_for_fedora_processor,
       :send_commit_to_solr_processor,
       :update_fedora_datastreams_processor,
       :update_rels_ext_with_indexer_content_model_processor],
+    :dl_ingestion_group_light => [
+      :create_new_fedora_objects_processor,
+      :propogate_access_policies_processor,
+      :propogate_discoverability_processor,
+      :propogate_indexing_scenarios_processor,
+      :queue_objects_for_fedora_processor
+    ],
     :order_email_group => [
       :create_invoice_processor, 
       :move_deliverables_to_delivered_orders_directory_processor, 
