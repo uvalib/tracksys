@@ -218,6 +218,15 @@ ActiveAdmin.register Component do
           link_to "#{component.children.size}", admin_components_path(:q => {:parent_component_id_eq => component.id})
         end
       end
+  sidebar "Digital Library Workflow", :only => [:show] do 
+    if component.exists_in_repo?
+      div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_component_path(:datastream => 'allxml'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_component_path(:datastream => 'dc_metadata'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_component_path(:datastream => 'desc_metadata'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_component_path(:datastream => 'rels_ext'), :method => :put end
+      div :class => 'workflow_button' do button_to "Update Index Record", update_metadata_admin_component_path(:datastream => 'solr_doc'), :method => :put end
+    else
+      "No options available.  Object not yet ingested."
     end
   end
 
