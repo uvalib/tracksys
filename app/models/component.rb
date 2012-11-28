@@ -110,6 +110,14 @@ class Component
     return self.parent.children.sort_by {|c| c.id}
   end
 
+  def new_next
+    return Component.find(self.followed_by_id) unless self.followed_by_id.nil?
+  end
+
+  def new_previous
+    return Component.where(:followed_by_id => self.id).first
+  end
+
   def next
     if parent
       @sorted_siblings = sorted_siblings
