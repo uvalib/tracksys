@@ -25,14 +25,20 @@ class IngestRightsMetadataProcessor < ApplicationProcessor
     @messagable_type = hash[:object_class]
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @pid = @object.pid
-    instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)    
+    instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
-    # Since the rightsMetadata is an externally referenced datastream, the xml passed to add_or_update_datastream is empty.    
-    xml = nil
-    dsLocation = Hydra.access(@object)
- 
-    # To conform to potentially legacy Fedora requirements, we will create a POLICY datastream.  
-    Fedora.add_or_update_datastream(xml, @pid, 'POLICY', 'Fedora-required policy datastream', :dsLocation => dsLocation, :controlGroup => 'E')
-    on_success "The POLICY datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
+    # The POLICY datastream should only be posted if the access policy is anything but permit to all.  So exclude this processor's
+    # work if @object.availability_policy_id == 1
+    if not @object.availability_policy_id == 1
+      # Since POLICY is an externally referenced datastream, the xml passed to add_or_update_datastream is empty.    
+      xml = nil
+      dsLocation = Hydra.access(@object)
+   
+      # To conform to potentially legacy Fedora requirements, we will create a POLICY datastream.  
+      Fedora.add_or_update_datastream(xml, @pid, 'POLICY', 'Fedora-required policy datastream', :dsLocation => dsLocation, :controlGroup => 'R')
+      on_success "The POLICY datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
+    else
+      on_success "The POLICY datastream was not created because this object is set to Public."
+    end
   end
 end
