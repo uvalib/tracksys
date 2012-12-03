@@ -192,7 +192,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
       @unit_dir = "%09d" % @object.unit.id
 
       # Messages coming from this processor should only be for units that have already been archived.
-      @source = File.join(ARCHIVE_READ_DIR, @unit_dir, @object.filename)
+      @source = File.join(@object.archive.directory, @unit_dir, @object.filename)
 
       masterfile_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id})
       masterfile_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 })

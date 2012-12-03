@@ -20,65 +20,70 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
     @working_unit = Unit.find(@unit_id)
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     @failure_messages = Array.new
-    @source_dir = File.join(ARCHIVE_READ_DIR, @unit_dir)
-    @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, @computing_id)
-    FileUtils.mkdir_p(@destination_dir)
 
-    if hash[:master_file_filename]
-      @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).first.id
-      @messagable_type = "MasterFile"
-      master_file_filename = hash[:master_file_filename]
-      begin
-        FileUtils.cp(File.join(@source_dir, master_file_filename), File.join(@destination_dir, master_file_filename))
-        File.chmod(0664, File.join(@destination_dir, master_file_filename))
-      rescue Exception => e
-        @failure_messages << "Can't copy source file '#{master_file_filename}': #{e.message}"
-      end
+    if @working_unit.archive.directory?
+      @source_dir = File.join(@working_unit.archive.directory, @unit_dir)
+      @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, @computing_id)
+      FileUtils.mkdir_p(@destination_dir)
 
-      # compare MD5 checksums
-      source_md5 = Digest::MD5.hexdigest(File.read(File.join(@source_dir, master_file_filename)))
-      dest_md5 = Digest::MD5.hexdigest(File.read(File.join(@destination_dir, master_file_filename)))
-      if source_md5 != dest_md5
-        @failure_messages << "Failed to copy source file '#{master_file_filename}': MD5 checksums do not match"
-      end
-    else
-      @messagable_id = hash[:unit_id]
-      @messagable_type = "Unit"
-      @master_files = @working_unit.master_files
-      @master_files.each {|master_file|
+      if hash[:master_file_filename]
+        @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).first.id
+        @messagable_type = "MasterFile"
+        master_file_filename = hash[:master_file_filename]
         begin
-          FileUtils.cp(File.join(@source_dir, master_file.filename), File.join(@destination_dir, master_file.filename))
-          File.chmod(0664, File.join(@destination_dir, master_file.filename))
-          FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, master_file.filename))
+          FileUtils.cp(File.join(@source_dir, master_file_filename), File.join(@destination_dir, master_file_filename))
+          File.chmod(0664, File.join(@destination_dir, master_file_filename))
         rescue Exception => e
-          @failure_messages << "Can't copy source file '#{master_file.filename}': #{e.message}"
+          @failure_messages << "Can't copy source file '#{master_file_filename}': #{e.message}"
         end
 
         # compare MD5 checksums
-        source_md5 = Digest::MD5.hexdigest(File.read(File.join(@source_dir, master_file.filename)))
-        dest_md5 = Digest::MD5.hexdigest(File.read(File.join(@destination_dir, master_file.filename)))
+        source_md5 = Digest::MD5.hexdigest(File.read(File.join(@source_dir, master_file_filename)))
+        dest_md5 = Digest::MD5.hexdigest(File.read(File.join(@destination_dir, master_file_filename)))
         if source_md5 != dest_md5
-          @failure_messages << "Failed to copy source file '#{master_file.filename}': MD5 checksums do not match"
+          @failure_messages << "Failed to copy source file '#{master_file_filename}': MD5 checksums do not match"
         end
-      }
-      if File.exist?(File.join(@source_dir, "#{@unit_dir}.ivc"))
-       	FileUtils.cp(File.join(@source_dir, "#{@unit_dir}.ivc"), File.join(@destination_dir, "#{@unit_dir}.ivc"))
-        File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.ivc"))
-        FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, "#{@unit_dir}.ivc"))
-      end
-    end
-
-    if @failure_messages.empty?
-      if master_file_filename
-        on_success "Master file #{master_file_filename} from unit #{@unit_id} has been successfully copied to #{@destination_dir}."
       else
-        on_success "All master files from unit #{@unit_id} have been successfully copied to #{@destination_dir}."
+        @messagable_id = hash[:unit_id]
+        @messagable_type = "Unit"
+        @master_files = @working_unit.master_files
+        @master_files.each {|master_file|
+          begin
+            FileUtils.cp(File.join(@source_dir, master_file.filename), File.join(@destination_dir, master_file.filename))
+            File.chmod(0664, File.join(@destination_dir, master_file.filename))
+            FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, master_file.filename))
+          rescue Exception => e
+            @failure_messages << "Can't copy source file '#{master_file.filename}': #{e.message}"
+          end
+
+          # compare MD5 checksums
+          source_md5 = Digest::MD5.hexdigest(File.read(File.join(@source_dir, master_file.filename)))
+          dest_md5 = Digest::MD5.hexdigest(File.read(File.join(@destination_dir, master_file.filename)))
+          if source_md5 != dest_md5
+            @failure_messages << "Failed to copy source file '#{master_file.filename}': MD5 checksums do not match"
+          end
+        }
+        if File.exist?(File.join(@source_dir, "#{@unit_dir}.ivc"))
+         	FileUtils.cp(File.join(@source_dir, "#{@unit_dir}.ivc"), File.join(@destination_dir, "#{@unit_dir}.ivc"))
+          File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.ivc"))
+          FileUtils.chown(@computing_id, 'lb-ds', File.join(@destination_dir, "#{@unit_dir}.ivc"))
+        end
+      end
+
+      if @failure_messages.empty?
+        if master_file_filename
+          on_success "Master file #{master_file_filename} from unit #{@unit_id} has been successfully copied to #{@destination_dir}."
+        else
+          on_success "All master files from unit #{@unit_id} have been successfully copied to #{@destination_dir}."
+        end
+      else
+        @failure_messages.each {|message|
+          on_failure "#{message}"
+        }
+        on_error "There were failures in the copying process."
       end
     else
-      @failure_messages.each {|message|
-        on_failure "#{message}"
-      }
-      on_error "There were failures in the copying process."
+      on_error "Unit #{@unit_id} cannot be download.  The unit's archive directory does not exist.  Check archival storage."
     end
   end
 end

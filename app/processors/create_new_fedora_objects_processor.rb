@@ -13,6 +13,8 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
  
   def on_message(message)  
     logger.debug "CreateNewFedoraObjectsProcessor received: " + message
+
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
@@ -28,7 +30,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
     @object_id = hash[:object_id]
     @last = hash[:last]
     @object = @object_class.classify.constantize.find(@object_id)
-    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
+    
     @messagable_id = hash[:object_id]
     @messagable_type = hash[:object_class]
     
@@ -73,7 +75,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
 
       # All objects get desc_metadata, rights_metadata
       publish :ingest_desc_metadata, default_message
-      publish :ingest_rights_metadata, default_message
+      # publish :ingest_rights_metadata, default_message
 
       if @object.is_a? Bibl
         if @object.catalog_key
