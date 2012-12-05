@@ -234,6 +234,13 @@ ActiveAdmin.register MasterFile do
           link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{master_file.pid}", :class => 'member_link', :target => "_blank"
         end
       end
+      row "Legacy Identifiers" do |master_file|
+       	master_file.legacy_identifiers.each {|li|
+          div do
+            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+          end
+        } unless master_file.legacy_identifiers.empty?
+      end
     end
   end
 
