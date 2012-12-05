@@ -49,8 +49,9 @@ SOLR_PRODUCTION_PORT = "8984"
 
 # To prevent writing to production archive on Stornext from all but tracksys.production
 # the default write directory will be Test.
-ARCHIVE_WRITE_DIR = "/RMDS_archive/CheckSummed_archive"
-ARCHIVE_READ_DIR = "/RMDS_archive/CheckSummed_archive"
+ARCHIVE_WRITE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
+ARCHIVE_READ_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
+#ARCHIVE_READ_DIR = "/RMDS_archive/CheckSummed_archive"
 TEI_ARCHIVE_DIR = "#{ARCHIVE_READ_DIR}/tracksys_tei_xml_depository"
 XTF_DELIVERY_DIR = "/xtf_delivery/text"
 
@@ -86,6 +87,11 @@ Fedora_namespaces = {
 Fedora_content_models = {
   'fedora-generic'=>'fedora-system:FedoraObject-3.0',
   'jp2k'=>'djatoka:jp2CModel',
+  'ead-component'=>'uva-lib:eadComponentCModel',
+  'ead-collection'=>'uva-lib:eadCollectionCModel',
+  'ead-item' => 'uva-lib:eadItemCModel',
+  'placeholder' => 'uva-lib:descMetadataPlaceholderCModel',
+  'mods34'=>'uva-lib:mods3.4CModel'
   }
 Schema_locations = {
   'mods'=>'http://www.loc.gov/standards/mods/v3/mods-3-3.xsd',
