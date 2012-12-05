@@ -300,7 +300,7 @@ ActiveAdmin.register Order do
   member_action :send_order_email, :method => :put do
     order = Order.find(params[:id])
     order.send_order_email
-    sleep(0.5)
+    sleep(4.0)
     redirect_to :back, :notice => "Email sent to #{order.customer.full_name}."
   end
 
