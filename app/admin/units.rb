@@ -46,6 +46,7 @@ ActiveAdmin.register Unit do
   filter :date_queued_for_ingest
   filter :special_instructions
   filter :include_in_dl, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :intended_use, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
   filter :order_id, :as => :numeric, :label => "Order ID"
@@ -53,6 +54,7 @@ ActiveAdmin.register Unit do
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :indexing_scenario, :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
+  filter :master_files_count, :as => :numeric
 
   index do
     selectable_column
@@ -183,6 +185,9 @@ ActiveAdmin.register Unit do
             end
             column :description do |mf|
               truncate_words(mf.description)
+            end
+            column :transcription_text do |mf|
+              truncate_words(raw(mf.transcription_text))
             end
             column :date_archived do |mf|
               format_date(mf.date_archived)
