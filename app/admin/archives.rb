@@ -10,6 +10,7 @@ ActiveAdmin.register Archive do
   index do
     column :name
     column :description
+    column :directory
     column :units do |archive|
       link_to "#{archive.units.size}", admin_units_path(:q => {:archive_id_eq => archive.id})
     end
@@ -31,6 +32,7 @@ ActiveAdmin.register Archive do
       attributes_table_for archive do
         row :name
         row :description
+        row :directory
         row :created_at do |archive|
           format_date(archive.created_at)
         end
