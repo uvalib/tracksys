@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120814202451) do
+ActiveRecord::Schema.define(:version => 20121128214634) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(:version => 20120814202451) do
     t.datetime "updated_at"
     t.string   "description"
     t.integer  "units_count", :default => 0
+    t.string   "directory"
   end
 
   add_index "archives", ["name"], :name => "index_archives_on_name", :unique => true
