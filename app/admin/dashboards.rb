@@ -67,4 +67,10 @@ ActiveAdmin::Dashboards.build do
     div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
     div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_workflow_start_push_staging_to_production_path, :method => :get end
   end
+
+  section "Statistics", :priority => 6, :toggle => 'show' do
+    div do
+      render 'admin/workflow_start/stats_report'
+    end
+  end
 end

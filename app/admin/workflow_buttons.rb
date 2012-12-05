@@ -2,18 +2,35 @@ ActiveAdmin.register_page "WorkflowStart" do
   menu :label => 'Workflow Buttons', :parent => "Miscellaneous"
 
   content do
-    panel "Buttons" do
-      div :class => 'workflow_button' do button_to "Start Finalization on digiserv-production", admin_workflow_start_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-      div :class => 'workflow_button' do button_to "Start Finalization on digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-      div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
-      div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-      div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on lib_content37", admin_workflow_start_start_manual_upload_to_archive_batch_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    div :class => 'three-column' do
+      panel "Buttons" do
+        div :class => 'workflow_button' do button_to "Start Finalization on digiserv-production", admin_workflow_start_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Start Finalization on digiserv-migration", admin_workflow_start_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-prodution", admin_workflow_start_start_manual_upload_to_archive_production_path, :method => :get end
+        div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on digiserv-migration", admin_workflow_start_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Start Manual Stornext Upload on lib_content37", admin_workflow_start_start_manual_upload_to_archive_batch_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      end
     end
 
-    panel "Digital Library" do
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-      div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_workflow_start_push_staging_to_production_path, :method => :get end
+    div :class => 'three-column' do
+      panel "Digital Library" do
+        div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_workflow_start_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_workflow_start_push_staging_to_production_path, :method => :get end
+      end
     end
+
+    div :class => 'three-column' do
+      panel "Create Stats Report" do
+        render "stats_report"
+      end
+    end
+  end
+
+  page_action :get_yearly_stats do 
+    message = ActiveSupport::JSON.encode( {:year => params[:year]})
+    publish :create_stats_report, message
+    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_report.  Give three minutes for production."
+    redirect_to :back
   end
 
   page_action :push_staging_to_production do 
