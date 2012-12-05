@@ -68,7 +68,7 @@ ActiveAdmin.setup do |config|
   # Turn off Devise authentication for production test and check NetBadge Users against StaffMembers database.
   if Rails.env == "production"
     config.authentication_method = false
-    config.current_user_method   = false
+    config.current_user_method   = :current_admin_user
     config.before_filter :authorize, :except => [ :access_denied, :mods_identifiers ]
   else
     config.authentication_method = :authenticate_admin_user!
