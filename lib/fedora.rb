@@ -32,8 +32,9 @@ module Fedora
 
     # 12/2/2010 - Because of upgrade to Fedora 3.4, we are setting the default
     # controlGroup to Managed Datastream (M) for all datastreams.  The only explicit
-    # instance of another controlGroup is for POLICY and rightsMetadata, where they
-    # will both have an External Reference (E) controlGroup
+    # instance of another controlGroup is for POLICY, where they
+    # will both have an Redirect (R) controlGroup.  Also include any potential
+    # datastreams that are External Reference (E) just in case.
 
     # Note: When you call Fedora API addDatastream for any of these XML
     # datastreams, Fedora doesn't seem to care whether the datastream already
@@ -48,7 +49,7 @@ module Fedora
     url += "&dsLocation=#{dsLocation}" unless dsLocation.nil?
     url += "&versionable=#{versionable}"
  
-    if controlGroup == 'E'
+    if controlGroup == 'E' or controlGroup == 'R'
       @resource[url].post :content_type => contentType, :multipart => multipart
     else
       checksum = Digest::MD5.hexdigest(xml)
