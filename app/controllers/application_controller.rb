@@ -6,9 +6,15 @@ class ApplicationController < ActionController::Base
     render :template => 'shared/access_denied', :layout => false
   end
 
-  def authorize
+  def current_user
     computing_id = request.env['HTTP_REMOTE_USER'].to_s
-    @user = StaffMember.find_by_computing_id(computing_id)
+    return StaffMember.find_by_computing_id(computing_id)
+  end
+
+  def authorize
+    # computing_id = request.env['HTTP_REMOTE_USER'].to_s
+    # @user = StaffMember.find_by_computing_id(computing_id)
+    @user = current_user
     unless @user and @user.active?
       # Display an "Access denied" explanatory page, because one of these
       # conditions has ocurred:
@@ -24,6 +30,17 @@ class ApplicationController < ActionController::Base
     if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
       xml = Hash.from_xml(request.body.read)
       params.merge!(xml)
+    end
+  end
+
+  protected
+
+  def user_for_paper_trail
+    user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
+    if not user.nil?
+      user.computing_id
+    else
+      "Unknown"
     end
   end
 end
