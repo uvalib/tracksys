@@ -20,6 +20,7 @@ ActiveAdmin.register MasterFile do
   filter :title
   filter :description
   filter :transcription_text
+  filter :desc_metadata
   filter :pid
   filter :unit_id, :as => :numeric, :label => "Unit ID"
   filter :order_id, :as => :numeric, :label => "Order ID"
@@ -116,9 +117,19 @@ ActiveAdmin.register MasterFile do
             attributes_table_for master_file.image_tech_meta do
               row :image_format
               row("Height x Width"){|mf| "#{mf.height} x #{mf.width}"}
+              row :resolution
+              row :depth
+              row :compression
               row :color_space
               row :color_profile
               row :equipment
+              row :model
+              row :iso
+              row :exposure_bias
+              row :exposure_time
+              row :aperture
+              row :focal_length
+              row :software             
             end
           end
         end
@@ -160,10 +171,6 @@ ActiveAdmin.register MasterFile do
               end
             end
           }
-          row(:solr) {|master_file| truncate_words(master_file.solr)}
-          row(:dc) {|master_file| truncate_words(master_file.dc)}
-          row(:rels_ext) {|master_file| truncate_words(master_file.rels_ext)}
-          row(:rels_int) {|master_file| truncate_words(master_file.rels_int)}
         end
       end
     end
@@ -192,10 +199,6 @@ ActiveAdmin.register MasterFile do
       f.input :availability_policy
       f.input :indexing_scenario
       f.input :desc_metadata, :input_html => { :rows => 5 }
-      f.input :solr, :input_html => { :rows => 5 }
-      f.input :dc, :input_html => { :rows => 5 }
-      f.input :rels_ext, :input_html => { :rows => 5 }
-      f.input :rels_int, :input_html => { :rows => 5 }
     end
 
     f.inputs :class => 'columns-none' do
