@@ -74,7 +74,7 @@ module Virgo
     Net::HTTP.start( @metadata_server, @port ) do |http|
       bibls.each do |bibl|
         if bibl.catalog_key.blank?
-          add_notification(computing_id, bibl.id, 'missing_catalog_key')
+          #add_notification(computing_id, bibl.id, 'missing_catalog_key')
           next
         end
         
@@ -91,7 +91,7 @@ module Virgo
           doc = get_main_element(xml_doc, bibl.catalog_key)
         rescue
           # no catalog record found for that catalog ID
-          add_notification(computing_id, bibl.id, 'record_not_found')
+          # add_notification(computing_id, bibl.id, 'record_not_found')
           next
         end
         
@@ -100,7 +100,7 @@ module Virgo
         
         # save changes to Bibl record
         bibl.save
-        add_notification(computing_id, bibl.id, 'updated')
+        # add_notification(computing_id, bibl.id, 'updated')
       end
     end
     
