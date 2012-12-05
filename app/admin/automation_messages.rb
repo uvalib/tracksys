@@ -21,7 +21,7 @@ ActiveAdmin.register AutomationMessage do
   filter :id
   filter :active_error, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :message_type, :as => :select, :collection => AutomationMessage::MESSAGE_TYPES.sort.map(&:titleize), :input_html => {:class => 'chzn-select'}
-  filter :processor, :as => :select, :collection => proc { AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor).map(&:titleize) }, :input_html => {:class => 'chzn-select'}
+  filter :processor, :as => :select, :collection => proc { AutomationMessage.select(:processor).order(:processor).uniq.map(&:processor)}, :input_html => {:class => 'chzn-select'}
   filter :workflow_type, :as => :select, :collection => AutomationMessage::WORKFLOW_TYPES.sort.map(&:titleize), :input_html => {:class => 'chzn-select'}
   filter :messagable_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object", :input_html => {:class => 'chzn-select'}
   filter :messagable_id, :as => :numeric, :label => "Object ID"
