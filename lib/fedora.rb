@@ -76,6 +76,11 @@ module Fedora
     datastream = @resource[url].get
     return datastream
   end
+
+  def self.purge_datastream(pid, datastream)
+    url = "/objects/#{pid}/datastreams/#{datastream}"
+    @resource[url].delete
+  end
   
   def self.purge_object(pid)
     url = "/objects/#{pid}"
