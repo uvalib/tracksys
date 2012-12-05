@@ -6,10 +6,6 @@ module Hydra
 
   XML_FILE_CREATION_STATEMENT = "Created programmatically by the Digital Curation Services Tracking System."
 
-  def self.aptrust_metadata(object)
-
-  end
-
   # Returns the URL for the MARCXML file, sourced from Virgo, to be used as an 
   # external referenced dastastream named MARC
   def self.marc(object)
@@ -71,9 +67,9 @@ module Hydra
       external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
       external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-      total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
-      total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
-      total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+      # total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+      # total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
+      # total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
       analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.catalog_key}"
 
@@ -127,6 +123,8 @@ module Hydra
         })
       return response.body
     elsif object.is_a? Component
+      # Return the response from the getIndexingMetadata Fedora Disseminator
+      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?").read
     else
       raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
     end
@@ -285,12 +283,11 @@ module Hydra
         # Create isMemberof relationship in rels-ext
         # For a Component or MasterFile object, indicate parent/child relationship using <rel:isMemberOf>
         if object.is_a? Component
-          if object.parent_component
-            parent_pid = object.parent_component.pid
-            xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
-          else
-            parent_pid = object.bibl.pid
-            xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
+          if object.parent
+            xml.rel :isPartOf, "rdf:resource".to_sym => "info:fedora/#{object.parent.pid}"
+          end
+          if object.new_previous
+            xml.uva :follows, "rdf:resource".to_sym => "info:fedora/#{object.new_previous.pid}"
           end
         elsif object.is_a? MasterFile
           if object.component
@@ -306,6 +303,26 @@ module Hydra
             xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
           end
         else
+        end
+
+        
+        if object.is_a? Component
+          # Assign visibility status for Components
+          if object.discoverability?
+            xml.uva :visibility, 'VISIBLE'
+          else
+            xml.uva :visibility, 'UNDISCOVERABLE'
+          end
+
+          # Assign MasterFile records to a Component
+          if not object.master_files.empty?
+            object.master_files.each {|mf|
+              xml.uva :hasDigitalRepresentation, "rdf:resource".to_sym => "info:fedora/#{mf.pid}"
+            }
+
+            # For the time being, hardcode the exemplar as the pid of the first master_files
+            xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{object.master_files.first.pid}"
+          end
         end
 
         # Acquire PID of image that has been selected as the exemplar image for this Bibl.
@@ -345,8 +362,19 @@ module Hydra
 
         # Indicate content model using <fedora-model:hasModel>
         content_models = Array.new
-        if object.is_a? Bibl or object.is_a? Component
+        if object.is_a? Bibl 
           content_models.push(Fedora_content_models['fedora-generic'])
+        elsif object.is_a? Component
+          # assuming at this point that all Components are going to have descMetadata datastreams that is written
+          # in MODS 3.4.
+          content_models.push(Fedora_content_models['mods34'])
+          if object.level == 'item'
+            content_models.push(Fedora_content_models['ead-item'])
+          elsif object.level == 'guide'
+            content_models.push(Fedora_content_models['ead-collection'])
+          else
+            content_models.push(Fedora_content_models['ead-component'])
+          end    
         elsif object.is_a? MasterFile and object.tech_meta_type == 'image'
           content_models.push(Fedora_content_models['jp2k'])
         else
@@ -433,7 +461,18 @@ module Hydra
     # If there is a Bibl with MARC XML available, that MARC XML will be transformed into
     # the MODS that will be ingested as the Hydra-compliant descMetadata
     if object.is_a? Bibl and object.catalog_key
-      output = mods_from_marc(object)
+      # Need to modify the output of mods_from_marc to include local identifier used to determine
+      # discoverablity in the index.
+      doc = Nokogiri::XML(mods_from_marc(object))
+      last_node = doc.xpath("//mods:identifier").last
+      index_node = Nokogiri::XML::Node.new "identifier", doc
+      index_node['type'] = 'uri'
+      index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
+      index_node['invalid'] = 'yes' unless object.discoverability
+      index_node.content = "#{object.pid}"
+      last_node.add_next_sibling(index_node)
+      output = doc.human
+
     else
       output = ''
       xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
@@ -526,7 +565,11 @@ module Hydra
              
       # Create an identifier statement that indicates whether this item will be uniquely discoverable in VIRGO.  Default for an individual bibl will be to 
       # display the SOLR record (i.e. no 'invalid' attribute).  Will draw value from bibl.discoverability.
-      xml.mods :identifier, bibl.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
+      if bibl.discoverability
+        xml.mods :identifier, bibl.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
+      else
+        xml.mods :identifier, bibl.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
+      end      
 
       # type of resource
       if bibl.is_manuscript? and bibl.is_collection?
@@ -594,53 +637,52 @@ module Hydra
     else
       relatedItem_id = format_pid(component.pid)
     end
-    xml.mods :relatedItem, :displayLabel => display_label, :ID => relatedItem_id, :type => 'constituent' do
-      # title
-      unless component.title.blank?
-        xml.mods :titleInfo do
-          xml.mods :title, component.title
-        end
-      end
-      
-      # label
-      unless component.label.blank?
-        xml.mods :titleInfo do
-          xml.mods :title, component.label
-        end
-      end
-      
-      # date
-      unless component.date.blank?
-        xml.mods :originInfo do
-          xml.mods :dateCreated, component.date
-        end
-      end
-      
-      # content description
-      unless component.content_desc.blank?
-        xml.mods :abstract, component.content_desc
-      end
-      
-      # identifiers
-      unless component.idno.blank?
-        xml.mods :identifier, component.idno, :type => 'local', :displayLabel => 'Local identifier'
-      end
-      unless component.barcode.blank?
-        xml.mods :identifier, component.barcode, :type => 'local', :displayLabel => 'Barcode'
-      end
-      
-      # Include each associated MasterFile as a nested <mods:relatedItem>
-      count = 0
-      component.master_files.sort_by{|mf| mf.filename}.each do |master_file|
-        count += 1
-        mods_master_file(xml, master_file, count)
-      end
-      
-      # Output each child Component as a nested <mods:relatedItem>
-      component.child_components.each do |child_component|
-        mods_component(xml, child_component)
+
+    # title
+    unless component.title.blank?
+      xml.mods :titleInfo do
+        xml.mods :title, component.title
       end
     end
+    
+    # label
+    unless component.label.blank?
+      xml.mods :titleInfo do
+        xml.mods :title, component.label
+      end
+    end
+    
+    # date
+    unless component.date.blank?
+      xml.mods :originInfo do
+        xml.mods :dateCreated, component.date, :keydate => 'yes', :encoding => "w3cdtf"
+      end
+    end
+    
+    # content description
+    unless component.content_desc.blank?
+      xml.mods :abstract, component.content_desc
+    end
+    
+    # identifiers
+    unless component.idno.blank?
+      xml.mods :identifier, component.idno, :type => 'local', :displayLabel => 'Local identifier'
+    end
+    unless component.barcode.blank?
+      xml.mods :identifier, component.barcode, :type => 'local', :displayLabel => 'Barcode'
+    end
+    
+    # # Include each associated MasterFile as a nested <mods:atedItem>
+    # count = 0
+    # component.master_files.sort_by{|mf| mf.filename}.each do |master_file|
+    #   count += 1
+    #   mods_master_file(xml, master_file, count)
+    # end
+    
+    # # Output each child Component as a nested <mods:relatedItem>
+    # component.childr  en.each do |child_component|
+    #   mods_component(xml, child_component)
+    # end
   end
   private_class_method :mods_component
 

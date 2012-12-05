@@ -37,9 +37,16 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     # Add a Unit's Bibl's parents (if in existence)
     # @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
     @working_unit.master_files.each {|mf| things << mf }
-    @working_unit.components.each {|component| things << component }
+    @working_unit.components.each {|component| 
+      things << component 
+      # the following may produce duplicates, especially when ingesting many items from the same
+      # EAD guide, so we must uniq them before emitting messages (as done four lines below).
+      things << component.ancestors
+    }
 
-    things.each {|thing|
+    things.flatten!
+
+    things.uniq.each {|thing|
       # Dynamically name the variable for putting the appropriate id in the automation_message
       instance_variable_set("@#{thing.class.to_s.underscore}_id", thing.id)
   

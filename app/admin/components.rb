@@ -43,7 +43,7 @@ ActiveAdmin.register Component do
   end
   
   show :title => proc{"#{truncate(component.name, :length => 60)}"} do
-    div :class => 'columns-none' do
+    div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for component do
           row :id
@@ -54,22 +54,31 @@ ActiveAdmin.register Component do
           row :label
           row :ead_id_att
           row :component_type
+          row("Followed By") do |component| 
+            if not component.followed_by_id.nil?
+              link_to "#{component.followed_by_id}", admin_component_path(component.followed_by_id) 
+            else
+              "None"
+            end
+          end
         end
       end
     end
   
-   div :class => "columns-none" do
+   div :class => 'two-column' do
       panel "Digital Library Information" do
         attributes_table_for component do
           row :pid
+          row :date_dl_ingest
+          row :date_dl_update
           row :availability_policy
           row :indexing_scenario
           row :discoverability do |component|
             case component.discoverability
             when false
-              "Not uniquely discoverable"
+              "UNDISCOVERABLE"
             when true
-              "Uniquely discoverable"
+              "VISIBLE"
             else
               "Unknown"
             end
@@ -173,7 +182,7 @@ ActiveAdmin.register Component do
   form do |f|
     f.inputs "General Information", :class => 'inputs two-column' do 
       f.input :id, :as => :string, :input_html => {:disabled => true}
-      f.input :title
+      f.input :title, :as => :text, :input_html => {:rows => 2}
       f.input :content_desc, :input_html => {:rows => 5}
       f.input :date
       f.input :level, :as => :select, :collection => Component.select(:level).uniq.map(&:level), :include_blank => false
@@ -218,6 +227,17 @@ ActiveAdmin.register Component do
           link_to "#{component.children.size}", admin_components_path(:q => {:parent_component_id_eq => component.id})
         end
       end
+      row :automation_messages do |component|
+        link_to "#{component.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => component.id, :messagable_type_eq => "Component" })
+      end
+      row "Digital Library" do |component|
+        if component.exists_in_repo?
+          link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"
+        end
+      end
+    end
+  end
+
   sidebar "Digital Library Workflow", :only => [:show] do 
     if component.exists_in_repo?
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_component_path(:datastream => 'allxml'), :method => :put end
@@ -231,11 +251,11 @@ ActiveAdmin.register Component do
   end
 
   action_item :only => :show do
-    link_to_unless(component.previous.nil?, "Previous", admin_component_path(component.previous))
+    link_to_unless(component.new_previous.nil?, "Previous", admin_component_path(component.new_previous))
   end
 
   action_item :only => :show do
-    link_to_unless(component.next.nil?, "Next", admin_component_path(component.next))
+    link_to_unless(component.new_next.nil?, "Next", admin_component_path(component.new_next))
   end
 
   action_item :only => :show do
@@ -246,6 +266,11 @@ ActiveAdmin.register Component do
   member_action :export_iview, :method => :put do
     Component.find(params[:id]).create_iview_xml
     redirect_to :back, :notice => "New Iview Catalog written to file system." 
+  end
+
+  member_action :update_metadata, :method => :put do 
+    Component.find(params[:id]).update_metadata(params[:datastream])
+    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
   controller do
