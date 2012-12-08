@@ -95,7 +95,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
     end
   end
 
-  show :title => proc{"Unit ##{unit.id}"} do
+  show :title => proc{|unit| "Unit ##{unit.id}"} do
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for unit do

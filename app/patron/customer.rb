@@ -51,7 +51,7 @@ ActiveAdmin.register Customer, :namespace => :patron do
     end
   end
 
-  show :title => proc { customer.full_name } do
+  show do
     div :class => 'three-column' do 
       panel "Details", :id => 'customers' do
         attributes_table_for customer do

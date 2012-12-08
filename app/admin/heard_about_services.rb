@@ -42,7 +42,7 @@ ActiveAdmin.register HeardAboutService do
     end
   end
 
-  show :title => proc { heard_about_service.description } do
+  show :title => proc { |service| service.description } do
     panel "Detailed Information" do
       attributes_table_for heard_about_service do
         row :description

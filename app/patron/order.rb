@@ -51,7 +51,7 @@ ActiveAdmin.register Order, :namespace => :patron do
     end
   end
 
-  show do
+  show :title => proc{|order| "Order ##{order.id}"} do
     div :class => 'two-column' do
       panel "Basic Information" do
         attributes_table_for order do

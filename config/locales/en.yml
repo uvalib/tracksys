@@ -1,8 +1,4 @@
-# Sample localization file for English. Add more files in this directory for other locales.
-# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
-
 en:
-  # Override display variables from Active Admin default
   active_admin:
     new_model: "New"
     create_model: "New"
@@ -14,6 +10,8 @@ en:
     clear_filters: "Clear Search"
     sidebars:
       filters: "Search"
+    batch_actions:
+      action_label: "%{title}"
   activerecord:
     models:
       bibl: "Bibliographic Records"

@@ -42,7 +42,7 @@ ActiveAdmin.register Component, :namespace => :patron do
     end
   end
   
-  show :title => proc{"#{truncate(component.name, :length => 60)}"} do
+  show :title => proc{|component| "#{truncate(component.name, :length => 60)}"} do
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for component do
@@ -84,16 +84,16 @@ ActiveAdmin.register Component, :namespace => :patron do
     end
     
     div :class => "columns-none" do
-      if ! component.child_components.empty?
+      if ! component.children.empty?
         panel "Child Component Information", :toggle => 'hide' do
-          table_for component.child_components.select(:id).select(:title).select(:content_desc) do
+          table_for component.children.select(:id).select(:title).select(:content_desc).select(:ancestry) do
             column :id
-            column :title do |child| link_to "#{child.title}", patron_component_path(child.id) end
-            column :content_desc do |child| link_to "#{child.content_desc}", patron_component_path(child.id) end
-            column :master_files do |child| link_to "#{child.descendant_master_file_count}", patron_master_files_path(:q => {:component_id_eq => child.id}) end
+            column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
+            column :content_desc do |child| link_to "#{child.content_desc}", admin_component_path(child.id) end
+            column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
           end
         end
-      else
+      else        
         panel "No Child Components"
       end
     end
@@ -192,8 +192,8 @@ ActiveAdmin.register Component, :namespace => :patron do
         end
       end
       row :child_components do |component|
-        if not component.child_components.empty?
-          link_to "#{component.child_components.size}", patron_components_path(:q => {:parent_component_id_eq => component.id})
+        if not component.children.empty?
+          link_to "#{component.children.size}", patron_components_path(:q => {:parent_component_id_eq => component.id})
         end
       end
     end

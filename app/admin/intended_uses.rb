@@ -15,7 +15,7 @@ ActiveAdmin.register IntendedUse do
     default_actions
   end
 
-  show :title => proc { intended_use.description } do
+  show :title => proc { |use| use.description } do
     panel "General Information" do 
       attributes_table_for intended_use do
         row :description

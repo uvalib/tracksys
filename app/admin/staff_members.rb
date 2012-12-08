@@ -27,7 +27,7 @@ ActiveAdmin.register StaffMember do
     end
   end
 
-  show :title => proc { staff_member.name } do
+  show :title => proc { |staff| staff.full_name } do
     panel "Detailed Information" do
       attributes_table_for staff_member do
         row :full_name

@@ -42,7 +42,7 @@ ActiveAdmin.register HeardAboutResource do
     end
   end
 
-  show :title => proc { heard_about_resource.description } do
+  show :title => proc { |resource| resource.description } do
     panel "Detailed Information" do
       attributes_table_for heard_about_resource do
         row :description

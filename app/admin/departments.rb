@@ -41,7 +41,7 @@ ActiveAdmin.register Department do
     end
   end
 
-  show :title => proc { department.name } do
+  show do
     panel "Detailed Information" do
       attributes_table_for department do
         row :name

@@ -49,7 +49,7 @@ ActiveAdmin.register Agency do
     end
   end
 
-  show :title => proc { agency.name } do
+  show do
     panel "Detailed Information" do
       attributes_table_for agency do
         row :name

@@ -26,6 +26,10 @@ class ApplicationController < ActionController::Base
     end 
   end
 
+  def set_admin_locale
+    I18n.locale = :en
+  end
+
   def update
     if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
       xml = Hash.from_xml(request.body.read)

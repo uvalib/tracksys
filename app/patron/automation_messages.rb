@@ -58,7 +58,7 @@ ActiveAdmin.register AutomationMessage, :namespace => :patron do
     end
   end
 
-  show :title => proc { automation_message.id } do 
+  show :title => proc { |am| "Automation Message ##{am.id}"} do 
     div :class => 'two-column' do
       panel "Details" do
         attributes_table_for automation_message do

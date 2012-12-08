@@ -70,7 +70,7 @@ ActiveAdmin.register Bibl do
     end
   end
   
-  show :title => proc { truncate(bibl.title, :length => 75) } do
+  show :title => proc { |bibl| truncate(bibl.title, :length => 60) } do
     div :class => 'three-column' do
       panel "Basic Information", :toggle => 'show' do
         attributes_table_for bibl do

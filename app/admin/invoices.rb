@@ -46,7 +46,7 @@ ActiveAdmin.register Invoice do
     end
   end
 
-  show :title => proc {"Invoice ##{invoice.id}"} do
+  show :title => proc {|invoice| "Invoice ##{invoice.id}"} do
     div :class => 'two-column' do
       panel "Date Information" do
         attributes_table_for invoice do 

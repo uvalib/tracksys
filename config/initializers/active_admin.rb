@@ -7,33 +7,24 @@ ActiveAdmin.setup do |config|
   #
   config.site_title = "Tracksys"
 
-  config.namespace :admin do |admin|
-    admin.site_title = "Tracksys - Admin Portal"
-  end
-
-  config.namespace :patron do |patron|
-    patron.site_title = "Tracksys - Patron Portal"
-  end
-
-  # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer
-  # must load all paths containing namespaced ActiveAdmin assets.
-  #
-  # See https://groups.google.com/group/activeadmin/browse_thread/thread/799ab4350c848162 for more information.
-  config.load_paths = [File.expand_path('app/admin', Rails.root),
-    File.expand_path('app/patron', Rails.root)] 
-
-
-  # Set the link url for the title. For example, to take 
+  # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
   #
   # config.site_title_link = "/"
 
+  # Set an optional image to be displayed for the header
+  # instead of a string (overrides :site_title)
+  #
+  # Note: Recommended image height is 21px to properly fit in the header
+  #
+  # config.site_title_image = "/images/logo.png"
+
   # == Default Namespace
   #
   # Set the default namespace each administration resource
-  # will be added to. 
+  # will be added to.
   #
-  # eg: 
+  # eg:
   #   config.default_namespace = :hello_world
   #
   # This will create resources in the HelloWorld module and
@@ -43,12 +34,38 @@ ActiveAdmin.setup do |config|
   #   config.default_namespace = false
   #
   # Default:
-  # config.default_namespace = :admin
+  config.default_namespace = :admin
+  #
+  # You can customize the settings for each namespace by using
+  # a namespace block. For example, to change the site title
+  # within a namespace:
+  #
+  #   config.namespace :admin do |admin|
+  #     admin.site_title = "Custom Admin Title"
+  #   end
+  #
+  config.namespace :admin do |admin|
+    admin.site_title = "Tracksys - Admin Portal"
+  end
+
+  config.namespace :patron do |patron|
+    patron.site_title = "Tracksys - Patron Portal"
+  end
+
+    # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer
+  # must load all paths containing namespaced ActiveAdmin assets.
+  #
+  # See https://groups.google.com/group/activeadmin/browse_thread/thread/799ab4350c848162 for more information.
+  config.load_paths = [File.expand_path('app/admin', Rails.root),
+    File.expand_path('app/patron', Rails.root)]
+
+  # This will ONLY change the title for the admin section. Other
+  # namespaces will continue to use the main "site_title" configuration.
 
   # == User Authentication
   #
-  # Active Admin will automatically call an authentication 
-  # method in a before filter of all controller actions to 
+  # Active Admin will automatically call an authentication
+  # method in a before filter of all controller actions to
   # ensure that there is a currently logged in admin user.
   #
   # This setting changes the method which Active Admin calls
@@ -75,6 +92,8 @@ ActiveAdmin.setup do |config|
     config.current_user_method = :current_admin_user
   end
 
+  # Set language
+  config.before_filter :set_admin_locale
 
   # == Logging Out
   #
@@ -86,7 +105,7 @@ ActiveAdmin.setup do |config|
   # will call the method to return the path.
   #
   # Default:
-  # config.logout_link_path = :destroy_admin_user_session_path
+  config.logout_link_path = :destroy_admin_user_session_path
 
   # This setting changes the http method used when rendering the
   # link. For example :get, :delete, :put, etc..
@@ -94,23 +113,42 @@ ActiveAdmin.setup do |config|
   # Default:
   # config.logout_link_method = :get
 
+  # == Root
+  #
+  # Set the action to call for the root path. You can set different
+  # roots for each namespace.
+  #
+  # Default:
+  # config.root_to = 'home#index'
 
   # == Admin Comments
   #
-  # Admin comments allow you to add comments to any model for admin use
-  #
-  # Admin comments are enabled by default in the default
-  # namespace only. You can turn them on in a namesapce
-  # by adding them to the comments array.
+  # Admin comments allow you to add comments to any model for admin use.
+  # Admin comments are enabled by default.
   #
   # Default:
-  # config.allow_comments_in = [:admin]
+  # config.allow_comments = true
+  #
+  # You can turn them on and off for any given namespace by using a
+  # namespace config block.
+  #
+  # Eg:
+  #   config.namespace :without_comments do |without_comments|
+  #     without_comments.allow_comments = false
+  #   end
 
+
+  # == Batch Actions
+  #
+  # Enable and disable Batch Actions
+  #
+  config.batch_actions = true
+  
 
   # == Controller Filters
   #
   # You can add before, after and around filters to all of your
-  # Active Admin resources from here. 
+  # Active Admin resources from here.
   #
   # config.before_filter :do_something_awesome
 
@@ -123,7 +161,16 @@ ActiveAdmin.setup do |config|
   #
   # To load a stylesheet:
   #   config.register_stylesheet 'my_stylesheet.css'
+  
+  # You can provide an options hash for more control, which is passed along to stylesheet_link_tag():
+  #   config.register_stylesheet 'my_print_stylesheet.css', :media => :print
   #
   # To load a javascript file:
   #   config.register_javascript 'my_javascript.js'
+
+
+  # == CSV options
+  #
+  # Set the CSV builder separator (default is ",")
+  # config.csv_column_separator = ','
 end

@@ -42,7 +42,7 @@ ActiveAdmin.register Component do
     end
   end
   
-  show :title => proc{"#{truncate(component.name, :length => 60)}"} do
+  show :title => proc{|component| "#{truncate(component.name, :length => 60)}"} do
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for component do

@@ -42,7 +42,7 @@ ActiveAdmin.register AcademicStatus do
     end
   end 
 
-  show :title => proc { academic_status.name } do
+  show do
     panel "Detailed Information" do
       attributes_table_for academic_status do
         row :name

@@ -27,7 +27,7 @@ ActiveAdmin.register Archive do
     end
   end
 
-  show :title => proc { archive.name } do
+  show do
     panel "Detailed Information" do
       attributes_table_for archive do
         row :name

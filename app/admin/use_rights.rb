@@ -24,7 +24,7 @@ ActiveAdmin.register UseRight do
     end
   end
 
-  show :title => proc { use_right.name } do
+  show do
     panel "Basic Information" do
       attributes_table_for use_right do
         row :name

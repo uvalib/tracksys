@@ -91,7 +91,7 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  show do
+  show :title => proc {|mf| mf.filename } do
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for master_file do
