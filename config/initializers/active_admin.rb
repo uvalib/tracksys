@@ -50,6 +50,7 @@ ActiveAdmin.setup do |config|
 
   config.namespace :patron do |patron|
     patron.site_title = "Tracksys - Patron Portal"
+    patron.root_to = "dashboard#index"
   end
 
     # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer

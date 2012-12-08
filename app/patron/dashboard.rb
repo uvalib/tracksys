@@ -1,35 +1,42 @@
-ActiveAdmin::Dashboards.build do
+ActiveAdmin.register_page "Dashboard", :namespace => :patron do
+  menu :priority => 1
 
-  section "Order Processing", :namespace => :patron, :priority => 1, :width => '50%' do
-    table do
-      tr do
-        td do "Requests Awaiting Approval" end
-        td do link_to "#{Order.awaiting_approval.not_from_fine_arts.count}", patron_orders_path(:scope => 'awaiting_approval') end
-      end
-      tr do
-        td do "Deferred Requests" end
-        td do link_to "#{Order.deferred.not_from_fine_arts.count}", patron_orders_path(:scope => 'deferred') end
-      end
-      tr do
-        td do "Units Awaiting Copyright Approval" end
-        td do link_to "#{Unit.awaiting_copyright_approval.count}", patron_units_path(:scope => 'awaiting_copyright_approval') end
-      end
-      tr do
-        td do "Units Awaiting Condition Approval" end
-        td do link_to "#{Unit.awaiting_condition_approval.count}", patron_units_path(:scope => 'awaiting_condition_approval') end
+  content do
+    div :class => 'two-column' do
+      panel "Order Processing", :namespace => :patron, :priority => 1, :width => '50%' do
+        table do
+          tr do
+            td do "Requests Awaiting Approval" end
+            td do link_to "#{Order.awaiting_approval.not_from_fine_arts.count}", patron_orders_path(:scope => 'awaiting_approval') end
+          end
+          tr do
+            td do "Deferred Requests" end
+            td do link_to "#{Order.deferred.not_from_fine_arts.count}", patron_orders_path(:scope => 'deferred') end
+          end
+          tr do
+            td do "Units Awaiting Copyright Approval" end
+            td do link_to "#{Unit.awaiting_copyright_approval.count}", patron_units_path(:scope => 'awaiting_copyright_approval') end
+          end
+          tr do
+            td do "Units Awaiting Condition Approval" end
+            td do link_to "#{Unit.awaiting_condition_approval.count}", patron_units_path(:scope => 'awaiting_condition_approval') end
+          end
+        end
       end
     end
-  end
 
-  section "Digitization Services Checkouts", :namespace => :patron, :priority => 2, :width => '50%' do
-    table do
-      tr do
-        td do "Unreturned Material" end
-        td do link_to "#{Unit.overdue_materials.count}", patron_units_path(:scope => 'overdue_materials') end
-      end
-      tr do
-        td do "Materials Currently in Digitization Services" end
-        td do link_to "#{Unit.checkedout_materials.count}", patron_units_path(:scope => 'checkedout_materials') end
+    div :class => 'two-column' do
+      panel "Digitization Services Checkouts", :namespace => :patron, :priority => 2, :width => '50%' do
+        table do
+          tr do
+            td do "Unreturned Material" end
+            td do link_to "#{Unit.overdue_materials.count}", patron_units_path(:scope => 'overdue_materials') end
+          end
+          tr do
+            td do "Materials Currently in Digitization Services" end
+            td do link_to "#{Unit.checkedout_materials.count}", patron_units_path(:scope => 'checkedout_materials') end
+          end
+        end
       end
     end
   end
