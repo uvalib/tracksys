@@ -42,7 +42,7 @@ ActiveAdmin.register_page "Dashboard" do
           end
           tr do
             td do "Burn Orders to DVD" end
-            td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_dvd_burning') end
+            td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_delivery', :q => { :dvd_delivery_location_id_is_null => 'true'}) end
           end 
         end
       end
