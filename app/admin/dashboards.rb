@@ -34,15 +34,15 @@ ActiveAdmin.register_page "Dashboard" do
         table do
           tr do
             td do "Unfinished Units of Partially Finalized Orders" end
-            td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", admin_units_path(:scope => 'uncompleted_units_of_partially_completed_orders') end
+            td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", admin_units_path( :order => 'id_desc', :page => '1', :scope => 'uncompleted_units_of_partially_completed_orders') end
           end
           tr do
             td do "Orders Ready for Delivery" end
-            td do link_to "#{Order.ready_for_delivery.count}", admin_orders_path(:scope => 'ready_for_delivery') end
+            td do link_to "#{Order.ready_for_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_delivery') end
           end
           tr do
             td do "Burn Orders to DVD" end
-            td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", admin_orders_path(:scope => 'ready_for_dvd_burning') end
+            td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_dvd_burning') end
           end 
         end
       end
