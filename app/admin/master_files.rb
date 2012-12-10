@@ -267,26 +267,32 @@ ActiveAdmin.register MasterFile do
   end
 
   action_item :only => :show do 
-    if master_file.in_dl? and master_file.availability_policy_id == 1
-      if master_file.discoverability
-        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+    if master_file.in_dl? 
+      if master_file.availability_policy_id == 1
+        if master_file.discoverability
+          link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+        else
+          link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+        end
       else
-        link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
+        "Cannot tweet. UVA Only."
       end
-    else
-      "Cannot tweet. UVA Only."
+    else      
     end
   end
 
   action_item :only => :show do 
-    if master_file.in_dl? and master_file.availability_policy_id == 1
-      if master_file.discoverability
-        tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.pid}", :text => truncate("#{master_file.bibl_title}", :length => 80), :count => 'vertical')
+    if master_file.in_dl? 
+      if master_file.availability_policy_id == 1
+        if master_file.discoverability
+          tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.pid}", :text => truncate("#{master_file.bibl_title}", :length => 80), :count => 'vertical')
+        else
+          tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", :text => truncate("#{master_file.title} from #{master_file.bibl_title}", :length => 80), :count => 'vertical')
+        end
       else
-        tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", :text => truncate("#{master_file.title} from #{master_file.bibl_title}", :length => 80), :count => 'vertical')
+        "Cannot tweet. UVA Only."
       end
     else
-      "Cannot tweet. UVA Only."
     end
   end
 
