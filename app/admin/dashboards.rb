@@ -64,9 +64,9 @@ ActiveAdmin.register_page "Dashboard" do
           column :call_number
           column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
           column ("Thumbnail") {|bibl| image_tag("http://fedoraproxy.lib.virginia.edu/fedora/get/#{MasterFile.find_by_filename(bibl.exemplar).pid}/djatoka:jp2SDef/getRegion?scale=125", :height => '100')}
-          column("Links") do |mf|
+          column("Links") do |bibl|
             div do
-              link_to "Details", admin_bibl_path(mf), :class => "member_link view_link"
+              link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
             end
           end
         end
@@ -90,7 +90,7 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :get_yearly_stats do 
-    message = ActiveSupport::JSON.encode( {:year => params[:year]})
+    message = ActiveSupport::JSON.encode( {:year => params[:year]} )
     publish :create_stats_report, message
     flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_report.  Give three minutes for production."
     redirect_to :back
