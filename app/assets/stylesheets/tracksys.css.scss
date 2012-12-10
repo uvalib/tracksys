@@ -220,4 +220,10 @@ body.active_admin {
   .code-window {
     height:100px;
   }
+
+  /*Fix display issue with ActiveAdmin 0.5.0*/
+  .table_tools {
+    height: auto;
+  }
+
 }
