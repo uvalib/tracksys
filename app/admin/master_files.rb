@@ -3,9 +3,9 @@ ActiveAdmin.register MasterFile do
 
   menu :priority => 6
 
-  scope :all, :show_count => false, :default => true
-  scope :in_digital_library, :show_count => false
-  scope :not_in_digital_library, :show_count => false
+  scope :all, :show_count => true, :default => true
+  scope :in_digital_library, :show_count => true
+  scope :not_in_digital_library, :show_count => true
   
   actions :all, :except => [:new, :destroy]
 

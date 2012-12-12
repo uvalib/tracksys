@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121128214634) do
+ActiveRecord::Schema.define(:version => 20121211165044) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -545,6 +545,8 @@ ActiveRecord::Schema.define(:version => 20121128214634) do
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
   add_index "master_files", ["component_id"], :name => "index_master_files_on_component_id"
+  add_index "master_files", ["date_dl_ingest"], :name => "index_master_files_on_date_dl_ingest"
+  add_index "master_files", ["date_dl_update"], :name => "index_master_files_on_date_dl_update"
   add_index "master_files", ["filename"], :name => "index_master_files_on_filename"
   add_index "master_files", ["indexing_scenario_id"], :name => "index_master_files_on_indexing_scenario_id"
   add_index "master_files", ["pid"], :name => "index_master_files_on_pid"
