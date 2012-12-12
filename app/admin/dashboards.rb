@@ -149,4 +149,10 @@ ActiveAdmin.register_page "Dashboard" do
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
+  
+  controller do 
+    require 'activemessaging/processor'
+    include ActiveMessaging::MessageSender
+  end
+
 end
