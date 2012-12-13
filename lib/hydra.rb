@@ -239,6 +239,9 @@ module Hydra
           elsif tech_meta.depth == 24
             bits_per_sample = 8
             samples_per_pixel = 3
+          elsif tech_meta.depth == 48
+            bits_per_sample = 16
+            samples_per_pixel = 3
           else
             raise "Unexpected value '#{tech_meta.depth}' for depth on image_tech_meta #{tech_meta.id}"
           end
