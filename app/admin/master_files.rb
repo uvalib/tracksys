@@ -275,7 +275,7 @@ ActiveAdmin.register MasterFile do
           link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
         end
       else
-        "Cannot tweet. UVA Only."
+        "Cannot pin. UVA Only."
       end
     else      
     end
