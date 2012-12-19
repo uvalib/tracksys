@@ -1,7 +1,8 @@
 body.active_admin {
 
   /* add different statuses to status_tag styling in active_admin/components/_status_tag.scss*/
-  .status {
+
+  .status_tag {
     &.approved { background: #8daa92; }
     &.requested { background: #e29b20; }
     &.canceled { background: #d45f53; }
