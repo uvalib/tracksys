@@ -7,7 +7,13 @@ class Order
 
   scope :from_fine_arts, joins(:agency).where("agencies.name" => "Fine Arts Library")
   scope :not_from_fine_arts, where('agency_id != 37 or agency_id is null')
-
+  
+  # Determine if any of an Order's Units are not 'approved' or 'cancelled'
+  def ready_to_approve?
+    status = self.units.map(&:unit_status) & ['condition', 'copyright', 'unapproved']
+    return status.empty?
+  end
+  
   # Processor information
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender

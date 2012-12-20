@@ -1,6 +1,7 @@
 class UpdateUnitStatus < ApplicationProcessor
 
   subscribes_to :update_unit_status, {:ack=>'client', 'activemq.prefetchSize' => 1}
+  publishes_to :update_order_status_approved
 
   def on_message(message)
     logger.debug "UpdateUnitStatusProcessor received: " + message
@@ -19,5 +20,11 @@ class UpdateUnitStatus < ApplicationProcessor
     @messagable.update_attribute(:unit_status, hash[:unit_status])
     on_success "Unit #{hash[:unit_id]} status changed to #{hash[:unit_status]}."
     
+    # Update Unit's Order to 'approved' if all sibling Units are 'approved' or 'cancelled'
+    order = @messagable.order
+    if order.ready_to_approve?
+      message = ActiveSupport::JSON.encode({ :order_id => order.id })
+      publish :update_order_status_approved, message
+    end
   end
 end
