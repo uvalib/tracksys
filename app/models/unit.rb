@@ -3,6 +3,8 @@ require "#{Hydraulics.models_dir}/unit"
 class Unit
 
   include Pidable
+  require 'activemessaging/processor'
+  include ActiveMessaging::MessageSender
 
   # The request form requires having data stored temporarily to the unit model and then concatenated into special instructions.  Those fields are:
   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
@@ -14,7 +16,14 @@ class Unit
   scope :checkedout_materials, where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
   scope :uncompleted_units_of_partially_completed_orders, includes(:order).where(:unit_status => 'approved', :date_archived => nil).where('intended_use_id != 110').where('orders.date_finalization_begun is not null')
 
-  # after_update :fix_updated_counters
+  after_update :check_order_status, :if => :unit_status_changed?
+
+  def check_order_status
+    if self.order.ready_to_approve?
+      message = ActiveSupport::JSON.encode({ :order_id => order.id })
+      publish :update_order_status_approved, message
+    end
+  end
 
   # Within the scope of a Unit's order, return the Unit which follows
   # or precedes the current Unit sequentially.
@@ -35,12 +44,6 @@ class Unit
       return nil
     end
   end
-
-  # Processor information
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-
-  publishes_to :copy_archived_files_to_production
 
   def check_unit_delivery_mode 
     message = ActiveSupport::JSON.encode( {:unit_id => self.id})
