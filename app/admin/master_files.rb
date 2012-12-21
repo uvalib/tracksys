@@ -180,7 +180,7 @@ ActiveAdmin.register MasterFile do
     f.inputs "General Information", :class => 'panel three-column ' do
       f.input :filename
       f.input :title
-      f.input :description
+      f.input :description, :as => :text, :input_html => { :rows => 3 }
       f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
       f.input :transcription_text, :input_html => { :rows => 5 }
     end
