@@ -19,7 +19,7 @@ class ApplicationProcessor < ActiveMessaging::Processor
       # handling for both deligen and tracksys)
       msg = ActiveSupport::JSON.encode({ :active_error => true, :messagable_id => @messagable_id, :messagable_type => @messagable_type, :pid => @pid, :message_type => 'error', :app => 'tracksys', :processor => self.class.name.demodulize, :workflow_type => @workflow_type, :message => err.message, :class_name => err.class.name, :backtrace => err.backtrace.join("\n")})
       publish :automation_message, msg
-      on_log('error', message)      
+      on_log('error', err)
      else
       raise err
     end
