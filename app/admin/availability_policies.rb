@@ -6,13 +6,13 @@ ActiveAdmin.register AvailabilityPolicy do
 
   filter :id
   filter :name
-  filter :xacml_policy_url
 
   scope :all, :default => true
   
   index do
     column :name
-    column :xacml_policy_url
+    column :repository_url
+    column :pid
     column("Units") do |availability_policy|
       link_to availability_policy.units_count.to_s, admin_units_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
@@ -39,7 +39,8 @@ ActiveAdmin.register AvailabilityPolicy do
     panel "General Information" do
       attributes_table_for availability_policy do
         row :name
-        row :xacml_policy_url
+        row :repository_url
+        row :pid
         row :created_at
         row :updated_at
       end

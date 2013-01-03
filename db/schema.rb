@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121211165044) do
+ActiveRecord::Schema.define(:version => 20130103174050) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -124,13 +124,14 @@ ActiveRecord::Schema.define(:version => 20121211165044) do
 
   create_table "availability_policies", :force => true do |t|
     t.string   "name"
-    t.string   "xacml_policy_url"
     t.integer  "bibls_count",        :default => 0
     t.integer  "components_count",   :default => 0
     t.integer  "master_files_count", :default => 0
     t.integer  "units_count",        :default => 0
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
+    t.string   "repository_url"
+    t.string   "pid"
   end
 
   create_table "bibls", :force => true do |t|

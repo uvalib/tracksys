@@ -88,6 +88,7 @@ module Hydra
         "totalTranscriptions" => "#{total_transcription}",
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
+        "policyFacet" => "#{object.availability_policy.pid}",
         "clear-stylesheet-cache" => "yes"
       })
       return response.body
@@ -119,6 +120,7 @@ module Hydra
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
         "parentModsRecord" => "#{parent_mods_record}",
+        "policyFacet" => "#{object.availability_policy.pid}",
         "clear-stylesheet-cache" => "yes"
         })
       return response.body
