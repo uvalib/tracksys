@@ -207,7 +207,12 @@ ActiveAdmin.register MasterFile do
   end
 
   sidebar "Thumbnail", :only => [:show] do
-    link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+    div do
+      link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+    end
+    div do
+      link_to "Print Image", "#{master_file.link_to_static_thumbnail}", :target => '_blank'
+    end
   end
 
   sidebar "Related Information", :only => [:show] do
