@@ -97,7 +97,11 @@ class Bibl
       citation << "#{self.cleanedup_title}.  " if self.title
       citation << "#{self.call_number}.  " if self.call_number
       if self.location
-        citation << "#{LOCATION_HASH.fetch(self.location)}"
+        begin
+          citation << "#{LOCATION_HASH.fetch(self.location)}"
+        rescue
+          citation << "Special Collections, University of Virginia, Charlottesville, VA"
+        end
       else
         citation << "Special Collections, University of Virginia, Charlottesville, VA"
       end
