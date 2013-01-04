@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130103174050) do
+ActiveRecord::Schema.define(:version => 20130104221035) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -141,7 +141,7 @@ ActiveRecord::Schema.define(:version => 20130103174050) do
     t.string   "genre"
     t.boolean  "is_manuscript",                                   :default => false, :null => false
     t.boolean  "is_collection",                                   :default => false, :null => false
-    t.string   "title"
+    t.text     "title"
     t.string   "description"
     t.string   "series_title"
     t.string   "creator_name"
@@ -188,7 +188,6 @@ ActiveRecord::Schema.define(:version => 20130103174050) do
   add_index "bibls", ["indexing_scenario_id"], :name => "index_bibls_on_indexing_scenario_id"
   add_index "bibls", ["parent_bibl_id"], :name => "index_bibls_on_parent_bibl_id"
   add_index "bibls", ["pid"], :name => "index_bibls_on_pid"
-  add_index "bibls", ["title"], :name => "index_bibls_on_title"
   add_index "bibls", ["use_right_id"], :name => "index_bibls_on_use_right_id"
 
   create_table "bibls_components", :id => false, :force => true do |t|
