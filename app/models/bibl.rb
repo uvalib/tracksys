@@ -24,7 +24,7 @@ class Bibl
     "IVY-STKS" => "Ivy Annex, University of Virginia, Charlottesville, VA.",
     "IVYANNEX" => "Ivy Annex, University of Virginia, Charlottesville, VA." ,
     "LAW-IVY" => "Law Library, University of Virginia, Charlottesville, VA.",
-    # "MCGR-VLTFF" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia, Charlottesville, VA.",
+    "MCGR-VLTFF" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia, Charlottesville, VA.",
     "RAREOVS" => "Health Sciences Library, University of Virginia, Charlottesville, VA.",
     "RARESHL" => "Health Sciences Library, University of Virginia, Charlottesville, VA.",
     "RAREVLT" => "Health Sciences Library, University of Virginia, Charlottesville, VA.",
