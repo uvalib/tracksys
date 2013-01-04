@@ -33,6 +33,14 @@ class MasterFile
     return "http://fedoraproxy.lib.virginia.edu/fedora/get/#{self.pid}/djatoka:jp2SDef/getRegion?scale=125"
   end
 
+  def link_to_dl_page_turner
+    return "#{VIRGO_URL}/#{self.bibl.pid}/view?&page=#{self.pid}"
+  end
+
+  def path_to_archved_version
+    return "#{self.archive.directory}/" + "#{'%09d' % self.unit_id}/" + "#{self.filename}"
+  end
+
   def link_to_static_thumbnail
     thumbnail_name = self.filename.gsub(/tif/, 'jpg')
     unit_dir = "%09d" % self.unit_id

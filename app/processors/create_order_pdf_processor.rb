@@ -43,9 +43,9 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     @pdf.text "Dear #{@customer.first_name.capitalize} #{@customer.last_name.capitalize}, \n\n"  
     
     if @units_in_pdf.length > 1
-      @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitzation Services of the University of Virginia Library.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
+      @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitzation Services of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
     else
-      @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitzation Services of the University of Virginia Library.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
+      @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitzation Services of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
     end
     @pdf.text "\n"
     if not @fee.to_i.eql?(0)
@@ -91,104 +91,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
       @pdf.text "\n"
 
-      # Begin work on citation
-      # When bibl records are created, there is new logic (as of 9/21/2010) to harvest the marc 524 field.  Commonly Special
-      # Collections staff write a canonical citation statement here.  Therefore, if bibl.citation exists, this PDF creation
-      # processor will use that.  Otherwise, it will create a citation from a template created in consultation with jcp5x.
-
-      @pdf.text "Please cite this item as follows:", :left => 10
-
-      if not unit.bibl.citation.blank?
-        @pdf.text "#{unit.bibl.citation}", :left => 10
-      else
-        # Create and manage a Hash that contains the SIRSI location codes and their human readable values for citation purposes
-        location_hash = Hash.new
-        location_hash = {
-          "ALD-STKS" => "Alderman Library, University of Virginia Library.", 
-          "ASTRO-STKS" => "Astronomy Library, University of Virginia Library.",
-          "DEC-IND-RM" => "Albert H. Small Declaration of Independence Collection, Special Collections, University of Virginia Library.",
-          "FA-FOLIO" => "Fiske Kimball Fine Arts Library, University of Virginia Library.",
-          "FA-OVERSIZE" => "Fiske Kimball Fine Arts Library, University of Virginia Library.",
-          "FA-STKS" => "Fiske Kimball Fine Arts Library, University of Virginia Library.",
-          "GEOSTAT" => "Alderman Library, University of Virginia Library.",
-          "HS-CABELJR" => "Health Sciences Library, University of Virginia Library.",
-          "HS-RAREOVS" => "Health Sciences Library, University of Virginia Library.",
-          "HS-RARESHL" => "Health Sciences Library, University of Virginia Library.",
-          "HS-RAREVLT" => "Health Sciences Library, University of Virginia Library.",
-          "IVY-BOOK" => "Ivy Annex, University of Virginia Library.",
-          "IVY-STKS" => "Ivy Annex, University of Virginia Library.",
-          "IVYANNEX" => "Ivy Annex, University of Virginia Library." ,
-          "LAW-IVY" => "Law Library, University of Virginia Library.",
-          "SC-ARCHV" => "Special Collections, University of Virginia Library.",
-          "SC-ARCHV-X" => "Special Collections, University of Virginia Library.",
-          "SC-BARR-F" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-FF" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-M" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-RM" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-ST" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-X" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-XF" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARR-XZ" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-BARRXFF" => "Clifton Waller Barrett Library of American Literature, Special Collections, University of Virginia Library.",
-          "SC-GARN-F" => "Garnett Family Library, Special Collections, University of Virginia Library.",
-          "SC-GARN-RM" => "Garnett Family Library, Special Collections, University of Virginia Library.",
-          "SC-IVY" => "Special Collections, University of Virginia Library.",
-          "SC-MCGR-F" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-FF" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-RM" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-ST" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-X" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-XF" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGR-XZ" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-MCGRXFF" => "Tracy W. McGregor Library of American History, Special Collections, University of Virginia Library.",
-          "SC-REF" => "Special Collections, University of Virginia Library.",
-          "SC-REF-F" => "Special Collections, University of Virginia Library.",
-          "SC-SCOTT" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTT-F" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTT-M" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTT-X" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTTFF" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTTXF" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-SCOTTXZ" => "Marion duPont Scott Sporting Collection, Special Collections, University of Virginia Library.",
-          "SC-STKS" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-D" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-EF" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-F" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-FF" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-M" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-X" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-XF" => "Special Collections, University of Virginia Library.",
-          "SC-STKS-XZ" => "Special Collections, University of Virginia Library.",
-          "SC-STKSXFF" => "Special Collections, University of Virginia Library.",
-          "SC-TATUM" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUM-F" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUM-M" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUM-X" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUMFF" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUMXF" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SC-TATUMXZ" => "Marvin Tatum Collection of Contemporary Literature, Special Collections, University of Virginia Library.",
-          "SPEC-COLL" => "Special Collections, University of Virginia Library.",
-          "STACKS" => "Special Collections, University of Virginia Library.",
-          "Reading Room" => "Special Collection, University of Virginia Libary"
-        }
-      
-
-        # Get citation location by comparing Bibl value against location Hash
-        # If citation does not exist in the hash, and the bibl.is_in_catalog is true, put boilerplate Library statement
-        # If citation does not exist in the hash and the bibl.is_in_catalog is false, put nothing.
-
-        if location_hash.has_key?(unit.bibl.location)
-          citation_location = location_hash.fetch(unit.bibl.location)
-          @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). #{citation_location}", :left => 10, :style => :italic
-        else
-          if unit.bibl.is_in_catalog
-            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}). University of Virginia Library.", :left => 10, :style => :italic    
-          else  
-            @pdf.text "#{unit.bibl.title} (#{unit.bibl.call_number}).", :left => 10, :style => :italic
-          end
-        end
-      end
-
+      @pdf.text "<b>Citation:</b> <i>#{unit.bibl.get_citation}</i>", :left => 10, :inline_format => true
       @pdf.text "\n"
 
       # Create special tables to hold component information
