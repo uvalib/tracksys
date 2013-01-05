@@ -1,4 +1,4 @@
-  # Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its Bibl records, citation statement,
+8  # Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its Bibl records, citation statement,
 # Component records, EADRef references and a list of the MasterFile images with their individual metadata.
 
 class CreateOrderPdfProcessor < ApplicationProcessor
@@ -34,7 +34,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
 
     @pdf = Prawn::Document.new
     @pdf.font "Helvetica", :encoding => nil
-    @pdf.image "#{RAILS_ROOT}/app/assets/images/lib_letterhead.jpg", :position => :center, :width => 500
+    @pdf.image "#{Rails.root}/app/assets/images/lib_letterhead.jpg", :position => :center, :width => 500
     @pdf.text "Digital Curation Services,  University of Virginia Library", :align => :center
     @pdf.text "Post Office Box 400155, Charlottesville, Virginia 22904 U.S.A.", :align => :center
     @pdf.text "\n\n"
@@ -57,6 +57,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "Charlottesville, Virginia 22904  U.S.A", :left => 100
     end
 
+    @pdf.text "\n"
     @pdf.text "Sincerely,", :left => 350
     @pdf.text "\n"
     @pdf.text "Digitization Services Staff", :left => 350
