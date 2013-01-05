@@ -355,7 +355,7 @@ ActiveAdmin.register MasterFile do
     pdf.move_down 2
 
     # Page numbering
-    string = "#{mf.pid}, #{mf.filename}"
+    string = "#{mf.pid}, #{mf.filename}, Printed: #{Time.now.strftime("%Y-%m-%d")}"
     options = { :at => [pdf.bounds.right - 300, 0],
               :width => 300,
               :size => 8,
