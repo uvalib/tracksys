@@ -125,7 +125,7 @@ module Pidable
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
         return false
       end
-      return response.include? "#{pid}"
+      return response.include? "#{Time.now.strftime('%Y-%m-%d')}"
     end
   end
 
@@ -137,7 +137,7 @@ module Pidable
       @solr_connection = Solr::Connection.new("#{solr_url}", :autocommit => :off)
 
       begin
-        @solr_connection.delete("{pid.gsub(/:/, '?')}")
+        @solr_connection.delete(pid)
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
         return false
       end
