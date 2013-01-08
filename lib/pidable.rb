@@ -113,6 +113,39 @@ module Pidable
     end
   end
 
+  def remove_from_repo
+    if pid.nil?
+      return false
+    else
+      resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
+      url = "/objects/#{pid}"
+
+      begin
+        response = resource[url].delete
+      rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
+        return false
+      end
+      return response.include? "#{Time.now.strftime('%Y-%m-%d')}"
+    end
+  end
+
+  def remove_from_index(solr_url = nil)
+    solr_url = STAGING_SOLR_URL if solr_url.nil?
+    if pid.nil?
+      return false
+    else
+      @solr_connection = Solr::Connection.new("#{solr_url}", :autocommit => :off)
+
+      begin
+        @solr_connection.delete(pid)
+      rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
+        return false
+      end
+      return true 
+    end
+
+  end
+
   # Methods for ingest and Fedora management workflows
   def update_metadata(datastream)
     message = ActiveSupport::JSON.encode( { :object_class => self.class.to_s, :object_id => self.id, :datastream => datastream })
