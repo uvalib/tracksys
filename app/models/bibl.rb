@@ -113,7 +113,7 @@ class Bibl
   # For the purposes of citations, run the title through some manipulation.
   def cleanedup_title
     # Remove trailing periods.
-    if self.title.match(/.$/)
+    if self.title.match(/\.$/)
       return self.title.chop
     else
       return self.title
