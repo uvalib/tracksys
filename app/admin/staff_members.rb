@@ -14,6 +14,7 @@ ActiveAdmin.register StaffMember do
     selectable_column
     column :full_name
     column :computing_id
+    column :email
     column("Active?") do |staff_member|
       format_boolean_as_yes_no(staff_member.is_active)
     end
@@ -32,6 +33,7 @@ ActiveAdmin.register StaffMember do
       attributes_table_for staff_member do
         row :full_name
         row :computing_id
+        row :email
         row :is_active
       end
     end
@@ -42,6 +44,7 @@ ActiveAdmin.register StaffMember do
       f.input :computing_id
       f.input :first_name
       f.input :last_name
+      f.input :email
       f.input :is_active, :as => :radio
     end
 

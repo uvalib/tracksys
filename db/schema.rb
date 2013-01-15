@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130104221035) do
+ActiveRecord::Schema.define(:version => 20130112175604) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -624,6 +624,7 @@ ActiveRecord::Schema.define(:version => 20130104221035) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "automation_messages_count", :default => 0
+    t.string   "email"
   end
 
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
