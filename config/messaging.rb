@@ -52,8 +52,7 @@ ActiveMessaging::Gateway.define do |s|
       :create_invoice_processor, 
       :move_deliverables_to_delivered_orders_directory_processor, 
       :send_order_email_processor,
-      :update_order_date_customer_notified_processor,
-      :update_order_email_date_processor,
+      :update_order_date_customer_notified_processor
       ],
     :lightweight_group => [ :burst_pdf_processor,
       :check_order_date_archiving_complete_processor,
@@ -63,6 +62,7 @@ ActiveMessaging::Gateway.define do |s|
       :check_unit_delivery_mode_processor, 
       :check_units_completed_processor, 
       :copy_metadata_to_metadata_directory_processor, 
+      :create_dl_manifest_processor,
       :create_master_file_records_from_tif_and_text_processor,
       :create_order_email_processor, 
       :create_order_pdf_processor, 
@@ -118,6 +118,7 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :copy_unit_for_deliverable_generation, '/queue/CopyUnitForDeliverableGeneration'
   s.queue :create_invoice, '/queue/CreateInvoice'
   s.queue :create_master_file_records_from_tif_and_text, '/queue/CreateMasterFileRecordsFromTifAndText'
+  s.queue :create_dl_manifest, '/queue/CreateDlManifest'
   s.queue :create_order_email, '/queue/CreateOrderEmail'
   s.queue :create_order_pdf, '/queue/CreateOrderPdf'
   s.queue :create_order_zip, '/queue/CreateOrderZip'
@@ -170,7 +171,6 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :update_order_date_fee_estimate_sent_to_customer, '/queue/UpdateOrderDateFeeEstimateSentToCustomer'
   s.queue :update_order_date_finalization_begun, '/queue/UpdateOrderDateFinalizationBegun'
   s.queue :update_order_date_patron_deliverables_complete, '/queue/UpdateOrderDatePatronDeliverablesComplete'
-  s.queue :update_order_email_date, '/queue/UpdateOrderEmailDate'
   s.queue :update_order_status_approved, '/queue/UpdateOrderStatusApproved'
   s.queue :update_order_status_canceled, '/queue/UpdateOrderStatusCanceled'
   s.queue :update_order_status_deferred, '/queue/UpdateOrderStatusDeferred'
