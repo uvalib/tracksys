@@ -134,7 +134,7 @@ ActiveAdmin.register Bibl, :namespace => :patron do
       row ("VIRGO Record") do |bibl|
         if bibl.in_catalog?
           div do
-            link_to "VIRGO (Phsyical Record)", bibl.physical_virgo_url, :target => "_blank"
+            link_to "VIRGO (Physical Record)", bibl.physical_virgo_url, :target => "_blank"
           end
         end
         if bibl.in_dl?

@@ -166,7 +166,7 @@ ActiveAdmin.register Bibl do
       row ("Catalog Record") do |bibl|
         if bibl.in_catalog?
           div do
-            link_to "VIRGO (Phsyical Record)", bibl.physical_virgo_url, :target => "_blank"
+            link_to "VIRGO (Physical Record)", bibl.physical_virgo_url, :target => "_blank"
           end
         end
         if bibl.in_dl?
@@ -238,11 +238,20 @@ ActiveAdmin.register Bibl do
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
+  collection_action :create_dl_manifest do
+    message = ActiveSupport::JSON.encode( {:computing_id => StaffMember.where(:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}")} )
+    publish :create_dl_manifest, message    
+    redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
+  end
+
   action_item :only => [:edit, :new] do
     link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
   end
 
   controller do
+    require 'activemessaging/processor'
+    include ActiveMessaging::MessageSender    
+
     # Only cache the index view if it is the base index_url (i.e. /bibls) and is devoid of either params[:page] or params[:q].  
     # The absence of these params values ensures it is the base url.
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }

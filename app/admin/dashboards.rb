@@ -82,8 +82,11 @@ ActiveAdmin.register_page "Dashboard" do
 
     div :class => 'three-column' do
       panel "Statistics", :priority => 6, :toggle => 'show' do
-        div do
+        div :class => 'workflow_button' do
           render 'admin/stats_report'
+        end
+        div :class => 'workflow_button' do
+          button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
         end
       end
     end

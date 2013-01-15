@@ -4,6 +4,7 @@ class AutomationMessage
   APPS.push('tracksys')
 
   WORKFLOW_TYPES_HASH = {
+    'CreateDlManifestProcessor' => 'administrative',
     'CreateStatsReportProcessor' => 'administrative', 
     'SendUnitToArchiveProcessor' => 'archive',
     'StartManualUploadToArchiveMigrationProcessor' => 'archive',

@@ -73,3 +73,5 @@ gem 'jquery-ui-rails'
 
 # To version our models
 gem 'paper_trail'
+# For creating Excel spreadsheets
+gem 'axlsx'
