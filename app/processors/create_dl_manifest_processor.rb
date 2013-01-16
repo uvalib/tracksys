@@ -128,7 +128,7 @@ class CreateDlManifestProcessor < ApplicationProcessor
           months = Array.new
           totals = Array.new
           total = 0
-          while current_month < Time.now.beginning_of_month
+          while current_month <= Time.now.beginning_of_month
             count = MasterFile.select(:date_dl_ingest).where("MONTH(date_dl_ingest) = ? and YEAR(date_dl_ingest) = ?", current_month.month, current_month.year).count
             # sheet.add_row [nil, "#{current_month.strftime('%B %Y')}", "#{count}" ]
             months << "#{current_month.strftime('%B %Y')}"
