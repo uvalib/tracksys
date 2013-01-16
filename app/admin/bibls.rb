@@ -239,7 +239,7 @@ ActiveAdmin.register Bibl do
   end
 
   collection_action :create_dl_manifest do
-    message = ActiveSupport::JSON.encode( {:computing_id => StaffMember.where(:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}")} )
+    message = ActiveSupport::JSON.encode( {:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}"} )
     publish :create_dl_manifest, message    
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
