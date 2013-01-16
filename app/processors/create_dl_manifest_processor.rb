@@ -4,6 +4,7 @@ class CreateDlManifestProcessor < ApplicationProcessor
 
   def on_message(message)
     logger.debug "CreateDlManifestProcessor received: " + message
+    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
     
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
@@ -19,7 +20,6 @@ class CreateDlManifestProcessor < ApplicationProcessor
 
     @messagable_id = @staff_member.id
     @messagable_type = "StaffMember"
-    @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     create_workbook()
     ReportMailer.send_dl_manifest(@staff_member).deliver
