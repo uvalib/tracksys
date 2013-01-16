@@ -179,21 +179,22 @@ class CreateDlManifestProcessor < ApplicationProcessor
   def generate_worksheet(wb, name, bibls)
     wb.add_worksheet(:name => name) do |sheet|
       row_number = 2 # Since title row is 1, we start at 2.
-      sheet.add_row ['Title', 'Author', 'Call Number', '# of images', 'Date Ingested', 'Link'], :style => @header_text
+      sheet.add_row ['Title', 'Author', 'Call Number', 'Date Created', '# of images', 'Date Ingested', 'Link'], :style => @header_text
       bibls.each {|bibl|
         style = row_number.odd? ? @wrap_text_even : @wrap_text_odd
         # row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.dl_image_count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
-        row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.master_files.in_digital_library.count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
-        sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{bibl.pid}", :ref => "F#{row.index + 1}"
-        sheet["F#{row.index + 1}"].style = @blue_link
+        row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.year}", "#{bibl.master_files.in_digital_library.count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
+        sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{bibl.pid}", :ref => "G#{row.index + 1}"
+        sheet["G#{row.index + 1}"].style = @blue_link
         row_number += 1 
       }
       sheet.column_info[0].width = 60 # Title
       sheet.column_info[1].width = 35 # Author
       sheet.column_info[2].width = 30 # Call Number
-      sheet.column_info[3].width = 10 # Number of Images
-      sheet.column_info[4].width = 15 # Date Ingested
-      sheet.column_info[5].width = 10 # Link
+      sheet.column_info[3].width = 12 # Date Created
+      sheet.column_info[4].width = 10 # Number of Images
+      sheet.column_info[5].width = 15 # Date Ingested
+      sheet.column_info[6].width = 10 # Link
     end
   end
 end
