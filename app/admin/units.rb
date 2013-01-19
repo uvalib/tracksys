@@ -334,11 +334,11 @@ ActiveAdmin.register Unit do
   end
 
   action_item :only => :show do
-    link_to_unless(unit.previous.nil?, "Previous", admin_unit_path(unit.previous))
+    link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?
   end
 
   action_item :only => :show do
-    link_to_unless(unit.next.nil?, "Next", admin_unit_path(unit.next))
+    link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
 
   member_action :print_routing_slip, :method => :put do

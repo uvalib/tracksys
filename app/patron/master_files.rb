@@ -146,11 +146,11 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   end
 
   action_item :only => :show do
-    link_to_unless(master_file.previous.nil?, "Previous", patron_master_file_path(master_file.previous))
+    link_to("Previous", patron_master_file_path(master_file.previous)) unless master_file.previous.nil?
   end
 
   action_item :only => :show do
-    link_to_unless(master_file.next.nil?, "Next", patron_master_file_path(master_file.next))
+    link_to("Next", patron_master_file_path(master_file.next)) unless master_file.next.nil?
   end
 
   action_item :only => :show do 

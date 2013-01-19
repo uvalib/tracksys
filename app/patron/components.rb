@@ -200,10 +200,10 @@ ActiveAdmin.register Component, :namespace => :patron do
   end
 
   action_item :only => :show do
-    link_to_unless(component.previous.nil?, "Previous", patron_component_path(component.previous))
+    link_to("Previous", patron_component_path(component.new_previous)) unless component.new_previous.nil?
   end
 
   action_item :only => :show do
-    link_to_unless(component.next.nil?, "Next", patron_component_path(component.next))
+    link_to("Next", patron_component_path(component.new_next)) unless component.new_next.nil?
   end
 end

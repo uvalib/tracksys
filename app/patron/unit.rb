@@ -251,11 +251,11 @@ ActiveAdmin.register Unit, :namespace => :patron do
   end
 
   action_item :only => :show do
-    link_to_unless(unit.previous.nil?, "Previous", patron_unit_path(unit.previous))
+    link_to("Previous", patron_unit_path(unit.previous)) unless unit.previous.nil?
   end
 
   action_item :only => :show do
-    link_to_unless(unit.next.nil?, "Next", patron_unit_path(unit.next))
+    link_to("Next", patron_unit_path(unit.next)) unless unit.next.nil?
   end
 
   member_action :copy_from_archive, :method => :put do 

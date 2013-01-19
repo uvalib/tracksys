@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.2'
+gem 'rails'
 
 # Needed to resolve incompatability with Fedora 12+
 gem 'execjs'
@@ -73,5 +73,9 @@ gem 'jquery-ui-rails'
 
 # To version our models
 gem 'paper_trail'
+
+# Integrate tesseract OCR software
+gem 'tesseract-ocr'
+
 # For creating Excel spreadsheets
 gem 'axlsx'

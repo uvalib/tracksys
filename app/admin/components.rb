@@ -251,11 +251,11 @@ ActiveAdmin.register Component do
   end
 
   action_item :only => :show do
-    link_to_unless(component.new_previous.nil?, "Previous", admin_component_path(component.new_previous))
+    link_to("Previous", admin_component_path(component.new_previous)) unless component.new_previous.nil?
   end
 
   action_item :only => :show do
-    link_to_unless(component.new_next.nil?, "Next", admin_component_path(component.new_next))
+    link_to("Next", admin_component_path(component.new_next)) unless component.new_next.nil?
   end
 
   action_item :only => :show do
