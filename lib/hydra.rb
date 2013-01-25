@@ -73,6 +73,12 @@ module Hydra
 
       analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.catalog_key}"
 
+      if object.availability_policy_id == 1
+        availability_policy_pid = false
+      else
+        availability_policy_pid = object.availability_policy.pid
+      end
+
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
@@ -88,7 +94,7 @@ module Hydra
         "totalTranscriptions" => "#{total_transcription}",
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
-        "policyFacet" => "#{object.availability_policy.pid}",
+        "policyFacet" => "#{availability_policy_pid}",
         "clear-stylesheet-cache" => "yes"
       })
       return response.body
@@ -103,6 +109,12 @@ module Hydra
       total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
       total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
       total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
+
+      if object.availability_policy_id == 1
+        availability_policy_pid = false
+      else
+        availability_policy_pid = object.availability_policy.pid
+      end
 
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
@@ -120,7 +132,7 @@ module Hydra
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
         "parentModsRecord" => "#{parent_mods_record}",
-        "policyFacet" => "#{object.availability_policy.pid}",
+        "policyFacet" => "#{availability_policy_pid}",
         "clear-stylesheet-cache" => "yes"
         })
       return response.body
