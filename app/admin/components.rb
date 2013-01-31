@@ -9,6 +9,7 @@ ActiveAdmin.register Component do
   filter :component_type
   filter :title
   filter :content_desc
+  filter :date
   filter :pid
   filter :availability_policy
   filter :indexing_scenario
@@ -116,8 +117,9 @@ ActiveAdmin.register Component do
     div :class => "columns-none" do
       if ! component.children.empty?
         panel "Child Component Information", :toggle => 'hide' do
-          table_for component.children.select(:id).select(:title).select(:content_desc).select(:ancestry) do
+          table_for component.children.select(:id).select(:date).select(:title).select(:content_desc).select(:ancestry) do
             column :id
+            column :date
             column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
             column :content_desc do |child| link_to "#{child.content_desc}", admin_component_path(child.id) end
             column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
