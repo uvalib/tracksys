@@ -75,7 +75,7 @@ gem 'jquery-ui-rails'
 gem 'paper_trail'
 
 # Integrate tesseract OCR software
-gem 'tesseract-ocr'
+#gem 'tesseract-ocr'
 
 # For creating Excel spreadsheets
 gem 'axlsx'

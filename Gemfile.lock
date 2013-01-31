@@ -80,8 +80,6 @@ GEM
       sass (>= 3.1)
     browser (0.1.4)
     builder (3.0.4)
-    call-me (0.0.2.3)
-      refining
     capybara (1.1.2)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -122,10 +120,6 @@ GEM
     fastercsv (1.5.5)
     fastthread (1.0.7)
     ffi (1.0.11)
-    ffi-extra (0.1.0)
-      ffi
-    ffi-inline (0.0.4.2)
-      ffi (>= 0.4.0)
     foreigner (1.1.6)
       activerecord (>= 3.0.0)
     formtastic (2.2.1)
@@ -142,7 +136,6 @@ GEM
     inherited_resources (1.3.1)
       has_scope (~> 0.5.0)
       responders (~> 0.6)
-    iso-639 (0.1.0)
     journey (1.0.4)
     jquery-rails (2.0.2)
       railties (>= 3.2.0, < 5.0)
@@ -218,7 +211,6 @@ GEM
     rake (10.0.3)
     rdoc (3.12)
       json (~> 1.4)
-    refining (0.0.5.5)
     responders (0.9.3)
       railties (~> 3.1)
     rest-client (1.6.7)
@@ -267,11 +259,6 @@ GEM
       tilt (~> 1.1, != 1.3.0)
     sqlite3 (1.3.6)
     stomp (1.2.2)
-    tesseract-ocr (0.1.5)
-      call-me
-      ffi-extra
-      ffi-inline
-      iso-639
     therubyracer (0.10.1)
       libv8 (~> 3.3.10)
     thor (0.14.6)
@@ -336,7 +323,6 @@ DEPENDENCIES
   spreadsheet (= 0.6.9)
   sqlite3
   stomp
-  tesseract-ocr
   therubyracer
   tweet-button
   uglifier
