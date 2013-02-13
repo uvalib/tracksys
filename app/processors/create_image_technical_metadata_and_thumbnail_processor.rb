@@ -133,7 +133,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
 
   def create_thumbnail(mf)
     unit_dir = "%09d" % mf.unit.id
-    thumbnail = @image.resample(100)
+    thumbnail = @image.resize_to_fit(1024,1024)
 
     # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
     # will eliminate other directories that are of non-Tracksys managed content.
