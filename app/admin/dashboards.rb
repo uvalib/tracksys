@@ -63,7 +63,7 @@ ActiveAdmin.register_page "Dashboard" do
         table_for Bibl.in_digital_library.limit(20) do
           column :call_number
           column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") {|bibl| image_tag("http://fedoraproxy.lib.virginia.edu/fedora/get/#{MasterFile.find_by_filename(bibl.exemplar).pid}/djatoka:jp2SDef/getRegion?scale=125", :height => '100')}
+          column ("Thumbnail") {|bibl| image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")}
           column("Links") do |bibl|
             div do
               link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
