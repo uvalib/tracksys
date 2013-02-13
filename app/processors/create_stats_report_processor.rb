@@ -167,7 +167,9 @@ class CreateStatsReportProcessor < ApplicationProcessor
       # Units and Master Files Archived
       number_of_units_archived_month = Unit.where("date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
       number_of_master_files_archived_month = MasterFile.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-      size_of_master_files_archived_month =  MasterFile.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").map(&:filesize).inject(:+)
+      if number_of_master_files_archived_month > 0
+        size_of_master_files_archived_month =  MasterFile.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").map(&:filesize).inject(:+)
+      end
 
       # Units and Master Files Delivered to DL
       number_of_units_delivered_to_dl_month = Unit.where("date_dl_deliverables_ready between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
@@ -194,7 +196,11 @@ class CreateStatsReportProcessor < ApplicationProcessor
     number_of_orders_canceled_year_to_date = Order.where("date_canceled between '#{query_year}-01-01' and '#{query_year}-12-31'").count
     number_of_units_archived_year_to_date = Unit.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
     number_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-    size_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").map(&:filesize).inject(:+)
+    
+    if number_of_master_files_archived_year_to_date
+      size_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").map(&:filesize).inject(:+)
+    end
+    
     number_of_units_delivered_to_dl_year_to_date = Unit.where("date_dl_deliverables_ready between '#{query_year}-01-01' and '#{query_year}-12-31'").count
     number_of_master_files_delivered_to_dl_year_to_date = MasterFile.where("date_dl_ingest between '#{query_year}-01-01' and '#{query_year}-12-31'").count
 
