@@ -74,4 +74,14 @@ class MasterFile
     message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
     publish :copy_archived_files_to_production, message
   end
+  
+  def update_thumb_and_tech
+    if self.image_tech_meta
+      self.image_tech_meta.destroy
+    end
+    sleep(0.1)
+
+    message = ActiveSupport::JSON.encode( { :master_file_id => self.id, :source => self.path_to_archved_version.gsub(/\/[0-9_]*.tif/, ''), :last => 0 })
+    publish :create_image_technical_metadata_and_thumbnail, message
+  end
 end
