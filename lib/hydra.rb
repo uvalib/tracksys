@@ -381,6 +381,9 @@ module Hydra
         content_models = Array.new
         if object.is_a? Bibl 
           content_models.push(Fedora_content_models['fedora-generic'])
+          if object.dpla
+            content_models.push(Fedora_content_models['dpla-collection'])
+          end
         elsif object.is_a? Component
           # assuming at this point that all Components are going to have descMetadata datastreams that is written
           # in MODS 3.4.
@@ -392,8 +395,13 @@ module Hydra
           else
             content_models.push(Fedora_content_models['ead-component'])
           end    
-        elsif object.is_a? MasterFile and object.tech_meta_type == 'image'
-          content_models.push(Fedora_content_models['jp2k'])
+        elsif object.is_a? MasterFile
+          if object.tech_meta_type == 'image'
+            content_models.push(Fedora_content_models['jp2k'])
+          end
+          if object.bibl.dpla
+            content_models.push(Fedora_content_models['dpla-item'])
+          end
         else
           content_model = nil
         end
