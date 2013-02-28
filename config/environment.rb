@@ -44,8 +44,7 @@ BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_de
 
 # Solr URL variables for interacting with sanctioned solr server.  Used in constructing solr records
 # and in engaging lib/bibl_external_update
-SOLR_PRODUCTION_NAME = "solrpowr.lib.virginia.edu"
-SOLR_PRODUCTION_PORT = "8984"
+SOLR_PRODUCTION_NAME = "index.lib.virginia.edu"
 
 # To prevent writing to production archive on Stornext from all but tracksys.production
 # the default write directory will be Test.

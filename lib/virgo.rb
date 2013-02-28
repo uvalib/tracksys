@@ -9,7 +9,6 @@ module Virgo
   @log = Logger.new(STDOUT)
 
   @metadata_server = "#{SOLR_PRODUCTION_NAME}"
-  @port = "#{SOLR_PRODUCTION_PORT}"
 
   # Queries the external metadata server for the catalog ID passed, and returns
   # a new Bibl object populated with values from that external record.
@@ -40,7 +39,7 @@ module Virgo
     bibl.date_external_update = Time.now
     
     # open HTTP session
-    Net::HTTP.start( @metadata_server, @port ) do |http|
+    Net::HTTP.start( @metadata_server) do |http|
       # query the metadata server for this catalog ID or barcode
       if catalog_key.blank?
         # query for barcode
@@ -134,7 +133,7 @@ module Virgo
   # server's response.
   def self.query_metadata_server(http, query_value, query_field='id')
     # query Solr server to get XML results for this catalog ID
-    xml_string = http.get( "/solr/bib/select/?q=#{query_field}:#{query_value}" ).body
+    xml_string = http.get( "/virgobeta/select/?q=#{query_field}:#{query_value}" ).body
     # read XML string into REXML document object
     begin
       xml_doc = REXML::Document.new(xml_string)
