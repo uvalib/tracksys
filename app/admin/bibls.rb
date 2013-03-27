@@ -58,7 +58,7 @@ ActiveAdmin.register Bibl do
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|
-      link_to bibl.master_files.size, admin_master_files_path(:q => {:bibl_id_eq => bibl.id})
+      link_to bibl.master_files.count, admin_master_files_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Links") do |bibl|
       div do
@@ -183,22 +183,22 @@ ActiveAdmin.register Bibl do
         end
       end
       row :master_files do |bibl|
-        link_to "#{bibl.master_files.size}", admin_master_files_path(:q => {:bibl_id_eq => bibl.id})
+        link_to "#{bibl.master_files.count}", admin_master_files_path(:q => {:bibl_id_eq => bibl.id})
       end
       row :units do |bibl|
         link_to "#{bibl.units.size}", admin_units_path(:q => {:bibl_id_eq => bibl.id})
       end
       row :orders do |bibl|
-        link_to "#{bibl.orders.size}", admin_orders_path(:q => {:bibls_id_eq => bibl.id})
+        link_to "#{bibl.orders.count}", admin_orders_path(:q => {:bibls_id_eq => bibl.id})
       end
       row :customers do |bibl|
-        link_to "#{bibl.customers.size}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
+        link_to "#{bibl.customers.count}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
       end
       row :automation_messages do |bibl|
         link_to "#{bibl.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => bibl.id, :messagable_type_eq => "Bibl" })
       end
       row :components do |bibl|
-        link_to "#{bibl.components.size}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
+        link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
       end
       row "Agencies Requesting Resource" do |bibl|
         bibl.agencies.uniq.sort_by(&:name).each {|agency|
