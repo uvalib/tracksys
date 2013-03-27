@@ -71,7 +71,7 @@ module Hydra
       # total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
       # total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.catalog_key}"
+      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}/virgobeta/select?q=id%3A#{object.catalog_key}"
 
       if object.availability_policy_id == 1
         availability_policy_pid = false
@@ -105,7 +105,7 @@ module Hydra
       external_relations = "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/RELS-EXT/content"
       external_relations = external_relations.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
 
-      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}:#{SOLR_PRODUCTION_PORT}/solr/all/select?q=id%3A#{object.bibl.catalog_key}"
+      analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}/solr/all/select?q=id%3A#{object.bibl.catalog_key}"
       total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
       total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
       total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
