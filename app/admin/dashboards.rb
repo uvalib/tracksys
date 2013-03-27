@@ -88,6 +88,14 @@ ActiveAdmin.register_page "Dashboard" do
         div :class => 'workflow_button' do
           button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
         end
+        tr do
+          td do
+            "Total unpaid invoices:"
+          end
+          td do
+            link_to "#{number_to_currency(Order.unpaid.sum(&:fee_actual), :precision => 0)}", admin_orders_path( :scope => 'unpaid' )        
+          end        
+        end
       end
     end
   end

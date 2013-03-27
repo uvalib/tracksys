@@ -10,6 +10,7 @@ ActiveAdmin.register Order do
   scope :in_process
   scope :ready_for_delivery
   scope :complete
+  scope :unpaid
 
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}

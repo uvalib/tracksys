@@ -16,6 +16,8 @@ en:
     models:
       bibl: "Bibliographic Records"
     attributes:
+      invoice:
+        permanent_nonpayment: "Permanent Non-Payment"
       request:
           units: "Items"
       staff_member:

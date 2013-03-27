@@ -9,6 +9,7 @@ ActiveAdmin.register Invoice do
   filter :transmittal_number
   filter :date_invoice, :label => "Date Invoice Sent"
   filter :date_fee_paid
+  filter :permanent_nonpayment
 
   index do
     column :order
@@ -32,6 +33,12 @@ ActiveAdmin.register Invoice do
     end
 
     column :transmittal_number
+    column :permanent_nonpayment do |invoice|
+      case
+        when invoice.permanent_nonpayment?
+          "Yes"
+      end
+    end
     column :notes
     column ("PDF of Invoice") do |invoice|
       link_to "Download", get_pdf_admin_invoice_path(invoice.id), :method => :get
@@ -69,6 +76,12 @@ ActiveAdmin.register Invoice do
     div :class => 'two-column' do
       panel "Billing Information" do
         attributes_table_for invoice do
+          row :permanent_nonpayment do |invoice|
+            case
+              when invoice.permanent_nonpayment?
+                "Yes"
+            end
+          end
           row :fee_amount_paid do |invoice|
             number_to_currency(invoice.fee_amount_paid)
           end
@@ -94,6 +107,7 @@ ActiveAdmin.register Invoice do
     end
 
     f.inputs "Billing Information", :class => 'three-column panel' do
+      f.input :permanent_nonpayment
       f.input :fee_amount_paid, :as => :string
       f.input :transmittal_number, :as => :string
       f.input :notes, :input_html => {:rows => 3}

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130112175604) do
+ActiveRecord::Schema.define(:version => 20130327193607) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -174,11 +174,10 @@ ActiveRecord::Schema.define(:version => 20130112175604) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "automation_messages_count",                       :default => 0
-    t.integer  "orders_count",                                    :default => 0
     t.integer  "units_count",                                     :default => 0
-    t.integer  "master_files_count",                              :default => 0
     t.integer  "availability_policy_id"
     t.integer  "use_right_id"
+    t.boolean  "dpla"
   end
 
   add_index "bibls", ["availability_policy_id"], :name => "index_bibls_on_availability_policy_id"
@@ -480,7 +479,7 @@ ActiveRecord::Schema.define(:version => 20130112175604) do
   add_index "intended_uses", ["description"], :name => "index_intended_uses_on_description", :unique => true
 
   create_table "invoices", :force => true do |t|
-    t.integer  "order_id",                                    :default => 0, :null => false
+    t.integer  "order_id",                                    :default => 0,     :null => false
     t.datetime "date_invoice"
     t.text     "invoice_content"
     t.datetime "created_at"
@@ -492,6 +491,7 @@ ActiveRecord::Schema.define(:version => 20130112175604) do
     t.text     "transmittal_number"
     t.text     "notes"
     t.binary   "invoice_copy",            :limit => 16777215
+    t.boolean  "permanent_nonpayment",                        :default => false
   end
 
   add_index "invoices", ["order_id"], :name => "index_invoices_on_order_id"
