@@ -11,7 +11,6 @@ class SendCommitToSolrProcessor < ApplicationProcessor
     
     solr = Solr::Connection.new("#{STAGING_SOLR_URL}", :autocommit => :on, :timeout => 3600000)
     solr.commit
-    solr.optimize
     
     on_success "The commit signal has been sent to the Solr index at #{STAGING_SOLR_URL}."
   end
