@@ -50,6 +50,7 @@ ActiveAdmin.register Order do
     end
     column :agency
     column :customer
+    column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
       div do
         link_to "Details", resource_path(order), :class => "member_link view_link"
