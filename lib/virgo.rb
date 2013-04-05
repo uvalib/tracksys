@@ -26,6 +26,21 @@ module Virgo
   # convenient carrier for the metadata values gleaned from the external record.
   #
   # Any error that occurs is raised to the calling method.
+
+  def self.validate_barcode(barcode)
+    Net::HTTP.start( @metadata_server) do |http|
+      xml_doc = query_metadata_server(http, barcode, 'barcode_facet')
+      begin
+        doc = REXML::XPath.first(xml_doc, "/response/result/doc")
+        raise if doc.nil?
+        return true
+      rescue
+        # no catalog record found
+        return false
+      end
+    end
+  end
+
   def self.external_lookup(catalog_key, barcode)
     # normalize parameters
     catalog_key = catalog_key.strip.downcase unless catalog_key.blank?
