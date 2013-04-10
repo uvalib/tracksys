@@ -10,6 +10,14 @@ ActiveAdmin.register Unit do
   scope :uncompleted_units_of_partially_completed_orders
   scope :ready_for_repo
 
+  csv do
+    column :id
+    column :bibl_title
+    column :bibl_call_number
+    column("Date Archived") {|unit| format_date(unit.date_archived)}
+    column :master_files_count
+  end
+  
   actions :all, :except => [:destroy]
 
   batch_action :approve_units do |selection|
