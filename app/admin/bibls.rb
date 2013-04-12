@@ -122,6 +122,9 @@ ActiveAdmin.register Bibl do
           row :genre do |bibl|
             bibl.genre.to_s.titleize
           end
+          row ("Date Created") do |bibl|
+            bibl.created_at
+          end
           row ("Date Updated from VIRGO") do |bibl|
             bibl.date_external_update
           end
