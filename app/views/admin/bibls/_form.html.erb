@@ -40,11 +40,7 @@
       <%= f.input :indexing_scenario, :input_html => {:class => 'chzn-select'} %>
       <%= f.input :use_right, :input_html => {:class => 'chzn-select'} %>
       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
-      <%= f.input :desc_metadata, :input_html => { :disabled => true } %>
-      <%= f.input :dc, :input_html => { :disabled => true } %>
-      <%= f.input :rels_ext, :input_html => { :disabled => true } %>
-      <%= f.input :rels_int, :input_html => { :disabled => true } %>
-      <%= f.input :solr, :input_html => { :disabled => true } %>
+      <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
   <% end %>
 
   <%= f.actions :class => 'columns-none' %>
