@@ -23,6 +23,16 @@ ActiveAdmin.register Bibl do
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric
   filter :agencies_id, :as => :numeric
+  
+  csv do
+    column :id
+    column :title
+    column :creator_name
+    column :call_number
+    column :location
+    column("# of Images") {|bibl| bibl.master_files.count}
+    column("In digital library?") {|bibl| format_boolean_as_yes_no(bibl.in_dl?)}
+  end
 
   index :id => 'bibls' do
     selectable_column
