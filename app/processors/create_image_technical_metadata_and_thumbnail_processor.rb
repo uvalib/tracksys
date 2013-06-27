@@ -14,18 +14,16 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
 
     raise "Parameter 'master_file_id' is required" if hash[:master_file_id].blank?
     raise "Parameter 'source' is required" if hash[:source].blank?
-    raise "Parameter 'last' is required" if hash[:last].blank?
     
     @messagable_id = hash[:master_file_id]
     @messagable_type = "MasterFile"
     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
 
     @source = hash[:source]
-    @last = hash[:last]
     @master_file_id = hash[:master_file_id]
     mf = MasterFile.find(@master_file_id)
 
-    @image_path = File.join(@source, mf.filename)
+    @image_path = @source
     
     # Engage garbage cleanup.
     GC.start
@@ -38,23 +36,7 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
     create_thumbnail(mf)
     
     # Make sure that the memory is cleared after the processor no longer needs these two objects.
-    @image.destroy!
-    
-    if @last == 1
-      @master_file_id = nil # Empty this value so this message is not associated with the MasterFile table
-      @unit_id = mf.unit.id # Create this value so the message is associated with the Unit table
-      @unit_dir = "%09d" % @unit_id # @source must include mount and unit_dir (i.e. /lib_content37/mcRae/000009001)
-      
-      # Check to ensure that the Unit from which this MasterFile comes meets the criteria for ingestion into DL.  Only publish message
-      unit = Unit.find(@unit_id)
-      if unit.include_in_dl == true and unit.availability
-        message = ActiveSupport::JSON.encode( { :unit_id => @unit_id, :source => @source, :last => @last } )
-        publish :update_unit_date_queued_for_ingest, message
-        on_success "The image technical metadata for the last MasterFile of Unit #{@unit_id} is complete and now the Unit will be queued for ingest."
-      else
-        on_success "The image technical metadata for the last MasterFile of Unit #{@unit_id} is complete.  No further work is needed."
-      end
-    end
+    @image.destroy!   
   end
 
   def create_image_technical_metadata(master_file)

@@ -81,7 +81,7 @@ class MasterFile
     end
     sleep(0.1)
 
-    message = ActiveSupport::JSON.encode( { :master_file_id => self.id, :source => self.path_to_archved_version.gsub(/\/[0-9_]*.tif/, ''), :last => 0 })
+    message = ActiveSupport::JSON.encode( { :master_file_id => self.id, :source => self.path_to_archved_version})
     publish :create_image_technical_metadata_and_thumbnail, message
   end
 end

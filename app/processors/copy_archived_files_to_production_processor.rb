@@ -26,6 +26,9 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
       @destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, @computing_id)
       FileUtils.mkdir_p(@destination_dir)
       FileUtils.chmod 0775, "#{@destination_dir}"
+      
+      # Set SGID bit to ensure that files copied into user's directory are owned by lb-ds
+      FileUtils.chmod 'g+s', "#{@destination_dir}"
 
       if hash[:master_file_filename]
         @messagable_id = MasterFile.where(:filename => hash[:master_file_filename]).first.id
