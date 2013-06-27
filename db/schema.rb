@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130327193607) do
+ActiveRecord::Schema.define(:version => 20130515143428) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -177,13 +177,16 @@ ActiveRecord::Schema.define(:version => 20130327193607) do
     t.integer  "units_count",                                     :default => 0
     t.integer  "availability_policy_id"
     t.integer  "use_right_id"
-    t.boolean  "dpla"
+    t.boolean  "dpla",                                            :default => false
+    t.string   "cataloging_source"
   end
 
   add_index "bibls", ["availability_policy_id"], :name => "index_bibls_on_availability_policy_id"
   add_index "bibls", ["barcode"], :name => "index_bibls_on_barcode"
   add_index "bibls", ["call_number"], :name => "index_bibls_on_call_number"
   add_index "bibls", ["catalog_key"], :name => "index_bibls_on_catalog_key"
+  add_index "bibls", ["cataloging_source"], :name => "index_bibls_on_cataloging_source"
+  add_index "bibls", ["dpla"], :name => "index_bibls_on_dpla"
   add_index "bibls", ["indexing_scenario_id"], :name => "index_bibls_on_indexing_scenario_id"
   add_index "bibls", ["parent_bibl_id"], :name => "index_bibls_on_parent_bibl_id"
   add_index "bibls", ["pid"], :name => "index_bibls_on_pid"
@@ -541,12 +544,14 @@ ActiveRecord::Schema.define(:version => 20130327193607) do
     t.integer  "use_right_id"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
+    t.boolean  "dpla",                                            :default => false
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
   add_index "master_files", ["component_id"], :name => "index_master_files_on_component_id"
   add_index "master_files", ["date_dl_ingest"], :name => "index_master_files_on_date_dl_ingest"
   add_index "master_files", ["date_dl_update"], :name => "index_master_files_on_date_dl_update"
+  add_index "master_files", ["dpla"], :name => "index_master_files_on_dpla"
   add_index "master_files", ["filename"], :name => "index_master_files_on_filename"
   add_index "master_files", ["indexing_scenario_id"], :name => "index_master_files_on_indexing_scenario_id"
   add_index "master_files", ["pid"], :name => "index_master_files_on_pid"

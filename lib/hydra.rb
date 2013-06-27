@@ -382,7 +382,11 @@ module Hydra
         if object.is_a? Bibl 
           content_models.push(Fedora_content_models['fedora-generic'])
           if object.dpla
-            content_models.push(Fedora_content_models['dpla-collection'])
+            if object.parent_bibl
+              content_models.push(Fedora_content_models['dpla-item'])
+            else
+              content_models.push(Fedora_content_models['dpla-collection'])
+            end
           end
         elsif object.is_a? Component
           # assuming at this point that all Components are going to have descMetadata datastreams that is written
@@ -399,7 +403,7 @@ module Hydra
           if object.tech_meta_type == 'image'
             content_models.push(Fedora_content_models['jp2k'])
           end
-          if object.bibl.dpla
+          if object.dpla
             content_models.push(Fedora_content_models['dpla-item'])
           end
         else

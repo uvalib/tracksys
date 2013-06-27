@@ -90,7 +90,9 @@ Fedora_content_models = {
   'ead-collection'=>'uva-lib:eadCollectionCModel',
   'ead-item' => 'uva-lib:eadItemCModel',
   'placeholder' => 'uva-lib:descMetadataPlaceholderCModel',
-  'mods34'=>'uva-lib:mods3.4CModel'
+  'mods34'=>'uva-lib:mods3.4CModel',
+  'dpla-item' => 'uva-lib:DPLAItemCModel',
+  'dpla-collection' => 'uva-lib:DPLACollectionCModel'
   }
 Schema_locations = {
   'mods'=>'http://www.loc.gov/standards/mods/v3/mods-3-3.xsd',
