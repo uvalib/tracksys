@@ -110,7 +110,7 @@ ActiveAdmin.register Order do
             format_date(order.date_finalization_begun)
           end
           row :date_archiving_complete do |order|
-            format_date(order.date_finalization_begun)
+            format_date(order.date_archiving_complete)
           end
           row :date_patron_deliverables_complete do |order|
             format_date(order.date_patron_deliverables_complete)

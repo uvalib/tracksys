@@ -222,6 +222,11 @@ ActiveAdmin.register Bibl do
           end
         } unless bibl.legacy_identifiers.empty?
       end      
+      row("Collection Bibliographic Record") do |bibl|
+        if bibl.parent_bibl
+          link_to "#{bibl.parent_bibl.title}", admin_bibl_path(bibl.parent_bibl)
+        end
+      end
     end
   end
 

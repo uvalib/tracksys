@@ -112,7 +112,9 @@ ActiveAdmin.register MasterFile do
       panel "Technical Information", :id => 'master_files' do 
         attributes_table_for master_file do
           row :md5
-          row :filesize
+          row :filesize do |master_file|
+            "#{master_file.filesize / 1048576} MB"
+          end
           if master_file.image_tech_meta
             attributes_table_for master_file.image_tech_meta do
               row :image_format
