@@ -91,7 +91,7 @@ module Hydra
         "contentModel" => "digital_book",
         "sourceFacet" => "UVA Library Digital Repository",
         "externalRelations" => "#{external_relations}",
-        "totalTranscriptions" => "#{total_transcription}",
+#        "totalTranscriptions" => "#{total_transcription}",
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
         "policyFacet" => "#{availability_policy_pid}",
@@ -493,15 +493,53 @@ module Hydra
       # Need to modify the output of mods_from_marc to include local identifier used to determine
       # discoverablity in the index.
       doc = Nokogiri::XML(mods_from_marc(object))
-      last_node = doc.xpath("//mods:identifier").last
+      last_node = doc.xpath("//mods:mods/mods:location").last
+      
+      # Add node for indexing
       index_node = Nokogiri::XML::Node.new "identifier", doc
       index_node['type'] = 'uri'
       index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
       index_node['invalid'] = 'yes' unless object.discoverability
       index_node.content = "#{object.pid}"
       last_node.add_next_sibling(index_node)
-      output = doc.human
+      
+      # Add node with Fedora PID
+      pid_node = Nokogiri::XML::Node.new "identifier", doc
+      pid_node['type'] = 'pid'
+      pid_node['displayLabel'] = 'UVA Library Fedora Repository PID'
+      pid_node.content = "#{object.pid}"
+      last_node.add_next_sibling(pid_node)
 
+      # Add node with Tracksys Bibl ID
+      bibl_id_node = Nokogiri::XML::Node.new "identifier", doc
+      bibl_id_node['type'] = 'local'
+      bibl_id_node['displayLabel'] = 'Digitization Services Tracksys Bibl ID'
+      bibl_id_node.content = "#{object.id}"
+      last_node.add_next_sibling(bibl_id_node)
+
+      # Add nodes with Legacy Identifier information, if any
+      if not object.legacy_identifiers.empty?
+        object.legacy_identifiers.each {|li|
+          li_node = Nokogiri::XML::Node.new "identifier", doc
+          li_node['type'] = 'legacy'
+          li_node['displayLabel'] = "#{li.description}"
+          li_node.content = "#{li.legacy_identifier}"
+          last_node.add_next_sibling(li_node)
+        }
+      end
+
+      # Add nodes with Unit IDs that are included in DL
+      object.units.each {|unit|
+        if unit.include_in_dl == true
+          unit_id_node = Nokogiri::XML::Node.new "identifier", doc
+          unit_id_node['type'] = 'local'
+          unit_id_node['displayLabel'] = 'Digitization Services Tracksys Unit ID'
+          unit_id_node.content = "#{unit.id}"
+          last_node.add_next_sibling(unit_id_node)
+        end
+      }
+
+      output = doc.human
     else
       output = ''
       xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
@@ -529,7 +567,7 @@ module Hydra
   def self.mods_from_marc(object)
     xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl"))
     xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
-    mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'", 'identifiers', "'#{Hydra.mods_identifier_partial(object)}'"])
+    mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'"])
 
     # In order to reformat and pretty print the MODS record after string insertion, the document is reopened and then 
     # manipulated by Nokogiri.
@@ -546,11 +584,6 @@ module Hydra
     xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
     xml.mods :identifier, object.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
     if object.is_a? Bibl
-      if object.discoverability
-        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
-      else
-        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
-      end
       
       if not object.legacy_identifiers.empty?
         object.legacy_identifiers.each {|li|
@@ -566,16 +599,6 @@ module Hydra
           xml.mods :identifier, unit.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
         end
       }
-    elsif object.is_a? MasterFile 
-      xml.mods :identifier, object.unit.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
-      xml.mods :identifier, object.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys MasterFile ID'
-      xml.mods :identifier, object.filename, :type => 'local', :displayLabel => 'Digitization Services Archive Filename'
-
-      if object.discoverability
-        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
-      else
-        xml.mods :identifier, object.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
-      end
     end
     return output # string
   end

@@ -55,7 +55,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
 
         @object.master_files.each {|mf|       
           # Messages coming from this processor should only be for units that have already been archived.
-          @source = File.join(ARCHIVE_READ_DIR, @unit_dir, mf.filename)
+          @source = mf.path_to_archved_version
           unit_xml_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id})
           unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 })
           publish :ingest_desc_metadata, unit_xml_message
@@ -254,7 +254,9 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
 
       if @datastream == 'allxml'
         publish :ingest_desc_metadata, bibl_xml_message
-        publish :ingest_marc, bibl_xml_message
+        if @object.catalog_key
+          publish :ingest_marc, bibl_xml_message
+        end
         publish :ingest_rights_metadata, bibl_xml_message                        
 
         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.id}.tei.xml"))

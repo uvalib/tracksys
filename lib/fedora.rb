@@ -17,7 +17,7 @@ module Fedora
       http_verb = :post
     end
     url = "/objects/#{thing.pid}"
-    url += "?label=" + URI.encode(label) unless label.blank?
+    url += "?label=" + CGI.escape(label)[0..255] unless label.blank?
 #    url += "&logMessage=Tracksys"
     @resource[url].send http_verb, '', :content_type => 'text/xml'
   end
