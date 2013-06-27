@@ -14,6 +14,7 @@
   <% end %>
 
   <%= f.inputs "Detailed Bibliographic Information", :class => 'three-column panel' do %>
+    <%= f.input :cataloging_source %>
     <%= f.input :citation, :input_html => { :rows => 5 } %>
     <%= f.input :description %>
     <%= f.input :title_control %>

@@ -17,6 +17,7 @@ ActiveAdmin.register Bibl do
   filter :barcode
   filter :pid
   filter :location
+  filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type), :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
   filter :customers_id, :as => :numeric
@@ -29,6 +30,9 @@ ActiveAdmin.register Bibl do
     column :creator_name
     column :call_number
     column :volume
+    column("Source") do |bibl|
+    	bibl.cataloging_source
+    end
     column :catalog_key do |bibl|
       div do
         bibl.catalog_key
@@ -91,6 +95,7 @@ ActiveAdmin.register Bibl do
     div :class => 'three-column' do
       panel "Detailed Bibliographic Information", :toggle => 'show' do
         attributes_table_for bibl do
+          row :cataloging_source
           row :citation
           row :description
           row :title_control

@@ -280,6 +280,14 @@ module Virgo
       if marc524a and marc524a.text
         bibl.citation = marc524a.text
       end
+      
+      # MARC 040a - Cataloging Source.  In order to certify that our records are CC0 for 
+      # submission to DPLA, we need to record where the MARC record was authored.  
+      # VA@ is the code for the University of Virgina
+      marc040a = REXML::XPath.first(marc_record, "datafield[@tag='040']/subfield[@code='a']")
+      if marc040a and marc040a.text
+        bibl.cataloging_source = marc040a.text
+      end
 
       # MARC 999 is repeatable -- normally one for each barcode. Build a hash of
       # barcode values from 999 fields, where key is barcode and value is
