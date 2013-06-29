@@ -88,9 +88,6 @@ ActiveAdmin.setup do |config|
     config.authentication_method = false
     config.current_user_method   = :current_admin_user
     config.before_filter :authorize, :except => [ :access_denied, :mods_identifiers ]
-  else
-    config.authentication_method = :authenticate_admin_user!
-    config.current_user_method = :current_admin_user
   end
 
   # Set language
