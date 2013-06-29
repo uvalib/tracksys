@@ -76,7 +76,6 @@ ActiveAdmin.register_page "Dashboard" do
     div :class => 'three-column' do
       panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
         div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-        div :class => 'workflow_button' do button_to "Make Records Available on Virgo", admin_dashboard_push_staging_to_production_path, :method => :get end
       end
     end
 
