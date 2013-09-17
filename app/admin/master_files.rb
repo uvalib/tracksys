@@ -347,7 +347,13 @@ ActiveAdmin.register MasterFile do
       text = String.new
       mf.component.path_ids.each {|component_id|
         c = Component.find(component_id)
-        text << "(#{c.component_type.name.titleize}) <i>#{c.name}.</i>  "
+        name_details = String.new
+        if c.date
+          name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i> #{c.date}  "
+        else 
+          name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i>  "
+        end
+        text << name_details 
       }
       pdf.text "<b>Manuscript Information:</b>  " + text, :inline_format => true
       pdf.move_down 2
