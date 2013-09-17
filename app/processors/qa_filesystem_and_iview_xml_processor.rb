@@ -181,7 +181,12 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
         # As of 3/2010, only two color profiles are used in production: Adobe RGB (1998) and cruse-lr-picto
         # 9/2010: In deference to the redelivery of RMDS material scanned under different procedures, Dot Gain 20% is now a legitimate color profile
         if colorprofile != "Adobe RGB (1998)" and colorprofile != "cruse-lr-picto" and colorprofile != "Dot Gain 20%"
-          @error_messages.push("The <ColorProfile> of <MediaItem> #{filename} is: #{colorprofile}.  This is not one of two accepted values: AdobeRGB (1998), Dot Gain 20% or cruse-lr-picto.")
+          # hack to compensate for Multispecral Scanner's lack of colorprofile datat
+          if mediaitem.xpath('MediaProperties/ColorSpace').text ~= 'RGB'
+            colorprofile = mediaitem.xpath('MediaProperties/ColorSpace').text.strip
+          else
+            @error_messages.push("The <ColorProfile> of <MediaItem> #{filename} is: #{colorprofile}.  This is not one of two accepted values: AdobeRGB (1998), Dot Gain 20% or cruse-lr-picto.")
+          end
         end
 
         if headline =~ /^Page/
