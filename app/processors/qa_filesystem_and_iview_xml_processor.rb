@@ -182,7 +182,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
         # 9/2010: In deference to the redelivery of RMDS material scanned under different procedures, Dot Gain 20% is now a legitimate color profile
         if colorprofile != "Adobe RGB (1998)" and colorprofile != "cruse-lr-picto" and colorprofile != "Dot Gain 20%"
           # hack to compensate for Multispecral Scanner's lack of colorprofile datat
-          if mediaitem.xpath('MediaProperties/ColorSpace').text =~ 'RGB'
+          if mediaitem.xpath('MediaProperties/ColorSpace').text =~ /RGB/
             colorprofile = mediaitem.xpath('MediaProperties/ColorSpace').text.strip
           else
             @error_messages.push("The <ColorProfile> of <MediaItem> #{filename} is: #{colorprofile}.  This is not one of two accepted values: AdobeRGB (1998), Dot Gain 20% or cruse-lr-picto.")
