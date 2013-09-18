@@ -2,7 +2,8 @@
 .bundle
 db/*.sqlite3
 log/*.*
-tmp/
+tmp/*
+!tmp/start_application.sh
 .sass-cache/
 public/admin
 public/assets
