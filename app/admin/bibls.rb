@@ -16,6 +16,7 @@ ActiveAdmin.register Bibl do
   filter :catalog_key
   filter :barcode
   filter :pid
+  filter :dpla, :as => :select
   filter :location
   filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type), :input_html => {:class => 'chzn-select'}
@@ -36,7 +37,9 @@ ActiveAdmin.register Bibl do
 
   index :id => 'bibls' do
     selectable_column
-    column :title
+    column :title do |bibl|
+      truncate_words(bibl.title, 25)
+    end
     column :creator_name
     column :call_number
     column :volume
@@ -67,6 +70,9 @@ ActiveAdmin.register Bibl do
           link_to "Fedora", bibl.fedora_url, :target => "_blank"
         end
       end
+    end
+    column ("DPLA?") do |bibl|
+      format_boolean_as_yes_no(bibl.dpla)
     end
     column :units do |bibl|
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
