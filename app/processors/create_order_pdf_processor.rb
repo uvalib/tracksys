@@ -49,7 +49,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
     end
     @pdf.text "\n"
     if not @fee.to_i.eql?(0)
-      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  Please write a check in the above amount made payable to <i>Rector and Board of Visitors of the University of Virginia</i> and send it to the following address:", :inline_format => true
+      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  Please write a check in the above amount made payable to <i>Digital Curation Services, UVa Library</i> and send it to the following address:", :inline_format => true
       @pdf.text "\n"
       @pdf.text "Digital Curation Services", :left => 100
       @pdf.text "University of Virginia Library", :left => 100
