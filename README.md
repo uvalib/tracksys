@@ -1,8 +1,22 @@
 # Welcome to Tracksys
 
-[![Continuous Integration](https://secure.travis-ci.org/acurley/tracksys.png)](http://travis-ci.org/acurley/tracksys) 
-[![Dependency Status](https://gemnasium.com/acurley/tracksys.png)](https://gemnasium.com/acurley/tracksys)
+## Installation
 
-If models are updated:
+### Ruby
+* Install rbenv
+* Install ruby 1.9.3-p448
+* Run ```rbenv rehash```
 
-    bundle exec annotate -p before --exclude test,fixtures
+### Rails
+
+```
+rbenv 1.9.3-p448
+gem install bundle
+cd /usr/local/projects
+git clone https://github.com/uvalib-dcs/hydraulics.git
+git clone https://github.com/uvalib-dcs/tracksys.git
+cd tracksys
+bundle
+rbenv rehash # to run the executables of the newly installed gems.
+rake db:setup
+```
