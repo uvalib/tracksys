@@ -310,7 +310,7 @@ ActiveAdmin.register Order do
   controller do
     # Only cache the index view if it is the base index_url (i.e. /orders) and is devoid of either params[:page] or params[:q].  
     # The absence of these params values ensures it is the base url.
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
     caches_action :show
     cache_sweeper :orders_sweeper
   end
