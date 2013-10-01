@@ -19,7 +19,7 @@ ActiveAdmin.register Bibl do
   filter :dpla, :as => :select
   filter :location
   filter :cataloging_source
-  filter :resource_type, :as => :select, :collection => Bibl.select(:resource_type).order(:resource_type).uniq.map(&:resource_type), :input_html => {:class => 'chzn-select'}
+  filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES, :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric

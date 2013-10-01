@@ -14,7 +14,7 @@ ActiveAdmin.register Order do
 
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
-  filter :order_status, :as => :select, :collection => Order.select(:order_status).uniq.map(&:order_status).sort
+  filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
   filter :order_title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
