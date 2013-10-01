@@ -46,7 +46,7 @@ ActiveAdmin.register Order do
     column ("Units") do |order|
       link_to order.units_count, admin_units_path(:q => {:order_id_eq => order.id})
     end
-    column ("Master Files") do |order|
+    column ("Master Files"), :sortable => :master_files_count do |order|
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
     column :agency
