@@ -1,5 +1,5 @@
 class OrdersSweeper < ActionController::Caching::Sweeper
-  observe Order
+  observe Order # must declare the model you wish to observe, Rails unfriendly.
 
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
