@@ -70,6 +70,18 @@ module Fedora
     return url
   end
 
+  def self.purge_relationship(pid, subject, predicate, object, isLiteral, datatype, contentType)
+    url = "/objects/#{pid}/relationships?"
+    url += "subject=#{subject}"
+    url += "&predicate=#{predicate}"
+    url += "&object=#{object}"
+    url += "&isLiteral=#{isLiteral}"
+    url += "&datatype=#{datatype}"
+
+    @resource[url].delete :content_type => contentType
+    return url
+  end
+
   def self.get_datastream(pid, dsID, format)
     url = "/objects/#{pid}/datastreams/#{dsID}/content?"
     url += "format=#{format}"
