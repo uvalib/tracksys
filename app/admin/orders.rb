@@ -30,6 +30,7 @@ ActiveAdmin.register Order do
   filter :special_instructions
   filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :dvd_delivery_location
+  filter :master_files_count
 
   index :id => 'orders' do
     selectable_column
