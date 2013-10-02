@@ -37,19 +37,19 @@ ActiveAdmin.register Order do
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
     column :order_title
-    column ("Date Request Submitted") {|order| order.date_request_submitted.try(:strftime, "%m/%d/%y")}
-    column ("Date Order Approved") {|order| order.date_order_approved.try(:strftime, "%m/%d/%y")}
-    column ("Date Archiving Complete") {|order| order.date_archiving_complete.try(:strftime, "%m/%d/%y")}
-    column ("Date Patron Deliverables Complete") {|order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y")}
-    column ("Date Customer Notified") {|order| order.date_customer_notified.try(:strftime, "%m/%d/%y")}
+    column ("Date Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
+    column ("Date Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
+    column ("Date Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
+    column ("Date Patron Deliverables Complete"), :sortable => :date_patron_deliverables_complete do |order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y") end
+    column ("Date Customer Notified"), :sortable => :date_customer_notified do |order| order.date_customer_notified.try(:strftime, "%m/%d/%y") end
     column ("Date Due") {|order| order.date_due.try(:strftime, "%m/%d/%y")}
-    column ("Units") do |order|
+    column ("Units"), :sortable => :units_count do |order|
       link_to order.units_count, admin_units_path(:q => {:order_id_eq => order.id})
     end
     column ("Master Files"), :sortable => :master_files_count do |order|
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
-    column :agency
+    column :agency, :sortable => 'agencies.name'
     column :customer
     column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
