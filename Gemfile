@@ -7,7 +7,7 @@ gem 'devise'
 gem 'execjs'
 gem 'therubyracer'
 
-gem 'hydraulics', git: 'git://github.com/uvalib-dcs/hydraulics.git', tag: '1.0'
+gem 'hydraulics', path: '../hydraulics'
 gem 'activeadmin', '0.5.1'
 # gem 'activeadmin', :path => '../active_admin'
 gem 'sass-rails'

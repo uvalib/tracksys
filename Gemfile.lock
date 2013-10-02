@@ -11,10 +11,8 @@ GIT
   specs:
     nested_form (0.3.2)
 
-GIT
-  remote: git://github.com/uvalib-dcs/hydraulics.git
-  revision: 1583612a301135b6204fbd822641b4b85e6c262e
-  tag: 1.0
+PATH
+  remote: ../hydraulics
   specs:
     hydraulics (0.0.5)
       ancestry
