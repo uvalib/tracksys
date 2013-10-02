@@ -37,16 +37,16 @@ ActiveAdmin.register Bibl do
 
   index :id => 'bibls' do
     selectable_column
-    column :title do |bibl|
+    column :title, :sortable => :title do |bibl|
       truncate_words(bibl.title, 25)
     end
     column :creator_name
     column :call_number
     column :volume
-    column("Source") do |bibl|
+    column ("Source"), :sortable => :cataloging_source do |bibl|
     	bibl.cataloging_source
     end
-    column :catalog_key do |bibl|
+    column :catalog_key, :sortable => :catalog_key do |bibl|
       div do
         bibl.catalog_key
       end
@@ -74,7 +74,7 @@ ActiveAdmin.register Bibl do
     column ("DPLA?") do |bibl|
       format_boolean_as_yes_no(bibl.dpla)
     end
-    column :units do |bibl|
+    column :units, :sortable => :units_count do |bibl|
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|
