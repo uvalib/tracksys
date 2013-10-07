@@ -698,7 +698,7 @@ module Hydra
     end
     
     # label
-    unless component.label.blank?
+    unless component.label.blank? or component.label != component.title
       xml.mods :titleInfo do
         xml.mods :title, component.label
       end
