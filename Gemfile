@@ -1,12 +1,13 @@
 source 'http://rubygems.org'
 
 gem 'rails'
+gem 'devise'
 
 # Needed to resolve incompatability with Fedora 12+
 gem 'execjs'
 gem 'therubyracer'
 
-gem 'hydraulics', :path => '../hydraulics'
+gem 'hydraulics', path: '../hydraulics'
 gem 'activeadmin', '0.5.1'
 # gem 'activeadmin', :path => '../active_admin'
 gem 'sass-rails'
@@ -79,3 +80,4 @@ gem 'paper_trail'
 
 # For creating Excel spreadsheets
 gem 'axlsx'
+gem 'rubyzip', '0.9.8'
