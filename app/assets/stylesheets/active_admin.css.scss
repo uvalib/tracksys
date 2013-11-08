@@ -54,3 +54,19 @@ body.active_admin {
   .admin-information h2, h3 { color:white;}
 }
 
+th.date_patron_deliverables_complete a, body.active_admin table.index_table th.date_patron_deliverables_complete a:visited,
+body.active_admin table.index_table th.date_patron_deliverables_complete a:link {
+ white-space:normal;
+}
+table.index_table th a, body.active_admin table.index_table th a:link, body.active_admin table.index_table th a:visited {
+color: #5e6469;
+text-decoration: none;
+display: block;
+white-space: normal;
+-webkit-font-smoothing: antialiased;
+}
+body.active_admin table.index_table th.sortable a { 
+  background: image-url('active_admin/orderable.png') no-repeat 0 12px; padding-left: 13px;
+}
+body.active_admin table.index_table th.sorted-asc a { background-position: 0 -9px; }
+body.active_admin table.index_table th.sorted-desc a { background-position: 0 -50px; }
