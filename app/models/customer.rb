@@ -28,6 +28,7 @@ class Customer
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------  
+  scope :has_unpaid_invoices, lambda{ where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).uniq }
  
   #------------------------------------------------------------------
   # public class methods
