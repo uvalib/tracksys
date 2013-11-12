@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130515143428) do
+ActiveRecord::Schema.define(:version => 20131112204918) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -130,6 +130,7 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
     t.integer  "units_count",        :default => 0
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
+    t.integer  "teis_count"
     t.string   "repository_url"
     t.string   "pid"
   end
@@ -216,6 +217,13 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
   add_index "bibls_legacy_identifiers", ["bibl_id"], :name => "index_bibls_legacy_identifiers_on_bibl_id"
   add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], :name => "index_bibls_legacy_identifiers_on_legacy_identifier_id"
 
+  create_table "bibls_teis", :id => false, :force => true do |t|
+    t.integer "bibl_id"
+    t.integer "tei_id"
+  end
+
+  add_index "bibls_teis", ["bibl_id", "tei_id"], :name => "index_bibls_teis_on_bibl_id_and_tei_id"
+
   create_table "checkins", :force => true do |t|
     t.integer  "unit_id",         :default => 0, :null => false
     t.integer  "staff_member_id"
@@ -237,8 +245,8 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
 
   create_table "components", :force => true do |t|
-    t.integer  "component_type_id",                               :default => 0,    :null => false
-    t.integer  "parent_component_id",                             :default => 0,    :null => false
+    t.integer  "component_type_id",                                 :default => 0,     :null => false
+    t.integer  "parent_component_id",                               :default => 0,     :null => false
     t.string   "title"
     t.string   "label"
     t.string   "date"
@@ -251,10 +259,10 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
     t.datetime "updated_at"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                      :limit => 2147483647
+    t.text     "solr",                        :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                 :default => true
+    t.boolean  "discoverability",                                   :default => true
     t.integer  "indexing_scenario_id"
     t.text     "level"
     t.string   "ead_id_att"
@@ -264,12 +272,13 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id"
-    t.integer  "master_files_count",                              :default => 0,    :null => false
-    t.integer  "automation_messages_count",                       :default => 0,    :null => false
+    t.integer  "master_files_count",                                :default => 0,     :null => false
+    t.integer  "automation_messages_count",                         :default => 0,     :null => false
     t.string   "exemplar"
     t.string   "ancestry"
     t.string   "pids_depth_cache"
     t.string   "ead_id_atts_depth_cache"
+    t.boolean  "master_file_discoverability",                       :default => false
     t.integer  "followed_by_id"
     t.text     "legacy_ead"
     t.text     "physical_desc"
@@ -545,6 +554,7 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.boolean  "dpla",                                            :default => false
+    t.date     "creation_date"
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
@@ -635,6 +645,20 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
   add_index "staff_members", ["computing_id"], :name => "index_staff_members_on_computing_id", :unique => true
 
+  create_table "teis", :force => true do |t|
+    t.string   "catalog_key"
+    t.string   "title"
+    t.string   "filename"
+    t.string   "filepath"
+    t.string   "pid"
+    t.string   "description"
+    t.datetime "date_dl_ingest"
+    t.datetime "created_at",                                   :null => false
+    t.datetime "updated_at",                                   :null => false
+    t.integer  "automation_messages_count", :default => 0
+    t.boolean  "include_in_dl",             :default => false
+  end
+
   create_table "unit_import_sources", :force => true do |t|
     t.integer  "unit_id",                          :default => 0, :null => false
     t.string   "standard"
@@ -713,65 +737,65 @@ ActiveRecord::Schema.define(:version => 20130515143428) do
 
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
 
-  add_foreign_key "bibls", "availability_policies", :name => "bibls_availability_policy_id_fk"
-  add_foreign_key "bibls", "indexing_scenarios", :name => "bibls_indexing_scenario_id_fk"
-  add_foreign_key "bibls", "use_rights", :name => "bibls_use_right_id_fk"
+  add_foreign_key "bibls", "availability_policies", name: "bibls_availability_policy_id_fk"
+  add_foreign_key "bibls", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
+  add_foreign_key "bibls", "use_rights", name: "bibls_use_right_id_fk"
 
-  add_foreign_key "bibls_components", "bibls", :name => "bibls_components_ibfk_1"
-  add_foreign_key "bibls_components", "components", :name => "bibls_components_ibfk_2"
+  add_foreign_key "bibls_components", "bibls", name: "bibls_components_ibfk_1"
+  add_foreign_key "bibls_components", "components", name: "bibls_components_ibfk_2"
 
-  add_foreign_key "bibls_ead_refs", "bibls", :name => "bibls_ead_refs_ibfk_1"
-  add_foreign_key "bibls_ead_refs", "ead_refs", :name => "bibls_ead_refs_ibfk_2"
+  add_foreign_key "bibls_ead_refs", "bibls", name: "bibls_ead_refs_ibfk_1"
+  add_foreign_key "bibls_ead_refs", "ead_refs", name: "bibls_ead_refs_ibfk_2"
 
-  add_foreign_key "bibls_legacy_identifiers", "bibls", :name => "bibls_legacy_identifiers_bibl_id_fk"
-  add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", :name => "bibls_legacy_identifiers_legacy_identifier_id_fk"
+  add_foreign_key "bibls_legacy_identifiers", "bibls", name: "bibls_legacy_identifiers_bibl_id_fk"
+  add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
 
-  add_foreign_key "components", "availability_policies", :name => "components_availability_policy_id_fk"
-  add_foreign_key "components", "component_types", :name => "components_component_type_id_fk"
-  add_foreign_key "components", "indexing_scenarios", :name => "components_indexing_scenario_id_fk"
-  add_foreign_key "components", "use_rights", :name => "components_use_right_id_fk"
+  add_foreign_key "components", "availability_policies", name: "components_availability_policy_id_fk"
+  add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
+  add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
+  add_foreign_key "components", "use_rights", name: "components_use_right_id_fk"
 
-  add_foreign_key "components_containers", "components", :name => "components_containers_ibfk_2"
-  add_foreign_key "components_containers", "containers", :name => "components_containers_ibfk_1"
+  add_foreign_key "components_containers", "components", name: "components_containers_ibfk_2"
+  add_foreign_key "components_containers", "containers", name: "components_containers_ibfk_1"
 
-  add_foreign_key "components_legacy_identifiers", "components", :name => "components_legacy_identifiers_ibfk_1"
-  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", :name => "components_legacy_identifiers_ibfk_2"
+  add_foreign_key "components_legacy_identifiers", "components", name: "components_legacy_identifiers_ibfk_1"
+  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", name: "components_legacy_identifiers_ibfk_2"
 
-  add_foreign_key "containers", "container_types", :name => "containers_container_type_id_fk"
+  add_foreign_key "containers", "container_types", name: "containers_container_type_id_fk"
 
-  add_foreign_key "customers", "academic_statuses", :name => "customers_academic_status_id_fk"
-  add_foreign_key "customers", "departments", :name => "customers_department_id_fk"
-  add_foreign_key "customers", "heard_about_services", :name => "customers_heard_about_service_id_fk"
+  add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
+  add_foreign_key "customers", "departments", name: "customers_department_id_fk"
+  add_foreign_key "customers", "heard_about_services", name: "customers_heard_about_service_id_fk"
 
-  add_foreign_key "delivery_methods_orders", "delivery_methods", :name => "delivery_methods_orders_delivery_method_id_fk"
-  add_foreign_key "delivery_methods_orders", "orders", :name => "delivery_methods_orders_order_id_fk"
+  add_foreign_key "delivery_methods_orders", "delivery_methods", name: "delivery_methods_orders_delivery_method_id_fk"
+  add_foreign_key "delivery_methods_orders", "orders", name: "delivery_methods_orders_order_id_fk"
 
-  add_foreign_key "image_tech_meta", "master_files", :name => "image_tech_meta_master_file_id_fk"
+  add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
 
-  add_foreign_key "invoices", "orders", :name => "invoices_order_id_fk"
+  add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
 
-  add_foreign_key "legacy_identifiers_master_files", "legacy_identifiers", :name => "legacy_identifiers_master_files_legacy_identifier_id_fk"
-  add_foreign_key "legacy_identifiers_master_files", "master_files", :name => "legacy_identifiers_master_files_master_file_id_fk"
+  add_foreign_key "legacy_identifiers_master_files", "legacy_identifiers", name: "legacy_identifiers_master_files_legacy_identifier_id_fk"
+  add_foreign_key "legacy_identifiers_master_files", "master_files", name: "legacy_identifiers_master_files_master_file_id_fk"
 
-  add_foreign_key "master_files", "availability_policies", :name => "master_files_availability_policy_id_fk"
-  add_foreign_key "master_files", "components", :name => "master_files_component_id_fk"
-  add_foreign_key "master_files", "indexing_scenarios", :name => "master_files_indexing_scenario_id_fk"
-  add_foreign_key "master_files", "units", :name => "master_files_unit_id_fk"
-  add_foreign_key "master_files", "use_rights", :name => "master_files_use_right_id_fk"
+  add_foreign_key "master_files", "availability_policies", name: "master_files_availability_policy_id_fk"
+  add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
+  add_foreign_key "master_files", "indexing_scenarios", name: "master_files_indexing_scenario_id_fk"
+  add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
+  add_foreign_key "master_files", "use_rights", name: "master_files_use_right_id_fk"
 
-  add_foreign_key "orders", "agencies", :name => "orders_agency_id_fk"
-  add_foreign_key "orders", "customers", :name => "orders_customer_id_fk"
-  add_foreign_key "orders", "dvd_delivery_locations", :name => "orders_dvd_delivery_location_id_fk"
+  add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
+  add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
+  add_foreign_key "orders", "dvd_delivery_locations", name: "orders_dvd_delivery_location_id_fk"
 
-  add_foreign_key "unit_import_sources", "units", :name => "unit_import_sources_unit_id_fk"
+  add_foreign_key "unit_import_sources", "units", name: "unit_import_sources_unit_id_fk"
 
-  add_foreign_key "units", "archives", :name => "units_archive_id_fk"
-  add_foreign_key "units", "availability_policies", :name => "units_availability_policy_id_fk"
-  add_foreign_key "units", "bibls", :name => "units_bibl_id_fk"
-  add_foreign_key "units", "heard_about_resources", :name => "units_heard_about_resource_id_fk"
-  add_foreign_key "units", "indexing_scenarios", :name => "units_indexing_scenario_id_fk"
-  add_foreign_key "units", "intended_uses", :name => "units_intended_use_id_fk"
-  add_foreign_key "units", "orders", :name => "units_order_id_fk"
-  add_foreign_key "units", "use_rights", :name => "units_use_right_id_fk"
+  add_foreign_key "units", "archives", name: "units_archive_id_fk"
+  add_foreign_key "units", "availability_policies", name: "units_availability_policy_id_fk"
+  add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
+  add_foreign_key "units", "heard_about_resources", name: "units_heard_about_resource_id_fk"
+  add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
+  add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
+  add_foreign_key "units", "orders", name: "units_order_id_fk"
+  add_foreign_key "units", "use_rights", name: "units_use_right_id_fk"
 
 end
