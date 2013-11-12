@@ -102,7 +102,7 @@ ActiveAdmin.register_page "Dashboard" do
   page_action :get_yearly_stats do 
     message = ActiveSupport::JSON.encode( {:year => params[:year]} )
     publish :create_stats_report, message
-    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_report.  Give three minutes for production."
+    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 
