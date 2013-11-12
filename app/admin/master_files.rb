@@ -183,7 +183,7 @@ ActiveAdmin.register MasterFile do
       f.input :filename
       f.input :title
       f.input :description, :as => :text, :input_html => { :rows => 3 }
-      f.input :creation_date
+      f.input :creation_date, :as => :text, :input_html => { :rows => 1 }
       f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
       f.input :transcription_text, :input_html => { :rows => 5 }
     end
