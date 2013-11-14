@@ -13,7 +13,9 @@ class Order
       logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead" 
       timespan = 1.week.from_now
     end
-    if Time.now > timespan
+    if Time.now.to_date == timespan.to_date
+      where("date_due = ?", Date.today)
+    elsif Time.now > timespan
       where("date_due < ?", Date.today).where("date_due > ?", timespan)
     else
       where("date_due > ?", Date.today).where("date_due < ?", timespan)
@@ -28,7 +30,7 @@ class Order
   end
 
   scope :overdue, overdue_as_of(0.days.ago)
-  scope :due_today, due_within(1.day.from_now)
+  scope :due_today, due_within(0.day.from_now)
   scope :due_in_a_week, due_within(1.week.from_now)
 
   # Determine if any of an Order's Units are not 'approved' or 'cancelled'
