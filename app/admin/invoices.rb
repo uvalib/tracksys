@@ -16,6 +16,7 @@ ActiveAdmin.register Invoice do
 
   index do
     column :order
+    column :order_customer
     column ("Date Order Approved") do |invoice|
       format_date(invoice.order_date_order_approved)
     end

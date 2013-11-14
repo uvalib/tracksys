@@ -19,4 +19,7 @@ class Invoice
   scope :past_due, outstanding_as_of(30.days.ago)
   scope :notified_past_due, second_notice_as_of(30.days.ago)
   scope :permanent_nonpayment, lambda { where("permanent_nonpayment != 0") } 
+
+  delegate :customer, to: :order, prefix: true
+  delegate :fee_actual, to: :order, prefix: true
 end
