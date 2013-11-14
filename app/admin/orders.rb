@@ -12,6 +12,7 @@ ActiveAdmin.register Order do
   scope :complete
   scope :due_today
   scope :due_in_a_week
+  scope :overdue
   scope :unpaid
 
   filter :id

@@ -13,7 +13,9 @@ class Order
       logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead" 
       timespan = 1.week.from_now
     end
-    if Time.now > timespan
+    if Time.now.to_date == timespan.to_date
+      where("date_due = ?", Date.today)
+    elsif Time.now > timespan
       where("date_due < ?", Date.today).where("date_due > ?", timespan)
     else
       where("date_due > ?", Date.today).where("date_due < ?", timespan)
@@ -24,7 +26,7 @@ class Order
       logger.error "#{self.name}#overdue_as_of Expecting ActiveSupport::TimeWithZone as argument. Got #{date.class} instead"
       date=0.days.ago
     end
-    where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).where("date_deferred is NULL").where("date_canceled is NULL")
+    where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'").where("date_patron_deliverables_complete is NULL").where("order_status != 'deferred'")
   end
 
   scope :overdue, overdue_as_of(0.days.ago)
