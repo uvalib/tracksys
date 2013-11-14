@@ -24,6 +24,6 @@ production:
   adapter: mysql2
   database: tracksys_production
   encoding: utf8
-  username: 
-  password: 
-  host: 
+  username:
+  password:
+  host:
