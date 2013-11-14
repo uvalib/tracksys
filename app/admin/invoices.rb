@@ -17,6 +17,7 @@ ActiveAdmin.register Invoice do
   index do
     column :order
     column :order_customer
+    column ("Fee") do |invoice| number_to_currency(invoice.order_fee_actual) end
     column ("Date Order Approved") do |invoice|
       format_date(invoice.order_date_order_approved)
     end
