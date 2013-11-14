@@ -28,7 +28,7 @@ class Order
   end
 
   scope :overdue, overdue_as_of(0.days.ago)
-  scope :due_today, due_within(1.day.from_now)
+  scope :due_today, due_within(0.day.from_now)
   scope :due_in_a_week, due_within(1.week.from_now)
 
   # Determine if any of an Order's Units are not 'approved' or 'cancelled'
