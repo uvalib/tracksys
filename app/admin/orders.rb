@@ -50,7 +50,7 @@ ActiveAdmin.register Order do
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
     column :agency, :sortable => 'agencies.name'
-    column :customer
+    column :customer, :sortable => :"customers.last_name"
     column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
       div do
@@ -314,5 +314,9 @@ ActiveAdmin.register Order do
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
     caches_action :show
     cache_sweeper :orders_sweeper
+    # scoped collection for sortable column on Customers
+    def scoped_collection
+      end_of_association_chain.includes([:customer])
+    end
   end
 end
