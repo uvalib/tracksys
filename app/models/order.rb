@@ -41,6 +41,16 @@ class Order
     status = self.units.map(&:unit_status) & ['condition', 'copyright', 'unapproved']
     return status.empty?
   end
+
+  def title
+    if order_title
+      order_title
+    elsif units.first.bibl_id?
+      units.first.bibl.title
+    else
+      nil
+    end
+  end
   
   # Processor information
   require 'activemessaging/processor'

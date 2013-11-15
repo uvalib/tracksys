@@ -18,7 +18,7 @@ ActiveAdmin.register Order do
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
   filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-  filter :order_title
+  filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :bibls_id, :as => :numeric
@@ -40,7 +40,7 @@ ActiveAdmin.register Order do
     selectable_column
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
-    column :order_title
+    column :title do |order| order.title.truncate(80) unless order.title.nil? end
     column ("Date Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
     column ("Date Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
     column ("Date Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
