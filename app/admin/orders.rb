@@ -251,7 +251,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar "Relaed Information", :only => :show do
+  sidebar "Related Information", :only => :show do
     attributes_table_for order do
       row :units do |order|
         link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
