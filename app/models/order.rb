@@ -2,6 +2,7 @@ require "#{Hydraulics.models_dir}/order"
 
 class Order
   ORDER_STATUSES << "completed"
+  include BuildOrderPDF
   serialize :email
 
   after_update :fix_updated_counters

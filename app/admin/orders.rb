@@ -244,6 +244,7 @@ ActiveAdmin.register Order do
         div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
         div do "Order is not yet complete and cannot be delivered." end
       end
+      div :class => 'workflow_button' do button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put end
     else
       # order not approved
       div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
@@ -310,6 +311,12 @@ ActiveAdmin.register Order do
     order.send_order_email
     sleep(4.0)
     redirect_to :back, :notice => "Email sent to #{order.customer.full_name}."
+  end
+
+  member_action :generate_pdf_notice, :method => :put do
+    order = Order.find(params[:id])
+    pdf = order.generate_notice
+    send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
   end
 
   controller do
