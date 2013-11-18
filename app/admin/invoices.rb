@@ -2,6 +2,9 @@ ActiveAdmin.register Invoice do
   menu :parent => "Miscellaneous"
 
   scope :all, :default => true
+  scope :past_due
+  scope :notified_past_due
+  scope :permanent_nonpayment
 
   filter :order_id, :as => :numeric
   filter :fee_amount_paid

@@ -4,6 +4,7 @@ ActiveAdmin.register Customer do
   actions :all, :except => [:destroy]
 
   scope :all, :default => true
+  scope :has_unpaid_invoices
   
   filter :id
   filter :first_name
