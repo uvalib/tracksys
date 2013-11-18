@@ -101,6 +101,10 @@ ActiveAdmin.register_page "Dashboard" do
             td do "Invoices Overdue (2nd notice)" end
             td do link_to "#{Invoice.notified_past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'notified_past_due') end
           end
+          tr do
+            td do "Customers with unpaid orders" end
+            td do link_to "#{Customer.has_unpaid_invoices.count}", admin_customers_path(:customer => 'id_desc', :page => '1', :scope => 'has_unpaid_invoices')  end
+          end
         end
       end
     end
