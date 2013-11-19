@@ -130,7 +130,6 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.integer  "units_count",        :default => 0
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
-    t.integer  "teis_count"
     t.string   "repository_url"
     t.string   "pid"
   end
@@ -278,11 +277,11 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.string   "ancestry"
     t.string   "pids_depth_cache"
     t.string   "ead_id_atts_depth_cache"
-    t.boolean  "master_file_discoverability",                       :default => false
     t.integer  "followed_by_id"
     t.text     "legacy_ead"
     t.text     "physical_desc"
     t.text     "scope_content"
+    t.boolean  "master_file_discoverability",                       :default => false
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
@@ -555,6 +554,7 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.datetime "date_dl_update"
     t.boolean  "dpla",                                            :default => false
     t.date     "creation_date"
+    t.string   "primary_author"
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
