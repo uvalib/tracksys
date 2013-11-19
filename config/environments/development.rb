@@ -7,6 +7,8 @@ Tracksys::Application.configure do
 
   # This has to be set to true if we want to expire pages and actions.
   config.cache_classes = false
+  # Setting this to null avoids annoying database timeouts 
+  config.cache_store = :null_store
 
   # Log error messages when you accidentally call methods on nil.
   config.whiny_nils = true
