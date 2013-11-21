@@ -41,6 +41,7 @@ ActiveAdmin.register Order do
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
     column :title do |order| order.title.truncate(80) unless order.title.nil? end
+    column ("Special Instructions") {|order| order.special_instructions.to_s.truncate(50) }
     column ("Date Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
     column ("Date Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
     column ("Date Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
