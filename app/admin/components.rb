@@ -252,6 +252,12 @@ ActiveAdmin.register Component do
     end
   end
 
+  sidebar "Solr Index", :only => [:show] do
+    if component.in_dl?
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_component_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    end
+  end
+
   action_item :only => :show do
     link_to("Previous", admin_component_path(component.new_previous)) unless component.new_previous.nil?
   end
@@ -275,6 +281,13 @@ ActiveAdmin.register Component do
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
+  member_action :update_all_solr_docs do
+    message = ActiveSupport::JSON.encode( {:message => 'go'})
+    publish :send_commit_to_solr, message
+    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
+    redirect_to :back
+  end
+  
   controller do
     # Only cache the index view if it is the base index_url (i.e. /components) and is devoid of either params[:page] or params[:q].  
     # The absence of these params values ensures it is the base url.
