@@ -337,8 +337,15 @@ module Hydra
               xml.uva :hasDigitalRepresentation, "rdf:resource".to_sym => "info:fedora/#{mf.pid}"
             }
 
-            # For the time being, hardcode the exemplar as the pid of the first master_files
-            xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{object.master_files.first.pid}"
+            # lookup exemplar pid or select one 
+            exemplar = nil
+            if object.exemplar?
+              exemplar = MasterFile.where(filename: object.exemplar).first
+            else
+              exemplar = object.master_files.first
+            end
+            warn "PID lookup for #{object.class} #{object.id} exemplar returned #{exemplar.pid.to_s}" unless exemplar.pid =~ /^uva-lib:\d+$/
+            xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{exemplar.pid}"
           end
         end
 
