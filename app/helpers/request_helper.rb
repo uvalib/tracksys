@@ -27,12 +27,4 @@ module RequestHelper
     out += '</div>'
     return out
   end
-
-  def get_jpeg_only_uses
-    uses = []
-    uses = IntendedUse.external_use.collect { |i| 
-      [i.description, i.id] if i.deliverable_format == "jpeg" 
-      }
-    uses.compact 
-  end
 end
