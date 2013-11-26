@@ -10,6 +10,9 @@ ActiveAdmin.register Order do
   scope :in_process
   scope :ready_for_delivery
   scope :complete
+  scope :due_today
+  scope :due_in_a_week
+  scope :overdue
   scope :unpaid
 
   filter :id
@@ -30,6 +33,7 @@ ActiveAdmin.register Order do
   filter :special_instructions
   filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :dvd_delivery_location
+  filter :invoices_count
   filter :master_files_count
 
   index :id => 'orders' do
@@ -50,7 +54,7 @@ ActiveAdmin.register Order do
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
     column :agency, :sortable => 'agencies.name'
-    column :customer
+    column :customer, :sortable => :"customers.last_name"
     column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
       div do
@@ -222,7 +226,7 @@ ActiveAdmin.register Order do
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put,  :disabled => true end
-      div do "No options avaialable.  Order is #{order.order_status}." end
+      div do "No options available.  Order is #{order.order_status}." end
     end
   end
 
@@ -248,7 +252,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar "Relaed Information", :only => :show do
+  sidebar "Related Information", :only => :show do
     attributes_table_for order do
       row :units do |order|
         link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
@@ -314,5 +318,9 @@ ActiveAdmin.register Order do
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
     caches_action :show
     cache_sweeper :orders_sweeper
+    # scoped collection for sortable column on Customers
+    def scoped_collection
+      end_of_association_chain.includes([:customer])
+    end
   end
 end

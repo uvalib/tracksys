@@ -258,6 +258,12 @@ ActiveAdmin.register Bibl do
     end
   end
 
+  sidebar "Solr Index", :only => [:show] do
+    if bibl.in_dl?
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    end
+  end
+
   form :partial => "form"
 
   collection_action :external_lookup
@@ -267,6 +273,13 @@ ActiveAdmin.register Bibl do
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
+  member_action :update_all_solr_docs do
+    message = ActiveSupport::JSON.encode( {:message => 'go'})
+    publish :send_commit_to_solr, message
+    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
+    redirect_to :back
+  end
+  
   collection_action :create_dl_manifest do
     message = ActiveSupport::JSON.encode( {:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}"} )
     publish :create_dl_manifest, message    

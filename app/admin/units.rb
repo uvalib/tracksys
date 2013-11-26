@@ -342,6 +342,12 @@ ActiveAdmin.register Unit do
     end
   end
 
+  sidebar "Solr Index", :only => [:show] do
+    if unit.in_dl?
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    end
+  end
+
   action_item :only => :show do
     link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?
   end
@@ -399,7 +405,16 @@ ActiveAdmin.register Unit do
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
+  member_action :update_all_solr_docs do
+    message = ActiveSupport::JSON.encode( {:message => 'go'})
+    publish :send_commit_to_solr, message
+    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
+    redirect_to :back
+  end
+  
   controller do
+    require 'activemessaging/processor'
+    include ActiveMessaging::MessageSender
     # Only cache the index view if it is the base index_url (i.e. /units) and is devoid of either params[:page] or params[:q].  
     # The absence of these params values ensures it is the base url.
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }

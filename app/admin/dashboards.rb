@@ -22,7 +22,7 @@ ActiveAdmin.register_page "Dashboard" do
             td do link_to "#{AutomationMessage.patron_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'patron') end
           end
           tr do
-            td do "Repository Wofkflow Errors" end
+            td do "Repository Workflow Errors" end
             td do link_to "#{AutomationMessage.repository_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'repository') end
           end
         end
@@ -63,11 +63,47 @@ ActiveAdmin.register_page "Dashboard" do
         table_for Bibl.in_digital_library.limit(20) do
           column :call_number
           column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") {|bibl| image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")}
+          column ("Thumbnail") do |bibl| 
+            if bibl.exemplar?
+              image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")
+            else "no thumbnail"
+            end
+          end
           column("Links") do |bibl|
             div do
               link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
             end
+          end
+        end
+      end
+    end
+
+    div :class => 'three-column' do
+      panel "Outstanding Orders", :priority => 5, :toggle => 'show' do
+        table do
+          tr do
+            td do "Orders Due Today" end
+            td do link_to "#{Order.due_today.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'due_today') end
+          end
+          tr do
+            td do "Orders Due In A Week" end
+            td do link_to "#{Order.due_in_a_week.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'due_in_a_week') end
+          end
+          tr do
+            td do "Orders Overdue (< 1 yr)" end
+            td do link_to "#{Order.overdue.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'overdue') end
+          end
+          tr do
+            td do "Invoices Overdue (30 days or more)" end
+            td do link_to "#{Invoice.past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'past_due') end
+          end
+          tr do
+            td do "Invoices Overdue (2nd notice)" end
+            td do link_to "#{Invoice.notified_past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'notified_past_due') end
+          end
+          tr do
+            td do "Customers with unpaid orders" end
+            td do link_to "#{Customer.has_unpaid_invoices.count}", admin_customers_path(:customer => 'id_desc', :page => '1', :scope => 'has_unpaid_invoices')  end
           end
         end
       end
@@ -102,7 +138,7 @@ ActiveAdmin.register_page "Dashboard" do
   page_action :get_yearly_stats do 
     message = ActiveSupport::JSON.encode( {:year => params[:year]} )
     publish :create_stats_report, message
-    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_report.  Give three minutes for production."
+    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 
