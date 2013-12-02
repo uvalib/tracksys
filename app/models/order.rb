@@ -45,8 +45,12 @@ class Order
   def title
     if order_title
       order_title
-    elsif units.first.bibl_id?
-      units.first.bibl.title
+    elsif units.first.respond_to?(:bibl_id?)
+      if units.first.bibl_id?
+        units.first.bibl.title
+      else
+        nil
+      end
     else
       nil
     end
