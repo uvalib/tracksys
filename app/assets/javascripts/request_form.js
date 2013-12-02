@@ -8,7 +8,7 @@ $(function() {
   });
 });
 
-$("form").live("nested:fieldAdded", function(event) {
+$("form").bind("nested:fieldAdded", function(event) {
   $('.intended_use_select').change(function() {
     var intended_use_id = $(this).closest('.intended_use_select').val();
     // JPEG Intended Use Values
