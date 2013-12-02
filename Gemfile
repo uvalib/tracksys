@@ -8,7 +8,7 @@ gem 'execjs'
 gem 'therubyracer'
 
 gem 'hydraulics', path: '../hydraulics'
-gem 'activeadmin', '0.5.1'
+gem 'activeadmin', '0.6.0'
 # gem 'activeadmin', :path => '../active_admin'
 gem 'sass-rails'
 gem 'meta_search',    '>= 1.1.0.pre'
@@ -62,6 +62,8 @@ end
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
+gem "jquery-colorbox-rails", "~> 0.1.4"
+gem "chosen-rails", "~> 1.0.0"
 
 # Use unicorn as the web server
 # gem 'unicorn'

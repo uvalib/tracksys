@@ -1,9 +1,9 @@
-//= require active_admin/base
 //= require jquery
 //= require jquery_ujs
 //= require jquery.ui.all
-//= require chosen.jquery.min
-//= require jquery.colorbox-min
+//= require jquery.colorbox
+//= require active_admin/application
+//= require chosen-jquery
 //= require pinterest
 //= require pinit
 //= require twitter
