@@ -10,12 +10,15 @@ ActiveAdmin.register Order do
   scope :in_process
   scope :ready_for_delivery
   scope :complete
+  scope :due_today
+  scope :due_in_a_week
+  scope :overdue
   scope :unpaid
 
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
   filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-  filter :order_title
+  filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :bibls_id, :as => :numeric
@@ -30,13 +33,14 @@ ActiveAdmin.register Order do
   filter :special_instructions
   filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
   filter :dvd_delivery_location
+  filter :invoices_count
   filter :master_files_count
 
   index :id => 'orders' do
     selectable_column
     column :id
     column ("Status") {|order| status_tag(order.order_status)}
-    column :order_title
+    column :title do |order| order.title.truncate(80) unless order.title.nil? end
     column ("Date Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
     column ("Date Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
     column ("Date Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
@@ -50,7 +54,7 @@ ActiveAdmin.register Order do
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
     column :agency, :sortable => 'agencies.name'
-    column :customer
+    column :customer, :sortable => :"customers.last_name"
     column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
       div do
@@ -222,7 +226,7 @@ ActiveAdmin.register Order do
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put,  :disabled => true end
-      div do "No options avaialable.  Order is #{order.order_status}." end
+      div do "No options available.  Order is #{order.order_status}." end
     end
   end
 
@@ -248,7 +252,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar "Relaed Information", :only => :show do
+  sidebar "Related Information", :only => :show do
     attributes_table_for order do
       row :units do |order|
         link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
@@ -314,5 +318,9 @@ ActiveAdmin.register Order do
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
     caches_action :show
     cache_sweeper :orders_sweeper
+    # scoped collection for sortable column on Customers
+    def scoped_collection
+      end_of_association_chain.includes([:customer])
+    end
   end
 end

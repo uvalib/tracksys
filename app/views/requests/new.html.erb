@@ -165,7 +165,9 @@
         <%= f.label :date_due, :class => 'control-label required' %>
         <div class="controls">
           <%= f.text_field :date_due, :id => 'datepicker', :required => required_field_value %>
-          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.</p>
+          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it. 
+          <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
+</p>
         </div>
       </div>
       <div class="control-group">
@@ -264,7 +266,7 @@
             <div class="control-group">
               <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
               <div class="controls">
-                <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
+                <%= unit.select :intended_use_id, get_jpeg_only_uses, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
               </div>
             </div>
             <div id="intended_use_watermarked_jpg" style="display: none;">

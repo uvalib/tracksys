@@ -22,7 +22,7 @@ ActiveAdmin.register_page "Dashboard" do
             td do link_to "#{AutomationMessage.patron_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'patron') end
           end
           tr do
-            td do "Repository Wofkflow Errors" end
+            td do "Repository Workflow Errors" end
             td do link_to "#{AutomationMessage.repository_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'repository') end
           end
         end
@@ -79,6 +79,37 @@ ActiveAdmin.register_page "Dashboard" do
     end
 
     div :class => 'three-column' do
+      panel "Outstanding Orders", :priority => 5, :toggle => 'show' do
+        table do
+          tr do
+            td do "Orders Due Today" end
+            td do link_to "#{Order.due_today.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'due_today') end
+          end
+          tr do
+            td do "Orders Due In A Week" end
+            td do link_to "#{Order.due_in_a_week.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'due_in_a_week') end
+          end
+          tr do
+            td do "Orders Overdue (< 1 yr)" end
+            td do link_to "#{Order.overdue.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'overdue') end
+          end
+          tr do
+            td do "Invoices Overdue (30 days or more)" end
+            td do link_to "#{Invoice.past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'past_due') end
+          end
+          tr do
+            td do "Invoices Overdue (2nd notice)" end
+            td do link_to "#{Invoice.notified_past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'notified_past_due') end
+          end
+          tr do
+            td do "Customers with unpaid orders" end
+            td do link_to "#{Customer.has_unpaid_invoices.count}", admin_customers_path(:customer => 'id_desc', :page => '1', :scope => 'has_unpaid_invoices')  end
+          end
+        end
+      end
+    end
+
+    div :class => 'three-column' do
       panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
         div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
       end
@@ -107,7 +138,7 @@ ActiveAdmin.register_page "Dashboard" do
   page_action :get_yearly_stats do 
     message = ActiveSupport::JSON.encode( {:year => params[:year]} )
     publish :create_stats_report, message
-    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_report.  Give three minutes for production."
+    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 

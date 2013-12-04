@@ -183,10 +183,12 @@ ActiveAdmin.register MasterFile do
       f.input :filename
       f.input :title
       f.input :description, :as => :text, :input_html => { :rows => 3 }
+      f.input :creation_date, :as => :text, :input_html => { :rows => 1 }
+      f.input :primary_author, :as => :text, :input_html => { :rows => 1 }
       f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
       f.input :transcription_text, :input_html => { :rows => 5 }
     end
-
+    
     f.inputs "Technical Information", :class => 'three-column panel' do
       f.input :md5, :input_html => { :disabled => true }
       f.input :filesize, :as => :number

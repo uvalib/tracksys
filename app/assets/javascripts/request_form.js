@@ -8,7 +8,8 @@ $(function() {
   });
 });
 
-$("form").live("nested:fieldAdded", function(event) {
+$(document).ready(function () {
+$("form").bind("nested:fieldAdded", function(event) {
   $('.intended_use_select').change(function() {
     var intended_use_id = $(this).closest('.intended_use_select').val();
     // JPEG Intended Use Values
@@ -21,6 +22,12 @@ $("form").live("nested:fieldAdded", function(event) {
       $(this).parent().parent().siblings('#intended_use_watermarked_jpg').attr("style","display: none;");
       $(this).parent().parent().siblings('#intended_use_highest_tif').attr("style","display: block;");
     }
+    // Select the Blank Menu Option
+    if(intended_use_id == "") {
+      $(this).parent().parent().siblings('#intended_use_watermarked_jpg').attr("style","display: none;");
+      $(this).parent().parent().siblings('#intended_use_highest_tif').attr("style","display: none;");
+    }
   });
+});
 });
 
