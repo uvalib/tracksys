@@ -11,6 +11,20 @@ module Virgo
 
   @metadata_server = "#{SOLR_PRODUCTION_NAME}"
 
+  # utility method to report on presence of barcode in Solr index
+
+  def self.validate_barcode(barcode)
+    xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+    begin
+      doc = xml_doc.xpath("/response/result/doc").first
+      raise if doc.nil?
+      return true
+    rescue
+      # no catalog record found
+      return false
+    end
+  end
+
   # Queries the external metadata server for the catalog ID passed, and returns
   # a new Bibl object populated with values from that external record.
   #
@@ -28,18 +42,6 @@ module Virgo
   #
   # Any error that occurs is raised to the calling method.
 
-  def self.validate_barcode(barcode)
-    xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
-    begin
-      doc = xml_doc.xpath("/response/result/doc").first
-      raise if doc.nil?
-      return true
-    rescue
-      # no catalog record found
-      return false
-    end
-  end
-
   def self.external_lookup(catalog_key, barcode)
     # normalize parameters
     catalog_key = catalog_key.strip.downcase unless catalog_key.blank?
@@ -52,7 +54,7 @@ module Virgo
     bibl = Bibl.new
     bibl.date_external_update = Time.now
     
-    # open HTTP session
+    # query Solr index
     begin
       # query the metadata server for this catalog ID or barcode
       if catalog_key.blank?
@@ -79,7 +81,7 @@ module Virgo
   # Updates Bibl records with metadata from an external source
   #
   # In:
-  # * array of Bibl records to be updated
+  # * Bibl or array of Bibl records to be updated
   # * computing ID of user (used to associate notifications about this batch
   #   process with this specific user)
   # Out: Returns nil. Notifications of warnings/errors are saved to database (as
@@ -133,7 +135,7 @@ module Virgo
   # private methods
   #-----------------------------------------------------------------------------
 
-  # Reads the XML document (REXML::Document object) passed and gets the main XML
+  # Reads the XML document (Nokogiri::XML::Document object) passed and gets the main XML
   # element needed for our purposes.
   def self.get_main_element(xml_doc, catalog_key)
     # when querying solrpowr.lib, the main element is /response/result/doc
@@ -151,7 +153,7 @@ module Virgo
   #-----------------------------------------------------------------------------
 
   # Queries the metadata server using the hostname passed and the ID of the
-  # metadata record to look up. Returns Nokogiri::Document object containing the
+  # metadata record to look up. Returns Nokogiri::XML::Document object containing the
   # server's response.
   def self.query_metadata_server(host, query_value, query_field='id')
     # query Solr server to get XML results for this catalog ID
@@ -347,7 +349,6 @@ module Virgo
       # If barcode passed matches a barcode found in a MARC 999 field, then set
       # the call number, copy, and location associated with that barcode
       if barcodes.has_key? compare_barcode
-        puts "updating bibl object from MARC 999 match"
         bibl.barcode = compare_barcode
         bibl.call_number = barcodes[compare_barcode]['call_number']
         bibl.copy = barcodes[compare_barcode]['copy']
@@ -355,7 +356,6 @@ module Virgo
       else
         # if there is exactly one 999 field, use it
         if barcodes.length == 1
-          puts "updating bibl object from only MARC 999 found"
           barcode = barcodes.keys.first
           bibl.barcode = barcode
           bibl.call_number = barcodes[barcode]['call_number']
