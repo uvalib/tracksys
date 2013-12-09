@@ -12,3 +12,5 @@ tracksys.sublime-workspace
 config/environments/production.rb
 config/database.yml
 lib/xslt
+*~
+*.bak
