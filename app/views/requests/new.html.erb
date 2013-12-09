@@ -174,7 +174,7 @@
         <%= f.label :special_instructions, :class => 'control-label' %>
         <div class="controls">
           <%= f.text_area :special_instructions, :rows => 3, :class => 'input-xlarge' %>
-          <p class="help-block">Include any additional information required to fulfill this request.</p>
+          <p class="help-block">Include any additional information required to fulfill this request.  Please indicate if you need special formats or sizes.</p>
         </div>
       </div>
     </fieldset>
@@ -278,6 +278,7 @@
               <div id="watermark_thumb" style="float: center;">
                 <img id="watermark_thumb" src="<%=image_path('request_form/watermark_thumb.jpg')%>" title="Watermarked 300dpi JPG" onclick="" />
               </div>
+              <p><br/>If you require special formats such as TIFF or higher resolutions, please add a note in the Special Instructions field (above.)</p>
             </div>
             <div id="intended_use_highest_tif" style="display: none;">
               <p>Deliverables: <strong>Highest possible dpi TIFF</strong></p>
