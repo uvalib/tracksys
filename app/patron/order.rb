@@ -180,7 +180,7 @@ ActiveAdmin.register Order, :namespace => :patron do
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put,  :disabled => true end
-      div do "No options avaialable.  Order is #{order.order_status}." end
+      div do "No options available.  Order is #{order.order_status}." end
     end
   end
 

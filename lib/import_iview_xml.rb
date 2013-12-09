@@ -107,7 +107,7 @@ module ImportIviewXml
           master_file.pid = @pids.shift unless @pids.blank?
           # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
           master_file.save!
-          sleep 0.1
+          sleep 0.3
 
           # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
           if unit.bibl && unit.bibl.is_manuscript?

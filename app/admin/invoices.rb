@@ -2,6 +2,9 @@ ActiveAdmin.register Invoice do
   menu :parent => "Miscellaneous"
 
   scope :all, :default => true
+  scope :past_due
+  scope :notified_past_due
+  scope :permanent_nonpayment
 
   filter :order_id, :as => :numeric
   filter :fee_amount_paid
@@ -13,6 +16,8 @@ ActiveAdmin.register Invoice do
 
   index do
     column :order
+    column :order_customer
+    column ("Fee") do |invoice| number_to_currency(invoice.order_fee_actual) end
     column ("Date Order Approved") do |invoice|
       format_date(invoice.order_date_order_approved)
     end

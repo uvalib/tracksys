@@ -165,14 +165,16 @@
         <%= f.label :date_due, :class => 'control-label required' %>
         <div class="controls">
           <%= f.text_field :date_due, :id => 'datepicker', :required => required_field_value %>
-          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.</p>
+          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it. 
+          <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
+</p>
         </div>
       </div>
       <div class="control-group">
         <%= f.label :special_instructions, :class => 'control-label' %>
         <div class="controls">
           <%= f.text_area :special_instructions, :rows => 3, :class => 'input-xlarge' %>
-          <p class="help-block">Include any additional information required to fulfill this request.</p>
+          <p class="help-block">Include any additional information required to fulfill this request.  Please indicate if you need TIFFs for publication.</p>
         </div>
       </div>
     </fieldset>
@@ -264,7 +266,7 @@
             <div class="control-group">
               <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
               <div class="controls">
-                <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
+                <%= unit.select :intended_use_id, get_jpeg_only_uses, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
               </div>
             </div>
             <div id="intended_use_watermarked_jpg" style="display: none;">
@@ -276,6 +278,7 @@
               <div id="watermark_thumb" style="float: center;">
                 <img id="watermark_thumb" src="<%=image_path('request_form/watermark_thumb.jpg')%>" title="Watermarked 300dpi JPG" onclick="" />
               </div>
+              <p><br/>If you require special formats such as TIFF or higher resolutions, please add a note in the Special Instructions field (above.)</p>
             </div>
             <div id="intended_use_highest_tif" style="display: none;">
               <p>Deliverables: <strong>Highest possible dpi TIFF</strong></p>

@@ -37,16 +37,16 @@ ActiveAdmin.register Bibl do
 
   index :id => 'bibls' do
     selectable_column
-    column :title do |bibl|
+    column :title, :sortable => :title do |bibl|
       truncate_words(bibl.title, 25)
     end
     column :creator_name
     column :call_number
     column :volume
-    column("Source") do |bibl|
+    column ("Source"), :sortable => :cataloging_source do |bibl|
     	bibl.cataloging_source
     end
-    column :catalog_key do |bibl|
+    column :catalog_key, :sortable => :catalog_key do |bibl|
       div do
         bibl.catalog_key
       end
@@ -74,7 +74,7 @@ ActiveAdmin.register Bibl do
     column ("DPLA?") do |bibl|
       format_boolean_as_yes_no(bibl.dpla)
     end
-    column :units do |bibl|
+    column :units, :sortable => :units_count do |bibl|
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|
@@ -258,6 +258,12 @@ ActiveAdmin.register Bibl do
     end
   end
 
+  sidebar "Solr Index", :only => [:show] do
+    if bibl.in_dl?
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+    end
+  end
+
   form :partial => "form"
 
   collection_action :external_lookup
@@ -267,6 +273,13 @@ ActiveAdmin.register Bibl do
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
+  member_action :update_all_solr_docs do
+    message = ActiveSupport::JSON.encode( {:message => 'go'})
+    publish :send_commit_to_solr, message
+    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
+    redirect_to :back
+  end
+  
   collection_action :create_dl_manifest do
     message = ActiveSupport::JSON.encode( {:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}"} )
     publish :create_dl_manifest, message    

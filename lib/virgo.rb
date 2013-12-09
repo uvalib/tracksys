@@ -3,12 +3,27 @@ module Virgo
 # This module provides methods for updating Bibl records with metadata from an
 # external source, namely the U.Va. Library catalog / Blacklight.
 
-  require 'net/http'
+  require 'rest_client'
+  require 'nokogiri'
   require 'logger'
 
   @log = Logger.new(STDOUT)
 
   @metadata_server = "#{SOLR_PRODUCTION_NAME}"
+
+  # utility method to report on presence of barcode in Solr index
+
+  def self.validate_barcode(barcode)
+    xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+    begin
+      doc = xml_doc.xpath("/response/result/doc").first
+      raise if doc.nil?
+      return true
+    rescue
+      # no catalog record found
+      return false
+    end
+  end
 
   # Queries the external metadata server for the catalog ID passed, and returns
   # a new Bibl object populated with values from that external record.
@@ -27,20 +42,6 @@ module Virgo
   #
   # Any error that occurs is raised to the calling method.
 
-  def self.validate_barcode(barcode)
-    Net::HTTP.start( @metadata_server) do |http|
-      xml_doc = query_metadata_server(http, barcode, 'barcode_facet')
-      begin
-        doc = REXML::XPath.first(xml_doc, "/response/result/doc")
-        raise if doc.nil?
-        return true
-      rescue
-        # no catalog record found
-        return false
-      end
-    end
-  end
-
   def self.external_lookup(catalog_key, barcode)
     # normalize parameters
     catalog_key = catalog_key.strip.downcase unless catalog_key.blank?
@@ -53,15 +54,15 @@ module Virgo
     bibl = Bibl.new
     bibl.date_external_update = Time.now
     
-    # open HTTP session
-    Net::HTTP.start( @metadata_server) do |http|
+    # query Solr index
+    begin
       # query the metadata server for this catalog ID or barcode
       if catalog_key.blank?
         # query for barcode
-        xml_doc = query_metadata_server(http, barcode, 'barcode_facet')
+        xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
       else
         # query for catalog ID
-        xml_doc = query_metadata_server(http, catalog_key)
+        xml_doc = query_metadata_server(@metadata_server, catalog_key)
       end
       
       # from the server's response XML, get the <doc> element (which
@@ -70,6 +71,8 @@ module Virgo
       
       # pull values from <doc> element and plug those values into Bibl object
       set_bibl_attributes(doc, bibl, barcode)
+    rescue
+      raise "Query to #{@metadata_server} failed to return a valid result."
     end
     
     return bibl
@@ -78,47 +81,53 @@ module Virgo
   # Updates Bibl records with metadata from an external source
   #
   # In:
-  # * array of Bibl records to be updated
+  # * Bibl or array of Bibl records to be updated
   # * computing ID of user (used to associate notifications about this batch
   #   process with this specific user)
   # Out: Returns nil. Notifications of warnings/errors are saved to database (as
   # ProcessNotificationRef records).
   def self.external_update(bibls, computing_id)
-    # open HTTP session
-    Net::HTTP.start( @metadata_server, @port ) do |http|
+    case bibls
+    when Array
       bibls.each do |bibl|
-        if bibl.catalog_key.blank?
-          #add_notification(computing_id, bibl.id, 'missing_catalog_key')
-          next
-        end
-        
-        # query the metadata server for this catalog ID
-        # Note: Any exception occurring here is likely to occur for all Bibl
-        # objects; instead of saving a notification for each and every Bibl
-        # object, let exceptions bubble up to calling method to be handled for
-        # the whole process.
-        xml_doc = query_metadata_server(http, bibl.catalog_key)
-        
-        # from the server's response XML, get the <doc> element (which
-        # contains everything we're interested in here)
-        begin
-          doc = get_main_element(xml_doc, bibl.catalog_key)
-        rescue
-          # no catalog record found for that catalog ID
-          # add_notification(computing_id, bibl.id, 'record_not_found')
-          next
-        end
-        
-        # pull values from <doc> element and plug those values into Bibl object
-        set_bibl_attributes(doc, bibl, bibl.barcode)
-        
-        # save changes to Bibl record
-        bibl.save
-        # add_notification(computing_id, bibl.id, 'updated')
+        Virgo.external_update_single(bibl, computing_id)
       end
+    when Bibl
+      Virgo.external_update_single(bibls, computing_id)
     end
     
     return nil
+  end
+
+  def self.external_update_single(bibl, computing_id)
+    if bibl.catalog_key.blank?
+      #add_notification(computing_id, bibl.id, 'missing_catalog_key')
+      return
+    end
+    
+    # query the metadata server for this catalog ID
+    # Note: Any exception occurring here is likely to occur for all Bibl
+    # objects; instead of saving a notification for each and every Bibl
+    # object, let exceptions bubble up to calling method to be handled for
+    # the whole process.
+    xml_doc = query_metadata_server(@metadata_server, bibl.catalog_key)
+    
+    # from the server's response XML, get the <doc> element (which
+    # contains everything we're interested in here)
+    begin
+      doc = get_main_element(xml_doc, bibl.catalog_key)
+    rescue
+      # no catalog record found for that catalog ID
+      # add_notification(computing_id, bibl.id, 'record_not_found')
+      return
+    end
+    
+    # pull values from <doc> element and plug those values into Bibl object
+    set_bibl_attributes(doc, bibl, bibl.barcode)
+    
+    # save changes to Bibl record
+    bibl.save
+    # add_notification(computing_id, bibl.id, 'updated')
   end
 
 
@@ -126,12 +135,12 @@ module Virgo
   # private methods
   #-----------------------------------------------------------------------------
 
-  # Reads the XML document (REXML::Document object) passed and gets the main XML
+  # Reads the XML document (Nokogiri::XML::Document object) passed and gets the main XML
   # element needed for our purposes.
   def self.get_main_element(xml_doc, catalog_key)
     # when querying solrpowr.lib, the main element is /response/result/doc
     begin
-      doc = REXML::XPath.first(xml_doc, "/response/result/doc")
+      doc = xml_doc.xpath(xml_doc, "/response/result/doc").first
       raise if doc.nil?
     rescue
       # no catalog record found
@@ -143,15 +152,15 @@ module Virgo
 
   #-----------------------------------------------------------------------------
 
-  # Queries the metadata server using the HTTP session passed and the ID of the
-  # metadata record to look up. Returns REXML::Document object containing the
+  # Queries the metadata server using the hostname passed and the ID of the
+  # metadata record to look up. Returns Nokogiri::XML::Document object containing the
   # server's response.
-  def self.query_metadata_server(http, query_value, query_field='id')
+  def self.query_metadata_server(host, query_value, query_field='id')
     # query Solr server to get XML results for this catalog ID
-    xml_string = http.get( "/virgobeta/select/?q=#{query_field}:#{query_value}" ).body
-    # read XML string into REXML document object
+    xml_string = RestClient.get( "http://#{host}/virgobeta/select/?q=#{query_field}:#{query_value}" )
+    # read XML string into Nokogiri::XML::Document object
     begin
-      xml_doc = REXML::Document.new(xml_string)
+      xml_doc = Nokogiri::XML(xml_string)
     rescue
       raise "The metadata server did not return an XML response"
     end
@@ -161,7 +170,48 @@ module Virgo
 
   #-----------------------------------------------------------------------------
 
-  # Pulls values from the XML element (REXML::Element object) passed and plugs
+  # MARC 999 is repeatable -- normally one for each barcode. Build a hash of
+  # barcode values from 999 fields, where key is barcode and value is
+  # another hash with "call_number", "copy", and "location" entries.
+  def self.build_barcode_hash(marcxml)
+    barcodes=Hash.new
+    marc_record=marcxml
+    raise ArgumentError, "argument not an XML element!" unless marc_record.is_a?(Nokogiri::XML::Element)
+    marc_record.xpath("datafield[@tag='999']").each do |marc999|
+      # get barcode from subfield "i"
+      marc999i = marc999.xpath("subfield[@code='i']").first
+      if marc999i and marc999i.text
+        barcode = marc999i.text.strip.upcase
+        barcodes[barcode] = Hash.new
+      else
+        barcode = ''
+      end
+      
+      # Get local call number from subfield "a"
+      marc999a = marc999.xpath("subfield[@code='a']").first
+      if marc999a and marc999a.text
+        barcodes[barcode]['call_number'] = marc999a.text.strip unless barcode.blank?
+      end
+      
+      # Get copy from subfield "c"
+      marc999c = marc999.xpath("subfield[@code='c']").first
+      if marc999c and marc999c.text
+        barcodes[barcode]['copy'] = marc999c.text.strip unless barcode.blank?
+      end
+      
+      # Get location from subfield "l"
+      marc999l = marc999.xpath("subfield[@code='l']").first
+      if marc999l and marc999l.text
+        barcodes[barcode]['location'] = marc999l.text.strip unless barcode.blank?
+      end
+    end
+    barcodes
+  end
+  private_class_method :build_barcode_hash
+
+  #-----------------------------------------------------------------------------
+
+  # Pulls values from the XML element (Nokogiri::XML::Element object) passed and plugs
   # those values into the corresponding attributes of the Bibl object passed.
   #
   # Third parameter is a barcode value to be used for comparison against the
@@ -175,24 +225,25 @@ module Virgo
     end
     
     # catalog ID
-    el = REXML::XPath.first(doc, "arr[@name='id']/str")
+    el = doc.xpath("arr[@name='id']/str").first
     bibl.catalog_key = el.text unless el.nil?
     
     # title
-    el = REXML::XPath.first(doc, "arr[@name='title_display']/str")
+    el = doc.xpath("arr[@name='title_display']/str").first
     bibl.title = el.text unless el.nil?
     
     # creator name
-    el = REXML::XPath.first(doc, "arr[@name='author_display']/str")
+    el = doc.xpath("arr[@name='author_display']/str").first
     bibl.creator_name = el.text unless el.nil?
     
     # Get MARC XML record (embedded in Blacklight response in <arr name="marc_display">)
     marc_record = nil
-    el = REXML::XPath.first(doc, "str[@name='marc_display']")
+    el = doc.xpath("str[@name='marc_display']").first
     marc_string = el.text unless el.nil?
     begin
-      marc_xml = REXML::Document.new(marc_string)
-      marc_record = REXML::XPath.first(marc_xml, "/collection/record")
+      marc_xml = Nokogiri::XML(marc_string)
+      marc_xml.remove_namespaces!
+      marc_record = marc_xml.xpath("/collection/record").first
     rescue
       # No need to alert user that not all possible fields could be updated;
       # we're highlighting the fields that actually get updated (see
@@ -205,12 +256,12 @@ module Virgo
       # Get subtitle in addition to main title (replacing title value from
       # Blacklight title_display field (see above) which typically only includes
       # main title)
-      marc245 = REXML::XPath.first(marc_record, "datafield[@tag='245']")
+      marc245 = marc_record.xpath("datafield[@tag='245']").first
       if marc245
-        marc245a = REXML::XPath.first(marc245, "subfield[@code='a']")
+        marc245a = marc245.xpath("subfield[@code='a']").first
         if marc245a and marc245a.text
           # only replace Blacklight title_display value if MARC 245$b is present
-          marc245b = REXML::XPath.first(marc245, "subfield[@code='b']")
+          marc245b = marc245.xpath("subfield[@code='b']").first
           if marc245b and marc245b.text
             title_a = marc245a.text.strip
             title_b = marc245b.text.strip.sub(/\s*\/$/,'')  # remove trailing / character
@@ -220,9 +271,9 @@ module Virgo
       end
       
       # creator name type (personal or corporate)
-      marc100 = REXML::XPath.first(marc_record, "datafield[@tag='100']")
-      marc110 = REXML::XPath.first(marc_record, "datafield[@tag='110']")
-      marc111 = REXML::XPath.first(marc_record, "datafield[@tag='111']")
+      marc100 = marc_record.xpath("datafield[@tag='100']").first
+      marc110 = marc_record.xpath("datafield[@tag='110']").first
+      marc111 = marc_record.xpath("datafield[@tag='111']").first
       if marc100
         bibl.creator_name_type = 'personal'
       elsif marc110 or marc111
@@ -241,7 +292,7 @@ module Virgo
       # <datafield tag="035" ind1=" " ind2=" ">
       #   <subfield code="a">(OCoLC)17551904</subfield>
       # </datafield>
-      REXML::XPath.each(marc_record, "datafield[@tag='035']/subfield[@code='a']") do |marc035a|
+      marc_record.xpath("datafield[@tag='035']/subfield[@code='a']") do |marc035a|
         if marc035a.text
           matchdata = marc035a.text.match(/^\(Sirsi\)/)
           if matchdata
@@ -255,7 +306,7 @@ module Virgo
       #
       # Get date of publication from MARC 260$c. Both field 260 and subfield c
       # are repeatable; just grab first one.
-      marc260c = REXML::XPath.first(marc_record, "datafield[@tag='260']/subfield[@code='c']")
+      marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
       if marc260c and marc260c.text
         bibl.year = marc260c.text.strip.sub(/^\[/,'').sub(/\]$/,'').sub(/\.$/,'')
         bibl.year_type = 'publication'
@@ -276,7 +327,7 @@ module Virgo
 
       # MARC 524a - Special Collections Staff often put a canonical citation in
       # this field.  If present in the marcxml file, pull and store in bibl record.
-      marc524a = REXML::XPath.first(marc_record, "datafield[@tag='524']/subfield[@code='a']")
+      marc524a = marc_record.xpath("datafield[@tag='524']/subfield[@code='a']").first
       if marc524a and marc524a.text
         bibl.citation = marc524a.text
       end
@@ -284,7 +335,7 @@ module Virgo
       # MARC 040a - Cataloging Source.  In order to certify that our records are CC0 for 
       # submission to DPLA, we need to record where the MARC record was authored.  
       # VA@ is the code for the University of Virgina
-      marc040a = REXML::XPath.first(marc_record, "datafield[@tag='040']/subfield[@code='a']")
+      marc040a = marc_record.xpath("datafield[@tag='040']/subfield[@code='a']").first
       if marc040a and marc040a.text
         bibl.cataloging_source = marc040a.text
       end
@@ -293,35 +344,8 @@ module Virgo
       # barcode values from 999 fields, where key is barcode and value is
       # another hash with "call_number", "copy", and "location" entries.
       barcodes = Hash.new
-      REXML::XPath.each(marc_record, "datafield[@tag='999']") do |marc999|
-        # get barcode from subfield "i"
-        marc999i = REXML::XPath.first(marc999, "subfield[@code='i']")
-        if marc999i and marc999i.text
-          barcode = marc999i.text.strip.upcase
-          barcodes[barcode] = Hash.new
-        else
-          barcode = ''
-        end
-        
-        # Get local call number from subfield "a"
-        marc999a = REXML::XPath.first(marc999, "subfield[@code='a']")
-        if marc999a and marc999a.text
-          barcodes[barcode]['call_number'] = marc999a.text.strip unless barcode.blank?
-        end
-        
-        # Get copy from subfield "c"
-        marc999c = REXML::XPath.first(marc999, "subfield[@code='c']")
-        if marc999c and marc999c.text
-          barcodes[barcode]['copy'] = marc999c.text.strip unless barcode.blank?
-        end
-        
-        # Get location from subfield "l"
-        marc999l = REXML::XPath.first(marc999, "subfield[@code='l']")
-        if marc999l and marc999l.text
-          barcodes[barcode]['location'] = marc999l.text.strip unless barcode.blank?
-        end
-      end
-      
+      barcodes = build_barcode_hash(marc_record)
+
       # If barcode passed matches a barcode found in a MARC 999 field, then set
       # the call number, copy, and location associated with that barcode
       if barcodes.has_key? compare_barcode

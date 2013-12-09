@@ -144,5 +144,9 @@ class Component
     end
   end
 
+  def in_dl?
+    return self.date_dl_ingest?
+  end
+
   alias :parent_component :parent
 end
