@@ -219,6 +219,9 @@ ActiveAdmin.register Unit do
                 div do
                   link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
                 end
+                div do
+                  link_to "Solr", "#{SOLR_URL}/select?q=id:\"#{mf.pid}\"", :class => 'member_link', :target => "_blank"
+                end
               end
               if mf.date_archived
                 div do
@@ -332,6 +335,9 @@ ActiveAdmin.register Unit do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
+    if ! unit.master_files.last.exists_in_repo? 
+      div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
+    end
     if unit.in_dl?
       div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
@@ -371,8 +377,12 @@ ActiveAdmin.register Unit do
   end
 
   member_action :copy_from_archive, :method => :put do 
-    Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
-    redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+    if request.env['HTTP_REMOTE_USER']
+      Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    else
+      Unit.find(params[:id]).get_from_stornext('ms3uf')
+    end
+    redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
   end
 
   member_action :import_unit_iview_xml, :method => :put do

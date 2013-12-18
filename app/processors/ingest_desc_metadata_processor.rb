@@ -29,6 +29,11 @@ class IngestDescMetadataProcessor < ApplicationProcessor
     @pid = @object.pid
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
         
+    if ! @object.exists_in_repo?
+      logger.error "ERROR: Object #{@pid} not found in #{FEDORA_REST_URL}"
+      Fedora.create_or_update_object(@object, @object.title.to_s)
+    end
+
     # If an object already has a handcrafted desc_metadata value, this will be used to populate the descMetadata datastream.
     if not @object.desc_metadata.blank?
       Fedora.add_or_update_datastream(@object.desc_metadata, @pid, 'descMetadata', 'MODS descriptive metadata', :controlGroup => 'M')

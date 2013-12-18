@@ -131,4 +131,8 @@ class Bibl
   def fedora_url
     return "#{FEDORA_REST_URL}/objects/#{self.pid}"
   end
+
+  def solr_url(url=SOLR_URL)
+    return "#{url}/select?q=id:\"#{self.pid}\""
+  end
 end

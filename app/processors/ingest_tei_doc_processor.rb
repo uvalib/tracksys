@@ -28,6 +28,11 @@ class IngestTeiDocProcessor < ApplicationProcessor
     @pid = @object.pid
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)  
 
+    if ! @object.exists_in_repo?
+      logger.error "ERROR: Object #{@pid} not found in #{FEDORA_REST_URL}"
+      Fedora.create_or_update_object(@object, @object.title.to_s)
+    end
+
     xml = File.read(File.join(TEI_ARCHIVE_DIR, "#{@object_id}.tei.xml"))
     Fedora.add_or_update_datastream(xml, @pid, 'TEI', 'TEI Transcription Document', :contentType => 'text/xml', :mimeType => 'text/xml', :controlGroup => 'M')
 

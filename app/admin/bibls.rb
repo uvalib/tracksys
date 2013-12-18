@@ -204,6 +204,9 @@ ActiveAdmin.register Bibl do
           div do
             link_to "Fedora Object", bibl.fedora_url, :target => "_blank"
           end
+          div do
+            link_to "Solr Record", bibl.solr_url, :target => "_blank"
+          end
         end
       end
       row :master_files do |bibl|
@@ -247,12 +250,15 @@ ActiveAdmin.register Bibl do
   end
 
   sidebar "Digital Library Workflow", :only => [:show] do
-    if bibl.exists_in_repo?
+    if bibl.exists_in_repo? # actually in Fedora
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_bibl_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_bibl_path(:datastream => 'dc_metadata'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_bibl_path(:datastream => 'desc_metadata'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_bibl_path(:datastream => 'rels_ext'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Index Record", update_metadata_admin_bibl_path(:datastream => 'solr_doc'), :method => :put end
+    elsif bibl.in_dl? && ! bibl.exists_in_repo? # marked in db as in dl but not found in Fedora
+      div :class => 'workflow note' do "Item missing from repo." end
+      link_to "Go to the Units page to ingest.", admin_units_path(:q => {:bibl_id_eq => bibl.id})
     else
       "No options available.  Object not yet ingested."
     end
