@@ -41,8 +41,10 @@ Tracksys::Application.configure do
 #  Fedora_apia_wsdl = 'http://tracksysdev.lib.virginia.edu:8080/fedora/wsdl?api=API-A'
 #  Fedora_username = 'fedoraAdmin'
 #  Fedora_password = 'fedoraAdmin'
- FEDORA_REST_URL = 'http://localhost:8080/fedora'
- SOLR_URL = "http://localhost:8983/solr/staging_solr"
+ FEDORA_REST_URL = 'http://tracksysdev.lib.virginia.edu:8080/fedora'
+ FEDORA_PROXY_URL = FEDORA_REST_URL 
+ SOLR_URL = "http://tracksysdev.lib.virginia.edu:8080/solr/tracksys"
+ STAGING_SOLR_URL= SOLR_URL # dev
  Fedora_username = 'fedoraAdmin'
  Fedora_password = 'fedoraAdmin'
   
@@ -52,7 +54,7 @@ Tracksys::Application.configure do
 #  TEI_ACCESS_URL = "http://xtf.lib.virginia.edu/xtf/view"
   
   # Set the number of threads dedicated to JP2K creation.
-#  NUM_JP2K_THREADS = 1
+  NUM_JP2K_THREADS = 1
 
 config.after_initialize do
   PRODUCTION_MOUNT = "/Volumes/digiserv-production"
@@ -60,6 +62,14 @@ config.after_initialize do
 
   ADMINISTRATIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/administrative"
   IVIEW_CATALOG_EXPORT_DIR = "#{ADMINISTRATIVE_DIR_PRODUCTION}/EAD2iViewXML"
+
+  # overrides for dev
+  PRODUCTION_SCAN_DIR="/tmp/scan"
+  PRODUCTION_SCAN_FROM_ARCHIVE_DIR="#{PRODUCTION_SCAN_DIR}/01_from_archive"
+  BASE_DESTINATION_PATH_DL  = "/tmp/30_process_deliverables"
+  # Saxon Servelet for Transformations
+  SAXON_URL = "tracksysdev.lib.virginia.edu"
+  SAXON_PORT = "8080"
 end
 
 end
