@@ -46,3 +46,11 @@ body.active_admin {
     color: orange;
   }
 }
+body.active_admin {
+  .admin-information { 
+    background-color: rgba(100,150,90,0.5);
+    padding: 1em;
+  }
+  .admin-information h2, h3 { color:white;}
+}
+

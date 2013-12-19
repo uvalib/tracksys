@@ -167,6 +167,11 @@ ActiveAdmin.register Bibl do
           end
           row :availability_policy
           row :indexing_scenario
+          row :index_destination do |bibl| 
+            if bibl.index_destination
+              link_to "#{bibl.index_destination.nickname} aka (#{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
+            end
+          end
           row :use_right
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)

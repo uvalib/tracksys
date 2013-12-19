@@ -4,6 +4,8 @@ class Bibl
 
   include Pidable
   
+  after_update :fix_updated_counters
+
   VIRGO_FIELDS = ['title', 'creator_name', 'creator_name_type', 'call_number', 'catalog_key', 'barcode', 'copy', 'date_external_update', 'location', 'citation', 'year', 'year_type', 'location', 'copy', 'title_control', 'date_external_update', 'cataloging_source']
   # Create and manage a Hash that contains the SIRSI location codes and their human readable values for citation purposes
   LOCATION_HASH = {
@@ -85,6 +87,12 @@ class Bibl
   #------------------------------------------------------------------
   # Necessary for Active Admin to poplulate pulldown menu
   alias_attribute :name, :title
+
+  #------------------------------------------------------------------
+  # relationships
+  #------------------------------------------------------------------
+  belongs_to :index_destination, :counter_cache => true
+
 
   # Although many Bibl records have citations provided through the MARC record, many do not 
   # (especially those which lack a MARC record or are otherwise not cataloged in VIRGO).  As 
