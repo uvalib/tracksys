@@ -76,7 +76,16 @@ module BuildOrderPDF
         @pdf.text "\n"
       end
 
-      # TO DO: Create special tables to hold component information
+      # Create special tables to hold component information
+      if unit.components.any?
+        unit.components.each do |component|
+          # Output information for this unit using the Component template
+          output_component_data(component, unit.id)
+        end
+      else
+        # Output information using the MasterFile only template.
+        output_masterfile_data(unit.master_files.order(:filename))
+      end
       
     }
 
@@ -89,5 +98,40 @@ module BuildOrderPDF
     @pdf.number_pages string, options
 
     @pdf 
+  end
+
+  # Physical Component Methods
+  def output_component_data(component, unit_id)
+    @pdf.text "Collection Information\n", :style => :bold
+    component.path_ids.each {|component_id|
+      c = Component.find(component_id)
+
+      # pdf document has a width of 540 at this point, so use that and subtract from there.
+      @pdf.span(540 - component.path_ids.index(component_id) * 10, :position => :right) do
+        @pdf.text"#{c.component_type.name.titleize}: #{c.name}"
+      end
+
+      @pdf.start_new_page if @pdf.cursor < 30
+    }
+
+    output_masterfile_data(component.master_files.where(:unit_id => unit_id).order(:filename))
+  end
+
+  
+  # Methods used by both Component and EAD Ref methods
+  def output_masterfile_data(sorted_master_files)
+    data = Array.new
+    data = [["Filename", "Title", "Description"]]
+    sorted_master_files.each {|master_file|
+      data += [["#{master_file.filename}", "#{master_file.title}", "#{master_file.description}"]]
+    }
+    @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])         
+    @pdf.text "\n"
+
+    if @pdf.cursor < 30
+      @pdf.start_new_page
+    end
+
+    @pdf.text "\n"
   end
 end

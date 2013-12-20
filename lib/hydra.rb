@@ -1,7 +1,7 @@
 # This module provides methods for exporting metadata to various standard XML
 # formats.
 module Hydra
-
+  require 'open-uri'
   require 'builder'
 
   XML_FILE_CREATION_STATEMENT = "Created programmatically by the Digital Curation Services Tracking System."
@@ -73,6 +73,10 @@ module Hydra
 
       analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}/virgobeta/select?q=id%3A#{object.catalog_key}"
 
+      index_destination = "localhost"
+      if object.index_destination.respond_to?(:name)
+        index_destination = object.index_destination.name
+      end
       if object.availability_policy_id == 1
         availability_policy_pid = false
       else
@@ -84,6 +88,7 @@ module Hydra
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
         "style" => "#{object.indexing_scenario.complete_url}",
         "repository" => "#{FEDORA_PROXY_URL}",
+        "destination" => "#{index_destination}",
         "pid" => "#{object.pid}",
         "analogSolrRecord" => "#{analog_solr_record}",
         "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",

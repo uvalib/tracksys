@@ -31,6 +31,11 @@ class IngestSolrDocProcessor < ApplicationProcessor
     # Open Solr Connection
     @solr_connection = Solr::Connection.new("#{STAGING_SOLR_URL}", :autocommit => :off)
 
+    if ! @object.exists_in_repo?
+      logger.error "ERROR: Object #{@pid} not found in #{FEDORA_REST_URL}"
+      Fedora.create_or_update_object(@object, @object.title.to_s)
+    end
+
     # If an object already has a handcrafted desc_metadata value, this will be used to populate the descMetadata datastream.
     if @object.solr
       doc = Nokogiri::XML(@object.solr)

@@ -37,16 +37,16 @@ ActiveAdmin.register Bibl do
 
   index :id => 'bibls' do
     selectable_column
-    column :title do |bibl|
+    column :title, :sortable => :title do |bibl|
       truncate_words(bibl.title, 25)
     end
     column :creator_name
     column :call_number
     column :volume
-    column("Source") do |bibl|
+    column ("Source"), :sortable => :cataloging_source do |bibl|
     	bibl.cataloging_source
     end
-    column :catalog_key do |bibl|
+    column :catalog_key, :sortable => :catalog_key do |bibl|
       div do
         bibl.catalog_key
       end
@@ -74,7 +74,7 @@ ActiveAdmin.register Bibl do
     column ("DPLA?") do |bibl|
       format_boolean_as_yes_no(bibl.dpla)
     end
-    column :units do |bibl|
+    column :units, :sortable => :units_count do |bibl|
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|
@@ -167,6 +167,11 @@ ActiveAdmin.register Bibl do
           end
           row :availability_policy
           row :indexing_scenario
+          row :index_destination do |bibl| 
+            if bibl.index_destination
+              link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
+            end
+          end
           row :use_right
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)
@@ -203,6 +208,9 @@ ActiveAdmin.register Bibl do
         if bibl.in_dl?
           div do
             link_to "Fedora Object", bibl.fedora_url, :target => "_blank"
+          end
+          div do
+            link_to "Solr Record", bibl.solr_url, :target => "_blank"
           end
         end
       end
@@ -247,12 +255,15 @@ ActiveAdmin.register Bibl do
   end
 
   sidebar "Digital Library Workflow", :only => [:show] do
-    if bibl.exists_in_repo?
+    if bibl.exists_in_repo? # actually in Fedora
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_bibl_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_bibl_path(:datastream => 'dc_metadata'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_bibl_path(:datastream => 'desc_metadata'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_bibl_path(:datastream => 'rels_ext'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Index Record", update_metadata_admin_bibl_path(:datastream => 'solr_doc'), :method => :put end
+    elsif bibl.in_dl? && ! bibl.exists_in_repo? # marked in db as in dl but not found in Fedora
+      div :class => 'workflow note' do "Item missing from repo." end
+      link_to "Go to the Units page to ingest.", admin_units_path(:q => {:bibl_id_eq => bibl.id})
     else
       "No options available.  Object not yet ingested."
     end

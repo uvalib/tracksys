@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails'
+gem 'rails', '3.2.16'
 gem 'devise'
 
 # Needed to resolve incompatability with Fedora 12+
@@ -51,6 +51,8 @@ end
 group :production, :test do
 #  gem "devise_ldap_authenticatable"
 end
+
+gem 'awesome_print', :group => :development
 
 # Gems used only for assets and not required
 # in production environments by default.

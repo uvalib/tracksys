@@ -94,7 +94,9 @@ module Pidable
   # Returns a boolean indicating whether an object with the same PID as this
   # one exists in the Fedora repo
   def exists_in_repo?
-    if pid.nil?
+    if ! self.respond_to?(:pid)
+      return false
+    elsif pid.nil?
       return false
     else
       # Determine whether this object exists (using Fedora API findObjects, which uses HTTP GET)
