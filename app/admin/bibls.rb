@@ -169,7 +169,7 @@ ActiveAdmin.register Bibl do
           row :indexing_scenario
           row :index_destination do |bibl| 
             if bibl.index_destination
-              link_to "#{bibl.index_destination.nickname} aka (#{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
+              link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
             end
           end
           row :use_right

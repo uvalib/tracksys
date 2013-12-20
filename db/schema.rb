@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131112204918) do
+ActiveRecord::Schema.define(:version => 20131218195708) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -179,6 +179,7 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.integer  "use_right_id"
     t.boolean  "dpla",                                            :default => false
     t.string   "cataloging_source"
+    t.integer  "index_destination_id"
   end
 
   add_index "bibls", ["availability_policy_id"], :name => "index_bibls_on_availability_policy_id"
@@ -216,13 +217,6 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
   add_index "bibls_legacy_identifiers", ["bibl_id"], :name => "index_bibls_legacy_identifiers_on_bibl_id"
   add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], :name => "index_bibls_legacy_identifiers_on_legacy_identifier_id"
 
-  create_table "bibls_teis", :id => false, :force => true do |t|
-    t.integer "bibl_id"
-    t.integer "tei_id"
-  end
-
-  add_index "bibls_teis", ["bibl_id", "tei_id"], :name => "index_bibls_teis_on_bibl_id_and_tei_id"
-
   create_table "checkins", :force => true do |t|
     t.integer  "unit_id",         :default => 0, :null => false
     t.integer  "staff_member_id"
@@ -244,8 +238,8 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
 
   create_table "components", :force => true do |t|
-    t.integer  "component_type_id",                                 :default => 0,     :null => false
-    t.integer  "parent_component_id",                               :default => 0,     :null => false
+    t.integer  "component_type_id",                               :default => 0,    :null => false
+    t.integer  "parent_component_id",                             :default => 0,    :null => false
     t.string   "title"
     t.string   "label"
     t.string   "date"
@@ -258,10 +252,10 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.datetime "updated_at"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                        :limit => 2147483647
+    t.text     "solr",                      :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                   :default => true
+    t.boolean  "discoverability",                                 :default => true
     t.integer  "indexing_scenario_id"
     t.text     "level"
     t.string   "ead_id_att"
@@ -271,8 +265,8 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id"
-    t.integer  "master_files_count",                                :default => 0,     :null => false
-    t.integer  "automation_messages_count",                         :default => 0,     :null => false
+    t.integer  "master_files_count",                              :default => 0,    :null => false
+    t.integer  "automation_messages_count",                       :default => 0,    :null => false
     t.string   "exemplar"
     t.string   "ancestry"
     t.string   "pids_depth_cache"
@@ -281,7 +275,7 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.text     "legacy_ead"
     t.text     "physical_desc"
     t.text     "scope_content"
-    t.boolean  "master_file_discoverability",                       :default => false
+    t.integer  "index_destination_id"
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
@@ -461,6 +455,19 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
   end
 
   add_index "image_tech_meta", ["master_file_id"], :name => "index_image_tech_meta_on_master_file_id"
+
+  create_table "index_destinations", :force => true do |t|
+    t.string   "nickname"
+    t.string   "hostname",         :default => "localhost"
+    t.string   "port",             :default => "8080"
+    t.string   "protocol",         :default => "http"
+    t.string   "context",          :default => "solr"
+    t.datetime "created_at",                                :null => false
+    t.datetime "updated_at",                                :null => false
+    t.integer  "bibls_count"
+    t.integer  "units_count"
+    t.integer  "components_count"
+  end
 
   create_table "indexing_scenarios", :force => true do |t|
     t.string   "name"
@@ -645,20 +652,6 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
   add_index "staff_members", ["computing_id"], :name => "index_staff_members_on_computing_id", :unique => true
 
-  create_table "teis", :force => true do |t|
-    t.string   "catalog_key"
-    t.string   "title"
-    t.string   "filename"
-    t.string   "filepath"
-    t.string   "pid"
-    t.string   "description"
-    t.datetime "date_dl_ingest"
-    t.datetime "created_at",                                   :null => false
-    t.datetime "updated_at",                                   :null => false
-    t.integer  "automation_messages_count", :default => 0
-    t.boolean  "include_in_dl",             :default => false
-  end
-
   create_table "unit_import_sources", :force => true do |t|
     t.integer  "unit_id",                          :default => 0, :null => false
     t.string   "standard"
@@ -700,6 +693,7 @@ ActiveRecord::Schema.define(:version => 20131112204918) do
     t.integer  "availability_policy_id"
     t.integer  "master_files_count",             :default => 0
     t.integer  "automation_messages_count",      :default => 0
+    t.integer  "index_destination_id"
   end
 
   add_index "units", ["archive_id"], :name => "index_units_on_archive_id"
