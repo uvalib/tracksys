@@ -335,7 +335,7 @@ ActiveAdmin.register Unit do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
-    if ! unit.master_files.last.exists_in_repo? 
+    if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? ) 
       div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
     end
     if unit.in_dl?
