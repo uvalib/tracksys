@@ -93,6 +93,13 @@ class Unit
     publish :start_ingest_from_archive, message
   end
 
+  def copy_metadata_to_metadata_directory
+    unit_dir = "%09d" % self.id
+    unit_path = File.join(IN_PROCESS_DIR, unit_dir)
+    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :unit_path => unit_path})
+    publish :copy_metadata_to_metadata_directory, message
+  end
+  
   # End processors
 
   def qr

@@ -335,10 +335,10 @@ ActiveAdmin.register Unit do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
-    if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? ) 
-      div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
-    end
     if unit.in_dl?
+      if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? ) 
+        div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
+      end
       div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
