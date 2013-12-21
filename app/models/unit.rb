@@ -6,6 +6,12 @@ class Unit
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
 
+
+  #------------------------------------------------------------------
+  # relationships
+  #------------------------------------------------------------------
+  belongs_to :index_destination, :counter_cache => true
+
   # The request form requires having data stored temporarily to the unit model and then concatenated into special instructions.  Those fields are:
   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
 
@@ -87,6 +93,13 @@ class Unit
     publish :start_ingest_from_archive, message
   end
 
+  def copy_metadata_to_metadata_directory
+    unit_dir = "%09d" % self.id
+    unit_path = File.join(IN_PROCESS_DIR, unit_dir)
+    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :unit_path => unit_path})
+    publish :copy_metadata_to_metadata_directory, message
+  end
+  
   # End processors
 
   def qr

@@ -69,6 +69,7 @@ Tracksys::Application.configure do
   Fedora_password = ''
   FEDORA_REST_URL = ''
   FEDORA_PROXY_URL = ''
+  SOLR_URL = ""
   STAGING_SOLR_URL = ""
   TRACKSYS_URL = ""
 

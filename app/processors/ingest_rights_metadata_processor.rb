@@ -27,6 +27,11 @@ class IngestRightsMetadataProcessor < ApplicationProcessor
     @pid = @object.pid
     instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
+    if ! @object.exists_in_repo?
+      logger.error "ERROR: Object #{@pid} not found in #{FEDORA_REST_URL}"
+      Fedora.create_or_update_object(@object, @object.title.to_s)
+    end
+
     # The POLICY datastream should only be posted if the access policy is anything but permit to all.  So exclude this processor's
     # work if @object.availability_policy_id == 1
     if not @object.availability_policy_id == 1

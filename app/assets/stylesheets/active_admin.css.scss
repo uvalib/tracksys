@@ -37,3 +37,20 @@ body.active_admin {
     min-width: 180px; 
   }
 }
+
+body.active_admin {
+  div.workflow_note {
+    padding: 10px 0px 10px 0px;
+    font-family: sans-serif;
+    font-weight: 600;
+    color: orange;
+  }
+}
+body.active_admin {
+  .admin-information { 
+    background-color: rgba(100,150,90,0.5);
+    padding: 1em;
+  }
+  .admin-information h2, h3 { color:white;}
+}
+

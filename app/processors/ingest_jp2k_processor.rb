@@ -35,6 +35,10 @@ class IngestJp2kProcessor < ApplicationProcessor
     # Read jp2 file from disk
     file = File.read(@jp2k_path)
     
+    if ! @object.exists_in_repo?
+      logger.error "ERROR: Object #{@pid} not found in #{FEDORA_REST_URL}"
+      Fedora.create_or_update_object(@object, @object.title.to_s)
+    end 
     Fedora.add_or_update_datastream(file, @pid, 'content', 'JPEG-2000 Binary', :controlGroup => 'M', :versionable => "false", :mimeType => "image/jp2")
     
     # Delete jp2 file from disk
