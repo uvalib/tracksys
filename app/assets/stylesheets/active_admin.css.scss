@@ -63,10 +63,30 @@ color: #5e6469;
 text-decoration: none;
 display: block;
 white-space: normal;
+max-height: 39px;
+overflow: normal;
 -webkit-font-smoothing: antialiased;
 }
-body.active_admin table.index_table th.sortable a { 
-  background: image-url('active_admin/orderable.png') no-repeat 0 12px; padding-left: 13px;
+body.active_admin {
+  table.index_table {
+    th {
+      &.sortable.sortable_short a { // column headers with one row of text
+        background: url(active_admin_image_path('orderable.png')) no-repeat 0 4px; padding-left: 13px;
+      }
+
+      &.sortable a { // longer (2-3 row) column headers
+        background: url(active_admin_image_path('orderable.png')) no-repeat 0 12px; padding-left: 13px;
+      }
+
+      &.sortable_short.sorted-asc a { background-position: 0 -27px; }
+      &.sortable_short.sorted-desc a {  background-position: 0 -56px;}
+
+      &.sorted-asc a { background-position: 0 -16px; }
+      &.sorted-desc a {  background-position: 0 -47px;}
+
+      &.sorted-asc, &.sorted-desc {
+        @include gradient(darken($secondary-gradient-start, 5%), darken($secondary-gradient-stop, 5%));
+      }
+    }
+  }
 }
-body.active_admin table.index_table th.sorted-asc a { background-position: 0 -9px; }
-body.active_admin table.index_table th.sorted-desc a { background-position: 0 -50px; }
