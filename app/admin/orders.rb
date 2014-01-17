@@ -263,7 +263,7 @@ ActiveAdmin.register Order do
         link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
       end
       row :bibls do |order|
-        link_to "#{order.bibls.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
+        link_to "#{order.bibls.uniq.size}", admin_bibls_path(:q => {:orders_id_eq => order.id})
       end
       row :automation_messages do |order|
         link_to "#{order.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => order.id, :messagable_type_eq => "Order"})
