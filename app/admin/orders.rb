@@ -43,7 +43,6 @@ ActiveAdmin.register Order do
     column :title do |order| order.title.truncate(80) unless order.title.nil? end
     column ("Special Instructions") {|order| order.special_instructions.to_s.truncate(50) }
     column ("Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
-    column ("Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
     column ("Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
     column ("Deliverables Complete"), :sortable => :date_patron_deliverables_complete do |order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y") end
     column ("Customer Notified"), :sortable => :date_customer_notified do |order| order.date_customer_notified.try(:strftime, "%m/%d/%y") end
