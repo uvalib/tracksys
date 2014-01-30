@@ -115,6 +115,10 @@ module Hydra
       total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
       total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
 
+      index_destination = "localhost"
+      if object.bibl.index_destination.respond_to?(:name)
+        index_destination = object.bibl.index_destination.name
+      end
       if object.availability_policy_id == 1
         availability_policy_pid = false
       else
@@ -126,6 +130,7 @@ module Hydra
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
         "style" => "#{object.indexing_scenario.complete_url}",
         "repository" => "#{FEDORA_PROXY_URL}",
+        "destination" => "#{index_destination}",
         "pid" => "#{object.pid}",
         "analogSolrRecord" => "#{analog_solr_record}",
         "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
