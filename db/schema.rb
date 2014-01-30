@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131218195708) do
+ActiveRecord::Schema.define(:version => 20140128200629) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -179,6 +179,7 @@ ActiveRecord::Schema.define(:version => 20131218195708) do
     t.integer  "use_right_id"
     t.boolean  "dpla",                                            :default => false
     t.string   "cataloging_source"
+    t.string   "collection_facet"
     t.integer  "index_destination_id"
   end
 
@@ -560,7 +561,9 @@ ActiveRecord::Schema.define(:version => 20131218195708) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.boolean  "dpla",                                            :default => false
-    t.date     "creation_date"
+    t.string   "type"
+    t.string   "creator_death_date"
+    t.string   "creation_date"
     t.string   "primary_author"
   end
 
