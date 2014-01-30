@@ -38,24 +38,23 @@ ActiveAdmin.register Order do
 
   index :id => 'orders' do
     selectable_column
-    column :id
+    column :id, :class => 'sortable_short'
     column ("Status") {|order| status_tag(order.order_status)}
     column :title do |order| order.title.truncate(80) unless order.title.nil? end
     column ("Special Instructions") {|order| order.special_instructions.to_s.truncate(50) }
-    column ("Date Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
-    column ("Date Order Approved"), :sortable => :date_order_approved do |order| order.date_order_approved.try(:strftime, "%m/%d/%y") end
-    column ("Date Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
-    column ("Date Patron Deliverables Complete"), :sortable => :date_patron_deliverables_complete do |order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y") end
-    column ("Date Customer Notified"), :sortable => :date_customer_notified do |order| order.date_customer_notified.try(:strftime, "%m/%d/%y") end
+    column ("Request Submitted"), :sortable => :date_request_submitted do|order| order.date_request_submitted.try(:strftime, "%m/%d/%y") end
+    column ("Archiving Complete"), :sortable => :date_archiving_complete do |order| order.date_archiving_complete.try(:strftime, "%m/%d/%y") end
+    column ("Deliverables Complete"), :sortable => :date_patron_deliverables_complete do |order| order.date_patron_deliverables_complete.try(:strftime, "%m/%d/%y") end
+    column ("Customer Notified"), :sortable => :date_customer_notified do |order| order.date_customer_notified.try(:strftime, "%m/%d/%y") end
     column ("Date Due") {|order| order.date_due.try(:strftime, "%m/%d/%y")}
-    column ("Units"), :sortable => :units_count do |order|
+    column ("Units"), :sortable => :units_count, :class => 'sortable_short' do |order|
       link_to order.units_count, admin_units_path(:q => {:order_id_eq => order.id})
     end
     column ("Master Files"), :sortable => :master_files_count do |order|
       link_to order.master_files_count, admin_master_files_path(:q => {:order_id_eq => order.id})
     end
-    column :agency, :sortable => 'agencies.name'
-    column :customer, :sortable => :"customers.last_name"
+    column :agency, :sortable => 'agencies.name', :class => 'sortable_short'
+    column :customer, :sortable => :"customers.last_name", :class => 'sortable_short'
     column ("Charged Fee") {|customer| number_to_currency(customer.fee_actual) }
     column("") do |order|
       div do
