@@ -57,6 +57,6 @@ class PurgeCacheProcessor < ApplicationProcessor
 
   # Manually delete the show view of the associated object
   def expire_cache(associated_object)
-    Rails.cache.delete("views/tracksys.lib.virginia.edu" + eval("admin_#{associated_object.class.name.underscore}_path(#{associated_object.id})"))
+    Rails.cache.delete("views/tracksys.lib.virginia.edu" + eval("admin_#{associated_object.class.model_name.underscore}_path(#{associated_object.id})"))
   end
 end
