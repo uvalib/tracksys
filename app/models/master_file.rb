@@ -3,6 +3,11 @@ require "#{Hydraulics.models_dir}/master_file"
 class MasterFile
 
   include Pidable
+  #------------------------------------------------------------------
+  # scopes
+  #------------------------------------------------------------------  
+  scope :tiff, where(:type => 'Tiff').order("master_files.id DESC")
+  scope :jpeg2000, where(:type => 'JpegTwoThousand').order("master_files.id DESC")
 
 #  after_update :fix_updated_counters
 
@@ -83,5 +88,17 @@ class MasterFile
 
     message = ActiveSupport::JSON.encode( { :master_file_id => self.id, :source => self.path_to_archved_version})
     publish :create_image_technical_metadata_and_thumbnail, message
+  end
+
+  # single-table inheritance override to ensure child users parent's routes
+  # so JpegTwoThousand.model_name should return "MasterFile"
+  # http://www.alexreisner.com/code/single-table-inheritance-in-rails
+  def self.inherited(child)
+    child.instance_eval do
+      def model_name
+        MasterFile.model_name
+      end
+    end
+    super
   end
 end

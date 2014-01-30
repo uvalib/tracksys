@@ -13,8 +13,8 @@ development:
     # properties below are all defaults for this adapter
     # login: ""
     # passcode: ""
-    # host: localhost
-    # port: 61613
+    host: localhost
+    port: 61613
     # reliable: true
     # reconnectDelay: 5
 

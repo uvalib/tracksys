@@ -5,6 +5,7 @@ class PurgeCacheProcessor < ApplicationProcessor
 
   def on_message(message)
     hash = ActiveSupport::JSON.decode(message).symbolize_keys 
+    logger.debug "#{self.class}: received #{hash}" 
     raise "Parameter 'subject_class' is required" if hash[:subject_class].blank?
     raise "Parameter 'subject_id' is required" if hash[:subject_id].blank?
     raise "Parameter 'associated_class' is required" if hash[:associated_class].blank?
