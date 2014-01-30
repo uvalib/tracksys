@@ -57,8 +57,8 @@ Tracksys::Application.configure do
   NUM_JP2K_THREADS = 1
 
 config.after_initialize do
-  PRODUCTION_MOUNT = "/Volumes/digiserv-production"
-  MIGRATION_MOUNT = "/Volumes/digiserv-migration"
+  PRODUCTION_MOUNT = "/sandbox/digiserv-production"
+  MIGRATION_MOUNT = "/sandbox/digiserv-migration"
 
   ADMINISTRATIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/administrative"
   IVIEW_CATALOG_EXPORT_DIR = "#{ADMINISTRATIVE_DIR_PRODUCTION}/EAD2iViewXML"
