@@ -163,7 +163,8 @@ ActiveAdmin.register MasterFile do
               end
               div :style => 'display:none' do 
                 div :id => 'inline_content' do
-                  "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+                  div "Open the following URL in your Oxygen XML Editor (cmd-U)"
+                  div "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
                 end
               end
               pre :class => "no-whitespace code-window" do 
@@ -384,6 +385,8 @@ ActiveAdmin.register MasterFile do
   # Specified in routes.rb to return the XML partial mods.xml.erb
   member_action :mods do
     @master_file = MasterFile.find(params[:id])
+    @page_title = "MODS Record for MasterFile ##{@master_file.id}"
+    render template: "admin/master_files/mods.xml.erb"
   end
 
   member_action :solr do 
