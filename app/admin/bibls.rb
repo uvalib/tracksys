@@ -42,8 +42,8 @@ ActiveAdmin.register Bibl do
     end
     column :creator_name
     column :call_number
-    column :volume
-    column ("Source"), :sortable => :cataloging_source do |bibl|
+    column :volume, :class => 'sortable_short'
+    column ("Source"), :class => 'sortable_short', :sortable => :cataloging_source do |bibl|
     	bibl.cataloging_source
     end
     column :catalog_key, :sortable => :catalog_key do |bibl|
@@ -56,8 +56,8 @@ ActiveAdmin.register Bibl do
         end
       end
     end
-    column :barcode
-    column :location
+    column :barcode, :class => 'sortable_short'
+    column :location, :class => 'sortable_short'
     column ("Digital Library?") do |bibl|
       div do
         format_boolean_as_yes_no(bibl.in_dl?)
@@ -74,7 +74,7 @@ ActiveAdmin.register Bibl do
     column ("DPLA?") do |bibl|
       format_boolean_as_yes_no(bibl.dpla)
     end
-    column :units, :sortable => :units_count do |bibl|
+    column :units, :class => 'sortable_short', :sortable => :units_count do |bibl|
       link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|

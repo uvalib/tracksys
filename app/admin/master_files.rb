@@ -48,7 +48,6 @@ ActiveAdmin.register MasterFile do
   index :id => 'master_files' do
     selectable_column
     column :filename, :sortable => false
-    column :type
     column :title do |mf|
       truncate_words(mf.title)
     end
@@ -100,9 +99,17 @@ ActiveAdmin.register MasterFile do
         attributes_table_for master_file do
           row :filename
           row :title
+          row :type
           row :description
           row :date_archived do |master_file|
             format_date(master_file.date_archived)
+          end
+          row :intellectual_property_notes do |master_file|
+            if master_file.creation_date or master_file.primary_author or master_file.creator_death_date
+              "Event Creation Date: #{master_file.creation_date} ; Author: #{master_file.primary_author} ; Author Death Date: #{master_file.creator_death_date}"
+            else
+              "no data"
+            end
           end
           row :transcription_text do |master_file|
             simple_format(master_file.transcription_text)
@@ -189,6 +196,7 @@ ActiveAdmin.register MasterFile do
       f.input :description, :as => :text, :input_html => { :rows => 3 }
       f.input :creation_date, :as => :text, :input_html => { :rows => 1 }
       f.input :primary_author, :as => :text, :input_html => { :rows => 1 }
+      f.input :creator_death_date, :as => :string, :input_html => { :rows => 1 }
       f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
       f.input :transcription_text, :input_html => { :rows => 5 }
     end
