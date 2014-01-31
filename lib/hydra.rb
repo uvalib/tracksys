@@ -851,7 +851,7 @@ module Hydra
       # date_completed value.
       date_completed = nil
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         if not unit.date_archived.blank?
           if date_completed.blank?
             date_completed = unit.date_archived
@@ -883,7 +883,7 @@ module Hydra
       # unit_extent_actual value; last resort is unit_extent_estimated value.
       c = 0
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         if unit.master_files.size > 0
           c += unit.master_files.size
         elsif unit.unit_extent_actual.to_i > 0
@@ -904,7 +904,7 @@ module Hydra
       # build hash of mime types 
       mime_types = Hash.new
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         unit.master_files.each do |master_file|
           mime_types[master_file.mime_type] = nil
         end

@@ -24,7 +24,7 @@ module AssignPids
       pid_count += 1 if bibl.pid.blank?  # one PID for Bibl record itself
       
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         
         unit.master_files.each do |master_file|
           pid_count += 1 if master_file.pid.blank?  # one PID for each associated MasterFile
@@ -50,7 +50,7 @@ module AssignPids
       bibl.save!
       
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         
         unit.master_files.each do |master_file|
           master_file.pid = pids.shift if master_file.pid.blank?

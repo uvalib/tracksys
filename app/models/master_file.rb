@@ -65,6 +65,10 @@ class MasterFile
     return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
   end
 
+  def mime_type
+    "image/tiff"
+  end
+
   # alias_attributes as CYA for legacy migration.  
   alias_attribute :name_num, :title
   alias_attribute :staff_notes, :description
