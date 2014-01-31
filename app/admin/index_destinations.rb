@@ -15,7 +15,7 @@ ActiveAdmin.register IndexDestination do
     column :hostname
 		column :port
 		column :context
-		column :url do |i| link_to "#{i.url}", i.url, :target => "_blank"  end 
+		column :url do |i| link_to "#{i.url}/admin/", "#{i.url}/admin/", :target => "_blank"  end 
 		column :created_at
 		column :updated_at
     column("Bibls") do |index_destination|
