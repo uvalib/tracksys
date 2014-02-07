@@ -83,6 +83,13 @@ module Hydra
         availability_policy_pid = object.availability_policy.pid
       end
 
+      shadowed = nil
+      if ! object.discoverability
+        shadowed = "HIDDEN"
+      else
+        shadowed = "VISIBLE"
+      end
+
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
@@ -95,6 +102,7 @@ module Hydra
         "dateReceived" => "#{object.date_dl_ingest.strftime('%Y%m%d%H')}",
         "contentModel" => "digital_book",
         "sourceFacet" => "UVA Library Digital Repository",
+        "shadowedItem" => "#{shadowed}",
         "externalRelations" => "#{external_relations}",
 #        "totalTranscriptions" => "#{total_transcription}",
         "totalTitles" => "#{total_title}",
