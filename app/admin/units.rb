@@ -162,6 +162,13 @@ ActiveAdmin.register Unit do
           row :indexing_scenario
           row :availability_policy
           row :use_right
+          row :index_destination do |unit| 
+            if unit.index_destination
+              link_to "#{unit.index_destination.nickname} (aka #{unit.index_destination.url})", admin_index_destinations_path(:q => unit.index_destination_id)
+            else
+              "localhost"
+            end
+          end
           row ("Digital Library Status") do |unit|
             case 
               when unit.include_in_dl?

@@ -36,9 +36,9 @@ class MasterFilesSweeper < ActionController::Caching::Sweeper
   # Subordinate classes will only be expired if either :unit_id, :component_id, :filename, :title, :description, :pid, :date_archived: 
   # or :date_dl_ingest are changed.  Other values should not change the show views of subordinate clases.
   def expire_associated(master_file)
-    master_file.logger.debug "MasterFilesSweeper: expire_associated will update #{master_file.class} #{master_file.id}'s expireable fields #{EXPIRABLE_FIELDS}"
-    master_file.logger.debug "MasterFilesSweeper: expire_associated will update #{master_file.class} #{master_file.id}'s associated classes #{ASSOCIATED_CLASSES}"
-    master_file.logger.debug "MasterFilesSweeper: #{master_file.class} #{master_file.id}'s changed attributes #{master_file.changed_attributes}"
+    Rails.logger.debug "MasterFilesSweeper: expire_associated will update #{master_file.class} #{master_file.id}'s expireable fields #{EXPIRABLE_FIELDS}"
+    Rails.logger.debug "MasterFilesSweeper: expire_associated will update #{master_file.class} #{master_file.id}'s associated classes #{ASSOCIATED_CLASSES}"
+    Rails.logger.debug "MasterFilesSweeper: #{master_file.class} #{master_file.id}'s changed attributes #{master_file.changed_attributes}"
     expirable = EXPIRABLE_FIELDS.any? do |key|
       master_file.changed_attributes.include?(key)
     end
@@ -46,7 +46,7 @@ class MasterFilesSweeper < ActionController::Caching::Sweeper
     if expirable
       ASSOCIATED_CLASSES.each {|ac|
         msg = ActiveSupport::JSON.encode( {:subject_class => master_file.class.name, :subject_id => master_file.id, :associated_class => "#{ac}" })
-        master_file.logger.debug "publishing to :purge_cache #{msg}"
+        Rails.logger.debug "publishing to :purge_cache #{msg}"
         publish :purge_cache, msg
       }
     end

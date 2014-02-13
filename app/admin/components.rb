@@ -72,6 +72,19 @@ ActiveAdmin.register Component do
           row :pid
           row :date_dl_ingest
           row :date_dl_update
+          row :exemplar do |component|
+            if not component.exemplar.blank?
+              component.exemplar.to_s
+              mf = MasterFile.where(:filename => component.exemplar).first
+              if mf.kind_of?(MasterFile)
+                link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} #{mf.title} #{mf.description}"
+              end
+            #link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
+              #link_to image_tag(component.exemplar.link_to_static_thumbnail, :height => 125), "#{component.exemplar.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{component.exemplar.filename} (#{component.exemplar.title} #{component.exemplar.description})"
+            else
+              nil
+            end
+          end
           row :availability_policy
           row :indexing_scenario
           row :discoverability do |component|
