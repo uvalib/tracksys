@@ -156,7 +156,13 @@ module Hydra
       return response.body
     elsif object.is_a? Component
       # Return the response from the getIndexingMetadata Fedora Disseminator
-      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?").read
+      destination = ""
+      if object.index_destination_id > 1
+        destination = object.index_destination.name
+      else
+        destination = IndexDestination.find(1).name # 'searchdev' as a default
+      end
+      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
     else
       raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
     end
