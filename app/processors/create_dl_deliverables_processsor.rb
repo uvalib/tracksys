@@ -69,17 +69,32 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
       @object.update_attributes(:md5 => source_md5)
     end
 
-    # Introduce error handling for uncompressed images that kakadu will choke on.
-    tiff = Magick::Image.read(@source).first
-    @filesize = tiff.filesize
-    unless tiff.compression.to_s == "NoCompression"
+    if @object.is_a?(Tiff) or @object.filename.match(".tif$")
+      # Introduce error handling for uncompressed images that kakadu will choke on.
+      tiff = Magick::Image.read(@source).first
+      @filesize = tiff.filesize
+      unless tiff.compression.to_s == "NoCompression"
+        tiff.compression=Magick::CompressionType.new("NoCompression", 1)
+        tiff.write(@source)
+        tiff.destroy!
+        on_success "#{@object_class.to_s} #{@object_id} is compressed.  This has been corrected automatically.  Update MD5 for #{@source} if necessary."
+      end
+      
       tiff.destroy!
-      on_error "#{@object_class.to_s} #{@object_id} is compressed.  Fix image, upload to archive and update datastreams for pid #{@pid}."
     end
-    
-    tiff.destroy!
 
-    if @source.match(/\.tiff?$/) and File.file?(@source)
+    if @object.is_a?(JpegTwoThousand) or @object.filename.match(".jp2$") 
+      # write a JPEG-2000 file to the destination directory
+      jp2k_filename = @object.pid.sub(/:/, '_') + '.jp2'
+      jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)
+      FileUtils.copy(@source, jp2k_path) 
+
+      # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
+      message = ActiveSupport::JSON.encode( { :object_class => @object_class , :object_id => @object_id,  :jp2k_path => jp2k_path, :last => @last, :source => @source } )
+      publish :ingest_jp2k, message
+      on_success "Copied JPEG-2000 image using '#{@source}' as input file for the creation of deliverable '#{jp2k_path}'"
+
+    elsif @source.match(/\.tiff?$/) and File.file?(@source)
       # Directly invoke Ruby's garbage collection to clear memory
       GC.start
 
@@ -89,10 +104,11 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
       jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)
 
       # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
+      executable = KDU_COMPRESS || %x( which kdu_compress ).strip
       if @filesize > 524000000
-        `/usr/bin/kakadu/kdu_compress -i #{@source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
+        `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
       else
-        `/usr/bin/kakadu/kdu_compress -i #{@source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+        `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
       end
         
       # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)

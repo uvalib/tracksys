@@ -69,6 +69,7 @@ class Unit
 
   def qa_filesystem_and_iview_xml
     message = ActiveSupport::JSON.encode( {:unit_id => self.id})
+    logger.tagged("MS3UF") { logger.debug "model method Unit#qa_filesystem_and_iview_xml called on #{self.id}" }
     publish :qa_filesystem_and_iview_xml, message
   end
 

@@ -47,7 +47,7 @@ class MasterFile
   end
 
   def link_to_static_thumbnail
-    thumbnail_name = self.filename.gsub(/tif/, 'jpg')
+    thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
     unit_dir = "%09d" % self.unit_id
 	begin
     # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this

@@ -20,6 +20,7 @@ module ImportIviewXml
   # * +:warnings+ (string; warning messages, only applicable in a non-batch
   #   context)
   def self.import_iview_xml(file, unit_id)
+    Rails.logger.info "ImportIvewXML: importing #{unit_id}"
     @master_file_count = 0
     @pid_count = 0
     @pids = Array.new
@@ -106,6 +107,10 @@ module ImportIviewXml
           # save MasterFile to database, raising any error that occurs
           master_file.pid = @pids.shift unless @pids.blank?
           # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
+          # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
+          if ImportIviewXml.get_transcription_text(master_file)
+            Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
+          end
           master_file.save!
           sleep 0.3
 
@@ -323,6 +328,26 @@ module ImportIviewXml
     return value
   end
   private_class_method :get_element_value
+
+  # Reads text file (if present) matching MF filename and adds it as
+  # transcription text
+  def self.get_transcription_text(master_file, dir=nil)
+    unit_dir = sprintf('%09d', master_file.unit.id)
+    dir ||= "#{IN_PROCESS_DIR}/#{unit_dir}"
+    text_file = master_file.filename.gsub(/\..*$/, '.txt')
+    text_file_fqn = "#{dir}/#{text_file}"
+    if File.exist?(text_file_fqn)
+      text = nil
+      begin
+        text = File.read(text_file_fqn)
+      rescue
+        text = "" unless text
+      end
+      master_file.transcription_text = text
+    else
+      nil
+    end
+  end
 
   #-----------------------------------------------------------------------------
   # private supporting classes

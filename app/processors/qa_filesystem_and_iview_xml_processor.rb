@@ -9,7 +9,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
   require 'nokogiri'
   
   def on_message(message)
-    logger.debug "QaFilesystemAndIviewXmlProcessor received: " + message
+    logger.tagged("MS3UF") { logger.debug "QaFilesystemAndIviewXmlProcessor received: " + message }
 
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
@@ -30,7 +30,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
 
     # Create a series of arrays to hold the files contained within the entry directory so that each type
     # of expected and unexpected files can be tested for compliance.
-    @tif_files = Array.new
+    @content_files = Array.new
     @xml_files = Array.new
     @ivc_files = Array.new
     @unknown_files = Array.new
@@ -50,21 +50,22 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
         elsif (unit_dir_content =~ /.ivc_[0-9]/)
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
-        elsif (unit_dir_content =~ /.tif$/) 
-          @tif_files.push(unit_dir_content)
+        elsif (unit_dir_content =~ /.(tif|jp2)$/) 
+          @content_files.push(unit_dir_content)
         elsif (unit_dir_content =~ /.xml$/)
           @xml_files.push(unit_dir_content)
         elsif (unit_dir_content =~ /Thumbnails/)
         elsif (unit_dir_content) =~ /.txt/
         elsif (unit_dir_content =~ /.ivc$/)
           @ivc_files.push(unit_dir_content)
-        else
+        elsif (unit_dir_content !~ /(.git$|.md5|.txt$)/) # safe to ignore (.txt files are OCR data typically)
           @unknown_files.push(unit_dir_content)
+          logger.debug "QaFilesystemAndIviewXmlProcessor pushing: " + unit_dir_content + " to @unknown_files"
         end
       end
     }
     
-    check_tif_files
+    check_content_files
     check_xml_files
     check_ivc_files
     check_thumb_dir
@@ -72,46 +73,47 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
     handle_errors
   end
   
-  def check_tif_files
+  def check_content_files
     # Checking for:
-    # 1. Existence of TIF files.
-    # 2. The number of TIF files in the directory equals the sequence number of the last file.
-    # 3. All TIF files conform to the naming convention.
+    # 1. Existence of TIF/JPEG2000 files.
+    # 2. The number of content files in the directory equals the sequence number of the last file.
+    # 3. All TIF/JPEG2000 files conform to the naming convention.
     # 4. No file is less than 1MB (1MB being a size arbitrarily determined to represent a "too small" file)
+    @minimum=2048
     
-    if @tif_files.empty?
+    if @content_files.empty?
       @error_messages.push("There are no .tif files in the directory.")
     else
       # Check that the number of .tif files in the entry directory equals the sequence number of the last file
-      @tif_files.sort!
-      @number_tif_files = @tif_files.length
-      last_tif_file = @tif_files.last
+      @content_files.sort!
+      @number_content_files = @content_files.length
+      last_content_file = @content_files.last
       
       # Pull out the sequence number through multiple regex substitutions
       unit_regex = Regexp.new(@unit_dir)
-      sequence_number = last_tif_file.sub(unit_regex, '')
-      sequence_number = sequence_number.sub(/.tif/, '')
+      sequence_number = last_content_file.sub(unit_regex, '')
+      sequence_number = sequence_number.sub(/.(tif|jp2)/, '')
       sequence_number = sequence_number.sub(/^_0*/, '')
       
-      if (sequence_number != @number_tif_files.to_s)
-        @error_messages.push("The number of tif files in directory (#{@number_tif_files}) does not equal the sequence number of the last file (#{sequence_number}).")
+      if (sequence_number != @number_content_files.to_s)
+        @error_messages.push("The number of tif/jp2 files in directory (#{@number_content_files}) does not equal the sequence number of the last file (#{sequence_number}).")
       end      
       
-      # Define regex to ensure the file ends with an _, followed by four digits followed by .tif
-      regex_tif_file = Regexp.new('_\d{4}.tif$')
+      # Define regex to ensure the file ends with an _, followed by four digits followed by .tif or .jp2
+      regex_content_file = Regexp.new('_\d{4}.(tif|jp2)$')
       
-      @tif_files.each { |tif_file|
-        # Check that the tif file begins with the unit number
-        if tif_file !~ /^#{@unit_dir}/
-          @error_messages.push("#{tif_file} does not start with the correct unit #{@unit_dir}")       
+      @content_files.each { |content_file|
+        # Check that the content file begins with the unit number
+        if content_file !~ /^#{@unit_dir}/
+          @error_messages.push("#{content_file} does not start with the correct unit #{@unit_dir}")       
         end
-        # Check the fila part of the tif file
-        if regex_tif_file.match(tif_file).nil?
-          @error_messages.push("#{tif_file} has an incorrectly formatted sequence number or extension.")
+        # Check the fila part of the tif/jp2 file
+        if regex_content_file.match(content_file).nil?
+          @error_messages.push("#{content_file} has an incorrectly formatted sequence number or extension.")
         end       
-        # Check that the tif file is greater than 1MB.
-        if File.size(File.join(IN_PROCESS_DIR, @unit_dir, tif_file)) < 1048576
-          @error_messages.push("#{tif_file} is less than 1MB large and is very likely an incorrect file.")
+        # Check that the content file is greater than 1MB.
+        if File.size(File.join(IN_PROCESS_DIR, @unit_dir, content_file)) < @minimum
+          @error_messages.push("#{content_file} is less than #{@minimum} bytes large and is very likely an incorrect file.")
         end
       }
     end    
@@ -145,6 +147,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
 
       # Read the XML file for processing
       doc = Nokogiri.XML(File.new(File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)))
+      logger.debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
 
       # Check XML for expected elements
       root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
@@ -157,8 +160,8 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
     
       # Make sure the number of <MediaItem> elements are equal to the number of TIF files on the filesystem
       mediaitem_count = root.xpath('MediaItemList/MediaItem').length
-      if mediaitem_count != @number_tif_files
-        @error_messages.push("The number of <MediaItem> elements (#{mediaitem_count.to_i}) in the XML file is not equal to the number of TIF files on the filesystem (#{@number_tif_files}).")
+      if mediaitem_count != @number_content_files
+        @error_messages.push("The number of <MediaItem> elements (#{mediaitem_count.to_i}) in the XML file is not equal to the number of TIF files on the filesystem (#{@number_content_files}).")
       end
       
       # Use Nokogiri to check XML entries at the <MediaItem> level
@@ -168,10 +171,11 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
         colorprofile = mediaitem.xpath('MediaProperties/ColorProfile').text
         headline = mediaitem.xpath('AnnotationFields/Headline').text
 
-        filename_regexp = Regexp.new('^' + "#{@unit_dir}" + '_\d{4}.tif$')
+        filename_regexp = Regexp.new('^' + "#{@unit_dir}" + '_\d{4}.(tif|jp2)$')
    
         if not filename_regexp.match(filename)
-          @error_messages.push("The <Filename> of <MediaItem> #{filename} does not pass regular expression test.")
+          @error_messages.push("REGEXP: The <Filename> of <MediaItem> #{filename} does not pass regular expression test.")
+          logger.debug "QaFilesystemAndIviewXmlProcessor RexExp was #{filename_regexp} and returned #{filename_regexp.match(filename)}"
         end
 
         if filesize == 0 or filesize.length == 0
@@ -180,12 +184,15 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
 
         # As of 3/2010, only two color profiles are used in production: Adobe RGB (1998) and cruse-lr-picto
         # 9/2010: In deference to the redelivery of RMDS material scanned under different procedures, Dot Gain 20% is now a legitimate color profile
+        # 1/2014: Google Books tif/jp2 do not come with color profiles: grabbing ColorSpace a la Multispectral images
         if colorprofile != "Adobe RGB (1998)" and colorprofile != "cruse-lr-picto" and colorprofile != "Dot Gain 20%"
-          # hack to compensate for Multispecral Scanner's lack of colorprofile datat
-          if mediaitem.xpath('MediaProperties/ColorSpace').text =~ /RGB/
+          # hack to compensate for Multispectral Scanner's lack of colorprofile data
+          logger.debug "colorprofile is #{colorprofile}; colorspace is #{mediaitem.xpath('MediaProperties/ColorSpace').text}"
+          logger.debug mediaitem.xpath('MediaProperties/ColorSpace').to_s
+          if mediaitem.xpath('MediaProperties/ColorSpace').text.match(/(RGB|GREY|GRAY|BW)/)
             colorprofile = mediaitem.xpath('MediaProperties/ColorSpace').text.strip
           else
-            @error_messages.push("The <ColorProfile> of <MediaItem> #{filename} is: #{colorprofile}.  This is not one of two accepted values: AdobeRGB (1998), Dot Gain 20% or cruse-lr-picto.")
+            @error_messages.push("194: The <ColorProfile> of <MediaItem> #{filename} is: #{colorprofile}.  This is not one of three accepted values: AdobeRGB (1998), Dot Gain 20% or cruse-lr-picto.")
           end
         end
 
@@ -271,6 +278,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
   
   def check_unknown_files
     if not @unknown_files.empty?
+      logger.debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
       @unknown_files.each { |unknown_file| 
         if (unknown_file =~ /.TIF/ )
           @error_messages.push("#{unknown_file} ends in .TIF.")
