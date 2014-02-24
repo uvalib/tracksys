@@ -57,6 +57,9 @@ XTF_DELIVERY_DIR = "/xtf_delivery/text"
 # Will have to change this one when I figure out where to put the jp2k images
 BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverables" 
 
+# Kakadu JPEG2000 executable
+KDU_COMPRESS="/usr/bin/kakadu/kdu_compress"
+
 # VIRGO (Blacklight) URL for catalog linking in UI
 VIRGO_URL = "http://search.lib.virginia.edu/catalog"
 
