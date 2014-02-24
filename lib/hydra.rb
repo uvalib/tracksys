@@ -83,6 +83,13 @@ module Hydra
         availability_policy_pid = object.availability_policy.pid
       end
 
+      shadowed = nil
+      if ! object.discoverability
+        shadowed = "HIDDEN"
+      else
+        shadowed = "VISIBLE"
+      end
+
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
@@ -95,6 +102,7 @@ module Hydra
         "dateReceived" => "#{object.date_dl_ingest.strftime('%Y%m%d%H')}",
         "contentModel" => "digital_book",
         "sourceFacet" => "UVA Library Digital Repository",
+        "shadowedItem" => "#{shadowed}",
         "externalRelations" => "#{external_relations}",
 #        "totalTranscriptions" => "#{total_transcription}",
         "totalTitles" => "#{total_title}",
@@ -148,7 +156,13 @@ module Hydra
       return response.body
     elsif object.is_a? Component
       # Return the response from the getIndexingMetadata Fedora Disseminator
-      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?").read
+      destination = ""
+      if object.index_destination_id > 1
+        destination = object.index_destination.name
+      else
+        destination = IndexDestination.find(1).name # 'searchdev' as a default
+      end
+      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
     else
       raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
     end
@@ -851,7 +865,7 @@ module Hydra
       # date_completed value.
       date_completed = nil
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         if not unit.date_archived.blank?
           if date_completed.blank?
             date_completed = unit.date_archived
@@ -883,7 +897,7 @@ module Hydra
       # unit_extent_actual value; last resort is unit_extent_estimated value.
       c = 0
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         if unit.master_files.size > 0
           c += unit.master_files.size
         elsif unit.unit_extent_actual.to_i > 0
@@ -904,7 +918,7 @@ module Hydra
       # build hash of mime types 
       mime_types = Hash.new
       bibl.units.each do |unit|
-        next unless UnitsFilter.process_unit?(unit, units_filter)
+        next if units_filter.is_a? Array and ! units_filter.include? unit
         unit.master_files.each do |master_file|
           mime_types[master_file.mime_type] = nil
         end

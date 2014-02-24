@@ -148,5 +148,15 @@ class Component
     return self.date_dl_ingest?
   end
 
+  # temporary method: use until db migration adds relationship
+  def index_destination
+    identifier = self.index_destination_id
+    if identifier
+      return IndexDestination.find(identifier)
+    else
+      return nil
+    end
+  end
+
   alias :parent_component :parent
 end

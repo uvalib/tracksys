@@ -15,7 +15,9 @@ class BlankValueObserver < ActiveRecord::Observer
   	atts.keep_if {|key, value| value == ""}
     atts.keep_if {|key, value| key !~ /id/}
   	atts.each {|key, value| atts[key] = nil}
-    record.logger.debug "BlankValueObserver: before_save will update #{record.class} #{record.id}'s attributes #{atts.inspect}"
+    if record.logger
+      record.logger.debug "BlankValueObserver: before_save will update #{record.class} #{record.id}'s attributes #{atts.inspect}"
+    end
   	record.update_attributes(atts) if not atts.empty?
   end
 end
