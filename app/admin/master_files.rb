@@ -208,6 +208,7 @@ ActiveAdmin.register MasterFile do
 
     f.inputs "Related Information", :class => 'panel three-column' do
       f.input :unit_id, :as => :number
+      f.input :component_id, :as => :number
     end
 
     f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
