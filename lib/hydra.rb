@@ -336,6 +336,7 @@ module Hydra
             xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
         else
             parent_pid = object.unit.bibl.pid
+            xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
             xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
           end
         elsif object.is_a? Bibl
