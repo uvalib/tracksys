@@ -129,20 +129,33 @@ module Hydra
       end
       if object.availability_policy_id == 1
         availability_policy_pid = false
-      else
+      elsif object.availability_policy
         availability_policy_pid = object.availability_policy.pid
+      else
+        availability_policy_pid = false
       end
+
+      indexing_scenario_url = IndexingScenario.first.complete_url # default 
+      if object.indexing_scenario
+        indexing_scenario_url = object.indexing_scenario.complete_url
+      end
+
+      date_received = Time.now.strftime('%Y%m%d%H')
+      if object.date_dl_ingest
+        date_received = object.date_dl_ingest.strftime('%Y%m%d%H')
+      end
+
 
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
-        "style" => "#{object.indexing_scenario.complete_url}",
+        "style" => "#{indexing_scenario_url}",
         "repository" => "#{FEDORA_PROXY_URL}",
         "destination" => "#{index_destination}",
         "pid" => "#{object.pid}",
         "analogSolrRecord" => "#{analog_solr_record}",
         "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
-        "dateReceived" => "#{object.date_dl_ingest.strftime('%Y%m%d%H')}",
+        "dateReceived" => "#{date_received}",
         "contentModel" => "jp2k",
         "sourceFacet" => "UVA Library Digital Repository",
         "externalRelations" => "#{external_relations}",
