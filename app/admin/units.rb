@@ -44,6 +44,20 @@ ActiveAdmin.register Unit do
     redirect_to :back
   end
 
+  batch_action :include_in_dl_units do |selection|
+    Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, true) }
+    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, false) }
+    flash[:notice] = "Units #{selection.join(", ")} have been marked for inclusion in the Digital Library."
+    redirect_to :back
+  end
+
+  batch_action :exclude_from_dl_units do |selection|
+    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, true) }
+    Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, false) }
+    flash[:notice] = "Units #{selection.join(", ")} have been marked for exclusion from the Digital Library."
+    redirect_to :back
+  end
+
   batch_action :print_routing_slips do |selection|
 
   end
