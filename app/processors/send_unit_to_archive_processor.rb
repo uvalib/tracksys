@@ -128,17 +128,26 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
         on_success "The directory #{@unit_dir} has been successfully uploaded to Stornext."
       end
 
+      # Try to log where this unit is archived
+      archival_location="StorNext"
+      unit = Unit.find(@unit_id)
+      if unit && unit.archive
+        if unit.archive.respond_to?(:name)
+          archival_location=unit.archive.name
+        end
+      end
+
       # If the unit is managed by TrackSys, more data must be updated.  Otherwise, nothing more can be done.
       if @source_dir != "#{IN_PROCESS_DIR}" and @internal_dir == 'yes'
         # Send message to update the 'archive' field in the Unit table.
-        on_success "The directory #{@unit_dir} has been uploaded to StorNext and may be deleted."
+        on_success "The directory #{@unit_dir} has been uploaded to #{archival_location} and may be deleted."
         message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source_dir => @source_dir})
         publish :update_unit_archive_id, message
       elsif @internal_dir == 'no'
         # If @internal_dir is 'no', no more information can be added to the tracking system and the item is ready for deletion.
         message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source_dir => @source_dir, :unit_dir => @unit_dir})
         publish :move_completed_directory_to_delete_directory, message
-        on_success "The directory #{@unit_dir} has been uploaded to StorNext and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
+        on_success "The directory #{@unit_dir} has been uploaded to #{archival_location} and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
       else
       end
     else
