@@ -155,4 +155,12 @@ module Pidable
     # flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
     # redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
   end
+
+  def fedora_url
+    return "#{FEDORA_REST_URL}/objects/#{self.pid}"
+  end
+
+  def solr_url(url=SOLR_URL)
+    return "#{url}/select?q=id:\"#{self.pid}\""
+  end
 end
