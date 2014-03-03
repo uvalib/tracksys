@@ -99,7 +99,7 @@ class CreateNewFedoraObjectsProcessor < ApplicationProcessor
         publish :ingest_tech_metadata, default_message
 
         # Only MasterFiles with transcritpion need have 
-        if not @object.transcription_text.blank?
+        if not @object.transcription_text
           publish :ingest_transcription, default_message
         end
       end
