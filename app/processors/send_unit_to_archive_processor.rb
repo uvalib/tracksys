@@ -121,13 +121,6 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
     end
 
     if @errors.eql?(0)
-      # If message originated from the finalization automation workflow, send a message to continue the unit (which has no deliverables) on the automated workflow.
-      if @source_dir == "#{IN_PROCESS_DIR}"
-        message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source_dir => @source_dir})
-        publish :update_unit_archive_id, message
-        on_success "The directory #{@unit_dir} has been successfully uploaded to Stornext."
-      end
-
       # Try to log where this unit is archived
       archival_location="StorNext"
       unit = Unit.find(@unit_id)
@@ -135,6 +128,13 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
         if unit.archive.respond_to?(:name)
           archival_location=unit.archive.name
         end
+      end
+
+      # If message originated from the finalization automation workflow, send a message to continue the unit (which has no deliverables) on the automated workflow.
+      if @source_dir == "#{IN_PROCESS_DIR}"
+        message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :source_dir => @source_dir})
+        publish :update_unit_archive_id, message
+        on_success "The directory #{@unit_dir} has been successfully uploaded to #{archival_location}."
       end
 
       # If the unit is managed by TrackSys, more data must be updated.  Otherwise, nothing more can be done.
