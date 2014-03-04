@@ -73,6 +73,6 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
       # Empty instance_variable so it does not accidentally carry forward to next automation_message
       instance_variable_set("@#{thing.class.to_s.underscore}_id", nil)
     }
-    on_success "All ingestable objects related to Unit #{@unit_id} are queued for ingestion."
+    on_success "All ingestable objects related to Unit #{@messagable_id} are queued for ingestion."
   end
 end
