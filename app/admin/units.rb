@@ -314,6 +314,13 @@ ActiveAdmin.register Unit do
         link_to "#{unit.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => unit.id, :messagable_type_eq => "Unit" })
       end
       row :agency
+      row "Legacy Identifiers" do |unit|
+       	unit.legacy_identifiers.each {|li|
+          div do
+            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+          end
+        } unless unit.legacy_identifiers.empty?
+      end
       row :archive
     end
   end
