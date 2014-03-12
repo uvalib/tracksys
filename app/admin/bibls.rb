@@ -18,6 +18,7 @@ ActiveAdmin.register Bibl do
   filter :pid
   filter :dpla, :as => :select
   filter :location
+  filter :index_destination, :as => :select
   filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES, :input_html => {:class => 'chzn-select'}
   filter :availability_policy, :input_html => {:class => 'chzn-select'}
@@ -171,7 +172,7 @@ ActiveAdmin.register Bibl do
             if bibl.index_destination
               link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
             else
-              "localhost"
+              nil
             end
           end
           row :use_right
