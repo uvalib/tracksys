@@ -49,6 +49,14 @@ module ImportIviewXml
     if root.xpath('MediaItemList').empty?
       raise ImportError, "File does not contain an iView XML document: <MediaItemList> element was not found"
     end
+    # Extra check for SetList (used to link MasterFiles to Component hierarchy)
+    if unit.bibl && unit.bibl.is_manuscript?
+      if root.xpath('//SetList').empty?
+        raise ImportError, "IView Catalog has no SetList, but Unit #{unit_id} has Bibl flagged as Manuscript Item"
+      elsif root.xpath('//MediaItem//UniqueID').count != root.xpath('//SetList//UniqueID').count
+        raise ImportError, "IView Catalog has unequal number of UniqueID's in MediaItem and SetList nodes."
+      end
+    end
     
     # Read XML to determine number of PIDs needed for this import
     # This is done in advance to alleviate the number of calls made
