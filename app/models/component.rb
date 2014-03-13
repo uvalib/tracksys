@@ -158,5 +158,26 @@ class Component
     end
   end
 
+  # hashes for serializing hierarchies
+  # TO DO: order by followed_by_id
+  def master_files_pids
+    self.master_files.map(&:pid)
+  end
+  # builds a hash for JSON publication
+  # values can be either arrays of MasterFiles
+  # or a hash of child components
+  def descendants_hash
+    hash = {};  values = []
+    if self.children != []
+      self.children.each do |child|
+        values << child.descendants_hash
+      end
+    elsif self.master_files.count > 0
+      values << self.master_files_pids
+    end
+    hash[self.pid] = values
+    hash
+  end
+
   alias :parent_component :parent
 end

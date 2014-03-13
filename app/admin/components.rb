@@ -300,6 +300,12 @@ ActiveAdmin.register Component do
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
+
+  member_action :tree, :method => :get do
+    respond_to do |format|
+      format.json { render :formats => [:json], :partial => "tree", root: false, object: Component.find(params[:id]) }
+    end
+  end
   
   controller do
     # Only cache the index view if it is the base index_url (i.e. /components) and is devoid of either params[:page] or params[:q].  
