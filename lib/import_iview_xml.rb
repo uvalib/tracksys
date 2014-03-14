@@ -54,7 +54,7 @@ module ImportIviewXml
       if root.xpath('//SetList').empty?
         raise ImportError, "IView Catalog has no SetList, but Unit #{unit_id} has Bibl flagged as Manuscript Item"
       elsif root.xpath('//MediaItem//UniqueID').count != root.xpath('//SetList//UniqueID').count
-        raise ImportError, "IView Catalog has unequal number of UniqueID's in MediaItem and SetList nodes."
+        raise ImportError, "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes."
       end
     end
     
