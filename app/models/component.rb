@@ -159,9 +159,14 @@ class Component
   end
 
   # hashes for serializing hierarchies
-  # TO DO: order by followed_by_id
+  # TO DO: improve sorting; The assumption here
+  # is that the ordering in iView Catalog, reflected
+  # here in filename numbers, will produce a good sort.
+  # If for any reason MFs do not have page order reflected
+  # in filenames, a :followed_by_id will need to be
+  # added to this model.  See Component class for e.g. 
   def master_files_pids
-    self.master_files.map(&:pid)
+    self.master_files.sort_by {|mf| mf.filename}.map(&:pid)
   end
   # builds a hash for JSON publication
   # values can be either arrays of MasterFiles
