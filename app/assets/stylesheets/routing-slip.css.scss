@@ -16,6 +16,7 @@ border-image: url(bg_body.png) $border-width fill repeat;
 
 .row { float: left; margin: 5px 0; width: 100%; }
 .red { color: #C00; }
+.underline { text-decoration: underline; }
 
 .w10 { width: 10%; }
 .w15 { width: 15%; }
@@ -24,7 +25,9 @@ border-image: url(bg_body.png) $border-width fill repeat;
 .w30 { width: 30%; }
 .w35 { width: 35%; }
 .w40 { width: 40%; }
+.w45 { width: 45%; }
 .w50 { width: 50%; }
+.w55 { width: 55%; }
 .w60 { width: 60%; }
 .w70 { width: 70%; }
 .w80 { width: 80%; }

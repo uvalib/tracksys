@@ -1,27 +1,40 @@
+<%
+# Determine the sequence of this unit among all units for this order.
+# For example, if there are 5 units for this order, when units are sorted by
+# unit id, is this the first of 5, second of five, etc.?
+units_sorted = @order.units.sort_by {|unit| unit.id}
+  c = 0
+  units_sorted.each do |unit|
+    c += 1
+    if unit.id == @unit.id
+    break
+  end
+end
+%>
 <div id="container">
     <div class="row" id="header">
         <div class="item w100">Digitization Services Routing Slip</div>
     </div>
     <div class="row border_pretty" id="top">
-        <div class="item w35">Order Number: 6789</div>
-        <div class="item w30 red">Unit Number: 12345</div>
-        <div class="item w35">__#1_ of _2__ Units</div>
+        <div class="item w35">Order Number: <%= @order.id %></div>
+        <div class="item w40 red">Unit Number: <%= @unit.id %></div>
+        <div class="item w25 underline"><span># <%= c %> of <%= @order.units.length %> units</span></div>
     </div>
     <div class="row">
         <div class="item w50">Condition of Item: Good / Bad</div>
-        <div class="item w50 red">Call Number: MSS 1378</div>
+        <div class="item w50 red">Call Number: <%= if @bibl then empty2nbsp(@bibl.call_number) else empty2nbsp('') end %></div>
     </div>
     <div class="row">
-        <div class="item w50">Condition Notes: __________________ </div>
-        <div class="item w50">ViU Number:</div>
+        <div class="item w50">Condition Notes: ___________________</div>
+        <div class="item w50">ViU Number:_________________________</div>
     </div>
     <div class="row">
-        <div class="item w50">________________________</div>
-        <div class="item w50">Location: STACKS</div>
+        <div class="item w50">_________________________________</div>
+        <div class="item w50">Location: <%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
     </div>
     <div class="row">
-        <div class="item w50">________________________</div>
-        <div class="item w50">Title: The Carys of Virginia</div>
+        <div class="item w50">_________________________________</div>
+        <div class="item w50 underline">Title: <%= if @bibl then empty2nbsp(truncate(@bibl.title, :length => 100)) else empty2nbsp('') end %></div>
     </div>
     <div class="row">
         <div class="item w50">Camera/Lens: ______________________</div>
@@ -32,50 +45,66 @@
         <div class="item w50">Files from previous unit?: _________</div>
     </div>
     <div class="row heading border_pretty">
-        <div class="item w50">Order Information</div>
-        <div class="item w50">Deliverables</div>
+        <div class="item w55">Order Information</div>
+        <div class="item w45">Deliverables</div>
+    </div>
+    <%
+      if @customer.academic_status
+        customer_status = @customer.academic_status.name
+      else
+        customer_status = "Fac Staff / Student / Other"
+      end
+    %>
+    <div class="row">
+        <div class="item w55">Customer Name: <%= empty2nbsp(@customer.full_name) %></div>
+        <div class="item w45">Intended Use: <%= empty2nbsp(@unit.intended_use.description) %></div>
     </div>
     <div class="row">
-        <div class="item w50">Customer Name: ____________________</div>
-        <div class="item w50">Intended User: ___Personal Research____</div>
+        <div class="item w55 red underline">Due Date: <%= empty2nbsp( format_date(@order.date_due) ) %></div>
+        <div class="item w45">Resolution: <%= empty2nbsp(@unit.intended_use_deliverable_resolution) %></div>
     </div>
     <div class="row">
-        <div class="item w50 red">Due Date: __02/14/2014______________</div>
-        <div class="item w50">Resolution: 300______________________</div>
+        <div class="item w55">Project Name: <%= empty2nbsp(@order.order_title) %></div>
+				<div class="item w45">Format: <%= empty2nbsp(@unit.intended_use.deliverable_format) %></div>
     </div>
     <div class="row">
-        <div class="item w50">Project Name: ______________________</div>
-        <div class="item w50">Format: _________jpeg_______________</div>
-    </div>
-    <div class="row">
-        <div class="item w50">Customer Status: _Undergraduate Student</div>
-        <div class="item w50"></div>
+        <div class="item w55">Customer Status: <%= customer_status %></div>
+        <div class="item w45"></div>
     </div>
     <div class="row heading border_pretty">
         <div class="item w90">Unit Information</div>
     </div>
+    <%
+      if @unit.special_instructions.nil?
+        special_instructions = ''
+      else
+        special_instructions = raw(@unit.special_instructions.gsub(/\n/, '<br />'))
+      end
+    %>
     <div class="row">
-        <div class="item w50 red">Unit Special Instructions / Pages to be scanned:</div>
+        <div class="item w80 red">Unit Special Instructions / Pages to be scanned:</div>
     </div>
     <div class="row">
-        <div class="item w50 red">Pages to Digitize: This is an unpublished manuscript - I would like all pages scanned. <br/>
-Call Number: MSS 1378<br/> 
-Title: The Carys of Virginia <br/>
-Author: Jane Blair Cary Smith <br/>
-Year: NA <br/>
-Location: Special Collections </div>
+        <div class="item w80 red"><%= special_instructions %></div>
     </div>
     <div class="row">
+    <%
+      if @unit.order.special_instructions.nil?
+        order_special_instructions = ''
+      else
+        order_special_instructions = raw(@unit.order.special_instructions.gsub(/\n/, '<br />'))
+      end
+    %>
         <div class="item w90 red">Order Special Instructions / Pages to be scanned:</div>
     </div>
     <div class="row">
-        <div class="item w90 red">I will have to transcribe the entire document, so an early delivery will be greatly appreciated.</div>
+        <div class="item w90 red"><%= order_special_instructions%></div>
     </div>
     <div class="row heading border_pretty">
         <div class="item w90">Production Workflow</div>
     </div>
     <div class="row">
-        <div class="item w50">Materials Ready: __01/21/2014_______</div>
+        <div class="item w50 underline">Materials Ready: <%= empty2nbsp(format_date(@unit.date_materials_received)) %></div>
     </div>
     <div class="row">
         <div class="item w50">1. In process scanning: ____________</div>
