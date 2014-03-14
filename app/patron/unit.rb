@@ -268,7 +268,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
     @bibl = @unit.bibl
     @order = @unit.order
     @customer = @order.customer
-    render :layout => 'printable'
+    render :layout => 'routing_slip'
   end
 
   member_action :change_status
