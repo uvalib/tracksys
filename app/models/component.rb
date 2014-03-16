@@ -184,5 +184,10 @@ class Component
     hash
   end
 
+  # utility for export iView Catalog
+  def iview_data_str
+    "level=#{format_component_strings(self.level)} ~ pid=#{self.pid} ~ date=#{format_component_strings(self.date)} ~ desc=#{format_component_strings(self.iview_description)}"
+  end
+
   alias :parent_component :parent
 end
