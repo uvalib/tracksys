@@ -42,22 +42,11 @@ module ImportIviewXml
     # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
     root = doc.root  
 
-    # Check XML for expected elements
-    unless root.name == 'CatalogType'
-      raise ImportError, "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
-    end
-    if root.xpath('MediaItemList').empty?
-      raise ImportError, "File does not contain an iView XML document: <MediaItemList> element was not found"
-    end
-    # Extra check for SetList (used to link MasterFiles to Component hierarchy)
-    if unit.bibl && unit.bibl.is_manuscript?
-      if root.xpath('//SetList').empty?
-        raise ImportError, "IView Catalog has no SetList, but Unit #{unit_id} has Bibl flagged as Manuscript Item"
-      elsif root.xpath('//MediaItem//UniqueID').count != root.xpath('//SetList//UniqueID').count
-        raise ImportError, "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes."
-      end
-    end
-    
+    error_list = qa_iview_xml(doc, unit)
+    if error_list != [] && error_list != nil
+      raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
+    end    
+
     # Read XML to determine number of PIDs needed for this import
     # This is done in advance to alleviate the number of calls made
     # to the API for Fedora.
@@ -353,6 +342,64 @@ module ImportIviewXml
       end
       master_file.transcription_text = text
     else
+      nil
+    end
+  end
+
+  # Reads iView XML file and raises errors if various criteria are not met
+  # returns nil on successful QA of Nokogiri::XML object, returns array
+  # of error strings otherwise
+public
+  def self.qa_iview_xml(xml, unit=nil)
+    errors=[]
+    unless xml.kind_of? Nokogiri::XML::Document
+      errors << "#{__method__} did not receive Nokogiri::XML::Document as argument." 
+    end
+    if xml.namespaces
+      xml.remove_namespaces!
+    end
+
+    # main sanity checks
+    
+    # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
+    root = xml.root  
+
+    # Check XML for expected elements
+    unless root.name == 'CatalogType'
+      errors << "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
+    end
+    if root.xpath('MediaItemList').empty?
+      errors << "File does not contain an iView XML document: <MediaItemList> element was not found"
+    end
+    # Extra checks for SetList (used to link MasterFiles to Component hierarchy)
+    if unit.bibl && unit.bibl.is_manuscript?
+      media_item_list=root.xpath('//MediaItemList//UniqueID').map(&:content)
+      set_list=root.xpath('//SetList//UniqueID').map(&:content)
+      if root.xpath('//SetList').empty?
+        errors << "iView Catalog #{unit.id} has no SetList, but Unit #{unit.id} has Bibl flagged as Manuscript Item"
+      elsif media_item_list != set_list # count might be OK, but identifiers must be all accounted for 
+        if media_item_list != ( media_item_list|set_list ) # media_item_list is missing a UniqueID
+          errors << "iView Catalog #{unit.id} has IDs appearing in Sets which are not declared as Assets"
+        elsif set_list != ( media_item_list|set_list ) # set_list is missing a UniqueID
+          errors << "iView Catalog #{unit.id} has IDs declared as Assets but not appearing in Sets"
+        else
+          errors << "All I know is media_item_list != set_list: got media_item_list:#{media_item_list.inspect} != set_list:#{set_list.inspect}"
+        end
+      elsif root.xpath('//MediaItem//UniqueID').count != root.xpath('//SetList//UniqueID').count
+        report = []
+        if media_item_list > set_list
+          report = media_item_list - set_list
+        else
+          report = set_list - media_item_list 
+        end
+        errors << "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes.  Missing IDs: #{report}"
+      end
+    end
+
+    # report and return
+    if errors != []
+      errors
+    else #passed QA
       nil
     end
   end

@@ -151,12 +151,11 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
 
       # Check XML for expected elements
       root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
-      unless root.name == 'CatalogType'
-        raise ImportError, "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
-      end
-      if root.xpath('MediaItemList').empty?
-        raise ImportError, "File does not contain an iView XML document: <MediaItemList> element was not found"
-      end
+      unit = Unit.find @unit_id
+      error_list = ImportIviewXml.qa_iview_xml(doc, unit)
+      if error_list != []
+        ( @error_messages << error_list ).flatten!
+      end    
     
       # Make sure the number of <MediaItem> elements are equal to the number of TIF files on the filesystem
       mediaitem_count = root.xpath('MediaItemList/MediaItem').length
@@ -301,6 +300,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
     #-------------------------
     # Error Message Handling
     #-------------------------
+    @error_messages.compact!
     if @error_messages.empty?
       path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
       message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :path => path })
@@ -308,9 +308,10 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
       on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
     else
       @error_messages.each {|message|
+        logger.debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
         on_failure message
         if message == @error_messages.last
-          on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor"
+          on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
         end
       }
     end
