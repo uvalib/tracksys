@@ -129,12 +129,13 @@ ActiveAdmin.register Component do
     
     div :class => "columns-none" do
       if ! component.children.empty?
-        panel "Child Component Information", :toggle => 'hide' do
-          table_for component.children.select(:id).select(:date).select(:title).select(:content_desc).select(:ancestry) do
+        panel "Child Component Information", :toggle => 'show' do
+          table_for component.children.select(:id).select(:date).select(:title).select(:content_desc).select(:ancestry).select(:seq_number).order(:seq_number) do
+            column "#", :seq_number
             column :id
             column :date
             column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
-            column :content_desc do |child| link_to "#{child.content_desc}", admin_component_path(child.id) end
+            column :content_desc do |child| link_to "#{child.content_desc.truncate(255)}", admin_component_path(child.id) end
             column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
           end
         end
