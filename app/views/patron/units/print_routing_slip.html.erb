@@ -55,9 +55,20 @@ end
         customer_status = "Fac Staff / Student / Other"
       end
     %>
+    <%
+    # these nil guards are for older units that lack some data 
+    description = nil
+    if @unit.intended_use.respond_to?(:description)
+      description = @unit.intended_use.description
+    end
+    deliverable_format = nil
+    if @unit.intended_use.respond_to?(:deliverable_format)
+      deliverable_format = @unit.intended_use.deliverable_format
+    end
+    %>
     <div class="row">
         <div class="item w55">Customer Name: <%= empty2nbsp(@customer.full_name) %></div>
-        <div class="item w45">Intended Use: <%= empty2nbsp(@unit.intended_use.description) %></div>
+        <div class="item w45">Intended Use: <%= empty2nbsp(description) %></div>
     </div>
     <div class="row">
         <div class="item w55 red underline">Due Date: <%= empty2nbsp( format_date(@order.date_due) ) %></div>
@@ -65,7 +76,7 @@ end
     </div>
     <div class="row">
         <div class="item w55">Project Name: <%= empty2nbsp(@order.order_title) %></div>
-				<div class="item w45">Format: <%= empty2nbsp(@unit.intended_use.deliverable_format) %></div>
+				<div class="item w45">Format: <%= empty2nbsp(deliverable_format) %></div>
     </div>
     <div class="row">
         <div class="item w55">Customer Status: <%= customer_status %></div>
@@ -131,6 +142,6 @@ end
         <div class="item w50">12. Delivered/Archived _____________</div>
     </div>
     <div class="row" id="footer">
-        <div class="item w90">Generated on 14 Mar 2014 by ms3uf.</div>
+        <div class="item w90">Generated on <%= Time.now.strftime("%d %h %Y") %> by ms3uf.</div>
     </div>
 </div>
