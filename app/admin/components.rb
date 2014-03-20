@@ -135,7 +135,13 @@ ActiveAdmin.register Component do
             column :id
             column :date
             column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
-            column :content_desc do |child| link_to "#{child.content_desc.truncate(255)}", admin_component_path(child.id) end
+            column :content_desc do |child| 
+              if not child.content_desc.nil?
+                link_to "#{child.content_desc.truncate(255)}", admin_component_path(child.id)
+              else
+                nil
+              end
+            end
             column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
           end
         end
