@@ -16,9 +16,9 @@ end
         <div class="item w100">Digitization Services Routing Slip</div>
     </div>
     <div class="row border_pretty" id="top">
-        <div class="item w35">Order Number: <%= @order.id %></div>
-        <div class="item w40 red">Unit Number: <%= @unit.id %></div>
-        <div class="item w25 underline"><span># <%= c %> of <%= @order.units.length %> units</span></div>
+        <div class="item w35">Order #<%= @order.id %></div>
+        <div class="item w35 red" style="padding-left: 1em;">Unit #<%= @unit.id %></div>
+        <div class="item w30 underline"><span># <%= c %> of <%= @order.units.length %> units</span></div>
     </div>
     <div class="row">
         <div class="item w50">Condition of Item: Good / Bad</div>
@@ -26,11 +26,11 @@ end
     </div>
     <div class="row">
         <div class="item w50">Condition Notes: ___________________</div>
-        <div class="item w50">ViU Number:_________________________</div>
+        <div class="item w50 section-underline">ViU Number:</div>
     </div>
     <div class="row">
         <div class="item w50">_________________________________</div>
-        <div class="item w50">Location: <%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
+        <div class="item w50 section-underline">Location: <%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
     </div>
     <div class="row">
         <div class="item w50">_________________________________</div>
@@ -43,10 +43,6 @@ end
     <div class="row">
         <div class="item w50">Resolution: ________________________</div>
         <div class="item w50">Files from previous unit?: _________</div>
-    </div>
-    <div class="row heading border_pretty">
-        <div class="item w55">Order Information</div>
-        <div class="item w45">Deliverables</div>
     </div>
     <%
       if @customer.academic_status
@@ -66,21 +62,28 @@ end
       deliverable_format = @unit.intended_use.deliverable_format
     end
     %>
+    <div class="row heading border_pretty">
+        <div class="item w55">Order Information</div>
+        <div class="item w45">Deliverables</div>
+    </div>
     <div class="row">
-        <div class="item w55">Customer Name: <%= empty2nbsp(@customer.full_name) %></div>
-        <div class="item w45">Intended Use: <%= empty2nbsp(description) %></div>
+        <div class="item w50 section-underline">Customer Name: <%= empty2nbsp(@customer.full_name) %></div>
+        <div class="item w05"><%= empty2nbsp(nil) %></div>
+        <div class="item w45 section-underline">Intended Use: <%= empty2nbsp(description) %></div>
     </div>
     <div class="row">
         <div class="item w55 red underline">Due Date: <%= empty2nbsp( format_date(@order.date_due) ) %></div>
-        <div class="item w45">Resolution: <%= empty2nbsp(@unit.intended_use_deliverable_resolution) %></div>
+        <div class="item w45 section-underline">Resolution: <%= empty2nbsp(@unit.intended_use_deliverable_resolution) %></div>
     </div>
     <div class="row">
-        <div class="item w55">Project Name: <%= empty2nbsp(@order.order_title) %></div>
-				<div class="item w45">Format: <%= empty2nbsp(deliverable_format) %></div>
+        <div class="item w50 section-underline">Project Name: <%= empty2nbsp(@order.order_title) %></div>
+        <div class="item w05"><%= empty2nbsp(nil) %></div>
+				<div class="item w45 section-underline">Format: <%= empty2nbsp(deliverable_format) %></div>
     </div>
     <div class="row">
-        <div class="item w55">Customer Status: <%= customer_status %></div>
-        <div class="item w45"></div>
+        <div class="item w55 section-underline">Customer Status: <%= customer_status %></div>
+        <div class="item w10"></div>
+        <div class="item w35"></div>
     </div>
     <div class="row heading border_pretty">
         <div class="item w90">Unit Information</div>
@@ -115,31 +118,27 @@ end
         <div class="item w90">Production Workflow</div>
     </div>
     <div class="row">
-        <div class="item w50 underline">Materials Ready: <%= empty2nbsp(format_date(@unit.date_materials_received)) %></div>
+        <div class="item w50 section-underline">Materials Ready: <%= empty2nbsp(format_date(@unit.date_materials_received)) %></div>
     </div>
     <div class="row">
-        <div class="item w50">1. In process scanning: ____________</div>
-        <div class="item w50">7. Rescans and Corrections _________</div>
+        <div class="item w50">1. In process scanning: _____________</div>
+        <div class="item w50">6. 2nd QA: __________________________</div>
     </div>
     <div class="row">
-        <div class="item w50">2. Crop and Rotate: ________________</div>
-        <div class="item w50">8. 2nd QA: _________________________</div>
+        <div class="item w50">2. Crop / Rotate / Process: ___________</div>
+        <div class="item w50">7. Final QA 1: ________________________</div>
     </div>
     <div class="row">
-        <div class="item w50">3. Process: ________________________</div>
-        <div class="item w50">9. Final QA 1: _____________________</div>
+        <div class="item w50">3. Build Catalog / QA 1: ______________</div>
+        <div class="item w50">8. Final QA 2: ________________________</div>
     </div>
     <div class="row">
-        <div class="item w50">4. Build Catalog: __________________</div>
-        <div class="item w50">10. Final QA 2: ____________________</div>
+        <div class="item w50">4. Create Metadata: _________________</div>
+        <div class="item w50">9. Finalized: _________________________</div>
     </div>
     <div class="row">
-        <div class="item w50">5. 1st QA: _________________________</div>
-        <div class="item w50">11. Finalized: _____________________</div>
-    </div>
-    <div class="row">
-        <div class="item w50">6. Create Metadata: ________________</div>
-        <div class="item w50">12. Delivered/Archived _____________</div>
+        <div class="item w50">5. Rescans and Corrections ___________</div>
+        <div class="item w50">10. Delivered/Archived _________________</div>
     </div>
     <div class="row" id="footer">
         <div class="item w90">Generated on <%= Time.now.strftime("%d %h %Y") %> by ms3uf.</div>

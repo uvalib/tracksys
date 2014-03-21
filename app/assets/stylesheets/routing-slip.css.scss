@@ -2,7 +2,7 @@
 #footer, #header { text-align: center; font-family: Times New Roman; }
 #footer { font-size: 9px; padding-top: 10px}
 #header { font-size: 13px; }
-#top { font-weight: bolder; padding-top: 10px; padding-bottom: 10px; }
+#top { font-weight: bolder; font-size: 13px; padding-top: 10px; padding-bottom: 10px; }
 
 $border-width: 9;
 .border_pretty {
@@ -14,10 +14,13 @@ border-width: $border-width px;
 border-image: url(bg_body.png) $border-width fill repeat;
 }
 
+.heading { font-size: 12px; font-weight: 120%;  }
 .row { float: left; margin: 5px 0; width: 100%; }
-.red { color: #C00; }
+.red { color: #9E2B2B; font-weight: 150%; }
 .underline { text-decoration: underline; }
+.section-underline { border-bottom: thin solid black; } 
 
+.w05 { width: 05%; }
 .w10 { width: 10%; }
 .w15 { width: 15%; }
 .w20 { width: 20%; }
