@@ -44,7 +44,7 @@ ActiveAdmin.register Component do
   end
   
   show :title => proc{|component| "#{truncate(component.name, :length => 60)}"} do
-    div :class => 'two-column' do
+    div :class => 'one-column' do
       panel "General Information" do
         attributes_table_for component do
           row :id
@@ -66,7 +66,7 @@ ActiveAdmin.register Component do
       end
     end
   
-   div :class => 'two-column' do
+   div :class => 'one-column' do
       panel "Digital Library Information" do
         attributes_table_for component do
           row :pid
@@ -99,9 +99,12 @@ ActiveAdmin.register Component do
           end
           row(:desc_metadata) {|component| 
             if component.desc_metadata
-              pre :class => "no-whitespace" do 
-                code :'data-language' => 'html' do
-                  word_wrap(component.desc_metadata.to_s, :line_width => 80)
+              div :id => "desc_meta_div" do
+                span :class => "click-advice" do "click in the code window to expand/collapse display" end
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                  code :'data-language' => 'html' do
+                    word_wrap(component.desc_metadata.to_s, :line_width => 80)
+                  end
                 end
               end
             end
@@ -202,7 +205,7 @@ ActiveAdmin.register Component do
   end # end show
 
   form do |f|
-    f.inputs "General Information", :class => 'inputs two-column' do 
+    f.inputs "General Information", :class => 'inputs one-column' do 
       f.input :id, :as => :string, :input_html => {:disabled => true}
       f.input :title, :as => :text, :input_html => {:rows => 2}
       f.input :content_desc, :input_html => {:rows => 5}
@@ -213,7 +216,7 @@ ActiveAdmin.register Component do
       f.input :component_type
     end
 
-    f.inputs "Digital Library Information", :class => 'inputs two-column' do 
+    f.inputs "Digital Library Information", :class => 'inputs one-column' do 
       f.input :pid, :as => :string, :input_html => {:disabled => true}
       f.input :exemplar, :as => :select
       f.input :availability_policy

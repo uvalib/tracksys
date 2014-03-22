@@ -7,7 +7,7 @@ gem 'devise'
 gem 'execjs'
 gem 'therubyracer'
 
-gem 'hydraulics', path: '../hydraulics'
+gem 'hydraulics', path: 'lib/hydraulics'
 gem 'activeadmin', '0.6.0'
 # gem 'activeadmin', :path => '../active_admin'
 gem 'sass-rails'
