@@ -24,6 +24,7 @@ ActiveAdmin.register MasterFile do
   filter :transcription_text
   filter :desc_metadata
   filter :pid
+  filter :md5, :label => "MD5 Checksum"
   filter :unit_id, :as => :numeric, :label => "Unit ID"
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
@@ -174,7 +175,7 @@ ActiveAdmin.register MasterFile do
               div :style => 'display:none' do 
                 div :id => 'inline_content' do
                   div "Open the following URL in your Oxygen XML Editor (cmd-U)"
-                  div "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+                  div "#{TRACKSYS_URL}admin/master_files/#{master_file.id}/mods"
                 end
               end
               pre :class => "no-whitespace code-window" do 
