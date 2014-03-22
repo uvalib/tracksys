@@ -13,7 +13,7 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'source' is required" if hash[:source].blank?
 
-    @source = hash[:source]
+    @source = hash[:source] # this is the unit's archive directory file path
     @working_unit = Unit.find(hash[:unit_id])
     @messagable_id = hash[:unit_id]
     @messagable_type = "Unit"
