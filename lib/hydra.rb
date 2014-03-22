@@ -170,7 +170,7 @@ module Hydra
     elsif object.is_a? Component
       # Return the response from the getIndexingMetadata Fedora Disseminator
       destination = ""
-      if object.index_destination_id > 1
+      if object.index_destination && object.index_destination_id > 1
         destination = object.index_destination.name
       else
         destination = IndexDestination.find(1).name # 'searchdev' as a default
