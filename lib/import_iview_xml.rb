@@ -377,11 +377,11 @@ public
       set_list=root.xpath('//SetList//UniqueID').map(&:content)
       if root.xpath('//SetList').empty?
         errors << "iView Catalog #{unit.id} has no SetList, but Unit #{unit.id} has Bibl flagged as Manuscript Item"
-      elsif media_item_list != set_list # count might be OK, but identifiers must be all accounted for 
+      elsif media_item_list.sort != set_list.sort # count might be OK, but identifiers must be all accounted for (order may differ)
         if media_item_list != ( media_item_list|set_list ) # media_item_list is missing a UniqueID
-          errors << "iView Catalog #{unit.id} has IDs appearing in Sets which are not declared as Assets"
+          errors << "iView Catalog #{unit.id} has images appearing in Catalog Sets which have no technical metadata in Iview XML"
         elsif set_list != ( media_item_list|set_list ) # set_list is missing a UniqueID
-          errors << "iView Catalog #{unit.id} has IDs declared as Assets but not appearing in Sets"
+          errors << "iView Catalog #{unit.id} has images in it not assigned to Catalog Sets"
         else
           errors << "All I know is media_item_list != set_list: got media_item_list:#{media_item_list.inspect} != set_list:#{set_list.inspect}"
         end
