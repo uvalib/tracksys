@@ -1,62 +1,49 @@
-<% nbsp = empty2nbsp('') %>
-
-<div class="slip">
-  <%
-  # Determine the sequence of this unit among all units for this order.
-  # For example, if there are 5 units for this order, when units are sorted by
-  # unit id, is this the first of 5, second of five, etc.?
-  units_sorted = @order.units.sort_by {|unit| unit.id}
+<%
+# Determine the sequence of this unit among all units for this order.
+# For example, if there are 5 units for this order, when units are sorted by
+# unit id, is this the first of 5, second of five, etc.?
+units_sorted = @order.units.sort_by {|unit| unit.id}
   c = 0
   units_sorted.each do |unit|
     c += 1
     if unit.id == @unit.id
-      break
-    end
+    break
   end
-  %>
-  <div style="float:left">
-  <% @qr = @unit.qr %>
-  <table class="qr">
-  <% @qr.modules.each_index do |x| %>
-    <tr>
-    <% @qr.modules.each_index do |y| %>
-      <% if @qr.is_dark(x,y) %>
-        <td class="black"/>
-      <% else %>
-        <td class="white"/>
-      <% end %>
-    <% end %>
-    </tr>
-  <% end %>
-  </table>
-  </div>
-  <div class="floating">
-  <div class=""><span class="blank"># <%= c %></span> <span class="ib">of</span> <span class="blank"><%= @order.units.length %></span> <span class="ib">units</span></div>
-  </div>
-  <br/>
-  <br/>
-  <div class="floating">
-    <div class="flag red">
-      <div class="label"><span class="ib">Call Number:</span></div>
-      <div class="entry_red"><%= if @bibl then empty2nbsp(@bibl.call_number) else empty2nbsp('') end %></div>
+end
+%>
+<div id="container">
+    <div class="row" id="header">
+        <div class="item w100">Digitization Services Routing Slip</div>
     </div>
-  </div>
-  <div class="floating">
-    <div class="label"><span class="ib">Location:</span></div>
-    <div class="entry"><%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
-  </div>
-  <div class="floating">
-    <div class="label"><span class="ib">Title:</span></div>
-    <div class="entry"><%= if @bibl then empty2nbsp(truncate(@bibl.title, :length => 100)) else empty2nbsp('') end %></div>
-  </div>
-  <br/>
-  <br/>
-  <br/>
-  <br/>
-  <br/>
-  <br/>
-  <div class="section">
-    <div class="heading">Order Information</div>
+    <div class="row border_pretty" id="top">
+        <div class="item w35">Order #<%= @order.id %></div>
+        <div class="item w35 red" style="padding-left: 1em;">Unit #<%= @unit.id %></div>
+        <div class="item w30 underline"><span># <%= c %> of <%= @order.units.length %> units</span></div>
+    </div>
+    <div class="row">
+        <div class="item w50">Condition of Item: Good / Bad</div>
+        <div class="item w50 red">Call Number: <%= if @bibl then empty2nbsp(@bibl.call_number) else empty2nbsp('') end %></div>
+    </div>
+    <div class="row">
+        <div class="item w50">Condition Notes: ___________________</div>
+        <div class="item w50 section-underline">ViU Number:</div>
+    </div>
+    <div class="row">
+        <div class="item w50">_________________________________</div>
+        <div class="item w50 section-underline">Location: <%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
+    </div>
+    <div class="row">
+        <div class="item w50">_________________________________</div>
+        <div class="item w50 underline">Title: <%= if @bibl then empty2nbsp(truncate(@bibl.title, :length => 100)) else empty2nbsp('') end %></div>
+    </div>
+    <div class="row">
+        <div class="item w50">Camera/Lens: ______________________</div>
+        <div class="item w50">Pages to be scanned: _________________</div>
+    </div>
+    <div class="row">
+        <div class="item w50">Resolution: ________________________</div>
+        <div class="item w50">Files from previous unit?: _________</div>
+    </div>
     <%
       if @customer.academic_status
         customer_status = @customer.academic_status.name
@@ -64,64 +51,43 @@
         customer_status = "Fac Staff / Student / Other"
       end
     %>
-    <div class="floating">
-      <div class="label">Customer Status:</div>
-      <div class="entry"><%= empty2nbsp(customer_status) %></div>
-    </div>
-    
-
-    <div class="field">
-      <div class="label">Customer Name:</div>
-      <div class="entry"><%= empty2nbsp(@customer.full_name) %></div>
-    </div>
-    
-    <div class="field">
-      <div class="label">Order Number:</div>
-      <div class="entry"><%= empty2nbsp(@order.id) %></div>
-    </div>
-    
-    <div class="floating">(4 wks = <%= format_date(@order.date_request_submitted + 4.weeks) %>)</div>
-    <div class="field red">
-      <div class="label">Due Date:</div>
-      <div class="entry_red"><%= empty2nbsp( format_date(@order.date_due) ) %></div>
-    </div>
-    
-    <div class="field">
-      <div class="label">Project Name:</div>
-      <div class="entry"><%= empty2nbsp(@order.order_title) %></div>
-    </div>
-  </div>
-  
-  
-  <div class="section">
-    <div class="heading">Unit Information</div>
-
     <%
-      if not @unit.unit_extent_actual.nil? and not @unit.unit_extent_actual.zero?
-        unit_extent = @unit.unit_extent_actual
-      elsif not @unit.unit_extent_estimated.nil? and not @unit.unit_extent_estimated.zero?
-        unit_extent = @unit.unit_extent_estimated
-      else
-        unit_extent = nil
-      end
-      unit_extent = 'all' if unit_extent.to_i == -1
+    # these nil guards are for older units that lack some data 
+    description = nil
+    if @unit.intended_use.respond_to?(:description)
+      description = @unit.intended_use.description
+    end
+    deliverable_format = nil
+    if @unit.intended_use.respond_to?(:deliverable_format)
+      deliverable_format = @unit.intended_use.deliverable_format
+    end
     %>
- 
-    <div class="floating"">
-      <div class="label"><span class="ib">Pages to be scanned:</span></div>
-      <div class="entry"><%= empty2nbsp(unit_extent) %></div>
+    <div class="row heading border_pretty">
+        <div class="item w55">Order Information</div>
+        <div class="item w45">Deliverables</div>
     </div>
-    
-    <div class="field red">
-      <div class="label"><span class="ib">Unit Number:</span></div>
-      <div class="entry_red"><%= empty2nbsp(@unit.id) %></div>
+    <div class="row">
+        <div class="item w50 section-underline">Customer Name: <%= empty2nbsp(@customer.full_name) %></div>
+        <div class="item w05"><%= empty2nbsp(nil) %></div>
+        <div class="item w45 section-underline">Intended Use: <%= empty2nbsp(description) %></div>
     </div>
-
-    <div class="floating"">
-      <div class="label"><span class="ib">Files from previous unit?:</span></div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w55 red underline">Due Date: <%= empty2nbsp( format_date(@order.date_due) ) %></div>
+        <div class="item w45 section-underline">Resolution: <%= empty2nbsp(@unit.intended_use_deliverable_resolution) %></div>
     </div>
-    
+    <div class="row">
+        <div class="item w50 section-underline">Project Name: <%= empty2nbsp(@order.order_title) %></div>
+        <div class="item w05"><%= empty2nbsp(nil) %></div>
+				<div class="item w45 section-underline">Format: <%= empty2nbsp(deliverable_format) %></div>
+    </div>
+    <div class="row">
+        <div class="item w55 section-underline">Customer Status: <%= customer_status %></div>
+        <div class="item w10"></div>
+        <div class="item w35"></div>
+    </div>
+    <div class="row heading border_pretty">
+        <div class="item w90">Unit Information</div>
+    </div>
     <%
       if @unit.special_instructions.nil?
         special_instructions = ''
@@ -129,117 +95,52 @@
         special_instructions = raw(@unit.special_instructions.gsub(/\n/, '<br />'))
       end
     %>
-    <p class="red"><span class="ib">Unit Special Instructions / Pages to be scanned:</span><br/> <%= special_instructions %></p>
-
+    <div class="row">
+        <div class="item w80 red">Unit Special Instructions / Pages to be scanned:</div>
+    </div>
+    <div class="row">
+        <div class="item w80 red"><%= special_instructions %></div>
+    </div>
+    <div class="row">
     <%
       if @unit.order.special_instructions.nil?
-        special_instructions = ''
+        order_special_instructions = ''
       else
-        special_instructions = raw(@unit.order.special_instructions.gsub(/\n/, '<br />'))
+        order_special_instructions = raw(@unit.order.special_instructions.gsub(/\n/, '<br />'))
       end
     %>
-    <p class="red"><span class="ib">Order Special Instructions / Pages to be scanned:</span><br/> <%= special_instructions %></p>
-  </div>
-  
-  
-  <div class="section">
-    <div class="heading">Production Workflow</div> 
-    <div class="field">
-      <div class="label">Materials Ready:</div>
-      <% if @unit.date_materials_received %>
-        <div class="entry"><%= empty2nbsp(format_date(@unit.date_materials_received)) %></div>
-      <% else %>
-        <div class="entry">&nbsp;</div>
-      <% end %>
+        <div class="item w90 red">Order Special Instructions / Pages to be scanned:</div>
     </div>
-    
-    <div class="floating">
-      <div class="label">8. Rescans and Corrections:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w90 red"><%= order_special_instructions%></div>
     </div>
-
-    <div class="field">
-      <div class="label">1. In process scanning:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row heading border_pretty">
+        <div class="item w90">Production Workflow</div>
     </div>
-
-    <div class="floating">
-      <div class="label">9. 2nd QA:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50 section-underline">Materials Ready: <%= empty2nbsp(format_date(@unit.date_materials_received)) %></div>
     </div>
-    
-    <div class="field">
-      <div class="label">2. Crop and Rotate:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50">1. In process scanning: _____________</div>
+        <div class="item w50">6. 2nd QA: __________________________</div>
     </div>
-    
-    <div class="floating">
-      <div class="label">10. Final QA 1:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50">2. Crop / Rotate / Process: ___________</div>
+        <div class="item w50">7. Final QA 1: ________________________</div>
     </div>
-
-    <div class="field">
-      <div class="label">3. Process:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50">3. Build Catalog / QA 1: ______________</div>
+        <div class="item w50">8. Final QA 2: ________________________</div>
     </div>
-
-    <div class="floating">
-      <div class="label">11. Final QA 2:</div>
-      <div class="entry">&nbsp;</div>
-    </div> 
-
-    <div class="field">
-      <div class="label">4. Scan Covers:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50">4. Create Metadata: _________________</div>
+        <div class="item w50">9. Finalized: _________________________</div>
     </div>
-
-    <div class="floating">
-      <div class="label">12. Finalized:</div>
-      <div class="entry">&nbsp;</div>
-    </div> 
-
-    <div class="field">
-      <div class="label">5. Build Catalog:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row">
+        <div class="item w50">5. Rescans and Corrections ___________</div>
+        <div class="item w50">10. Delivered/Archived _________________</div>
     </div>
-
-    <div class="floating">
-      <div class="label">13. Delivered/Archived:</div>
-      <div class="entry">&nbsp;</div>
-    </div>   
-    
-    <div class="field">
-      <div class="label">6. 1st QA:</div>
-      <div class="entry">&nbsp;</div>
+    <div class="row" id="footer">
+        <div class="item w90">Generated on <%= Time.now.strftime("%d %h %Y") %> by ms3uf.</div>
     </div>
-    
-    <div class="field">
-      <div class="label">7. Create Metadata:</div>
-      <div class="entry">&nbsp;</div>
-    </div>
-  </div>
-
-  <div class="section">
-   <div class="heading">Deliverables</div>
-   <div class="floating">
-     <div class="label">Resolution:</div>
-     <div class="entry"><%= empty2nbsp(@unit.intended_use_deliverable_resolution) %></div>
-   </div>
-    
-   <div class="field">
-      <div class="label">Intended Use:</div>
-      <% if @unit.intended_use %>
-      <div class="entry"><%= empty2nbsp(@unit.intended_use.description) %></div>
-      <% else %>
-      <div class="entry">&nbsp;</div>
-      <% end %>
-    </div>
-    
-    <div class="floating">
-      <div class="label">Format:</div>
-      <div class="entry"><%= empty2nbsp(@unit.intended_use_deliverable_format) %></div>
-    </div>
-
-  </div>
 </div>
-

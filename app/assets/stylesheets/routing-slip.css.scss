@@ -1,0 +1,42 @@
+#container { font-size: 9px; width: 375px; font-family: Arial;}
+#footer, #header { text-align: center; font-family: Times New Roman; }
+#footer { font-size: 9px; padding-top: 10px}
+#header { font-size: 13px; }
+#top { font-weight: bolder; font-size: 13px; padding-top: 10px; padding-bottom: 10px; }
+
+$border-width: 9;
+.border_pretty {
+border-style: solid;
+border-width: $border-width px;
+-moz-border-image: url(bg_body.png) $border-width repeat;
+-webkit-border-image: url(bg_body.png) $border-width repeat;
+-o-border-image: url(bg_body.png) $border-width repeat;
+border-image: url(bg_body.png) $border-width fill repeat;
+}
+
+.heading { font-size: 12px; font-weight: 120%;  }
+.row { float: left; margin: 5px 0; width: 100%; }
+.red { color: #9E2B2B; font-weight: 150%; }
+.underline { text-decoration: underline; }
+.section-underline { border-bottom: thin solid black; } 
+
+.w05 { width: 05%; }
+.w10 { width: 10%; }
+.w15 { width: 15%; }
+.w20 { width: 20%; }
+.w25 { width: 25%; }
+.w30 { width: 30%; }
+.w35 { width: 35%; }
+.w40 { width: 40%; }
+.w45 { width: 45%; }
+.w50 { width: 50%; }
+.w55 { width: 55%; }
+.w60 { width: 60%; }
+.w70 { width: 70%; }
+.w80 { width: 80%; }
+.w90 { width: 90%; }
+.w100 { width: 100%; }
+
+.item { box-sizing: border-box; float: left; }
+
+input, select, option { margin: 0; }
