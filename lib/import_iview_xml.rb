@@ -80,6 +80,8 @@ module ImportIviewXml
     
     # Start a database transaction, so all changes get rolled back if an
     # unhandled exception occurs
+    retry_attempts = 5 # for database deadlocks during large transactions
+    begin
     MasterFile.transaction do
       # Create one MasterFile record for each iView <MediaItem>
       root.xpath('MediaItemList').each do |list|
@@ -150,6 +152,25 @@ module ImportIviewXml
         raise ImportError, "Unable to save UnitImportSource for Unit #{unit.id}: #{e.message}"
       end
     end  # end database transaction
+    @current_caller = caller[0][/`([^']*)'/, 1]
+    Rails.logger.info "[#{Time.now}] #{@current_caller}: MasterFile batch transaction completed (#{@pid_count} items)."
+    rescue ActiveRecord::StatementInvalid => e # or Mysql2::Error
+      Rails.logger.warn "#{@current_caller}: Caught Mysql2 exeption #{e.message}"
+      if retry_attempts > 0
+        amount = 300 / retry_attempts # take more time on successive attempts
+        Rails.logger.info "[#{Time.now}] #{@current_caller}: Sleeping for #{300/retry_attempts}s and retrying transaction"
+        sleep amount 
+        ActiveRecord::Base.connection.reconnect!
+        Rails.logger.info "[#{Time.now}] #{self.class} retrying transaction now."
+        retry
+      else
+        report = "Exceeded retry limit: unable to overcome #{e.inspect}"
+        Rails.logger.error report
+        raise RuntimeError, report # will send failure message to bus, storing report in db
+      end
+      retry_attempts -= 1
+    end
+
     
     # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
     unit.unit_extent_actual = @master_file_count
