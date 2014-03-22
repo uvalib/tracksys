@@ -23,7 +23,7 @@ $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
 });
 
 // toggle ead display field for components
-anobj = {myFun: function resizeCode () {
+anobj = function resizeCode () {
     if ( $('#desc_meta').innerHeight() < 150 ) {
       $('#desc_meta').animate({height: '100%'}, "fast", "swing");
     } else {
@@ -31,8 +31,8 @@ anobj = {myFun: function resizeCode () {
     }
     return false;
  }
-}
-$('#desc_meta_div').click( anobj.myFun );
+
+$('#desc_meta_div').click( anobj );
 
 // Begin JS for Updating Bibl Records
 $('.bibl_update_button').click(function(e) {
