@@ -178,9 +178,12 @@ ActiveAdmin.register MasterFile do
                   div "#{TRACKSYS_URL}admin/master_files/#{master_file.id}/mods"
                 end
               end
-              pre :class => "no-whitespace code-window" do 
-                code :'data-language' => 'html' do
-                  word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+              div :id => "desc_meta_div" do
+                span :class => "click-advice" do "click in the code window to expand/collapse display" end
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                  code :'data-language' => 'html' do
+                    word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+                  end
                 end
               end
             end
