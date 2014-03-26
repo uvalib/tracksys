@@ -11,6 +11,7 @@ units_sorted = @order.units.sort_by {|unit| unit.id}
   end
 end
 %>
+<% operator = @user.full_name || "Tracksys" %>
 <div id="container">
     <div class="row" id="header">
         <div class="item w100">Digitization Services Routing Slip</div>
@@ -141,6 +142,6 @@ end
         <div class="item w50">10. Delivered/Archived _________________</div>
     </div>
     <div class="row" id="footer">
-        <div class="item w90">Generated on <%= Time.now.strftime("%d %h %Y") %> by Tracksys.</div>
+        <div class="item w90">Generated on <%= Time.now.strftime("%d %h %Y") %> by <%= operator %>.</div>
     </div>
 </div>
