@@ -2,7 +2,7 @@ class OrderMailer < ActionMailer::Base
   add_template_helper(ApplicationHelper)
   default from: "digitalservices@virginia.edu", 
           cc: "digitalservices@virginia.edu",
-          bcc: "mattbastard@gmail.com",
+          bcc: "sdm7g@virginia.edu",
           reply_to: "digitalservices@virginia.edu"
 
   def send_fee_estimate(order)
@@ -10,7 +10,7 @@ class OrderMailer < ActionMailer::Base
     @customer = order.customer
     
     if Rails.env == "development" || Rails.env == "test"
-      address = 'mattbastard@gmail.com'
+      address = 'sdm7g@virginia.edu'
     else
       address = @customer.email
     end
@@ -24,7 +24,7 @@ class OrderMailer < ActionMailer::Base
     @dvd_delivery_location = dvd_delivery_location
 
     if Rails.env == "development" || Rails.env == "test"
-      address = 'mattbastard@gmail.com'
+      address = 'sdm7g@virginia.edu'
     else
       address = @customer.email
     end
@@ -44,7 +44,7 @@ class OrderMailer < ActionMailer::Base
     @customer = request.customer
 
     if Rails.env == "development" || Rails.env == "test"
-      address = 'mattbastard@gmail.com'
+      address = 'sdm7g@virginia.edu'
     else
       address = @customer.email
     end
@@ -58,7 +58,7 @@ class OrderMailer < ActionMailer::Base
     @delivery_files = delivery_files
 
     if Rails.env == "development" || Rails.env == "test"
-      address = 'mattbastard@gmail.com'
+      address = 'sdm7g@virginia.edu'
     else
       address = @customer.email
     end
