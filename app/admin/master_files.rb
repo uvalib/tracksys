@@ -150,7 +150,7 @@ ActiveAdmin.register MasterFile do
     end
 
     div :class => 'columns-none', :toggle => 'hide' do
-      panel "Digital Library Information", :id => 'master_files', :toggle => 'hide' do
+      panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
         attributes_table_for master_file do
           row :pid
           row :date_dl_ingest
