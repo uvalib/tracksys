@@ -119,7 +119,7 @@ module ImportIviewXml
             # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
             #
             # If the setname does not include a PID value, raise an error.  
-            setname = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName").last.text
+            setname = root.xpath("//SetName/following-sibling::UniqueID[normalize-space()='#{iview_id}']/preceding-sibling::SetName").last.text
             pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
             if pid.nil?
               raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
