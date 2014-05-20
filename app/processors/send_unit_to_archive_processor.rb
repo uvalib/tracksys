@@ -123,7 +123,7 @@ class SendUnitToArchiveProcessor < ApplicationProcessor
     if @errors.eql?(0)
       # Try to log where this unit is archived
       archival_location="StorNext"
-      unit = @unit_id and Unit.find(@unit_id)
+      unit = @unit_id && Unit.find(@unit_id)
       if unit && unit.archive
         if unit.archive.respond_to?(:name)
           archival_location=unit.archive.name
