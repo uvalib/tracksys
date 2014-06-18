@@ -17,4 +17,18 @@ namespace :counters do
       }
     end
   end
+  
+  desc "Update master_files_count for all Component records."
+  task :update_components => :environment do
+  	Component.find_in_batches do |batch|
+  		batch.each { |component|
+  			Component.reset_counters( component.id, :master_files )
+  		}
+  	end
+  end
+
+  desc "Update counts for all: components, bibls, & orders."
+  task :update_all => [ :update_components, :update_bibls, :update_orders ] 
+
+  
 end
