@@ -48,6 +48,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
           # Remove .DS_Store* files produced by Mac OSX
         elsif (unit_dir_content =~ /.DS/)
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
+        elsif (unit_dir_content == ".AppleDouble" ) # ignore 
         elsif (unit_dir_content =~ /.ivc_[0-9]/)
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
         elsif (unit_dir_content =~ /.(tif|jp2)$/) 
