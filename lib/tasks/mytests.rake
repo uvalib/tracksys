@@ -26,9 +26,10 @@ end
 
 namespace :env do
 
-	desc "env:show print Rails.env"
+	desc "env:show print Rails.env, log_level"
 	task :show => :environment  do 
-		puts Rails.env 
+		puts Rails.env
+		puts Tracksys::Application.config.log_level
 	end
 
 end
