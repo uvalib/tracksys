@@ -49,6 +49,7 @@ class CopyMetadataToMetadataDirectoryProcessor < ApplicationProcessor
         if File.directory?(File.join(@unit_path, content))
           if /Thumbnails/ =~ content
             FileUtils.cp_r(File.join(@unit_path, content), File.join(@destination_dir, content))
+          elsif content == ".AppleDouble"  # ignore .AppleDouble for now
           else
             @failure_messages << "Unknown directory in #{@unit_dir}" 
           end
