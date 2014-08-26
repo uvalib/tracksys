@@ -72,6 +72,12 @@ class CopyArchivedFilesToProductionProcessor < ApplicationProcessor
           File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.ivc"))
           FileUtils.chown(nil, 'lb-ds', File.join(@destination_dir, "#{@unit_dir}.ivc"))
         end
+        if File.exist?(File.join(@source_dir, "#{@unit_dir}.mpcatalog"))
+          FileUtils.cp(File.join(@source_dir, "#{@unit_dir}.mpcatalog"), File.join(@destination_dir, "#{@unit_dir}.mpcatalog"))
+          File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.mpcatalog"))
+          FileUtils.chown(nil, 'lb-ds', File.join(@destination_dir, "#{@unit_dir}.mpcatalog"))
+        end
+
       end
 
       if @failure_messages.empty?

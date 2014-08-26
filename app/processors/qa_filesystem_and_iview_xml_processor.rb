@@ -49,7 +49,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
         elsif (unit_dir_content =~ /.DS/)
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
         elsif (unit_dir_content == ".AppleDouble" ) # ignore 
-        elsif (unit_dir_content =~ /.ivc_[0-9]/)
+        elsif (unit_dir_content =~ /.(ivc|mpcatalog)_[0-9]/)
           File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
         elsif (unit_dir_content =~ /.(tif|jp2)$/) 
           @content_files.push(unit_dir_content)
@@ -57,7 +57,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
           @xml_files.push(unit_dir_content)
         elsif (unit_dir_content =~ /Thumbnails/)
         elsif (unit_dir_content) =~ /.txt/
-        elsif (unit_dir_content =~ /.ivc$/)
+        elsif (unit_dir_content =~ /.(ivc|mpcatalog)$/) 
           @ivc_files.push(unit_dir_content)
         elsif (unit_dir_content !~ /(.git$|.md5|.txt$)/) # safe to ignore (.txt files are OCR data typically)
           @unknown_files.push(unit_dir_content)
@@ -261,7 +261,7 @@ class QaFilesystemAndIviewXmlProcessor < ApplicationProcessor
     else
       # If either of the two tests above fail, then the test below won't because there is no definitive file.
       ivc_file = @ivc_files.at(0)
-      regex_ivc_file = Regexp.new('^' + "#{@unit_dir}" + '.ivc$')
+      regex_ivc_file = Regexp.new('^' + "#{@unit_dir}" + '.(ivc|mpcatalog)$')
       if regex_ivc_file.match(ivc_file).nil?
         @error_messages.push("#{ivc_file} does not match image naming convention.")
       end 
