@@ -11,6 +11,7 @@ class Unit
   # relationships
   #------------------------------------------------------------------
   belongs_to :index_destination, :counter_cache => true
+  has_and_belongs_to_many :legacy_identifiers
 
   # The request form requires having data stored temporarily to the unit model and then concatenated into special instructions.  Those fields are:
   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
@@ -108,5 +109,25 @@ class Unit
     return code
   end
 
+  # utility method to present consistent Fedora object structure within a unit
+  # Ordinarily, MasterFiles without transcription text do not generate a 'transcription'
+  # datastream upon ingest, but this method will add blank transcription fields to 
+  # MasterFile objects and update their Repository counterparts as needed
+  def fill_in_missing_transcriptions
+    text=" \n"
+    empty_items=self.master_files.where(:transcription_text => nil)
+    if empty_items.count > 0
+      empty_items.each do |item|
+        item.transcription_text=text unless item.transcription_text
+        item.save! 
+        item.reload
+        if item.exists_in_repo?
+          Fedora.add_or_update_datastream(item.transcription_text, item.pid,
+            'transcription', 'Transcription', :contentType => 'text/plain',
+            :mimeType => 'text/plain', :controlGroup => 'M')
+        end
+      end
+    end
+  end
 
 end

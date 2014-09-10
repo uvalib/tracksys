@@ -158,5 +158,36 @@ class Component
     end
   end
 
+  # hashes for serializing hierarchies
+  # TO DO: improve sorting; The assumption here
+  # is that the ordering in iView Catalog, reflected
+  # here in filename numbers, will produce a good sort.
+  # If for any reason MFs do not have page order reflected
+  # in filenames, a :followed_by_id will need to be
+  # added to this model.  See Component class for e.g. 
+  def master_files_pids
+    self.master_files.sort_by {|mf| mf.filename}.map(&:pid)
+  end
+  # builds a hash for JSON publication
+  # values can be either arrays of MasterFiles
+  # or a hash of child components
+  def descendants_hash
+    hash = {};  values = []
+    if self.children != []
+      self.children.each do |child|
+        values << child.descendants_hash
+      end
+    elsif self.master_files.count > 0
+      values << self.master_files_pids
+    end
+    hash[self.pid] = values
+    hash
+  end
+
+  # utility for export iView Catalog
+  def iview_data_str
+    "level=#{format_component_strings(self.level)} ~ pid=#{self.pid} ~ date=#{format_component_strings(self.date)} ~ desc=#{format_component_strings(self.iview_description)}"
+  end
+
   alias :parent_component :parent
 end

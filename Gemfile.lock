@@ -12,7 +12,7 @@ GIT
     nested_form (0.3.2)
 
 PATH
-  remote: ../hydraulics
+  remote: lib/hydraulics
   specs:
     hydraulics (0.0.5)
       ancestry

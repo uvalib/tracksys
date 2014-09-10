@@ -48,7 +48,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
 
       PRODUCTION_SCAN_SUBDIRECTORIES.each {|dir|
         puts dir
-        contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x}
+        contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
         contents.each {|content|
           if /#{@unit_id}/ =~ content
             # Ignore potential matches with Fine Arts content

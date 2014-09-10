@@ -44,7 +44,7 @@ ActiveAdmin.register Component do
   end
   
   show :title => proc{|component| "#{truncate(component.name, :length => 60)}"} do
-    div :class => 'two-column' do
+    div :class => 'one-column' do
       panel "General Information" do
         attributes_table_for component do
           row :id
@@ -66,7 +66,7 @@ ActiveAdmin.register Component do
       end
     end
   
-   div :class => 'two-column' do
+   div :class => 'one-column' do
       panel "Digital Library Information" do
         attributes_table_for component do
           row :pid
@@ -99,9 +99,12 @@ ActiveAdmin.register Component do
           end
           row(:desc_metadata) {|component| 
             if component.desc_metadata
-              pre :class => "no-whitespace" do 
-                code :'data-language' => 'html' do
-                  word_wrap(component.desc_metadata.to_s, :line_width => 80)
+              div :id => "desc_meta_div" do
+                span :class => "click-advice" do "click in the code window to expand/collapse display" end
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                  code :'data-language' => 'html' do
+                    word_wrap(component.desc_metadata.to_s, :line_width => 80)
+                  end
                 end
               end
             end
@@ -129,12 +132,19 @@ ActiveAdmin.register Component do
     
     div :class => "columns-none" do
       if ! component.children.empty?
-        panel "Child Component Information", :toggle => 'hide' do
-          table_for component.children.select(:id).select(:date).select(:title).select(:content_desc).select(:ancestry) do
+        panel "Child Component Information", :toggle => 'show' do
+          table_for component.children.select(:id).select(:date).select(:title).select(:content_desc).select(:ancestry).select(:seq_number).order(:seq_number) do
+            column "#", :seq_number
             column :id
             column :date
             column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
-            column :content_desc do |child| link_to "#{child.content_desc}", admin_component_path(child.id) end
+            column :content_desc do |child| 
+              if not child.content_desc.nil?
+                link_to "#{child.content_desc.truncate(255)}", admin_component_path(child.id)
+              else
+                nil
+              end
+            end
             column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
           end
         end
@@ -195,7 +205,7 @@ ActiveAdmin.register Component do
   end # end show
 
   form do |f|
-    f.inputs "General Information", :class => 'inputs two-column' do 
+    f.inputs "General Information", :class => 'inputs one-column' do 
       f.input :id, :as => :string, :input_html => {:disabled => true}
       f.input :title, :as => :text, :input_html => {:rows => 2}
       f.input :content_desc, :input_html => {:rows => 5}
@@ -206,7 +216,7 @@ ActiveAdmin.register Component do
       f.input :component_type
     end
 
-    f.inputs "Digital Library Information", :class => 'inputs two-column' do 
+    f.inputs "Digital Library Information", :class => 'inputs one-column' do 
       f.input :pid, :as => :string, :input_html => {:disabled => true}
       f.input :exemplar, :as => :select
       f.input :availability_policy
@@ -299,6 +309,12 @@ ActiveAdmin.register Component do
     publish :send_commit_to_solr, message
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
+  end
+
+  member_action :tree, :method => :get do
+    respond_to do |format|
+      format.json { render :formats => [:json], :partial => "tree", root: false, object: Component.find(params[:id]) }
+    end
   end
   
   controller do

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140128200629) do
+ActiveRecord::Schema.define(:version => 20140307170741) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -533,6 +533,13 @@ ActiveRecord::Schema.define(:version => 20140128200629) do
 
   add_index "legacy_identifiers_master_files", ["legacy_identifier_id"], :name => "index_legacy_identifiers_master_files_on_legacy_identifier_id"
   add_index "legacy_identifiers_master_files", ["master_file_id"], :name => "index_legacy_identifiers_master_files_on_master_file_id"
+
+  create_table "legacy_identifiers_units", :id => false, :force => true do |t|
+    t.integer "legacy_identifier_id"
+    t.integer "unit_id"
+  end
+
+  add_index "legacy_identifiers_units", ["unit_id", "legacy_identifier_id"], :name => "units_legacy_ids_index"
 
   create_table "master_files", :force => true do |t|
     t.integer  "unit_id",                                         :default => 0,     :null => false

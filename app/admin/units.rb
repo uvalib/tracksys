@@ -44,6 +44,20 @@ ActiveAdmin.register Unit do
     redirect_to :back
   end
 
+  batch_action :include_in_dl_units do |selection|
+    Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, true) }
+    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, false) }
+    flash[:notice] = "Units #{selection.join(", ")} have been marked for inclusion in the Digital Library."
+    redirect_to :back
+  end
+
+  batch_action :exclude_from_dl_units do |selection|
+    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, true) }
+    Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, false) }
+    flash[:notice] = "Units #{selection.join(", ")} have been marked for exclusion from the Digital Library."
+    redirect_to :back
+  end
+
   batch_action :print_routing_slips do |selection|
 
   end
@@ -300,6 +314,13 @@ ActiveAdmin.register Unit do
         link_to "#{unit.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => unit.id, :messagable_type_eq => "Unit" })
       end
       row :agency
+      row "Legacy Identifiers" do |unit|
+       	unit.legacy_identifiers.each {|li|
+          div do
+            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+          end
+        } unless unit.legacy_identifiers.empty?
+      end
       row :archive
     end
   end

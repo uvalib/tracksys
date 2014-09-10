@@ -266,7 +266,7 @@
             <div class="control-group">
               <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
               <div class="controls">
-                <%= unit.select :intended_use_id, get_jpeg_only_uses, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
+                <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => required_field_value, :class => 'intended_use_select' %>
               </div>
             </div>
             <div id="intended_use_watermarked_jpg" style="display: none;">

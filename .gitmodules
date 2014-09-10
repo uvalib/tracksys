@@ -1,3 +1,6 @@
 [submodule "lib/xslt"]
 	path = lib/xslt
 	url = git@github.com:uvalib-dcs/uva_fedora_transformations.git
+[submodule "lib/hydraulics"]
+	path = lib/hydraulics
+	url = git@github.com:uvalib-dcs/hydraulics.git

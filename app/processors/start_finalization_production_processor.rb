@@ -14,14 +14,14 @@ class StartFinalizationProductionProcessor < ApplicationProcessor
     if not File.exist?(FINALIZATION_DROPOFF_DIR_PRODUCTION)
       on_failure "#{FINALIZATION_DROPOFF_DIR_PRODUCTION} directory does not exist.  Check mounts to NetApps."
     else
-      contents = Dir.entries(FINALIZATION_DROPOFF_DIR_PRODUCTION).delete_if {|x| x == "." or x == ".."}
+      contents = Dir.entries(FINALIZATION_DROPOFF_DIR_PRODUCTION).delete_if {|x| x == "." or x == ".." or x == ".AppleDouble" }
       
       # Check that there is content in the finalization directory
       if contents.empty?
         on_failure "No items to finalize in #{FINALIZATION_DROPOFF_DIR_PRODUCTION}"
       else
         contents.each { |content| 
-          if not /DS_Store/ =~ content
+          if not /DS_Store/ =~ content and not content == ".AppleDouble" 
             complete_path = File.join(FINALIZATION_DROPOFF_DIR_PRODUCTION, content)
             # Everything in the finalization directory must be a directory
             if not File.directory?(complete_path)

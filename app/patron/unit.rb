@@ -263,12 +263,12 @@ ActiveAdmin.register Unit, :namespace => :patron do
     redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
 
-  member_action :print_routing_slip, :method => :put do
+  member_action :print_routing_slip, :method => :put, :expires_in => 1.seconds do
     @unit = Unit.find(params[:id])
     @bibl = @unit.bibl
     @order = @unit.order
     @customer = @order.customer
-    render :layout => 'printable'
+    render :layout => 'routing_slip'
   end
 
   member_action :change_status

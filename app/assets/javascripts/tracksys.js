@@ -23,23 +23,16 @@ $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
 });
 
 // toggle ead display field for components
-$('.code-window').toggle(function expandCode () {
-    var h = $(this).innerHeight();
-    if ( h > 99 ) {
-      $(this).animate({height: '100%'}, "fast", "swing");
-//      $(this).children('.click-advice').children('span').first().text(msg);
+anobj = function resizeCode () {
+    if ( $('#desc_meta').innerHeight() < 150 ) {
+      $('#desc_meta').animate({height: '100%'}, "fast", "swing");
     } else {
-//      $(this).children('.click-advice').children('span').first().text(msg);
+      $('#desc_meta').animate({height: 100}, "fast", "swing");
     }
-  }, function reduceCode () {
-    var h = $(this).innerHeight();
-    if ( h > 99 ) {
-      $(this).animate({height: 100}, "fast", "swing");
-//      $(this).children('.click-advice').children('span').first().text(msg);
-    } else {
-//      $(this).children('.click-advice').children('span').first().text(msg);
-    }
- });
+    return false;
+ }
+
+$('#desc_meta_div').click( anobj );
 
 // Begin JS for Updating Bibl Records
 $('.bibl_update_button').click(function(e) {

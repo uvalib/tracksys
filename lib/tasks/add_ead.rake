@@ -38,10 +38,11 @@ namespace :ead do
 	end
 
 	desc "Constructs list of EAD guides (collections)"
-	task :list do
+	task :list => :environment do
 		#list= %w(viu00001 viu00002 viu00003) 	
 		list = []
 		Component.where('ead_id_att like ?', "viu0%").each do |c| list << c.ead_id_att end
 		list.each {|l| @ead_guides << l }
+		ap @ead_guides
 	end
 end

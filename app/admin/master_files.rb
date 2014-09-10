@@ -24,6 +24,7 @@ ActiveAdmin.register MasterFile do
   filter :transcription_text
   filter :desc_metadata
   filter :pid
+  filter :md5, :label => "MD5 Checksum"
   filter :unit_id, :as => :numeric, :label => "Unit ID"
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
@@ -149,7 +150,7 @@ ActiveAdmin.register MasterFile do
     end
 
     div :class => 'columns-none', :toggle => 'hide' do
-      panel "Digital Library Information", :id => 'master_files', :toggle => 'hide' do
+      panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
         attributes_table_for master_file do
           row :pid
           row :date_dl_ingest
@@ -174,12 +175,15 @@ ActiveAdmin.register MasterFile do
               div :style => 'display:none' do 
                 div :id => 'inline_content' do
                   div "Open the following URL in your Oxygen XML Editor (cmd-U)"
-                  div "#{TRACKSYS_URL}/admin/master_files/#{master_file.id}/mods"
+                  div "#{TRACKSYS_URL}admin/master_files/#{master_file.id}/mods"
                 end
               end
-              pre :class => "no-whitespace code-window" do 
-                code :'data-language' => 'html' do
-                  word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+              div :id => "desc_meta_div" do
+                span :class => "click-advice" do "click in the code window to expand/collapse display" end
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                  code :'data-language' => 'html' do
+                    word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
+                  end
                 end
               end
             end
@@ -208,6 +212,7 @@ ActiveAdmin.register MasterFile do
 
     f.inputs "Related Information", :class => 'panel three-column' do
       f.input :unit_id, :as => :number
+      f.input :component_id, :as => :number
     end
 
     f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do

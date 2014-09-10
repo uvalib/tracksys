@@ -42,14 +42,11 @@ module ImportIviewXml
     # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
     root = doc.root  
 
-    # Check XML for expected elements
-    unless root.name == 'CatalogType'
-      raise ImportError, "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
-    end
-    if root.xpath('MediaItemList').empty?
-      raise ImportError, "File does not contain an iView XML document: <MediaItemList> element was not found"
-    end
-    
+    error_list = qa_iview_xml(doc, unit)
+    if error_list != [] && error_list != nil
+      raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
+    end    
+
     # Read XML to determine number of PIDs needed for this import
     # This is done in advance to alleviate the number of calls made
     # to the API for Fedora.
@@ -83,6 +80,8 @@ module ImportIviewXml
     
     # Start a database transaction, so all changes get rolled back if an
     # unhandled exception occurs
+    retry_attempts = 5 # for database deadlocks during large transactions
+    begin
     MasterFile.transaction do
       # Create one MasterFile record for each iView <MediaItem>
       root.xpath('MediaItemList').each do |list|
@@ -120,7 +119,7 @@ module ImportIviewXml
             # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
             #
             # If the setname does not include a PID value, raise an error.  
-            setname = root.xpath("//SetName/following-sibling::UniqueID[contains(., '#{iview_id}')]/preceding-sibling::SetName").last.text
+            setname = root.xpath("//SetName/following-sibling::UniqueID[normalize-space()='#{iview_id}']/preceding-sibling::SetName").last.text
             pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
             if pid.nil?
               raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
@@ -153,6 +152,25 @@ module ImportIviewXml
         raise ImportError, "Unable to save UnitImportSource for Unit #{unit.id}: #{e.message}"
       end
     end  # end database transaction
+    @current_caller = caller[0][/`([^']*)'/, 1]
+    Rails.logger.info "[#{Time.now}] #{@current_caller}: MasterFile batch transaction completed (#{@pid_count} items)."
+    rescue ActiveRecord::StatementInvalid => e # or Mysql2::Error
+      Rails.logger.warn "#{@current_caller}: Caught Mysql2 exeption #{e.message}"
+      if retry_attempts > 0
+        amount = 300 / retry_attempts # take more time on successive attempts
+        Rails.logger.info "[#{Time.now}] #{@current_caller}: Sleeping for #{300/retry_attempts}s and retrying transaction"
+        sleep amount 
+        ActiveRecord::Base.connection.reconnect!
+        Rails.logger.info "[#{Time.now}] #{self.class} retrying transaction now."
+        retry
+      else
+        report = "Exceeded retry limit: unable to overcome #{e.inspect}"
+        Rails.logger.error report
+        raise RuntimeError, report # will send failure message to bus, storing report in db
+      end
+      retry_attempts -= 1
+    end
+
     
     # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
     unit.unit_extent_actual = @master_file_count
@@ -345,6 +363,64 @@ module ImportIviewXml
       end
       master_file.transcription_text = text
     else
+      nil
+    end
+  end
+
+  # Reads iView XML file and raises errors if various criteria are not met
+  # returns nil on successful QA of Nokogiri::XML object, returns array
+  # of error strings otherwise
+public
+  def self.qa_iview_xml(xml, unit=nil)
+    errors=[]
+    unless xml.kind_of? Nokogiri::XML::Document
+      errors << "#{__method__} did not receive Nokogiri::XML::Document as argument." 
+    end
+    if xml.namespaces
+      xml.remove_namespaces!
+    end
+
+    # main sanity checks
+    
+    # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
+    root = xml.root  
+
+    # Check XML for expected elements
+    unless root.name == 'CatalogType'
+      errors << "File does not contain an iView XML document: Root element is <#{root.name}>, but <CatalogType> was expected"
+    end
+    if root.xpath('MediaItemList').empty?
+      errors << "File does not contain an iView XML document: <MediaItemList> element was not found"
+    end
+    # Extra checks for SetList (used to link MasterFiles to Component hierarchy)
+    if unit.bibl && unit.bibl.is_manuscript?
+      media_item_list=root.xpath('//MediaItemList//UniqueID').map(&:content)
+      set_list=root.xpath('//SetList//UniqueID').map(&:content)
+      if root.xpath('//SetList').empty?
+        errors << "iView Catalog #{unit.id} has no SetList, but Unit #{unit.id} has Bibl flagged as Manuscript Item"
+      elsif media_item_list.sort != set_list.sort # count might be OK, but identifiers must be all accounted for (order may differ)
+        if media_item_list != ( media_item_list|set_list ) # media_item_list is missing a UniqueID
+          errors << "iView Catalog #{unit.id} has images appearing in Catalog Sets which have no technical metadata in Iview XML"
+        elsif set_list != ( media_item_list|set_list ) # set_list is missing a UniqueID
+          errors << "iView Catalog #{unit.id} has images in it not assigned to Catalog Sets"
+        else
+          errors << "All I know is media_item_list != set_list: got media_item_list:#{media_item_list.inspect} != set_list:#{set_list.inspect}"
+        end
+      elsif root.xpath('//MediaItem//UniqueID').count != root.xpath('//SetList//UniqueID').count
+        report = []
+        if media_item_list > set_list
+          report = media_item_list - set_list
+        else
+          report = set_list - media_item_list 
+        end
+        errors << "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes.  Missing IDs: #{report}"
+      end
+    end
+
+    # report and return
+    if errors != []
+      errors
+    else #passed QA
       nil
     end
   end
