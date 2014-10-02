@@ -35,7 +35,11 @@ class MasterFile
   end
 
   def sorted_set
-    master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
+    if self.component == 0 
+    	master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
+    else
+    	master_files_sorted = self.component.master_files.sort_by {|mf| mf.filename}
+    end
   end
 
   def link_to_dl_thumbnail
