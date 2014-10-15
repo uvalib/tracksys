@@ -411,12 +411,14 @@ module Hydra
         end
         
         # Create sequential relationships: hasPreceedingPage, hasFollowingPage
+        # note that previous/next are based on units; Components should be restricted to self. 
         if object.is_a? MasterFile
-          if object.previous
+          if object.previous and ( object.component.nil? or object.component == object.previous.component )
             xml.uva :hasPreceedingPage, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
             xml.uva :isFollowingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
+          object.previous && object.component && object.component == object.previous.component 
           end
-          if object.next
+          if object.next and ( object.component.nil? or object.component == object.next.component )
             xml.uva :hasFollowingPage, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
             xml.uva :isPreceedingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
           end
