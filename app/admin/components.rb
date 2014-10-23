@@ -145,7 +145,10 @@ ActiveAdmin.register Component do
                 nil
               end
             end
-            column :master_files do |child| link_to "#{child.descendant_master_file_count}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
+            column :own_children do |child| link_to "#{child.children.size}", admin_components_path(:q => {:parent_component_id_eq => child.id}) end
+            column :own_master_files do |child| link_to "#{child.master_files.size}", admin_master_files_path(:q => {:component_id_eq => child.id}) end
+            column :descendant_master_files do |child|  "#{child.descendant_master_file_count}" end
+            column :ancestry
           end
         end
       else        
