@@ -157,7 +157,7 @@ module Virgo
   # server's response.
   def self.query_metadata_server(host, query_value, query_field='id')
     # query Solr server to get XML results for this catalog ID
-    xml_string = RestClient.get( "http://#{host}/virgobeta/select/?q=#{query_field}:#{query_value}" )
+    xml_string = RestClient.get( "http://#{host}/core/select/?q=#{query_field}:#{query_value}" )
     # read XML string into Nokogiri::XML::Document object
     begin
       xml_doc = Nokogiri::XML(xml_string)
