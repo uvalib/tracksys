@@ -4,8 +4,8 @@ ActiveAdmin.register MasterFile do
   menu :priority => 6
 
   scope :all, :show_count => true, :default => true
-  scope :tiff, :show_count => true
-  scope :jpeg2000, :show_count => true
+  #scope :tiff, :show_count => true
+  #scope :jpeg2000, :show_count => true
   scope :in_digital_library, :show_count => true
   scope :not_in_digital_library, :show_count => true
   
