@@ -225,7 +225,7 @@ module Virgo
     end
     
     # catalog ID
-    el = doc.xpath("arr[@name='id']/str").first
+    el = doc.xpath( "str[@name='id']" ).first
     bibl.catalog_key = el.text unless el.nil?
     
     # title
