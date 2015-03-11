@@ -116,6 +116,20 @@ def check_unit( unit_id, fix=false, xmlfile=nil )
 end
 
 
+# push component to Fedora and update it's master files.
+
+def push_fedora(cx)
+	Component.reset_counters( cx.id, :master_files )
+	title = (cx.title or cx.content_desc.strip)
+	puts cx.id, title
+	Fedora.create_or_update_object( cx, title )
+	cx.update_attribute( :date_dl_ingest, Time.now ) if cx.date_dl_ingest.nil? 
+	cx.update_metadata('allxml')
+	cx.save! 
+	cx.master_files.each { |mf| mf.update_metadata( 'allxml' ); mf.save! } 
+end
+
+
   #-----------------------------------------------------------------------------
   # private supporting classes
   #-----------------------------------------------------------------------------
@@ -160,6 +174,12 @@ task :fixbibl, [:bibl] => [:environment] do |t, args|
 	units = Unit.where( "bibl_id = #{bibl_id}" )
 	puts "#{units.size} units found."
 	units.each { |u| check_unit( u.id, true ) } 
+end
+
+
+desc "pushdl[comp_id] send component, children and master_files to Fedora"
+task :pushdl, [:comp_id] => [:environment] do |t, args| 
+	Component.find(args[:comp_id]).descendants.each { |cx| push_fedora(cx) }
 end
 
 end #namespace
