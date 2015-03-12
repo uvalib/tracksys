@@ -47,9 +47,12 @@ desc ":component_json[:eadid] - Dump component summary to json"
 task :component_json, [:ead_id] => [:environment] do |t, args| 
 	# find top level component with ead_id
 	subtree = Component.where("ead_id_att = '#{args[:ead_id]}'")[0].subtree.arrange 
+	summary = build(subtree) # generate summary
 	# and dump hierarchy to json file
-	puts "Writing output to: #{args[:ead_id]}.json"
-	File::open( "#{args[:ead_id]}.json", "w" ).write( build(subtree).to_json )
+	puts "Writing output to: #{args[:ead_id]}.json ..."
+	File::open( "#{args[:ead_id]}.json", "w" ).write( summary.to_json )
+	puts "Writing output to #{args[:ead_id]}.html ..." 
+	File::open( "#{args[:ead_id]}.html", "w" ).awesome_print( summary, :html => true )
 end
 
 desc "generate json/html summary report of 'viu' EAD components attached to bibls"
