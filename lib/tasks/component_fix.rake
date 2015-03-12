@@ -121,7 +121,7 @@ end
 def push_fedora(cx)
 	Component.reset_counters( cx.id, :master_files )
 	title = (cx.title or cx.content_desc.strip)
-	puts cx.id, title
+	puts "[#{cx.id}]: #{title}"
 	Fedora.create_or_update_object( cx, title )
 	cx.update_attribute( :date_dl_ingest, Time.now ) if cx.date_dl_ingest.nil? 
 	cx.update_metadata('allxml')
