@@ -11,7 +11,8 @@ def guide_summary
 			  :bibl_id => b && b.id, 
 			  :bibl_title => b && b.title,
 			  :units => b && b.units && b.units.size, 
-			  :mf_count => b && b.master_files && b.master_files.size, }
+			  :mf_count => b && b.master_files && b.master_files.size,
+			  :desc_mf_count => g.descendant_master_file_count }
 	end
 end
 
@@ -23,7 +24,8 @@ def guide_report
 		s = { :component => g,  
 			  :bibl => b,  
 			  :units => b && Unit.where( "bibl_id = #{b.id}" ),
-			  :mf_count => b && b.master_files && b.master_files.size, }
+			  :bibl_mf_count => b && b.master_files && b.master_files.size, 
+			  :comp_desc_mf_count => g.descendant_master_file_count }
 	end
 
 end
@@ -52,7 +54,7 @@ task :component_json, [:ead_id] => [:environment] do |t, args|
 	puts "Writing output to: #{args[:ead_id]}.json ..."
 	File::open( "#{args[:ead_id]}.json", "w" ).write( summary.to_json )
 	puts "Writing output to #{args[:ead_id]}.html ..." 
-	File::open( "#{args[:ead_id]}.html", "w" ).awesome_print( summary, :html => true )
+	File.new( "#{args[:ead_id]}.html", "w" ).awesome_print( summary, :html => true )
 end
 
 desc "generate json/html summary report of 'viu' EAD components attached to bibls"
@@ -63,6 +65,8 @@ task :component_summary => :environment do
 	output = File.new( 'guidesummary.html' , 'w' )
 	output.awesome_print( summary, :html => true )
 	puts output.to_path
+	puts "writing: guidesummary.json"
+	File.new( 'guidesummary.json', 'w' ).write( summary.to_json )
 
 end
 
@@ -75,6 +79,8 @@ task :component_report => :environment do
 	output = File.new( 'guidereport.html' , 'w' )
 	output.awesome_print( summary, :html => true )
 	puts output.to_path
+	puts "writing: guidereport.json"
+	File.new( 'guidereport.json', 'w' ).write( summary.to_json )
 
 end
 
