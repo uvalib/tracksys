@@ -33,15 +33,15 @@ end
 
 def build (hash)
   hash.collect do |k,v|
-    { :ead_id => k.ead_id_att, :ead_id_cache => k.ead_id_atts_depth_cache, 
+    { 	:ead_id => k.ead_id_att, :ead_id_cache => k.ead_id_atts_depth_cache, 
     	:level => k.level, :pid => k.pid, 
     	:desc => k.content_desc, 
+       	:master_files => k.master_files.collect { |mf| "#{mf.pid} :: #{mf.filename}" },
     	:children => (  if v.is_a?(Hash) and not v.empty? 
     						build(v)
-    					else
-    						k.master_files.collect { |mf|  mf.pid }
     					end
-    					)}
+    					),
+    }
   end
 end
 
