@@ -52,7 +52,11 @@ task :component_json, [:ead_id] => [:environment] do |t, args|
 	summary = build(subtree) # generate summary
 	# and dump hierarchy to json file
 	puts "Writing output to: #{args[:ead_id]}.json ..."
-	File::open( "#{args[:ead_id]}.json", "w" ).write( summary.to_json )
+	File.new( "#{args[:ead_id]}.json", "w" ).write( summary.to_json )
+
+	puts "Writing output to: #{args[:ead_id]}.xml ..."
+	File.new( "#{args[:ead_id]}.xml", "w" ).write( summary.to_xml )
+	
 	puts "Writing output to #{args[:ead_id]}.html ..." 
 	File.new( "#{args[:ead_id]}.html", "w" ).awesome_print( summary, :html => true )
 end
