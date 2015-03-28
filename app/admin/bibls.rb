@@ -8,6 +8,7 @@ ActiveAdmin.register Bibl do
   scope :not_approved
   scope :in_digital_library
   scope :not_in_digital_library
+  scope :dpla
 
   filter :id
   filter :title

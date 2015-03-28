@@ -89,6 +89,12 @@ class Bibl
   alias_attribute :name, :title
 
   #------------------------------------------------------------------
+  # scopes - maybe this belongs in hydraulics engine along with others (sdm7g)
+  #------------------------------------------------------------------
+  scope :dpla, where(:dpla => true)
+
+
+  #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------
   belongs_to :index_destination, :counter_cache => true
