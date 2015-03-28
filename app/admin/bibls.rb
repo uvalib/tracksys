@@ -255,6 +255,9 @@ ActiveAdmin.register Bibl do
           link_to "#{bibl.parent_bibl.title}", admin_bibl_path(bibl.parent_bibl)
         end
       end
+      row "child bibls" do |bibl|
+      	link_to "#{bibl.child_bibls.size}", admin_bibls_path(:q => {:parent_bibl_id_eq => bibl.id } )
+      end
     end
   end
 
