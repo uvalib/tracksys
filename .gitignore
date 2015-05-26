@@ -5,6 +5,7 @@ log/*.*
 tmp/*
 !tmp/start_application.sh
 !tmp/completely_restart_tracking_system.sh
+!tmp/fragments
 .sass-cache/
 public/admin
 public/assets
