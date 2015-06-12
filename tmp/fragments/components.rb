@@ -72,7 +72,8 @@ def make_components(bibl)
     link_siblings(cvol)
   end
   link_siblings(top)
-  bibl.component_ids= [top]
+  bibl.component_ids= [top.id]
   bibl.save!
+  top
 end
   
