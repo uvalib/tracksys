@@ -14,6 +14,7 @@ ActiveAdmin.register Order do
   scope :due_in_a_week
   scope :overdue
   scope :unpaid
+  scope :uniq
 
   filter :id
   filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}

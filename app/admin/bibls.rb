@@ -9,6 +9,7 @@ ActiveAdmin.register Bibl do
   scope :in_digital_library
   scope :not_in_digital_library
   scope :dpla
+  scope :uniq
 
   filter :id
   filter :title
