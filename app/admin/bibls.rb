@@ -227,7 +227,7 @@ ActiveAdmin.register Bibl do
         link_to "#{bibl.units.size}", admin_units_path(:q => {:bibl_id_eq => bibl.id})
       end
       row :orders do |bibl|
-        link_to "#{bibl.orders.count}", admin_orders_path(:q => {:bibls_id_eq => bibl.id})
+        link_to "#{bibl.orders.count}", admin_orders_path(:q => {:bibls_id_eq => bibl.id}, :scope => :uniq )
       end
       row :customers do |bibl|
         link_to "#{bibl.customers.count}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
