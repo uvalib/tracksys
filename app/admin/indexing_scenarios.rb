@@ -37,6 +37,18 @@ ActiveAdmin.register IndexingScenario do
         row :updated_at
       end
     end
+
+
+    div :class => 'admin-information' do
+      h4 "Note that although the stylesheets are stored in the Tracksys app directory tree, within Tracksys they are accessed from Fedora. Any changes to the stylesheets have to be uploaded to Fedora Repo for those changes to take effect."
+    end
+
+    panel "Repository Link" do
+     link_to indexing_scenario.complete_url, indexing_scenario.complete_url, :target => "_blank"
+    end
+    panel "Fedora Admin Link" do
+      link_to  indexing_scenario.repository_url + '/fedora/admin' , indexing_scenario.repository_url + '/fedora/admin', :target => "_blank"
+    end
   end
 
   sidebar "Related Information", :only => [:show] do

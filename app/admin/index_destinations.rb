@@ -63,5 +63,20 @@ ActiveAdmin.register IndexDestination do
       end      
     end
   end
+
+  sidebar "Config Environment Info" do
+    dl do
+      dt "Rails.env="
+      dd Rails.env
+      dt "SOLR_PRODUCTION_SERVER="
+      dd link_to  SOLR_PRODUCTION_NAME, 'http://' + SOLR_PRODUCTION_NAME + '/admin' , :target => "_blank"
+      dt "STAGING_SOLR_URL="
+      dd link_to STAGING_SOLR_URL, STAGING_SOLR_URL + '/admin/' , :target => "_blank"
+      dt "FEDORA_REST_URL="
+      dd link_to FEDORA_REST_URL, FEDORA_REST_URL , :target => "_blank"
+      dt "FEDORA_PROXY_URL="
+      dd link_to FEDORA_PROXY_URL, FEDORA_PROXY_URL , :target => "_blank"
+  end
+  end
   
 end
