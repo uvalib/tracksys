@@ -52,7 +52,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
         contents.each {|content|
           if /#{@unit_id}/ =~ content
             # Ignore potential matches with Fine Arts content
-            if not /ARCH|AVRN/ =~ content 
+            if not ( /ARCH|AVRN/ =~ content )
               FileUtils.mv File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}"), File.join(DELETE_DIR_FROM_SCAN, "#{content}_from_#{dir}")
               on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
             end 
@@ -63,7 +63,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
               on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
             end
           end
-	}
+	      }
       }
     else
       on_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{@source_dir}."
