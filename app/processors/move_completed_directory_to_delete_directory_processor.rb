@@ -47,23 +47,25 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
       # ToDo: If /ARCH|AVRN/ =~ @unit_id
 
       PRODUCTION_SCAN_SUBDIRECTORIES.each {|dir|
-        puts dir
-        contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
-        contents.each {|content|
-          if /#{@unit_id}/ =~ content
-            # Ignore potential matches with Fine Arts content
-            if not ( /ARCH|AVRN/ =~ content )
-              FileUtils.mv File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}"), File.join(DELETE_DIR_FROM_SCAN, "#{content}_from_#{dir}")
-              on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
-            end 
+        if  Dir.exists? (  File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}")  )
+          puts dir
+          contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
+          contents.each {|content|
+            if /#{@unit_id}/ =~ content
+              # Ignore potential matches with Fine Arts content
+              if not ( /ARCH|AVRN/ =~ content )
+                FileUtils.mv File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}"), File.join(DELETE_DIR_FROM_SCAN, "#{content}_from_#{dir}")
+                on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
+              end 
 
-            # If both content and unit_id match /ARCH|AVRN/, then move the content directory to the DELETE_FROM_SCAN_DIR
-            if /ARCH|AVRN/ =~ content and /ARCH|AVRN/ =~ @unit_id
-              FileUtils.mv File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}"), File.join(DELETE_DIR_FROM_SCAN, "#{content}_from_#{dir}")
-              on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
+              # If both content and unit_id match /ARCH|AVRN/, then move the content directory to the DELETE_FROM_SCAN_DIR
+              if /ARCH|AVRN/ =~ content and /ARCH|AVRN/ =~ @unit_id
+                FileUtils.mv File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}"), File.join(DELETE_DIR_FROM_SCAN, "#{content}_from_#{dir}")
+                on_success "Directory #{content} has been moved from #{PRODUCTION_SCAN_DIR}/#{dir} to #{DELETE_DIR_FROM_SCAN}."
+              end
             end
-          end
-	      }
+  	      }
+        end
       }
     else
       on_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{@source_dir}."
