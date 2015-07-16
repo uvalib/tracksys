@@ -47,7 +47,7 @@ class MoveCompletedDirectoryToDeleteDirectoryProcessor < ApplicationProcessor
       # ToDo: If /ARCH|AVRN/ =~ @unit_id
 
       PRODUCTION_SCAN_SUBDIRECTORIES.each {|dir|
-        if  Dir.exists? (  File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}", "#{content}")  )
+        if  Dir.exists? (  File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}" )  )
           puts dir
           contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
           contents.each {|content|
