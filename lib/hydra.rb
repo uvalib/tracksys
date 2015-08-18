@@ -110,7 +110,8 @@ module Hydra
         "policyFacet" => "#{availability_policy_pid}",
         "clear-stylesheet-cache" => "yes"
       })
-      return response.body
+      Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
+      return response.body if response.is_a? Net::HTTPSuccess  # doesn't fix issue #194 if bad XML, but it's another sanity check.
     elsif object.is_a? MasterFile
       parent_mods_record = "#{FEDORA_REST_URL}/objects/#{object.bibl.pid}/datastreams/descMetadata/content"
       parent_mods_record = parent_mods_record.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ')
@@ -187,7 +188,7 @@ module Hydra
   # given the output of an object's solr_xml method, return a
   # solr-ruby object, e.g., doc = read_solr_xml(bibl.solr_xml)
   def self.read_solr_xml(solr_xml)
-    xml = Nokogiri::XML(solr_xml)
+    xml = Nokogiri::XML(solr_xml) { |config| config.strict.nonet }  # Issue #194 strict parsing here will throw an error instead of posting BAD xml 
     doc = Solr::Document.new
  
     # The Hash has to be rebuilt at every element so to allow repeatable solr fields (i.e. subject_text).   
