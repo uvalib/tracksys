@@ -23,3 +23,23 @@ class Invoice
   delegate :customer, to: :order, prefix: true
   delegate :fee_actual, to: :order, prefix: true
 end
+# == Schema Information
+#
+# Table name: invoices
+#
+#  id                      :integer(4)      not null, primary key
+#  order_id                :integer(4)      default(0), not null
+#  date_invoice            :datetime
+#  invoice_content         :text
+#  created_at              :datetime
+#  updated_at              :datetime
+#  invoice_number          :integer(4)
+#  fee_amount_paid         :integer(4)
+#  date_fee_paid           :datetime
+#  date_second_notice_sent :datetime
+#  transmittal_number      :text
+#  notes                   :text
+#  invoice_copy            :binary(16777215
+#  permanent_nonpayment    :boolean(1)      default(FALSE)
+#
+

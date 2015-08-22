@@ -95,4 +95,19 @@ public
 
   alias_attribute :name, :full_name
 
-end
+end# == Schema Information
+#
+# Table name: staff_members
+#
+#  id                        :integer(4)      not null, primary key
+#  access_level_id           :integer(4)      default(0), not null
+#  computing_id              :string(255)
+#  last_name                 :string(255)
+#  first_name                :string(255)
+#  is_active                 :boolean(1)      default(FALSE), not null
+#  created_at                :datetime
+#  updated_at                :datetime
+#  automation_messages_count :integer(4)      default(0)
+#  email                     :string(255)
+#
+

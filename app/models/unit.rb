@@ -131,3 +131,40 @@ class Unit
   end
 
 end
+# == Schema Information
+#
+# Table name: units
+#
+#  id                             :integer(4)      not null, primary key
+#  order_id                       :integer(4)      default(0), not null
+#  bibl_id                        :integer(4)
+#  archive_id                     :integer(4)
+#  heard_about_resource_id        :integer(4)
+#  unit_status                    :string(255)
+#  date_materials_received        :datetime
+#  date_materials_returned        :datetime
+#  unit_extent_estimated          :integer(4)
+#  unit_extent_actual             :integer(4)
+#  patron_source_url              :text
+#  special_instructions           :text
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  intended_use_id                :integer(4)
+#  exclude_from_dl                :boolean(1)      default(FALSE), not null
+#  staff_notes                    :text
+#  use_right_id                   :integer(4)
+#  date_queued_for_ingest         :datetime
+#  date_archived                  :datetime
+#  date_patron_deliverables_ready :datetime
+#  include_in_dl                  :boolean(1)      default(FALSE)
+#  date_dl_deliverables_ready     :datetime
+#  remove_watermark               :boolean(1)      default(FALSE)
+#  master_file_discoverability    :boolean(1)      default(FALSE)
+#  indexing_scenario_id           :integer(4)
+#  checked_out                    :boolean(1)      default(FALSE)
+#  availability_policy_id         :integer(4)
+#  master_files_count             :integer(4)      default(0)
+#  automation_messages_count      :integer(4)      default(0)
+#  index_destination_id           :integer(4)
+#
+

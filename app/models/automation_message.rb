@@ -83,3 +83,23 @@ class AutomationMessage
 
 end
   
+# == Schema Information
+#
+# Table name: automation_messages
+#
+#  id              :integer(4)      not null, primary key
+#  pid             :string(255)
+#  app             :string(255)
+#  processor       :string(255)
+#  message_type    :string(255)
+#  message         :string(255)
+#  class_name      :string(255)
+#  backtrace       :text
+#  created_at      :datetime
+#  updated_at      :datetime
+#  active_error    :boolean(1)      default(FALSE), not null
+#  messagable_id   :integer(4)      not null
+#  messagable_type :string(20)      not null
+#  workflow_type   :string(255)
+#
+

@@ -11,3 +11,16 @@ class HeardAboutResource
   alias_attribute :name, :description  
   
 end
+# == Schema Information
+#
+# Table name: heard_about_resources
+#
+#  id                   :integer(4)      not null, primary key
+#  description          :string(255)
+#  created_at           :datetime
+#  updated_at           :datetime
+#  is_approved          :boolean(1)      default(FALSE), not null
+#  is_internal_use_only :boolean(1)      default(FALSE), not null
+#  units_count          :integer(4)
+#
+
