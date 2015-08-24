@@ -90,6 +90,9 @@ module Hydra
         shadowed = "VISIBLE"
       end
 
+      # if there is a collection_facet, pass it thru to XSLT as a param
+      collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
+      
       uri = URI("http://#{SAXON_URL}:#{SAXON_PORT}/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri, {
         "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
@@ -105,6 +108,7 @@ module Hydra
         "shadowedItem" => "#{shadowed}",
         "externalRelations" => "#{external_relations}",
 #        "totalTranscriptions" => "#{total_transcription}",
+        collectionFacetParam => "#{object.collection_facet}",
         "totalTitles" => "#{total_title}",
         "totalDescriptions" => "#{total_description}",
         "policyFacet" => "#{availability_policy_pid}",
