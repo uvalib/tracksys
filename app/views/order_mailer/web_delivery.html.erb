@@ -12,11 +12,20 @@ Your digital request is now available and may be downloaded using the links belo
 <p>A PDF included in the above zip files contains all bibliographic and descriptive information about your digital order.</p>
 
 <% if @fee %>
-<p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days. Please write a check in the above amount made payable to Digital Curation Services, UVa Library, and send it to the following address:</p>
-<p>Digital Curation Services<br/>
-University of Virginia Library<br/>
-Post Office Box 400155<br/> 
-Charlottesville, Virginia 22904 U.S.A</p>
+<p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days.</p>
+
+<p>You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:</p><br/>
+    <%= link_to "http://dcs.library.virginia.edu/online-payments-for-digitization-orders/", "http://dcs.library.virginia.edu/online-payments-for-digitization-orders/"%>
+
+
+<p>Or you may write a check (include your order number for proper credit in our system) in the above amount made payable to Digital Production Group, UVa Library, and send it to the following address:</p>
+<p>
+Financial Services, UVa Library<br/>
+Attn: Teresa Brown<br/>
+PO Box 400107<br/>
+Charlottesville, VA 22904<br/>
+</p>
+
 <% end %>
 
 <p>*** Please note that your image files will only be available for the next ten days ***</p>
@@ -25,10 +34,10 @@ Charlottesville, Virginia 22904 U.S.A</p>
 <p>For more information regarding the use, reproduction and publication of materials, please refer to the guidelines provided by Special Collections at:
 <%= link_to "http://small.library.virginia.edu/services/reproduction/", 'http://small.library.virginia.edu/services/reproduction/' %>
 <p>Sincerely,<br/>
-Digitization Services Staff<br/><br/>
-Digitization Services<br/>
+Digital Production Group Staff<br/><br/>
+Digital Production Group<br/>
 University of Virginia Library<br/>
 P.O. Box 400155<br/>
 Charlottesville, VA 22904<br/>
-<%= link_to "http://www.digitalcurationservices.org/digitization-services/about-digitization-services/", 'http://www.digitalcurationservices.org/digitization-services/about-digitization-services/' %></p>
+<%= link_to "http://dcs.library.virginia.edu/", "http://dcs.library.virginia.edu/" %></p>
 

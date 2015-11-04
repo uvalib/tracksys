@@ -14,7 +14,7 @@ module BuildOrderPDF
     @pdf = Prawn::Document.new
     @pdf.font "Helvetica", :encoding => nil
     @pdf.image "#{Rails.root}/app/assets/images/lib_letterhead.jpg", :position => :center, :width => 500
-    @pdf.text "Digital Curation Services,  University of Virginia Library", :align => :center
+    @pdf.text "Digital Production Group,  University of Virginia Library", :align => :center
     @pdf.text "Post Office Box 400155, Charlottesville, Virginia 22904 U.S.A.", :align => :center
     @pdf.text "\n\n"
     @pdf.text "Order ID: #{self.id}", :align => :right, :font_size => 14
@@ -28,18 +28,22 @@ module BuildOrderPDF
     end
     @pdf.text "\n"
     if not @fee.to_i.eql?(0)
-      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  Please write a check in the above amount made payable to <i>Digital Curation Services, UVa Library</i> and send it to the following address:", :inline_format => true
+      @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:", :inline_format => true
       @pdf.text "\n"
-      @pdf.text "Digital Curation Services", :left => 100
-      @pdf.text "University of Virginia Library", :left => 100
-      @pdf.text "Post Office Box 400155", :left => 100
+      @pdf.text "<u><link href='http://dcs.library.virginia.edu/online-payments-for-digitization-orders/'>http://dcs.library.virginia.edu/online-payments-for-digitization-orders/</link></u>" , :inline_format => true
+      @pdf.text "\n"
+      @pdf.text "Or you may write a check (include your order number for proper credit in our system) in the above amount made payable to <b>Digital Production Group, UVa Library</b>, and send it to the following address:", :inline_format => true
+      @pdf.text "\n"
+      @pdf.text "Financial Services, UVa Library", :left => 100
+      @pdf.text "Attn: Teresa Brown", :left => 100
+      @pdf.text "PO Box 400107", :left => 100
       @pdf.text "Charlottesville, Virginia 22904  U.S.A", :left => 100
     end
 
     @pdf.text "\n"
     @pdf.text "Sincerely,", :left => 350
     @pdf.text "\n"
-    @pdf.text "Digitization Services Staff", :left => 350
+    @pdf.text "Digital Production Group Staff", :left => 350
     # End cover page
 
     # Begin first page of invoice
