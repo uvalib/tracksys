@@ -52,7 +52,13 @@ group :production, :test do
 #  gem "devise_ldap_authenticatable"
 end
 
-gem 'awesome_print', :group => :development
+group :development do
+  gem 'awesome_print'
+  gem 'pry'
+  gem 'pry-nav'
+  gem 'pry-doc'
+  gem 'pry-rails'
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
