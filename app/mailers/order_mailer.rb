@@ -1,9 +1,9 @@
 class OrderMailer < ActionMailer::Base
   add_template_helper(ApplicationHelper)
-  default from: "digitalservices@virginia.edu", 
-          cc: "digitalservices@virginia.edu",
+  default from: "lib-dser@virginia.edu", 
+          cc: "lib-dser@virginia.edu",
           bcc: "sdm7g@virginia.edu",
-          reply_to: "digitalservices@virginia.edu"
+          reply_to: "lib-dser@virginia.edu"
 
   def send_fee_estimate(order)
     @order = order
