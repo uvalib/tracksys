@@ -3,7 +3,7 @@
     <div class="twelvecol">
       <div><%= image_tag "http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg", :size => '640x64' %></div>
       <p>Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,</p>
-      <p>Thank you for submitting a request to UVa Library Digitization Services.  Below you will find a summary of your order.</p>
+      <p>Thank you for submitting a request to UVa Library Digital Production Group.  Below you will find a summary of your order.</p>
       <div class="twelvecol">
         <h2>Order Summary</h2>
         <div class="span4">
@@ -112,11 +112,11 @@
           <dt>Processing Time</dt>
           <dd>Orders generally require at least 20 days to process.  Rush requests will be honored if possible.</dd>
           <dt>Fees</dt>
-          <dd><em><strong>(Non-UVA only)</strong></em>  $50 for the first hour, $25 each additional hour.  Special Collections staff will send a fee estimate before digitization.</dd>
+          <dd><em><strong>(Non-UVA only)</strong></em>  $50 for the first hour, $25 each additional hour.  Special Collections staff will send a fee estimate that must be approved before any digitization work is done.</dd>
           <dt>Deliverables</dt>
           <dd>300dpi JPEG or highest resolution TIFF, depending on your intended use.</dd>
           <dt>Delivery</dt>
-          <dd>All requests are delivered as online downloads. Special delivery needs will be honored at the discretion of Digitization Services staff.</dd>
+          <dd>All requests are delivered as online downloads. Special delivery needs will be honored at the Digitization Production Group's discretion.</dd>
           <dt>Further Questions?</dt>
           <dd>If you have questions about your request, contact <%= mail_to 'lib-dser@virginia.edu' %> and include the following request number: <strong><%= @request.id %></strong></dd>
         </dl>
@@ -127,12 +127,11 @@
     <div>
       <address>
         <strong>University of Virginia Library</strong><br/>
-                Digitization Services Unit<br/>
-                Digital Curation Services<br/>
+                Digital Production Group<br/>
         <a href="mailto:#">lib-dser@virginia.edu</a>
       </address>
 
-      <p>Learn more about us at http://www.digitalcurationservices.org/digitization-services/about-digitization-services/</p>
+      <p>Learn more about us at <%= link_to "http://dcs.library.virginia.edu/", "http://dcs.library.virginia.edu/" %></p>
     </div>
   </body>
 </html>

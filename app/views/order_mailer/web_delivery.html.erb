@@ -5,10 +5,10 @@
 Your digital request is now available and may be downloaded using the link below:
 <% else %>
 Your digital request is now available and may be downloaded using the links below:
-<% end %>
+<% end %></p>
 <% for delivery_file in @delivery_files -%>
 <p><%= DELIVERY_URL %><%= delivery_file %></p>
-<% end -%></p>
+<% end -%>
 <p>A PDF included in the above zip files contains all bibliographic and descriptive information about your digital order.</p>
 
 <% if @fee %>
