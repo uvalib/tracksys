@@ -53,7 +53,7 @@ class CreateOrderPdfProcessor < ApplicationProcessor
       @pdf.text "\n"
       @pdf.text "<u><link href='http://dcs.library.virginia.edu/online-payments-for-digitization-orders/'>http://dcs.library.virginia.edu/online-payments-for-digitization-orders/</link></u>" , :inline_format => true
       @pdf.text "\n"
-      @pdf.text "Or you may write a check (include your order number for proper credit in our system) in the above amount made payable to <b>Digital Production Group, UVa Library</b>, and send it to the following address:", :inline_format => true
+      @pdf.text "Or you may send a check or money order (include your order number for proper credit in our system) in the above amount made payable to <b>Digital Production Group, UVa Library</b>, and send it to the following address:", :inline_format => true
       @pdf.text "\n"
       @pdf.text "Financial Services, UVa Library", :left => 100
       @pdf.text "Attn: Teresa Brown", :left => 100
