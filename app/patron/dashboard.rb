@@ -26,14 +26,14 @@ ActiveAdmin.register_page "Dashboard", :namespace => :patron do
     end
 
     div :class => 'two-column' do
-      panel "Digitization Services Checkouts", :namespace => :patron, :priority => 2, :width => '50%' do
+      panel "Digital Production Group Checkouts", :namespace => :patron, :priority => 2, :width => '50%' do
         table do
           tr do
             td do "Unreturned Material" end
             td do link_to "#{Unit.overdue_materials.count}", patron_units_path(:scope => 'overdue_materials') end
           end
           tr do
-            td do "Materials Currently in Digitization Services" end
+            td do "Materials Currently in Digital Production Group" end
             td do link_to "#{Unit.checkedout_materials.count}", patron_units_path(:scope => 'checkedout_materials') end
           end
         end
@@ -86,7 +86,7 @@ ActiveAdmin.register_page "Dashboard", :namespace => :patron do
   #   end
   # end
 
-  # section "Materials Currently in Digitization Services (#{Unit.checkedout_materials.count})", :width => '33%', :namespace => :patron, :toggle => 'hide' do
+  # section "Materials Currently in Digital Production Group (#{Unit.checkedout_materials.count})", :width => '33%', :namespace => :patron, :toggle => 'hide' do
   #   table_for Unit.checkedout_materials do
   #     column("Unit ID") {|unit| link_to unit.id, patron_unit_path(unit)}
   #     column("Date Checked Out") {|unit| format_date(unit.date_materials_received)}

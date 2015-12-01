@@ -14,7 +14,7 @@ class ReportMailer < ActionMailer::Base
   #     address = @customer.email
   #   end
 
-  #   mail to: address, subject: "UVA Digitization Services - Request #{order.id} Estimated Fee"
+  #   mail to: address, subject: "UVA Digital Production Group - Request #{order.id} Estimated Fee"
   # end
 
   def send_dl_manifest(staff_member)

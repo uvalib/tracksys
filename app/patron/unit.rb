@@ -38,7 +38,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
 
   batch_action :checkout_to_digiserv do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:date_materials_received, Time.now)}
-    flash[:notice] = "Units #{select.join(", ")} are now checkedout to Digitization Services."
+    flash[:notice] = "Units #{select.join(", ")} are now checkedout to Digital Production Group."
     redirect_to :back
   end
 
@@ -212,11 +212,11 @@ ActiveAdmin.register Unit, :namespace => :patron do
 
   sidebar :approval_workflow, :only => :show do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_patron_unit_path, :method => :put end
-    if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digitization Services
+    if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
       div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_patron_unit_path, :method => :put end
       div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_patron_unit_path, :method => :put, :disabled => true end
-    elsif unit.date_materials_received # i.e. Material has been checked out to Digitization Services
-      if unit.date_materials_returned.nil? # i.e. Material has been checkedout to Digitization Services but not yet returned
+    elsif unit.date_materials_received # i.e. Material has been checked out to Digital Production Group
+      if unit.date_materials_returned.nil? # i.e. Material has been checkedout to Digital Production Group but not yet returned
         div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_patron_unit_path, :method => :put, :disabled => true end
         div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_patron_unit_path, :method => :put end
       else 
@@ -274,12 +274,12 @@ ActiveAdmin.register Unit, :namespace => :patron do
   member_action :change_status
   member_action :checkout_to_digiserv, :method => :put do 
     Unit.find(params[:id]).update_attribute(:date_materials_received, Time.now)
-    redirect_to :back, :notice => "Unit #{params[:id]} is now checked out to Digitization Services."
+    redirect_to :back, :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
   end
 
   member_action :checkin_from_digiserv, :method => :put do 
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
-    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digitization Services."  
+    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."  
   end
 
   controller do

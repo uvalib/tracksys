@@ -15,7 +15,7 @@ class OrderMailer < ActionMailer::Base
       address = @customer.email
     end
 
-    mail to: address, subject: "UVA Digitization Services - Request #{order.id} Estimated Fee"
+    mail to: address, subject: "UVA Digital Production Group - Request #{order.id} Estimated Fee"
   end
 
   def dvd_delivery(order, dvd_delivery_location)
@@ -36,7 +36,7 @@ class OrderMailer < ActionMailer::Base
       end
     end
 
-    mail to: address, subject: "UVA Digitization Services - Order #{order.id} Complete"
+    mail to: address, subject: "UVA Digital Production Group - Order #{order.id} Complete"
   end
 
   def request_confirmation(request)
@@ -49,7 +49,7 @@ class OrderMailer < ActionMailer::Base
       address = @customer.email
     end
 
-    mail to: address, subject: "UVA Digitization Services - Request ##{@request.id} Confirmation", :css => :email
+    mail to: address, subject: "UVA Digital Production Group - Request ##{@request.id} Confirmation", :css => :email
   end
   
   def web_delivery(order, delivery_files)
@@ -70,6 +70,6 @@ class OrderMailer < ActionMailer::Base
       end
     end
 
-    mail to: address, subject: "UVA Digitization Services - Order # #{order.id} Complete"
+    mail to: address, subject: "UVA Digital Production Group - Order # #{order.id} Complete"
   end
 end

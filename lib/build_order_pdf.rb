@@ -22,9 +22,9 @@ module BuildOrderPDF
     @pdf.text "Dear #{@customer.first_name.capitalize} #{@customer.last_name.capitalize}, \n\n"  
     
     if @units_in_pdf.length > 1
-      @pdf.text "On #{self.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitization Services of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
+      @pdf.text "On #{self.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
     else
-      @pdf.text "On #{self.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digitization Services of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
+      @pdf.text "On #{self.date_request_submitted.strftime("%B %d, %Y")} you placed an order with Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
     end
     @pdf.text "\n"
     if not @fee.to_i.eql?(0)

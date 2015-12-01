@@ -565,7 +565,7 @@ module Hydra
       # Add node with Tracksys Bibl ID
       bibl_id_node = Nokogiri::XML::Node.new "identifier", doc
       bibl_id_node['type'] = 'local'
-      bibl_id_node['displayLabel'] = 'Digitization Services Tracksys Bibl ID'
+      bibl_id_node['displayLabel'] = 'Digital Production Group Tracksys Bibl ID'
       bibl_id_node.content = "#{object.id}"
       last_node.add_next_sibling(bibl_id_node)
 
@@ -585,7 +585,7 @@ module Hydra
         if unit.include_in_dl == true
           unit_id_node = Nokogiri::XML::Node.new "identifier", doc
           unit_id_node['type'] = 'local'
-          unit_id_node['displayLabel'] = 'Digitization Services Tracksys Unit ID'
+          unit_id_node['displayLabel'] = 'Digital Production Group Tracksys Unit ID'
           unit_id_node.content = "#{unit.id}"
           last_node.add_next_sibling(unit_id_node)
         end
@@ -643,12 +643,12 @@ module Hydra
         }
       end
 
-      xml.mods :identifier, object.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Bibl ID'
+      xml.mods :identifier, object.id, :type =>'local', :displayLabel => 'Digital Production Group Tracksys Bibl ID'
       
       # Include all the Unit number of units belonging to the Bibl that have include_in_dl = true
       object.units.each {|unit|
         if unit.include_in_dl == true
-          xml.mods :identifier, unit.id, :type =>'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
+          xml.mods :identifier, unit.id, :type =>'local', :displayLabel => 'Digital Production Group Tracksys Unit ID'
         end
       }
     end
@@ -831,11 +831,11 @@ module Hydra
       xml.mods :identifier, master_file.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
     end
     
-    xml.mods :identifier, master_file.unit.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys Unit ID'
+    xml.mods :identifier, master_file.unit.id, :type => 'local', :displayLabel => 'Digital Production Group Tracksys Unit ID'
     
-    xml.mods :identifier, master_file.id, :type => 'local', :displayLabel => 'Digitization Services Tracksys MasterFile ID'
+    xml.mods :identifier, master_file.id, :type => 'local', :displayLabel => 'Digital Production Group Tracksys MasterFile ID'
     
-    xml.mods :identifier, master_file.filename, :type => 'local', :displayLabel => 'Digitization Services Archive Filename'
+    xml.mods :identifier, master_file.filename, :type => 'local', :displayLabel => 'Digital Production Group Archive Filename'
     
     if not master_file.legacy_identifiers.empty?
       master_file.legacy_identifiers.each {|li|
