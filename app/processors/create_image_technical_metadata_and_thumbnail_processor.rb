@@ -129,11 +129,11 @@ class CreateImageTechnicalMetadataAndThumbnailProcessor < ApplicationProcessor
 
     logger.info "Range dir: #{@range_dir}"
 
-    if not File.exist?("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
-      FileUtils.mkdir_p("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
+    if not File.exist?("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
+      FileUtils.mkdir_p("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
     end
     
-    thumbnail.write("/digiserv-production/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{mf.filename.gsub(/tif/, 'jpg')}")
+    thumbnail.write("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{mf.filename.gsub(/tif/, 'jpg')}")
     thumbnail.destroy!
   end
 

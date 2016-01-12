@@ -5,12 +5,12 @@ module Pidable
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
   publishes_to :update_fedora_datastreams
-   
+
   def get_object_label
     resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
-    
+
     url = "/objects/#{self.pid}?format=xml"
-  
+
     begin
       response = resource[url].get
       xml = Nokogiri.XML(response)
@@ -105,7 +105,7 @@ module Pidable
       # * If any other exception occurs, it remains unhandled and gets raised
       resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
       url = "/objects?query=pid%3D#{pid}&resultFormat=xml&pid=true"
- 
+
       begin
         response = resource[url].get
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
@@ -143,7 +143,7 @@ module Pidable
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
         return false
       end
-      return true 
+      return true
     end
 
   end
@@ -160,7 +160,7 @@ module Pidable
     return "#{FEDORA_REST_URL}/objects/#{self.pid}"
   end
 
-  def solr_url(url=SOLR_URL)
+  def solr_url(url=STAGING_SOLR_URL)
     return "#{url}/select?q=id:\"#{self.pid}\""
   end
 end

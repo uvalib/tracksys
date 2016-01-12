@@ -12,7 +12,9 @@ public/admin
 public/assets
 public/metadata
 tracksys.sublime-workspace
-config/environments/production.rb
 config/database.yml
 *~
 *.bak
+
+# Ignore application configuration
+/config/application.yml

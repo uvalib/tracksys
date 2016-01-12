@@ -7,7 +7,7 @@ Tracksys::Application.configure do
 
   # This has to be set to true if we want to expire pages and actions.
   config.cache_classes = false
-  # Setting this to null avoids annoying database timeouts 
+  # Setting this to null avoids annoying database timeouts
   config.cache_store = :null_store
 
   # Log error messages when you accidentally call methods on nil.
@@ -36,40 +36,5 @@ Tracksys::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
-
-#  Fedora_apim_wsdl = 'http://tracksysdev.lib.virginia.edu:8080/fedora/wsdl?api=API-M'
-#  Fedora_apia_wsdl = 'http://tracksysdev.lib.virginia.edu:8080/fedora/wsdl?api=API-A'
-#  Fedora_username = 'fedoraAdmin'
-#  Fedora_password = 'fedoraAdmin'
- FEDORA_REST_URL = 'http://tracksysdev.lib.virginia.edu:8080/fedora'
- FEDORA_PROXY_URL = FEDORA_REST_URL 
- SOLR_URL = "http://tracksysdev.lib.virginia.edu:8080/solr/tracksys"
- STAGING_SOLR_URL= SOLR_URL # dev
- Fedora_username = 'fedoraAdmin'
- Fedora_password = 'fedoraAdmin'
-  
- TRACKSYS_URL = "http://tracksysdev.lib.virginia.edu/"
-#  TRACKSYS_URL_METADATA = "http://tracksysdev.lib.virginia.edu/metadata"
-#  DELIVERY_DIR = "/digiserv-delivery-test"
-#  TEI_ACCESS_URL = "http://xtf.lib.virginia.edu/xtf/view"
-  
-  # Set the number of threads dedicated to JP2K creation.
-  NUM_JP2K_THREADS = 1
-
-config.after_initialize do
-  PRODUCTION_MOUNT = "/sandbox/digiserv-production"
-  MIGRATION_MOUNT = "/sandbox/digiserv-migration"
-
-  ADMINISTRATIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/administrative"
-  IVIEW_CATALOG_EXPORT_DIR = "#{ADMINISTRATIVE_DIR_PRODUCTION}/EAD2iViewXML"
-
-  # overrides for dev
-  PRODUCTION_SCAN_DIR="/tmp/scan"
-  PRODUCTION_SCAN_FROM_ARCHIVE_DIR="#{PRODUCTION_SCAN_DIR}/01_from_archive"
-  BASE_DESTINATION_PATH_DL  = "/tmp/30_process_deliverables"
-  # Saxon Servelet for Transformations
-  SAXON_URL = "tracksysdev.lib.virginia.edu"
-  SAXON_PORT = "8080"
-end
 
 end

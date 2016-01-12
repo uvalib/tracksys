@@ -1,6 +1,6 @@
 ActiveAdmin.register Unit do
   menu :priority => 4
-  
+
   scope :all, :default => true
   scope :approved
   scope :unapproved
@@ -17,7 +17,7 @@ ActiveAdmin.register Unit do
     column("Date Archived") {|unit| format_date(unit.date_archived)}
     column :master_files_count
   end
-  
+
   actions :all, :except => [:destroy]
 
   batch_action :approve_units do |selection|
@@ -86,15 +86,15 @@ ActiveAdmin.register Unit do
       status_tag(unit.unit_status)
     end
     column ("Bibliographic Record") do |unit|
-      div do 
-        link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}") 
+      div do
+        link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}")
       end
-      div do 
+      div do
         unit.bibl_call_number
       end
     end
     column ("DL Status") {|unit|
-      case 
+      case
         when unit.include_in_dl?
           Unit.human_attribute_name(:include_in_dl)
         when unit.exclude_from_dl?
@@ -111,7 +111,7 @@ ActiveAdmin.register Unit do
       format_date(unit.date_dl_deliverables_ready)
     end
     column :intended_use
-    column("Master Files") do |unit| 
+    column("Master Files") do |unit|
       link_to unit.master_files_count, admin_master_files_path(:q => {:unit_id_eq => unit.id})
     end
     column("") do |unit|
@@ -172,11 +172,11 @@ ActiveAdmin.register Unit do
 
     div :class => "columns-none" do
       panel "Digital Library Information", :toggle => 'hide' do
-        attributes_table_for unit do 
+        attributes_table_for unit do
           row :indexing_scenario
           row :availability_policy
           row :use_right
-          row :index_destination do |unit| 
+          row :index_destination do |unit|
             if unit.index_destination
               link_to "#{unit.index_destination.nickname} (aka #{unit.index_destination.url})", admin_index_destinations_path(:q => unit.index_destination_id)
             else
@@ -184,7 +184,7 @@ ActiveAdmin.register Unit do
             end
           end
           row ("Digital Library Status") do |unit|
-            case 
+            case
               when unit.include_in_dl?
                 Unit.human_attribute_name(:include_in_dl)
               when unit.exclude_from_dl?
@@ -241,7 +241,7 @@ ActiveAdmin.register Unit do
                   link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
                 end
                 div do
-                  link_to "Solr", "#{SOLR_URL}/select?q=id:\"#{mf.pid}\"", :class => 'member_link', :target => "_blank"
+                  link_to "Solr", "#{STAGING_SOLR_URL}/select?q=id:\"#{mf.pid}\"", :class => 'member_link', :target => "_blank"
                 end
               end
               if mf.date_archived
@@ -249,7 +249,7 @@ ActiveAdmin.register Unit do
                   link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
                 end
               end
-            end          
+            end
           end
         end
       else
@@ -277,7 +277,7 @@ ActiveAdmin.register Unit do
       f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 }
     end
 
-    f.inputs "Related Information", :class => 'panel three-column' do 
+    f.inputs "Related Information", :class => 'panel three-column' do
       f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chzn-select', :style => 'width: 200px'}
       f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
       f.input :archive, :as => :select, :collection => Archive.all, :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
@@ -308,7 +308,7 @@ ActiveAdmin.register Unit do
       end
       row :master_files do |unit|
         link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
-      end 
+      end
       row :customer
       row :automation_messages do |unit|
         link_to "#{unit.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => unit.id, :messagable_type_eq => "Unit" })
@@ -325,7 +325,7 @@ ActiveAdmin.register Unit do
     end
   end
 
-  # In order to keep this print_routing_slip method DRY, the patron path will still be referred to since there 
+  # In order to keep this print_routing_slip method DRY, the patron path will still be referred to since there
   # are no further actions available at that screen.  When replaced by generating PDFs, we can revisit this DRYness.
   sidebar :approval_workflow, :only => :show do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_patron_unit_path, :method => :put end
@@ -349,7 +349,7 @@ ActiveAdmin.register Unit do
       end
     else
       div do "Files for this unit do not reside in the finalization directory. No work can be done on them." end
-    end 
+    end
 
     if unit.date_archived
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
@@ -359,12 +359,12 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do 
+  sidebar "Digital Library Workflow", :only => [:show] do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
     if unit.in_dl?
-      if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? ) 
+      if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? )
         div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
       end
       div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
@@ -404,7 +404,7 @@ ActiveAdmin.register Unit do
     redirect_to :back, :notice => "Workflow started at the checking of the unit's delivery mode."
   end
 
-  member_action :copy_from_archive, :method => :put do 
+  member_action :copy_from_archive, :method => :put do
     if request.env['HTTP_REMOTE_USER']
       Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
     else
@@ -438,7 +438,7 @@ ActiveAdmin.register Unit do
     redirect_to :back, :notice => "Unit being put into digital library."
   end
 
-  member_action :update_metadata, :method => :put do 
+  member_action :update_metadata, :method => :put do
     Unit.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
@@ -449,21 +449,13 @@ ActiveAdmin.register Unit do
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
-  
-  controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-    # Only cache the index view if it is the base index_url (i.e. /units) and is devoid of either params[:page] or params[:q].  
-    # The absence of these params values ensures it is the base url.
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-    caches_action :show, :unless =>  Proc.new { |c| File.exist?(File.join(IN_PROCESS_DIR, "%09d" % c.params[:id])) }
-    cache_sweeper :units_sweeper
 
+  controller do
     def update
 
       if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
         # logger.debug "Request body: #{request.body.read}"
-        
+
         body = request.body.read
         xml = Hash.from_xml(body)
         logger.debug "xml: #{xml}"

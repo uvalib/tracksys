@@ -1,30 +1,24 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.16'
-gem 'devise'
+gem 'rails', '3.2.22'
+gem 'devise', '3.1.1'
 
-# Needed to resolve incompatability with Fedora 12+
-gem 'execjs'
-gem 'therubyracer'
-
-gem 'hydraulics', path: 'lib/hydraulics'
-gem 'activeadmin', '0.6.0'
+gem 'hydraulics', '0.0.5', path: 'lib/hydraulics'
+gem 'activeadmin', '0.6.6'
 # gem 'activeadmin', :path => '../active_admin'
-gem 'sass-rails'
-gem 'meta_search',    '>= 1.1.0.pre'
+gem 'sass-rails', '3.2.6'
 gem 'passenger'
+gem 'figaro'
 
-gem 'sqlite3'
 gem 'json'
-gem 'validates_timeliness'
+gem 'validates_timeliness', '3.0.14'
 gem 'annotate', '2.4.1.beta1'
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.10'
 gem 'foreigner'
 gem 'ancestry'
-gem 'activemessaging', :git => 'git://github.com/kookster/activemessaging.git'
+gem 'activemessaging'
 gem "daemons"
 gem "stomp"
-#gem "memcache-client"
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
@@ -33,7 +27,7 @@ gem 'spreadsheet', '0.6.9'
 gem 'tweet-button'
 gem 'lazy_high_charts'
 gem 'rqrcode'
-gem 'prawn'
+gem 'prawn', '0.12.0'
 gem 'nested_form', :git => 'git://github.com/ryanb/nested_form.git'
 gem 'net-ldap'
 gem 'country-select'
@@ -46,6 +40,7 @@ group :test do
   gem "factory_girl_rails"
   gem "capybara"
   gem "guard-rspec"
+gem 'test-unit', '~> 3.0'
 end
 
 group :production, :test do
@@ -68,10 +63,10 @@ group :assets do
   gem 'uglifier'
 end
 
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
-gem "jquery-colorbox-rails", "~> 0.1.4"
-gem "chosen-rails", "~> 1.0.0"
+gem 'jquery-rails', '2.3.0'
+gem 'jquery-ui-rails', '4.0.5'
+gem 'jquery-colorbox-rails', '0.1.4'
+gem "chosen-rails", '~> 1.1.0'
 
 # Use unicorn as the web server
 # gem 'unicorn'

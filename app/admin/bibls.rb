@@ -27,7 +27,7 @@ ActiveAdmin.register Bibl do
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric
   filter :agencies_id, :as => :numeric
-  
+
   csv do
     column :id
     column :title
@@ -92,7 +92,7 @@ ActiveAdmin.register Bibl do
       end
     end
   end
-  
+
   show :title => proc { |bibl| truncate(bibl.title, :length => 60) } do
     div :class => 'three-column' do
       panel "Basic Information", :toggle => 'show' do
@@ -171,7 +171,7 @@ ActiveAdmin.register Bibl do
 		  row :dpla
           row :availability_policy
           row :indexing_scenario
-          row :index_destination do |bibl| 
+          row :index_destination do |bibl|
             if bibl.index_destination
               link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
             else
@@ -190,7 +190,7 @@ ActiveAdmin.register Bibl do
         end
       end
     end
-    
+
     div :class => 'columns-none' do
       active_admin_comments
     end
@@ -240,7 +240,7 @@ ActiveAdmin.register Bibl do
       end
       row "Agencies Requesting Resource" do |bibl|
         bibl.agencies.uniq.sort_by(&:name).each {|agency|
-          div do 
+          div do
             link_to "#{agency.name}", admin_agency_path(agency)
           end
         } unless bibl.agencies.empty?
@@ -251,7 +251,7 @@ ActiveAdmin.register Bibl do
             link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
           end
         } unless bibl.legacy_identifiers.empty?
-      end      
+      end
       row("Collection Bibliographic Record") do |bibl|
         if bibl.parent_bibl
           link_to "#{bibl.parent_bibl.title}", admin_bibl_path(bibl.parent_bibl)
@@ -288,7 +288,7 @@ ActiveAdmin.register Bibl do
 
   collection_action :external_lookup
 
-  member_action :update_metadata, :method => :put do 
+  member_action :update_metadata, :method => :put do
     Bibl.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
@@ -299,10 +299,10 @@ ActiveAdmin.register Bibl do
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
-  
+
   collection_action :create_dl_manifest do
     message = ActiveSupport::JSON.encode( {:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}"} )
-    publish :create_dl_manifest, message    
+    publish :create_dl_manifest, message
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 
@@ -311,15 +311,6 @@ ActiveAdmin.register Bibl do
   end
 
   controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender    
-
-    # Only cache the index view if it is the base index_url (i.e. /bibls) and is devoid of either params[:page] or params[:q].  
-    # The absence of these params values ensures it is the base url.
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-    caches_action :show
-    cache_sweeper :bibls_sweeper
-
     #-----------------------------------------------------------------------------
     # Methods relating to updating Bibl records with metadata from an external
     # source, namely U.Va. Library catalog / Blacklight
@@ -339,9 +330,9 @@ ActiveAdmin.register Bibl do
         # clicks the Update button in the GUI.)
         @bibl = Virgo.external_lookup(params[:catalog_key], params[:barcode])
       end
-     
+
       respond_to do |format|
-        format.js 
+        format.js
       end
     end
   end
