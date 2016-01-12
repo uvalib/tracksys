@@ -24,7 +24,7 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
   # * last - If the master file is the last one for a unit, then this processor
   #   will send a message to the archive processor to archive the unit.
   # * remove_watermark - This option, set at the unit level, allows staff to
-  #   to disable the inclusion of a watermark for the entire unit if the 
+  #   to disable the inclusion of a watermark for the entire unit if the
   #   deliverable format is JPEG.
   #
   # Watermark Additions -
@@ -33,7 +33,7 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
   # * title - If the item gets a watermark, this value will be added to the notice.
   # * location - If the item gets a watermark, this value will be added to the notice.
   # * personal_item - If this is true, the watermark doesn't get written at all
-  #  
+  #
   # Most of these keys are optional, because there are reasonable defaults,
   # but "source" is always required; "pid" is required if mode is "dl", "dl-archive" or
   # "both"; order and unit numbers are required if mode is "patron" or "both".
@@ -79,15 +79,15 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
         tiff.destroy!
         on_success "#{@object_class.to_s} #{@object_id} is compressed.  This has been corrected automatically.  Update MD5 for #{@source} if necessary."
       end
-      
+
       tiff.destroy!
     end
 
-    if @object.is_a?(JpegTwoThousand) or @object.filename.match(".jp2$") 
+    if @object.is_a?(JpegTwoThousand) or @object.filename.match(".jp2$")
       # write a JPEG-2000 file to the destination directory
       jp2k_filename = @object.pid.sub(/:/, '_') + '.jp2'
       jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)
-      FileUtils.copy(@source, jp2k_path) 
+      FileUtils.copy(@source, jp2k_path)
 
       # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
       message = ActiveSupport::JSON.encode( { :object_class => @object_class , :object_id => @object_id,  :jp2k_path => jp2k_path, :last => @last, :source => @source } )
@@ -105,12 +105,19 @@ class CreateDlDeliverablesProcessor < ApplicationProcessor
 
       # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
       executable = KDU_COMPRESS || %x( which kdu_compress ).strip
-      if @filesize > 524000000
-        `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
+      if File.exist? executable
+         if @filesize > 524000000
+           `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
+         else
+           `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+         end
       else
-        `#{executable} -i #{@source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+         puts "NO KDU COMPRESS; TRY IMAGEMAGICK"
+         #  `cp #{@source} #{jp2k_path}`
+         `/usr/local/bin/convert #{@source} -quiet -compress JPEG2000 -quality 75 -define jp2:rate=1.5 #{jp2k_path}`
+         #on_failure "KDU_COMPRESS #{executable} does not exist, fallback to imagemagick convert!"
       end
-        
+
       # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
       message = ActiveSupport::JSON.encode( { :object_class => @object_class , :object_id => @object_id,  :jp2k_path => jp2k_path, :last => @last, :source => @source } )
       publish :ingest_jp2k, message
