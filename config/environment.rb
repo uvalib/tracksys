@@ -76,7 +76,7 @@ VIRGO_URL = Settings.virgo_url
 # Library homepage URL for request form footer
 LIBRARY_URL = Settings.library_url
 
-IVIEW_CATALOG_EXPORT_DIR = Settings.iview_catalog_export_dir
+IVIEW_CATALOG_EXPORT_DIR = "#{PRODUCTION_MOUNT}/administrative/EAD2iViewXML"
 
 NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 

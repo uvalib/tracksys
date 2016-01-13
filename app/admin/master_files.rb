@@ -8,7 +8,7 @@ ActiveAdmin.register MasterFile do
   #scope :jpeg2000, :show_count => true
   scope :in_digital_library, :show_count => true
   scope :not_in_digital_library, :show_count => true
-  
+
   actions :all, :except => [:new, :destroy]
 
   batch_action :download_from_archive do |selection|
@@ -45,7 +45,7 @@ ActiveAdmin.register MasterFile do
   filter :archive, :as => :select
   filter :heard_about_service, :as => :select
   filter :heard_about_resource, :as => :select
-  
+
   index :id => 'master_files' do
     selectable_column
     column :filename, :sortable => false
@@ -63,10 +63,10 @@ ActiveAdmin.register MasterFile do
     end
     column :pid, :sortable => false
     column ("Bibliographic Record") do |mf|
-      div do 
-        link_to "#{mf.bibl_title}", admin_bibl_path("#{mf.bibl_id}") 
+      div do
+        link_to "#{mf.bibl_title}", admin_bibl_path("#{mf.bibl_id}")
       end
-      div do 
+      div do
         mf.bibl_call_number
       end
     end
@@ -120,7 +120,7 @@ ActiveAdmin.register MasterFile do
     end
 
     div :class => 'two-column' do
-      panel "Technical Information", :id => 'master_files' do 
+      panel "Technical Information", :id => 'master_files' do
         attributes_table_for master_file do
           row :md5
           row :filesize do |master_file|
@@ -142,7 +142,7 @@ ActiveAdmin.register MasterFile do
               row :exposure_time
               row :aperture
               row :focal_length
-              row :software             
+              row :software
             end
           end
         end
@@ -169,10 +169,10 @@ ActiveAdmin.register MasterFile do
           end
           row(:desc_metadata) {|master_file|
            if not master_file.desc_metadata.nil?
-              div do 
+              div do
                 link_to "Edit", "#inline_content", :class => "inline"
               end
-              div :style => 'display:none' do 
+              div :style => 'display:none' do
                 div :id => 'inline_content' do
                   div "Open the following URL in your Oxygen XML Editor (cmd-U)"
                   div "#{TRACKSYS_URL}admin/master_files/#{master_file.id}/mods"
@@ -180,7 +180,7 @@ ActiveAdmin.register MasterFile do
               end
               div :id => "desc_meta_div" do
                 span :class => "click-advice" do "click in the code window to expand/collapse display" end
-                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do
                   code :'data-language' => 'html' do
                     word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
                   end
@@ -204,7 +204,7 @@ ActiveAdmin.register MasterFile do
       f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
       f.input :transcription_text, :input_html => { :rows => 5 }
     end
-    
+
     f.inputs "Technical Information", :class => 'three-column panel' do
       f.input :md5, :input_html => { :disabled => true }
       f.input :filesize, :as => :number
@@ -248,7 +248,7 @@ ActiveAdmin.register MasterFile do
       row :customer
       row :component do |master_file|
         if master_file.component
-          link_to "#{master_file.component.name}", admin_component_path(master_file.component.id) 
+          link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
         end
       end
       row :automation_messages do |master_file|
@@ -270,7 +270,7 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do 
+  sidebar "Digital Library Workflow", :only => [:show] do
     if master_file.in_dl?
       div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_master_file_path(:datastream => 'all'), :method => :put end
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_master_file_path(:datastream => 'allxml'), :method => :put end
@@ -292,8 +292,8 @@ ActiveAdmin.register MasterFile do
     link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
   end
 
-  action_item :only => :show do 
-    if master_file.in_dl? 
+  action_item :only => :show do
+    if master_file.in_dl?
       if master_file.availability_policy_id == 1
         if master_file.discoverability
           link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
@@ -303,12 +303,12 @@ ActiveAdmin.register MasterFile do
       else
         "Cannot pin. UVA Only."
       end
-    else      
+    else
     end
   end
 
-  action_item :only => :show do 
-    if master_file.in_dl? 
+  action_item :only => :show do
+    if master_file.in_dl?
       if master_file.availability_policy_id == 1
         if master_file.discoverability
           tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.pid}", :text => truncate("#{master_file.bibl_title}", :length => 80), :count => 'vertical')
@@ -328,7 +328,7 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  member_action :copy_from_archive, :method => :put do 
+  member_action :copy_from_archive, :method => :put do
     mf = MasterFile.find(params[:id])
     mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
     redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
@@ -339,14 +339,14 @@ ActiveAdmin.register MasterFile do
     pdf = Prawn::Document.new
     pdf.font "Times-Roman"
     pdf.image "#{Rails.root.to_s}/app/assets/images/lib_letterhead.jpg", :at => [pdf.bounds.width - 275, pdf.cursor + 5], :fit => [275, 275]
-    pdf.font("#{Rails.root.to_s}/app/assets/fonts/PTF55F.ttf") do 
+    pdf.font("#{Rails.root.to_s}/app/assets/fonts/PTF55F.ttf") do
       pdf.text "ALBERT AND SHIRLEY SMALL", :position => :left, :size => 18
       pdf.text "Special Collections Library", :position => :left, :size => 16
     end
     pdf.move_down 5
     pdf.text "Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.   No further copies should be made. Copyright and other legal restrictions may apply. Additionally, this copy may not be donated to other repositories.", :align => :center, :style => :italic, :size => 8
-    
-    pdf.image File.join('/digiserv-production/', "#{mf.link_to_static_thumbnail}"), :fit => [550, 550], :position => :center
+
+    pdf.image File.join(PRODUCTION_MOUNT, "#{mf.link_to_static_thumbnail}"), :fit => [550, 550], :position => :center
     pdf.move_down 5
 
     pdf.text "<b>Citation:</b> <i>#{mf.bibl.get_citation}</i>", :inline_format => true
@@ -369,10 +369,10 @@ ActiveAdmin.register MasterFile do
         name_details = String.new
         if c.date
           name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i> #{c.date}  "
-        else 
+        else
           name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i>  "
         end
-        text << name_details 
+        text << name_details
       }
       pdf.text "<b>Manuscript Information:</b>  " + text, :inline_format => true
       pdf.move_down 2
@@ -393,7 +393,7 @@ ActiveAdmin.register MasterFile do
     send_data pdf.render, :filename => "#{mf.filename.gsub(/.tif/, '')}.pdf", :type => "application/pdf", :disposition => 'inline'
   end
 
-  member_action :update_metadata, :method => :put do 
+  member_action :update_metadata, :method => :put do
     MasterFile.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
@@ -405,12 +405,12 @@ ActiveAdmin.register MasterFile do
     render template: "admin/master_files/mods.xml.erb"
   end
 
-  member_action :solr do 
+  member_action :solr do
     @master_file = MasterFile.find(params[:id])
   end
-  
+
   controller do
-    # Only cache the index view if it is the base index_url (i.e. /master_files) and is devoid of either params[:page] or params[:q].  
+    # Only cache the index view if it is the base index_url (i.e. /master_files) and is devoid of either params[:page] or params[:q].
     # The absence of these params values ensures it is the base url.
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
     caches_action :show
@@ -431,4 +431,3 @@ ActiveAdmin.register MasterFile do
     end
   end
 end
-

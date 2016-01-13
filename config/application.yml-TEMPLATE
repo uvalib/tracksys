@@ -11,7 +11,6 @@ migration_mount: /digiserv-migration
 delivery_dir: /digiserv-delivery/patron
 delivery_url: http://digiservdelivery.lib.virginia.edu/
 batch_migration_mount: /lib_content37/Rimage
-iview_catalog_export_dir: /digiserv-production/administrative/EAD2iViewXML
 archive_write_dir: /lib_content44/RMDS_archive/CheckSummed_archive
 archive_read_dir: /lib_content44/RMDS_archive/CheckSummed_archive
 xtf_delivery_dir: /xtf_delivery/text
