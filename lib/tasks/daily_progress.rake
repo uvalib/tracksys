@@ -296,4 +296,84 @@ namespace :daily_progress do
       # close out the ingested tracekr
       ingested.close
    end
+
+   desc "detect badly named issues (src=src_dir) box=NN"
+   task :detect_bad_names => :environment do
+      src = ENV['src']
+      raise "src is required!" if src.nil?
+      boxn = ENV['box']
+      raise "box is required!" if boxn.nil?
+      box = "Box#{boxn}"
+
+      root_dir = File.join(src, "Daily_Progress/#{box}")
+      raise "Source directory does not exist!" if !Dir.exist? root_dir
+      puts "Scanning #{root_dir} for badly named issues..."
+
+      log = File.open("log/dp_#{box}_bad_issue_name.txt", "w")
+
+      page_cnt = 0
+      curr_issue = nil
+      bad = 0
+      Dir.glob("#{root_dir}/**/*.tif") do |f|
+         next if f.include? "AAA - Extras"
+         issue_dir = File.dirname(f)
+
+         if curr_issue.nil? || curr_issue != issue_dir
+            curr_issue = issue_dir
+            parts = f.split("/")
+            issue_date = parts[parts.length-2]  # expected format: YYYYMMDD
+            if issue_date != issue_date.to_i.to_s
+               puts "Bad issue date format: #{curr_issue}"
+               log << "Bad issue date format: #{curr_issue}"
+            end
+         end
+      end
+      log.close
+   end
+
+   desc "detect merged issues (src=src_dir) box=NN"
+   task :detect_merges => :environment do
+      src = ENV['src']
+      raise "src is required!" if src.nil?
+      boxn = ENV['box']
+      raise "box is required!" if boxn.nil?
+      box = "Box#{boxn}"
+
+      merge_threshold = 20
+      merge_threshold = 24 if boxn == "03" || boxn == "04"
+
+      root_dir = File.join(src, "Daily_Progress/#{box}")
+      raise "Source directory does not exist!" if !Dir.exist? root_dir
+      puts "Scanning #{root_dir} for issues with > #{merge_threshold} pages..."
+
+      log = File.open("log/dp_#{box}_warn.txt", "w")
+
+      page_cnt = 0
+      curr_issue = nil
+      bad = 0
+      Dir.glob("#{root_dir}/**/*.tif") do |f|
+         next if f.include? "AAA - Extras"
+         issue_dir = File.dirname(f)
+         if curr_issue.nil? || curr_issue != issue_dir
+            if page_cnt > merge_threshold
+               puts "Issue #{curr_issue} has #{page_cnt} pages"
+               log << "Issue #{curr_issue} has #{page_cnt} pages\n"
+               bad += 1
+            end
+            curr_issue = issue_dir
+            page_cnt = 0
+         end
+
+         page_cnt += 1
+      end
+      if page_cnt > merge_threshold
+         puts "Issue #{curr_issue} has #{page_cnt} pages"
+         log << "Issue #{curr_issue} has #{page_cnt} pages\n"
+         bad += 1
+      end
+
+      puts "===> TOTAL issues found: #{bad}"
+      log <<  "===> TOTAL issues found: #{bad}"
+      log.close
+   end
 end
