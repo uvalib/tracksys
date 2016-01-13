@@ -2,10 +2,10 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
 
   subscribes_to :queue_objects_for_fedora, {:ack=>'client', 'activemq.prefetchSize' => 1}
   publishes_to :propogate_access_policies
-  
-  def on_message(message)  
+
+  def on_message(message)
     logger.debug "QueueObjectsForFedoraProcessor received: " + message
-    
+
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
@@ -30,15 +30,18 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     @num_master_files = @working_unit.master_files.count
     @master_file_messages = 0
     @last = 0
-    
+
     # Always add a unit's Bibl record
     things << @working_unit.bibl
-    
+
     # Add a Unit's Bibl's parents (if in existence)
     # @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
     @working_unit.master_files.each {|mf| things << mf }
-    @working_unit.components.each {|component| 
-      things << component 
+    @working_unit.components.each {|component|
+      # LFF updating the daily progress guide causes problems. Skip it
+      next if component.component_type.name == 'guide' && component.name == 'Daily Progress Digitized Microfilm'
+
+      things << component
       # the following may produce duplicates, especially when ingesting many items from the same
       # EAD guide, so we must uniq them before emitting messages (as done four lines below).
       things << component.ancestors
@@ -49,7 +52,7 @@ class QueueObjectsForFedoraProcessor < ApplicationProcessor
     things.uniq.each {|thing|
       # Dynamically name the variable for putting the appropriate id in the automation_message
       instance_variable_set("@#{thing.class.to_s.underscore}_id", thing.id)
-  
+
       # If object does not have a pid, request one and save the object with newly requested pid
       if not thing.pid
         @pid =  AssignPids.request_pids(1)
