@@ -17,7 +17,7 @@ class Unit
   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
 
   require 'rqrcode'
-  # Override Hydraulics Unit.overdue_materials and Unit.checkedout_materials scopes becuase our data should only concern itself 
+  # Override Hydraulics Unit.overdue_materials and Unit.checkedout_materials scopes becuase our data should only concern itself
   # with those materials checkedout a few months before Tracksys 3 goes live (i.e. before March 1st?)
   scope :overdue_materials, where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
   scope :checkedout_materials, where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
@@ -52,9 +52,9 @@ class Unit
     end
   end
 
-  def check_unit_delivery_mode 
+  def check_unit_delivery_mode
     message = ActiveSupport::JSON.encode( {:unit_id => self.id})
-    publish :check_unit_delivery_mode, message   
+    publish :check_unit_delivery_mode, message
   end
 
   def get_from_stornext(computing_id)
@@ -87,12 +87,11 @@ class Unit
 
   def send_unit_to_archive
     message = ActiveSupport::JSON.encode( {:unit_id => self.id, :internal_dir => 'yes', :source_dir => "#{IN_PROCESS_DIR}"})
-    publish :send_unit_to_archive, message   
-  end  
+    publish :send_unit_to_archive, message
+  end
 
   def start_ingest_from_archive
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :order_id => self.order_id })   
-    publish :start_ingest_from_archive, message
+    StartIngestFromArchive.exec( {:unit_id => self.id, :order_id => self.order_id })
   end
 
   def copy_metadata_to_metadata_directory
@@ -101,7 +100,7 @@ class Unit
     message = ActiveSupport::JSON.encode( {:unit_id => self.id, :unit_path => unit_path})
     publish :copy_metadata_to_metadata_directory, message
   end
-  
+
   # End processors
 
   def qr
@@ -111,7 +110,7 @@ class Unit
 
   # utility method to present consistent Fedora object structure within a unit
   # Ordinarily, MasterFiles without transcription text do not generate a 'transcription'
-  # datastream upon ingest, but this method will add blank transcription fields to 
+  # datastream upon ingest, but this method will add blank transcription fields to
   # MasterFile objects and update their Repository counterparts as needed
   def fill_in_missing_transcriptions
     text=" \n"
@@ -119,7 +118,7 @@ class Unit
     if empty_items.count > 0
       empty_items.each do |item|
         item.transcription_text=text unless item.transcription_text
-        item.save! 
+        item.save!
         item.reload
         if item.exists_in_repo?
           Fedora.add_or_update_datastream(item.transcription_text, item.pid,
@@ -167,4 +166,3 @@ end
 #  automation_messages_count      :integer(4)      default(0)
 #  index_destination_id           :integer(4)
 #
-

@@ -42,7 +42,7 @@ ActiveAdmin.register Component do
       end
     end
   end
-  
+
   show :title => proc{|component| "#{truncate(component.name, :length => 60)}"} do
     div :class => 'one-column' do
       panel "General Information" do
@@ -55,9 +55,9 @@ ActiveAdmin.register Component do
           row :label
           row :ead_id_att
           row :component_type
-          row("Followed By") do |component| 
+          row("Followed By") do |component|
             if not component.followed_by_id.nil?
-              link_to "#{component.followed_by_id}", admin_component_path(component.followed_by_id) 
+              link_to "#{component.followed_by_id}", admin_component_path(component.followed_by_id)
             else
               "None"
             end
@@ -65,7 +65,7 @@ ActiveAdmin.register Component do
         end
       end
     end
-  
+
    div :class => 'one-column' do
       panel "Digital Library Information" do
         attributes_table_for component do
@@ -97,11 +97,11 @@ ActiveAdmin.register Component do
               "Unknown"
             end
           end
-          row(:desc_metadata) {|component| 
+          row(:desc_metadata) {|component|
             if component.desc_metadata
               div :id => "desc_meta_div" do
                 span :class => "click-advice" do "click in the code window to expand/collapse display" end
-                pre :id => "desc_meta", :class => "no-whitespace code-window" do 
+                pre :id => "desc_meta", :class => "no-whitespace code-window" do
                   code :'data-language' => 'html' do
                     word_wrap(component.desc_metadata.to_s, :line_width => 80)
                   end
@@ -113,11 +113,11 @@ ActiveAdmin.register Component do
           row(:dc) {|component| truncate_words(component.dc)}
           row(:rels_ext) {|component| truncate_words(component.rels_ext)}
           row(:rels_int) {|component| truncate_words(component.rels_int)}
-          row(:legacy_ead) {|component| 
+          row(:legacy_ead) {|component|
             if component.legacy_ead
-              pre :class => "no-whitespace code-window" do 
-                div :class => "click-advice" do 
-                  span :class => "click-advice" do "default text" end 
+              pre :class => "no-whitespace code-window" do
+                div :class => "click-advice" do
+                  span :class => "click-advice" do "default text" end
                   span do image_tag( 'zoom.png'  ) end
                 end
                 code :'data-language' => 'html' do
@@ -129,7 +129,7 @@ ActiveAdmin.register Component do
         end
       end
     end
-    
+
     div :class => "columns-none" do
       if ! component.children.empty?
         panel "Child Component Information", :toggle => 'show' do
@@ -138,7 +138,7 @@ ActiveAdmin.register Component do
             column :id
             column :date
             column :title do |child| link_to "#{child.title}", admin_component_path(child.id) end
-            column :content_desc do |child| 
+            column :content_desc do |child|
               if not child.content_desc.nil?
                 link_to "#{child.content_desc.truncate(255)}", admin_component_path(child.id)
               else
@@ -151,11 +151,11 @@ ActiveAdmin.register Component do
             column :ancestry
           end
         end
-      else        
+      else
         panel "No Child Components"
       end
     end
-    
+
     div :class => "columns-none" do
       if not component.master_files.empty?
       then
@@ -204,11 +204,11 @@ ActiveAdmin.register Component do
       else
         panel "No Master Files Directly Associated with this Component"
       end
-    end   
+    end
   end # end show
 
   form do |f|
-    f.inputs "General Information", :class => 'inputs one-column' do 
+    f.inputs "General Information", :class => 'inputs one-column' do
       f.input :id, :as => :string, :input_html => {:disabled => true}
       f.input :title, :as => :text, :input_html => {:rows => 2}
       f.input :content_desc, :input_html => {:rows => 5}
@@ -219,7 +219,7 @@ ActiveAdmin.register Component do
       f.input :component_type
     end
 
-    f.inputs "Digital Library Information", :class => 'inputs one-column' do 
+    f.inputs "Digital Library Information", :class => 'inputs one-column' do
       f.input :pid, :as => :string, :input_html => {:disabled => true}
       f.input :exemplar, :as => :select
       f.input :availability_policy
@@ -233,10 +233,10 @@ ActiveAdmin.register Component do
     end
 
     f.inputs :class => 'columns-none' do
-      f.actions 
+      f.actions
     end
   end
-  
+
   sidebar "Related Information", :only => [:show] do
     attributes_table_for component do
       row :bibls do |component|
@@ -266,7 +266,7 @@ ActiveAdmin.register Component do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do 
+  sidebar "Digital Library Workflow", :only => [:show] do
     if component.exists_in_repo?
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_component_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_component_path(:datastream => 'dc_metadata'), :method => :put end
@@ -299,17 +299,16 @@ ActiveAdmin.register Component do
   # member actions
   member_action :export_iview, :method => :put do
     Component.find(params[:id]).create_iview_xml
-    redirect_to :back, :notice => "New Iview Catalog written to file system." 
+    redirect_to :back, :notice => "New Iview Catalog written to file system."
   end
 
-  member_action :update_metadata, :method => :put do 
+  member_action :update_metadata, :method => :put do
     Component.find(params[:id]).update_metadata(params[:datastream])
     redirect_to :back, :notice => "#{params[:datastream]} is being updated."
   end
 
   member_action :update_all_solr_docs do
-    message = ActiveSupport::JSON.encode( {:message => 'go'})
-    publish :send_commit_to_solr, message
+    SendCommitToSolr.exec_now( {:message => 'go'})
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
@@ -319,9 +318,9 @@ ActiveAdmin.register Component do
       format.json { render :formats => [:json], :partial => "tree", root: false, object: Component.find(params[:id]) }
     end
   end
-  
+
   controller do
-    # Only cache the index view if it is the base index_url (i.e. /components) and is devoid of either params[:page] or params[:q].  
+    # Only cache the index view if it is the base index_url (i.e. /components) and is devoid of either params[:page] or params[:q].
     # The absence of these params values ensures it is the base url.
     caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
     caches_action :show

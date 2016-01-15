@@ -9,10 +9,10 @@ class Order
 
   scope :from_fine_arts, joins(:agency).where("agencies.name" => "Fine Arts Library")
   scope :not_from_fine_arts, where('agency_id != 37 or agency_id is null')
-  
+
   def self.due_within(timespan)
     if ! timespan.kind_of?(ActiveSupport::TimeWithZone)
-      logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead" 
+      logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead"
       timespan = 1.week.from_now
     end
     if Time.now.to_date == timespan.to_date
@@ -56,7 +56,7 @@ class Order
       nil
     end
   end
-  
+
   # Processor information
   require 'activemessaging/processor'
   include ActiveMessaging::MessageSender
@@ -72,22 +72,19 @@ class Order
   end
 
   def check_order_ready_for_delivery
-    message = ActiveSupport::JSON.encode( {:order_id => self.id})
-    publish :check_order_ready_for_delivery, message
+    CheckOrderReadyForDelivery.exec( {:order_id => self.id})
   end
 
   def create_order_pdf
-    message = ActiveSupport::JSON.encode( {:order_id => self.id, :fee => self.fee_actual.to_i})
-    publish :create_order_pdf, message
+    CreateOrderPdf.exec( {:order_id => self.id, :fee => self.fee_actual.to_i})
   end
 
   def qa_order_data
-    message = ActiveSupport::JSON.encode({:order_id => self.id})
-    publish :qa_order_data, message
+    QaOrderData.exec({:order_id => self.id})
   end
 
   def send_fee_estimate_to_customer(computing_id)
-    @user = StaffMember.find_by_computing_id(computing_id) 
+    @user = StaffMember.find_by_computing_id(computing_id)
     @first_name = @user.first_name
     message = ActiveSupport::JSON.encode( {:order_id => self.id, :first_name => @first_name})
     publish :send_fee_estimate_to_customer, message
@@ -134,4 +131,3 @@ end
 #  invoices_count                     :integer(4)      default(0)
 #  master_files_count                 :integer(4)      default(0)
 #
-

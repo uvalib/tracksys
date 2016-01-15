@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140307170741) do
+ActiveRecord::Schema.define(:version => 20160114210202) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -343,6 +343,22 @@ ActiveRecord::Schema.define(:version => 20140307170741) do
   add_index "customers", ["first_name"], :name => "index_customers_on_first_name"
   add_index "customers", ["heard_about_service_id"], :name => "index_customers_on_heard_about_service_id"
   add_index "customers", ["last_name"], :name => "index_customers_on_last_name"
+
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0, :null => false
+    t.integer  "attempts",   :default => 0, :null => false
+    t.text     "handler",                   :null => false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "delivery_methods", :force => true do |t|
     t.string   "label"

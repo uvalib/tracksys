@@ -1,7 +1,6 @@
 class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
 
   subscribes_to :copy_directory_from_archive, {:ack=>'client', 'activemq.prefetchSize' => 1}
-  publishes_to :create_image_technical_metadata_and_thumbnail
 
   def on_message(message)
     logger.debug "CopyDirectoryFromArchive received: " + message.to_s
@@ -11,11 +10,11 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
     # 2. Download all master files for a unit
     # All messages will include a unit_id.
 
-    hash = ActiveSupport::JSON.decode(message).symbolize_keys 
+    hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     raise "Parameter 'unit_id' is required" if hash[:unit_id].blank?
     raise "Parameter 'path_to_archive' is required" if hash[:path_to_archive].blank?
-    @unit_id = hash[:unit_id] 
+    @unit_id = hash[:unit_id]
     @unit_dir = "%09d" % @unit_id
     @working_unit = Unit.find(@unit_id)
     @messagable_id = hash[:unit_id]
@@ -33,7 +32,7 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
     @master_files.each_index do |i|
       oldfn = @file_list[i].to_s
       newfn = @master_files[i].filename.to_s
-      FileUtils.cp(oldfn, File.join(@destination_dir, newfn))   
+      FileUtils.cp(oldfn, File.join(@destination_dir, newfn))
       # compare MD5 checksums
       source_md5 = Digest::MD5.hexdigest(File.read(oldfn))
       dest_md5 = Digest::MD5.hexdigest(File.read(File.join(@destination_dir, newfn)))
@@ -44,7 +43,7 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
 
     if @failure_messages.empty?
         on_success "All master files from unit #{@unit_id} have been successfully copied to #{@destination_dir}."
-        
+
         # Negate the @unit_id variable so the following AutomationMessage is not associated with the Unit
         @unit_id = nil
         @last_master_file = @master_files.last
@@ -55,8 +54,8 @@ class CopyDirectoryFromArchiveProcessor < ApplicationProcessor
             @last = 0
           end
           @master_file_id = mf.id
-          message = ActiveSupport::JSON.encode( { :master_file_id => @master_file_id, :source => @destination_dir, :last => @last } )
-          publish :create_image_technical_metadata_and_thumbnail, message
+          message = { :master_file_id => @master_file_id, :source => @destination_dir, :last => @last }
+          CreateImageTechnicalMetadataAndThumbnail.exec( message )
           on_success "Now creating the technical metadata for MasterFile #{@master_file_id}."
         }
     else

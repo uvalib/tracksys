@@ -1,8 +1,8 @@
 ActiveAdmin.register_page "Dashboard" do
   menu :priority => 1
-  
+
   content do
-    div :class => 'three-column' do 
+    div :class => 'three-column' do
       panel "Active Errors (#{AutomationMessage.has_active_error.count})", :namespace => :admin, :priority => 1, :toggle => 'show' do
         table do
           tr do
@@ -43,12 +43,12 @@ ActiveAdmin.register_page "Dashboard" do
           tr do
             td do "Burn Orders to DVD" end
             td do link_to "#{Order.ready_for_delivery.has_dvd_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_delivery', :q => { :dvd_delivery_location_id_is_null => 'true'}) end
-          end 
+          end
         end
       end
     end
 
-    div :class => 'three-column' do 
+    div :class => 'three-column' do
       panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
         div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
         div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
@@ -63,7 +63,7 @@ ActiveAdmin.register_page "Dashboard" do
         table_for Bibl.in_digital_library.limit(20) do
           column :call_number
           column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") do |bibl| 
+          column ("Thumbnail") do |bibl|
             if bibl.exemplar?
               image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")
             else "no thumbnail"
@@ -129,20 +129,20 @@ ActiveAdmin.register_page "Dashboard" do
           end
           td do
             link_to "#{number_to_currency(Order.unpaid.sum(&:fee_actual), :precision => 0)}", admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
-          end        
+          end
         end
       end
     end
   end
 
-  page_action :get_yearly_stats do 
+  page_action :get_yearly_stats do
     message = ActiveSupport::JSON.encode( {:year => params[:year]} )
     publish :create_stats_report, message
     flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 
-  page_action :push_staging_to_production do 
+  page_action :push_staging_to_production do
     begin
       FileUtils.touch '/lib_content27/tracksys_prod_solr/copy_to_production'
       flash[:notice] = "Records will be available through Virgo at 6am."
@@ -190,13 +190,12 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :update_all_solr_docs do
-    message = ActiveSupport::JSON.encode( {:message => 'go'})
-    publish :send_commit_to_solr, message
+    SendCommitToSolr.exec_now( {:message => 'go'})
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
-  
-  controller do 
+
+  controller do
     require 'activemessaging/processor'
     include ActiveMessaging::MessageSender
   end

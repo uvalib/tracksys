@@ -42,11 +42,8 @@ namespace :daily_progress do
       raise "ID is required" if id.nil?
       unit = Unit.find(id)
 
-      include ActiveMessaging::MessageSender
-
       puts "   => Start ingest for unit #{unit.id}:#{unit.special_instructions}"
-      message = ActiveSupport::JSON.encode( { :unit_id => "#{unit.id}" })
-      Object.publish :start_ingest_from_archive, message
+      StartIngestFromArchive.exec( { :unit_id => "#{unit.id}" } )
    end
 
    def update_followed_by(parent_component, new_component)
@@ -85,8 +82,6 @@ namespace :daily_progress do
       order_id = 5341 if order_id.nil?
       tgt_issue = ENV['issue']
       tgt_year = ENV['year']
-
-      include ActiveMessaging::MessageSender
 
       # Get the daily progress order, top level component and other required objects
       order = Order.find(order_id)
@@ -190,8 +185,7 @@ namespace :daily_progress do
                ingested << "#{issue_date}\n"
                if ingest
                   puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-                  message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
-                  Object.publish :start_ingest_from_archive, message
+                  StartIngestFromArchive.exec( { :unit_id => "#{issue_unit.id}" })
                end
             end
 
@@ -280,7 +274,7 @@ namespace :daily_progress do
 
          # Create metadata from the file moved above
          payload = {source: dest_file, master_file_id: mf.id, last: 0}
-         ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
+         job = CreateImageTechnicalMetadataAndThumbnail.exec( payload )
       end
 
       # ingest the last unit, unless it was already ingested
@@ -288,8 +282,7 @@ namespace :daily_progress do
          ingested << "#{issue_date}\n"
          if ingest
             puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-            message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
-            Object.publish :start_ingest_from_archive, message
+            StartIngestFromArchive.exec({ :unit_id => "#{issue_unit.id}" })
          end
       end
 

@@ -5,7 +5,7 @@ class MasterFile
   include Pidable
   #------------------------------------------------------------------
   # scopes
-  #------------------------------------------------------------------  
+  #------------------------------------------------------------------
   scope :tiff, where(:type => 'Tiff').order("master_files.id DESC")
   scope :jpeg2000, where(:type => 'JpegTwoThousand').order("master_files.id DESC")
 
@@ -73,7 +73,7 @@ class MasterFile
     "image/tiff"
   end
 
-  # alias_attributes as CYA for legacy migration.  
+  # alias_attributes as CYA for legacy migration.
   alias_attribute :name_num, :title
   alias_attribute :staff_notes, :description
 
@@ -87,15 +87,15 @@ class MasterFile
     message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
     publish :copy_archived_files_to_production, message
   end
-  
+
   def update_thumb_and_tech
     if self.image_tech_meta
       self.image_tech_meta.destroy
     end
     sleep(0.1)
 
-    message = ActiveSupport::JSON.encode( { :master_file_id => self.id, :source => self.path_to_archved_version})
-    publish :create_image_technical_metadata_and_thumbnail, message
+    message = { :master_file_id => self.id, :source => self.path_to_archved_version}
+    CreateImageTechnicalMetadataAndThumbnail.exec( message )
   end
 
   # single-table inheritance override to ensure child users parent's routes
@@ -146,4 +146,3 @@ end
 #  creation_date             :string(255)
 #  primary_author            :string(255)
 #
-

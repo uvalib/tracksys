@@ -1,6 +1,10 @@
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 
+# Setup logger for all jobs processors
+#
+Job_Log = Logger.new("#{Rails.root}/log/messaging_log.log")
+
 # Convert settings into global constants
 #
 Settings = Figaro.env

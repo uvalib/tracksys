@@ -3,15 +3,14 @@ class CopyUnitForDeliverableGenerationProcessor < ApplicationProcessor
   subscribes_to :copy_unit_for_deliverable_generation, {:ack=>'client', 'activemq.prefetchSize' => 1}
   publishes_to :queue_unit_deliverables
   publishes_to :send_unit_to_archive
-  publishes_to :update_unit_date_queued_for_ingest
 
   def on_message(message)
     logger.debug "CopyUnitForDeliverableGenerationProcessor received: " + message.to_s
 
-    hash = ActiveSupport::JSON.decode(message).symbolize_keys 
+    hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
     @mode = hash[:mode]
-    @unit_id = hash[:unit_id]  
+    @unit_id = hash[:unit_id]
     @source_dir = hash[:source_dir]
 
     @unit_dir = "%09d" % @unit_id
@@ -54,8 +53,7 @@ class CopyUnitForDeliverableGenerationProcessor < ApplicationProcessor
         publish :queue_unit_deliverables, message
         on_success "Unit #{@unit_id} has been successfully copied to #{@destination_dir} so patron deliverables can be made."
       elsif @mode == 'dl'
-        message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
-        publish :update_unit_date_queued_for_ingest, message
+        UpdateUnitDateQueuedForIngest.exec({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
         on_success "Unit #{@unit_id} has been successfully copied to #{@destination_dir} so Digital Library deliverables can be made."
       elsif @mode == 'both'
         local_mode = "patron"
@@ -63,8 +61,7 @@ class CopyUnitForDeliverableGenerationProcessor < ApplicationProcessor
         publish :queue_unit_deliverables, message
 
         local_mode = "dl"
-        message = ActiveSupport::JSON.encode({ :unit_id => @unit_id, :mode => local_mode, :source => @destination_dir })
-        publish :update_unit_date_queued_for_ingest, message
+        UpdateUnitDateQueuedForIngest.exec({ :unit_id => @unit_id, :mode => local_mode, :source => @destination_dir })
         on_success "Unit #{@unit_id} has been successfully copied to both the DL and patron process directories"
       else
         on_error "Unknown @mode passed to copy_unit_for_deliverable_generation_processor"
