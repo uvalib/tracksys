@@ -188,7 +188,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
 
          mmsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id}
          masterfile_xml_message = ActiveSupport::JSON.encode(mmsg)
-         imsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 })
+         imsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 }
 
          if @datastream == 'all'
             IngestDescMetadata.exec_now(mmsg)
