@@ -1,35 +1,29 @@
-class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
+class UpdateFedoraDatastreams < BaseJob
 
-   subscribes_to :update_fedora_datastreams, {:ack=>'client', 'activemq.prefetchSize' => 1}
-
-   def on_message(message)
-      logger.debug "UpdateFedoraDatastreamsProcessor received: " + message
-
-      # decode JSON message into Ruby hash
-      hash = ActiveSupport::JSON.decode(message).symbolize_keys
+   def perform(message)
+      Job_Log.debug "UpdateFedoraDatastreamsProcessor received: #{message.to_json}"
 
       # Validate incoming message
-      raise "Parameter 'object_class' is required" if hash[:object_class].blank?
-      raise "Parameter 'object_id' is required" if hash[:object_id].blank?
-      raise "Parameter 'datastream' is required" if hash[:datastream].blank?
+      raise "Parameter 'object_class' is required" if message[:object_class].blank?
+      raise "Parameter 'object_id' is required" if message[:object_id].blank?
+      raise "Parameter 'datastream' is required" if message[:datastream].blank?
 
-      @object_class = hash[:object_class]
-      @object_id = hash[:object_id]
+      @object_class = message[:object_class]
+      @object_id = message[:object_id]
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = hash[:object_id]
-      @messagable_type = hash[:object_class]
-      @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch(self.class.name.demodulize)
-      @datastream = hash[:datastream]
+      @messagable_id = message[:object_id]
+      @messagable_type = message[:object_class]
+      set_workflow_type()
+      @datastream = message[:datastream]
 
       if @object.is_a? Unit
          @unit_dir = "%09d" % @object_id
 
          if @datastream == 'all'
             msg = { :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id}
-            bibl_xml_message = ActiveSupport::JSON.encode(msg)
             IngestDescMetadata.exec_now(msg)
             IngestMarc.exec_now(msg)
-            publish :ingest_rights_metadata, bibl_xml_message
+            IngestRightsMetadata.exec_now(msg)
 
             if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
                IngestTeiDoc.exec_now(msg)
@@ -49,12 +43,11 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
                # Messages coming from this processor should only be for units that have already been archived.
                @source = mf.path_to_archved_version
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
-               unit_xml_message = ActiveSupport::JSON.encode(msg)
-               unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 })
+               imsg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 }
                IngestDescMetadata.exec_now(msg)
-               publish :ingest_rights_metadata, unit_xml_message
+               IngestRightsMetadata.exec_now(msg)
                IngestTechMetadata.exec_now(msg)
-               CreateDlDeliverables.exec_now(msg)
+               CreateDlDeliverables.exec_now(imsg)
 
                if not mf.transcription_text.blank?
                   IngestTranscription.exec_now(msg)
@@ -129,10 +122,9 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             }
          elsif @datastream == 'allxml'
             msg = { :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id}
-            bibl_xml_message = ActiveSupport::JSON.encode(msg)
             IngestDescMetadata.exec_now(msg)
             IngestMarc.exec_now(msg)
-            publish :ingest_rights_metadata, bibl_xml_message
+            IngestRightsMetadata.exec_now(msg)
 
             if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
                IngestTeiDoc.exec_now(msg)
@@ -151,10 +143,8 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
                # Messages coming from this processor should only be for units that have already been archived.
                @source = File.join(ARCHIVE_READ_DIR, @unit_dir, mf.filename)
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
-               unit_xml_message = ActiveSupport::JSON.encode(msg)
-               unit_image_message = ActiveSupport::JSON.encode({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 })
                IngestDescMetadata.exec_now(msg)
-               publish :ingest_rights_metadata, unit_xml_message
+               IngestRightsMetadata.exec_now( msg )
                IngestTechMetadata.exec_now(msg)
 
                if not mf.transcription_text.blank?
@@ -187,12 +177,11 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
          @source = File.join(@object.archive.directory, @unit_dir, @object.filename)
 
          mmsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id}
-         masterfile_xml_message = ActiveSupport::JSON.encode(mmsg)
          imsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 }
 
          if @datastream == 'all'
             IngestDescMetadata.exec_now(mmsg)
-            publish :ingest_rights_metadata, masterfile_xml_message
+            IngestRightsMetadata.exec_now(mmsg)
             IngestTechMetadata.exec_now(mmsg)
 
             if not @object.transcription_text.blank?
@@ -203,7 +192,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             on_success "All datastreams for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'allxml'
             IngestDescMetadata.exec_now(mmsg)
-            publish :ingest_rights_metadata, masterfile_xml_message
+            IngestRightsMetadata.exec_now(mmsg)
             IngestTechMetadata.exec_now(mmsg)
 
             if not @object.transcription_text.blank?
@@ -223,7 +212,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             IngestRelsExt.exec_now( mmsg )
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rights_metadata'
-            publish :ingest_rights_metadata, masterfile_xml_message
+            IngestRightsMetadata.exec_now(mmsg)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'dc_metadata'
             IngestDcMetadata.exec_now(mmsg)
@@ -244,14 +233,13 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
          @object.update_attribute(:date_dl_update, Time.now)
 
          bmsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id }
-         bibl_xml_message = ActiveSupport::JSON.encode(bmsg)
 
          if @datastream == 'allxml'
             IngestDescMetadata.exec_now(bmsg)
             if @object.catalog_key
                IngestMarc.exec_now(bmsg)
             end
-            publish :ingest_rights_metadata, bibl_xml_message
+            IngestRightsMetadata.exec_now(bmsg)
 
             if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.id}.tei.xml"))
                IngestTeiDoc.exec_now(bmsg)
@@ -268,7 +256,7 @@ class UpdateFedoraDatastreamsProcessor < ApplicationProcessor
             IngestMarc.exec_now(bmsg)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rights_metadata'
-            publish :ingest_rights_metadata, bibl_xml_message
+            IngestRightsMetadata.exec_now(bmsg)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'tei'
             IngestTeiDoc.exec_now(bmsg)

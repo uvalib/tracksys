@@ -2,10 +2,6 @@
 module Pidable
   require 'solr'
 
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-  publishes_to :update_fedora_datastreams
-
   def get_object_label
     resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
 
@@ -150,10 +146,7 @@ module Pidable
 
   # Methods for ingest and Fedora management workflows
   def update_metadata(datastream)
-    message = ActiveSupport::JSON.encode( { :object_class => self.class.to_s, :object_id => self.id, :datastream => datastream })
-    publish :update_fedora_datastreams, message
-    # flash[:notice] = "#{params[:datastream].gsub(/_/, ' ').capitalize} datastream(s) being updated."
-    # redirect_to :action => "show", :controller => "bibl", :id => params[:object_id]
+    UpdateFedoraDatastreams.exec( { :object_class => self.class.to_s, :object_id => self.id, :datastream => datastream })
   end
 
   def fedora_url

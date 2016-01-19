@@ -22,8 +22,6 @@ ActiveMessaging::Gateway.define do |s|
       :copy_directory_from_archive_processor],
     :dl_ingestion_group => [
       :ingest_rels_int_processor,
-      :ingest_rights_metadata_processor,
-      :update_fedora_datastreams_processor,
       :update_rels_ext_with_indexer_content_model_processor],
     :dl_ingestion_group_light => [
       :propogate_access_policies_processor,
@@ -92,7 +90,6 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :create_patron_deliverables, '/queue/CreatePatronDeliverables'
   s.queue :import_unit_iview_xml, '/queue/ImportUnitIviewXML'
   s.queue :ingest_rels_int, '/queue/IngestRelsInt'
-  s.queue :ingest_rights_metadata, '/queue/IngestRightsMetadata'
   s.queue :move_completed_directory_to_delete_directory, '/queue/MoveCompletedDirectorToDeleteDirectory'
   s.queue :move_deliverables_to_delivered_orders_directory, '/queue/MoveDeliverablesToDeliveredOrdersDirectory'
   s.queue :purge_cache, '/queue/PurgeCache'
@@ -118,7 +115,6 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :update_order_status_canceled, '/queue/UpdateOrderStatusCanceled'
   s.queue :update_order_status_deferred, '/queue/UpdateOrderStatusDeferred'
   s.queue :update_rels_ext_with_indexer_content_model, '/queue/UpdateRelsExtWithIndexerContentModel'
-  s.queue :update_fedora_datastreams, '/queue/UpdateFedoraDatastreams'
   s.queue :update_unit_archive_id, '/queue/UpdateUnitArchiveId'
   s.queue :update_unit_date_archived, '/queue/UpdateUnitDateArchived'
   s.queue :update_unit_status, '/queue/UpdateUnitStatus'

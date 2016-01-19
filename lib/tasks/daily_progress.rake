@@ -12,10 +12,7 @@ namespace :daily_progress do
       mfs = MasterFile.where(component_id: cmp.id)
       mfs.each do | mf |
          puts "Update TechMetadata for #{mf.filename}"
-         include ActiveMessaging::MessageSender
-
-         message = ActiveSupport::JSON.encode( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "tech_metadata" })
-         publish :update_fedora_datastreams, message
+         UpdateFedoraDatastreams.exec( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "tech_metadata" })
       end
    end
 
@@ -29,10 +26,7 @@ namespace :daily_progress do
       mfs = MasterFile.where(component_id: cmp.id)
       mfs.each do | mf |
          puts "Update Images for #{mf.filename}"
-         include ActiveMessaging::MessageSender
-
-         message = ActiveSupport::JSON.encode( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "jp2k" })
-         publish :update_fedora_datastreams, message
+         UpdateFedoraDatastreams.exec( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "jp2k" })
       end
    end
 
