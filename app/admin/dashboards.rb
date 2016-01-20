@@ -153,15 +153,13 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :start_finalization_production do
-    message = ActiveSupport::JSON.encode( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    publish :start_finalization_production, message
+    StartFinalizationProduction.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
     flash[:notice] = "Items in /digiserv-production/finalization/10_dropoff have begun finalization workflow."
     redirect_to :back
   end
 
   page_action :start_finalization_migration do
-    message = ActiveSupport::JSON.encode( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    publish :start_finalization_migration, message
+    StartFinalizationMigration.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
     flash[:notice] = "Items in /digiserv-migration/finalization/10_dropoff have begun finalization workflow."
     redirect_to :back
   end

@@ -53,8 +53,7 @@ class Unit
   end
 
   def check_unit_delivery_mode
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id})
-    publish :check_unit_delivery_mode, message
+    CheckUnitDeliveryMode.exec( {:unit_id => self.id})
   end
 
   def get_from_stornext(computing_id)
@@ -64,30 +63,25 @@ class Unit
 
   def import_unit_iview_xml
     unit_dir = "%09d" % self.id
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
-    publish :import_unit_iview_xml, message
+    ImportUnitIviewXML.exec( {:unit_id => self.id, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
   end
 
   def qa_filesystem_and_iview_xml
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id})
     logger.tagged("MS3UF") { logger.debug "model method Unit#qa_filesystem_and_iview_xml called on #{self.id}" }
-    publish :qa_filesystem_and_iview_xml, message
+    QaFilesystemAndIviewXml.exec( {:unit_id => self.id} )
   end
 
   def qa_unit_data
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id})
-    publish :qa_unit_data, message
+    qa_unit_data.exec( {:unit_id => self.id})
   end
 
   def queue_unit_deliverables
     @unit_dir = "%09d" % self.id
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :mode => 'patron', :source => File.join(PROCESS_DELIVERABLES_DIR, 'patron', @unit_dir)})
-    publish :queue_unit_deliverables, message
+    QueueUnitDeliverables.exec( {:unit_id => self.id, :mode => 'patron', :source => File.join(PROCESS_DELIVERABLES_DIR, 'patron', @unit_dir)})
   end
 
   def send_unit_to_archive
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :internal_dir => 'yes', :source_dir => "#{IN_PROCESS_DIR}"})
-    publish :send_unit_to_archive, message
+    SendUnitToArchive.exec( {:unit_id => self.id, :internal_dir => 'yes', :source_dir => "#{IN_PROCESS_DIR}"})
   end
 
   def start_ingest_from_archive
@@ -97,8 +91,7 @@ class Unit
   def copy_metadata_to_metadata_directory
     unit_dir = "%09d" % self.id
     unit_path = File.join(IN_PROCESS_DIR, unit_dir)
-    message = ActiveSupport::JSON.encode( {:unit_id => self.id, :unit_path => unit_path})
-    publish :copy_metadata_to_metadata_directory, message
+    CopyMetadataToMetadataDirectory.exec( {:unit_id => self.id, :unit_path => unit_path})
   end
 
   # End processors

@@ -1,13 +1,12 @@
 class SendPdfUnitToFinalizationDirProcessor < ApplicationProcessor
-   
+
   require 'fileutils'
 
   subscribes_to :send_pdf_unit_to_finalization_dir, {:ack=>'client', 'activemq.prefetchSize' => 1}
-  publishes_to :check_unit_delivery_mode
-  
-  def on_message(message)  
+
+  def on_message(message)
     logger.debug "SendPDFUnitToFinalizationDirProcessor received: " + message
-    
+
     # decode JSON message into Ruby hash
     hash = ActiveSupport::JSON.decode(message).symbolize_keys
 
@@ -21,8 +20,7 @@ class SendPdfUnitToFinalizationDirProcessor < ApplicationProcessor
 
     FileUtils.mv File.join(@path_to_pdf), File.join(IN_PROCESS_DIR, @unit_dir)
 
-    message = ActiveSupport::JSON.encode({ :unit_id => @unit_id })
-    publish :check_unit_delivery_mode, message
-    on_success "#{@unit_dir} moved to #{IN_PROCESS_DIR}"        
+    CheckUnitDeliveryMode.exec_now({ :unit_id => @unit_id })
+    on_success "#{@unit_dir} moved to #{IN_PROCESS_DIR}"
   end
 end
