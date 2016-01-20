@@ -93,7 +93,9 @@ class QaFilesystemAndIviewXml < BaseJob
          # Define regex to ensure the file ends with an _, followed by four digits followed by .tif or .jp2
          regex_content_file = Regexp.new('_\d{4}.(tif|jp2)$')
 
-         @content_files.each { |content_file|
+         @content_files.each do |variable|
+
+         end |content_file|
             # Check that the content file begins with the unit number
             if content_file !~ /^#{@unit_dir}/
                @error_messages.push("#{content_file} does not start with the correct unit #{@unit_dir}")
@@ -106,7 +108,7 @@ class QaFilesystemAndIviewXml < BaseJob
             if File.size(File.join(IN_PROCESS_DIR, @unit_dir, content_file)) < @minimum
                @error_messages.push("#{content_file} is less than #{@minimum} bytes large and is very likely an incorrect file.")
             end
-         }
+         end
       end
    end
 
@@ -155,7 +157,7 @@ class QaFilesystemAndIviewXml < BaseJob
          end
 
          # Use Nokogiri to check XML entries at the <MediaItem> level
-         root.xpath('MediaItemList/MediaItem').each {|mediaitem|
+         root.xpath('MediaItemList/MediaItem').each do |mediaitem|
             filename = mediaitem.xpath('AssetProperties/Filename').text
             filesize = mediaitem.xpath('AssetProperties/FileSize').text
             colorprofile = mediaitem.xpath('MediaProperties/ColorProfile').text
@@ -206,7 +208,7 @@ class QaFilesystemAndIviewXml < BaseJob
                   @error_messages.push("Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile")
                end
             end
-         }
+         end
 
          # TODO: If unit.bibl.is_manuscript? there should be <SetName> that contain useful information
          # Check for <SetList> element
@@ -294,16 +296,18 @@ class QaFilesystemAndIviewXml < BaseJob
       @error_messages.compact!
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
-         ImportIviewXml.exec_now({ :unit_id => @unit_id, :path => path })
+         # ImportUnitIviewXMLJob.exec_now({ :unit_id => @unit_id, :path => path })
          on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
       else
-         @error_messages.each {|message|
+         @error_messages.each do |message|
             Job_Log.debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
             on_failure message
             if message == @error_messages.last
                on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
             end
-         }
+         do
       end
+
+      on_error("STOP NOW")
    end
 end

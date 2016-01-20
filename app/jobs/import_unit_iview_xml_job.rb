@@ -1,4 +1,4 @@
-class ImportUnitIviewXML < BaseJob
+class ImportUnitIviewXMLJob < BaseJob
 
    def perform(message)
       Job_Log.debug "ImportUnitIviewXMLProcessor received: #{message.to_json}"

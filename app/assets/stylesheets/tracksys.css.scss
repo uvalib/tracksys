@@ -1,5 +1,8 @@
 body.active_admin {
 
+  div, p, ol, ul, td {
+     font-family: "Helvetica Neue"
+  }
   /* add different statuses to status_tag styling in active_admin/components/_status_tag.scss*/
 
   .status_tag {
@@ -8,6 +11,9 @@ body.active_admin {
     &.canceled { background: #d45f53; }
   }
 
+.section > h3, .panel > h3 {
+   text-shadow: none;
+}
 
   /* Override colors on title_bar action_items */
   #title_bar .action_items a {
@@ -80,7 +86,7 @@ body.active_admin {
   .panel[toggle] {
     h3 {
       cursor: pointer;
-      text-decoration: underline;
+      text-decoration: none;
     }
   }
 
@@ -111,8 +117,8 @@ body.active_admin {
     width: 30%;
   }
 
-  form input[type="text"], form input[type="password"], 
-  form input[type="email"], form input[type="url"], 
+  form input[type="text"], form input[type="password"],
+  form input[type="email"], form input[type="url"],
   form input[type="tel"], form input[type="number"],
   form textarea {
     width: 60%;
@@ -128,8 +134,8 @@ body.active_admin {
   }
 
   form.filter_form .filter_form_field.filter_numeric input[type="text"],
-  .sidebar_section input[type="text"], .sidebar_section input[type="password"], 
-  .sidebar_section input[type="email"], .sidebar_section input[type="url"], 
+  .sidebar_section input[type="text"], .sidebar_section input[type="password"],
+  .sidebar_section input[type="email"], .sidebar_section input[type="url"],
   .sidebar_section input[type="tel"], .sidebar_section textarea {
     margin-left: 8px;
     width: 45%;

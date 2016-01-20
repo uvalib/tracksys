@@ -65,8 +65,13 @@ ActiveAdmin.register_page "Dashboard" do
           column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
           column ("Thumbnail") do |bibl|
             if bibl.exemplar?
-              image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")
-            else "no thumbnail"
+               if MasterFile.find_by_filename(bibl.exemplar).nil?
+                  "missing thumbnail"
+               else
+                 image_tag("http://fedoraproxy.lib.virginia.edu/fedora/objects/#{MasterFile.find_by_filename(bibl.exemplar).pid}/methods/djatoka:StaticSDef/getThumbnail?")
+               end
+            else
+               "no thumbnail"
             end
           end
           column("Links") do |bibl|

@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
       #     staff_members table or is not active
       redirect_to :action => 'access_denied'
       return false
-    end 
+    end
   end
 
   def set_admin_locale
