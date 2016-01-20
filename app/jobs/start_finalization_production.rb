@@ -6,7 +6,6 @@ class StartFinalizationProduction < BaseJob
       regex_unit = Regexp.new('(\d{9}$)')
 
       @messagable_type = "Unit"
-      @pid = "N/A"
       set_workflow_type()
 
       # Check that the mounts are up and the directory that holds the files still exists.
@@ -40,8 +39,9 @@ class StartFinalizationProduction < BaseJob
                            @messagable_id = @unit_id
                            @messagable_type = "Unit"
                            set_workflow_type()
-                           QaUnitData.exec_now( { :unit_id => @unit_id })
+
                            on_success "Directory #{content} begins the finalization workflow."
+                           QaUnitData.exec_now( { :unit_id => @unit_id })
                         end
                      end
                   end

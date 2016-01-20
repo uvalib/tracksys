@@ -16,16 +16,14 @@ class ImportUnitIviewXML < BaseJob
       @path = message[:path]
 
       # Import XML files
-      Job_Log.error("FILE OPEN #{@path.to_s}")
       xml_file = File.open(@path.to_s)
       ImportIviewXml.import_iview_xml(xml_file, @unit_id.to_s)
       xml_file.close
+      on_success "Iview XML for Unit #{@unit_id} successfully imported."
 
       UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id })
 
       unit_path = File.join(IN_PROCESS_DIR, @unit_dir)
-      CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path })
-
-      on_success "Iview XML for Unit #{@unit_id} successfully imported."
+      #CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path })
    end
 end

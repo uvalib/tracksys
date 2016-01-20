@@ -46,7 +46,5 @@ class QueueUnitDeliverables < BaseJob
 
          CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id, :source => @file_source, :mode => @mode, :format => @format, :actual_resolution => @actual_resolution, :desired_resolution => @desired_resolution, :unit_id => @unit_id, :last => @last, :personal_item => @personal_item, :call_number => @call_number, :title => @title, :location => @location, :remove_watermark => @remove_watermark})
       end
-
-      on_success "All images for #{@unit_id} have been sent for patron deliverable creation."
    end
 end

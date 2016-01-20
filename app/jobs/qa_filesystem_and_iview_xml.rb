@@ -294,8 +294,8 @@ class QaFilesystemAndIviewXml < BaseJob
       @error_messages.compact!
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
-         ImportUnitIviewXML.exec_now({ :unit_id => @unit_id, :path => path })
          on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
+         ImportUnitIviewXML.exec_now({ :unit_id => @unit_id, :path => path })
       else
          @error_messages.each do |message|
             Job_Log.debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "

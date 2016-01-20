@@ -18,8 +18,8 @@ class CheckUnitDeliveryMode < BaseJob
       # The filter to determine which units get sent to repo must be worked on later at an appropriate time.
       if @working_unit.include_in_dl and @working_unit.availability_policy_id? and @working_unit.intended_use.description == "Digital Collection Building"
          @mode = "dl"
-         CopyUnitForDeliverableGeneration.exec_now({ :unit_id => @unit_id, :mode => @mode, :source_dir => @source_dir })
          on_success("Unit #{@unit_id} requires the creation of repository deliverables.")
+         CopyUnitForDeliverableGeneration.exec_now({ :unit_id => @unit_id, :mode => @mode, :source_dir => @source_dir })
       end
 
       if not @working_unit.intended_use.description == "Digital Collection Building" and not @working_unit.include_in_dl
