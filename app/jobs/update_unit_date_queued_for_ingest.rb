@@ -17,7 +17,7 @@ class UpdateUnitDateQueuedForIngest < BaseJob
       @messagable = @working_unit
       @working_unit.update_attribute(:date_queued_for_ingest, Time.now)
 
-      QueueObjectsForFedora.exec_now({ :unit_id => @unit_id, :source => @source })
       on_success "Date queued for ingest for Unit #{@unit_id} has been updated."
+      QueueObjectsForFedora.exec_now({ :unit_id => @unit_id, :source => @source })
    end
 end

@@ -64,11 +64,10 @@ class QueueObjectsForFedora < BaseJob
          end
 
          PropogateAccessPolicies.exec_now({ :unit_id => message[:unit_id], :source => @source, :object_class => thing.class.to_s, :object_id => thing.id, :last => @last })
-         on_success "#{thing.class.to_s} #{thing.id} is queued for ingestion."
 
          # Empty instance_variable so it does not accidentally carry forward to next automation_message
          instance_variable_set("@#{thing.class.to_s.underscore}_id", nil)
       end
-      on_success "All ingestable objects related to Unit #{@messagable_id} are queued for ingestion."
+      on_success "All ingestable objects related to Unit #{@messagable_id} are have been ingested."
    end
 end

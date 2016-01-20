@@ -12,8 +12,8 @@ class StartIngestFromArchive < BaseJob
          # Check to make sure that the Unit has been archived to a mounted Archive
          if @working_unit.archive.directory?
             @source = File.join(@working_unit.archive.directory, @unit_dir)
-            UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source})
             on_success "The DL ingestion workflow for Unit #{@unit_id} has begun."
+            UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source})
          else
             on_error "Unit #{@unit_id} has no directory from which to fetch material.  Check archival storage."
          end
@@ -31,8 +31,8 @@ class StartIngestFromArchive < BaseJob
             # Check to make sure that the Unit has been archived to a mounted Archive
             if @working_unit.archive.directory?
                @source = File.join(@working_unit.archive.directory, @unit_dir)
-               UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source})
                on_success "The DL ingestion workflow for Unit #{@unit_id} has begun."
+               UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source})
             else
                on_error "Unit #{@unit_id} has no directory from which to fetch material.  Check archival storage."
             end
