@@ -1,4 +1,4 @@
-class ImportUnitIviewXMLJob < BaseJob
+class ImportUnitIviewXML < BaseJob
 
    def perform(message)
       Job_Log.debug "ImportUnitIviewXMLProcessor received: #{message.to_json}"
@@ -16,10 +16,10 @@ class ImportUnitIviewXMLJob < BaseJob
       @path = message[:path]
 
       # Import XML files
+      Job_Log.error("FILE OPEN #{@path.to_s}")
       xml_file = File.open(@path.to_s)
       ImportIviewXml.import_iview_xml(xml_file, @unit_id.to_s)
       xml_file.close
-      # Introduce logic to prevent the messages from being sent if there are errors on import.
 
       UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id })
 
