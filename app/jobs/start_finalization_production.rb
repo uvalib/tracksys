@@ -5,6 +5,10 @@ class StartFinalizationProduction < BaseJob
    def perform(message)
       regex_unit = Regexp.new('(\d{9}$)')
 
+      @messagable_type = "Unit"
+      @pid = "N/A"
+      set_workflow_type()
+
       # Check that the mounts are up and the directory that holds the files still exists.
       if not File.exist?(FINALIZATION_DROPOFF_DIR_PRODUCTION)
          on_failure "#{FINALIZATION_DROPOFF_DIR_PRODUCTION} directory does not exist.  Check mounts to NetApps."

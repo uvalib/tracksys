@@ -93,9 +93,7 @@ class QaFilesystemAndIviewXml < BaseJob
          # Define regex to ensure the file ends with an _, followed by four digits followed by .tif or .jp2
          regex_content_file = Regexp.new('_\d{4}.(tif|jp2)$')
 
-         @content_files.each do |variable|
-
-         end |content_file|
+         @content_files.each do |content_file|
             # Check that the content file begins with the unit number
             if content_file !~ /^#{@unit_dir}/
                @error_messages.push("#{content_file} does not start with the correct unit #{@unit_dir}")
@@ -271,7 +269,7 @@ class QaFilesystemAndIviewXml < BaseJob
    def check_unknown_files
       if not @unknown_files.empty?
          Job_Log.debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
-         @unknown_files.each { |unknown_file|
+         @unknown_files.each do |unknown_file|
             if (unknown_file =~ /.TIF/ )
                @error_messages.push("#{unknown_file} ends in .TIF.")
             elsif (unknown_file =~ /.XML/ )
@@ -285,7 +283,7 @@ class QaFilesystemAndIviewXml < BaseJob
             else
                @error_messages.push("Contains unexpected or non-standard file: #{unknown_file}.")
             end
-         }
+         end
       end
    end
 
@@ -296,7 +294,7 @@ class QaFilesystemAndIviewXml < BaseJob
       @error_messages.compact!
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
-         # ImportUnitIviewXMLJob.exec_now({ :unit_id => @unit_id, :path => path })
+         ImportIviewXml.exec_now({ :unit_id => @unit_id, :path => path })
          on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
       else
          @error_messages.each do |message|
@@ -305,9 +303,7 @@ class QaFilesystemAndIviewXml < BaseJob
             if message == @error_messages.last
                on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
             end
-         do
+         end
       end
-
-      on_error("STOP NOW")
    end
 end

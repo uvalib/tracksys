@@ -4,6 +4,9 @@ class StartFinalizationMigration < BaseJob
    def perform(message)
       regex_unit = Regexp.new('(\d{9}$)')
 
+      @messagable_type = "Unit"
+      set_workflow_type()
+
       # Check that the mounts are up and the directory that holds the files still exists.
       if not File.exist?(FINALIZATION_DROPOFF_DIR_MIGRATION)
          on_failure "#{FINALIZATION_DROPOFF_DIR_MIGRATION} directory does not exist.  Check mounts to NetApps."
@@ -33,8 +36,6 @@ class StartFinalizationMigration < BaseJob
                            FileUtils.mv File.join(FINALIZATION_DROPOFF_DIR_MIGRATION, content), File.join(IN_PROCESS_DIR, content)
                            @unit_id = content.to_s.sub(/^0+/, '')
                            @messagable_id = @unit_id
-                           @messagable_type = "Unit"
-                           set_workflow_type()
                            QaUnitData.exec_now( { :unit_id => @unit_id })
                            on_success "Directory #{content} begins the finalization workflow."
                         end

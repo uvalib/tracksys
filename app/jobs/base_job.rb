@@ -36,7 +36,6 @@ class BaseJob
          :messagable_id => @messagable_id, :messagable_type => @messagable_type,
          :pid => @pid, :message_type => 'success', :app => 'tracksys',
          :processor => self.class.name.demodulize, :workflow_type => @workflow_type, :message => message}
-      Job_Log.info( message )
       BaseJob.write_automation_message(msg)
    end
 
@@ -97,7 +96,7 @@ class BaseJob
       begin
          am.save!
       rescue Exception => err
-         Job_Log.error "AutomationMessageProcessor: Can't save message to database: #{err.message}\nMessage was:\n#{message}"
+         Job_Log.error "Can't save message to database: #{err.message}\nMessage was:\n#{message}"
       end
    end
 end
