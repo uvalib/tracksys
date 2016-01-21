@@ -12,7 +12,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       @messagable_type = "Unit"
       set_workflow_type()
       @unit_dir = "%09d" % @unit_id
-      @unit_path = message[:unit_path]
+      @unit_path = message[:unit_path] # IN_PROCESS_DIR/unit
       @failure_messages = Array.new
 
       # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
@@ -30,6 +30,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       end
 
       @destination_dir = File.join(PRODUCTION_METADATA_DIR,  @range_dir, @unit_dir)
+      Job_Log.debug "Metadata SRC: #{@unit_path} => DEST #{@destination_dir }"
 
       if File.exist?(@destination_dir)
          on_failure "The metadata for unit #{@unit_id} already exists in #{PRODUCTION_METADATA_DIR}/#{@range_dir}.  The directory will be deleted and a new one created in its place.."

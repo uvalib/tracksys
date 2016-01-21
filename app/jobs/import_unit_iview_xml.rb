@@ -24,7 +24,6 @@ class ImportUnitIviewXML < BaseJob
       UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id })
 
       unit_path = File.join(IN_PROCESS_DIR, @unit_dir)
-      # FIXME
-      #CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path })
+      CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path })
    end
 end
