@@ -17,7 +17,7 @@ class UpdateUnitDateArchived < BaseJob
          mf.update_attributes(:date_archived => Time.now)
       end
 
-      CheckOrderDateArchivingCompleteProcessor.exec_now({ :unit_id => @unit_id })
+      CheckOrderDateArchivingComplete.exec_now({ :unit_id => @unit_id })
 
       # Now that all archiving work for the unit is done, it (and any subsidary files) must be moved to the ready_to_delete directory
       MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})

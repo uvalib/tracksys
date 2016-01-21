@@ -21,9 +21,13 @@ class ImportUnitIviewXML < BaseJob
       xml_file.close
       on_success "Iview XML for Unit #{@unit_id} successfully imported."
 
-      UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id })
-
+      # copy metadata first because the finalization process will move the
+      # data from in-process to ready-to-delete, causing the metadata copy to fail
       unit_path = File.join(IN_PROCESS_DIR, @unit_dir)
+      Job_Log.debug ("Copying metadata for unit #{@unit_id} from #{unit_path}")
       CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path })
+
+      Job_Log.debug ("Beginning finalization...")
+      UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id })
    end
 end

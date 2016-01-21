@@ -118,8 +118,8 @@ class SendUnitToArchive < BaseJob
 
          # If message originated from the finalization automation workflow, send a message to continue the unit (which has no deliverables) on the automated workflow.
          if @source_dir == "#{IN_PROCESS_DIR}"
-            UpdateUnitArchiveId.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})
             on_success "The directory #{@unit_dir} has been successfully uploaded to #{archival_location}."
+            UpdateUnitArchiveId.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})
          end
 
          # If the unit is managed by TrackSys, more data must be updated.  Otherwise, nothing more can be done.
@@ -129,8 +129,8 @@ class SendUnitToArchive < BaseJob
             UpdateUnitArchiveId.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})
          elsif @internal_dir == 'no'
             # If @internal_dir is 'no', no more information can be added to the tracking system and the item is ready for deletion.
-            MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir, :unit_dir => @unit_dir})
             on_success "The directory #{@unit_dir} has been uploaded to #{archival_location} and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
+            MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir, :unit_dir => @unit_dir})
          else
          end
       else
