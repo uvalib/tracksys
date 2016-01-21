@@ -43,18 +43,18 @@ class CopyUnitForDeliverableGeneration < BaseJob
 
       if @failure_messages.empty?
          if @mode == 'patron'
-            QueueUnitDeliverables.exec_now({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
             on_success "Unit #{@unit_id} has been successfully copied to #{@destination_dir} so patron deliverables can be made."
+            QueueUnitDeliverables.exec_now({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
          elsif @mode == 'dl'
-            UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
             on_success "Unit #{@unit_id} has been successfully copied to #{@destination_dir} so Digital Library deliverables can be made."
+            UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :mode => @mode, :source => @destination_dir })
          elsif @mode == 'both'
+            on_success "Unit #{@unit_id} has been successfully copied to both the DL and patron process directories"
             local_mode = "patron"
             QueueUnitDeliverables.exec_now({ :unit_id => @unit_id, :mode => local_mode, :source => @destination_dir })
 
             local_mode = "dl"
             UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :mode => local_mode, :source => @destination_dir })
-            on_success "Unit #{@unit_id} has been successfully copied to both the DL and patron process directories"
          else
             on_error "Unknown @mode passed to copy_unit_for_deliverable_generation_processor"
          end
@@ -62,6 +62,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
          # If a unit has not already been archived (i.e. this unit did not arrive at this processor from start_ingest_from_archive) archive it.
          if not @working_unit.date_archived
             on_success "Because this unit has not already been archived, it is being sent to the archive."
+            # FIXME
             #SendUnitToArchive.exec_now({ :unit_id => @unit_id, :internal_dir => 'yes', :source_dir => IN_PROCESS_DIR })
          end
       else

@@ -33,8 +33,8 @@ class CheckOrderReadyForDelivery < BaseJob
             on_failure("The date_customer_notified field on order #{message[:order_id]} is filled out.  The order appears to have been delivered already.")
          else
             # The 'patron' units within the order are complete
-            UpdateOrderDatePatronDeliverablesComplete({ :order_id => message[:order_id] })
             on_success("All units in order #{message[:order_id]} are complete and will now begin the delivery process.")
+            UpdateOrderDatePatronDeliverablesComplete.exec_now({ :order_id => message[:order_id] })
          end
       else
          # Order incomplete.  List units incomplete units in message

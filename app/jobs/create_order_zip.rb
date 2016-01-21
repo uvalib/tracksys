@@ -69,7 +69,7 @@ class CreateOrderZip < BaseJob
          File.chmod(0664, File.join("#{DELIVERY_DIR}", "#{delivery_file}"))
       }
 
-      CreateOrderEmail.exec_now({:order_id => @order_id, :delivery_files => delivery_files})
       on_success("#{part} zip file(s) have been created for order #{@order_id} ")
+      CreateOrderEmail.exec_now({:order_id => @order_id, :delivery_files => delivery_files})
    end
 end

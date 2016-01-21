@@ -12,14 +12,16 @@ class DeleteUnitCopyForDeliverableGeneration < BaseJob
       order_id = Unit.find(@unit_id).order.id
 
       # Delete logic
-      FileUtils.rm_rf(File.join(PROCESS_DELIVERABLES_DIR, @mode, @unit_dir))
+      del_dir = File.join(PROCESS_DELIVERABLES_DIR, @mode, @unit_dir)
+      Job_Log.debug("Removing processing directory #{del_dir}/...")
+      FileUtils.rm_rf(del_dir)
+      on_success "Files for unit #{@unit_id} copied for the creation of #{@dl} deliverables have now been deleted."
 
       # Send messages
       if @mode == 'patron'
-         msg = { :order_id => order_id, :unit_id => @unit_id })
+         msg = { :order_id => order_id, :unit_id => @unit_id }
          UpdateUnitDatePatronDeliverablesReady.exec_now(msg)
          CheckOrderReadyForDelivery.exec_now(msg)
       end
-      on_success "Files for unit #{@unit_id} copied for the creation of #{@dl} deliverables have now been deleted."
    end
 end

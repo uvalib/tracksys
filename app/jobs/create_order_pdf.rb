@@ -4,6 +4,7 @@
 class CreateOrderPdf < BaseJob
 
    require 'prawn'
+   require 'prawn/table'
 
    def perform(message)
       Job_Log.debug "CreateOrderPdfProcessor received: #{message.to_json}"
@@ -69,7 +70,7 @@ class CreateOrderPdf < BaseJob
       @pdf.text "\n"
 
       # Iterate through all the units belonging to this order
-      @units_in_pdf.each { |unit|
+      @units_in_pdf.each do |unit|
          # For pretty printing purposes, create pagebreak if there is less than 10 lines remaining on the current page.
          @pdf.start_new_page unless @pdf.cursor > 30
 
@@ -103,7 +104,7 @@ class CreateOrderPdf < BaseJob
             # Output information using the MasterFile only template.
             output_masterfile_data(unit.master_files.order(:filename))
          end
-      }
+      end
 
       # Page numbering
       string = "page <page> of <total>"
@@ -117,14 +118,14 @@ class CreateOrderPdf < BaseJob
          @pdf.render_file(File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order_id}", "#{@order_id}.pdf"))
 
          # Publish message
-         CheckOrderDeliveryMethod.exec_now({:order_id => @order_id})
          on_success "PDF created for order #{@order_id}."
+         CheckOrderDeliveryMethod.exec_now({:order_id => @order_id})
       end
 
       # Physical Component Methods
       def output_component_data(component, unit_id)
          @pdf.text "Collection Information\n", :style => :bold
-         component.path_ids.each {|component_id|
+         component.path_ids.each do |component_id|
             c = Component.find(component_id)
 
             # pdf document has a width of 540 at this point, so use that and subtract from there.
@@ -133,7 +134,7 @@ class CreateOrderPdf < BaseJob
             end
 
             @pdf.start_new_page if @pdf.cursor < 30
-         }
+         end
 
          output_masterfile_data(component.master_files.where(:unit_id => unit_id).order(:filename))
       end

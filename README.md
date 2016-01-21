@@ -10,6 +10,7 @@
 ### Other dependencies
 * MySQL 5.6.27 (later version will not work!)
 * imagemagick (http://www.imagemagick.org/script/binary-releases.php. Use brew for OSX)
+* On OSX, image magick will also need Ghostscript and FreeType (brew install freetype;  brew install gs)
 * Kakadu (No version for OSX; imagemagick used instead. www.kakadusoftware.com/)
 * ActiveMQ version 5.8.0 (http://activemq.apache.org/activemq-580-release.html)
 
@@ -38,7 +39,7 @@ to verify that it is working.
 * rake db:migrate
 * A simple set of starter sql data can be found in db/ts_daily_progress_min.sql; import it into your DB.
 
-### Startign the server
+### Starting the server
 The main server can me run as you would expect: rails s
 
 This will get you the UI and basic browsing/editing functionality, but none of the processes will work. To make

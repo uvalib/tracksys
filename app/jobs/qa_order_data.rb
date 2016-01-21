@@ -35,7 +35,7 @@ class QaOrderData < BaseJob
 
     if failure_messages.empty?
       on_success "Order #{@order_id} has passed the Qa Order Data Processor."
-      CheckOrderFee({ :order_id => @order_id })
+      CheckOrderFee.exec_now({ :order_id => @order_id })
     else
       failure_messages.each {|message|
         on_failure message
