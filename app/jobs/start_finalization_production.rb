@@ -1,5 +1,4 @@
 class StartFinalizationProduction < BaseJob
-
    require 'fileutils'
 
    def perform(message)
@@ -37,8 +36,6 @@ class StartFinalizationProduction < BaseJob
                            FileUtils.mv File.join(FINALIZATION_DROPOFF_DIR_PRODUCTION, content), File.join(IN_PROCESS_DIR, content)
                            @unit_id = content.to_s.sub(/^0+/, '')
                            @messagable_id = @unit_id
-                           @messagable_type = "Unit"
-                           set_workflow_type()
 
                            on_success "Directory #{content} begins the finalization workflow."
                            QaUnitData.exec_now( { :unit_id => @unit_id })
