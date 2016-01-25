@@ -1,8 +1,5 @@
 class UnitsSweeper < ActionController::Caching::Sweeper
   observe Unit
-
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
   include Rails.application.routes.url_helpers
 
   EXPIRABLE_FIELDS = ['order_id', 'bibl_id']
@@ -14,16 +11,16 @@ class UnitsSweeper < ActionController::Caching::Sweeper
     expire(unit)
     expire_associated(unit)
   end
-  
+
   def after_create(unit)
     expire(unit)
     expire_associated(unit)
   end
-  
+
   def after_destroy(unit)
     expire(unit)
   end
-  
+
   # Expire the index and show views for self
   def expire(unit)
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_unit_path(unit.id)}")
@@ -42,7 +39,7 @@ class UnitsSweeper < ActionController::Caching::Sweeper
 
     if expirable
       ASSOCIATED_CLASSES.each {|ac|
-        publish :purge_cache, ActiveSupport::JSON.encode( {:subject_class => unit.class.name, :subject_id => unit.id, :associated_class => "#{ac}" }) 
+        PurgeCache.exec( {:subject_class => unit.class.name, :subject_id => unit.id, :associated_class => "#{ac}" })
       }
     end
 

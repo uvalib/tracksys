@@ -9,7 +9,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
   scope :canceled
   scope :overdue_materials
   scope :checkedout_materials
-  
+
   actions :all, :except => [:destroy]
 
   batch_action :approve_units do |selection|
@@ -72,17 +72,17 @@ ActiveAdmin.register Unit, :namespace => :patron do
       status_tag(unit.unit_status)
     end
     column ("Bibliographic Record") do |unit|
-      div do 
-        link_to "#{unit.bibl_title}", patron_bibl_path("#{unit.bibl_id}") 
+      div do
+        link_to "#{unit.bibl_title}", patron_bibl_path("#{unit.bibl_id}")
       end
-      div do 
+      div do
         unit.bibl_call_number
       end
     end
     column ("Date Checkedout") {|unit| format_date(unit.date_materials_received)}
     column ("Date Returned") {|unit| format_date(unit.date_materials_returned)}
     column :intended_use
-    column("Master Files") do |unit| 
+    column("Master Files") do |unit|
       link_to unit.master_files_count, patron_master_files_path(:q => {:unit_id_eq => unit.id})
     end
     column("") do |unit|
@@ -177,7 +177,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
                   link_to "Download", copy_from_archive_patron_master_file_path(mf.id), :method => :put
                 end
               end
-            end          
+            end
           end
         end
       else
@@ -200,7 +200,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
       f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker}, :label => "Date Returned from DigiServ"
     end
 
-    f.inputs "Related Information", :class => 'panel three-column' do 
+    f.inputs "Related Information", :class => 'panel three-column' do
       f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chzn-select', :style => 'width: 200px'}
       f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :label => "Bibliograhic Record Barcode", :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
     end
@@ -219,7 +219,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
       if unit.date_materials_returned.nil? # i.e. Material has been checkedout to Digital Production Group but not yet returned
         div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_patron_unit_path, :method => :put, :disabled => true end
         div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_patron_unit_path, :method => :put end
-      else 
+      else
         div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_patron_unit_path, :method => :put, :disabled => true end
         div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_patron_unit_path, :method => :put, :disabled => true end
       end
@@ -240,7 +240,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
       end
       row :master_files do |unit|
         link_to "#{unit.master_files_count}", patron_master_files_path(:q => {:unit_id_eq => unit.id})
-      end 
+      end
       row :customer
       row :automation_messages do |unit|
         link_to "#{unit.automation_messages_count}", patron_automation_messages_path(:q => {:messagable_id_eq => unit.id, :messagable_type_eq => "Unit" })
@@ -258,7 +258,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
     link_to("Next", patron_unit_path(unit.next)) unless unit.next.nil?
   end
 
-  member_action :copy_from_archive, :method => :put do 
+  member_action :copy_from_archive, :method => :put do
     Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
     redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
@@ -272,25 +272,21 @@ ActiveAdmin.register Unit, :namespace => :patron do
   end
 
   member_action :change_status
-  member_action :checkout_to_digiserv, :method => :put do 
+  member_action :checkout_to_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_received, Time.now)
     redirect_to :back, :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
   end
 
-  member_action :checkin_from_digiserv, :method => :put do 
+  member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
-    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."  
+    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
   end
 
   controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
-
     def change_status
-      message = ActiveSupport::JSON.encode( { :unit_id => params[:id], :unit_status => params[:unit_status] })
-      publish :update_unit_status, message
+      UpdateUnitStatus.exec( { :unit_id => params[:id], :unit_status => params[:unit_status] })
       flash[:notice] = "Unit #{params[:id]} status has been changed to #{params[:unit_status]}"
-      redirect_to :back      
+      redirect_to :back
     end
   end
 end

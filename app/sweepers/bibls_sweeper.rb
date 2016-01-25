@@ -1,9 +1,6 @@
 class BiblsSweeper < ActionController::Caching::Sweeper
   observe Bibl
-
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-  include Rails.application.routes.url_helpers 
+  include Rails.application.routes.url_helpers
 
   EXPIRABLE_FIELDS = ['title', 'call_number']
   ASSOCIATED_CLASSES = ['Customer', 'Unit', 'MasterFile', 'Agency', 'Order']
@@ -14,16 +11,16 @@ class BiblsSweeper < ActionController::Caching::Sweeper
     expire(bibl)
     expire_associated(bibl)
   end
-  
+
   def after_create(bibl)
     expire(bibl)
     expire_associated(bibl)
   end
-  
+
   def after_destroy(bibl)
     expire(bibl)
   end
-  
+
   # Expire the index and show views for self
   def expire(bibl)
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_bibl_path(bibl.id)}")
@@ -46,7 +43,7 @@ class BiblsSweeper < ActionController::Caching::Sweeper
 
     if expirable
       ASSOCIATED_CLASSES.each {|ac|
-        publish :purge_cache, ActiveSupport::JSON.encode( {:subject_class => bibl.class.name, :subject_id => bibl.id, :associated_class => "#{ac}" }) 
+        PurgeCache.exec( {:subject_class => bibl.class.name, :subject_id => bibl.id, :associated_class => "#{ac}" })
       }
     end
 

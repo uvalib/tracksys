@@ -1,6 +1,6 @@
 class StartManualUploadToArchiveMigration < BaseJob
 
-   def on_message(message)
+   def perform(message)
       Job_Log.debug "StartManualUploadToArchiveProductionProcessor received: #{message.to_json}"
 
       now = Time.now

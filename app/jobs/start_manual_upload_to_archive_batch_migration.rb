@@ -1,7 +1,7 @@
 class StartManualUploadToArchiveBatchMigration < BaseJob
    require 'fileutils'
 
-   def on_message(message)
+   def perform(message)
       Job_Log.debug "StartManualUploadToArchiveBatchMigrationProcessor received: #{message.to_json}"
 
       now = Time.now

@@ -1,9 +1,7 @@
 class OrdersSweeper < ActionController::Caching::Sweeper
   observe Order # must declare the model you wish to observe, Rails unfriendly.
 
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-  include Rails.application.routes.url_helpers 
+  include Rails.application.routes.url_helpers
 
   EXPIRABLE_FIELDS = ['agency_id', 'customer_id']
   ASSOCIATED_CLASSES = ['Customer', 'Unit', 'MasterFile', 'Agency', 'Bibl']
@@ -14,16 +12,16 @@ class OrdersSweeper < ActionController::Caching::Sweeper
     expire(order)
     expire_associated(order)
   end
-  
+
   def after_create(order)
     expire(order)
     expire_associated(order)
   end
-  
+
   def after_destroy(order)
-    expire(order) 
+    expire(order)
   end
-  
+
   # Expire the index and show views for self
   def expire(order)
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_order_path(order.id)}")
@@ -42,7 +40,7 @@ class OrdersSweeper < ActionController::Caching::Sweeper
 
     if expirable
       ASSOCIATED_CLASSES.each {|ac|
-        publish :purge_cache, ActiveSupport::JSON.encode( {:subject_class => order.class.name, :subject_id => order.id, :associated_class => "#{ac}" }) 
+        PurgeCache.exec( {:subject_class => order.class.name, :subject_id => order.id, :associated_class => "#{ac}" })
       }
     end
   end

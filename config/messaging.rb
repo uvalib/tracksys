@@ -11,8 +11,6 @@ ActiveMessaging::Gateway.define do |s|
   s.processor_groups = {
     :messages_group => [
       :automation_message_processor],
-    :cache_management_group => [
-      :purge_cache_processor],
     :copy_archived_files_to_production_group => [
       :copy_directory_from_archive_processor],
     :dl_ingestion_group => [
@@ -29,11 +27,7 @@ ActiveMessaging::Gateway.define do |s|
       :create_tif_images_from_pdf_processor,
       :replace_or_add_master_files_processor,
       :select_finalization_units_processor,
-      :send_pdf_unit_to_finalization_dir_processor,
-      :start_manual_upload_to_archive_migration_processor,
-      :update_unit_status],
-    :technical_metadata_group => [
-      :create_image_technical_metadata_and_thumbnail_processor]
+      :send_pdf_unit_to_finalization_dir_processor]
   }
 
   s.queue :automation_message, '/queue/AutomationMessage'
@@ -44,11 +38,9 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :create_text_from_pdf, '/queue/CreateTextFromPdf'
   s.queue :create_tif_images_from_pdf, '/queue/CreateTifImagesFromPdf'
   s.queue :ingest_rels_int, '/queue/IngestRelsInt'
-  s.queue :purge_cache, '/queue/PurgeCache'
   s.queue :replace_or_add_master_files, '/queue/ReplaceOrAddMasterFiles'
   s.queue :select_finalization_units, '/queue/SelectFinalizationUnits'
   s.queue :send_pdf_unit_to_finalization_dir, '/queue/SendPdfUnitToFinalizationDir'
   s.queue :start_manual_upload_to_archive_migration, '/queue/StartManuaUploadToArchiveMigration'
   s.queue :update_rels_ext_with_indexer_content_model, '/queue/UpdateRelsExtWithIndexerContentModel'
-  s.queue :update_unit_status, '/queue/UpdateUnitStatus'
 end

@@ -1,8 +1,5 @@
 class CustomersSweeper < ActionController::Caching::Sweeper
   observe Customer
-  
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
   include Rails.application.routes.url_helpers
 
   EXPIRABLE_FIELDS = ['first_name', 'last_name']
@@ -14,16 +11,16 @@ class CustomersSweeper < ActionController::Caching::Sweeper
     expire(customer)
     expire_associated(customer)
   end
-  
+
   def after_create(customer)
     expire(customer)
     expire_associated(customer)
   end
-  
+
   def after_destroy(customer)
     expire(customer)
   end
-  
+
   # Expire the index and show views for self
   def expire(customer)
     Rails.cache.delete("views/tracksys.lib.virginia.edu" + "#{admin_customer_path(customer.id)}")
@@ -42,7 +39,7 @@ class CustomersSweeper < ActionController::Caching::Sweeper
 
     if expirable
       ASSOCIATED_CLASSES.each {|ac|
-        publish :purge_cache, ActiveSupport::JSON.encode( {:subject_class => customer.class.name, :subject_id => customer.id, :associated_class => "#{ac}" }) 
+        PurgeCache.exec( {:subject_class => customer.class.name, :subject_id => customer.id, :associated_class => "#{ac}" })
       }
     end
   end
