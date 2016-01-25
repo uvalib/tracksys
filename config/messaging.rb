@@ -27,12 +27,9 @@ ActiveMessaging::Gateway.define do |s|
       :create_master_file_records_from_tif_and_text_processor,
       :create_text_from_pdf_processor,
       :create_tif_images_from_pdf_processor,
-      :create_stats_report_processor,
       :replace_or_add_master_files_processor,
       :select_finalization_units_processor,
       :send_pdf_unit_to_finalization_dir_processor,
-      :start_manual_upload_to_archive_batch_migration_processor,
-      :start_manual_upload_to_archive_production_processor,
       :start_manual_upload_to_archive_migration_processor,
       :update_unit_status],
     :technical_metadata_group => [
@@ -46,14 +43,11 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :create_master_file_records_from_tif_and_text, '/queue/CreateMasterFileRecordsFromTifAndText'
   s.queue :create_text_from_pdf, '/queue/CreateTextFromPdf'
   s.queue :create_tif_images_from_pdf, '/queue/CreateTifImagesFromPdf'
-  s.queue :create_stats_report, '/queue/CreateStatsReport'
   s.queue :ingest_rels_int, '/queue/IngestRelsInt'
   s.queue :purge_cache, '/queue/PurgeCache'
   s.queue :replace_or_add_master_files, '/queue/ReplaceOrAddMasterFiles'
   s.queue :select_finalization_units, '/queue/SelectFinalizationUnits'
   s.queue :send_pdf_unit_to_finalization_dir, '/queue/SendPdfUnitToFinalizationDir'
-  s.queue :start_manual_upload_to_archive_batch_migration, '/queue/StartManuaUploadToArchiveBatchMigration'
-  s.queue :start_manual_upload_to_archive_production, '/queue/StartManuaUploadToArchiveProduction'
   s.queue :start_manual_upload_to_archive_migration, '/queue/StartManuaUploadToArchiveMigration'
   s.queue :update_rels_ext_with_indexer_content_model, '/queue/UpdateRelsExtWithIndexerContentModel'
   s.queue :update_unit_status, '/queue/UpdateUnitStatus'

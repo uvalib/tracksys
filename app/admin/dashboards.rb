@@ -141,8 +141,7 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :get_yearly_stats do
-    message = ActiveSupport::JSON.encode( {:year => params[:year]} )
-    publish :create_stats_report, message
+    CreateStatsReport.exec( {:year => params[:year]} )
     flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
@@ -171,23 +170,20 @@ ActiveAdmin.register_page "Dashboard" do
 
   page_action :start_manual_upload_to_archive_batch_migration do
     @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
-    message = ActiveSupport::JSON.encode( {:user_id => @user.id } )
-    publish :start_manual_upload_to_archive_batch_migration, message
+    StartManualUploadToArchiveBatchMigration.exec( {:user_id => @user.id } )
     flash[:notice] = "Items in /lib_content37/Rimage/stornext_dropoff/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_production do
     @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
-    message = ActiveSupport::JSON.encode( {:user_id => @user.id } )
-    publish :start_manual_upload_to_archive_production, message
+    StartManuaUploadToArchiveMigration.exec( {:user_id => @user.id } )
     flash[:notice] = "Items in /digiserv-production/stornext_dropoff/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_migration do
-    message = ActiveSupport::JSON.encode( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    publish :start_manual_upload_to_archive_migration, message
+    StartManuaUploadToArchiveMigration.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
     flash[:notice] = "Items in /digiserv-migration/stornext_dropoff/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
@@ -196,11 +192,6 @@ ActiveAdmin.register_page "Dashboard" do
     SendCommitToSolr.exec_now( {:message => 'go'})
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
-  end
-
-  controller do
-    require 'activemessaging/processor'
-    include ActiveMessaging::MessageSender
   end
 
 end
