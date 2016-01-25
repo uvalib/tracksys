@@ -27,8 +27,7 @@ class Unit
 
   def check_order_status
     if self.order.ready_to_approve?
-      message = ActiveSupport::JSON.encode({ :order_id => order.id })
-      publish :update_order_status_approved, message
+      UpdateOrderStatusApproved.exec({ :order_id => order.id })
     end
   end
 
