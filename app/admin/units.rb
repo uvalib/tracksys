@@ -408,7 +408,7 @@ ActiveAdmin.register Unit do
     if request.env['HTTP_REMOTE_USER']
       Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
     else
-      Unit.find(params[:id]).get_from_stornext('ms3uf')
+      Unit.find(params[:id]).get_from_stornext('aec6v')
     end
     redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
   end

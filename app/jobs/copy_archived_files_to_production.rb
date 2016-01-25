@@ -47,7 +47,7 @@ class CopyArchivedFilesToProduction < BaseJob
             @messagable_id = message[:unit_id]
             @messagable_type = "Unit"
             @master_files = @working_unit.master_files
-            @master_files.each {|master_file|
+            @master_files.each do |master_file|
                begin
                   FileUtils.cp(File.join(@source_dir, master_file.filename), File.join(@destination_dir, master_file.filename))
                   File.chmod(0664, File.join(@destination_dir, master_file.filename))
@@ -62,7 +62,8 @@ class CopyArchivedFilesToProduction < BaseJob
                if source_md5 != dest_md5
                   @failure_messages << "Failed to copy source file '#{master_file.filename}': MD5 checksums do not match"
                end
-            }
+            end
+            
             if File.exist?(File.join(@source_dir, "#{@unit_dir}.ivc"))
                FileUtils.cp(File.join(@source_dir, "#{@unit_dir}.ivc"), File.join(@destination_dir, "#{@unit_dir}.ivc"))
                File.chmod(0664, File.join(@destination_dir, "#{@unit_dir}.ivc"))

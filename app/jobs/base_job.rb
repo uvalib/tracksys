@@ -18,6 +18,15 @@ class BaseJob
       end
    end
 
+   # When jobs fail, remove them from the queue
+   #
+   def destroy_failed_jobs?
+      return true
+   end
+   def max_attempts
+      return 1
+   end
+
    # Helper to make job names look like the original processor names
    #
    def set_workflow_type

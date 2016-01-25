@@ -17,9 +17,7 @@ gem 'ancestry'
 
 gem 'delayed_job_active_record'
 
-gem 'activemessaging'
 gem "daemons"
-gem "stomp"
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
