@@ -3,9 +3,6 @@ require "#{Hydraulics.models_dir}/unit"
 class Unit
 
   include Pidable
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-
 
   #------------------------------------------------------------------
   # relationships
@@ -56,8 +53,7 @@ class Unit
   end
 
   def get_from_stornext(computing_id)
-    message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.id, :computing_id => computing_id })
-    publish :copy_archived_files_to_production, message
+    CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit_id => self.id, :computing_id => computing_id })
   end
 
   def import_unit_iview_xml

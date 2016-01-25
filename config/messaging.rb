@@ -14,7 +14,6 @@ ActiveMessaging::Gateway.define do |s|
     :cache_management_group => [
       :purge_cache_processor],
     :copy_archived_files_to_production_group => [
-      :copy_archived_files_to_production_processor,
       :copy_directory_from_archive_processor],
     :dl_ingestion_group => [
       :ingest_rels_int_processor,
@@ -44,7 +43,6 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :automation_message, '/queue/AutomationMessage'
   s.queue :burst_pdf, '/queue/BurstPdf'
   s.queue :check_units_completed, '/queue/CheckUnitsCompleted'
-  s.queue :copy_archived_files_to_production, '/queue/CopyArchivedFilesToProduction'
   s.queue :copy_directory_from_archive, '/queue/CopyDirectoryFromArchive'
   s.queue :create_master_file_records_from_tif_and_text, '/queue/CreateMasterFileRecordsFromTifAndText'
   s.queue :create_dl_manifest, '/queue/CreateDlManifest'

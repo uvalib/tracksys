@@ -77,15 +77,8 @@ class MasterFile
   alias_attribute :name_num, :title
   alias_attribute :staff_notes, :description
 
-  # Processor information
-  require 'activemessaging/processor'
-  include ActiveMessaging::MessageSender
-
-  publishes_to :copy_archived_files_to_production
-
   def get_from_stornext(computing_id)
-    message = ActiveSupport::JSON.encode( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
-    publish :copy_archived_files_to_production, message
+    CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
   end
 
   def update_thumb_and_tech
