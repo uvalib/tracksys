@@ -24,7 +24,6 @@ ActiveMessaging::Gateway.define do |s|
     ],
     :lightweight_group => [ :burst_pdf_processor,
       :check_units_completed_processor,
-      :create_dl_manifest_processor,
       :create_master_file_records_from_tif_and_text_processor,
       :create_text_from_pdf_processor,
       :create_tif_images_from_pdf_processor,
@@ -45,7 +44,6 @@ ActiveMessaging::Gateway.define do |s|
   s.queue :check_units_completed, '/queue/CheckUnitsCompleted'
   s.queue :copy_directory_from_archive, '/queue/CopyDirectoryFromArchive'
   s.queue :create_master_file_records_from_tif_and_text, '/queue/CreateMasterFileRecordsFromTifAndText'
-  s.queue :create_dl_manifest, '/queue/CreateDlManifest'
   s.queue :create_text_from_pdf, '/queue/CreateTextFromPdf'
   s.queue :create_tif_images_from_pdf, '/queue/CreateTifImagesFromPdf'
   s.queue :create_stats_report, '/queue/CreateStatsReport'
