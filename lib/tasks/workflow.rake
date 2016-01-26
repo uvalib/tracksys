@@ -47,4 +47,12 @@ namespace :workflow do
       puts "   => Create DL Manifest for #{cid}"
       CreateDlManifest.exec_now( { :computing_id => "#{cid}", :deliver=>false } )
    end
+
+   desc "Create stats report for the specified year year=year"
+   task :stats_report => :environment do
+      year = ENV['year']
+      raise "Year is required" if year.nil?
+      puts "   => Create stats report for #{year}"
+      CreateStatsReport.exec_now( { :year => "#{year}" } )
+   end
 end
