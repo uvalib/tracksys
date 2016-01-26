@@ -159,22 +159,23 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :start_manual_upload_to_archive_batch_migration do
-    @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
-    StartManualUploadToArchiveBatchMigration.exec( {:user_id => @user.id } )
-    flash[:notice] = "Items in /lib_content37/Rimage/stornext_dropoff/#{Time.now.strftime('%A')}."
+    @user = StaffMember.find_by_computing_id("aec6v")
+    StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION } )
+    flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_production do
-    @user = StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)
-    StartManuaUploadToArchiveMigration.exec( {:user_id => @user.id } )
-    flash[:notice] = "Items in /digiserv-production/stornext_dropoff/#{Time.now.strftime('%A')}."
+    @user = StaffMember.find_by_computing_id("aec6v")
+    StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
+    flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_migration do
-    StartManuaUploadToArchiveMigration.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    flash[:notice] = "Items in /digiserv-migration/stornext_dropoff/#{Time.now.strftime('%A')}."
+    @user = StaffMember.find_by_computing_id("aec6v")
+    StartManualUploadToArchive.exec( {:user => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
+    flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 

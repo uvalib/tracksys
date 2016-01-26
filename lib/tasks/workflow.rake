@@ -65,4 +65,15 @@ namespace :workflow do
       puts "   => Start Finalization #{directory}"
       StartFinalization.exec_now( { :directory => "#{directory}" } )
    end
+
+   desc "Start manual upload from=production|migration|batch"
+   task :manual_upload => :environment do
+      from = ENV['from']
+      raise "from is required" if from.nil?
+      directory = MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION
+      directory = MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION if from == "migration"
+      directory = MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION if from == "production"
+      puts "   => Start Finalization #{directory}"
+      StartManualUploadToArchive.exec_now( { :directory => "#{directory}" } )
+   end
 end

@@ -43,8 +43,6 @@ DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
 
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION = "#{MIGRATION_MOUNT}/stornext_dropoff"
-MANUAL_ARCHIVE_IN_PROCESS_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff/in_process"
-MANUAL_ARCHIVE_IN_PROCESS_DIR_MIGRATION = "#{MIGRATION_MOUNT}/stornext_dropoff/in_process"
 
 PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
@@ -54,7 +52,6 @@ PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 # Batch migration variables
 BATCH_MIGRATION_MOUNT = Settings.batch_migration_mount
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff"
-MANUAL_ARCHIVE_IN_PROCESS_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff/in_process"
 BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_delete/from_stornext_manual_upload"
 
 # Solr URL variables for interacting with sanctioned solr server.  Used in constructing solr records
