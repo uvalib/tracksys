@@ -55,4 +55,14 @@ namespace :workflow do
       puts "   => Create stats report for #{year}"
       CreateStatsReport.exec_now( { :year => "#{year}" } )
    end
+
+   desc "Start finalization dir=production|migration"
+   task :start_finalization => :environment do
+      dir = ENV['dir']
+      raise "dir is required" if dir.nil?
+      directory = FINALIZATION_DROPOFF_DIR_MIGRATION
+      directory = FINALIZATION_DROPOFF_DIR_PRODUCTION if dir == "production"
+      puts "   => Start Finalization #{directory}"
+      StartFinalization.exec_now( { :directory => "#{directory}" } )
+   end
 end

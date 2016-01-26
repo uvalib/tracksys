@@ -5,7 +5,7 @@ class AutomationMessage
 
   WORKFLOW_TYPES_HASH = {
     'CreateDlManifestProcessor' => 'administrative',
-    'CreateStatsReportProcessor' => 'administrative', 
+    'CreateStatsReportProcessor' => 'administrative',
     'SendUnitToArchiveProcessor' => 'archive',
     'StartManualUploadToArchiveMigrationProcessor' => 'archive',
     'StartManualUploadToArchiveBatchMigrationProcessor' => 'archive',
@@ -42,9 +42,7 @@ class AutomationMessage
     'QaFilesystemAndIviewXmlProcessor' => 'qa',
     'QaOrderDataProcessor' => 'qa',
     'QaUnitDataProcessor' => 'qa',
-    'StartFinalizationMigrationProcessor' => 'qa',
     'StartFinalizationProcessor' => 'qa',
-    'StartFinalizationProductionProcessor' => 'qa',
     'UpdateOrderDateFinalizationBegunProcessor' => 'qa',
     'CopyArchivedFilesToProductionProcessor' => 'patron',
     'CopyDirectoryFromArchiveProcessor' => 'patron',
@@ -78,11 +76,11 @@ class AutomationMessage
     'CreateTextFromPdfProcessor' => 'production',
     'CreateTifImagesFromPdfProcessor' => 'production',
     'SendPdfUnitToFinalizationDirProcessor' => 'production',
-    'PurgeCacheProcessor' => 'administrative' 
+    'PurgeCacheProcessor' => 'administrative'
     }
 
 end
-  
+
 # == Schema Information
 #
 # Table name: automation_messages
@@ -102,4 +100,3 @@ end
 #  messagable_type :string(20)      not null
 #  workflow_type   :string(255)
 #
-

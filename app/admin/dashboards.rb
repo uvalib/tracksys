@@ -146,25 +146,15 @@ ActiveAdmin.register_page "Dashboard" do
     redirect_to :back
   end
 
-  page_action :push_staging_to_production do
-    begin
-      FileUtils.touch '/lib_content27/tracksys_prod_solr/copy_to_production'
-      flash[:notice] = "Records will be available through Virgo at 6am."
-    rescue Errno::EACCES
-      flash[:notice] = "Something went wrong, contact Administrator."
-    end
-    redirect_to :back
-  end
-
   page_action :start_finalization_production do
-    StartFinalizationProduction.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    flash[:notice] = "Items in /digiserv-production/finalization/10_dropoff have begun finalization workflow."
+    StartFinalization.exec( {:directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
+    flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_PRODUCTION} have begun finalization workflow."
     redirect_to :back
   end
 
   page_action :start_finalization_migration do
-    StartFinalizationMigration.exec( {:user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s)} )
-    flash[:notice] = "Items in /digiserv-migration/finalization/10_dropoff have begun finalization workflow."
+    StartFinalization.exec( {:directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
+    flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_MIGRATION} have begun finalization workflow."
     redirect_to :back
   end
 
