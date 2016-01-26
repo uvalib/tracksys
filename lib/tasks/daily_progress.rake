@@ -2,44 +2,6 @@
 
 namespace :daily_progress do
 
-   desc "Update tech metadata for issue by PID"
-   task :update_tech_metadata => :environment do
-      pid = ENV['pid']
-      raise "PID is required" if pid.nil?
-      cmp = Component.where(pid: pid).first
-      raise "Invalid PID" if cmp.nil?
-
-      mfs = MasterFile.where(component_id: cmp.id)
-      mfs.each do | mf |
-         puts "Update TechMetadata for #{mf.filename}"
-         UpdateFedoraDatastreams.exec( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "tech_metadata" })
-      end
-   end
-
-   desc "Update Images for issue by PID"
-   task :update_images => :environment do
-      pid = ENV['pid']
-      raise "PID is required" if pid.nil?
-      cmp = Component.where(pid: pid).first
-      raise "Invalid PID" if cmp.nil?
-
-      mfs = MasterFile.where(component_id: cmp.id)
-      mfs.each do | mf |
-         puts "Update Images for #{mf.filename}"
-         UpdateFedoraDatastreams.exec( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "jp2k" })
-      end
-   end
-
-   desc "Ingest unit from archive"
-   task :ingest_unit => :environment do
-      id = ENV['id']
-      raise "ID is required" if id.nil?
-      unit = Unit.find(id)
-
-      puts "   => Start ingest for unit #{unit.id}:#{unit.special_instructions}"
-      StartIngestFromArchive.exec( { :unit_id => "#{unit.id}" } )
-   end
-
    def update_followed_by(parent_component, new_component)
       prior = nil
       linked = false
@@ -179,7 +141,7 @@ namespace :daily_progress do
                ingested << "#{issue_date}\n"
                if ingest
                   puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-                  StartIngestFromArchive.exec( { :unit_id => "#{issue_unit.id}" })
+                  StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
                end
             end
 
@@ -268,7 +230,7 @@ namespace :daily_progress do
 
          # Create metadata from the file moved above
          payload = {source: dest_file, master_file_id: mf.id, last: 0}
-         job = CreateImageTechnicalMetadataAndThumbnail.exec( payload )
+         job = CreateImageTechnicalMetadataAndThumbnail.exec_now( payload )
       end
 
       # ingest the last unit, unless it was already ingested
@@ -276,7 +238,7 @@ namespace :daily_progress do
          ingested << "#{issue_date}\n"
          if ingest
             puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-            StartIngestFromArchive.exec({ :unit_id => "#{issue_unit.id}" })
+            StartIngestFromArchive.exec_now({ :unit_id => "#{issue_unit.id}" })
          end
       end
 

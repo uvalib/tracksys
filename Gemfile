@@ -33,6 +33,7 @@ gem 'country-select'
 gem 'browser' # Browser detection for request form HTML5 attributes
 gem 'roadie' # for embedding CSS in request_form emails
 gem 'nokogiri-pretty'
+gem 'axlsx', '~> 2.1.0.pre'
 gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
 gem 'zip-zip' # will load compatibility for old rubyzip API.
 

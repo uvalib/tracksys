@@ -10,21 +10,27 @@ class CreateDlManifest < BaseJob
       else
          computing_id = message[:computing_id]
       end
+      send_email = message[:deliver]
+      send_email = true if send_email.nil?
 
       @staff_member = StaffMember.where(:computing_id => computing_id).first
 
       @messagable_id = @staff_member.id
       @messagable_type = "StaffMember"
 
-      create_workbook()
-      ReportMailer.send_dl_manifest(@staff_member).deliver
+      report_file = create_workbook()
 
-      File.delete("#{Rails.root}/tmp/dl_manifest_#{Time.now.strftime('%Y%m%d')}.xlsx")
-
-      on_success "DL Manifest emailed to #{@staff_member.full_name}."
+      if send_email
+         ReportMailer.send_dl_manifest(@staff_member).deliver
+         File.delete(report_file)
+         on_success "DL Manifest emailed to #{@staff_member.full_name}."
+      else
+         on_success "DL Manifest created here: #{report_file}."
+      end
    end
 
    def create_workbook
+      filename = "#{Rails.root}/tmp/dl_manifest_#{Time.now.strftime('%Y%m%d')}.xlsx"
       p = Axlsx::Package.new
       p.use_shared_strings = true
       p.workbook do |wb|
@@ -161,8 +167,9 @@ class CreateDlManifest < BaseJob
          end
          p.use_autowidth = false
          s = p.to_stream()
-         File.open("#{Rails.root}/tmp/dl_manifest_#{Time.now.strftime('%Y%m%d')}.xlsx", 'w') { |f| f.write(s.read) }
+         File.open(filename, 'w') { |f| f.write(s.read) }
       end
+      return filename
    end
 
   # Helper method for creating DL Manifest XLS file
@@ -174,8 +181,8 @@ class CreateDlManifest < BaseJob
            style = row_number.odd? ? @wrap_text_even : @wrap_text_odd
            # row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.dl_image_count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
            row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.year}", "#{bibl.master_files.in_digital_library.count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
-           sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{bibl.pid}", :ref => "G#{row.index + 1}"
-           sheet["G#{row.index + 1}"].style = @blue_link
+           sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{bibl.pid}", :ref => "G#{row.row_index + 1}"
+           sheet["G#{row.row_index + 1}"].style = @blue_link
            row_number += 1
         end
         sheet.column_info[0].width = 60 # Title
