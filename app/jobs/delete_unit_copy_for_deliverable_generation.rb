@@ -9,7 +9,8 @@ class DeleteUnitCopyForDeliverableGeneration < BaseJob
       @messagable_type = "Unit"
       set_workflow_type()
       @unit_dir = "%09d" % @unit_id
-      order_id = Unit.find(@unit_id).order.id
+      @working_unit = Unit.find(@unit_id)
+      order_id = @working_unit.order.id
 
       # Delete logic
       del_dir = File.join(PROCESS_DELIVERABLES_DIR, @mode, @unit_dir)
@@ -19,9 +20,10 @@ class DeleteUnitCopyForDeliverableGeneration < BaseJob
 
       # Send messages
       if @mode == 'patron'
-         msg = { :order_id => order_id, :unit_id => @unit_id }
-         UpdateUnitDatePatronDeliverablesReady.exec_now(msg)
-         CheckOrderReadyForDelivery.exec_now(msg)
+         @working_unit.update_attribute(:date_patron_deliverables_ready, Time.now)
+         on_success "Date patron deliverables ready for unit #{@unit_id} has been updated."
+
+         CheckOrderReadyForDelivery.exec_now( { :order_id => order_id, :unit_id => @unit_id }  )
       end
    end
 end
