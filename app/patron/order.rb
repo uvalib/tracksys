@@ -55,7 +55,7 @@ ActiveAdmin.register Order, :namespace => :patron do
     div :class => 'two-column' do
       panel "Basic Information" do
         attributes_table_for order do
-          row ("Status") do |order| 
+          row ("Status") do |order|
             status_tag(order.order_status)
           end
           row :order_title
@@ -112,7 +112,7 @@ ActiveAdmin.register Order, :namespace => :patron do
       f.input :date_permissions_given, :as => :string, :input_html => {:class => :datepicker}
     end
 
-    f.inputs "Related Information", :class => 'panel three-column' do 
+    f.inputs "Related Information", :class => 'panel three-column' do
       f.input :agency, :as => :select, :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}
       f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
     end
@@ -138,7 +138,7 @@ ActiveAdmin.register Order, :namespace => :patron do
             div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
             div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
             div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :method => :put end
-            div do "Either send fee estimate or cancel this order." end    
+            div do "Either send fee estimate or cancel this order." end
           else
             # External customers (who require a fee) for which there IS both an estimated fee and actual fee
             # Actions available: Approve or Cancel
@@ -150,8 +150,8 @@ ActiveAdmin.register Order, :namespace => :patron do
             end
             div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :method => :put end
             div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_patron_order_path(order.id), :disabled => 'true', :method => :put end
-            div do "Either approve or cancel this order." end  
-          end        
+            div do "Either approve or cancel this order." end
+          end
         end
       elsif not order.customer.external?
         # Internal customers require no fee.
@@ -175,7 +175,7 @@ ActiveAdmin.register Order, :namespace => :patron do
           div :class => 'workflow_button' do button_to "Customer Accepts Fee", approve_order_patron_order_path(order.id), :method => :put end
           div :class => 'workflow_button' do button_to "Customer Declines Fee", cancel_order_patron_order_path(order.id), :method => :put end
         end
-      end      
+      end
     elsif order.order_status == 'approved' || order.order_status == 'canceled'
       div :class => 'workflow_button' do button_to "Approve Order", approve_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
       div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_patron_order_path(order.id), :disabled => 'true', :method => :put end
@@ -219,7 +219,7 @@ ActiveAdmin.register Order, :namespace => :patron do
 
   member_action :send_fee_estimate_to_customer, :method => :put do
     order = Order.find(params[:id])
-    order.send_fee_estimate_to_customer(request.env['HTTP_REMOTE_USER'].to_s)
+    order.send_fee_estimate_to_customer(current_user.computing_id)
     sleep(0.5)
     redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
   end

@@ -280,7 +280,7 @@ ActiveAdmin.register Component do
 
   sidebar "Solr Index", :only => [:show] do
     if component.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_component_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_component_path, :user => current_user, :method => :get end
     end
   end
 

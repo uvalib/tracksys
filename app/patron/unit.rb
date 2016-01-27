@@ -259,7 +259,7 @@ ActiveAdmin.register Unit, :namespace => :patron do
   end
 
   member_action :copy_from_archive, :method => :put do
-    Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    Unit.find(params[:id]).get_from_stornext(current_user.computing_id)
     redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
 

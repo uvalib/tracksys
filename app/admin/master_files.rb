@@ -330,7 +330,7 @@ ActiveAdmin.register MasterFile do
 
   member_action :copy_from_archive, :method => :put do
     mf = MasterFile.find(params[:id])
-    mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    mf.get_from_stornext(current_user.computing_id)
     redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
 

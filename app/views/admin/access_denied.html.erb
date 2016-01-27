@@ -1,0 +1,9 @@
+<h1>Access Denied</h1>
+<% if reason == :net_badge %>
+   <p>NetBadge login failed.</>
+<% elsif  reason == :no_user %>
+   <p>Your UVa Computing ID was not recognized by the system.</p>
+<% else %>
+   <p>Your account has not been activated.</p>
+<% end %>
+<p>Please contact a system administrator for more help</p>

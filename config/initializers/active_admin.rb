@@ -83,12 +83,10 @@ ActiveAdmin.setup do |config|
   # to return the currently logged in user.
   # config.current_user_method = :current_admin_user
 
-  # Turn off Devise authentication for production test and check NetBadge Users against StaffMembers database.
-  if Rails.env == "production"
-    config.authentication_method = false
-    config.current_user_method   = :current_admin_user
-    config.before_filter :authorize, :except => [ :access_denied, :mods_identifiers ]
-  end
+  # Turn off Devise authentication; NetBadge is used instead. In dev mode all access granted
+ config.authentication_method = false
+ config.current_user_method   = :current_user
+ config.before_filter :authorize, :except => [ :access_denied ]
 
   # Set language
   config.before_filter :set_admin_locale
@@ -103,7 +101,7 @@ ActiveAdmin.setup do |config|
   # will call the method to return the path.
   #
   # Default:
-  config.logout_link_path = :destroy_admin_user_session_path
+  config.logout_link_path = false
 
   # This setting changes the http method used when rendering the
   # link. For example :get, :delete, :put, etc..
@@ -141,7 +139,7 @@ ActiveAdmin.setup do |config|
   # Enable and disable Batch Actions
   #
   config.batch_actions = true
-  
+
 
   # == Controller Filters
   #
@@ -159,7 +157,7 @@ ActiveAdmin.setup do |config|
   #
   # To load a stylesheet:
   #   config.register_stylesheet 'my_stylesheet.css'
-  
+
   # You can provide an options hash for more control, which is passed along to stylesheet_link_tag():
   #   config.register_stylesheet 'my_print_stylesheet.css', :media => :print
   #

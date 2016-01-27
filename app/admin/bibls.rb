@@ -280,7 +280,7 @@ ActiveAdmin.register Bibl do
 
   sidebar "Solr Index", :only => [:show] do
     if bibl.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => current_user(), :method => :get end
     end
   end
 
@@ -300,7 +300,7 @@ ActiveAdmin.register Bibl do
   end
 
   collection_action :create_dl_manifest do
-    CreateDlManifest.exec( {:computing_id => "#{request.env['HTTP_REMOTE_USER'].to_s}"} )
+    CreateDlManifest.exec( {:computing_id => current_user.computing_id } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 

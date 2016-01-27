@@ -50,11 +50,11 @@ ActiveAdmin.register_page "Dashboard" do
 
     div :class => 'three-column' do
       panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
-        div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-        div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get end
+        div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get end
         div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get end
-        div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_dashboard_start_manual_upload_to_archive_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
-        div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get end
+        div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get end
       end
     end
 
@@ -116,7 +116,7 @@ ActiveAdmin.register_page "Dashboard" do
 
     div :class => 'three-column' do
       panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
-        div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+        div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => current_user, :method => :get end
       end
     end
 
@@ -159,21 +159,21 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :start_manual_upload_to_archive_batch_migration do
-    @user = StaffMember.find_by_computing_id("aec6v")
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
     StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION } )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_production do
-    @user = StaffMember.find_by_computing_id("aec6v")
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
     StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_migration do
-    @user = StaffMember.find_by_computing_id("aec6v")
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
     StartManualUploadToArchive.exec( {:user => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back

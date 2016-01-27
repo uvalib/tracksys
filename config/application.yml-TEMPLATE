@@ -39,6 +39,7 @@ production:
    saxon_url: tracksysdev.lib.virginia.edu
    saxon_port: 8080
 development:
+   dev_user_compute_id: aec6v
    production_mount: /home/user/tracksys-dev/sandbox/digiserv-production # Override default mount with local
    migration_mount:  /home/user/tracksys-dev/sandbox/digiserv-migration
    delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron

@@ -6,11 +6,11 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
  scope :all, :show_count => false, :default => true
   scope :in_digital_library, :show_count => false
   scope :not_in_digital_library, :show_count => false
-  
+
   actions :all, :except => [:new, :destroy]
 
   batch_action :download_from_archive do |selection|
-    MasterFile.find(selection).each {|s| s.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s) }
+    MasterFile.find(selection).each {|s| s.get_from_stornext(current_user.computing_id) }
     flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
     redirect_to :back
   end
@@ -41,7 +41,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
   filter :archive, :as => :select
   filter :heard_about_service, :as => :select
   filter :heard_about_resource, :as => :select
-  
+
   index :id => 'master_files' do
     selectable_column
     column :filename, :sortable => false
@@ -135,7 +135,7 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
       row :customer
       row :component do |master_file|
         if not master_file.component.nil?
-          link_to "#{master_file.component.name}", patron_component_path(master_file.component.id) 
+          link_to "#{master_file.component.name}", patron_component_path(master_file.component.id)
         end
       end
       row :automation_messages do |master_file|
@@ -159,9 +159,9 @@ ActiveAdmin.register MasterFile, :namespace => :patron do
     end
   end
 
-  member_action :copy_from_archive, :method => :put do 
+  member_action :copy_from_archive, :method => :put do
     mf = MasterFile.find(params[:id])
-    mf.get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
+    mf.get_from_stornext(current_user.computing_id)
     redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
   end
 end

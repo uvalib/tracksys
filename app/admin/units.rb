@@ -378,7 +378,7 @@ ActiveAdmin.register Unit do
 
   sidebar "Solr Index", :only => [:show] do
     if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => StaffMember.find_by_computing_id(request.env['HTTP_REMOTE_USER'].to_s), :method => :get end
+      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => current_user, :method => :get end
     end
   end
 
@@ -405,11 +405,7 @@ ActiveAdmin.register Unit do
   end
 
   member_action :copy_from_archive, :method => :put do
-    if request.env['HTTP_REMOTE_USER']
-      Unit.find(params[:id]).get_from_stornext(request.env['HTTP_REMOTE_USER'].to_s)
-    else
-      Unit.find(params[:id]).get_from_stornext('aec6v')
-    end
+    Unit.find(params[:id]).get_from_stornext( current_user.computing_id )
     redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
   end
 

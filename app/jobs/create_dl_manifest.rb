@@ -4,12 +4,7 @@ class CreateDlManifest < BaseJob
       Job_Log.debug "CreateDlManifestProcessor received: #{message.to_json}"
       set_workflow_type()
 
-      # Hardcode developer for development server purposes
-      if message[:computing_id].blank?
-         computing_id = 'aec6v'
-      else
-         computing_id = message[:computing_id]
-      end
+      computing_id = message[:computing_id]
       send_email = message[:deliver]
       send_email = true if send_email.nil?
 

@@ -109,7 +109,7 @@ class RequestsController < ApplicationController
         if customer_lookup.nil?
           uva_computing_id = ldap_info.uva_computing_id
           department_name = ldap_info.department.first
-        
+
           # Set values for customer pulled from LDAP
           @request.customer_attributes = {
             :email => ldap_info.email.first,
@@ -122,7 +122,7 @@ class RequestsController < ApplicationController
               :phone => ldap_info.phone  # no need to do first, since uva_ldap does not return an array for this value.
             }
           }
-        else 
+        else
           @request.customer = Customer.find_by_email(ldap_info.email.first)
         end
 
@@ -155,11 +155,15 @@ class RequestsController < ApplicationController
     # If the HTTP request is local, use a predefined, existing UVa computing ID.
     # Otherwise, get the user's UVa computing ID from the environment variable
     # set by NetBadge.
-    session[:computing_id] = request.env['HTTP_REMOTE_USER'].to_s || 'aec6v'
+    cid = request.env['HTTP_REMOTE_USER'].to_s
+    if cid.blank? && Rails.env != "production"
+      cid = Settings.dev_user_compute_id
+    end
+    session[:computing_id] = cid
     redirect_to :action => :new
   end
 
-  private 
+  private
 
   def clean_input(thing)
     thing.attributes.each do |key, value|
