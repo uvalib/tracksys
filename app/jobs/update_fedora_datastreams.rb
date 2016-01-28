@@ -25,10 +25,6 @@ class UpdateFedoraDatastreams < BaseJob
             IngestMarc.exec_now(msg)
             IngestRightsMetadata.exec_now(msg)
 
-            if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
-               IngestTeiDoc.exec_now(msg)
-            end
-
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
 
             # Update the object's date_dl_update value
@@ -74,7 +70,7 @@ class UpdateFedoraDatastreams < BaseJob
          elsif @datastream == 'allimages'
             @object.master_files.each {|mf|
                # Messages coming from this processor should only be for units that have already been archived.
-               @source = File.join(ARCHIVE_READ_DIR, @unit_dir, mf.filename)
+               @source = File.join(mf.archive.directory, @unit_dir, mf.filename)
 
                imsg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :last => 0 }
                CreateDlDeliverables.exec_now(imsg) if mf.datastream_exists?("content")
@@ -126,10 +122,6 @@ class UpdateFedoraDatastreams < BaseJob
             IngestMarc.exec_now(msg)
             IngestRightsMetadata.exec_now(msg)
 
-            if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.bibl.id}.tei.xml"))
-               IngestTeiDoc.exec_now(msg)
-            end
-
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
 
             # Update the object's bibl's date_dl_update value
@@ -141,7 +133,7 @@ class UpdateFedoraDatastreams < BaseJob
 
             @object.master_files.each {|mf|
                # Messages coming from this processor should only be for units that have already been archived.
-               @source = File.join(ARCHIVE_READ_DIR, @unit_dir, mf.filename)
+               @source = File.join(mf.archive.directory, @unit_dir, mf.filename)
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
                IngestDescMetadata.exec_now(msg)
                IngestRightsMetadata.exec_now( msg )
@@ -240,10 +232,6 @@ class UpdateFedoraDatastreams < BaseJob
                IngestMarc.exec_now(bmsg)
             end
             IngestRightsMetadata.exec_now(bmsg)
-
-            if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.id}.tei.xml"))
-               IngestTeiDoc.exec_now(bmsg)
-            end
 
             on_success "All datastreams for #{@object_class} #{@object_id} will be updated"
          elsif @datastream == 'desc_metadata'

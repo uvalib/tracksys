@@ -26,8 +26,6 @@ production:
    migration_mount: /digiserv-migration
    delivery_dir: /digiserv-delivery/patron
    batch_migration_mount: /lib_content37/Rimage
-   archive_write_dir: /lib_content44/RMDS_archive/CheckSummed_archive
-   archive_read_dir: /lib_content44/RMDS_archive/CheckSummed_archive
    xtf_delivery_dir: /xtf_delivery/text
    fedora_username: user
    fedora_password: pass
@@ -44,8 +42,6 @@ development:
    migration_mount:  /home/user/tracksys-dev/sandbox/digiserv-migration
    delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron
    batch_migration_mount:  /home/user/tracksys-dev/sandbox/lib_content37/Rimage
-   archive_write_dir:  /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
-   archive_read_dir:  /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
    xtf_delivery_dir:  /home/user/tracksys-dev/sandbox/xtf_delivery/text
    fedora_username: user
    fedora_password: pass

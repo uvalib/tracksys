@@ -58,13 +58,6 @@ BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_de
 # and in engaging lib/bibl_external_update
 SOLR_PRODUCTION_NAME = Settings.solr
 
-# To prevent writing to production archive on Stornext from all but tracksys.production
-# the default write directory will be Test.
-ARCHIVE_WRITE_DIR = Settings.archive_read_dir
-ARCHIVE_READ_DIR = Settings.archive_write_dir
-TEI_ARCHIVE_DIR = "#{ARCHIVE_READ_DIR}/tracksys_tei_xml_depository"
-XTF_DELIVERY_DIR = Settings.xtf_delivery_dir
-
 # Will have to change this one when I figure out where to put the jp2k images
 BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverables"
 

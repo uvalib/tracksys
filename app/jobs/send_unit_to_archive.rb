@@ -48,6 +48,7 @@ class SendUnitToArchive < BaseJob
       # Create array to hold all created directories so they can be removed after the process is complete
       created_dirs = Array.new
       @errors = 0
+      unit = Unit.find(@unit_id)
 
       Dir.chdir(@source_dir)
 
@@ -62,8 +63,8 @@ class SendUnitToArchive < BaseJob
             # Ignore files that begin with .
             if /^\./ =~ basename
             else
-               FileUtils.copy(f, File.join(ARCHIVE_WRITE_DIR, parent, basename))
-               FileUtils.chmod(0664, File.join(ARCHIVE_WRITE_DIR, parent, basename))
+               FileUtils.copy(f, File.join(unit.archive.directory, parent, basename))
+               FileUtils.chmod(0664, File.join(unit.archive.directory, parent, basename))
                # Calculate information for checksums
 
                # Get source MD5
@@ -74,7 +75,7 @@ class SendUnitToArchive < BaseJob
 
                # Get copy MD5
                copy_md5 = Digest::MD5.new
-               File.open(File.join(ARCHIVE_WRITE_DIR, parent, basename), 'r') do |file|
+               File.open(File.join(unit.archive.directory, parent, basename), 'r') do |file|
                   copy_md5.update(file.read(16384)) until file.eof
                end
 
@@ -98,8 +99,8 @@ class SendUnitToArchive < BaseJob
                end
             end
          when File.directory?(f)
-            FileUtils.makedirs(File.join(ARCHIVE_WRITE_DIR, f))
-            FileUtils.chmod(0775, File.join(ARCHIVE_WRITE_DIR, f))
+            FileUtils.makedirs(File.join(unit.archive.directory, f))
+            FileUtils.chmod(0775, File.join(unit.archive.directory, f))
             created_dirs << f
          else
             on_failure("Unknown file #{f} in #{parent}/#{basename}")

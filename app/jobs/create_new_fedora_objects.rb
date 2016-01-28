@@ -57,13 +57,6 @@ class CreateNewFedoraObjects < BaseJob
          if @object.catalog_key
             IngestMarc.exec_now( default_message )
          end
-
-         if File.exist?(File.join(TEI_ARCHIVE_DIR, "#{@object.id}.tei.xml"))
-            if not @object.content_model
-               on_error "The Bibl record #{@object.id} has no content model set."
-            end
-            IngestTeiDoc.exec_now( default_message )
-         end
       end
 
       # MasterFiles (i.e. images)
