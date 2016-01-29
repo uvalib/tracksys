@@ -21,7 +21,6 @@ STAGING_SOLR_URL = Settings.staging_solor_url
 TRACKSYS_URL = Settings.tracksys_url
 SAXON_URL = Settings.saxon_url
 SAXON_PORT = Settings.saxon_port.to_i
-TEI_ACCESS_URL = Settings.tei_access_url
 
 FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DIR_MIGRATION = "#{MIGRATION_MOUNT}/finalization"
