@@ -27,6 +27,7 @@ ActiveAdmin.register Bibl do
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric
   filter :agencies_id, :as => :numeric
+  filter :collection_facet, :as => :string
   
   csv do
     column :id
@@ -182,6 +183,7 @@ ActiveAdmin.register Bibl do
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)
           end
+          row :collection_facet
           row :desc_metadata
           row :rels_ext
           row :solr
