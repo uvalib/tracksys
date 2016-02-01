@@ -67,7 +67,7 @@ class Unit
   end
 
   def qa_unit_data
-    qa_unit_data.exec( {:unit_id => self.id})
+    QaUnitData.exec( {:unit_id => self.id})
   end
 
   def queue_unit_deliverables
