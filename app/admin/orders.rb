@@ -321,11 +321,11 @@ ActiveAdmin.register Order do
   end
 
   controller do
-    # Only cache the index view if it is the base index_url (i.e. /orders) and is devoid of either params[:page] or params[:q].
-    # The absence of these params values ensures it is the base url.
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
-    caches_action :show
-    cache_sweeper :orders_sweeper
+   #  # Only cache the index view if it is the base index_url (i.e. /orders) and is devoid of either params[:page] or params[:q].
+   #  # The absence of these params values ensures it is the base url.
+   #  caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
+   #  caches_action :show
+   #  cache_sweeper :orders_sweeper
     # scoped collection for sortable column on Customers
     def scoped_collection
       end_of_association_chain.includes([:customer])

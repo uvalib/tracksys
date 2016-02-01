@@ -5,13 +5,13 @@ ActiveAdmin.register Agency do
 
   scope :all, :default => true
   scope :no_parent
-  
+
   actions :all, :except => [:destroy]
 
   filter :id
   filter :name
 
-  index :id => 'agencies' do 
+  index :id => 'agencies' do
     selectable_column
     column :name
     column :customers do |agency|
@@ -131,10 +131,10 @@ ActiveAdmin.register Agency do
       f.actions
     end
   end
-  
-  controller do
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-    caches_action :show
-    cache_sweeper :agencies_sweeper
-  end
+
+  # controller do
+  #   caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+  #   caches_action :show
+  #   cache_sweeper :agencies_sweeper
+  # end
 end

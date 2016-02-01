@@ -5,7 +5,7 @@ ActiveAdmin.register Customer do
 
   scope :all, :default => true
   scope :has_unpaid_invoices
-  
+
   filter :id
   filter :first_name
   filter :last_name
@@ -22,7 +22,7 @@ ActiveAdmin.register Customer do
 
   index :as => :table do
     selectable_column
-    column("Name", :sortable => false) do |customer| 
+    column("Name", :sortable => false) do |customer|
       customer.full_name
     end
     column :requests do |customer|
@@ -31,10 +31,10 @@ ActiveAdmin.register Customer do
     column :orders do |customer|
       link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id})
     end
-    column :units do |customer| 
+    column :units do |customer|
       link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
     end
-    column ("Bibliographic Records") do |customer| 
+    column ("Bibliographic Records") do |customer|
       link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
     end
     column :master_files do |customer|
@@ -53,7 +53,7 @@ ActiveAdmin.register Customer do
   end
 
   show do
-    div :class => 'three-column' do 
+    div :class => 'three-column' do
       panel "Details", :id => 'customers' do
         attributes_table_for customer do
           row :full_name
@@ -86,7 +86,7 @@ ActiveAdmin.register Customer do
       end
     end
 
-    div :class => 'three-column' do 
+    div :class => 'three-column' do
       panel "Billing Address", :id => 'customers' do
         if customer.billable_address
           attributes_table_for customer.billable_address do
@@ -130,14 +130,14 @@ ActiveAdmin.register Customer do
           p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chzn-select'}
           p.input :post_code
           p.input :phone
-          p.input :organization 
+          p.input :organization
         end
       end
     end
 
     f.inputs "Billable Address (Optional)", :class => 'inputs three-column' do
       f.semantic_fields_for :billable_address do |b|
-        b.inputs do 
+        b.inputs do
           b.input :first_name
           b.input :last_name
           b.input :address_1
@@ -153,7 +153,7 @@ ActiveAdmin.register Customer do
     end
 
     f.inputs :class => 'columns-none' do
-      f.actions 
+      f.actions
     end
   end
 
@@ -165,10 +165,10 @@ ActiveAdmin.register Customer do
       row :orders do |customer|
         link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id})
       end
-      row :units do |customer| 
+      row :units do |customer|
         link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
       end
-      row ("Bibliographic Records") do |customer| 
+      row ("Bibliographic Records") do |customer|
         link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
       end
       row :master_files do |customer|
@@ -176,7 +176,7 @@ ActiveAdmin.register Customer do
       end
       row "On Behalf of Agencies" do |customer|
         customer.agencies.sort_by(&:name).each {|agency|
-          div do 
+          div do
             link_to "#{agency.name}", admin_agency_path(agency)
           end
         } unless customer.agencies.empty?
@@ -187,11 +187,11 @@ ActiveAdmin.register Customer do
     end
   end
 
-  controller do
-    # Only cache the index view if it is the base index_url (i.e. /customers) and is devoid of either params[:page] or params[:q].  
-    # The absence of these params values ensures it is the base url.
-    caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-    caches_action :show
-    cache_sweeper :customers_sweeper
-  end
+  # controller do
+  #   # Only cache the index view if it is the base index_url (i.e. /customers) and is devoid of either params[:page] or params[:q].
+  #   # The absence of these params values ensures it is the base url.
+  #   caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
+  #   caches_action :show
+  #   cache_sweeper :customers_sweeper
+  # end
 end

@@ -38,7 +38,7 @@ Tracksys::Application.configure do
 
   # Use a different cache store in production
   # config.cache_store = :mem_cache_store
-  config.cache_store = :file_store, "#{config.root}/tmp/file_store_cache"
+  #config.cache_store = :file_store, "#{config.root}/tmp/file_store_cache"
 
   # Add additional directories to asset pipeline search paths
   config.assets.paths << "#{Rails.root}/app/assets/images/request_form"
