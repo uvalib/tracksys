@@ -190,7 +190,6 @@ namespace :daily_progress do
          mf.unit = issue_unit
          mf.title = pagenum
          mf.tech_meta_type = "image"
-         mf.type = 'Tiff'
          mf.component = curr_issue
          mf.filename = "%09d" % issue_unit.id + "_" + "%04d" % pagenum + ".tif"
          mf.filesize = File.size(f)
