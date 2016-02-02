@@ -1,6 +1,9 @@
-require "#{Hydraulics.models_dir}/container_type"
+class ContainerType < ActiveRecord::Base
 
-class ContainerType
+  has_many :containers
+
+  validates :name, :presence => true
+
 end
 # == Schema Information
 #
@@ -10,4 +13,3 @@ end
 #  name        :string(255)
 #  description :string(255)
 #
-

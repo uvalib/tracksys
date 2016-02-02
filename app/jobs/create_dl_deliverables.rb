@@ -64,7 +64,7 @@ class CreateDlDeliverables < BaseJob
       @object.update_attributes(:md5 => source_md5)
     end
 
-    if @object.is_a?(Tiff) or @object.filename.match(".tif$")
+    if @object.filename.match(".tif$")
       # Introduce error handling for uncompressed images that kakadu will choke on.
       tiff = Magick::Image.read(@source).first
       @filesize = tiff.filesize
@@ -78,7 +78,7 @@ class CreateDlDeliverables < BaseJob
       tiff.destroy!
     end
 
-    if @object.is_a?(JpegTwoThousand) or @object.filename.match(".jp2$")
+    if @object.filename.match(".jp2$")
       # write a JPEG-2000 file to the destination directory
       jp2k_filename = @object.pid.sub(/:/, '_') + '.jp2'
       jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)

@@ -33,7 +33,6 @@ ActiveAdmin.register Order do
   filter :staff_notes
   filter :special_instructions
   filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
-  filter :dvd_delivery_location
   filter :invoices_count
   filter :master_files_count
 

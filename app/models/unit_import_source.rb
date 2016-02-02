@@ -1,6 +1,41 @@
-require "#{Hydraulics.models_dir}/unit_import_source"
+class UnitImportSource < ActiveRecord::Base
 
-class UnitImportSource
+  #------------------------------------------------------------------
+  # relationships
+  #------------------------------------------------------------------
+  belongs_to :unit
+
+  #------------------------------------------------------------------
+  # validations
+  #------------------------------------------------------------------
+  validates :unit_id, :presence => true
+  validates :unit, :presence => {
+    :message => "association with this Unit is no longer valid because the Unit object no longer exists."
+  }
+
+  #------------------------------------------------------------------
+  # callbacks
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # scopes
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # public class methods
+  #------------------------------------------------------------------
+
+  # Returns a string containing a brief, general description of this
+  # class/model.
+  def UnitImportSource.class_description
+    return "Unit Import Source contains the source document used to import unit-related data into the system."
+  end
+
+  #------------------------------------------------------------------
+  # public instance methods
+  #------------------------------------------------------------------
+
+
 end
 # == Schema Information
 #
@@ -14,4 +49,3 @@ end
 #  updated_at :datetime
 #  source     :text(2147483647
 #
-

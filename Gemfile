@@ -2,7 +2,6 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.2.22'
 
-gem 'hydraulics', '0.0.5', path: 'lib/hydraulics'
 gem 'activeadmin', '0.6.6'
 gem 'sass-rails', '3.2.6'
 gem 'passenger'
@@ -12,8 +11,8 @@ gem 'json'
 gem 'validates_timeliness', '3.0.14'
 gem 'annotate', '2.4.1.beta1'
 gem 'mysql2', '~> 0.3.10'
-gem 'foreigner'
 gem 'ancestry'
+gem 'foreigner'
 
 gem 'delayed_job_active_record'
 

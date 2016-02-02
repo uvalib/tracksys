@@ -1,7 +1,34 @@
-require "#{Hydraulics.models_dir}/department"
+class Department < ActiveRecord::Base
+   #------------------------------------------------------------------
+   # relationships
+   #------------------------------------------------------------------
+   has_many :customers
+   has_many :requests, :through => :customers, :conditions => ['orders.order_status = ?', 'requested']
+   has_many :orders, :through => :customers
+   has_many :units, :through => :orders
+   has_many :master_files, :through => :units
 
-class Department
-  default_scope :order => :name
+   #------------------------------------------------------------------
+   # validations
+   #------------------------------------------------------------------
+
+   #------------------------------------------------------------------
+   # callbacks
+   #------------------------------------------------------------------
+
+   #------------------------------------------------------------------
+   # scopes
+   #------------------------------------------------------------------
+   default_scope :order => :name
+
+   #------------------------------------------------------------------
+   # public class methods
+   #------------------------------------------------------------------
+
+   #------------------------------------------------------------------
+   # public instance methods
+   #------------------------------------------------------------------
+
 end
 # == Schema Information
 #
@@ -13,4 +40,3 @@ end
 #  updated_at      :datetime
 #  customers_count :integer(4)      default(0)
 #
-

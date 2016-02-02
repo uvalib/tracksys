@@ -1,7 +1,39 @@
-require "#{Hydraulics.models_dir}/sql_report"
+# SqlReport represents a SQL query with a name and description, saved to the
+# database for repeated use.
+class SqlReport < ActiveRecord::Base
 
-class SqlReport
+  #------------------------------------------------------------------
+  # relationships
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # validations
+  #------------------------------------------------------------------
+  validates :name, :sql, :presence => true
+  validates :name, :uniqueness => true
+
+  #------------------------------------------------------------------
+  # callbacks
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # scopes
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # public class methods
+  #------------------------------------------------------------------
+  # Returns a string containing a brief, general description of this class/model.
+  def self.class_description
+    return "Custom Report is a SQL query with a name and description, saved to the database for repeated use."
+  end
+
+  #------------------------------------------------------------------
+  # public instance methods
+  #------------------------------------------------------------------
+
 end
+
 # == Schema Information
 #
 # Table name: sql_reports
@@ -13,4 +45,3 @@ end
 #  created_at  :datetime
 #  updated_at  :datetime
 #
-

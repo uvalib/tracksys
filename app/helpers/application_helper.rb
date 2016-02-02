@@ -1,4 +1,3 @@
-require "#{Hydraulics.helpers_dir}/application_helper"
 
 include TweetButton
 
@@ -74,7 +73,7 @@ module ApplicationHelper
     end
   end
 
-  # Since Kaminari needs a "pagination object" to operate on, it is essential to turn a single 
+  # Since Kaminari needs a "pagination object" to operate on, it is essential to turn a single
   # object into an Array that Kaminari can use.
   # def pagify(object)
   #   return Kaminari.paginate_array(Array[object])

@@ -1,7 +1,40 @@
-require "#{Hydraulics.models_dir}/indexing_scenario"
+class IndexingScenario < ActiveRecord::Base
 
-class IndexingScenario
+  #------------------------------------------------------------------
+  # relationships
+  #------------------------------------------------------------------
+  has_many :bibls
+  has_many :components
+  has_many :master_files
+  has_many :units
+
+  #------------------------------------------------------------------
+  # validations
+  #------------------------------------------------------------------
+  validates :name, :pid, :repository_url, :datastream_name, :presence => true
+  validates :name, :pid, :uniqueness => true
+  validates :repository_url, :format => {:with => URI::regexp(['http','https'])}
+
+  #------------------------------------------------------------------
+  # callbacks
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # scopes
+  #------------------------------------------------------------------
   default_scope :order => :name
+  
+  #------------------------------------------------------------------
+  # public class methods
+  #------------------------------------------------------------------
+
+  #------------------------------------------------------------------
+  # public instance methods
+  #------------------------------------------------------------------
+  def complete_url
+    return "#{self.repository_url}/fedora/objects/#{self.pid}/datastreams/#{self.datastream_name}/content"
+  end
+
 end
 # == Schema Information
 #
@@ -19,4 +52,3 @@ end
 #  master_files_count :integer(4)      default(0)
 #  units_count        :integer(4)      default(0)
 #
-

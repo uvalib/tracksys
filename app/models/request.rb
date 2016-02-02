@@ -1,17 +1,34 @@
-require "#{Hydraulics.models_dir}/request"
+class Request < Order
+	# A Request is an Order that has not been approved for digitization. See Order.
 
-class Request
+  # set_table_name 'orders'
   belongs_to :customer, :inverse_of => :requests
 
   accepts_nested_attributes_for :units
   accepts_nested_attributes_for :customer
 
+  #------------------------------------------------------------------
+  # validations
+  #------------------------------------------------------------------
+  validates :is_approved, :inclusion => { :in => [false] }
   validates :units, :presence => {
     :message => 'are required.  Please add at least one item to your request.'
   }
 
   validates_presence_of :customer
+
+  #------------------------------------------------------------------
+  # public class methods
+  #------------------------------------------------------------------
+
+  # Returns a string containing a brief, general description of this
+  # class/model.
+  def Request.class_description
+    return 'A Request is an Order that has not been approved for digitization.'
+  end
+
 end
+
 # == Schema Information
 #
 # Table name: orders
@@ -37,7 +54,6 @@ end
 #  created_at                         :datetime
 #  updated_at                         :datetime
 #  staff_notes                        :text
-#  dvd_delivery_location_id           :integer(4)
 #  email                              :text
 #  date_patron_deliverables_complete  :datetime
 #  date_archiving_complete            :datetime
@@ -48,4 +64,3 @@ end
 #  invoices_count                     :integer(4)      default(0)
 #  master_files_count                 :integer(4)      default(0)
 #
-

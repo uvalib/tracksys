@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160127165855) do
+ActiveRecord::Schema.define(:version => 20160202162321) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -369,15 +369,6 @@ ActiveRecord::Schema.define(:version => 20160127165855) do
 
   add_index "departments", ["name"], :name => "index_departments_on_name", :unique => true
 
-  create_table "dvd_delivery_locations", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "email_desc"
-  end
-
-  add_index "dvd_delivery_locations", ["name"], :name => "index_dvd_delivery_locations_on_name", :unique => true
-
   create_table "ead_refs", :force => true do |t|
     t.integer  "parent_ead_ref_id",                       :default => 0,     :null => false
     t.integer  "bibl_id",                                 :default => 0
@@ -566,7 +557,6 @@ ActiveRecord::Schema.define(:version => 20160127165855) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.boolean  "dpla",                                            :default => false
-    t.string   "type"
     t.string   "creator_death_date"
     t.string   "creation_date"
     t.string   "primary_author"
@@ -606,7 +596,6 @@ ActiveRecord::Schema.define(:version => 20160127165855) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "staff_notes"
-    t.integer  "dvd_delivery_location_id"
     t.text     "email"
     t.datetime "date_patron_deliverables_complete"
     t.datetime "date_archiving_complete"
@@ -624,7 +613,6 @@ ActiveRecord::Schema.define(:version => 20160127165855) do
   add_index "orders", ["date_due"], :name => "index_orders_on_date_due"
   add_index "orders", ["date_order_approved"], :name => "index_orders_on_date_order_approved"
   add_index "orders", ["date_request_submitted"], :name => "index_orders_on_date_request_submitted"
-  add_index "orders", ["dvd_delivery_location_id"], :name => "index_orders_on_dvd_delivery_location_id"
   add_index "orders", ["order_status"], :name => "index_orders_on_order_status"
 
   create_table "sessions", :force => true do |t|
@@ -787,7 +775,6 @@ ActiveRecord::Schema.define(:version => 20160127165855) do
 
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
-  add_foreign_key "orders", "dvd_delivery_locations", name: "orders_dvd_delivery_location_id_fk"
 
   add_foreign_key "unit_import_sources", "units", name: "unit_import_sources_unit_id_fk"
 
