@@ -158,11 +158,6 @@ class MasterFile < ActiveRecord::Base
       CreateImageTechnicalMetadataAndThumbnail.exec( message )
    end
 
-   #------------------------------------------------------------------
-   # private instance methods
-   #------------------------------------------------------------------
-   private
-
    def increment_counter_caches
       # Conditionalize Bibl increment because it is not required.
       # Bibl.increment_counter('master_files_count', self.bibl.id) if self.bibl

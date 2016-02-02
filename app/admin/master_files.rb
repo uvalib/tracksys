@@ -98,7 +98,6 @@ ActiveAdmin.register MasterFile do
         attributes_table_for master_file do
           row :filename
           row :title
-          row :type
           row :description
           row :date_archived do |master_file|
             format_date(master_file.date_archived)
