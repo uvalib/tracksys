@@ -1,13 +1,13 @@
 # ************************************************************
 # Sequel Pro SQL dump
-# Version 4499
+# Version 4500
 #
 # http://www.sequelpro.com/
 # https://github.com/sequelpro/sequelpro
 #
 # Host: 127.0.0.1 (MySQL 5.6.27)
 # Database: tracksys3_development
-# Generation Time: 2015-12-22 18:57:54 +0000
+# Generation Time: 2016-02-09 18:20:47 +0000
 # ************************************************************
 
 
@@ -27,25 +27,25 @@ DROP TABLE IF EXISTS `academic_statuses`;
 
 CREATE TABLE `academic_statuses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `customers_count` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_academic_statuses_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 LOCK TABLES `academic_statuses` WRITE;
 /*!40000 ALTER TABLE `academic_statuses` DISABLE KEYS */;
 
 INSERT INTO `academic_statuses` (`id`, `name`, `created_at`, `updated_at`, `customers_count`)
 VALUES
-	(1,'Non-UVA','2015-12-17 14:51:11','2015-12-17 14:51:11',0),
-	(2,'Staff','2015-12-17 14:51:11','2015-12-17 14:51:11',2),
-	(3,'Faculty','2015-12-17 14:51:11','2015-12-17 14:51:11',0),
-	(4,'Undergraduate Student','2015-12-17 14:51:11','2015-12-17 14:51:11',0),
-	(5,'Graduate Student','2015-12-17 14:51:11','2015-12-17 14:51:11',0),
-	(6,'Continuing Eduction','2015-12-17 14:51:11','2015-12-17 14:51:11',0);
+	(1,'Non-UVA','2009-04-03 17:45:14','2009-04-03 17:45:14',1480),
+	(4,'Staff','2009-04-06 08:51:22','2009-04-06 08:51:22',237),
+	(5,'Faculty','2009-04-06 09:20:29','2009-04-06 09:20:29',234),
+	(6,'Undergraduate Student','2009-04-08 09:36:27','2009-04-08 09:36:27',93),
+	(7,'Graduate Student','2009-05-05 17:29:48','2009-05-05 17:29:48',185),
+	(8,'Continuing Education','2009-07-28 11:49:25','2009-07-28 11:49:25',8);
 
 /*!40000 ALTER TABLE `academic_statuses` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -97,7 +97,7 @@ CREATE TABLE `addresses` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `addresses` WRITE;
 /*!40000 ALTER TABLE `addresses` DISABLE KEYS */;
@@ -108,32 +108,6 @@ VALUES
 
 /*!40000 ALTER TABLE `addresses` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
-# Dump of table admin_users
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `admin_users`;
-
-CREATE TABLE `admin_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `encrypted_password` varchar(128) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `reset_password_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `reset_password_sent_at` datetime DEFAULT NULL,
-  `remember_created_at` datetime DEFAULT NULL,
-  `sign_in_count` int(11) DEFAULT '0',
-  `current_sign_in_at` datetime DEFAULT NULL,
-  `last_sign_in_at` datetime DEFAULT NULL,
-  `current_sign_in_ip` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `last_sign_in_ip` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_admin_users_on_email` (`email`),
-  UNIQUE KEY `index_admin_users_on_reset_password_token` (`reset_password_token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 
 # Dump of table agencies
@@ -156,39 +130,16 @@ CREATE TABLE `agencies` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_agencies_on_name` (`name`),
   KEY `index_agencies_on_ancestry` (`ancestry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+LOCK TABLES `agencies` WRITE;
+/*!40000 ALTER TABLE `agencies` DISABLE KEYS */;
 
-
-# Dump of table archives
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `archives`;
-
-CREATE TABLE `archives` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `units_count` int(11) DEFAULT '0',
-  `directory` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_archives_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-LOCK TABLES `archives` WRITE;
-/*!40000 ALTER TABLE `archives` DISABLE KEYS */;
-
-INSERT INTO `archives` (`id`, `name`, `created_at`, `updated_at`, `description`, `units_count`, `directory`)
+INSERT INTO `agencies` (`id`, `name`, `description`, `is_billable`, `last_name`, `first_name`, `created_at`, `updated_at`, `ancestry`, `names_depth_cache`, `orders_count`)
 VALUES
-	(1,'DVD','2009-03-31 15:24:14','2009-03-31 15:24:14',NULL,0,NULL),
-	(2,'StorNext','2009-03-31 15:24:14','2012-11-28 21:50:15',NULL,12912,'/RMDS_archive/CheckSummed_archive'),
-	(3,'DLPS Stornext','2009-03-31 15:24:14','2012-11-28 21:52:59','Shared used by Digital Library Production Services as the location for archiving their material.  The department no longer exists but the mount point, and content contained within, are still managed by the Library and DCS in particular.',0,'/DLPS_archive'),
-	(4,'None','2009-09-04 13:39:11','2009-09-04 13:39:11',NULL,2573,NULL),
-	(5,'Temporary Stornext Archive','2012-11-28 16:01:33','2012-11-28 21:49:35','Mounted as lib_content44, the 88T share was created by ITS to provide the Library with storage space while Stornext is upgraded and new tapes are added to the system.  Expected timeframe for this share\'s use is 10/12 - 12/13',11750,'/Users/lf6f/dev/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive');
+	(62,'General External Orders',NULL,0,NULL,NULL,'2011-12-08 15:27:52','2011-12-08 17:25:16',NULL,'General External Orders',108);
 
-/*!40000 ALTER TABLE `archives` ENABLE KEYS */;
+/*!40000 ALTER TABLE `agencies` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -239,7 +190,7 @@ CREATE TABLE `availability_policies` (
   `repository_url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `pid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `availability_policies` WRITE;
 /*!40000 ALTER TABLE `availability_policies` DISABLE KEYS */;
@@ -322,13 +273,14 @@ CREATE TABLE `bibls` (
   CONSTRAINT `bibls_availability_policy_id_fk` FOREIGN KEY (`availability_policy_id`) REFERENCES `availability_policies` (`id`),
   CONSTRAINT `bibls_indexing_scenario_id_fk` FOREIGN KEY (`indexing_scenario_id`) REFERENCES `indexing_scenarios` (`id`),
   CONSTRAINT `bibls_use_right_id_fk` FOREIGN KEY (`use_right_id`) REFERENCES `use_rights` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15227 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `bibls` WRITE;
 /*!40000 ALTER TABLE `bibls` DISABLE KEYS */;
 
 INSERT INTO `bibls` (`id`, `is_approved`, `is_personal_item`, `resource_type`, `genre`, `is_manuscript`, `is_collection`, `title`, `description`, `series_title`, `creator_name`, `creator_name_type`, `catalog_key`, `title_control`, `barcode`, `call_number`, `copy`, `volume`, `location`, `year`, `year_type`, `date_external_update`, `pid`, `created_at`, `updated_at`, `is_in_catalog`, `issue`, `citation`, `exemplar`, `parent_bibl_id`, `desc_metadata`, `rels_ext`, `solr`, `dc`, `rels_int`, `discoverability`, `indexing_scenario_id`, `date_dl_ingest`, `date_dl_update`, `automation_messages_count`, `units_count`, `availability_policy_id`, `use_right_id`, `dpla`, `cataloging_source`, `collection_facet`, `index_destination_id`)
 VALUES
+	(8153,1,0,'mixed material',NULL,1,0,'Papers of John Dos Passos',NULL,NULL,'Dos Passos, John, 1896-1970','personal','u3523359',NULL,'3523359-1001','MSS 5950',1,NULL,'STACKS',NULL,NULL,'2013-05-15 11:26:07','uva-lib:707283','2009-12-23 14:17:41','2013-05-15 11:26:07',1,NULL,'John Dos Passos Papers, 1865-1999, Accession #5950, etc., Special Collections, University of Virginia Library, Charlottesville, Va.',NULL,0,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,0,122,NULL,NULL,0,'VA@',NULL,NULL),
 	(15226,1,0,'text','newspaper',0,1,'The Daily progress',NULL,NULL,NULL,NULL,'u1870648','o24520244','X006024666','Micfilm N-US Va-6',1,NULL,'3EAST','1892-','publication','2013-05-15 11:57:19','uva-lib:2065830','2012-10-10 19:38:21','2013-12-20 21:21:29',0,NULL,NULL,'000021659_0006.tif',15784,NULL,NULL,NULL,NULL,NULL,0,1,'2012-11-28 16:26:35','2013-12-20 21:21:29',0,0,1,NULL,1,'VA@',NULL,3);
 
 /*!40000 ALTER TABLE `bibls` ENABLE KEYS */;
@@ -424,7 +376,7 @@ CREATE TABLE `component_types` (
   `components_count` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_component_types_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `component_types` WRITE;
 /*!40000 ALTER TABLE `component_types` DISABLE KEYS */;
@@ -510,13 +462,14 @@ CREATE TABLE `components` (
   CONSTRAINT `components_component_type_id_fk` FOREIGN KEY (`component_type_id`) REFERENCES `component_types` (`id`),
   CONSTRAINT `components_indexing_scenario_id_fk` FOREIGN KEY (`indexing_scenario_id`) REFERENCES `indexing_scenarios` (`id`),
   CONSTRAINT `components_use_right_id_fk` FOREIGN KEY (`use_right_id`) REFERENCES `use_rights` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=497770 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `components` WRITE;
 /*!40000 ALTER TABLE `components` DISABLE KEYS */;
 
 INSERT INTO `components` (`id`, `component_type_id`, `parent_component_id`, `title`, `label`, `date`, `content_desc`, `idno`, `barcode`, `seq_number`, `pid`, `created_at`, `updated_at`, `desc_metadata`, `rels_ext`, `solr`, `dc`, `rels_int`, `discoverability`, `indexing_scenario_id`, `level`, `ead_id_att`, `parent_ead_ref_id`, `ead_ref_id`, `availability_policy_id`, `date_dl_ingest`, `date_dl_update`, `use_right_id`, `master_files_count`, `automation_messages_count`, `exemplar`, `ancestry`, `pids_depth_cache`, `ead_id_atts_depth_cache`, `followed_by_id`, `legacy_ead`, `physical_desc`, `scope_content`, `index_destination_id`)
 VALUES
+	(410296,12,0,'Pen-and-ink sketches (4)/bullfighters, bulls and horses/by Jose Robles 1913',NULL,'1913','Pen-and-ink sketches (4)/bullfighters, bulls and horses/by Jose Robles 1913',NULL,NULL,NULL,'uva-lib:1734582','2012-07-08 01:28:58','2012-07-08 01:28:58',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,'d1e8436',NULL,NULL,NULL,NULL,NULL,NULL,0,0,NULL,'14072/14076/410281','uva-lib:1330360/uva-lib:1330364/uva-lib:1734567','viu01215/d1e8241/d1e8319',NULL,NULL,NULL,NULL,NULL),
 	(497769,11,0,'Daily Progress Digitized Microfilm',NULL,NULL,'The Charlottesville, VA area newspaper, published daily from 1892 to the present. Issues from 1892 through 1923 have been digitized from the Library\'s set of microfilm and are available for viewing online.',NULL,NULL,NULL,'uva-lib:2137307','2012-11-16 20:55:19','2013-10-18 12:58:38',NULL,NULL,NULL,NULL,NULL,1,1,NULL,'',NULL,NULL,1,'2012-11-28 16:26:45','2013-10-18 12:58:38',NULL,0,47,NULL,NULL,'uva-lib:2137307','',NULL,NULL,NULL,NULL,NULL);
 
 /*!40000 ALTER TABLE `components` ENABLE KEYS */;
@@ -620,17 +573,42 @@ CREATE TABLE `customers` (
   CONSTRAINT `customers_academic_status_id_fk` FOREIGN KEY (`academic_status_id`) REFERENCES `academic_statuses` (`id`),
   CONSTRAINT `customers_department_id_fk` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`),
   CONSTRAINT `customers_heard_about_service_id_fk` FOREIGN KEY (`heard_about_service_id`) REFERENCES `heard_about_services` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2555 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
 
 INSERT INTO `customers` (`id`, `department_id`, `academic_status_id`, `heard_about_service_id`, `last_name`, `first_name`, `email`, `created_at`, `updated_at`, `master_files_count`, `orders_count`)
 VALUES
-	(4,1,2,3,'Foster','Lou','lf6f@virginia.edu','2015-12-17 15:17:02','2015-12-17 15:17:02',0,1);
+	(4,1,2,3,'Foster','Lou','lf6f@virginia.edu','2015-12-17 15:17:02','2015-12-17 15:17:02',0,1),
+	(2554,NULL,1,3,'Nanney','Lisa','l.nanney@gmail.com','2015-12-02 17:09:35','2015-12-02 17:09:35',86,1);
 
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+# Dump of table delayed_jobs
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `delayed_jobs`;
+
+CREATE TABLE `delayed_jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `attempts` int(11) NOT NULL DEFAULT '0',
+  `handler` text COLLATE utf8_unicode_ci NOT NULL,
+  `last_error` text COLLATE utf8_unicode_ci,
+  `run_at` datetime DEFAULT NULL,
+  `locked_at` datetime DEFAULT NULL,
+  `failed_at` datetime DEFAULT NULL,
+  `locked_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `queue` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `delayed_jobs_priority` (`priority`,`run_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 
 # Dump of table delivery_methods
@@ -680,7 +658,7 @@ CREATE TABLE `departments` (
   `customers_count` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_departments_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `departments` WRITE;
 /*!40000 ALTER TABLE `departments` DISABLE KEYS */;
@@ -691,23 +669,6 @@ VALUES
 
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
-# Dump of table dvd_delivery_locations
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `dvd_delivery_locations`;
-
-CREATE TABLE `dvd_delivery_locations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `email_desc` text COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_dvd_delivery_locations_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 
 # Dump of table ead_refs
@@ -787,7 +748,7 @@ CREATE TABLE `heard_about_services` (
   `customers_count` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `index_heard_about_services_on_description` (`description`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `heard_about_services` WRITE;
 /*!40000 ALTER TABLE `heard_about_services` DISABLE KEYS */;
@@ -878,7 +839,7 @@ CREATE TABLE `indexing_scenarios` (
   `master_files_count` int(11) DEFAULT '0',
   `units_count` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `indexing_scenarios` WRITE;
 /*!40000 ALTER TABLE `indexing_scenarios` DISABLE KEYS */;
@@ -911,7 +872,7 @@ CREATE TABLE `intended_uses` (
   `deliverable_resolution_unit` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_intended_uses_on_description` (`description`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `intended_uses` WRITE;
 /*!40000 ALTER TABLE `intended_uses` DISABLE KEYS */;
@@ -1043,7 +1004,6 @@ CREATE TABLE `master_files` (
   `date_dl_ingest` datetime DEFAULT NULL,
   `date_dl_update` datetime DEFAULT NULL,
   `dpla` tinyint(1) DEFAULT '0',
-  `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `creator_death_date` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `creation_date` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `primary_author` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1096,7 +1056,6 @@ CREATE TABLE `orders` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `staff_notes` text COLLATE utf8_unicode_ci,
-  `dvd_delivery_location_id` int(11) DEFAULT NULL,
   `email` text COLLATE utf8_unicode_ci,
   `date_patron_deliverables_complete` datetime DEFAULT NULL,
   `date_archiving_complete` datetime DEFAULT NULL,
@@ -1113,19 +1072,18 @@ CREATE TABLE `orders` (
   KEY `index_orders_on_date_due` (`date_due`),
   KEY `index_orders_on_date_order_approved` (`date_order_approved`),
   KEY `index_orders_on_date_request_submitted` (`date_request_submitted`),
-  KEY `index_orders_on_dvd_delivery_location_id` (`dvd_delivery_location_id`),
   KEY `index_orders_on_order_status` (`order_status`),
   CONSTRAINT `orders_agency_id_fk` FOREIGN KEY (`agency_id`) REFERENCES `agencies` (`id`),
-  CONSTRAINT `orders_customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`),
-  CONSTRAINT `orders_dvd_delivery_location_id_fk` FOREIGN KEY (`dvd_delivery_location_id`) REFERENCES `dvd_delivery_locations` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  CONSTRAINT `orders_customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8808 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
 
-INSERT INTO `orders` (`id`, `customer_id`, `agency_id`, `order_status`, `is_approved`, `order_title`, `date_request_submitted`, `date_order_approved`, `date_deferred`, `date_canceled`, `date_permissions_given`, `date_started`, `date_due`, `date_customer_notified`, `fee_estimated`, `fee_actual`, `entered_by`, `special_instructions`, `created_at`, `updated_at`, `staff_notes`, `dvd_delivery_location_id`, `email`, `date_patron_deliverables_complete`, `date_archiving_complete`, `date_finalization_begun`, `date_fee_estimate_sent_to_customer`, `units_count`, `automation_messages_count`, `invoices_count`, `master_files_count`)
+INSERT INTO `orders` (`id`, `customer_id`, `agency_id`, `order_status`, `is_approved`, `order_title`, `date_request_submitted`, `date_order_approved`, `date_deferred`, `date_canceled`, `date_permissions_given`, `date_started`, `date_due`, `date_customer_notified`, `fee_estimated`, `fee_actual`, `entered_by`, `special_instructions`, `created_at`, `updated_at`, `staff_notes`, `email`, `date_patron_deliverables_complete`, `date_archiving_complete`, `date_finalization_begun`, `date_fee_estimate_sent_to_customer`, `units_count`, `automation_messages_count`, `invoices_count`, `master_files_count`)
 VALUES
-	(5341,4,NULL,'approved',1,'Daily Progress','2015-12-17 00:00:00',NULL,NULL,NULL,NULL,NULL,'2016-02-19',NULL,NULL,NULL,NULL,'','2015-12-17 15:43:27','2015-12-17 15:43:27','',NULL,'--- \'\'\n',NULL,NULL,NULL,NULL,0,0,0,0);
+	(5341,4,NULL,'approved',1,'Daily Progress','2015-12-17 00:00:00',NULL,NULL,NULL,NULL,NULL,'2016-02-19',NULL,NULL,NULL,NULL,'','2015-12-17 15:43:27','2015-12-17 15:43:27','','--- \'\'\n',NULL,NULL,NULL,NULL,0,0,0,0),
+	(8807,2554,62,'approved',1,NULL,'2015-12-02 17:19:31','2016-01-04 16:09:18',NULL,NULL,'2015-12-21 00:00:00',NULL,'2016-01-29',NULL,225.00,225.00,NULL,'Copy materials in red folders in boxes. Please copy both sides of two-sided documents.','2015-12-02 17:19:31','2016-01-19 11:52:19',NULL,NULL,NULL,NULL,'2016-01-19 11:52:19','2015-12-21 09:48:23',7,16,0,86);
 
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1194,6 +1152,11 @@ VALUES
 	('20140128191958'),
 	('20140128200629'),
 	('20140307170741'),
+	('20160114210202'),
+	('20160127165855'),
+	('20160202160508'),
+	('20160202162321'),
+	('20160208213347'),
 	('21'),
 	('22'),
 	('23'),
@@ -1228,14 +1191,15 @@ CREATE TABLE `sessions` (
   PRIMARY KEY (`id`),
   KEY `index_sessions_on_session_id` (`session_id`),
   KEY `index_sessions_on_updated_at` (`updated_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
 
 INSERT INTO `sessions` (`id`, `session_id`, `data`, `created_at`, `updated_at`)
 VALUES
-	(1,'17eeddb909728a597a6a4c9996191ec0','BAh7BkkiEF9jc3JmX3Rva2VuBjoGRUZJIjFHZkV4dWR2WENTSFl3S0g2M3FP\nRHIwcitZTmdCRnVka2gwc2JFeW8xNDQwPQY7AEY=\n','2015-12-17 14:55:14','2015-12-17 15:43:42');
+	(1,'17eeddb909728a597a6a4c9996191ec0','BAh7B0kiEF9jc3JmX3Rva2VuBjoGRUZJIjFHZkV4dWR2WENTSFl3S0g2M3FP\nRHIwcitZTmdCRnVka2gwc2JFeW8xNDQwPQY7AEZJIgpmbGFzaAY7AFRvOiVB\nY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaAk6CkB1c2VkbzoIU2V0\nBjoKQGhhc2h7BjoLbm90aWNlVDoMQGNsb3NlZEY6DUBmbGFzaGVzewY7Ckki\nXEl0ZW1zIGluIC9kaWdpc2Vydi1wcm9kdWN0aW9uL2ZpbmFsaXphdGlvbi8x\nMF9kcm9wb2ZmIGhhdmUgYmVndW4gZmluYWxpemF0aW9uIHdvcmtmbG93LgY7\nAFQ6CUBub3cw\n','2015-12-17 14:55:14','2016-01-20 13:46:27'),
+	(2,'3ad85f6f7346f3b368bad3084153a2f0','BAh7BkkiEF9jc3JmX3Rva2VuBjoGRUZJIjE2clRJQi95aktOMHBrMkRROW1s\nQVlQNnU3d3pwdVoxNU82enJrV0V5OUVFPQY7AEY=\n','2016-02-09 13:18:55','2016-02-09 13:18:55');
 
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1277,8 +1241,18 @@ CREATE TABLE `staff_members` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_staff_members_on_computing_id` (`computing_id`),
   KEY `access_level_id` (`access_level_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+LOCK TABLES `staff_members` WRITE;
+/*!40000 ALTER TABLE `staff_members` DISABLE KEYS */;
+
+INSERT INTO `staff_members` (`id`, `access_level_id`, `computing_id`, `last_name`, `first_name`, `is_active`, `created_at`, `updated_at`, `automation_messages_count`, `email`)
+VALUES
+	(1,1,'lf6f','Lou','Foster',1,NULL,NULL,0,'lf6f@virginia.edu'),
+	(2,1,'aec6v','Curley','Andrew',1,'2009-03-31 15:24:13','2013-01-16 03:41:47',18161,'andrew.curley@gmail.com');
+
+/*!40000 ALTER TABLE `staff_members` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table unit_import_sources
@@ -1310,7 +1284,6 @@ CREATE TABLE `units` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL DEFAULT '0',
   `bibl_id` int(11) DEFAULT NULL,
-  `archive_id` int(11) DEFAULT NULL,
   `heard_about_resource_id` int(11) DEFAULT NULL,
   `unit_status` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `date_materials_received` datetime DEFAULT NULL,
@@ -1339,7 +1312,6 @@ CREATE TABLE `units` (
   `automation_messages_count` int(11) DEFAULT '0',
   `index_destination_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_units_on_archive_id` (`archive_id`),
   KEY `index_units_on_availability_policy_id` (`availability_policy_id`),
   KEY `index_units_on_bibl_id` (`bibl_id`),
   KEY `index_units_on_date_archived` (`date_archived`),
@@ -1349,7 +1321,6 @@ CREATE TABLE `units` (
   KEY `index_units_on_intended_use_id` (`intended_use_id`),
   KEY `index_units_on_order_id` (`order_id`),
   KEY `index_units_on_use_right_id` (`use_right_id`),
-  CONSTRAINT `units_archive_id_fk` FOREIGN KEY (`archive_id`) REFERENCES `archives` (`id`),
   CONSTRAINT `units_availability_policy_id_fk` FOREIGN KEY (`availability_policy_id`) REFERENCES `availability_policies` (`id`),
   CONSTRAINT `units_bibl_id_fk` FOREIGN KEY (`bibl_id`) REFERENCES `bibls` (`id`),
   CONSTRAINT `units_heard_about_resource_id_fk` FOREIGN KEY (`heard_about_resource_id`) REFERENCES `heard_about_resources` (`id`),
@@ -1357,8 +1328,17 @@ CREATE TABLE `units` (
   CONSTRAINT `units_intended_use_id_fk` FOREIGN KEY (`intended_use_id`) REFERENCES `intended_uses` (`id`),
   CONSTRAINT `units_order_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
   CONSTRAINT `units_use_right_id_fk` FOREIGN KEY (`use_right_id`) REFERENCES `use_rights` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33530 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+LOCK TABLES `units` WRITE;
+/*!40000 ALTER TABLE `units` DISABLE KEYS */;
+
+INSERT INTO `units` (`id`, `order_id`, `bibl_id`, `heard_about_resource_id`, `unit_status`, `date_materials_received`, `date_materials_returned`, `unit_extent_estimated`, `unit_extent_actual`, `patron_source_url`, `special_instructions`, `created_at`, `updated_at`, `intended_use_id`, `exclude_from_dl`, `staff_notes`, `use_right_id`, `date_queued_for_ingest`, `date_archived`, `date_patron_deliverables_ready`, `include_in_dl`, `date_dl_deliverables_ready`, `remove_watermark`, `master_file_discoverability`, `indexing_scenario_id`, `checked_out`, `availability_policy_id`, `master_files_count`, `automation_messages_count`, `index_destination_id`)
+VALUES
+	(33529,8807,8153,NULL,'approved','2015-12-29 00:00:00',NULL,NULL,4,NULL,'Pages to Digitize: 4\r\nCall Number: 5950\r\nTitle: Dos Passos papers\r\nVolumne: Box 122\r\n\r\nStaff Note: DO NOT SCAN BLANK VERSOS. \r\n','2015-12-02 17:19:31','2016-01-18 14:44:51',104,0,NULL,NULL,NULL,NULL,NULL,0,NULL,0,0,NULL,0,NULL,4,28,NULL);
+
+/*!40000 ALTER TABLE `units` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table use_rights
@@ -1397,7 +1377,7 @@ CREATE TABLE `versions` (
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_versions_on_item_type_and_item_id` (`item_type`,`item_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 LOCK TABLES `versions` WRITE;
 /*!40000 ALTER TABLE `versions` DISABLE KEYS */;
