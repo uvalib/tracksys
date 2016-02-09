@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160209212245) do
+ActiveRecord::Schema.define(:version => 20160209212928) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -173,14 +173,6 @@ ActiveRecord::Schema.define(:version => 20160209212245) do
   add_index "bibls_components", ["bibl_id"], :name => "bibl_id"
   add_index "bibls_components", ["component_id"], :name => "component_id"
 
-  create_table "bibls_ead_refs", :id => false, :force => true do |t|
-    t.integer "bibl_id"
-    t.integer "ead_ref_id"
-  end
-
-  add_index "bibls_ead_refs", ["bibl_id"], :name => "bibl_id"
-  add_index "bibls_ead_refs", ["ead_ref_id"], :name => "ead_ref_id"
-
   create_table "bibls_legacy_identifiers", :id => false, :force => true do |t|
     t.integer "legacy_identifier_id"
     t.integer "bibl_id"
@@ -339,35 +331,6 @@ ActiveRecord::Schema.define(:version => 20160209212245) do
   end
 
   add_index "departments", ["name"], :name => "index_departments_on_name", :unique => true
-
-  create_table "ead_refs", :force => true do |t|
-    t.integer  "parent_ead_ref_id",                       :default => 0,     :null => false
-    t.integer  "bibl_id",                                 :default => 0
-    t.string   "ead_id_att"
-    t.string   "level"
-    t.string   "label"
-    t.string   "date"
-    t.text     "content_desc"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "desc_metadata"
-    t.text     "rels_ext"
-    t.text     "solr",              :limit => 2147483647
-    t.text     "dc"
-    t.string   "availability"
-    t.text     "rels_int"
-    t.boolean  "discoverability",                         :default => false
-  end
-
-  add_index "ead_refs", ["bibl_id"], :name => "bibl_id"
-
-  create_table "ead_refs_master_files", :id => false, :force => true do |t|
-    t.integer "ead_ref_id"
-    t.integer "master_file_id"
-  end
-
-  add_index "ead_refs_master_files", ["ead_ref_id"], :name => "ead_ref_id"
-  add_index "ead_refs_master_files", ["master_file_id"], :name => "master_file_id"
 
   create_table "heard_about_resources", :force => true do |t|
     t.string   "description"
@@ -681,9 +644,6 @@ ActiveRecord::Schema.define(:version => 20160209212245) do
 
   add_foreign_key "bibls_components", "bibls", name: "bibls_components_ibfk_1"
   add_foreign_key "bibls_components", "components", name: "bibls_components_ibfk_2"
-
-  add_foreign_key "bibls_ead_refs", "bibls", name: "bibls_ead_refs_ibfk_1"
-  add_foreign_key "bibls_ead_refs", "ead_refs", name: "bibls_ead_refs_ibfk_2"
 
   add_foreign_key "bibls_legacy_identifiers", "bibls", name: "bibls_legacy_identifiers_bibl_id_fk"
   add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
