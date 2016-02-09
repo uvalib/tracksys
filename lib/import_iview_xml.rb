@@ -141,17 +141,6 @@ module ImportIviewXml
           @master_file_count += 1
         end
       end
-
-      # Save entire iView XML document for this Unit
-      # TODO: Save Iview XML to UnitImportSource.source
-      unit_import_source = UnitImportSource.new(:unit_id => unit.id)
-      unit_import_source.standard = format_software if format_software
-      unit_import_source.version = format_version if format_version
-      begin
-        unit_import_source.save!
-      rescue Exception => e
-        raise ImportError, "Unable to save UnitImportSource for Unit #{unit.id}: #{e.message}"
-      end
     end  # end database transaction
     @current_caller = caller[0][/`([^']*)'/, 1]
     Rails.logger.info "[#{Time.now}] #{@current_caller}: MasterFile batch transaction completed (#{@pid_count} items)."

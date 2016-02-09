@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160208213347) do
+ActiveRecord::Schema.define(:version => 20160209204329) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -637,17 +637,6 @@ ActiveRecord::Schema.define(:version => 20160208213347) do
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
   add_index "staff_members", ["computing_id"], :name => "index_staff_members_on_computing_id", :unique => true
 
-  create_table "unit_import_sources", :force => true do |t|
-    t.integer  "unit_id",                          :default => 0, :null => false
-    t.string   "standard"
-    t.string   "version"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "source",     :limit => 2147483647
-  end
-
-  add_index "unit_import_sources", ["unit_id"], :name => "index_unit_import_sources_on_unit_id"
-
   create_table "units", :force => true do |t|
     t.integer  "order_id",                       :default => 0,     :null => false
     t.integer  "bibl_id"
@@ -762,8 +751,6 @@ ActiveRecord::Schema.define(:version => 20160208213347) do
 
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
-
-  add_foreign_key "unit_import_sources", "units", name: "unit_import_sources_unit_id_fk"
 
   add_foreign_key "units", "availability_policies", name: "units_availability_policy_id_fk"
   add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
