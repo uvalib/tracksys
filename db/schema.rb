@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160209205933) do
+ActiveRecord::Schema.define(:version => 20160209212245) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -330,24 +330,6 @@ ActiveRecord::Schema.define(:version => 20160209205933) do
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
-
-  create_table "delivery_methods", :force => true do |t|
-    t.string   "label"
-    t.string   "description"
-    t.boolean  "is_internal_use_only", :default => false, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "delivery_methods", ["label"], :name => "index_delivery_methods_on_label", :unique => true
-
-  create_table "delivery_methods_orders", :id => false, :force => true do |t|
-    t.integer "delivery_method_id"
-    t.integer "order_id"
-  end
-
-  add_index "delivery_methods_orders", ["delivery_method_id"], :name => "index_delivery_methods_orders_on_delivery_method_id"
-  add_index "delivery_methods_orders", ["order_id"], :name => "index_delivery_methods_orders_on_order_id"
 
   create_table "departments", :force => true do |t|
     t.string   "name"
@@ -722,9 +704,6 @@ ActiveRecord::Schema.define(:version => 20160209205933) do
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
   add_foreign_key "customers", "departments", name: "customers_department_id_fk"
   add_foreign_key "customers", "heard_about_services", name: "customers_heard_about_service_id_fk"
-
-  add_foreign_key "delivery_methods_orders", "delivery_methods", name: "delivery_methods_orders_delivery_method_id_fk"
-  add_foreign_key "delivery_methods_orders", "orders", name: "delivery_methods_orders_order_id_fk"
 
   add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
 

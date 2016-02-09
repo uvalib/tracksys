@@ -23,9 +23,6 @@ class QaUnitData < BaseJob
       # QA Logic
       #-------------------------
 
-      # If an order is input through the admin interface, there is no auto-populated value for
-      # order.delivery_method
-
       # Fail if @working_unit.date_patron_deliverables_ready is already filled out
       if @working_unit.date_patron_deliverables_ready
          failure_messages << "Unit #{@unit_id} already has a value for date_patron_deliverables_ready."
