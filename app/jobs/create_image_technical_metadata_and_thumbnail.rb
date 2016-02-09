@@ -71,8 +71,6 @@ class CreateImageTechnicalMetadataAndThumbnail < BaseJob
      # structure, the process is rather complicated
      if @image.color_profile
        image_tech_meta.color_profile = get_color_profile_name(@image.color_profile)
-     else
-       on_failure "MasterFile #{@master_file_id} does not have an embedded ICC color profile."
      end
 
      image_tech_meta.save!
@@ -111,12 +109,12 @@ class CreateImageTechnicalMetadataAndThumbnail < BaseJob
      # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
      # will eliminate other directories that are of non-Tracksys managed content.
      @metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
-     @metadata_dir_contents.each {|dir|
+     @metadata_dir_contents.each do |dir|
        @range = dir.split('-')
        if mf.unit.id.to_i.between?(@range.first.to_i, @range.last.to_i)
          @range_dir = dir
        end
-     }
+    end
 
      if not File.exist?("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
        FileUtils.mkdir_p("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")

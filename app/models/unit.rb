@@ -11,7 +11,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :archive, :counter_cache => true
    belongs_to :availability_policy, :counter_cache => true
    belongs_to :bibl, :counter_cache => true
    belongs_to :heard_about_resource, :counter_cache => true
@@ -61,10 +60,6 @@ class Unit < ActiveRecord::Base
    # validates :order_id, :numericality => { :greater_than => 1 }
    validates_presence_of :order
    validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   validates :archive, :presence => {
-      :if => 'self.archive_id',
-      :message => "association with this Archive is no longer valid because it no longer exists."
-   }
    validates :availability_policy, :presence => {
       :if => 'self.availability_policy_id',
       :message => "association with this AvailabilityPolicy is no longer valid because it no longer exists."
@@ -254,7 +249,6 @@ end
 #  id                             :integer(4)      not null, primary key
 #  order_id                       :integer(4)      default(0), not null
 #  bibl_id                        :integer(4)
-#  archive_id                     :integer(4)
 #  heard_about_resource_id        :integer(4)
 #  unit_status                    :string(255)
 #  date_materials_received        :datetime

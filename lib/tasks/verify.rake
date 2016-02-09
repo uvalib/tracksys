@@ -1,8 +1,13 @@
 #encoding: utf-8
 
+#
+# FIXME This was written in terms of archive.directory from DB
+#       This table has been retired in favor of an env setting
+#
 namespace :verify do
    desc "Generate list of approved units in None with no master files"
    task :none_list  => :environment do
+      raise "NO LONGER SUPPORTED"
       Unit.where(archive_id: 4).where(unit_status: 'approved').each do |u|
          if u.master_files.count == 0
             puts u.id
@@ -12,6 +17,7 @@ namespace :verify do
 
    desc "Find metadata for units with archive = None"
    task :none  => :environment do
+      raise "NO LONGER SUPPORTED"
       entries = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
       ranges = []
       entries.each do |d|
@@ -46,6 +52,7 @@ namespace :verify do
 
    desc "Verify stornext unit content on lib_content44"
    task :stornext  => :environment do
+      raise "NO LONGER SUPPORTED"
       lc44 = "/lib_content44/RMDS_archive/CheckSummed_archive"
       snext = "/RMDS_archive/CheckSummed_archive"
       puts "Verifying #{snext} and #{lc44} match..."

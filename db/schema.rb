@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160202162321) do
+ActiveRecord::Schema.define(:version => 20160208213347) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -70,17 +70,6 @@ ActiveRecord::Schema.define(:version => 20160202162321) do
 
   add_index "agencies", ["ancestry"], :name => "index_agencies_on_ancestry"
   add_index "agencies", ["name"], :name => "index_agencies_on_name", :unique => true
-
-  create_table "archives", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "description"
-    t.integer  "units_count", :default => 0
-    t.string   "directory"
-  end
-
-  add_index "archives", ["name"], :name => "index_archives_on_name", :unique => true
 
   create_table "automation_messages", :force => true do |t|
     t.string   "pid"
@@ -662,7 +651,6 @@ ActiveRecord::Schema.define(:version => 20160202162321) do
   create_table "units", :force => true do |t|
     t.integer  "order_id",                       :default => 0,     :null => false
     t.integer  "bibl_id"
-    t.integer  "archive_id"
     t.integer  "heard_about_resource_id"
     t.string   "unit_status"
     t.datetime "date_materials_received"
@@ -692,7 +680,6 @@ ActiveRecord::Schema.define(:version => 20160202162321) do
     t.integer  "index_destination_id"
   end
 
-  add_index "units", ["archive_id"], :name => "index_units_on_archive_id"
   add_index "units", ["availability_policy_id"], :name => "index_units_on_availability_policy_id"
   add_index "units", ["bibl_id"], :name => "index_units_on_bibl_id"
   add_index "units", ["date_archived"], :name => "index_units_on_date_archived"
@@ -778,7 +765,6 @@ ActiveRecord::Schema.define(:version => 20160202162321) do
 
   add_foreign_key "unit_import_sources", "units", name: "unit_import_sources_unit_id_fk"
 
-  add_foreign_key "units", "archives", name: "units_archive_id_fk"
   add_foreign_key "units", "availability_policies", name: "units_availability_policy_id_fk"
   add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
   add_foreign_key "units", "heard_about_resources", name: "units_heard_about_resource_id_fk"

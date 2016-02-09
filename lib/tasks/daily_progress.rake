@@ -46,7 +46,6 @@ namespace :daily_progress do
       series = ComponentType.where(name:'series').first
       subseries = ComponentType.where(name:'subseries').first
       item = ComponentType.where(name:'item').first
-      archive = Archive.find(5)
       ingested = File.open("log/dp_#{box}_ingested.txt", "w+")
 
       # Set top level directory for images to be 'Daily Progress/BoxNN'
@@ -166,7 +165,6 @@ namespace :daily_progress do
                issue_unit.indexing_scenario_id = 1    # default
                issue_unit.availability_policy_id = 1  # public
                issue_unit.intended_use_id = 110       # Digital collectin building
-               issue_unit.archive_id = 5              # temporary storage
                issue_unit.special_instructions = "Reel: #{date_range}\nIssue: #{issue}".gsub(/,/,'')
                issue_unit.staff_notes = "From #{box}"
                issue_unit.unit_status = 'approved'
@@ -212,7 +210,7 @@ namespace :daily_progress do
          mf.save!
 
          # Move the original file into the archive directory with the new name
-         dest_dir = File.join(archive.directory, "%09d" % issue_unit.id)
+         dest_dir = File.join(ARCHIVE_DIR, "%09d" % issue_unit.id)
          FileUtils.makedirs(dest_dir)
          dest_file = File.join(dest_dir, mf.filename )
          FileUtils.copy(f, dest_file)

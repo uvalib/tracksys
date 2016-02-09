@@ -10,7 +10,6 @@ class AutomationMessage < ActiveRecord::Base
     'SendUnitToArchiveProcessor' => 'archive',
     'StartManualUploadToArchiveProcessor' => 'archive',
     'UpdateOrderDateArchivingCompleteProcessor' => 'archive',
-    'UpdateUnitArchiveIdProcessor' => 'archive',
     'UpdateUnitDateArchivedProcessor' => 'archive',
     'CreateDlDeliverablesProcessor' => 'repository',
     'CreateNewFedoraObjectsProcessor' => 'repository',

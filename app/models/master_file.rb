@@ -21,7 +21,6 @@ class MasterFile < ActiveRecord::Base
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
    has_one :agency, :through => :order
-   has_one :archive, :through => :unit
    has_one :heard_about_resource, :through => :unit
    has_one :heard_about_service, :through => :customer
 
@@ -114,7 +113,7 @@ class MasterFile < ActiveRecord::Base
    end
 
    def path_to_archved_version
-      return "#{self.archive.directory}/" + "#{'%09d' % self.unit_id}/" + "#{self.filename}"
+      return "#{ARCHIVE_DIR}/" + "#{'%09d' % self.unit_id}/" + "#{self.filename}"
    end
 
    def link_to_static_thumbnail

@@ -280,7 +280,6 @@ ActiveAdmin.register Unit do
     f.inputs "Related Information", :class => 'panel three-column' do
       f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chzn-select', :style => 'width: 200px'}
       f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
-      f.input :archive, :as => :select, :collection => Archive.all, :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
     end
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
@@ -321,7 +320,6 @@ ActiveAdmin.register Unit do
           end
         } unless unit.legacy_identifiers.empty?
       end
-      row :archive
     end
   end
 

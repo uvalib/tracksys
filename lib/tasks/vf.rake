@@ -3,8 +3,7 @@
 namespace :vf do
    desc "Generate fake tifs for dev testing"
    task :fake  => :environment do
-      a = Archive.find(5)
-      dir = a.directory
+      dir = ARCHIVE_DIR
       unit_dir = "000003198"
       thumb_dir = "000003198/Thumbnails_(000003198)"
       for num in 1..910 do
@@ -25,8 +24,8 @@ namespace :vf do
       u = Unit.find(3198)
       unit_dir_name = "000003198"
       thumb_dir_name = "000003198/Thumbnails_(000003198)"
-      dir = File.join(u.archive.directory, unit_dir_name)
-      thumb_dir = File.join(u.archive.directory, thumb_dir_name)
+      dir = File.join(ARCHIVE_DIR, unit_dir_name)
+      thumb_dir = File.join(ARCHIVE_DIR, thumb_dir_name)
 
       # First, remove the two bad files, 61 and 908
       puts "Remove bad pages 61 and 908..."

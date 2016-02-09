@@ -70,7 +70,7 @@ class UpdateFedoraDatastreams < BaseJob
          elsif @datastream == 'allimages'
             @object.master_files.each {|mf|
                # Messages coming from this processor should only be for units that have already been archived.
-               @source = File.join(mf.archive.directory, @unit_dir, mf.filename)
+               @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
 
                imsg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :last => 0 }
                CreateDlDeliverables.exec_now(imsg) if mf.datastream_exists?("content")
@@ -133,7 +133,7 @@ class UpdateFedoraDatastreams < BaseJob
 
             @object.master_files.each {|mf|
                # Messages coming from this processor should only be for units that have already been archived.
-               @source = File.join(mf.archive.directory, @unit_dir, mf.filename)
+               @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
                IngestDescMetadata.exec_now(msg)
                IngestRightsMetadata.exec_now( msg )
@@ -166,7 +166,7 @@ class UpdateFedoraDatastreams < BaseJob
          @unit_dir = "%09d" % @object.unit.id
 
          # Messages coming from this processor should only be for units that have already been archived.
-         @source = File.join(@object.archive.directory, @unit_dir, @object.filename)
+         @source = File.join(ARCHIVE_DIR, @unit_dir, @object.filename)
 
          mmsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id}
          imsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 }

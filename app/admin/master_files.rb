@@ -40,7 +40,6 @@ ActiveAdmin.register MasterFile do
   filter :date_dl_ingest
   filter :date_dl_update
   filter :agency, :as => :select
-  filter :archive, :as => :select
   filter :heard_about_service, :as => :select
   filter :heard_about_resource, :as => :select
 

@@ -63,8 +63,8 @@ class SendUnitToArchive < BaseJob
             # Ignore files that begin with .
             if /^\./ =~ basename
             else
-               FileUtils.copy(f, File.join(unit.archive.directory, parent, basename))
-               FileUtils.chmod(0664, File.join(unit.archive.directory, parent, basename))
+               FileUtils.copy(f, File.join(ARCHIVE_DIR, parent, basename))
+               FileUtils.chmod(0664, File.join(ARCHIVE_DIR, parent, basename))
                # Calculate information for checksums
 
                # Get source MD5
@@ -75,7 +75,7 @@ class SendUnitToArchive < BaseJob
 
                # Get copy MD5
                copy_md5 = Digest::MD5.new
-               File.open(File.join(unit.archive.directory, parent, basename), 'r') do |file|
+               File.open(File.join(ARCHIVE_DIR, parent, basename), 'r') do |file|
                   copy_md5.update(file.read(16384)) until file.eof
                end
 
@@ -99,8 +99,8 @@ class SendUnitToArchive < BaseJob
                end
             end
          when File.directory?(f)
-            FileUtils.makedirs(File.join(unit.archive.directory, f))
-            FileUtils.chmod(0775, File.join(unit.archive.directory, f))
+            FileUtils.makedirs(File.join(ARCHIVE_DIR, f))
+            FileUtils.chmod(0775, File.join(ARCHIVE_DIR, f))
             created_dirs << f
          else
             on_failure("Unknown file #{f} in #{parent}/#{basename}")
@@ -108,29 +108,20 @@ class SendUnitToArchive < BaseJob
       end
 
       if @errors.eql?(0)
-         # Try to log where this unit is archived
-         archival_location="StorNext"
-         unit = @unit_id && Unit.find(@unit_id)
-         if unit && unit.archive
-            if unit.archive.respond_to?(:name)
-               archival_location=unit.archive.name
-            end
-         end
-
          # If message originated from the finalization automation workflow, send a message to continue the unit (which has no deliverables) on the automated workflow.
          if @source_dir == "#{IN_PROCESS_DIR}"
-            on_success "The directory #{@unit_dir} has been successfully uploaded to #{archival_location}."
-            UpdateUnitArchiveId.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})
+            on_success "The directory #{@unit_dir} has been successfully archived."
+            UpdateUnitDateArchived.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir })
          end
 
          # If the unit is managed by TrackSys, more data must be updated.  Otherwise, nothing more can be done.
          if @source_dir != "#{IN_PROCESS_DIR}" and @internal_dir == 'yes'
             # Send message to update the 'archive' field in the Unit table.
-            on_success "The directory #{@unit_dir} has been uploaded to #{archival_location} and may be deleted."
-            UpdateUnitArchiveId.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir})
+            on_success "The directory #{@unit_dir} has been archived and may be deleted."
+            UpdateUnitDateArchived.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir })
          elsif @internal_dir == 'no'
             # If @internal_dir is 'no', no more information can be added to the tracking system and the item is ready for deletion.
-            on_success "The directory #{@unit_dir} has been uploaded to #{archival_location} and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
+            on_success "The directory #{@unit_dir} has been archived and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
             MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir, :unit_dir => @unit_dir})
          else
          end

@@ -12,6 +12,7 @@ PRODUCTION_MOUNT = Settings.production_mount
 MIGRATION_MOUNT = Settings.migration_mount
 DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
+ARCHIVE_DIR = Settings.archive_mount
 
 Fedora_username = Settings.fedora_username
 Fedora_password = Settings.fedora_password
