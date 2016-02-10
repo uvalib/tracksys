@@ -1,7 +1,7 @@
 class CreateImageTechnicalMetadataAndThumbnail < BaseJob
 
    require 'exifr'
-   require 'RMagick'
+   require 'rmagick'
 
    def perform(message)
      Job_Log.debug "CreateImageTechnicalMetadataAndThumbnail received: #{message.to_s}"

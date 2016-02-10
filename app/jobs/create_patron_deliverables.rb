@@ -1,7 +1,7 @@
 class CreatePatronDeliverables < BaseJob
 
    require 'rubygems'
-   require 'RMagick'
+   require 'rmagick'
    require 'digest/md5'
 
    # Message can have these keys:

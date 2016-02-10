@@ -1,7 +1,7 @@
 class CreateDlDeliverables < BaseJob
 
   require 'rubygems'
-  require 'RMagick'
+  require 'rmagick'
 
   # Message can have these keys:
   # * pid - pid of the source image file
