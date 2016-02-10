@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160209212928) do
+ActiveRecord::Schema.define(:version => 20160210144315) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -180,16 +180,6 @@ ActiveRecord::Schema.define(:version => 20160209212928) do
 
   add_index "bibls_legacy_identifiers", ["bibl_id"], :name => "index_bibls_legacy_identifiers_on_bibl_id"
   add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], :name => "index_bibls_legacy_identifiers_on_legacy_identifier_id"
-
-  create_table "checkins", :force => true do |t|
-    t.integer  "unit_id",         :default => 0, :null => false
-    t.integer  "staff_member_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "checkins", ["staff_member_id"], :name => "staff_member_id"
-  add_index "checkins", ["unit_id"], :name => "unit_id"
 
   create_table "component_types", :force => true do |t|
     t.string   "name"
