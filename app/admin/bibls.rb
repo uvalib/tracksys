@@ -28,7 +28,7 @@ ActiveAdmin.register Bibl do
   filter :orders_id, :as => :numeric
   filter :agencies_id, :as => :numeric
   filter :collection_facet, :as => :string
-  
+
   csv do
     column :id
     column :title
@@ -191,10 +191,6 @@ ActiveAdmin.register Bibl do
           row :rels_int
         end
       end
-    end
-
-    div :class => 'columns-none' do
-      active_admin_comments
     end
   end
 
