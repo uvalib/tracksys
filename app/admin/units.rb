@@ -154,10 +154,10 @@ ActiveAdmin.register Unit do
           row :remove_watermark do |unit|
             format_boolean_as_yes_no(unit.remove_watermark)
           end
-          row :date_materials_received do |unit|
+          row("Date Delivered to DigiServ") do |unit|
             format_date(unit.date_materials_received)
           end
-          row :date_materials_returned do |unit|
+          row("Date Returned from DigiServ") do |unit|
             format_date(unit.date_materials_returned)
           end
           row :date_archived do |unit|
@@ -323,10 +323,21 @@ ActiveAdmin.register Unit do
     end
   end
 
-  # In order to keep this print_routing_slip method DRY, the patron path will still be referred to since there
-  # are no further actions available at that screen.  When replaced by generating PDFs, we can revisit this DRYness.
   sidebar :approval_workflow, :only => :show do
-    div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_patron_unit_path, :method => :put end
+    div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
+
+    if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
+      div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put end
+      div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put, :disabled => true end
+    elsif unit.date_materials_received # i.e. Material has been checked out to Digital Production Group
+      if unit.date_materials_returned.nil? # i.e. Material has been checkedout to Digital Production Group but not yet returned
+        div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put, :disabled => true end
+        div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put end
+      else
+        div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put, :disabled => true end
+        div :class => 'workflow_button' do button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put, :disabled => true end
+      end
+    end
   end
 
   sidebar "Delivery Workflow", :only => [:show] do
@@ -441,6 +452,16 @@ ActiveAdmin.register Unit do
     SendCommitToSolr.exec_now( {:message => 'go'})
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
+  end
+
+  member_action :checkout_to_digiserv, :method => :put do
+    Unit.find(params[:id]).update_attribute(:date_materials_received, Time.now)
+    redirect_to :back, :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
+  end
+
+  member_action :checkin_from_digiserv, :method => :put do
+    Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
+    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
   end
 
   controller do

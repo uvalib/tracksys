@@ -53,7 +53,7 @@ end
       end
     %>
     <%
-    # these nil guards are for older units that lack some data 
+    # these nil guards are for older units that lack some data
     description = nil
     if @unit.intended_use.respond_to?(:description)
       description = @unit.intended_use.description
