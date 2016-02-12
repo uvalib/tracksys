@@ -2,13 +2,13 @@ class CreateOrderZip < BaseJob
 
    require 'zip/zip'
 
-   def perform(message)
-      Job_Log.debug "CreateOrderZipProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
+   end
+
+   def do_workflow(message)
 
       @order_id = message[:order_id]
-      @messagable_id = message[:order_id]
-      @messagable_type = "Order"
-      set_workflow_type()
 
       # Test for existing order*_1.zip file.  Warn staff if present and stop working.
       if File.exist?(File.join("#{DELIVERY_DIR}", "order_#{@order_id}_1.zip"))
@@ -43,12 +43,12 @@ class CreateOrderZip < BaseJob
       # Must add the first file to the delivery_files array up front
       delivery_files.push("#{zip_filename}")
 
-      dirs.each { |dir|
+      dirs.each do |dir|
          contents = Dir.entries(File.join("#{path}", "#{dir}"))
-         contents.each { |content|
+         contents.each do |content|
 
             if not File.directory?("#{content}")
-               Zip::ZipFile.open(File.join("#{DELIVERY_DIR}", "#{zip_filename}"), Zip::ZipFile::CREATE) { |zipfile|
+               Zip::ZipFile.open(File.join("#{DELIVERY_DIR}", "#{zip_filename}"), Zip::ZipFile::CREATE) do |zipfile|
                   zipfile.add(File.join("#{@order_id}", "#{dir}", "#{content}"), File.join("#{path}", "#{dir}", "#{content}"))
                   zipfile.commit
 
@@ -59,17 +59,17 @@ class CreateOrderZip < BaseJob
                      zip_filename = "order_#{@order_id}_#{part}.zip"
                      delivery_files.push("#{zip_filename}")
                   end
-               }
+               end
             end
-         }
-      }
+         end
+      end
 
       # Must capture the filename of the last file after the zipping process is done.
-      delivery_files.each {|delivery_file|
+      delivery_files.each do |delivery_file|
          File.chmod(0664, File.join("#{DELIVERY_DIR}", "#{delivery_file}"))
-      }
+      end
 
       on_success("#{part} zip file(s) have been created for order #{@order_id} ")
-      CreateOrderEmail.exec_now({:order_id => @order_id, :delivery_files => delivery_files})
+      CreateOrderEmail.exec_now({:order_id => @order_id, :delivery_files => delivery_files}, self)
    end
 end

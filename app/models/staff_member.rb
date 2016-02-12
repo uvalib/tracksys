@@ -4,6 +4,7 @@ class StaffMember < ActiveRecord::Base
   # relationships
   #------------------------------------------------------------------
   has_many :automation_messages, :as => :messagable, :dependent => :destroy
+  has_many :job_statuses, :as => :originator, :dependent => :destroy
 
   #------------------------------------------------------------------
   # validation
@@ -110,4 +111,3 @@ end# == Schema Information
 #  automation_messages_count :integer(4)      default(0)
 #  email                     :string(255)
 #
-

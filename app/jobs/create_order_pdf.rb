@@ -6,26 +6,26 @@ class CreateOrderPdf < BaseJob
    require 'prawn'
    require 'prawn/table'
 
-   def perform(message)
-      Job_Log.debug "CreateOrderPdfProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
+   end
+
+   def do_workflow(message)
 
       raise "Parameter 'order_id' is required" if message[:order_id].blank?
       raise "Parameter 'fee' is required" if message[:fee].blank?
 
       @order_id = message[:order_id]
       @working_order = Order.find(@order_id)
-      @messagable_id = message[:order_id]
-      @messagable_type = "Order"
-      set_workflow_type()
       @fee = message[:fee]
       @customer = @working_order.customer
 
       @units_in_pdf = Array.new
-      @working_order.units.each { |unit|
+      @working_order.units.each do |unit|
          if unit.unit_status == 'approved'
             @units_in_pdf.push(unit)
          end
-      }
+      end
 
       @pdf = Prawn::Document.new
       @pdf.font "Helvetica", :encoding => nil
@@ -119,7 +119,7 @@ class CreateOrderPdf < BaseJob
 
          # Publish message
          on_success "PDF created for order #{@order_id}."
-         CheckOrderDeliveryMethod.exec_now({:order_id => @order_id})
+         CreateOrderZip.exec_now({:order_id => @order_id}, self)
       end
 
       # Physical Component Methods

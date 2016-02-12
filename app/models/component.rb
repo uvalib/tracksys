@@ -12,6 +12,8 @@ class Component < ActiveRecord::Base
    belongs_to :use_rights, :counter_cache => true
 
    has_many :automation_messages, :as => :messagable, :dependent => :destroy
+   has_many :job_statuses, :as => :originator, :dependent => :destroy
+
    has_many :master_files
    has_many :image_master_files, :class_name => 'MasterFile', :conditions => "tech_meta_type = 'image'"
 

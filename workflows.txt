@@ -1,13 +1,13 @@
 ================================
 START INGEST FROM ARCHIVE FLOW
 ================================
-   ⁃  start_ingest_from_archive 
-      ⁃  update_unit_date_queued_for_ingest 
+   ⁃  start_ingest_from_archive
+      ⁃  update_unit_date_queued_for_ingest
          ⁃  queue_objects_for_fedora : This spins through the entire ancestry of the unit and creates/updates all
             ⁃  propogate_access_policies
                ⁃  propogate_indexing_scenarios
                   ⁃  propagate_discoverability
-                     ⁃  create_new_fedora_objects     
+                     ⁃  create_new_fedora_objects
                         ⁃  ingest_desc_metadata
                            ⁃  ingest dc metadata
                            ⁃  ingest_rels_ext
@@ -60,14 +60,9 @@ SEND UNIT TO ARCHIVE FLOW
 CHECK ORDER READY FOR DELIVERY FLOW
 ======================================
    ⁃  check_order_ready_for_delivery
-   ⁃  update_order_date_patron_deliverables_complete
-      ⁃  qa_order_data
-         ⁃  check_order_fee
-            ⁃  create_order_pdf
-               ⁃  check_order_delivery_method
-                  ⁃  create_order_email
-                  ⁃  OR  -
+      ⁃  update_order_date_patron_deliverables_complete
+         ⁃  qa_order_data
+            ⁃  check_order_fee
+               ⁃  create_order_pdf
                   ⁃  create_order_zip
                      ⁃  create_order_emai
-
-

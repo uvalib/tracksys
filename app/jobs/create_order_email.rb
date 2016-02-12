@@ -1,7 +1,10 @@
 class CreateOrderEmail < BaseJob
 
-   def perform(message)
-      Job_Log.debug "CreateOrderEmailProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message.  'internal_dir' is required of all imcoming messages.
       raise "Parameter 'order_id' is required" if message[:order_id].blank?
@@ -9,9 +12,6 @@ class CreateOrderEmail < BaseJob
 
       @order_id = message[:order_id]
       @working_order = Order.find(@order_id)
-      @messagable_id = message[:order_id]
-      @messagable_type = "Order"
-      set_workflow_type()
 
       @delivery_files = message[:delivery_files]
       email = OrderMailer.web_delivery(@working_order, @delivery_files)

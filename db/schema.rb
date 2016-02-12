@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160210144315) do
+ActiveRecord::Schema.define(:version => 20160211152123) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -427,6 +427,19 @@ ActiveRecord::Schema.define(:version => 20160210144315) do
   end
 
   add_index "invoices", ["order_id"], :name => "index_invoices_on_order_id"
+
+  create_table "job_statuses", :force => true do |t|
+    t.string   "status",          :default => "pending", :null => false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.integer  "failures",        :default => 0,         :null => false
+    t.string   "error"
+    t.text     "backtrace"
+    t.integer  "originator_id"
+    t.string   "originator_type"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
+  end
 
   create_table "legacy_identifiers", :force => true do |t|
     t.string   "label"

@@ -45,11 +45,7 @@ group :test do
 end
 
 group :development do
-  gem 'awesome_print'
-  gem 'pry'
-  gem 'pry-nav'
-  gem 'pry-doc'
-  gem 'pry-rails'
+  gem 'byebug'
 end
 
 # Gems used only for assets and not required

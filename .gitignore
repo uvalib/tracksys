@@ -1,8 +1,10 @@
 .DS_Store
 .bundle
+.byebug_history
 db/*.sqlite3
 derby.log
 log/*.*
+log/jobs/*.*
 tmp/*
 !tmp/start_application.sh
 !tmp/completely_restart_tracking_system.sh

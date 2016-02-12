@@ -10,6 +10,8 @@ class Order < ActiveRecord::Base
    belongs_to :customer, :counter_cache => true, :inverse_of => :orders
 
    has_many :automation_messages, :as => :messagable, :dependent => :destroy
+   has_many :job_statuses, :as => :originator, :dependent => :destroy
+
    has_many :bibls, :through => :units, :uniq => true
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
