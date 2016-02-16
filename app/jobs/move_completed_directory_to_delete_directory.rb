@@ -1,14 +1,13 @@
 class MoveCompletedDirectoryToDeleteDirectory < BaseJob
    require 'fileutils'
 
-   def perform(message)
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
 
-      Job_Log.debug "MoveCompletedDirectoryToDeleteDirectoryProcessor received: #{message.to_json}"
+   def do_workflow(message)
 
       @unit_id = message[:unit_id]
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
       @source_dir = message[:source_dir]
 
       if message[:unit_dir]

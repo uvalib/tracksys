@@ -3,15 +3,14 @@ class CreateImageTechnicalMetadataAndThumbnail < BaseJob
    require 'exifr'
    require 'rmagick'
 
-   def perform(message)
-     Job_Log.debug "CreateImageTechnicalMetadataAndThumbnail received: #{message.to_s}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"MasterFile", :originator_id=>message[:master_file_id])
+   end
+
+   def do_workflow(message)
 
      raise "Parameter 'master_file_id' is required" if message[:master_file_id].blank?
      raise "Parameter 'source' is required" if message[:source].blank?
-
-     @messagable_id = message[:master_file_id]
-     @messagable_type = "MasterFile"
-     set_workflow_type()
 
      @source = message[:source]
      @master_file_id = message[:master_file_id]

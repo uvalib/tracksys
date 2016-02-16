@@ -1,14 +1,13 @@
 class UpdateUnitDateArchived < BaseJob
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
 
-   def perform(message)
-      Job_Log.debug "UpdateUnitDateArchivedProcessor received: #{message.to_json}"
+   def do_workflow(message)
 
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'source_dir' is required" if message[:source_dir].blank?
 
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
       @unit_id = message[:unit_id]
       @source_dir = message[:source_dir]
       @working_unit = Unit.find(@unit_id)

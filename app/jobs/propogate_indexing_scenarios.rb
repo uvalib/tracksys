@@ -5,8 +5,11 @@ class PropogateIndexingScenarios < BaseJob
    # related to the Unit.  For example, if master_file.availability is designated before ingestion, the value of unit.availability will not be used; if
    # master_file.availability is not designated, the unit.availability value will be used to fill master_file.availability.
 
-   def perform(message)
-      Job_Log.debug "PropogateIndexingScenariosProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -21,12 +24,7 @@ class PropogateIndexingScenarios < BaseJob
       @last = message[:last]
       @working_unit = Unit.find(message[:unit_id])
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = message[:object_id]
-      @messagable_type = message[:object_class]
-      set_workflow_type()
       @pid = @object.pid
-
-      instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
       if not @working_unit.indexing_scenario
          # The first indexing scenario should be default
@@ -46,6 +44,7 @@ class PropogateIndexingScenarios < BaseJob
          on_success "Indexing scenario for object #{@object.class} #{@object.id} is already set to #{@object.indexing_scenario.name} and will not be changed."
       end
 
-      PropogateDiscoverability.exec_now({ :unit_id => message[:unit_id], :source => @source, :object_class => @object_class, :object_id => @object_id, :last => @last })
+      PropogateDiscoverability.exec_now({ :unit_id => message[:unit_id], :source => @source,
+         :object_class => @object_class, :object_id => @object_id, :last => @last }, self)
    end
 end

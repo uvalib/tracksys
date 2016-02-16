@@ -49,12 +49,11 @@ START FINALIZATION FLOW
 SEND UNIT TO ARCHIVE FLOW
 ==========================
    ⁃  send_unit_to_archive
-      ⁃  update_unit_archive_id
-         ⁃  update_unit_date_archived
-            ⁃  check_order_date_archiving_complete
-               ⁃  update_order_date_archiving_complete
-            ⁃  move_completed_directory_to_delete_directory
-            ⁃  move_completed_directory_to_delete_directory
+      ⁃  update_unit_date_archived
+         ⁃  check_order_date_archiving_complete
+            ⁃  update_order_date_archiving_complete
+         ⁃  move_completed_directory_to_delete_directory
+         ⁃  move_completed_directory_to_delete_directory
 
 ======================================
 CHECK ORDER READY FOR DELIVERY FLOW

@@ -4,8 +4,11 @@ class PropogateDiscoverability < BaseJob
    # related to the Unit.  For example, if master_file.discoverability is designated before ingestion, the value of unit.discoverability will not be used; if
    # master_file.discoverability is not designated, the unit.discoverability value will be used to fill master_file.discoverability.
 
-   def perform(message)
-      Job_Log.debug "PropogateDiscoverabilityProcessor received: #{message}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -20,12 +23,7 @@ class PropogateDiscoverability < BaseJob
       @last = message[:last]
       @working_unit = Unit.find(message[:unit_id])
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = message[:object_id]
-      @messagable_type = message[:object_class]
-      set_workflow_type()
-
       @pid = @object.pid
-      instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
       # This should never fail becuase discoverability is checked at an earlier stage, but I will keep it here for sanity checking.
       if @working_unit.master_file_discoverability.nil?
@@ -42,6 +40,6 @@ class PropogateDiscoverability < BaseJob
          on_success "Discoverability for object #{@object.class} #{@object.id} is already set to #{@object.discoverability} and will not be changed."
       end
 
-      CreateNewFedoraObjects.exec_now({ :source => @source, :object_class => @object_class, :object_id => @object_id, :last => @last })
+      CreateNewFedoraObjects.exec_now({ :source => @source, :object_class => @object_class, :object_id => @object_id, :last => @last }, self)
    end
 end

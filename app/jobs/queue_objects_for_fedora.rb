@@ -1,7 +1,9 @@
 class QueueObjectsForFedora < BaseJob
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
 
-   def perform(message)
-      Job_Log.debug "QueueObjectsForFedoraProcessor received: #{message.to_json}"
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -9,9 +11,6 @@ class QueueObjectsForFedora < BaseJob
 
       @source = message[:source] # this is the unit's archive directory file path
       @working_unit = Unit.find(message[:unit_id])
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
 
       # Will put all objects to be ingested into repo into an array called things
       things = Array.new
@@ -31,7 +30,7 @@ class QueueObjectsForFedora < BaseJob
       # Add a Unit's Bibl's parents (if in existence)
       # @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
       @working_unit.master_files.each {|mf| things << mf }
-      @working_unit.components.each {|component|
+      @working_unit.components.each do |component|
          # LFF updating the daily progress guide causes problems. Skip it
          next if component.component_type.name == 'guide' && component.name == 'Daily Progress Digitized Microfilm'
 
@@ -39,14 +38,11 @@ class QueueObjectsForFedora < BaseJob
          # the following may produce duplicates, especially when ingesting many items from the same
          # EAD guide, so we must uniq them before emitting messages (as done four lines below).
          things << component.ancestors
-      }
+      end
 
       things.flatten!
 
       things.uniq.each do |thing|
-         # Dynamically name the variable for putting the appropriate id in the automation_message
-         instance_variable_set("@#{thing.class.to_s.underscore}_id", thing.id)
-
          # If object does not have a pid, request one and save the object with newly requested pid
          if not thing.pid
             @pid =  AssignPids.request_pids(1)
@@ -63,7 +59,9 @@ class QueueObjectsForFedora < BaseJob
             end
          end
 
-         PropogateAccessPolicies.exec_now({ :unit_id => message[:unit_id], :source => @source, :object_class => thing.class.to_s, :object_id => thing.id, :last => @last })
+         PropogateAccessPolicies.exec_now({
+            :unit_id => message[:unit_id], :source => @source, :object_class => thing.class.to_s,
+            :object_id => thing.id, :last => @last }, self)
 
          # Empty instance_variable so it does not accidentally carry forward to next automation_message
          instance_variable_set("@#{thing.class.to_s.underscore}_id", nil)

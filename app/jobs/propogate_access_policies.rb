@@ -1,7 +1,10 @@
 class PropogateAccessPolicies < BaseJob
 
-   def perform( message )
-      Job_Log.debug "PropogateAccessPolicies received #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -16,12 +19,7 @@ class PropogateAccessPolicies < BaseJob
       @last = message[:last]
       @working_unit = Unit.find(message[:unit_id])
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = message[:object_id]
-      @messagable_type = message[:object_class]
-      set_workflow_type()
-
       @pid = @object.pid
-      instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
       # This should never fail becuase availability is checked at an earlier stage, but I will keep it here for sanity checking.
       if @working_unit.availability_policy.nil?
@@ -38,6 +36,7 @@ class PropogateAccessPolicies < BaseJob
          on_success "Access policy for object #{@object.class} #{@object.id} is already set to #{@object.availability_policy.name} and will not be changed."
       end
 
-      PropogateIndexingScenarios.exec_now({ :unit_id => message[:unit_id], :source => @source, :object_class => @object_class, :object_id => @object_id, :last => @last })
+      PropogateIndexingScenarios.exec_now({ :unit_id => message[:unit_id], :source => @source,
+         :object_class => @object_class, :object_id => @object_id, :last => @last }, self)
    end
 end

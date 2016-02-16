@@ -1,14 +1,13 @@
 class CheckOrderDateArchivingComplete < BaseJob
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
 
-   def perform(message)
-      Job_Log.debug "CheckOrderDateArchivingCompleteProcessor received: #{message.to_json}"
+   def do_workflow(message)
 
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       @working_order = Unit.find(message[:unit_id]).order
       @order_id = @working_order.id
-      set_workflow_type()
-      @messagable_id = @order_id
-      @messagable_type = "Order"
 
       incomplete_units = Array.new
 

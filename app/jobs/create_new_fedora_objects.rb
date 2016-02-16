@@ -3,8 +3,11 @@ class CreateNewFedoraObjects < BaseJob
    require 'fedora'
    require 'pidable'
 
-   def perform(message)
-      Job_Log.debug "CreateNewFedoraObjectsProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'source' is required" if message[:source].blank?
@@ -17,11 +20,7 @@ class CreateNewFedoraObjects < BaseJob
       @object_id = message[:object_id]
       @last = message[:last]
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = message[:object_id]
-      @messagable_type = message[:object_class]
-      set_workflow_type()
       @pid = @object.pid
-      instance_variable_set("@#{@object.class.to_s.underscore}_id", @object_id)
 
       # Set up REST client
       @resource = RestClient::Resource.new FEDORA_REST_URL, :user => Fedora_username, :password => Fedora_password
@@ -51,23 +50,24 @@ class CreateNewFedoraObjects < BaseJob
 
       # All objects get desc_metadata, rights_metadata
       default_message = { :object_class => @object_class, :object_id => @object_id, :type => 'ingest' }
-      IngestDescMetadata.exec_now(default_message)
+      IngestDescMetadata.exec_now(default_message, self)
 
       if @object.is_a? Bibl
          if @object.catalog_key
-            IngestMarc.exec_now( default_message )
+            IngestMarc.exec_now( default_message, self )
          end
       end
 
       # MasterFiles (i.e. images)
       if @object.is_a? MasterFile
          @file_path = File.join(@source, @object.filename)
-         CreateDlDeliverables.exec_now({ :mode => 'dl', :source => @file_path, :object_class => @object_class, :object_id => @object_id, :last => @last, :type => 'ingest' })
-         IngestTechMetadata.exec_now( default_message )
+         CreateDlDeliverables.exec_now({ :mode => 'dl', :source => @file_path, :object_class => @object_class,
+             :object_id => @object_id, :last => @last, :type => 'ingest' }, self)
+         IngestTechMetadata.exec_now( default_message, self )
 
          # Only MasterFiles with transcritpion need have
          if @object.transcription_text
-            IngestTranscription.exec_now( default_message )
+            IngestTranscription.exec_now( default_message, self )
          end
       end
       on_success "An object created for #{@pid}"

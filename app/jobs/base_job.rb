@@ -12,26 +12,28 @@ class BaseJob
    #
    def self.exec_now(message, workflow_context = nil)
       job = self.new()
+
+      # Is this being called from another job?
       if workflow_context.nil?
+         # No: start a new workflow and create a new status object
          job.init_status(message)
       else
-         # reuse status/logger from preceeding workflow
-         job.chain_workflows(workflow_context)
+         # Called from anoter job; reuse status/logger from preceeding workflow
+         job.reuse_context(workflow_context)
       end
 
-      job.perform(message)
+      begin
+         job.perform(message)
 
-      # nil context means this is the start point of a workflow
-      # once we are out of the perform, the workflow is complete.
-      # Update the status object
-      if workflow_context.nil?
-         job.complete()
+         # nil context means this is the start point of a workflow
+         # once we are out of the perform, the workflow is complete.
+         # Update the status object
+         if workflow_context.nil?
+            job.complete()
+         end
+      rescue Exception => e
+         job.handle_wokflow_exception(e)
       end
-   end
-
-   def chain_workflows(workflow_context)
-      @logger = workflow_context.logger
-      @status = workflow_context.status_object
    end
 
    # Init the job status record for this workflow
@@ -44,22 +46,26 @@ class BaseJob
       raise "Derived jobs must override set_originator!"
    end
 
+   def reuse_context(workflow_context)
+      @logger = workflow_context.logger
+      @status = workflow_context.status_object
+   end
+
    # Start logging and update status, then launch into workflow
    #
    def perform(message)
-      job_log_dir = File.join(Rails.root,"log", "jobs")
-      if !Dir.exists? job_log_dir
-         FileUtils.mkdir_p job_log_dir
+      # If this job has been chained from another, the log will already exist and
+      # should not be created
+      if @logger.nil?
+         log_file_path = File.join(JOB_LOG_DIR, "job_#{@status.id}.log")
+         @logger = Logger.new(log_file_path)
+         @logger.formatter = proc do |severity, datetime, progname, msg|
+            "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
+         end
       end
-
-      log_file_path = File.join(job_log_dir, "job_#{@status.id}.log")
-      @logger = Logger.new(log_file_path)
-      @logger.formatter = proc do |severity, datetime, progname, msg|
-         "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
-      end
-      @logger.info "Starting #{self.class.name} with params: #{message.to_json}"
 
       # Flag job started running
+      @logger.info "Starting #{self.class.name} with params: #{message.to_json}"
       @status.update_attributes(:started_at => DateTime.now, :status=>"running")
 
       # all subclasses extend this method to define their job
@@ -100,13 +106,15 @@ class BaseJob
    # Pass it along to the tracksys error handling
    #
    def error(job, exception)
+      handle_wokflow_exception(exception)
+   end
+
+   def handle_wokflow_exception(exception)
       # if this error was raised by on_error to end processing, the
       # status will have been bumped to failure. If status is still running
-      # this error is the result of some other exception. Log it and kill processing
+      # this error is the result of some other exception, call on_error to deal with it
       if @status.status == "running"
-         @logger.fatal exception.message
-         @logger.fatal exception.backtrace.join("\n")
-         @status.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>exception.message, :backtrace=>exception.backtrace.join("\n"))
+         on_error(exception)
       end
    end
 
@@ -162,6 +170,7 @@ class BaseJob
             @status.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err.message, :backtrace=>err.backtrace.join("\n"))
          else
             @logger.fatal err
+            @logger.fatal caller.join("\n")
             @status.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err, :backtrace=>caller.join("\n"))
          end
 

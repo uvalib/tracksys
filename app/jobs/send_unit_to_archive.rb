@@ -4,8 +4,11 @@ class SendUnitToArchive < BaseJob
    require 'digest/md5'
    require 'pathname'
 
-   def perform(message)
-      Job_Log.debug "SendUnitToArchiveProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message.
       raise "Parameter 'internal_dir' is required" if message[:internal_dir].blank?
@@ -13,8 +16,6 @@ class SendUnitToArchive < BaseJob
 
       @internal_dir = message[:internal_dir]
       @source_dir = message[:source_dir]
-      set_workflow_type()
-
       # The next fork is whether the messages are coming from the start_manual processor or the regular finalization workflow
 
       # First, messages coming from the automated workflow
@@ -23,8 +24,6 @@ class SendUnitToArchive < BaseJob
          raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
          @unit_id = message[:unit_id]
-         @messagable_id = message[:unit_id]
-         @messagable_type = "Unit"
          @unit_dir = "%09d" % @unit_id
 
          # Second, messages coming from the start_manual processor
@@ -34,8 +33,6 @@ class SendUnitToArchive < BaseJob
             raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
 
             @unit_id = message[:unit_id]
-            @messagable_id = message[:unit_id]
-            @messagable_type = "Unit"
             @unit_dir = message[:unit_dir]
          elsif @internal_dir == 'no'
             raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
