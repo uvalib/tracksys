@@ -118,12 +118,6 @@ class BaseJob
       end
    end
 
-   # Helper to make job names look like the original processor names
-   #
-   def set_workflow_type
-     @workflow_type = AutomationMessage::WORKFLOW_TYPES_HASH.fetch("#{self.class.name.demodulize}Processor")
-   end
-
    # Workflow is complete. Mark jobs status as done, update timestamps
    #
    def complete()

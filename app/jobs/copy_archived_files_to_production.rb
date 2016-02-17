@@ -1,7 +1,11 @@
 class CopyArchivedFilesToProduction < BaseJob
 
-   def perform(message)
-      Job_Log.debug "CopyArchivedFilesToProductionProcessor received: #{message.to_json}"
+   def set_originator(message)
+      user = StaffMember.find_by_computing_id( message[:computing_id] )
+      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>user.id)
+   end
+
+   def do_workflow(message)
 
       # There are two kinds of messages sent to this processor:
       # 1. Download one master file
@@ -10,11 +14,11 @@ class CopyArchivedFilesToProduction < BaseJob
 
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'computing_id' is required" if message[:computing_id].blank?
+
       @unit_id = message[:unit_id]
       @computing_id = message[:computing_id]
       @unit_dir = "%09d" % @unit_id
       @working_unit = Unit.find(@unit_id)
-      set_workflow_type()
       @failure_messages = Array.new
 
       @source_dir = File.join(ARCHIVE_DIR, @unit_dir)
@@ -26,8 +30,6 @@ class CopyArchivedFilesToProduction < BaseJob
       FileUtils.chmod 'g+s', "#{@destination_dir}"
 
       if message[:master_file_filename]
-         @messagable_id = MasterFile.where(:filename => message[:master_file_filename]).first.id
-         @messagable_type = "MasterFile"
          master_file_filename = message[:master_file_filename]
          begin
             FileUtils.cp(File.join(@source_dir, master_file_filename), File.join(@destination_dir, master_file_filename))
@@ -43,8 +45,6 @@ class CopyArchivedFilesToProduction < BaseJob
             @failure_messages << "Failed to copy source file '#{master_file_filename}': MD5 checksums do not match"
          end
       else
-         @messagable_id = message[:unit_id]
-         @messagable_type = "Unit"
          @master_files = @working_unit.master_files
          @master_files.each do |master_file|
             begin

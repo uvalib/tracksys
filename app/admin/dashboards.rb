@@ -137,19 +137,22 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :get_yearly_stats do
-    CreateStatsReport.exec( {:year => params[:year]} )
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
+    CreateStatsReport.exec( {:user_id=>@user.id, :year => params[:year]} )
     flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 
   page_action :start_finalization_production do
-    StartFinalization.exec( {:directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
+    StartFinalization.exec( {:user_id=>@user.id, :directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
     flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_PRODUCTION} have begun finalization workflow."
     redirect_to :back
   end
 
   page_action :start_finalization_migration do
-    StartFinalization.exec( {:directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
+    @user = StaffMember.find_by_computing_id(current_user.computing_id)
+    StartFinalization.exec( {:user_id=>@user.id, :directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
     flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_MIGRATION} have begun finalization workflow."
     redirect_to :back
   end

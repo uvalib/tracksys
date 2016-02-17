@@ -1,59 +1,78 @@
 ================================
 START INGEST FROM ARCHIVE FLOW
 ================================
-   ⁃  start_ingest_from_archive
-      ⁃  update_unit_date_queued_for_ingest
-         ⁃  queue_objects_for_fedora : This spins through the entire ancestry of the unit and creates/updates all
-            ⁃  propogate_access_policies
-               ⁃  propogate_indexing_scenarios
-                  ⁃  propagate_discoverability
-                     ⁃  create_new_fedora_objects
-                        ⁃  ingest_desc_metadata
-                           ⁃  ingest dc metadata
-                           ⁃  ingest_rels_ext
-                              ⁃  ingest_solr_doc
-                        ⁃  ingest_marc
-                        ⁃  ingest_tei_doc
-                        ⁃  create_dl_deliverables
-                           ⁃  ingest_jp2k
-                              ⁃  update_unit_date_dl_deliverables_ready
-                                 ⁃  send_commit_to_solr
-                              ⁃  delete_unit_copy_for_deliverable_generation
-                                 ⁃  update_unit_date_patron_deliverables_ready
-                                 ⁃  CHECK ORDER READY FOR DELIVERY FLOW
-                        ⁃  ingest_tech_metadata
-                        ⁃  ingest_transcription
+⁃  start_ingest_from_archive
+   ⁃  update_unit_date_queued_for_ingest
+      ⁃  queue_objects_for_fedora : This spins through the entire ancestry of the unit and creates/updates all
+         ⁃  propogate_access_policies
+            ⁃  propogate_indexing_scenarios
+               ⁃  propagate_discoverability
+                  ⁃  create_new_fedora_objects   ** UPDATE_FEDORA_DATASTREAMS FLOW STARTS HERE AS WELL **
+                     ⁃  ingest_desc_metadata
+                        ⁃  ingest dc metadata
+                        ⁃  ingest_rels_ext
+                           ⁃  ingest_solr_doc
+                     ⁃  ingest_marc
+                     ⁃  ingest_tei_doc
+                     ⁃  create_dl_deliverables
+                        ⁃  ingest_jp2k
+                           ⁃  update_unit_date_dl_deliverables_ready
+                              ⁃  send_commit_to_solr
+                           ⁃  delete_unit_copy_for_deliverable_generation
+                              ⁃  update_unit_date_patron_deliverables_ready
+                              ⁃  CHECK ORDER READY FOR DELIVERY FLOW
+                     ⁃  ingest_tech_metadata
+                     ⁃  ingest_transcription
 
 ========================
 START FINALIZATION FLOW
 ========================
-   ⁃  start_finalization_production or start_finalization_migration
-      ⁃  qa_unit_data
-         ⁃  qa_filesystem_and_iview_xml
-            ⁃  import_unit_iview_xml
-               ⁃  update_order_date_finalization_begun
-                  ⁃  check_unit_delivery_mode
-                     ⁃  copy_unit_for_deliverable_generation
-                        ⁃  queue_unit_deliverables
-                           ⁃  create_patron_deliverables
-                              ⁃  delete_unit_copy_for_deliverable_generation
-                                 ⁃  (patron mode only)
-                                    ⁃  update_unit_patron_deliverables_ready
-                                    ⁃  CHECK ORDER READY FOR DELIVERY FLOW
-                        ⁃  update_unit_date_queued_for_ingest
-                           ⁃  START ARCHIVE INGEST FLOW
-                        ⁃  SEND UNIT TO ARCHIVE FLOW
-            ⁃  copy_metadata_to_metadata_directory
+⁃  start_finalization_production or start_finalization_migration
+   ⁃  qa_unit_data
+      ⁃  qa_filesystem_and_iview_xml
+         ⁃  import_unit_iview_xml
+            ⁃  update_order_date_finalization_begun
+               ⁃  check_unit_delivery_mode
+                  ⁃  copy_unit_for_deliverable_generation
+                     ⁃  queue_unit_deliverables
+                        ⁃  create_patron_deliverables
+                           ⁃  delete_unit_copy_for_deliverable_generation
+                              ⁃  (patron mode only)
+                                 ⁃  update_unit_patron_deliverables_ready
+                                 ⁃  CHECK ORDER READY FOR DELIVERY FLOW
+                     ⁃  update_unit_date_queued_for_ingest
+                        ⁃  START ARCHIVE INGEST FLOW
+                     ⁃  SEND UNIT TO ARCHIVE FLOW
+         ⁃  copy_metadata_to_metadata_directory
 
 ==========================
 SEND UNIT TO ARCHIVE FLOW
 ==========================
-   ⁃  send_unit_to_archive
-      ⁃  update_unit_date_archived
-         ⁃  check_order_date_archiving_complete
-            ⁃  update_order_date_archiving_complete
-         ⁃  move_completed_directory_to_delete_directory
-         ⁃  move_completed_directory_to_delete_directory
+⁃  send_unit_to_archive
+   ⁃  update_unit_date_archived
+      ⁃  check_order_date_archiving_complete
+         ⁃  update_order_date_archiving_complete
+      ⁃  move_completed_directory_to_delete_directory
+      ⁃  move_completed_directory_to_delete_directory
+
+=====================
+SEND ORDER EMAIL FLOW
+=====================
+⁃  send_order_email
+   - update_order_date_customer_notified
+      - CREAT INVOICE WORKFLOW
+
+===================
+CREATE INVOICE FLOW
+===================
+⁃  create_invoice
+   ⁃  move_deliverables_to_delivered_orders_directory
+
+========================
+START MANUAL UPLOAD FLOW
+========================
+⁃  start_manual_upload_to_archive
+   - SEND UNIT TO ARCHIVE FLOW
 
 ======================================
 CHECK ORDER READY FOR DELIVERY FLOW

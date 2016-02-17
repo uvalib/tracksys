@@ -9,9 +9,6 @@ class StartIngestFromArchive < BaseJob
          @unit_id = message[:unit_id]
          @unit_dir = "%09d" % @unit_id
          @working_unit = Unit.find(@unit_id)
-
-         on_error("Don't do it!")
-
          @source = File.join(ARCHIVE_DIR, @unit_dir)
          on_success "The DL ingestion workflow for Unit #{@unit_id} has begun."
          UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source}, self)
@@ -22,10 +19,6 @@ class StartIngestFromArchive < BaseJob
             @unit_id = ingestable_unit.id
             @unit_dir = "%09d" % @unit_id
             @working_unit = Unit.find(@unit_id)
-            @messagable_id = @unit_id
-            @messagable_type = "Unit"
-            set_workflow_type()
-
             @source = File.join(ARCHIVE_DIR, @unit_dir)
             on_success "The DL ingestion workflow for Unit #{@unit_id} has begun."
             UpdateUnitDateQueuedForIngest.exec_now({ :unit_id => @unit_id, :source => @source}, self)

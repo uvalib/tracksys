@@ -1,8 +1,11 @@
 class PurgeCache < BaseJob
    include Rails.application.routes.url_helpers # to support the route url's
 
-   def perform(message)
-      Job_Log.debug "#{self.class}: received #{message.to_json}"
+   def set_originator(message)
+      # No originator
+   end
+
+   def do_workflow(message)
       raise "Parameter 'subject_class' is required" if message[:subject_class].blank?
       raise "Parameter 'subject_id' is required" if message[:subject_id].blank?
       raise "Parameter 'associated_class' is required" if message[:associated_class].blank?
@@ -10,7 +13,6 @@ class PurgeCache < BaseJob
       subject_class = message[:subject_class]
       subject_id = message[:subject_id]
       associated_class = message[:associated_class]
-      set_workflow_type()
 
       begin
          purge_cache(subject_class.classify.constantize.find(subject_id), associated_class)

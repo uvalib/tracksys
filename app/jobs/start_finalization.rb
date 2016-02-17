@@ -2,7 +2,7 @@ class StartFinalization < BaseJob
    require 'fileutils'
 
    def set_originator(message)
-      # No originator component for this job; it just runs on all units in the finalization directory
+      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>message[:user_id])
    end
 
    def do_workflow(message)

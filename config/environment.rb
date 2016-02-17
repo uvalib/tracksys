@@ -3,7 +3,6 @@ require File.expand_path('../application', __FILE__)
 
 # Setup logger for all jobs processors
 #
-Job_Log = Logger.new("#{Rails.root}/log/messaging_log.log")
 JOB_LOG_DIR = File.join(Rails.root,"log", "jobs")
 if !Dir.exists? JOB_LOG_DIR
    FileUtils.mkdir_p JOB_LOG_DIR

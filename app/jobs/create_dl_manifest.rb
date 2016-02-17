@@ -1,17 +1,17 @@
 class CreateDlManifest < BaseJob
 
-   def perform(message)
-      Job_Log.debug "CreateDlManifestProcessor received: #{message.to_json}"
-      set_workflow_type()
+   def set_originator(message)
+      staff_member = StaffMember.where(:computing_id => message[:computing_id]).first
+      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>staff_member.id)
+   end
+
+   def do_workflow(message)
 
       computing_id = message[:computing_id]
       send_email = message[:deliver]
       send_email = true if send_email.nil?
 
       @staff_member = StaffMember.where(:computing_id => computing_id).first
-
-      @messagable_id = @staff_member.id
-      @messagable_type = "StaffMember"
 
       report_file = create_workbook()
 

@@ -1,18 +1,20 @@
 class SendFeeEstimateToCustomer < BaseJob
-   def perform(message)
-      Job_Log.debug "SendFeeEstimateToCustomerProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=> "Order", :originator_id=>message[:order_id])
+   end
+
+   def do_workflow(message)
 
       raise "Parameter 'order_id' is required" if message[:order_id].blank?
 
-      @order_id = message[:order_id]
-      @first_name = message[:first_name]
-      @working_order = Order.find(@order_id)
-      @messagable_id = message[:order_id]
-      @messagable_type = "Order"
-      set_workflow_type()
-      OrderMailer.send_fee_estimate(@working_order).deliver
+      order = Order.find( message[:order_id] )
+      OrderMailer.send_fee_estimate(order).deliver
+      logger().info "Fee estimate email sent to customer."
 
-      UpdateOrderDateFeeEstimateSentToCustomer.exec_now({:order_id => @order_id})
-      on_success "Fee estimate email sent to customer."
+      order.update_attribute(:date_fee_estimate_sent_to_customer, Time.now)
+      logger().info "Date fee estimate sent to customer has been updated."
+
+      order.update_attribute(:order_status, 'deferred')
+      logger().info "The order has been deferred."
    end
 end

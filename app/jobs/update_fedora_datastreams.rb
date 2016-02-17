@@ -1,7 +1,10 @@
 class UpdateFedoraDatastreams < BaseJob
 
-   def perform(message)
-      Job_Log.debug "UpdateFedoraDatastreamsProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=> message[:object_class], :originator_id=>message[:object_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'object_class' is required" if message[:object_class].blank?
@@ -11,9 +14,6 @@ class UpdateFedoraDatastreams < BaseJob
       @object_class = message[:object_class]
       @object_id = message[:object_id]
       @object = @object_class.classify.constantize.find(@object_id)
-      @messagable_id = message[:object_id]
-      @messagable_type = message[:object_class]
-      set_workflow_type()
       @datastream = message[:datastream]
 
       if @object.is_a? Unit
@@ -21,9 +21,9 @@ class UpdateFedoraDatastreams < BaseJob
 
          if @datastream == 'all'
             msg = { :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id}
-            IngestDescMetadata.exec_now(msg)
-            IngestMarc.exec_now(msg)
-            IngestRightsMetadata.exec_now(msg)
+            IngestDescMetadata.exec_now(msg, self)
+            IngestMarc.exec_now(msg, self)
+            IngestRightsMetadata.exec_now(msg, self)
 
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
 
@@ -40,13 +40,13 @@ class UpdateFedoraDatastreams < BaseJob
                @source = mf.path_to_archved_version
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
                imsg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :mode => 'dl', :last => 0 }
-               IngestDescMetadata.exec_now(msg)
-               IngestRightsMetadata.exec_now(msg)
-               IngestTechMetadata.exec_now(msg)
-               CreateDlDeliverables.exec_now(imsg)
+               IngestDescMetadata.exec_now(msg, self)
+               IngestRightsMetadata.exec_now(msg, self)
+               IngestTechMetadata.exec_now(msg, self)
+               CreateDlDeliverables.exec_now(imsg, self)
 
                if not mf.transcription_text.blank?
-                  IngestTranscription.exec_now(msg)
+                  IngestTranscription.exec_now(msg, self)
                end
                instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
 
@@ -73,7 +73,7 @@ class UpdateFedoraDatastreams < BaseJob
                @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
 
                imsg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id, :source => @source, :last => 0 }
-               CreateDlDeliverables.exec_now(imsg) if mf.datastream_exists?("content")
+               CreateDlDeliverables.exec_now(imsg, self) if mf.datastream_exists?("content")
                instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
 
                # Update the object's date_dl_update value
@@ -85,7 +85,7 @@ class UpdateFedoraDatastreams < BaseJob
             on_success "All JP2K images for #{@object.class.to_s} #{@object.id} will be updated."
 
          elsif @datastream == 'desc_metadata'
-            IngestDescMetadata.exec_now({ :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id})
+            IngestDescMetadata.exec_now({ :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id}, self)
 
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
 
@@ -96,7 +96,7 @@ class UpdateFedoraDatastreams < BaseJob
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", '')
 
             @object.master_files.each {|mf|
-               IngestDescMetadata.exec_now({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id})
+               IngestDescMetadata.exec_now({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}, self)
 
                instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
 
@@ -110,7 +110,7 @@ class UpdateFedoraDatastreams < BaseJob
             @object.master_files.each {|mf|
                @messagable_id = mf.id
                @messagable_type = "MasterFile"
-               IngestSolrDoc.exec_now({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id})
+               IngestSolrDoc.exec_now({ :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}, self)
                on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} Master Files will be updated."
 
                # Update the MasterFile's date_dl_update value
@@ -118,9 +118,9 @@ class UpdateFedoraDatastreams < BaseJob
             }
          elsif @datastream == 'allxml'
             msg = { :type => 'update', :object_class => @object.bibl.class.to_s, :object_id => @object.bibl.id}
-            IngestDescMetadata.exec_now(msg)
-            IngestMarc.exec_now(msg)
-            IngestRightsMetadata.exec_now(msg)
+            IngestDescMetadata.exec_now(msg, self)
+            IngestMarc.exec_now(msg, self)
+            IngestRightsMetadata.exec_now(msg, self)
 
             instance_variable_set("@#{@object.bibl.class.to_s.underscore}_id", @object.bibl.id)
 
@@ -135,12 +135,12 @@ class UpdateFedoraDatastreams < BaseJob
                # Messages coming from this processor should only be for units that have already been archived.
                @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
                msg = { :type => 'update', :object_class => mf.class.to_s, :object_id => mf.id}
-               IngestDescMetadata.exec_now(msg)
-               IngestRightsMetadata.exec_now( msg )
-               IngestTechMetadata.exec_now(msg)
+               IngestDescMetadata.exec_now(msg, self)
+               IngestRightsMetadata.exec_now( msg, self )
+               IngestTechMetadata.exec_now(msg, self)
 
                if not mf.transcription_text.blank?
-                  IngestTranscription.exec_now(msg)
+                  IngestTranscription.exec_now(msg, self)
                end
                instance_variable_set("@#{mf.class.to_s.underscore}_id", mf.id)
 
@@ -172,48 +172,48 @@ class UpdateFedoraDatastreams < BaseJob
          imsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id, :source => @source, :mode => 'dl', :last => 0 }
 
          if @datastream == 'all'
-            IngestDescMetadata.exec_now(mmsg)
-            IngestRightsMetadata.exec_now(mmsg)
-            IngestTechMetadata.exec_now(mmsg)
+            IngestDescMetadata.exec_now(mmsg, self)
+            IngestRightsMetadata.exec_now(mmsg, self)
+            IngestTechMetadata.exec_now(mmsg, self)
 
             if not @object.transcription_text.blank?
-               IngestTranscription.exec_now( mmsg )
+               IngestTranscription.exec_now( mmsg, self )
             end
 
-            CreateDlDeliverables.exec_now(imsg)
+            CreateDlDeliverables.exec_now(imsg, self)
             on_success "All datastreams for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'allxml'
-            IngestDescMetadata.exec_now(mmsg)
-            IngestRightsMetadata.exec_now(mmsg)
-            IngestTechMetadata.exec_now(mmsg)
+            IngestDescMetadata.exec_now(mmsg, self)
+            IngestRightsMetadata.exec_now(mmsg, self)
+            IngestTechMetadata.exec_now(mmsg, self)
 
             if not @object.transcription_text.blank?
-               IngestTranscription.exec_now( mmsg )
+               IngestTranscription.exec_now( mmsg, self )
             end
             on_success "All XML datastreams for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'tech_metadata'
-            IngestTechMetadata.exec_now(mmsg)
+            IngestTechMetadata.exec_now(mmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'transcription'
-            IngestTranscription.exec_now( mmsg )
+            IngestTranscription.exec_now( mmsg, self )
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'desc_metadata'
-            IngestDescMetadata.exec_now(mmsg)
+            IngestDescMetadata.exec_now(mmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rels_ext'
-            IngestRelsExt.exec_now( mmsg )
+            IngestRelsExt.exec_now( mmsg, self )
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rights_metadata'
-            IngestRightsMetadata.exec_now(mmsg)
+            IngestRightsMetadata.exec_now(mmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'dc_metadata'
-            IngestDcMetadata.exec_now(mmsg)
+            IngestDcMetadata.exec_now(mmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'solr_doc'
-            IngestSolrDoc.exec_now(mmsg)
+            IngestSolrDoc.exec_now(mmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'jp2k'
-            CreateDlDeliverables.exec_now(imsg)
+            CreateDlDeliverables.exec_now(imsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          else
             on_error "Datastream variable #{@datastream} is unknown."
@@ -227,33 +227,33 @@ class UpdateFedoraDatastreams < BaseJob
          bmsg = { :type => 'update', :object_class => @object.class.to_s, :object_id => @object.id }
 
          if @datastream == 'allxml'
-            IngestDescMetadata.exec_now(bmsg)
+            IngestDescMetadata.exec_now(bmsg, self)
             if @object.catalog_key
-               IngestMarc.exec_now(bmsg)
+               IngestMarc.exec_now(bmsg, self)
             end
-            IngestRightsMetadata.exec_now(bmsg)
+            IngestRightsMetadata.exec_now(bmsg, self)
 
             on_success "All datastreams for #{@object_class} #{@object_id} will be updated"
          elsif @datastream == 'desc_metadata'
-            IngestDescMetadata.exec_now(bmsg)
+            IngestDescMetadata.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rels_ext'
-            IngestRelsExt.exec_now( bmsg )
+            IngestRelsExt.exec_now( bmsg, self )
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'marc'
-            IngestMarc.exec_now(bmsg)
+            IngestMarc.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rights_metadata'
-            IngestRightsMetadata.exec_now(bmsg)
+            IngestRightsMetadata.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'tei'
-            IngestTeiDoc.exec_now(bmsg)
+            IngestTeiDoc.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'dc_metadata'
-            IngestDcMetadata.exec_now(bmsg)
+            IngestDcMetadata.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'solr_doc'
-            IngestSolrDoc.exec_now(bmsg)
+            IngestSolrDoc.exec_now(bmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          end
       elsif @object.is_a? Component
@@ -266,19 +266,19 @@ class UpdateFedoraDatastreams < BaseJob
          component_message = ActiveSupport::JSON.encode(cmsg)
 
          if @datastream == 'allxml'
-            IngestDescMetadata.exec_now(cmsg)
+            IngestDescMetadata.exec_now(cmsg, self)
             on_success "All datastreams for #{@object_class} #{@object_id} will be updated"
          elsif @datastream == 'desc_metadata'
-            IngestDescMetadata.exec_now(cmsg)
+            IngestDescMetadata.exec_now(cmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'rels_ext'
-            IngestRelsExt.exec_now( cmsg )
+            IngestRelsExt.exec_now( cmsg, self )
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'dc_metadata'
-            IngestDcMetadata.exec_now(cmsg)
+            IngestDcMetadata.exec_now(cmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'solr_doc'
-            IngestSolrDoc.exec_now(cmsg)
+            IngestSolrDoc.exec_now(cmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          end
       else

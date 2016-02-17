@@ -2,13 +2,11 @@ class CreateStatsReport < BaseJob
 
    require 'spreadsheet'
 
-   def perform(message)
-      Job_Log.debug "CreateStastsReportProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>message[:user_id])
+   end
 
-      @messagable_id = 2
-      @messagable_type = "StaffMember"
-      set_workflow_type()
-
+   def do_workflow(message)
       today = Date.today
       query_year = message[:year]
 
