@@ -34,8 +34,11 @@ class CreatePatronDeliverables < BaseJob
    # but "source" is always required; "pid" is required if mode is "dl", "dl-archive" or
    # "both"; order and unit numbers are required if mode is "patron" or "both".
 
-   def perform(message)
-      Job_Log.debug "CreateUnitDeliverablesProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"MasterFile", :originator_id=>message[:master_file_id])
+   end
+
+   def do_workflow(message)
 
       raise "Parameter 'mode' is required" if message[:mode].blank?
       raise "Parameter 'source' is required" if message[:source].blank?
@@ -46,10 +49,6 @@ class CreatePatronDeliverables < BaseJob
       @mode = message[:mode]
       @last = message[:last]
       @master_file_id = message[:master_file_id]
-
-      @messagable_id = message[:master_file_id]
-      @messagable_type = "MasterFile"
-      set_workflow_type()
 
       # Watermarking variable
       @remove_watermark = message[:remove_watermark]
@@ -102,7 +101,7 @@ class CreatePatronDeliverables < BaseJob
             end
             if message[:actual_resolution].to_i >= desired_res.to_i
                # write at desired resolution
-               Job_Log.debug("Resampling image...")
+               logger().debug("Resampling image...")
                new_tiff = tiff.resample(desired_res.to_i)
             else
                # desired resolution not achievable; keep original resolution
@@ -112,7 +111,7 @@ class CreatePatronDeliverables < BaseJob
          end
 
          if add_legal_notice
-            Job_Log.debug "Add legal notice"
+            logger().debug "Add legal notice"
             notice = String.new
 
             if @title.length < 145
@@ -175,7 +174,7 @@ class CreatePatronDeliverables < BaseJob
             @messagable = Unit.find(@unit_id)
 
             on_success "All patron deliverables created."
-            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => message[:unit_id], :mode => @mode })
+            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => message[:unit_id], :mode => @mode }, self)
          end
       else
          raise "Source is not a .tif file: #{@source}"

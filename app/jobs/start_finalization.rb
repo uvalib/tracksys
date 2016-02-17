@@ -1,16 +1,17 @@
 class StartFinalization < BaseJob
    require 'fileutils'
 
-   def perform(message)
-      Job_Log.debug("StartFinalization received: #{message.to_json}")
+   def set_originator(message)
+      # No originator component for this job; it just runs on all units in the finalization directory
+   end
+
+   def do_workflow(message)
 
       raise "Parameter 'directory' is required" if message[:directory].blank?
 
       regex_unit = Regexp.new('(\d{9}$)')
 
       finalization_dir = message[:directory]
-      @messagable_type = "Unit"
-      set_workflow_type()
 
       # Check that the mounts are up and the directory that holds the files still exists.
       if not File.exist?(finalization_dir)
@@ -40,10 +41,8 @@ class StartFinalization < BaseJob
                            # Entry passes all tests
                            FileUtils.mv File.join(finalization_dir, content), File.join(IN_PROCESS_DIR, content)
                            @unit_id = content.to_s.sub(/^0+/, '')
-                           @messagable_id = @unit_id
-
                            on_success "Directory #{content} begins the finalization workflow."
-                           QaUnitData.exec_now( { :unit_id => @unit_id })
+                           QaUnitData.exec_now( { :unit_id => @unit_id }, self)
                         end
                      end
                   end

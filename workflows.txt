@@ -64,4 +64,4 @@ CHECK ORDER READY FOR DELIVERY FLOW
             ⁃  check_order_fee
                ⁃  create_order_pdf
                   ⁃  create_order_zip
-                     ⁃  create_order_emai
+                     ⁃  create_order_email

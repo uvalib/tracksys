@@ -7,8 +7,7 @@ class UpdateOrderDatePatronDeliverablesComplete < BaseJob
       order = Order.find(message[:order_id])
       order.date_patron_deliverables_complete = Time.now
       order.save!
-
       on_success "All patron deliverables of order #{message[:order_id]} have been created."
-      QaOrderData.exec_now({ :order_id => @order_id }, self)
+      QaOrderData.exec_now({ :order_id => message[:order_id] }, self)
    end
 end

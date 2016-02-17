@@ -1,8 +1,11 @@
 class QaFilesystemAndIviewXml < BaseJob
    require 'nokogiri'
 
-   def perform(message)
-      Job_Log.debug "QaFilesystemAndIviewXmlProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -11,9 +14,6 @@ class QaFilesystemAndIviewXml < BaseJob
       @unit_id = message[:unit_id]
       @unit_dir = "%09d" % @unit_id
       @working_unit = Unit.find(@unit_id)
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
 
       # Create error message holder array
       @error_messages = Array.new
@@ -51,7 +51,7 @@ class QaFilesystemAndIviewXml < BaseJob
                @ivc_files.push(unit_dir_content)
             elsif (unit_dir_content !~ /(.git$|.md5|.txt$)/) # safe to ignore (.txt files are OCR data typically)
                @unknown_files.push(unit_dir_content)
-               Job_Log.debug "QaFilesystemAndIviewXmlProcessor pushing: " + unit_dir_content + " to @unknown_files"
+               logger().debug "QaFilesystemAndIviewXmlProcessor pushing: " + unit_dir_content + " to @unknown_files"
             end
          end
       end
@@ -138,7 +138,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
          # Read the XML file for processing
          doc = Nokogiri.XML(File.new(File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)))
-         Job_Log.debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
+         logger().debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
 
          # Check XML for expected elements
          root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
@@ -165,7 +165,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
             if not filename_regexp.match(filename)
                @error_messages.push("REGEXP: The <Filename> of <MediaItem> #{filename} does not pass regular expression test.")
-               Job_Log.debug "QaFilesystemAndIviewXmlProcessor RexExp was #{filename_regexp} and returned #{filename_regexp.match(filename)}"
+               logger().debug "QaFilesystemAndIviewXmlProcessor RexExp was #{filename_regexp} and returned #{filename_regexp.match(filename)}"
             end
 
             if filesize == 0 or filesize.length == 0
@@ -177,8 +177,8 @@ class QaFilesystemAndIviewXml < BaseJob
             # 1/2014: Google Books tif/jp2 do not come with color profiles: grabbing ColorSpace a la Multispectral images
             if colorprofile != "Adobe RGB (1998)" and colorprofile != "cruse-lr-picto" and colorprofile != "Dot Gain 20%"
                # hack to compensate for Multispectral Scanner's lack of colorprofile data
-               Job_Log.debug "colorprofile is #{colorprofile}; colorspace is #{mediaitem.xpath('MediaProperties/ColorSpace').text}"
-               Job_Log.debug mediaitem.xpath('MediaProperties/ColorSpace').to_s
+               logger().debug "colorprofile is #{colorprofile}; colorspace is #{mediaitem.xpath('MediaProperties/ColorSpace').text}"
+               logger().debug mediaitem.xpath('MediaProperties/ColorSpace').to_s
                if mediaitem.xpath('MediaProperties/ColorSpace').text.match(/(RGB|GREY|GRAY|BW)/)
                   colorprofile = mediaitem.xpath('MediaProperties/ColorSpace').text.strip
                else
@@ -268,7 +268,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
    def check_unknown_files
       if not @unknown_files.empty?
-         Job_Log.debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
+         logger().debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
          @unknown_files.each do |unknown_file|
             if (unknown_file =~ /.TIF/ )
                @error_messages.push("#{unknown_file} ends in .TIF.")
@@ -295,10 +295,10 @@ class QaFilesystemAndIviewXml < BaseJob
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
          on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
-         ImportUnitIviewXML.exec_now({ :unit_id => @unit_id, :path => path })
+         ImportUnitIviewXML.exec_now({ :unit_id => @unit_id, :path => path }, self)
       else
          @error_messages.each do |message|
-            Job_Log.debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
+            logger().debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
             on_failure message
             if message == @error_messages.last
                on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"

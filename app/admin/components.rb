@@ -25,7 +25,11 @@ ActiveAdmin.register Component do
     column :exemplar do |component|
       if not component.exemplar.blank?
         exemplar_master_file = MasterFile.find_by_filename(component.exemplar)
-        link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
+        if exemplar_master_file.nil?
+           "Exemplar not found"
+        else
+           link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
+        end
       else
         "No exemplar set."
       end

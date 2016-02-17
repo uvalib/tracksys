@@ -1,7 +1,10 @@
 class QueueUnitDeliverables < BaseJob
 
-   def perform(message)
-      Job_Log.debug "QueueUnitDeliverablesProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming messages
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
@@ -13,9 +16,6 @@ class QueueUnitDeliverables < BaseJob
 
       @unit_dir = "%09d" % @unit_id
       @working_unit = Unit.find(@unit_id)
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
       @working_order = @working_unit.order
       @master_files = @working_unit.master_files
 
@@ -44,7 +44,11 @@ class QueueUnitDeliverables < BaseJob
          @actual_resolution = master_file.image_tech_meta.resolution
          @file_source = File.join(@source, master_file.filename)
 
-         CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id, :source => @file_source, :mode => @mode, :format => @format, :actual_resolution => @actual_resolution, :desired_resolution => @desired_resolution, :unit_id => @unit_id, :last => @last, :personal_item => @personal_item, :call_number => @call_number, :title => @title, :location => @location, :remove_watermark => @remove_watermark})
+         CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id, :source => @file_source,
+            :mode => @mode, :format => @format, :actual_resolution => @actual_resolution,
+            :desired_resolution => @desired_resolution, :unit_id => @unit_id, :last => @last,
+            :personal_item => @personal_item, :call_number => @call_number, :title => @title,
+            :location => @location, :remove_watermark => @remove_watermark}, self)
       end
    end
 end

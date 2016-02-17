@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.27)
 # Database: tracksys3_development
-# Generation Time: 2016-02-09 18:20:47 +0000
+# Generation Time: 2016-02-17 15:33:02 +0000
 # ************************************************************
 
 
@@ -312,22 +312,6 @@ VALUES
 UNLOCK TABLES;
 
 
-# Dump of table bibls_ead_refs
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `bibls_ead_refs`;
-
-CREATE TABLE `bibls_ead_refs` (
-  `bibl_id` int(11) DEFAULT NULL,
-  `ead_ref_id` int(11) DEFAULT NULL,
-  KEY `bibl_id` (`bibl_id`),
-  KEY `ead_ref_id` (`ead_ref_id`),
-  CONSTRAINT `bibls_ead_refs_ibfk_1` FOREIGN KEY (`bibl_id`) REFERENCES `bibls` (`id`),
-  CONSTRAINT `bibls_ead_refs_ibfk_2` FOREIGN KEY (`ead_ref_id`) REFERENCES `ead_refs` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
 # Dump of table bibls_legacy_identifiers
 # ------------------------------------------------------------
 
@@ -340,24 +324,6 @@ CREATE TABLE `bibls_legacy_identifiers` (
   KEY `index_bibls_legacy_identifiers_on_legacy_identifier_id` (`legacy_identifier_id`),
   CONSTRAINT `bibls_legacy_identifiers_bibl_id_fk` FOREIGN KEY (`bibl_id`) REFERENCES `bibls` (`id`),
   CONSTRAINT `bibls_legacy_identifiers_legacy_identifier_id_fk` FOREIGN KEY (`legacy_identifier_id`) REFERENCES `legacy_identifiers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
-# Dump of table checkins
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `checkins`;
-
-CREATE TABLE `checkins` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `unit_id` int(11) NOT NULL DEFAULT '0',
-  `staff_member_id` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `staff_member_id` (`staff_member_id`),
-  KEY `unit_id` (`unit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -469,6 +435,10 @@ LOCK TABLES `components` WRITE;
 
 INSERT INTO `components` (`id`, `component_type_id`, `parent_component_id`, `title`, `label`, `date`, `content_desc`, `idno`, `barcode`, `seq_number`, `pid`, `created_at`, `updated_at`, `desc_metadata`, `rels_ext`, `solr`, `dc`, `rels_int`, `discoverability`, `indexing_scenario_id`, `level`, `ead_id_att`, `parent_ead_ref_id`, `ead_ref_id`, `availability_policy_id`, `date_dl_ingest`, `date_dl_update`, `use_right_id`, `master_files_count`, `automation_messages_count`, `exemplar`, `ancestry`, `pids_depth_cache`, `ead_id_atts_depth_cache`, `followed_by_id`, `legacy_ead`, `physical_desc`, `scope_content`, `index_destination_id`)
 VALUES
+	(14072,11,0,NULL,NULL,NULL,'Papers of John Dos Passos 1865-1998',NULL,NULL,NULL,'uva-lib:1330360','2010-10-27 09:10:15','2012-06-17 01:32:39',NULL,NULL,NULL,NULL,NULL,NULL,1,'guide','viu01215',0,6349,NULL,NULL,NULL,NULL,0,0,'000007105_0001.tif',NULL,'uva-lib:1330360','viu01215',NULL,NULL,NULL,NULL,NULL),
+	(14073,14,14072,NULL,NULL,NULL,'Correspondence',NULL,NULL,NULL,'uva-lib:1330361','2010-10-27 09:10:15','2012-06-17 01:32:39',NULL,NULL,NULL,NULL,NULL,NULL,1,'series','d1e261',6349,6350,NULL,NULL,NULL,NULL,0,0,'000007105_0001.tif','14072','uva-lib:1330360/uva-lib:1330361','viu01215/d1e261',NULL,NULL,NULL,NULL,NULL),
+	(14076,14,14072,NULL,NULL,NULL,'Personal Box122-139',NULL,NULL,NULL,'uva-lib:1330364','2011-07-15 15:45:21','2012-06-17 01:32:39',NULL,NULL,NULL,NULL,NULL,NULL,1,'series','d1e8241',6349,9754,NULL,NULL,NULL,NULL,0,0,'000008783_0001.tif','14072','uva-lib:1330360/uva-lib:1330364','viu01215/d1e8241',NULL,NULL,NULL,NULL,NULL),
+	(410281,17,0,'Artwork collected by John Dos Passos',NULL,NULL,'Artwork collected by John Dos Passos',NULL,NULL,NULL,'uva-lib:1734567','2012-07-08 01:28:58','2012-07-08 01:28:58',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,'d1e8319',NULL,NULL,NULL,NULL,NULL,NULL,0,0,NULL,'14072/14076','uva-lib:1330360/uva-lib:1330364','viu01215/d1e8241',NULL,NULL,NULL,NULL,NULL),
 	(410296,12,0,'Pen-and-ink sketches (4)/bullfighters, bulls and horses/by Jose Robles 1913',NULL,'1913','Pen-and-ink sketches (4)/bullfighters, bulls and horses/by Jose Robles 1913',NULL,NULL,NULL,'uva-lib:1734582','2012-07-08 01:28:58','2012-07-08 01:28:58',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,'d1e8436',NULL,NULL,NULL,NULL,NULL,NULL,0,0,NULL,'14072/14076/410281','uva-lib:1330360/uva-lib:1330364/uva-lib:1734567','viu01215/d1e8241/d1e8319',NULL,NULL,NULL,NULL,NULL),
 	(497769,11,0,'Daily Progress Digitized Microfilm',NULL,NULL,'The Charlottesville, VA area newspaper, published daily from 1892 to the present. Issues from 1892 through 1923 have been digitized from the Library\'s set of microfilm and are available for viewing online.',NULL,NULL,NULL,'uva-lib:2137307','2012-11-16 20:55:19','2013-10-18 12:58:38',NULL,NULL,NULL,NULL,NULL,1,1,NULL,'',NULL,NULL,1,'2012-11-28 16:26:45','2013-10-18 12:58:38',NULL,0,47,NULL,NULL,'uva-lib:2137307','',NULL,NULL,NULL,NULL,NULL);
 
@@ -611,40 +581,6 @@ CREATE TABLE `delayed_jobs` (
 
 
 
-# Dump of table delivery_methods
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `delivery_methods`;
-
-CREATE TABLE `delivery_methods` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `is_internal_use_only` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_delivery_methods_on_label` (`label`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
-# Dump of table delivery_methods_orders
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `delivery_methods_orders`;
-
-CREATE TABLE `delivery_methods_orders` (
-  `delivery_method_id` int(11) DEFAULT NULL,
-  `order_id` int(11) DEFAULT NULL,
-  KEY `index_delivery_methods_orders_on_delivery_method_id` (`delivery_method_id`),
-  KEY `index_delivery_methods_orders_on_order_id` (`order_id`),
-  CONSTRAINT `delivery_methods_orders_delivery_method_id_fk` FOREIGN KEY (`delivery_method_id`) REFERENCES `delivery_methods` (`id`),
-  CONSTRAINT `delivery_methods_orders_order_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
 # Dump of table departments
 # ------------------------------------------------------------
 
@@ -669,49 +605,6 @@ VALUES
 
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
-# Dump of table ead_refs
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `ead_refs`;
-
-CREATE TABLE `ead_refs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_ead_ref_id` int(11) NOT NULL DEFAULT '0',
-  `bibl_id` int(11) DEFAULT '0',
-  `ead_id_att` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `level` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `date` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `content_desc` text COLLATE utf8_unicode_ci,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `desc_metadata` text COLLATE utf8_unicode_ci,
-  `rels_ext` text COLLATE utf8_unicode_ci,
-  `solr` longtext COLLATE utf8_unicode_ci,
-  `dc` text COLLATE utf8_unicode_ci,
-  `availability` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `rels_int` text COLLATE utf8_unicode_ci,
-  `discoverability` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `bibl_id` (`bibl_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
-# Dump of table ead_refs_master_files
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `ead_refs_master_files`;
-
-CREATE TABLE `ead_refs_master_files` (
-  `ead_ref_id` int(11) DEFAULT NULL,
-  `master_file_id` int(11) DEFAULT NULL,
-  KEY `ead_ref_id` (`ead_ref_id`),
-  KEY `master_file_id` (`master_file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 
 # Dump of table heard_about_resources
@@ -919,6 +812,28 @@ CREATE TABLE `invoices` (
   PRIMARY KEY (`id`),
   KEY `index_invoices_on_order_id` (`order_id`),
   CONSTRAINT `invoices_order_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table job_statuses
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `job_statuses`;
+
+CREATE TABLE `job_statuses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'pending',
+  `started_at` datetime DEFAULT NULL,
+  `ended_at` datetime DEFAULT NULL,
+  `failures` int(11) NOT NULL DEFAULT '0',
+  `error` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `backtrace` text COLLATE utf8_unicode_ci,
+  `originator_id` int(11) DEFAULT NULL,
+  `originator_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1157,6 +1072,12 @@ VALUES
 	('20160202160508'),
 	('20160202162321'),
 	('20160208213347'),
+	('20160209204329'),
+	('20160209205933'),
+	('20160209212245'),
+	('20160209212928'),
+	('20160210144315'),
+	('20160211152123'),
 	('21'),
 	('22'),
 	('23'),
@@ -1174,34 +1095,6 @@ VALUES
 	('99');
 
 /*!40000 ALTER TABLE `schema_migrations` ENABLE KEYS */;
-UNLOCK TABLES;
-
-
-# Dump of table sessions
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `sessions`;
-
-CREATE TABLE `sessions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `session_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `data` text COLLATE utf8_unicode_ci,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_sessions_on_session_id` (`session_id`),
-  KEY `index_sessions_on_updated_at` (`updated_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-LOCK TABLES `sessions` WRITE;
-/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-
-INSERT INTO `sessions` (`id`, `session_id`, `data`, `created_at`, `updated_at`)
-VALUES
-	(1,'17eeddb909728a597a6a4c9996191ec0','BAh7B0kiEF9jc3JmX3Rva2VuBjoGRUZJIjFHZkV4dWR2WENTSFl3S0g2M3FP\nRHIwcitZTmdCRnVka2gwc2JFeW8xNDQwPQY7AEZJIgpmbGFzaAY7AFRvOiVB\nY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaAk6CkB1c2VkbzoIU2V0\nBjoKQGhhc2h7BjoLbm90aWNlVDoMQGNsb3NlZEY6DUBmbGFzaGVzewY7Ckki\nXEl0ZW1zIGluIC9kaWdpc2Vydi1wcm9kdWN0aW9uL2ZpbmFsaXphdGlvbi8x\nMF9kcm9wb2ZmIGhhdmUgYmVndW4gZmluYWxpemF0aW9uIHdvcmtmbG93LgY7\nAFQ6CUBub3cw\n','2015-12-17 14:55:14','2016-01-20 13:46:27'),
-	(2,'3ad85f6f7346f3b368bad3084153a2f0','BAh7BkkiEF9jc3JmX3Rva2VuBjoGRUZJIjE2clRJQi95aktOMHBrMkRROW1s\nQVlQNnU3d3pwdVoxNU82enJrV0V5OUVFPQY7AEY=\n','2016-02-09 13:18:55','2016-02-09 13:18:55');
-
-/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -1253,26 +1146,6 @@ VALUES
 
 /*!40000 ALTER TABLE `staff_members` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
-# Dump of table unit_import_sources
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `unit_import_sources`;
-
-CREATE TABLE `unit_import_sources` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `unit_id` int(11) NOT NULL DEFAULT '0',
-  `standard` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `version` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `source` longtext COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`),
-  KEY `index_unit_import_sources_on_unit_id` (`unit_id`),
-  CONSTRAINT `unit_import_sources_unit_id_fk` FOREIGN KEY (`unit_id`) REFERENCES `units` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 
 # Dump of table units

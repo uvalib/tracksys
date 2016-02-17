@@ -24,7 +24,7 @@ class CheckOrderDateArchivingComplete < BaseJob
 
       if incomplete_units.empty?
          # The 'patron' units within the order are complete
-         UpdateOrderDateArchivingComplete.exec_now({ :order_id => @order_id })
+         UpdateOrderDateArchivingComplete.exec_now({ :order_id => @order_id }, self)
          on_success "All units in order #{@order_id} are archived."
       else
          # Order incomplete.  List units incomplete units in message

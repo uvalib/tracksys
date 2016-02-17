@@ -65,8 +65,8 @@ class BaseJob
       end
 
       # Flag job started running
-      @logger.info "Starting #{self.class.name} with params: #{message.to_json}"
-      @status.update_attributes(:started_at => DateTime.now, :status=>"running")
+      @logger.info "Start #{self.class.name} with params: #{message.to_json}"
+      @status.update_attributes(:started_at => DateTime.now, :status=>"running") if @status.status != 'running'
 
       # all subclasses extend this method to define their job
       do_workflow(message)

@@ -1,16 +1,16 @@
 class CopyMetadataToMetadataDirectory < BaseJob
 
-   def perform(message)
-      Job_Log.debug "CopyMetadataToMetadataDirectoryProcessor received: #{message.to_json}"
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+   end
+
+   def do_workflow(message)
 
       # Validate incoming message
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'unit_path' is required" if message[:unit_path].blank?
 
       @unit_id = message[:unit_id]
-      @messagable_id = message[:unit_id]
-      @messagable_type = "Unit"
-      set_workflow_type()
       @unit_dir = "%09d" % @unit_id
       @unit_path = message[:unit_path] # IN_PROCESS_DIR/unit
       @failure_messages = Array.new
@@ -30,7 +30,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       end
 
       @destination_dir = File.join(PRODUCTION_METADATA_DIR,  @range_dir, @unit_dir)
-      Job_Log.debug "Metadata SRC: #{@unit_path} => DEST #{@destination_dir }"
+      logger().debug "Metadata SRC: #{@unit_path} => DEST #{@destination_dir }"
 
       if File.exist?(@destination_dir)
          on_failure "The metadata for unit #{@unit_id} already exists in #{PRODUCTION_METADATA_DIR}/#{@range_dir}.  The directory will be deleted and a new one created in its place.."
@@ -41,7 +41,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       end
 
       @unit_dir_contents = Dir.entries(@unit_path).delete_if {|x| x == '.' or x == '..' or /.tif/ =~ x}
-      @unit_dir_contents.each {|content|
+      @unit_dir_contents.each do |content|
          begin
             if File.directory?(File.join(@unit_path, content))
                if /Thumbnails/ =~ content
@@ -63,14 +63,14 @@ class CopyMetadataToMetadataDirectory < BaseJob
          rescue Exception => e
             @failure_messages << "Can't copy source file '#{content}': #{e.message}"
          end
-      }
+      end
 
       if @failure_messages.empty?
          on_success "Unit #{@unit_id} metadata files have been successfully copied  to #{@destination_dir}."
       else
-         @failure_messages.each {|message|
+         @failure_messages.each do |message|
             on_failure "#{message}"
-         }
+         end
          on_error "There were failures copying files to #{PRODUCTION_METADATA_DIR}."
       end
    end

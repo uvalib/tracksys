@@ -1,5 +1,9 @@
 class DropCheckin < ActiveRecord::Migration
-   def change
-      drop_table :checkins
+   def up
+      drop_table :checkins if ActiveRecord::Base.connection.table_exists? 'checkins'
+   end
+
+   def down
+      # not reversable
    end
 end
