@@ -1,0 +1,9 @@
+<% if !@err_msg.blank? %>
+   <div id="job-error-info">
+      <label id="job-err-label">Error Message:</label>
+      <span id="job-err-message"><%= @err_msg %></span>
+   </div>
+<% end %>
+<div id="log-panel">
+   <%= simple_format @job_log %>
+</div>

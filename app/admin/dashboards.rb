@@ -3,28 +3,8 @@ ActiveAdmin.register_page "Dashboard" do
 
   content do
     div :class => 'three-column' do
-      panel "Active Errors (#{AutomationMessage.has_active_error.count})", :namespace => :admin, :priority => 1, :toggle => 'show' do
+      panel "Active Errors (#{JobStatus.sum(:failures)+JobStatus.where('error is not null').count})", :namespace => :admin, :priority => 1, :toggle => 'show' do
         table do
-          tr do
-            td do "Archiving Workflow" end
-            td do link_to "#{AutomationMessage.archive_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'archive') end
-          end
-          tr do
-            td do "QA Errors" end
-            td do link_to "#{AutomationMessage.qa_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'qa') end
-          end
-          tr do
-            td do "Delivery Errors" end
-            td do link_to "#{AutomationMessage.delivery_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'delivery') end
-          end
-          tr do
-            td do "Patron Approval Errors" end
-            td do link_to "#{AutomationMessage.patron_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'patron') end
-          end
-          tr do
-            td do "Repository Workflow Errors" end
-            td do link_to "#{AutomationMessage.repository_workflow.has_active_error.count}", admin_automation_messages_path(:q => {:active_error_eq => true}, :scope => 'repository') end
-          end
         end
       end
     end

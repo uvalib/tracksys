@@ -264,8 +264,8 @@ ActiveAdmin.register Order do
       row :bibls do |order|
         link_to "#{order.bibls.uniq.size}", admin_bibls_path(:q => {:orders_id_eq => order.id}, :scope => :uniq )
       end
-      row :automation_messages do |order|
-        link_to "#{order.automation_messages.size}", admin_automation_messages_path(:q => {:messagable_id_eq => order.id, :messagable_type_eq => "Order"})
+      row :workflows do |order|
+        link_to "#{order.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => order.id, :originator_type_eq => "Order"})
       end
       row :customer
       row :agency

@@ -247,8 +247,8 @@ ActiveAdmin.register MasterFile do
           link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
         end
       end
-      row :automation_messages do |master_file|
-        link_to "#{master_file.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => master_file.id, :messagable_type_eq => "MasterFile" })
+      row :workflows do |master_file|
+        link_to "#{master_file.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => master_file.id, :originator_type_eq => "MasterFile"})
       end
       row :agency
       row "Digital Library" do |master_file|

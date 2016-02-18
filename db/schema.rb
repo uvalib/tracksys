@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160211152123) do
+ActiveRecord::Schema.define(:version => 20160217211731) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -152,6 +152,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.string   "cataloging_source"
     t.string   "collection_facet"
     t.integer  "index_destination_id"
+    t.integer  "job_statuses_count",                              :default => 0,     :null => false
   end
 
   add_index "bibls", ["availability_policy_id"], :name => "index_bibls_on_availability_policy_id"
@@ -230,6 +231,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.text     "physical_desc"
     t.text     "scope_content"
     t.integer  "index_destination_id"
+    t.integer  "job_statuses_count",                              :default => 0,    :null => false
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
@@ -429,11 +431,13 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
   add_index "invoices", ["order_id"], :name => "index_invoices_on_order_id"
 
   create_table "job_statuses", :force => true do |t|
+    t.string   "name",                                   :null => false
     t.string   "status",          :default => "pending", :null => false
     t.datetime "started_at"
     t.datetime "ended_at"
     t.integer  "failures",        :default => 0,         :null => false
     t.string   "error"
+    t.boolean  "active_error",    :default => false,     :null => false
     t.text     "backtrace"
     t.integer  "originator_id"
     t.string   "originator_type"
@@ -497,6 +501,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.string   "creator_death_date"
     t.string   "creation_date"
     t.string   "primary_author"
+    t.integer  "job_statuses_count",                              :default => 0,     :null => false
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
@@ -542,6 +547,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.integer  "automation_messages_count",                                        :default => 0
     t.integer  "invoices_count",                                                   :default => 0
     t.integer  "master_files_count",                                               :default => 0
+    t.integer  "job_statuses_count",                                               :default => 0,     :null => false
   end
 
   add_index "orders", ["agency_id"], :name => "index_orders_on_agency_id"
@@ -570,6 +576,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.datetime "updated_at"
     t.integer  "automation_messages_count", :default => 0
     t.string   "email"
+    t.integer  "job_statuses_count",        :default => 0,     :null => false
   end
 
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
@@ -605,6 +612,7 @@ ActiveRecord::Schema.define(:version => 20160211152123) do
     t.integer  "master_files_count",             :default => 0
     t.integer  "automation_messages_count",      :default => 0
     t.integer  "index_destination_id"
+    t.integer  "job_statuses_count",             :default => 0,     :null => false
   end
 
   add_index "units", ["availability_policy_id"], :name => "index_units_on_availability_policy_id"

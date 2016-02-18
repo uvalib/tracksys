@@ -1,6 +1,6 @@
 ActiveAdmin.register StaffMember do
   config.sort_order = 'last_name_dsc'
-  
+
   menu :parent => "Miscellaneous"
 
   scope :all, :default => true
@@ -35,12 +35,15 @@ ActiveAdmin.register StaffMember do
         row :computing_id
         row :email
         row :is_active
+        row :workflows do |staff_member|
+         link_to "#{staff_member.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => staff_member.id, :originator_type_eq => "StaffMember"})
+       end
       end
     end
   end
 
   form do |f|
-    f.inputs do 
+    f.inputs do
       f.input :computing_id
       f.input :first_name
       f.input :last_name

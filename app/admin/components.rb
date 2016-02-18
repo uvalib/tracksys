@@ -259,8 +259,8 @@ ActiveAdmin.register Component do
           link_to "#{component.children.size}", admin_components_path(:q => {:parent_component_id_eq => component.id})
         end
       end
-      row :automation_messages do |component|
-        link_to "#{component.automation_messages_count}", admin_automation_messages_path(:q => {:messagable_id_eq => component.id, :messagable_type_eq => "Component" })
+      row :workflows do |component|
+        link_to "#{component.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => component.id, :originator_type_eq => "Component"})
       end
       row "Digital Library" do |component|
         if component.exists_in_repo?

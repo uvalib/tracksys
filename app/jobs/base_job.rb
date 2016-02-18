@@ -18,7 +18,7 @@ class BaseJob
          # No: start a new workflow and create a new status object
          job.init_status(message)
       else
-         # Called from anoter job; reuse status/logger from preceeding workflow
+         # Called from anoter job; reuse status/logger from preceeding step in workflow
          job.reuse_context(workflow_context)
       end
 
@@ -39,8 +39,12 @@ class BaseJob
    # Init the job status record for this workflow
    #
    def init_status(message)
-      @status = JobStatus.create()
+      @status = JobStatus.create(name: self.class.name)
       set_originator(message)
+      originator = @status.originator
+      if !originator.nil?
+         originator.update_attribute(:job_statuses_count, originator.job_statuses_count+1)
+      end
    end
    def set_originator(message)
       raise "Derived jobs must override set_originator!"
@@ -66,7 +70,7 @@ class BaseJob
 
       # Flag job started running
       @logger.info "Start #{self.class.name} with params: #{message.to_json}"
-      @status.update_attributes(:started_at => DateTime.now, :status=>"running") if @status.status != 'running'
+      @status.started
 
       # all subclasses extend this method to define their job
       do_workflow(message)
@@ -115,14 +119,20 @@ class BaseJob
       # this error is the result of some other exception, call on_error to deal with it
       if @status.status == "running"
          on_error(exception)
+      elsif @status.status == "failure"
+         # if this has already failed, just keep passing the exception up the chain
+         # to ensure all jobs get stopped and the head of the workflow is notified of the failure
+         raise exception
       end
    end
 
    # Workflow is complete. Mark jobs status as done, update timestamps
    #
    def complete()
-      @logger.info "Workflow #{self.class.name} has completed successfully"
-      @status.update_attributes(:ended_at => DateTime.now, :status=>"success")
+      if @status.status == 'running'
+         @logger.info "Workflow #{self.class.name} has completed successfully"
+         @status.finished
+      end
    end
 
    #
@@ -161,11 +171,11 @@ class BaseJob
          if err.is_a? Exception
             @logger.fatal err.message
             @logger.fatal err.backtrace.join("\n")
-            @status.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err.message, :backtrace=>err.backtrace.join("\n"))
+            @status.failed( err.message, err.backtrace.join("\n") )
          else
             @logger.fatal err
             @logger.fatal caller.join("\n")
-            @status.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err, :backtrace=>caller.join("\n"))
+            @status.failed( err, caller.join("\n") )
          end
 
          # Stop processing

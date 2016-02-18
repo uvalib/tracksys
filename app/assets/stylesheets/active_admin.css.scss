@@ -16,6 +16,27 @@
 @import "printable";
 @import "twilight";
 
+#log-panel {
+    background: #333;
+    padding: 8px 24px;
+    border-radius: 3px;
+    max-height: 500px;
+    overflow-y: scroll;
+    color: #ccc;
+    p {
+      font-family: "Lucida Console", Monaco, monospace;
+      font-size: 1.1em;
+   }
+}
+
+#job-error-info {
+    margin-bottom: 5px;
+    label {
+      font-weight: bolder;
+      margin-right: 10px;
+   }
+}
+
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:
 //
