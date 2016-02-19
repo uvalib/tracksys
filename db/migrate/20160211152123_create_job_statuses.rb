@@ -8,7 +8,6 @@ class CreateJobStatuses < ActiveRecord::Migration
        t.integer :failures, :null => false, :default => 0
        t.string :error
        t.boolean :active_error, :null=> false, :default=>false
-       t.text :backtrace
        t.references :originator, polymorphic: true, index: true
        t.timestamps
      end

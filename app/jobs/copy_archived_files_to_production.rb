@@ -1,8 +1,7 @@
 class CopyArchivedFilesToProduction < BaseJob
 
    def set_originator(message)
-      user = StaffMember.find_by_computing_id( message[:computing_id] )
-      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>user.id)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
    end
 
    def do_workflow(message)

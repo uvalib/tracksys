@@ -9,10 +9,10 @@ class JobStatus < ActiveRecord::Base
       self.update_attributes(:started_at => DateTime.now, :status=>"running") if self.status == 'pending'
    end
 
-   def failed(err, backtrace)
+   def failed(err)
       # only handle this if the status is transitiong from running to failed
       return if self.status != 'running'
-      self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :active_error=>true, :error=>err, :backtrace=>backtrace)
+      self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :active_error=>true, :error=>err)
    end
 
    def finished

@@ -438,7 +438,6 @@ ActiveRecord::Schema.define(:version => 20160217211731) do
     t.integer  "failures",        :default => 0,         :null => false
     t.string   "error"
     t.boolean  "active_error",    :default => false,     :null => false
-    t.text     "backtrace"
     t.integer  "originator_id"
     t.string   "originator_type"
     t.datetime "created_at",                             :null => false

@@ -22,17 +22,13 @@ class BaseJob
          job.reuse_context(workflow_context)
       end
 
-      begin
-         job.perform(message)
+      job.perform(message)
 
-         # nil context means this is the start point of a workflow
-         # once we are out of the perform, the workflow is complete.
-         # Update the status object
-         if workflow_context.nil?
-            job.complete()
-         end
-      rescue Exception => e
-         job.handle_wokflow_exception(e)
+      # nil context means this is the start point of a workflow
+      # once we are out of the perform, the workflow is complete.
+      # Update the status object
+      if workflow_context.nil?
+         job.complete()
       end
    end
 
@@ -72,8 +68,12 @@ class BaseJob
       @logger.info "Start #{self.class.name} with params: #{message.to_json}"
       @status.started
 
-      # all subclasses extend this method to define their job
-      do_workflow(message)
+      begin
+         # all subclasses extend this method to define their job
+         do_workflow(message)
+      rescue Exception => e
+         handle_wokflow_exception(e)
+      end
    end
 
    # Extension point for all jobs derived from BaseJob
@@ -104,13 +104,6 @@ class BaseJob
    #
    def success(job)
       complete()
-   end
-
-   # Delayed job error hook. Called when an exception is raised in a running job
-   # Pass it along to the tracksys error handling
-   #
-   def error(job, exception)
-      handle_wokflow_exception(exception)
    end
 
    def handle_wokflow_exception(exception)
@@ -163,23 +156,26 @@ class BaseJob
    # individual adapter code and docs for how it will be treated
    #
    def on_error(err)
-      if err.is_a? StandardError
-         @logger.error err.message
-         @logger.error err.backtrace.join("\n")
-         @status.update_attribute(:failures, (@status.failures+1) )
-      else
+      #
+      # For now, any errors terminate processing. Maybe relax this later
+      #
+      # if err.is_a? StandardError
+      #    @logger.error err.message
+      #    @logger.error err.backtrace.join("\n")
+      #    @status.update_attribute(:failures, (@status.failures+1) )
+      # else
          if err.is_a? Exception
             @logger.fatal err.message
             @logger.fatal err.backtrace.join("\n")
-            @status.failed( err.message, err.backtrace.join("\n") )
+            @status.failed( err.message )
          else
             @logger.fatal err
             @logger.fatal caller.join("\n")
-            @status.failed( err, caller.join("\n") )
+            @status.failed( err )
          end
 
          # Stop processing
          raise err
-      end
+      # end
    end
 end
