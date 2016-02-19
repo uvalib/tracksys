@@ -114,8 +114,6 @@ class CreateOrderPdf < BaseJob
          :start_count_at => 1 }
          @pdf.number_pages string, options
 
-         on_error("Fake error for testing")
-
          # Write out the PDF file, ensuring that the order dir exists
          order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order_id}")
          Dir.mkdir(order_dir) unless File.exists?(order_dir)
