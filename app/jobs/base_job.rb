@@ -142,7 +142,7 @@ class BaseJob
    # the message is logged, but then your code continues to run.
    #
    def on_failure(message)
-      @status.update_attribute(:failures, (@status.failures+1) )
+      @status.update_attributes(:failures=>(@status.failures+1), :active_error=>true )
       @logger.error message
    end
 

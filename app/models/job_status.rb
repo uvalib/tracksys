@@ -18,4 +18,8 @@ class JobStatus < ActiveRecord::Base
    def finished
       self.update_attributes(:ended_at => DateTime.now, :status=>"success") if self.status == 'running'
    end
+
+   def self.jobs_count(status)
+      return JobStatus.where(status: status).count
+   end
 end

@@ -3,8 +3,28 @@ ActiveAdmin.register_page "Dashboard" do
 
   content do
     div :class => 'three-column' do
-      panel "Active Errors (#{JobStatus.sum(:failures)+JobStatus.where('error is not null').count})", :namespace => :admin, :priority => 1, :toggle => 'show' do
+      panel "Workflow Status", :namespace => :admin, :priority => 1, :toggle => 'show' do
         table do
+          tr do
+            td do "Pending Jobs" end
+            td do link_to "#{JobStatus.jobs_count('pending')}", admin_job_statuses_path(:q => {:status => 'pending'} ) end
+          end
+          tr do
+            td do "Running Jobs" end
+            td do link_to "#{JobStatus.jobs_count('running')}", admin_job_statuses_path(:q => {:status_eq => 'running'} ) end
+          end
+          tr do
+            td do "Failed Jobs (total)" end
+            td do link_to "#{JobStatus.jobs_count('failure')}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
+          end
+          tr do
+            td do "Failed Jobs (active)" end
+            td do link_to "#{JobStatus.where(active_error: true).count}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
+          end
+          tr do
+            td do "Successful Jobs" end
+            td do link_to "#{JobStatus.jobs_count('success')}", admin_job_statuses_path(:q => {:status_eq => 'success'} ) end
+          end
         end
       end
     end
