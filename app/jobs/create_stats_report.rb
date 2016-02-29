@@ -190,7 +190,7 @@ class CreateStatsReport < BaseJob
       number_of_units_archived_year_to_date = Unit.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
       number_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
 
-      if number_of_master_files_archived_year_to_date
+      if number_of_master_files_archived_year_to_date > 0
          size_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").map(&:filesize).inject(:+)
       end
 
@@ -204,7 +204,9 @@ class CreateStatsReport < BaseJob
       sheet2.row(6).push number_of_orders_canceled_year_to_date, number_of_orders_canceled_year_to_date / query_month
       sheet2.row(7).push number_of_units_archived_year_to_date, number_of_units_archived_year_to_date / query_month
       sheet2.row(8).push number_of_master_files_archived_year_to_date, number_of_master_files_archived_year_to_date / query_month
-      sheet2.row(9).push size_of_master_files_archived_year_to_date / 1024000000, (size_of_master_files_archived_year_to_date / 1024000000) / query_month
+      if !size_of_master_files_archived_year_to_date.nil?
+         sheet2.row(9).push size_of_master_files_archived_year_to_date / 1024000000, (size_of_master_files_archived_year_to_date / 1024000000) / query_month
+      end
       sheet2.row(10).push number_of_units_delivered_to_dl_year_to_date, number_of_units_delivered_to_dl_year_to_date / query_month
       sheet2.row(11).push number_of_master_files_delivered_to_dl_year_to_date, number_of_master_files_delivered_to_dl_year_to_date / query_month
 
