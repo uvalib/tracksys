@@ -334,7 +334,9 @@ class CreateStatsReport < BaseJob
       # Save the entire workbook
       t = DateTime.now
       filename = "#{query_year}_Report_#{t.year}-#{t.month}-#{t.day}-#{t.hour}-#{t.min}-#{t.sec}"
-      book.write "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xls"
+      report_path = "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xls"
+      logger.info("Writing stats report to: #{report_path}")
+      book.write report_path
       on_success "Stats reported created."
 
    end
