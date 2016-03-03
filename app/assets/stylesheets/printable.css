@@ -1,10 +1,14 @@
+/*
+*= require routingslip
+*/
+
 body {
   background-color: white;
   color: black;
 }
 
 body, div, p, ol, ul, td {
-  font-family: "Times New Roman", Times, serif;
+  font-family: Arial;
 }
 
 /*
@@ -72,7 +76,7 @@ span.blank {
 }
 
 .red {
-  color: #C00;
+  color: #9E2B2B;
 }
 
 /*
@@ -95,11 +99,11 @@ table.qr {
    border-color: #0000ff;
    border-collapse: collapse;
    padding: 0;
-   margin: 0; 
+   margin: 0;
    width: 2px;
    height: 2px;
  }
-  
+
  td.white {
    background-color: #FFFFFF;
    border-width: 0;
@@ -111,4 +115,3 @@ table.qr {
    width: 2px;
    height: 2px;
  }
-
