@@ -32,11 +32,11 @@ production:
    fedora_password: pass
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
-   staging_solor_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
+   staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    tei_access_url: http://xtf.lib.virginia.edu/xtf/view
-   saxon_url: tracksysdev.lib.virginia.edu
-   saxon_port: 8080
+   saxon_url: fedora-staging.lib.virginia.edu
+   saxon_port: "8080"
 development:
    dev_user_compute_id: aec6v
    archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
@@ -49,8 +49,8 @@ development:
    fedora_password: pass
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
-   staging_solor_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
+   staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    tei_access_url: http://xtf.lib.virginia.edu/xtf/view
-   saxon_url: tracksysdev.lib.virginia.edu
-   saxon_port: 8080
+   saxon_url: fedora-staging.lib.virginia.edu
+   saxon_port: "8080"

@@ -38,11 +38,19 @@ class IngestSolrDoc < BaseJob
       @object.solr = doc.to_xml
       @object.save!
       xml = @object.solr
-      @solr_connection.add(Hydra.read_solr_xml(xml))
+      begin
+         @solr_connection.add(Hydra.read_solr_xml(xml))
+      rescue Errno::ECONNREFUSED
+         on_failure("Add XML to solr failed; Connection to Solr #{STAGING_SOLR_URL} was refused")
+      end
       Fedora.add_or_update_datastream(xml, @pid, 'solrArchive', 'Index Data for Posting to Solr', :controlGroup => 'M')
     else
       xml = Hydra.solr(@object)
-      @solr_connection.add(Hydra.read_solr_xml(xml))
+      begin
+         @solr_connection.add(Hydra.read_solr_xml(xml))
+      rescue Errno::ECONNREFUSED
+         on_failure("Add XML to solr failed; Connection to Solr #{STAGING_SOLR_URL} was refused")
+      end
       Fedora.add_or_update_datastream(xml, @pid, 'solrArchive', 'Index Data for Posting to Solr', :controlGroup => 'M')
     end
 

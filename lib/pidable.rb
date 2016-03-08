@@ -81,6 +81,9 @@ module Pidable
         hits = @solr_connection.query("id:#{pid.gsub(/:/, '?')}").hits
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
         return false
+      rescue Errno::ECONNREFUSED
+        on_failure("Could not check if object exists; connection to Solr #{STAGING_SOLR_URL} was refused")
+        return false
       end
 
       return true unless hits.length != 1
@@ -137,6 +140,9 @@ module Pidable
       begin
         @solr_connection.delete(pid)
       rescue RestClient::ResourceNotFound, RestClient::InternalServerError, RestClient::RequestTimeout
+        return false
+      rescue Errno::ECONNREFUSED
+        on_failure("Unable to remove from index; connection to Solr #{STAGING_SOLR_URL} was refused")
         return false
       end
       return true

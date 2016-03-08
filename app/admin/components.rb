@@ -312,7 +312,7 @@ ActiveAdmin.register Component do
   end
 
   member_action :update_all_solr_docs do
-    SendCommitToSolr.exec_now( {:message => 'go'})
+    SendCommitToSolr.exec( {:message => 'go'})
     flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
