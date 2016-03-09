@@ -13,7 +13,6 @@ module Tracksys
   class Application < Rails::Application
     config.autoload_paths += %W(#{config.root}/lib)
     config.autoload_paths += %W(#{config.root}/app/processors)
-    config.autoload_paths += %W(#{config.root}/app/sweepers)
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -28,7 +27,6 @@ module Tracksys
 
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
-    #config.active_record.observers = :agencies_sweeper, :bibls_sweeper, :customers_sweeper, :master_files_sweeper, :orders_sweeper, :units_sweeper,
     config.active_record.observers = :blank_value_observer, :add_pid_observer
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
