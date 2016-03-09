@@ -118,18 +118,21 @@ class CreateDlManifest < BaseJob
                sheet.merge_cells("E4:F4")
 
                # Growth of Digital Images Chart
-               earliest_date = MasterFile.select(:date_dl_ingest).where('date_dl_ingest is not null').order(:date_dl_ingest).first.date_dl_ingest
-               current_month = Time.new(earliest_date.year, earliest_date.month)
-               months = Array.new
-               totals = Array.new
-               total = 0
-               while current_month <= Time.now.beginning_of_month
-                  count = MasterFile.select(:date_dl_ingest).where("MONTH(date_dl_ingest) = ? and YEAR(date_dl_ingest) = ?", current_month.month, current_month.year).count
-                  # sheet.add_row [nil, "#{current_month.strftime('%B %Y')}", "#{count}" ]
-                  months << "#{current_month.strftime('%B %Y')}"
-                  total = total + count
-                  totals << total
-                  current_month = current_month.next_month
+               first_ingest_mf = MasterFile.select(:date_dl_ingest).where('date_dl_ingest is not null').order(:date_dl_ingest).first
+               if !first_ingest_mf.nil?
+                  earliest_date = first_ingest_mf.date_dl_ingest
+                  current_month = Time.new(earliest_date.year, earliest_date.month)
+                  months = Array.new
+                  totals = Array.new
+                  total = 0
+                  while current_month <= Time.now.beginning_of_month
+                     count = MasterFile.select(:date_dl_ingest).where("MONTH(date_dl_ingest) = ? and YEAR(date_dl_ingest) = ?", current_month.month, current_month.year).count
+                     # sheet.add_row [nil, "#{current_month.strftime('%B %Y')}", "#{count}" ]
+                     months << "#{current_month.strftime('%B %Y')}"
+                     total = total + count
+                     totals << total
+                     current_month = current_month.next_month
+                  end
                end
 
                sheet.add_chart(Axlsx::Bar3DChart, :start_at => [1,21], :end_at => [6, 47], :title => "Growth of Digital Images") do |chart|
