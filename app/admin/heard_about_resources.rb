@@ -1,6 +1,12 @@
 ActiveAdmin.register HeardAboutResource do
   menu :parent => "Miscellaneous"
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/heard_about_resources/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   filter :description
   filter :is_approved, :as => :select
@@ -12,7 +18,7 @@ ActiveAdmin.register HeardAboutResource do
   scope :internal_use_only
   scope :publicly_available
 
-  index do 
+  index do
     column :description
     column :customers do |heard_about_resource|
       link_to "#{heard_about_resource.customers.size.to_s}", admin_customers_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
@@ -36,8 +42,10 @@ ActiveAdmin.register HeardAboutResource do
       div do
         link_to "Details", resource_path(heard_about_resource), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(heard_about_resource), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(heard_about_resource), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -71,5 +79,5 @@ ActiveAdmin.register HeardAboutResource do
         link_to "#{heard_about_resource.master_files.size.to_s}", admin_master_files_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
       end
     end
-  end  
+  end
 end

@@ -1,7 +1,13 @@
 ActiveAdmin.register Order do
   menu :priority => 3
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   scope :all, :default => true
   scope :awaiting_approval
@@ -60,8 +66,10 @@ ActiveAdmin.register Order do
       div do
         link_to "Details", resource_path(order), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(order), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(order), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -167,7 +175,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar :approval_workflow, :only => :show do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
     if order.order_status == 'requested'
       if order.customer.external?
         if order.fee_estimated.nil?
@@ -230,7 +238,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar "Delivery Workflow", :only => :show do
+  sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? }  do
     if order.order_status == 'approved'
       if order.email?
         div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end

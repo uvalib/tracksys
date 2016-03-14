@@ -14,6 +14,14 @@ ActiveAdmin.register Invoice do
   filter :date_fee_paid
   filter :permanent_nonpayment
 
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/invoices/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
+
   index do
     column :order
     column :order_customer
@@ -52,8 +60,10 @@ ActiveAdmin.register Invoice do
       div do
         link_to "Details", resource_path(invoice), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(invoice), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(invoice), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -61,7 +71,7 @@ ActiveAdmin.register Invoice do
   show :title => proc {|invoice| "Invoice ##{invoice.id}"} do
     div :class => 'two-column' do
       panel "Date Information" do
-        attributes_table_for invoice do 
+        attributes_table_for invoice do
           row :order_date_order_approved do |invoice|
             format_date(invoice.order_date_order_approved)
           end
@@ -136,11 +146,11 @@ ActiveAdmin.register Invoice do
     end
   end
 
-  member_action :get_pdf do 
+  member_action :get_pdf do
     invoice = Invoice.find(params[:id])
     send_data invoice.invoice_copy, :filename => "order_#{invoice.order_id}.pdf", :type => 'application/pdf'
   end
-  
+
   csv do
     column :date_fee_paid
     column :fee_amount_paid

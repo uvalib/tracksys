@@ -18,7 +18,13 @@ ActiveAdmin.register Unit do
     column :master_files_count
   end
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   batch_action :approve_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'approved') }
@@ -118,8 +124,10 @@ ActiveAdmin.register Unit do
       div do
         link_to "Details", resource_path(unit), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -233,8 +241,10 @@ ActiveAdmin.register Unit do
               div do
                 link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
               end
-              div do
-                link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+              if !current_user.viewer?
+                 div do
+                   link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                 end
               end
               if mf.in_dl?
                 div do
@@ -323,7 +333,7 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar :approval_workflow, :only => :show do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
@@ -341,23 +351,25 @@ ActiveAdmin.register Unit do
   end
 
   sidebar "Delivery Workflow", :only => [:show] do
-    if File.exist?(File.join(IN_PROCESS_DIR, "%09d" % unit.id))
-      if not unit.date_archived
-        div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
-        div :class => 'workflow_button' do button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put end
-        div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
-        div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
-      end
-      if not unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Buidling'
-        div :class => 'workflow_button' do button_to "Begin Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
-        # <%=button_to "Begin Generate Deliverables", {:action=>"check_unit_delivery_mode", :unit_id => unit.id, :order_id => unit.order.id} %>
-      end
+    if !current_user.viewer?
+       if File.exist?(File.join(IN_PROCESS_DIR, "%09d" % unit.id))
+            if not unit.date_archived
+              div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
+              div :class => 'workflow_button' do button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put end
+              div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
+              div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
+            end
+            if not unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Buidling'
+              div :class => 'workflow_button' do button_to "Begin Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
+              # <%=button_to "Begin Generate Deliverables", {:action=>"check_unit_delivery_mode", :unit_id => unit.id, :order_id => unit.order.id} %>
+            end
 
-      if unit.date_archived and unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Building'
-        div do "This unit has been archived and patron deliverables are generated.  There are no more finalization steps available." end
-      end
-    else
-      div do "Files for this unit do not reside in the finalization directory. No work can be done on them." end
+            if unit.date_archived and unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Building'
+              div do "This unit has been archived and patron deliverables are generated.  There are no more finalization steps available." end
+            end
+       else
+         div do "Files for this unit do not reside in the finalization directory. No work can be done on them." end
+       end
     end
 
     if unit.date_archived
@@ -368,7 +380,7 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
@@ -385,7 +397,7 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Solr Index", :only => [:show] do
+  sidebar "Solr Index", :only => [:show],  if: proc{ !current_user.viewer? } do
     if unit.in_dl?
       div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => current_user, :method => :get end
     end

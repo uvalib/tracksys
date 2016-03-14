@@ -2,7 +2,14 @@ ActiveAdmin.register Component do
   menu :priority => 7
 
   scope :all, :default => true
-  actions :all, :except => [:destroy]
+
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/components/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   filter :id
   filter :ead_id_att
@@ -41,8 +48,10 @@ ActiveAdmin.register Component do
       div do
         link_to "Details", resource_path(component), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(component), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(component), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -270,7 +279,7 @@ ActiveAdmin.register Component do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do
+  sidebar "Digital Library Workflow", :only => [:show], if: proc{ !current_user.viewer? } do
     if component.exists_in_repo?
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_component_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_component_path(:datastream => 'dc_metadata'), :method => :put end
@@ -282,7 +291,7 @@ ActiveAdmin.register Component do
     end
   end
 
-  sidebar "Solr Index", :only => [:show] do
+  sidebar "Solr Index", :only => [:show], if: proc{ !current_user.viewer? }  do
     if component.in_dl?
       div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_component_path, :user => current_user, :method => :get end
     end

@@ -7,7 +7,10 @@ ActiveAdmin.register MasterFile do
   scope :in_digital_library, :show_count => true
   scope :not_in_digital_library, :show_count => true
 
-  actions :all, :except => [:new, :destroy]
+  config.clear_action_items!
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   batch_action :download_from_archive do |selection|
     MasterFile.find(selection).each {|s| s.get_from_stornext }
@@ -75,8 +78,10 @@ ActiveAdmin.register MasterFile do
       div do
         link_to "Details", resource_path(mf), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
+         end
       end
       if mf.in_dl?
         div do
@@ -266,7 +271,7 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
     if master_file.in_dl?
       div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_master_file_path(:datastream => 'all'), :method => :put end
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_master_file_path(:datastream => 'allxml'), :method => :put end

@@ -1,7 +1,22 @@
 ActiveAdmin.register Bibl do
   menu :priority => 5
 
-  actions :all
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/customers/new'>New</a>") if !current_user.viewer?
+  end
+
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Delete", resource_path,
+       data: {:confirm => "Are you sure you want to delete this BIBL?"}, :method => :delete  if current_user.admin?
+  end
+
+  action_item :only => [:edit, :new] do
+    link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
+  end
 
   scope :all, :default => true
   scope :approved
@@ -88,8 +103,10 @@ ActiveAdmin.register Bibl do
       div do
         link_to "Details", resource_path(bibl), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(bibl), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(bibl), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -261,7 +278,7 @@ ActiveAdmin.register Bibl do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show] do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
     if bibl.exists_in_repo? # actually in Fedora
       div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_bibl_path(:datastream => 'allxml'), :method => :put end
       div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_bibl_path(:datastream => 'dc_metadata'), :method => :put end
@@ -276,7 +293,7 @@ ActiveAdmin.register Bibl do
     end
   end
 
-  sidebar "Solr Index", :only => [:show] do
+  sidebar "Solr Index", :only => [:show],  if: proc{ !current_user.viewer? } do
     if bibl.in_dl?
       div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => current_user(), :method => :get end
     end
@@ -300,10 +317,6 @@ ActiveAdmin.register Bibl do
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:computing_id => current_user.computing_id } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
-  end
-
-  action_item :only => [:edit, :new] do
-    link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
   end
 
   controller do

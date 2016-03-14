@@ -1,6 +1,12 @@
 ActiveAdmin.register HeardAboutService do
   menu :parent => "Miscellaneous"
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/heard_about_services/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   filter :description
   filter :is_approved, :as => :select
@@ -12,7 +18,7 @@ ActiveAdmin.register HeardAboutService do
   scope :internal_use_only
   scope :publicly_available
 
-  index do 
+  index do
     column :description
     column :customers do |heard_about_service|
       link_to "#{heard_about_service.customers.size.to_s}", admin_customers_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
@@ -36,8 +42,10 @@ ActiveAdmin.register HeardAboutService do
       div do
         link_to "Details", resource_path(heard_about_service), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(heard_about_service), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(heard_about_service), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -78,5 +86,5 @@ ActiveAdmin.register HeardAboutService do
       end
     end
   end
-  
+
 end

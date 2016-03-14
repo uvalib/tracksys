@@ -44,15 +44,17 @@ ActiveAdmin.register_page "Dashboard" do
       end
     end
 
-    div :class => 'three-column' do
-      panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
-        div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get end
-        div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get end
-        div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get end
-        div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get end
-        div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get end
-      end
-    end
+    if !current_user.viewer?
+       div :class => 'three-column' do
+         panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
+           div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get end
+           div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get end
+           div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get end
+           div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get end
+           div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get end
+         end
+       end
+   end
 
     div :class => 'three-column' do
       panel "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
@@ -110,29 +112,31 @@ ActiveAdmin.register_page "Dashboard" do
       end
     end
 
-    div :class => 'three-column' do
-      panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
-        div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => current_user, :method => :get end
-      end
-    end
+    if !current_user.viewer?
+       div :class => 'three-column' do
+         panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
+           div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => current_user, :method => :get end
+         end
+       end
 
-    div :class => 'three-column' do
-      panel "Statistics", :priority => 6, :toggle => 'show' do
-        div :class => 'workflow_button' do
-          render 'admin/stats_report'
-        end
-        div :class => 'workflow_button' do
-          button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
-        end
-        tr do
-          td do
-            "Total unpaid invoices:"
-          end
-          td do
-            link_to "#{number_to_currency(Order.unpaid.sum(&:fee_actual), :precision => 0)}", admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
-          end
-        end
-      end
+       div :class => 'three-column' do
+         panel "Statistics", :priority => 6, :toggle => 'show' do
+           div :class => 'workflow_button' do
+             render 'admin/stats_report'
+           end
+           div :class => 'workflow_button' do
+             button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
+           end
+           tr do
+             td do
+               "Total unpaid invoices:"
+             end
+             td do
+               link_to "#{number_to_currency(Order.unpaid.sum(&:fee_actual), :precision => 0)}", admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+             end
+           end
+         end
+       end
     end
   end
 

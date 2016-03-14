@@ -1,7 +1,13 @@
 ActiveAdmin.register IndexingScenario do
   config.sort_order = 'name_asc'
-  actions :all, :except => [:destroy]
-  
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/indexing_scenarios/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
+
   menu :parent => "Miscellaneous"
 
   scope :all, :default => true
@@ -12,7 +18,7 @@ ActiveAdmin.register IndexingScenario do
     column :datastream_name
     column :repository_url
     column("Bibls") do |indexing_scenario|
-      link_to indexing_scenario.bibls.size, admin_bibls_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id}) 
+      link_to indexing_scenario.bibls.size, admin_bibls_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
     end
     column("Components") do |indexing_scenario|
       link_to indexing_scenario.components.size, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
@@ -23,10 +29,15 @@ ActiveAdmin.register IndexingScenario do
     column("Units") do |indexing_scenario|
       link_to indexing_scenario.units.size, admin_units_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
     end
-    default_actions
+    column("Links") do |indexing_scenario|
+      div {link_to "Details", resource_path(indexing_scenario), :class => "member_link view_link"}
+      if !current_user.viewer?
+         div {link_to I18n.t('active_admin.edit'), edit_resource_path(indexing_scenario), :class => "member_link edit_link"}
+      end
+    end
   end
 
-  show do 
+  show do
     panel "General Information" do
       attributes_table_for indexing_scenario do
         row :name
@@ -64,8 +75,8 @@ ActiveAdmin.register IndexingScenario do
       end
       row("Components") do |indexing_scenario|
         link_to indexing_scenario.components.size, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
-      end      
+      end
     end
   end
-  
+
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160217211731) do
+ActiveRecord::Schema.define(:version => 20160309193038) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -566,16 +566,17 @@ ActiveRecord::Schema.define(:version => 20160217211731) do
   end
 
   create_table "staff_members", :force => true do |t|
-    t.integer  "access_level_id",           :default => 0,     :null => false
+    t.integer  "access_level_id",           :default => 0,       :null => false
     t.string   "computing_id"
     t.string   "last_name"
     t.string   "first_name"
-    t.boolean  "is_active",                 :default => false, :null => false
+    t.boolean  "is_active",                 :default => false,   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "automation_messages_count", :default => 0
     t.string   "email"
-    t.integer  "job_statuses_count",        :default => 0,     :null => false
+    t.integer  "job_statuses_count",        :default => 0,       :null => false
+    t.string   "role",                      :default => "admin", :null => false
   end
 
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"

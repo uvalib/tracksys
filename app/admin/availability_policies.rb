@@ -2,13 +2,19 @@ ActiveAdmin.register AvailabilityPolicy do
   config.sort_order = 'name_asc'
   menu :parent => "Miscellaneous"
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/availability_policies/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   filter :id
   filter :name
 
   scope :all, :default => true
-  
+
   index do
     column :name
     column :repository_url
@@ -29,13 +35,15 @@ ActiveAdmin.register AvailabilityPolicy do
       div do
         link_to "Details", resource_path(availability_policy), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(availability_policy), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(availability_policy), :class => "member_link edit_link"
+         end
       end
     end
   end
 
-  show do 
+  show do
     panel "General Information" do
       attributes_table_for availability_policy do
         row :name
@@ -60,7 +68,7 @@ ActiveAdmin.register AvailabilityPolicy do
       end
       row("Components") do |availability_policy|
         link_to availability_policy.components_count.to_s, admin_components_path(:q => {:availability_policy_id_eq => availability_policy.id})
-      end      
+      end
     end
   end
 end

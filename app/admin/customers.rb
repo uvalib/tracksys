@@ -1,7 +1,13 @@
 ActiveAdmin.register Customer do
   menu :priority => 2
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item only: :index do
+     raw("<a href='/admin/customers/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   scope :all, :default => true
   scope :has_unpaid_invoices
@@ -46,8 +52,10 @@ ActiveAdmin.register Customer do
       div do
         link_to "Details", resource_path(customer), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(customer), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(customer), :class => "member_link edit_link"
+         end
       end
     end
   end

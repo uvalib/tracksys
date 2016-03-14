@@ -10,6 +10,7 @@ class StaffMember < ActiveRecord::Base
   # validation
   #------------------------------------------------------------------
   validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
+  validates :role, :presence=>true, inclusion: { in: ["admin","editor","viewer"], message: "%{value} is not a valid role" }
 
 public
 
@@ -27,6 +28,15 @@ public
   #------------------------------------------------------------------
   # public instance methods
   #------------------------------------------------------------------
+  def admin?
+     return self.role == "admin"
+  end
+  def editor?
+     return self.role == "editor"
+  end
+  def viewer?
+     return self.role == "viewer"
+  end
 
   # Returns a boolean value indicating whether the StaffMember is
   # active.

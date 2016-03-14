@@ -1,5 +1,4 @@
 //= require jquery
-//= require jquery_ujs
 //= require jquery.ui.all
 //= require jquery.colorbox
 //= require active_admin/application

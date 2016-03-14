@@ -4,7 +4,13 @@ ActiveAdmin.register Department do
   filter :id
   filter :name
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/departments/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   scope :all, :default => true
 
@@ -35,8 +41,10 @@ ActiveAdmin.register Department do
       div do
         link_to "Details", resource_path(department), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(department), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(department), :class => "member_link edit_link"
+         end
       end
     end
   end
@@ -82,5 +90,5 @@ ActiveAdmin.register Department do
       row("2009") {|department| department.orders.where(:date_archiving_complete => '2009-01-01'..'2009-12-31').count }
     end
   end
-  
+
 end

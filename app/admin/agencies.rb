@@ -6,7 +6,13 @@ ActiveAdmin.register Agency do
   scope :all, :default => true
   scope :no_parent
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/agencies/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   filter :id
   filter :name
@@ -45,7 +51,9 @@ ActiveAdmin.register Agency do
     end
     column("Links") do |agency|
       div {link_to "Details", resource_path(agency), :class => "member_link view_link"}
-      div {link_to I18n.t('active_admin.edit'), edit_resource_path(agency), :class => "member_link edit_link"}
+      if !current_user.viewer?
+         div {link_to I18n.t('active_admin.edit'), edit_resource_path(agency), :class => "member_link edit_link"}
+      end
     end
   end
 

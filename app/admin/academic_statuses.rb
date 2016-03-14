@@ -5,7 +5,13 @@ ActiveAdmin.register AcademicStatus do
   filter :id
   filter :name
 
-  actions :all, :except => [:destroy]
+  config.clear_action_items!
+  action_item :only => :index do
+     raw("<a href='/admin/academic_statuses/new'>New</a>") if !current_user.viewer?
+  end
+  action_item only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
 
   scope :all, :default => true
 
@@ -36,11 +42,13 @@ ActiveAdmin.register AcademicStatus do
       div do
         link_to "Details", resource_path(academic_status), :class => "member_link view_link"
       end
-      div do
-        link_to I18n.t('active_admin.edit'), edit_resource_path(academic_status), :class => "member_link edit_link"
+      if !current_user.viewer?
+         div do
+           link_to I18n.t('active_admin.edit'), edit_resource_path(academic_status), :class => "member_link edit_link"
+         end
       end
     end
-  end 
+  end
 
   show do
     panel "Detailed Information" do
@@ -84,5 +92,5 @@ ActiveAdmin.register AcademicStatus do
       row("2009") {|academic_status| academic_status.orders.where(:date_archiving_complete => '2009-01-01'..'2009-12-31').count }
     end
   end
-  
+
 end
