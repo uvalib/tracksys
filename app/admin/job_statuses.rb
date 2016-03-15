@@ -20,7 +20,10 @@ ActiveAdmin.register JobStatus do
    #
    index :title=>"Workflow Status" do
       selectable_column
-      column ("Workflow") do |job_status|
+      column ("Job ID"), sortable: :id do |job_status|
+         job_status.id
+      end
+      column :workflow, sortable: :name do |job_status|
          job_status.name
       end
       column ("Associated Object") do |job_status|
@@ -39,13 +42,13 @@ ActiveAdmin.register JobStatus do
       column ("Warnings") do |job_status|
          job_status.failures
       end
-      column ("Submitted") do |job_status|
+      column ("Submitted"), sortable: :created_at do |job_status|
          format_datetime job_status.created_at
       end
-      column ("Started") do |job_status|
+      column ("Started"), sortable: :started_at do |job_status|
          format_datetime job_status.started_at
       end
-      column ("Finshed") do |job_status|
+      column ("Finshed"), sortable: :finished_at do |job_status|
          format_datetime job_status.ended_at
       end
       column("") do |job_status|
