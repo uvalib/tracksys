@@ -97,7 +97,10 @@ module ImportIviewXml
           # if a MasterFile with this filename already exists for this Unit, do
           # not overwrite it
           if MasterFile.find(:first, :conditions => ["unit_id = :unit_id AND filename = :filename", {:unit_id => unit_id, :filename => master_file.filename}])
-            raise ImportError, "Import failed for Unit #{unit_id}, because a Master File with filename '#{master_file.filename}' already exists for this Unit"
+            @master_file_count += 1
+            Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
+            next
+            #raise ImportError, "Import failed for Unit #{unit_id}, because a Master File with filename '#{master_file.filename}' already exists for this Unit"
           end
           # if MasterFile object fails validity, raise error with custom error message
           if not master_file.valid?
