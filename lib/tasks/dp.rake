@@ -19,7 +19,7 @@ namespace :dp do
          issue_date = issue_subdir.split("/").last
          issue_path = File.join(src, issue_subdir)
          if !Dir.exist? issue_path
-            #puts " * WARNING: #{issue_path} missing"
+            puts " * WARNING: #{issue_path} missing"
             next
          end
 
@@ -41,6 +41,10 @@ namespace :dp do
             puts  "   NEW ISSUE #{new_dir}, start: #{split_page_file}"
             print "   "
             Dir.mkdir(new_dir)
+            if !Dir.exist? new_dir
+               puts "   * ERROR: Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
+               break
+            end
 
             # find index of the split page in the directory listing
             tgt = File.join(issue_path,split_page_file)
@@ -63,7 +67,7 @@ namespace :dp do
             for i in i0..i1 do
                pg_file = "#{page.to_s.rjust(5, '0')}.tif"
                dest = File.join(new_dir, pg_file)
-               #puts "      Moving #{File.basename(files[i])} to #{File.basename(dest)}"
+               puts "      Moving #{File.basename(files[i])} to #{File.basename(dest)}"
                FileUtils.mv(files[i], dest)
                page += 1
                print "."
