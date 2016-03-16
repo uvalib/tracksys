@@ -2,15 +2,18 @@
 require 'fileutils'
 
 namespace :dp do
-   desc "Split merged directories. PARAM part=n, optional param: src=[path tp lib_content64 sandbox]"
+   desc "Split merged directories. PARAM part=n, optional param: src=[path tp lib_content64 sandbox], test=1 for a dry run"
    task :split  => :environment do
       src = ENV['src']
       src = "/lib_content64" if src.nil?
       src = File.join(src, "Daily_Progress")
       part = ENV['part']
       raise "Part is required" if part.nil?
+      dry_run = false
+      dry_run = true if !ENV['test'].nil?
 
       puts "Source file: part#{part}.txt"
+      puts " ** DRY RUN: No directories will be created and no files moved **" if dry_run
       $stdout.sync = true
       f = File.open(Rails.root.join("data", "fix_dp/part#{part}.txt"),"r")
       f.each_line do |line|
@@ -40,10 +43,14 @@ namespace :dp do
 
             puts  "   NEW ISSUE #{new_dir}, start: #{split_page_file}"
             print "   "
-            Dir.mkdir(new_dir)
-            if !Dir.exist? new_dir
-               puts "   * ERROR: Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
-               break
+            if dry_run
+               puts "Create directory #{new_dir}"
+            else
+               Dir.mkdir(new_dir)
+               if !Dir.exist? new_dir
+                  puts "   * ERROR: Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
+                  break
+               end
             end
 
             # find index of the split page in the directory listing
@@ -68,7 +75,7 @@ namespace :dp do
                pg_file = "#{page.to_s.rjust(5, '0')}.tif"
                dest = File.join(new_dir, pg_file)
                puts "      Moving #{File.basename(files[i])} to #{File.basename(dest)}"
-               FileUtils.mv(files[i], dest)
+               FileUtils.mv(files[i], dest) if !dry_run
                page += 1
                print "."
             end
