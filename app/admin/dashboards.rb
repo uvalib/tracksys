@@ -14,16 +14,12 @@ ActiveAdmin.register_page "Dashboard" do
             td do link_to "#{JobStatus.jobs_count('running')}", admin_job_statuses_path(:q => {:status_eq => 'running'} ) end
           end
           tr do
-            td do "Failed Jobs (total)" end
-            td do link_to "#{JobStatus.jobs_count('failure')}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
-          end
-          tr do
-            td do "Failed Jobs (active)" end
-            td do link_to "#{JobStatus.where(active_error: true).count}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
-          end
-          tr do
             td do "Successful Jobs" end
             td do link_to "#{JobStatus.jobs_count('success')}", admin_job_statuses_path(:q => {:status_eq => 'success'} ) end
+          end
+          tr do
+            td do "Failed Jobs" end
+            td do link_to "#{JobStatus.where(active_error: true).count}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
           end
         end
       end
