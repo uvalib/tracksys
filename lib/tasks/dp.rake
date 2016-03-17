@@ -13,7 +13,10 @@ namespace :dp do
       dry_run = true if !ENV['test'].nil?
 
       puts "Source file: part#{part}.txt"
-      puts " ** DRY RUN: No directories will be created and no files moved **" if dry_run
+      puts ""
+      puts "** DRY RUN: No directories will be created and no files moved **" if dry_run
+      puts ""
+
       $stdout.sync = true
       f = File.open(Rails.root.join("data", "fix_dp/part#{part}.txt"),"r")
       f.each_line do |line|
@@ -28,6 +31,7 @@ namespace :dp do
 
          # Get a list of all .tif files in the source directory
          files = Dir["#{issue_path}/*.tif"]
+         files.sort! # ensure they are ordered by page number ascending
 
          puts "Splitting #{issue_path}..."
          orig_date = issue_date
@@ -74,10 +78,13 @@ namespace :dp do
             for i in i0..i1 do
                pg_file = "#{page.to_s.rjust(5, '0')}.tif"
                dest = File.join(new_dir, pg_file)
-               puts "      Moving #{File.basename(files[i])} to #{File.basename(dest)}"
-               FileUtils.mv(files[i], dest) if !dry_run
+               if dry_run
+                  puts "      Move #{File.basename(files[i])} to #{File.basename(dest)}"
+               else
+                  FileUtils.mv(files[i], dest)
+                  print "."
+               end
                page += 1
-               print "."
             end
             puts ""
          end

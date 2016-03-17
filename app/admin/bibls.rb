@@ -3,7 +3,7 @@ ActiveAdmin.register Bibl do
 
   config.clear_action_items!
   action_item :only => :index do
-     raw("<a href='/admin/customers/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/bibls/new'>New</a>") if !current_user.viewer?
   end
 
   action_item only: :show do
