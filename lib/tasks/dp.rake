@@ -20,12 +20,18 @@ namespace :dp do
       $stdout.sync = true
       f = File.open(Rails.root.join("data", "fix_dp/part#{part}.txt"),"r")
       f.each_line do |line|
-         bits = line.split(",")
-         issue_subdir = bits.delete_at(0)
+         # first split the line into subdir & comma separated list of indexes
+         line_parts = line.split("|")
+
+         # split the comma separated indexes to array 
+         bits = line_parts[1].split(",")
+
+         # get path and issue from first part of line and ensure path exists
+         issue_subdir = line_parts[0]
          issue_date = issue_subdir.split("/").last
          issue_path = File.join(src, issue_subdir)
          if !Dir.exist? issue_path
-            puts " * WARNING: #{issue_path} missing"
+            puts "* WARNING: #{issue_path} missing"
             next
          end
 
@@ -41,8 +47,12 @@ namespace :dp do
             issue_date = (issue_date.to_i+1).to_s
             new_dir = issue_path.gsub(/#{orig_date}/, issue_date)
             if File.exists?(new_dir)
-               puts "   * ERROR: Target split directory #{issue_date} already exists. Aborting issue #{orig_date}"
-               break
+               if dry_run
+                  raise "Target split directory #{issue_date} already exists. Aborting issue #{orig_date}"
+               else
+                  puts "   * ERROR: Target split directory #{issue_date} already exists. Aborting issue #{orig_date}"
+                  break
+               end
             end
 
             puts  "   NEW ISSUE #{new_dir}, start: #{split_page_file}"
@@ -52,8 +62,12 @@ namespace :dp do
             else
                Dir.mkdir(new_dir)
                if !Dir.exist? new_dir
-                  puts "   * ERROR: Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
-                  break
+                  if dry_run
+                     raise "Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
+                  else
+                     puts "   * ERROR: Cannot create target split directory #{issue_date}. Aborting issue #{orig_date}"
+                     break
+                  end
                end
             end
 
