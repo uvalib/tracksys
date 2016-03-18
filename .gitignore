@@ -4,6 +4,7 @@
 db/*.sqlite3
 derby.log
 log/*.*
+log/daily_progress
 log/jobs/*.*
 tmp/*
 !tmp/start_application.sh

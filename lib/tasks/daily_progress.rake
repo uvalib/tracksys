@@ -46,7 +46,16 @@ namespace :daily_progress do
       series = ComponentType.where(name:'series').first
       subseries = ComponentType.where(name:'subseries').first
       item = ComponentType.where(name:'item').first
-      ingested = File.open("log/dp_#{box}_ingested.txt", "w+")
+
+      # read all previously ingested issues into an array
+      log = File.open("log/daily_progress/dp_#{box}_ingested.txt", "r")
+      contents = log.read
+      log.close
+      already_ingested = contents.split("\n")
+      skip_logged = []
+
+      # open log file for writing newly ingested issues
+      log = File.open("log/daily_progress/dp_#{box}_ingested.txt", "a")
 
       # Set top level directory for images to be 'Daily Progress/BoxNN'
       # Expected structure:
@@ -56,14 +65,13 @@ namespace :daily_progress do
       years = {}
       months = {}
       curr_issue = nil
+      curr_issue_date = ""
       issue_unit = nil
       pagenum = 1
       skip_issue = false
       issue_date = ""
       puts "Scanning #{root_dir}..."
       Dir.glob("#{root_dir}/**/*.tif") do |f|
-         # The AAA folder doesn't follow the expected structure. Skip it for now
-         next if f.include? "AAA - Extras"
 
          # Filename like:
          #    lib_content64/Daily_Progress/Box01/Apr 21, 1930 - Sep 6, 1930/19300422/00001.tif
@@ -74,15 +82,34 @@ namespace :daily_progress do
          # If a specific issue has been flagged, skip all others
          next if !tgt_issue.nil? && issue_date != tgt_issue
 
+         # Skip issue directories that are not 8 digits (YYYYMMDD)
+         if (/^\d{8}$/ =~ issue_date).nil?
+            if !skip_logged.include?(issue_date)
+               skip_logged << issue_date
+               puts "* Invalid issue name '#{issue_date}', SKIPPING"
+            end
+            next
+         end
+
+         # skip is already on the ingested list
+         if already_ingested.include? issue_date
+            if !skip_logged.include?(issue_date)
+               skip_logged << issue_date
+               puts "* Issue #{issue_date} already ingested, SKIPPING"
+            end
+            next
+         end
+
+         # get year and bail if a tgt year is specified and this is not a match
+         year = issue_date[0...4]
+         next if !tgt_year.nil? && year != tgt_year
+
          # parse out reel info to add as a content_desc for the issue Item compobent
          date_range = parts[parts.length-3]
          box = parts[parts.length-4]
          legacy_fn = "#{date_range}/#{issue_date}/#{tif}"
 
          # construct the component hierarchy based on the issue date
-         year = issue_date[0...4]
-         next if !tgt_year.nil? && year != tgt_year
-
          if !years.include? year
             puts "* Find/Create SERIES component for YEAR #{year}"
             year_component = Component.where(date: year, parent_component_id: dp_component.id).first
@@ -135,15 +162,16 @@ namespace :daily_progress do
             puts "* Find/Create ITEM component for ISSUE #{issue}. ContentDesc: #{content_desc}"
             skip_issue = false
 
-            if !curr_issue.nil?
+            if !curr_issue_date.empty?
                # ingest the previous issue unit, if one exists
-               ingested << "#{issue_date}\n"
+               log << "#{curr_issue_date}\n"
                if ingest
                   puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
                   StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
                end
             end
 
+            curr_issue_date = issue_date
             curr_issue = Component.where(date: issue, parent_component_id: month_component.id).first
             if curr_issue.nil?
                curr_issue = Component.new
@@ -232,7 +260,7 @@ namespace :daily_progress do
 
       # ingest the last unit, unless it was already ingested
       if !skip_issue && !issue_unit.nil?
-         ingested << "#{issue_date}\n"
+         log << "#{curr_issue_date}\n"
          if ingest
             puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
             StartIngestFromArchive.exec_now({ :unit_id => "#{issue_unit.id}" })
@@ -240,7 +268,7 @@ namespace :daily_progress do
       end
 
       # close out the ingested tracekr
-      ingested.close
+      log.close
    end
 
    desc "detect badly named issues (src=src_dir) box=NN"
@@ -255,7 +283,7 @@ namespace :daily_progress do
       raise "Source directory does not exist!" if !Dir.exist? root_dir
       puts "Scanning #{root_dir} for badly named issues..."
 
-      log = File.open("log/dp_#{box}_bad_issue_name.txt", "w")
+      log = File.open("log/daily_progress/bad_names/dp_#{box}_bad_issue_name.txt", "w")
 
       page_cnt = 0
       curr_issue = nil
@@ -292,7 +320,7 @@ namespace :daily_progress do
       raise "Source directory does not exist!" if !Dir.exist? root_dir
       puts "Scanning #{root_dir} for issues with > #{merge_threshold} pages..."
 
-      log = File.open("log/dp_#{box}_warn.txt", "w")
+      log = File.open("log/daily_progress/page_count_warnings/dp_#{box}_warn.txt", "w")
 
       page_cnt = 0
       curr_issue = nil
