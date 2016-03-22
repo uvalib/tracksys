@@ -2,6 +2,19 @@
 
 namespace :daily_progress do
 
+   desc "Ingest unit from archive using active messaging"
+   task :ingest_unit => :environment do
+      id = ENV['id']
+      raise "ID is required" if id.nil?
+      unit = Unit.find(id)
+
+      include ActiveMessaging::MessageSender
+
+      puts "   => Start ingest for unit #{unit.id}:#{unit.special_instructions}"
+      message = ActiveSupport::JSON.encode( { :unit_id => "#{unit.id}" })
+      Object.publish :start_ingest_from_archive, message
+   end
+
    def update_followed_by(parent_component, new_component)
       prior = nil
       linked = false
@@ -33,6 +46,14 @@ namespace :daily_progress do
       raise "box is required!" if box_num.nil?
       raise "set is required!" if target.nil?
       box = "Box#{box_num}"
+      legacy = false
+      legacy = true if !ENV['legacy'].nil?
+
+      if legacy == true
+         include ActiveMessaging::MessageSender
+         puts "** USING ACTIVE MESSAGING **"
+      end
+      raise "ferret"
 
       # extract target issue, month or year
       tgt_type = :issue
@@ -177,7 +198,12 @@ namespace :daily_progress do
                log << "#{curr_issue_date}\n"
                if ingest
                   puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-                  StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
+                  if legacy == true
+                     message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
+                     Object.publish :start_ingest_from_archive, message
+                  else
+                     StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
+                  end
                end
             end
 
@@ -265,7 +291,11 @@ namespace :daily_progress do
 
          # Create metadata from the file moved above
          payload = {source: dest_file, master_file_id: mf.id, last: 0}
-         job = CreateImageTechnicalMetadataAndThumbnail.exec_now( payload )
+         if legacy == true
+            ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
+         else
+            CreateImageTechnicalMetadataAndThumbnail.exec_now( payload )
+         end
       end
 
       # ingest the last unit, unless it was already ingested
@@ -273,7 +303,12 @@ namespace :daily_progress do
          log << "#{curr_issue_date}\n"
          if ingest
             puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
-            StartIngestFromArchive.exec_now({ :unit_id => "#{issue_unit.id}" })
+            if legacy == true
+               message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
+               Object.publish :start_ingest_from_archive, message
+            else
+               StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
+            end
          end
       end
 
