@@ -24,20 +24,26 @@ namespace :daily_progress do
       end
    end
 
-   desc "ingest daily progress issues (src=src_dir, box=nn, fedora=Y/N [OPTIONAL, default Y], year=yyyy [OPTIONAL], issue=yyyymmdd [OPTIONAL], order=order_id [OPTIONAL, default 5341])"
+   desc "ingest daily progress issues (src=src_dir, box=nn, fedora=Y/N [OPTIONAL, default Y], set=yyyymmdd/yyyymm/yyyy, order=order_id [OPTIONAL, default 5341])"
    task :ingest => :environment do
       src = ENV['src']
       box_num = ENV['box']
+      target = ENV['set']
       raise "src is required!" if src.nil?
       raise "box is required!" if box_num.nil?
+      raise "set is required!" if target.nil?
       box = "Box#{box_num}"
+
+      # extract target issue, month or year
+      tgt_type = :issue
+      tgt_type = :year if target.length == 4
+      tgt_type = :year_month if target.length == 6
+      puts "Ingest Daily progress #{tgt_type} #{target}"
 
       # optional params
       ingest = !(ENV['fedora'] == 'N' || ENV['fedora'] == 'n')
       order_id = ENV['order']
       order_id = 5341 if order_id.nil?
-      tgt_issue = ENV['issue']
-      tgt_year = ENV['year']
 
       # Get the daily progress order, top level component and other required objects
       order = Order.find(order_id)
@@ -80,7 +86,7 @@ namespace :daily_progress do
          issue_date = parts[parts.length-2]  # format: YYYYMMDD
 
          # If a specific issue has been flagged, skip all others
-         next if !tgt_issue.nil? && issue_date != tgt_issue
+         next if tgt_type == :issue && issue_date != target
 
          # Skip issue directories that are not 8 digits (YYYYMMDD)
          if (/^\d{8}$/ =~ issue_date).nil?
@@ -91,7 +97,15 @@ namespace :daily_progress do
             next
          end
 
-         # skip is already on the ingested list
+         # SKIP if a tgt year is specified and this is not a match
+         year = issue_date[0...4]
+         next if tgt_type == :year &&  year != target
+
+         # SKIP if year/month is specified and this is not a match
+         year_month = issue_date[0...6]
+         next if tgt_type == :year_month &&  year_month != target
+
+         # SKIP if this issue is already on the ingested list
          if already_ingested.include? issue_date
             if !skip_logged.include?(issue_date)
                skip_logged << issue_date
@@ -99,10 +113,6 @@ namespace :daily_progress do
             end
             next
          end
-
-         # get year and bail if a tgt year is specified and this is not a match
-         year = issue_date[0...4]
-         next if !tgt_year.nil? && year != tgt_year
 
          # parse out reel info to add as a content_desc for the issue Item compobent
          date_range = parts[parts.length-3]
