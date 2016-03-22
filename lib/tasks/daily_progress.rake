@@ -53,7 +53,6 @@ namespace :daily_progress do
          include ActiveMessaging::MessageSender
          puts "** USING ACTIVE MESSAGING **"
       end
-      raise "ferret"
 
       # extract target issue, month or year
       tgt_type = :issue
