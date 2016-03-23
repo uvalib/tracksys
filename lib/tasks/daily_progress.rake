@@ -75,14 +75,18 @@ namespace :daily_progress do
       item = ComponentType.where(name:'item').first
 
       # read all previously ingested issues into an array
-      log = File.open("log/daily_progress/dp_#{box}_ingested.txt", "r")
-      contents = log.read
-      log.close
-      already_ingested = contents.split("\n")
+      log_file_name = "log/daily_progress/dp_#{box}_ingested.txt"
       skip_logged = []
+      already_ingested = []
+      if File.exist? log_file_name
+         log = File.open(log_file_name, "r")
+         contents = log.read
+         log.close
+         already_ingested = contents.split("\n")
+      end
 
       # open log file for writing newly ingested issues
-      log = File.open("log/daily_progress/dp_#{box}_ingested.txt", "a")
+      log = File.open(log_file_name, "a")
 
       # Set top level directory for images to be 'Daily Progress/BoxNN'
       # Expected structure:
@@ -227,7 +231,7 @@ namespace :daily_progress do
                puts "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
                issue_unit.order = order
-               issue_unit.archive_id = 5 if legacy = true
+               issue_unit.archive_id = 5 if legacy == true
                issue_unit.index_destination_id = 3    # virgo
                issue_unit.indexing_scenario_id = 1    # default
                issue_unit.availability_policy_id = 1  # public

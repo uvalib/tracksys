@@ -60,7 +60,6 @@ end
 #  date_finalization_begun            :datetime
 #  date_fee_estimate_sent_to_customer :datetime
 #  units_count                        :integer(4)      default(0)
-#  automation_messages_count          :integer(4)      default(0)
 #  invoices_count                     :integer(4)      default(0)
 #  master_files_count                 :integer(4)      default(0)
 #

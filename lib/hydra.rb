@@ -174,7 +174,7 @@ module Hydra
       else
         destination = IndexDestination.find(1).name # 'searchdev' as a default
       end
-      return open("http://fedora-prod02.lib.virginia.edu:8080/fedora/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
+      return open("#{FEDORA_REST_URL}/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
     else
       raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
     end
@@ -391,8 +391,10 @@ module Hydra
         if object.is_a? Bibl
           if object.exemplar
             exemplar_master_file = MasterFile.find(:first, :conditions => "filename = '#{object.exemplar}'")
-            pid = exemplar_master_file.pid
-            xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"
+            if !exemplar_master_file.nil?
+               pid = exemplar_master_file.pid
+               xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"
+            end
           else
             # Using the mean of the files output from the method in Bibl model to get only those masterfiles
             # associated with this Bibl record that belong to units that have already been queued for ingest.

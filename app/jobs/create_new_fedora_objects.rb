@@ -70,6 +70,7 @@ class CreateNewFedoraObjects < BaseJob
             IngestTranscription.exec_now( default_message, self )
          end
       end
+      IngestSolrDoc.exec_now(default_message, self)
       on_success "An object created for #{@pid}"
    end
 end

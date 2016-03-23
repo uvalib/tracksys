@@ -12,7 +12,6 @@ class MasterFile < ActiveRecord::Base
 
    has_and_belongs_to_many :legacy_identifiers
 
-   has_many :automation_messages, :as => :messagable, :dependent => :destroy
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :image_tech_meta, :dependent => :destroy
@@ -209,7 +208,6 @@ end
 #  md5                       :string(255)
 #  indexing_scenario_id      :integer(4)
 #  availability_policy_id    :integer(4)
-#  automation_messages_count :integer(4)      default(0)
 #  use_right_id              :integer(4)
 #  date_dl_ingest            :datetime
 #  date_dl_update            :datetime

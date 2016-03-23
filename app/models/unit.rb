@@ -21,8 +21,6 @@ class Unit < ActiveRecord::Base
 
    has_many :master_files
    has_many :components, :through => :master_files, :uniq => true
-
-   has_many :automation_messages, :as => :messagable, :dependent => :destroy
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :agency, :through => :order
@@ -276,6 +274,5 @@ end
 #  checked_out                    :boolean(1)      default(FALSE)
 #  availability_policy_id         :integer(4)
 #  master_files_count             :integer(4)      default(0)
-#  automation_messages_count      :integer(4)      default(0)
 #  index_destination_id           :integer(4)
 #

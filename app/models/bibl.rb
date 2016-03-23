@@ -94,10 +94,7 @@ class Bibl < ActiveRecord::Base
   has_and_belongs_to_many :components
 
   has_many :agencies, :through => :orders
-
-  has_many :automation_messages, :as => :messagable, :dependent => :destroy
   has_many :job_statuses, :as => :originator, :dependent => :destroy
-
   has_many :customers, :through => :orders, :uniq => true
   has_many :master_files, :through => :units
   has_many :orders, :through => :units, :uniq => true
@@ -370,7 +367,6 @@ end
 #  indexing_scenario_id      :integer(4)
 #  date_dl_ingest            :datetime
 #  date_dl_update            :datetime
-#  automation_messages_count :integer(4)      default(0)
 #  units_count               :integer(4)      default(0)
 #  availability_policy_id    :integer(4)
 #  use_right_id              :integer(4)
