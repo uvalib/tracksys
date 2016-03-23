@@ -31,9 +31,6 @@ class QueueObjectsForFedora < BaseJob
       # @working_unit.bibl.ancestors.each {|bibl| things << bibl} unless @working_unit.bibl.ancestors.empty?
       @working_unit.master_files.each {|mf| things << mf }
       @working_unit.components.each do |component|
-         # LFF updating the daily progress guide causes problems. Skip it
-         next if component.component_type.name == 'guide' && component.name == 'Daily Progress Digitized Microfilm'
-
          things << component
          # the following may produce duplicates, especially when ingesting many items from the same
          # EAD guide, so we must uniq them before emitting messages (as done four lines below).
@@ -50,6 +47,11 @@ class QueueObjectsForFedora < BaseJob
             thing.save!
          else
             @pid = thing.pid
+         end
+
+         # LFF Dont send the top level Daily Progress component
+         if @pid == "uva-lib:2137307"
+            next
          end
 
          if thing.is_a? MasterFile

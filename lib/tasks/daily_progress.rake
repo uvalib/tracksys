@@ -51,7 +51,8 @@ namespace :daily_progress do
 
       if legacy == true
          include ActiveMessaging::MessageSender
-         puts "** USING ACTIVE MESSAGING **"
+         ARCHIVE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
+         puts "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
       end
 
       # extract target issue, month or year
@@ -93,16 +94,17 @@ namespace :daily_progress do
       curr_issue = nil
       curr_issue_date = ""
       issue_unit = nil
-      pagenum = 1
+      page_cnt = 0
       skip_issue = false
       issue_date = ""
       puts "Scanning #{root_dir}..."
-      Dir.glob("#{root_dir}/**/*.tif") do |f|
+      Dir.glob("#{root_dir}/**/*.tif").sort.each do |f|
 
          # Filename like:
          #    lib_content64/Daily_Progress/Box01/Apr 21, 1930 - Sep 6, 1930/19300422/00001.tif
          parts = f.split("/")
          tif = parts[parts.length-1]         # format: 0-padded pagenumber .tif
+         pagenum = tif.split(".")[0].to_i    # convert to integer
          issue_date = parts[parts.length-2]  # format: YYYYMMDD
 
          # If a specific issue has been flagged, skip all others
@@ -196,7 +198,7 @@ namespace :daily_progress do
                # ingest the previous issue unit, if one exists
                log << "#{curr_issue_date}\n"
                if ingest
-                  puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
+                  puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
                   if legacy == true
                      message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                      Object.publish :start_ingest_from_archive, message
@@ -225,15 +227,17 @@ namespace :daily_progress do
                puts "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
                issue_unit.order = order
+               issue_unit.archive_id = 5 if legacy = true
+               issue_unit.index_destination_id = 3    # virgo
                issue_unit.indexing_scenario_id = 1    # default
                issue_unit.availability_policy_id = 1  # public
-               issue_unit.intended_use_id = 110       # Digital collectin building
+               issue_unit.intended_use_id = 110       # Digital collection building
                issue_unit.special_instructions = "Reel: #{date_range}\nIssue: #{issue}".gsub(/,/,'')
                issue_unit.staff_notes = "From #{box}"
                issue_unit.unit_status = 'approved'
                issue_unit.bibl = bibl
                issue_unit.save!
-               pagenum = 1
+               page_cnt = 0
             else
                puts "   * Issue already exists, SKIPPING"
                skip_issue = true
@@ -249,13 +253,13 @@ namespace :daily_progress do
          mf.indexing_scenario_id = 1
          mf.availability_policy_id = 1
          mf.unit = issue_unit
-         mf.title = pagenum
+         mf.title = pagenum.to_s
          mf.tech_meta_type = "image"
          mf.component = curr_issue
          mf.filename = "%09d" % issue_unit.id + "_" + "%04d" % pagenum + ".tif"
          mf.filesize = File.size(f)
          mf.save!
-         pagenum += 1
+         page_cnt += 1
 
          # Add legacy identifiers
          lid1 = LegacyIdentifier.new
@@ -301,7 +305,7 @@ namespace :daily_progress do
       if !skip_issue && !issue_unit.nil?
          log << "#{curr_issue_date}\n"
          if ingest
-            puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{pagenum-1} master files"
+            puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
             if legacy == true
                message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                Object.publish :start_ingest_from_archive, message
