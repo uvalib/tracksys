@@ -15,13 +15,26 @@ namespace :daily_progress do
       Object.publish :start_ingest_from_archive, message
    end
 
-   def update_followed_by(parent_component, new_component)
+   def update_rels_ext_datastreams(component_ids, legacy)
+      component_ids.each do |id|
+         if legacy
+            message = ActiveSupport::JSON.encode(  { :object_class => "Component", :object_id => id, :datastream => "rels_ext" } )
+            Object.publish :update_fedora_datastreams, message
+         else
+            UpdateFedoraDatastreams.exec_now( { :object_class => "Component", :object_id => id, :datastream => "rels_ext" })
+         end
+      end
+   end
+
+   def update_followed_by(parent_component, new_component )
       prior = nil
       linked = false
+      update_rels_ext = []
       parent_component.children.order("date asc").each do |c|
          if linked
             puts "Finish linking; #{prior.date} followed by #{c.date}"
             prior.update_attribute(:followed_by_id, c.id)
+            update_rels_ext << c.id
             break
          end
 
@@ -29,15 +42,17 @@ namespace :daily_progress do
             if !prior.nil?
                puts "Set #{prior.date} followed by #{new_component.date}"
                prior.update_attribute(:followed_by_id, new_component.id)
+               update_rels_ext << c.id
             end
             linked = true
          end
 
          prior = c
       end
+      return update_rels_ext
    end
 
-   desc "ingest daily progress issues (src=src_dir, box=nn, fedora=Y/N [OPTIONAL, default Y], set=yyyymmdd/yyyymm/yyyy, order=order_id [OPTIONAL, default 5341])"
+   desc "ingest daily progress issues (src=src_dir, box=nn, folder=date_rnge, fedora=Y/N [OPTIONAL, default Y], set=yyyymmdd/yyyymm/yyyy)"
    task :ingest => :environment do
       src = ENV['src']
       box_num = ENV['box']
@@ -63,11 +78,10 @@ namespace :daily_progress do
 
       # optional params
       ingest = !(ENV['fedora'] == 'N' || ENV['fedora'] == 'n')
-      order_id = ENV['order']
-      order_id = 5341 if order_id.nil?
+      folder = ENV['folder']
 
       # Get the daily progress order, top level component and other required objects
-      order = Order.find(order_id)
+      order = Order.find(5341)
       bibl = Bibl.find(15226)
       dp_component = Component.find(497769)
       series = ComponentType.where(name:'series').first
@@ -92,16 +106,21 @@ namespace :daily_progress do
       # Expected structure:
       #   ./Daily Progress/BoxNN/Date From-Date To/Issue Date (YYYYMMDD)/page images (00001.tif)
       root_dir = File.join(src, "Daily_Progress/#{box}")
+      if !folder.nil?
+         root_dir = File.join(root_dir, folder)
+      end
       raise "Source directory does not exist!" if !Dir.exist? root_dir
       years = {}
       months = {}
       curr_issue = nil
       curr_issue_date = ""
+      update_rels_ext = []
       issue_unit = nil
       page_cnt = 0
       skip_issue = false
       issue_date = ""
-      puts "Scanning #{root_dir}..."
+      tgt_issue_found = false
+      puts "Scanning #{root_dir}/ ..."
       Dir.glob("#{root_dir}/**/*.tif").sort.each do |f|
 
          # Filename like:
@@ -112,7 +131,13 @@ namespace :daily_progress do
          issue_date = parts[parts.length-2]  # format: YYYYMMDD
 
          # If a specific issue has been flagged, skip all others
-         next if tgt_type == :issue && issue_date != target
+         if tgt_type == :issue && issue_date != target
+            # if target issue has been found, we are done
+            next if tgt_issue_found == false
+            break if tgt_issue_found == true
+         else
+            tgt_issue_found = true
+         end
 
          # Skip issue directories that are not 8 digits (YYYYMMDD)
          if (/^\d{8}$/ =~ issue_date).nil?
@@ -160,7 +185,7 @@ namespace :daily_progress do
                year_component.title = "Issues from #{year}"
                year_component.parent_component_id = dp_component.id
                year_component.save!
-               update_followed_by(dp_component, year_component)
+               update_rels_ext << update_followed_by(dp_component, year_component)
             end
             years[year] = year_component
          else
@@ -184,7 +209,7 @@ namespace :daily_progress do
                month_component.title = "Daily Progress Issues from #{month_str} #{year}"
                month_component.parent_component_id = year_component.id
                month_component.save!
-               update_followed_by(year_component, month_component)
+               update_rels_ext << update_followed_by(year_component, month_component)
             end
             months[month] = month_component
          else
@@ -226,7 +251,7 @@ namespace :daily_progress do
                curr_issue.title = "Daily Progress, #{month_str} #{issue_date[6...8]}, #{year}"
                curr_issue.parent_component_id = month_component.id
                curr_issue.save!
-               update_followed_by(month_component, curr_issue)
+               update_rels_ext << update_followed_by(month_component, curr_issue)
 
                puts "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
@@ -318,6 +343,11 @@ namespace :daily_progress do
             end
          end
       end
+
+      # update compnents on either side of newly added components. ex:
+      # 1930/03 was added and 1930/02 and 1930/04 already existed. The 02 and 04
+      # components need to have their rels_ext updated
+      update_rels_ext_datastreams( update_rels_ext.flatten.uniq, legacy )
 
       # close out the ingested tracekr
       log.close
