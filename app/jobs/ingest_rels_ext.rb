@@ -33,8 +33,8 @@ class IngestRelsExt < BaseJob
       Fedora.add_or_update_datastream(xml, @pid, 'RELS-EXT', 'Object Relationships', :controlGroup => 'M')
     end
 
-    # Since the creation of a solr <doc> now requires both the rels-ext and descMetadata of an object, we must create both before a message is sent to ingest_solr_doc
-    #IngestSolrDoc.exec_now({ :type => @type, :object_class => @object_class, :object_id => @object_id }, self)
+   #  # Since the creation of a solr <doc> now requires both the rels-ext and descMetadata of an object, we must create both before a message is sent to ingest_solr_doc
+   #  IngestSolrDoc.exec_now({ :type => @type, :object_class => @object_class, :object_id => @object_id }, self)
     on_success "The RELS-EXT datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
   end
 end
