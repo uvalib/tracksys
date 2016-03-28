@@ -16,7 +16,7 @@ namespace :workflow do
       end
    end
 
-   desc "Update solr index for issue by ID"
+   desc "Update RELS-EXT for issue by ID"
    task :update_rels_ext => :environment do
       id = ENV['id']
       raise "ID is required" if id.nil?
@@ -29,7 +29,7 @@ namespace :workflow do
       id = ENV['id']
       raise "ID is required" if id.nil?
       cmp = Component.find(id)
-      UpdateFedoraDatastreams.exec_now( { :object_class => cmp.class.to_s, :object_id => cmp.id, :datastream => "solr_doc" })
+      UpdateFedoraDatastreams.exec_now( { :cascade=> true, :object_class => cmp.class.to_s, :object_id => cmp.id, :datastream => "solr_doc" })
    end
 
    desc "Update Images for issue by PID"

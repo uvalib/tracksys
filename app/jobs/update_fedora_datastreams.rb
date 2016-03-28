@@ -278,6 +278,7 @@ class UpdateFedoraDatastreams < BaseJob
             IngestDcMetadata.exec_now(cmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          elsif @datastream == 'solr_doc'
+            cmsg[:cascade] = message[:cascade]
             IngestSolrDoc.exec_now(cmsg, self)
             on_success "The #{@datastream} datastream for #{@object_class} #{@object_id} will be updated."
          end
