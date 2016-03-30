@@ -226,6 +226,8 @@ namespace :daily_progress do
             if !curr_issue_date.empty?
                # ingest the previous issue unit, if one exists
                log << "#{curr_issue_date}\n"
+               issue_unit.date_archived = DateTime.now
+               issue_unit.save
                if ingest
                   puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
                   if legacy == true
@@ -317,6 +319,7 @@ namespace :daily_progress do
          if source_md5 != dest_md5
             puts "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
          else
+            mf.date_archived = DateTime.now
             mf.md5 = dest_md5
             mf.save!
          end
