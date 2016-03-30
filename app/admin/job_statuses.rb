@@ -1,6 +1,6 @@
 ActiveAdmin.register JobStatus do
    menu :priority => 8, :label=>"Workflow Status"
-   actions :all, :except => [:edit, :new, :destroy]
+   actions :all, :except => [:edit, :new]
 
    batch_action :remove_active_error do |selection|
       JobStatus.find(selection).each {|s| s.update_attribute(:active_error, false)}
