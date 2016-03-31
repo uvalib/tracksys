@@ -15,7 +15,7 @@
       <fieldset>
         <legend>Customer Information</legend>
         <div class="control-group">
-          <%= c.label :first_name, :class => 'control-label required' %> 
+          <%= c.label :first_name, :class => 'control-label required' %>
           <div class="controls">
             <%= c.text_field :first_name, :value => @request.customer.first_name, :required => required_field_value %>
           </div>
@@ -97,10 +97,10 @@
     </div>
     <div class="span4">
       <fieldset>
-        <legend>Billing Address (Optional)</legend>
+        <legend>Billing Address</legend>
         <%= c.fields_for :billable_address_attributes do |ba| %>
           <div class="control-group">
-            <%= ba.label "First Name", :class => 'control-label required' %>
+            <%= ba.label "First Name", :class => 'control-label' %>
             <div class="controls">
               <%= ba.text_field :first_name, :value => @request.customer.billable_address.first_name %>
             </div>
@@ -124,7 +124,7 @@
             </div>
           </div>
           <div class="control-group">
-            <%= ba.label "City", :class => 'control-label required' %>
+            <%= ba.label "City", :class => 'control-label' %>
             <div class="controls">
               <%= ba.text_field :city, :value => @request.customer.billable_address.city %>
             </div>
@@ -142,7 +142,7 @@
             </div>
           </div>
           <div class="control-group">
-            <%= ba.label "Country", :class => 'control-label required' %>
+            <%= ba.label "Country", :class => 'control-label' %>
             <div class="controls">
               <%= ba.select :country, country_options_for_select(@request.customer.billable_address.country, ['United States', 'Canada']), :include_blank => true %>
             </div>
@@ -165,7 +165,7 @@
         <%= f.label :date_due, :class => 'control-label required' %>
         <div class="controls">
           <%= f.text_field :date_due, :id => 'datepicker', :required => required_field_value %>
-          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it. 
+          <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
           <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
 </p>
         </div>
@@ -256,7 +256,7 @@
                 <p class="help-block">If the provided fields were insufficient to describe the item, include supplemental information above.</p>
               </div>
             </div>
-            
+
             <div class="control-group">
               <%= unit.label "How did you hear about this item?", :class => 'control-label' %>
               <div class="controls">
