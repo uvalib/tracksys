@@ -1,0 +1,18 @@
+<div class="ocr-src-panel">
+   <div class="ocr-controls">
+      <label for="language">Language:</label>
+      <select id='language'>
+         <option value="" disabled>Select a language</option>
+         <% langs.each do |lang| %>
+            <% sel = ""
+               sel = 'selected="selected"' if lang == "eng"
+            %>
+            <option <%= sel %> value="<%= lang %>"><%= lang.upcase  %></option>
+         <% end %>
+      </select>
+
+      <span class="ocr-button">Start OCR</span>
+
+   </div>
+   <%= image_tag mf.link_to_static_thumbnail %>
+</div>

@@ -16,6 +16,60 @@
 @import "printable";
 @import "twilight";
 
+ul.header-item.tabs {
+   font-size: 0.9em;
+}
+
+div.header #site_title {
+   padding: 3px 0px 0 10px;
+   display: inline-block;
+}
+
+textarea.transcription {
+   width: 100%;
+   outline: none;
+   resize: none;
+   box-sizing: border-box;
+   border-color: #ccc;
+   margin-top: 5px;
+}
+
+#header ul.tabs > li.has_nested {
+   li {
+      line-height: 1.2;
+      text-align: left;
+
+      a {
+         padding: 4 10px;
+      }
+   }
+}
+
+.ocr-src-panel {
+   text-align: center;
+
+   .ocr-controls {
+      font-size: 1.3em;
+      margin: 15px 0;
+
+      .ocr-button {
+         margin: 0 25px;
+         border: 200px;
+         background: steelblue;
+         padding: 3px 30px;
+         color: white;
+         border-radius: 4px;
+         border: 1px solid #249;
+         font-size: 0.8em;
+         text-shadow: 1px 1px #000;
+         cursor: pointer;
+         &:hover {
+            background: cornflowerblue;
+         }
+      }
+   }
+}
+
 #log-panel {
     background: #333;
     padding: 8px 24px;

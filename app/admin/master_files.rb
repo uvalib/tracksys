@@ -10,6 +10,7 @@ ActiveAdmin.register MasterFile do
   config.clear_action_items!
   action_item only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
+     link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer?
   end
 
   batch_action :download_from_archive do |selection|
