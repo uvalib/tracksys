@@ -4,9 +4,9 @@ class BaseJob
    #
    def self.exec(message)
       job = self.new()
-      job.init_status(message)
+      job_id = job.init_status(message)
       job.delay.perform(message)
-      return @status.id
+      return job_id
    end
 
    # Execute the job synchronously. If the job context is set, this is part of
@@ -43,6 +43,7 @@ class BaseJob
       if !originator.nil?
          originator.update_attribute(:job_statuses_count, originator.job_statuses_count+1)
       end
+      return @status.id
    end
    def set_originator(message)
       raise "Derived jobs must override set_originator!"

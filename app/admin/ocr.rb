@@ -25,11 +25,23 @@ ActiveAdmin.register_page "OCR" do
       end
    end
 
+   # POST to save to update transcription text for a master file
+   #
+   page_action :save, method: :post do
+      mf = MasterFile.find(params[:id])
+      mf.transcription_text = params[:transcription]
+      if mf.save
+         render :text=>"ok", :status=>:ok
+      else
+         render :text=>mf.errors.full_messages.to_sentence, :status=>:error
+      end
+   end
+
    # POST to start to start an OCR job. Payload includes starting object type and ID
    #
    page_action :start, method: :post do
-      Ocr.exec({:object_class=>params[:type], :object_id=>params[:id]})
-      render :text=>"OK", :status=>:ok
+      job_id = Ocr.exec({ :object_class=>params[:type], :object_id=>params[:id], :language=>params[:lang] })
+      render :text=>job_id, :status=>:ok
    end
 
    # GET to status to get status of job ID passed as query param
@@ -39,11 +51,11 @@ ActiveAdmin.register_page "OCR" do
          job = JobStatus.find(params[:job].to_i)
          resp = {status: job.status}
          if job.status == 'failure'
-            resp.error = job.error
+            resp[:error] = job.error
          elsif job.status == 'success'
             if job.originator_type == "MasterFile"
                mf = MasterFile.find(job.originator_id)
-               resp.transcription = mf.transcription_text
+               resp[:transcription] = mf.transcription_text
             end
          end
          render :json=>resp, :status=>:ok
