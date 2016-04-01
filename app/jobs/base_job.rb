@@ -1,10 +1,12 @@
 class BaseJob
-   # Execute the job asynchronously. Always the start of a workflow
+   # Execute the job asynchronously. Always the start of a workflow.
+   # The ID of the delayed job is returned so status can be polled
    #
    def self.exec(message)
       job = self.new()
       job.init_status(message)
       job.delay.perform(message)
+      return @status.id
    end
 
    # Execute the job synchronously. If the job context is set, this is part of

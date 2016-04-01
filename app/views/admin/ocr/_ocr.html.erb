@@ -10,9 +10,8 @@
             <option <%= sel %> value="<%= lang %>"><%= lang.upcase  %></option>
          <% end %>
       </select>
-
-      <span class="ocr-button">Start OCR</span>
-
+      <span class="ocr-button<% if working %> disabled<% end %>" id="start-ocr">Start OCR</span>
+      <div id="ocr-status-message" data-job-id="<%= job_id %>"><% if working %>OCR in progress...<% end %></div>
    </div>
    <%= image_tag mf.link_to_static_thumbnail %>
 </div>

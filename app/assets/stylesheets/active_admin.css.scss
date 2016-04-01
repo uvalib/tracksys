@@ -32,6 +32,9 @@ textarea.transcription {
    box-sizing: border-box;
    border-color: #ccc;
    margin-top: 5px;
+   padding: 15px;
+   font-size: 1.2em;
+   font-family: serif;
 }
 
 #header ul.tabs > li.has_nested {
@@ -45,28 +48,69 @@ textarea.transcription {
    }
 }
 
+span.ocr-button.disabled {
+   opacity: 0.5;
+   cursor: default;
+   &:hover {
+      background: steelblue;
+   }
+}
+#ocr-status-message {
+   margin-top: 10px;
+   font-style: italic;
+   color: steelblue;
+}
+
+#ocr-status-message.error {
+   color: firebrick;
+}
+
+span.ocr-button {
+   margin: 0 25px;
+   border: 200px;
+   background: steelblue;
+   padding: 3px 30px;
+   color: white;
+   border-radius: 4px;
+   border: 1px solid #249;
+   font-size: 0.8em;
+   text-shadow: 1px 1px #000;
+   cursor: pointer;
+   &:hover {
+      background: cornflowerblue;
+   }
+}
+
+#ocr-spinner {
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   text-align: center;
+   padding-top: 40%;
+   display: none;
+}
+
+div.panel.transcription {
+   position: relative;
+   .panel_contents {
+      text-align: right;
+   }
+}
+
+span.ocr-button.transcription {
+   font-size: 1.1em;
+   margin:10px 0 0 0;
+   display: inline-block;
+}
+
 .ocr-src-panel {
    text-align: center;
 
    .ocr-controls {
       font-size: 1.3em;
       margin: 15px 0;
-
-      .ocr-button {
-         margin: 0 25px;
-         border: 200px;
-         background: steelblue;
-         padding: 3px 30px;
-         color: white;
-         border-radius: 4px;
-         border: 1px solid #249;
-         font-size: 0.8em;
-         text-shadow: 1px 1px #000;
-         cursor: pointer;
-         &:hover {
-            background: cornflowerblue;
-         }
-      }
    }
 }
 
