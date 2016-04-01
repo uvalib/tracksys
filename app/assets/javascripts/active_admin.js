@@ -1,2 +1,13 @@
 //= require jquery
 //= require jquery.ui.all
+//= jquery.colorbox
+//= active_admin/application
+//= chosen-jquery
+//= pinterest
+//= pinit
+//= twitter
+//= rainbow.min
+//= generic
+//= html
+//= tracksys
+//= ocr

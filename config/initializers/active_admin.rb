@@ -161,17 +161,17 @@ ActiveAdmin.setup do |config|
   # To load a javascript file:
   #   config.register_javascript 'my_javascript.js'
 
-  config.register_javascript 'jquery.colorbox'
-  config.register_javascript 'active_admin/application'
-  config.register_javascript 'chosen-jquery'
-  config.register_javascript 'pinterest'
-  config.register_javascript 'pinit'
-  config.register_javascript 'twitter'
-  config.register_javascript 'rainbow.min'
-  config.register_javascript 'generic'
-  config.register_javascript 'html'
-  config.register_javascript 'tracksys'
-  config.register_javascript 'ocr'
+  # config.register_javascript 'jquery.colorbox'
+  # config.register_javascript 'active_admin/application'
+  # config.register_javascript 'chosen-jquery'
+  # config.register_javascript 'pinterest'
+  # config.register_javascript 'pinit'
+  # config.register_javascript 'twitter'
+  # config.register_javascript 'rainbow.min'
+  # config.register_javascript 'generic'
+  # config.register_javascript 'html'
+  # config.register_javascript 'tracksys'
+  # config.register_javascript 'ocr'
 
 
   # == CSV options
