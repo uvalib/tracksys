@@ -310,21 +310,6 @@ ActiveAdmin.register MasterFile do
   end
 
   action_item :only => :show do
-    if master_file.in_dl?
-      if master_file.availability_policy_id == 1
-        if master_file.discoverability
-          tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.pid}", :text => truncate("#{master_file.bibl_title}", :length => 80), :count => 'vertical')
-        else
-          tweet_button(:via => 'UVaDigServ', :url => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", :text => truncate("#{master_file.title} from #{master_file.bibl_title}", :length => 80), :count => 'vertical')
-        end
-      else
-        "Cannot tweet. UVA Only."
-      end
-    else
-    end
-  end
-
-  action_item :only => :show do
     if master_file.date_archived
       link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
     end

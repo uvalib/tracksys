@@ -306,7 +306,6 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     ttfunk (1.4.0)
-    tweet-button (0.1.0)
     tzinfo (0.3.46)
     uglifier (2.7.2)
       execjs (>= 0.3.0)
@@ -367,7 +366,6 @@ DEPENDENCIES
   solr-ruby
   spreadsheet
   test-unit (~> 3.0)
-  tweet-button
   uglifier
   validates_timeliness (= 3.0.14)
   zip-zip

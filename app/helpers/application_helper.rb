@@ -1,6 +1,4 @@
 
-include TweetButton
-
 module ApplicationHelper
 
   # If input is empty string or nil, returns string "&nbsp;".
