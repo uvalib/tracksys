@@ -1,15 +1,16 @@
 //= require jquery
+//= require jquery_ujs
 //= require jquery.ui.all
-//= jquery.colorbox
-//= active_admin/application
-//= chosen-jquery
-//= pinterest
-//= pinit
-//= twitter
-//= rainbow.min
-//= generic
-//= html
-//= tracksys
+//= require jquery.colorbox
+//= require active_admin/application
+//= require chosen-jquery
+//= require pinterest
+//= require pinit
+//= require twitter
+//= require rainbow.min
+//= require generic
+//= require html
+//= require tracksys
 
 
 $(function() {

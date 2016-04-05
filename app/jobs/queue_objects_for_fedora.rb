@@ -49,9 +49,10 @@ class QueueObjectsForFedora < BaseJob
             @pid = thing.pid
          end
 
-         # LFF Dont send the top level Daily Progress component
-         if @pid == "uva-lib:2137307"
-            next
+         # LFF Don't send the top-level Daily Progress component or bibl
+         if @pid == "uva-lib:2137307" || @pid == "uva-lib:2065830"
+           logger.info "Skipping Daily Progress top-level component/bibl (pid: #{@pid})"
+           next
          end
 
          if thing.is_a? MasterFile

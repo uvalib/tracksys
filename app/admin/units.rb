@@ -183,14 +183,6 @@ ActiveAdmin.register Unit do
         attributes_table_for unit do
           row :indexing_scenario
           row :availability_policy
-          row :use_right
-          row :index_destination do |unit|
-            if unit.index_destination
-              link_to "#{unit.index_destination.nickname} (aka #{unit.index_destination.url})", admin_index_destinations_path(:q => unit.index_destination_id)
-            else
-              "localhost"
-            end
-          end
           row ("Digital Library Status") do |unit|
             case
               when unit.include_in_dl?
@@ -295,7 +287,6 @@ ActiveAdmin.register Unit do
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
       f.input :indexing_scenario
       f.input :availability_policy
-      f.input :use_right
       f.input :include_in_dl, :as => :radio
       f.input :exclude_from_dl, :as => :radio
       f.input :master_file_discoverability, :as => :radio
