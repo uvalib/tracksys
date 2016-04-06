@@ -5,8 +5,8 @@ $(function() {
         //zoomType	: "lens",
         borderColour: "#222",
         //lensSize: 300
-      zoomWindowWidth: 550,
-      zoomWindowHeight: 250
+      zoomWindowWidth: 650,
+      zoomWindowHeight: 650
       });
    }, 500);
 
