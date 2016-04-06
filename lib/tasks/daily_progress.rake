@@ -2,6 +2,20 @@
 
 namespace :daily_progress do
 
+   desc "Fix archived dates"
+   task :fix_archived_dates => :environment do
+      Unit.where(order_id: 5341, date_archived: nil).each do |u|
+         puts u.special_instructions.split("\n")[1]
+         timestamp = DateTime.now
+         u.date_archived = timestamp
+         u.save
+         u.master_files.each do |mf|
+           mf.date_archived = timestamp
+           mf.save
+         end
+      end
+   end
+
    desc "Ingest unit from archive using active messaging"
    task :ingest_unit => :environment do
       id = ENV['id']
@@ -15,7 +29,67 @@ namespace :daily_progress do
       Object.publish :start_ingest_from_archive, message
    end
 
+   desc "Update SOLR for somponent. Cascade to children"
+   task :update_solr_datastreams => :environment do
+      component_id = ENV['id']
+      puts "Update SOLR for component ID: #{component_id}"
+      include ActiveMessaging::MessageSender
+      c = Component.find(component_id)
+      message = ActiveSupport::JSON.encode(  {
+         :cascade=>true, :object_class => "Component", :object_id => component_id, :datastream => "solr_doc" } )
+      Object.publish :update_fedora_datastreams, message
+   end
+
+#   desc "Update image tech meta for all MF in a UNIT"
+#   task :update_tech_meta => :environment do
+#      u_id = ENV['id']
+#      puts "Update tech meta for UNIT ID: #{u_id}"
+#      include ActiveMessaging::MessageSender
+#      u = Unit.find(u_id)
+#      u.master_files.each do |mf|
+#         puts "   update MF #{mf.id}"
+#         message = ActiveSupport::JSON.encode(  {
+#            :object_class => "MasterFile", :object_id => mf.id, :datastream => "tech_metadata" } )
+#         Object.publish :update_fedora_datastreams, message
+#      end
+#   end
+
+   # NOTE This is here because approximately 4000 pages from box04 (1951-1953) do not
+   # have a technicalMetadata stream in Fedora. Cause was asynchronous processing. Generating
+   # thumbnail and metadata in tracksys was in one message queue, and the process that extracted
+   # it for fedora in another. Generation is slow, so that queue fell behind. Process to
+   # extract for fedora was serviced first, and there was no data to harvest. I've Since
+   # made this synchronous to eliminate the problem.
+   #
+   # This task can be used to fix one year at a time by passing that years component ID.
+   # year 1951: 512824, year 1952: 512579, year 1953: 512661
+   #
+   desc "Update image tech meta for all MF in a YEAR"
+   task :update_tech_meta => :environment do
+      id = ENV['id']
+      puts "Update tech meta for Year component ID: #{id}"
+      include ActiveMessaging::MessageSender
+      cnt = 0
+      yc = Component.find(id)
+      yc.children.each do |mc|
+         mc.children.each do |mdc|
+            puts mdc.title
+            mdc.master_files.each do |mf|
+               puts "   #{mf.filename}"
+               cnt += 1
+               message = ActiveSupport::JSON.encode(  {
+                  :object_class => "MasterFile", :object_id => mf.id, :datastream => "tech_metadata" } )
+               Object.publish :update_fedora_datastreams, message
+               sleep 0.2
+            end
+         end
+      end
+      puts "TOTAL: #{cnt}"
+   end
+
+
    def update_rels_ext_datastreams(component_ids, legacy)
+      puts "Update RELS_EXT for component IDs: #{component_ids}"
       component_ids.each do |id|
          if legacy
             message = ActiveSupport::JSON.encode(  { :object_class => "Component", :object_id => id, :datastream => "rels_ext" } )
@@ -34,7 +108,7 @@ namespace :daily_progress do
          if linked
             puts "Finish linking; #{prior.date} followed by #{c.date}"
             prior.update_attribute(:followed_by_id, c.id)
-            update_rels_ext << c.id
+            update_rels_ext << c.id if new_component.id != c.id
             break
          end
 
@@ -42,7 +116,7 @@ namespace :daily_progress do
             if !prior.nil?
                puts "Set #{prior.date} followed by #{new_component.date}"
                prior.update_attribute(:followed_by_id, new_component.id)
-               update_rels_ext << c.id
+               update_rels_ext << c.id if new_component.id != c.id
             end
             linked = true
          end
@@ -56,25 +130,33 @@ namespace :daily_progress do
    task :ingest => :environment do
       src = ENV['src']
       box_num = ENV['box']
-      target = ENV['set']
       raise "src is required!" if src.nil?
       raise "box is required!" if box_num.nil?
-      raise "set is required!" if target.nil?
       box = "Box#{box_num}"
+
+      progress_logfile = "log/daily_progress/#{DateTime.now.strftime('%Y%m%d-%H%M%S')}_ingest.txt"
+      progress_log = File.open(progress_logfile, "a")
+
       legacy = false
       legacy = true if !ENV['legacy'].nil?
 
       if legacy == true
          include ActiveMessaging::MessageSender
          ARCHIVE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
-         puts "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
+         progress_log << "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
       end
 
-      # extract target issue, month or year
-      tgt_type = :issue
-      tgt_type = :year if target.length == 4
-      tgt_type = :year_month if target.length == 6
-      puts "Ingest Daily progress #{tgt_type} #{target}"
+      # extract target issue, month or year if requested
+      target = ENV['set']
+      if !target.nil?
+         tgt_type = :issue
+         tgt_type = :year if target.length == 4
+         tgt_type = :year_month if target.length == 6
+         progress_log << "Ingest Daily progress #{tgt_type} #{target}"
+      else
+         tgt_type = :box
+         progress_log << "Ingest ALL data in #{box}"
+      end
 
       # optional params
       ingest = !(ENV['fedora'] == 'N' || ENV['fedora'] == 'n')
@@ -120,7 +202,7 @@ namespace :daily_progress do
       skip_issue = false
       issue_date = ""
       tgt_issue_found = false
-      puts "Scanning #{root_dir}/ ..."
+      progress_log << "Scanning #{root_dir}/ ..."
       Dir.glob("#{root_dir}/**/*.tif").sort.each do |f|
 
          # Filename like:
@@ -143,7 +225,7 @@ namespace :daily_progress do
          if (/^\d{8}$/ =~ issue_date).nil?
             if !skip_logged.include?(issue_date)
                skip_logged << issue_date
-               puts "* Invalid issue name '#{issue_date}', SKIPPING"
+               progress_log << "* Invalid issue name '#{issue_date}', SKIPPING"
             end
             next
          end
@@ -160,7 +242,7 @@ namespace :daily_progress do
          if already_ingested.include? issue_date
             if !skip_logged.include?(issue_date)
                skip_logged << issue_date
-               puts "* Issue #{issue_date} already ingested, SKIPPING"
+               progress_log << "* Issue #{issue_date} already ingested, SKIPPING"
             end
             next
          end
@@ -172,7 +254,7 @@ namespace :daily_progress do
 
          # construct the component hierarchy based on the issue date
          if !years.include? year
-            puts "* Find/Create SERIES component for YEAR #{year}"
+            progress_log << "* Find/Create SERIES component for YEAR #{year}"
             year_component = Component.where(date: year, parent_component_id: dp_component.id).first
             if year_component.nil?
                year_component = Component.new
@@ -196,7 +278,7 @@ namespace :daily_progress do
          month_str = Date::MONTHNAMES[month_num.to_i]
          month = "#{year}-#{month_num}"
          if !months.include? month
-            puts "* Find/Create SUBSERIES component for YEAR/MONTH #{month}"
+            progress_log << "* Find/Create SUBSERIES component for YEAR/MONTH #{month}"
             month_component = Component.where(date: month, parent_component_id: year_component.id).first
             if month_component.nil?
                month_component = Component.new
@@ -220,7 +302,7 @@ namespace :daily_progress do
          if curr_issue.nil? || curr_issue.date != issue
             content_desc = "From reel #{date_range}"
             content_desc = content_desc.gsub(/,/,'')
-            puts "* Find/Create ITEM component for ISSUE #{issue}. ContentDesc: #{content_desc}"
+            progress_log << "* Find/Create ITEM component for ISSUE #{issue}. ContentDesc: #{content_desc}"
             skip_issue = false
 
             if !curr_issue_date.empty?
@@ -229,7 +311,7 @@ namespace :daily_progress do
                issue_unit.date_archived = DateTime.now
                issue_unit.save
                if ingest
-                  puts "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
+                  progress_log << "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
                   if legacy == true
                      message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                      Object.publish :start_ingest_from_archive, message
@@ -255,7 +337,7 @@ namespace :daily_progress do
                curr_issue.save!
                update_rels_ext << update_followed_by(month_component, curr_issue)
 
-               puts "   *  Create Unit for issue #{issue}"
+               progress_log << "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
                issue_unit.order = order
                issue_unit.archive_id = 5 if legacy == true
@@ -270,7 +352,7 @@ namespace :daily_progress do
                issue_unit.save!
                page_cnt = 0
             else
-               puts "   * Issue already exists, SKIPPING"
+               progress_log << "   * Issue already exists, SKIPPING"
                skip_issue = true
             end
          end
@@ -278,7 +360,7 @@ namespace :daily_progress do
          # this issue was already ingested, skip it
          next if skip_issue
 
-         puts "   - Master file for #{issue_date}: #{tif}"
+         progress_log << "   - Master file for #{issue_date}: #{tif}"
          mf = MasterFile.new
          mf.discoverability = 0
          mf.indexing_scenario_id = 1
@@ -317,17 +399,20 @@ namespace :daily_progress do
          source_md5 = Digest::MD5.hexdigest(File.read(f))
          dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
          if source_md5 != dest_md5
-            puts "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
+            progress_log << "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
          else
-            mf.date_archived = DateTime.now
             mf.md5 = dest_md5
+            mf.date_archived = DateTime.now
             mf.save!
          end
 
          # Create metadata from the file moved above
-         payload = {source: dest_file, master_file_id: mf.id, last: 0}
+         payload = {source: dest_file, master_file_id: mf.id, last: 0, quiet: true}
          if legacy == true
-            ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
+            #ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
+            # EXEC SYNCHRONOUSLY SO INGEST METADATA WILL HAVE TECH METADATA PRESENT
+            p = CreateImageTechnicalMetadataAndThumbnailProcessor.new
+            p.on_message( payload.to_json )
          else
             CreateImageTechnicalMetadataAndThumbnail.exec_now( payload )
          end
@@ -337,7 +422,7 @@ namespace :daily_progress do
       if !skip_issue && !issue_unit.nil?
          log << "#{curr_issue_date}\n"
          if ingest
-            puts "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
+            progress_log << "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
             if legacy == true
                message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                Object.publish :start_ingest_from_archive, message
@@ -354,6 +439,42 @@ namespace :daily_progress do
 
       # close out the ingested tracekr
       log.close
+      progress_log.close
+   end
+
+   task :fix => :environment do
+      issue_unit = Unit.find(35619)
+      mf = MasterFile.find(1278321)
+      f = "/lib_content64/Daily_Progress/Box04/Jul 1 - Sep 30 1952/19520730/00018.tif"
+
+         include ActiveMessaging::MessageSender
+         ARCHIVE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
+         puts "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
+
+      # Move the original file into the archive directory with the new name
+         dest_dir = File.join(ARCHIVE_DIR, "%09d" % issue_unit.id)
+         FileUtils.makedirs(dest_dir)
+         dest_file = File.join(dest_dir, mf.filename )
+      puts "Moving #{f} to #{dest_file}"
+         FileUtils.copy(f, dest_file)
+
+         # checksum to ensure good copy. Save MD5
+         puts "..checksum"
+         source_md5 = Digest::MD5.hexdigest(File.read(f))
+         dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
+         if source_md5 != dest_md5
+            puts "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
+         else
+            mf.md5 = dest_md5
+            mf.date_archived = DateTime.now
+            mf.save!
+         end
+
+         # Create metadata from the file moved above
+         puts "thumb and meta"
+         payload = {source: dest_file, master_file_id: mf.id, last: 0}
+         ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
+
    end
 
    desc "detect badly named issues (src=src_dir) box=NN"
