@@ -13,5 +13,6 @@
       <span class="ocr-button<% if working %> disabled<% end %>" id="start-ocr">Start OCR</span>
       <div id="ocr-status-message" data-job-id="<%= job_id %>"><% if working %>OCR in progress...<% end %></div>
    </div>
-   <%= image_tag mf.link_to_static_thumbnail %>
+   <p>Hover over the image to zoom in</p>
+   <img src="/admin/ocr/zoom?mf=<%= mf.id %>" id="src-img"/>
 </div>

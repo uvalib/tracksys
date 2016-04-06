@@ -66,8 +66,7 @@ span.ocr-button.disabled {
 }
 
 span.ocr-button {
-   margin: 0 25px;
-   border: 200px;
+   margin: 0 10px;
    background: steelblue;
    padding: 3px 30px;
    color: white;
@@ -78,6 +77,13 @@ span.ocr-button {
    cursor: pointer;
    &:hover {
       background: cornflowerblue;
+   }
+}
+
+.two-column.img-column {
+   min-width: 540px;
+   img {
+      width: 550px;
    }
 }
 
@@ -107,7 +113,17 @@ span.ocr-button.transcription {
 
 .ocr-src-panel {
    text-align: center;
+   background-image: image-url("spinner.gif");
+   background-repeat: no-repeat;
+   background-position-x: center;
+   min-height: 170px;
+   background-position-y: 90%;
 
+   p {
+      color: #666;
+      font-weight: bold;
+      margin: 0 0 15px 0;
+   }
    .ocr-controls {
       font-size: 1.3em;
       margin: 15px 0;

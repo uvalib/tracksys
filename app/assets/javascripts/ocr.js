@@ -1,5 +1,16 @@
 $(function() {
 
+   setTimeout( function() {
+      $('#src-img').elevateZoom({
+        //zoomType	: "lens",
+        borderColour: "#222",
+        //lensSize: 300
+      zoomWindowWidth: 550,
+      zoomWindowHeight: 250
+      });
+   }, 500);
+
+
    var pollOcrJobStatus = function(jobId) {
       var intervalId = setInterval( function() {
          $.ajax({

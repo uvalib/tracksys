@@ -135,7 +135,10 @@ namespace :daily_progress do
       box = "Box#{box_num}"
 
       progress_logfile = "log/daily_progress/#{DateTime.now.strftime('%Y%m%d-%H%M%S')}_ingest.txt"
-      progress_log = File.open(progress_logfile, "a")
+      progress_log = Logger.new(progress_logfile)
+      progress_log.formatter = proc do |severity, datetime, progname, msg|
+         "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
+      end
 
       legacy = false
       legacy = true if !ENV['legacy'].nil?
@@ -143,7 +146,7 @@ namespace :daily_progress do
       if legacy == true
          include ActiveMessaging::MessageSender
          ARCHIVE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
-         progress_log << "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
+         progress_log.info "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
       end
 
       # extract target issue, month or year if requested
@@ -152,10 +155,10 @@ namespace :daily_progress do
          tgt_type = :issue
          tgt_type = :year if target.length == 4
          tgt_type = :year_month if target.length == 6
-         progress_log << "Ingest Daily progress #{tgt_type} #{target}"
+         progress_log.info "Ingest Daily progress #{tgt_type} #{target}"
       else
          tgt_type = :box
-         progress_log << "Ingest ALL data in #{box}"
+         progress_log.info "Ingest ALL data in #{box}"
       end
 
       # optional params
@@ -202,7 +205,7 @@ namespace :daily_progress do
       skip_issue = false
       issue_date = ""
       tgt_issue_found = false
-      progress_log << "Scanning #{root_dir}/ ..."
+      progress_log.info "Scanning #{root_dir}/ ..."
       Dir.glob("#{root_dir}/**/*.tif").sort.each do |f|
 
          # Filename like:
@@ -225,7 +228,7 @@ namespace :daily_progress do
          if (/^\d{8}$/ =~ issue_date).nil?
             if !skip_logged.include?(issue_date)
                skip_logged << issue_date
-               progress_log << "* Invalid issue name '#{issue_date}', SKIPPING"
+               progress_log.error "* Invalid issue name '#{issue_date}', SKIPPING"
             end
             next
          end
@@ -242,7 +245,7 @@ namespace :daily_progress do
          if already_ingested.include? issue_date
             if !skip_logged.include?(issue_date)
                skip_logged << issue_date
-               progress_log << "* Issue #{issue_date} already ingested, SKIPPING"
+               progress_log.info "* Issue #{issue_date} already ingested, SKIPPING"
             end
             next
          end
@@ -254,7 +257,7 @@ namespace :daily_progress do
 
          # construct the component hierarchy based on the issue date
          if !years.include? year
-            progress_log << "* Find/Create SERIES component for YEAR #{year}"
+            progress_log.info "* Find/Create SERIES component for YEAR #{year}"
             year_component = Component.where(date: year, parent_component_id: dp_component.id).first
             if year_component.nil?
                year_component = Component.new
@@ -278,7 +281,7 @@ namespace :daily_progress do
          month_str = Date::MONTHNAMES[month_num.to_i]
          month = "#{year}-#{month_num}"
          if !months.include? month
-            progress_log << "* Find/Create SUBSERIES component for YEAR/MONTH #{month}"
+            progress_log.info "* Find/Create SUBSERIES component for YEAR/MONTH #{month}"
             month_component = Component.where(date: month, parent_component_id: year_component.id).first
             if month_component.nil?
                month_component = Component.new
@@ -302,7 +305,7 @@ namespace :daily_progress do
          if curr_issue.nil? || curr_issue.date != issue
             content_desc = "From reel #{date_range}"
             content_desc = content_desc.gsub(/,/,'')
-            progress_log << "* Find/Create ITEM component for ISSUE #{issue}. ContentDesc: #{content_desc}"
+            progress_log.info "* Find/Create ITEM component for ISSUE #{issue}. ContentDesc: #{content_desc}"
             skip_issue = false
 
             if !curr_issue_date.empty?
@@ -311,7 +314,7 @@ namespace :daily_progress do
                issue_unit.date_archived = DateTime.now
                issue_unit.save
                if ingest
-                  progress_log << "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
+                  progress_log.info "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
                   if legacy == true
                      message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                      Object.publish :start_ingest_from_archive, message
@@ -337,7 +340,7 @@ namespace :daily_progress do
                curr_issue.save!
                update_rels_ext << update_followed_by(month_component, curr_issue)
 
-               progress_log << "   *  Create Unit for issue #{issue}"
+               progress_log.info "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
                issue_unit.order = order
                issue_unit.archive_id = 5 if legacy == true
@@ -352,7 +355,7 @@ namespace :daily_progress do
                issue_unit.save!
                page_cnt = 0
             else
-               progress_log << "   * Issue already exists, SKIPPING"
+               progress_log.info "   * Issue already exists, SKIPPING"
                skip_issue = true
             end
          end
@@ -360,7 +363,7 @@ namespace :daily_progress do
          # this issue was already ingested, skip it
          next if skip_issue
 
-         progress_log << "   - Master file for #{issue_date}: #{tif}"
+         progress_log.info "   - Master file for #{issue_date}: #{tif}"
          mf = MasterFile.new
          mf.discoverability = 0
          mf.indexing_scenario_id = 1
@@ -399,7 +402,7 @@ namespace :daily_progress do
          source_md5 = Digest::MD5.hexdigest(File.read(f))
          dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
          if source_md5 != dest_md5
-            progress_log << "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
+            progress_log.error "   ** Error in copy operation: source file '#{f}' to '#{dest_file}': MD5 checksums do not match"
          else
             mf.md5 = dest_md5
             mf.date_archived = DateTime.now
@@ -422,7 +425,7 @@ namespace :daily_progress do
       if !skip_issue && !issue_unit.nil?
          log << "#{curr_issue_date}\n"
          if ingest
-            progress_log << "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
+            progress_log.info "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
             if legacy == true
                message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                Object.publish :start_ingest_from_archive, message
