@@ -3,4 +3,5 @@
 //= require chosen-jquery
 //= require tracksys
 //= require jquery.elevatezoom
+//= require jquery.panzoom
 //= require ocr

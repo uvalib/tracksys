@@ -1,13 +1,31 @@
 $(function() {
 
    setTimeout( function() {
-      $('#src-img').elevateZoom({
-        //zoomType	: "lens",
-        borderColour: "#222",
-        //lensSize: 300
-      zoomWindowWidth: 650,
-      zoomWindowHeight: 650
-      });
+      var lens = $(".img-box").data("lens");
+      if ( !lens ) {
+         $("#src-img").panzoom({
+            minScale: 1,
+            maxScale: 10,
+            transition: true,
+            duration: 100,
+            increment: 0.5,
+            $zoomIn: $(".zoom-in"),
+            $zoomOut: $(".zoom-out"),
+            $zoomRange: $(".zoom-range"),
+            $reset: $(".reset"),
+            onPan: function() {
+               $(".img-box").css("background-image", "none");
+            }
+         });
+      } else {
+         $('#src-img').elevateZoom({
+            //zoomType	: "lens",
+            borderColour: "#222",
+            //lensSize: 300
+            zoomWindowWidth: 650,
+            zoomWindowHeight: 650
+         });
+      }
    }, 500);
 
 

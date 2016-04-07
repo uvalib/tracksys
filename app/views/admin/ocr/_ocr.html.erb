@@ -13,6 +13,17 @@
       <span class="ocr-button<% if working %> disabled<% end %>" id="start-ocr">Start OCR</span>
       <div id="ocr-status-message" data-job-id="<%= job_id %>"><% if working %>OCR in progress...<% end %></div>
    </div>
-   <p>Hover over the image to zoom in</p>
-   <img src="/admin/ocr/zoom?mf=<%= mf.id %>" id="src-img"/>
+   <% if lens %>
+      <p>Hover over the image to zoom in</p>
+   <% else %>
+      <div class="buttons">
+         <button class="zoom-in">Zoom In</button>
+         <button class="zoom-out">Zoom Out</button>
+         <input type="range" class="zoom-range">
+         <button class="reset">Reset</button>
+      </div>
+   <% end %>
+   <div class='img-box' data-lens="<%= lens %>">
+      <img src="/admin/ocr/zoom?mf=<%= mf.id %>" id="src-img"/>
+   </div>
 </div>

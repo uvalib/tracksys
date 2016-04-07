@@ -15,7 +15,7 @@ ActiveAdmin.register_page "OCR" do
 
       div :class => 'two-column img-column' do
          panel "Master File" do
-            render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :working=>(!ocr_job.nil?), :job_id=>job_id }
+            render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :working=>(!ocr_job.nil?), :job_id=>job_id, :lens=>params[:lens] }
          end
       end
       div :class => 'two-column' do

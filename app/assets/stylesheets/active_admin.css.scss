@@ -111,13 +111,23 @@ span.ocr-button.transcription {
    display: inline-block;
 }
 
-.ocr-src-panel {
-   text-align: center;
+.img-box {
+   position: relative;
+   margin-top: 15px;
+   border: 1px solid #888;
+   background-color: white;
    background-image: image-url("spinner.gif");
    background-repeat: no-repeat;
-   background-position-x: center;
-   min-height: 170px;
-   background-position-y: 90%;
+   background-position: center;
+   min-height: 200px;
+   img {
+      outline: 1px solid #666;
+   }
+}
+
+.ocr-src-panel {
+   text-align: center;
+
 
    p {
       color: #666;
