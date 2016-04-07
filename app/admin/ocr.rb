@@ -1,26 +1,40 @@
 ActiveAdmin.register_page "OCR" do
    menu false
+
    content :only=>:index do
-      mf = MasterFile.find(params[:mf])
-      ocr_job = JobStatus.where("originator_type=? and originator_id=? and (status=? or status=?)", "MasterFile", 48, "pending", "running").first
-      job_id = 0
-      job_id = ocr_job.id if !ocr_job.nil?
+      if !params[:mf].nil?
+         mf = MasterFile.find(params[:mf])
+         ocr_job = JobStatus.where("originator_type=? and originator_id=? and (status=? or status=?)", "MasterFile", 48, "pending", "running").first
+         job_id = 0
+         job_id = ocr_job.id if !ocr_job.nil?
 
-      # Get list of tesseract supported languages
-      lang_str = `tesseract --list-langs 2>&1`
-      # gives something like: List of available languages (107):\nafr\...
-      # split off info and make array
-      lang_str = lang_str.split(":")[1].strip
-      langs = lang_str.split("\n")
+         # Get list of tesseract supported languages
+         lang_str = `tesseract --list-langs 2>&1`
+         # gives something like: List of available languages (107):\nafr\...
+         # split off info and make array
+         lang_str = lang_str.split(":")[1].strip
+         langs = lang_str.split("\n")
 
-      div :class => 'two-column img-column' do
-         panel "Master File" do
-            render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :working=>(!ocr_job.nil?), :job_id=>job_id, :lens=>params[:lens] }
+         div :class => 'two-column img-column' do
+            panel "Master File" do
+               render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :working=>(!ocr_job.nil?), :job_id=>job_id, :lens=>params[:lens] }
+            end
          end
-      end
-      div :class => 'two-column' do
-         panel "Transcription", :class=>"transcription" do
-            render partial: 'transcription', :locals=>{:mf=>mf, :working=>(!ocr_job.nil?) }
+         div :class => 'two-column' do
+            panel "Transcription", :class=>"transcription" do
+               render partial: 'transcription', :locals=>{:mf=>mf, :working=>(!ocr_job.nil?) }
+            end
+         end
+      else
+         u = Unit.find(params[:u])
+         div :class => 'two-column' do
+            panel "OCR" do
+            end
+         end
+         div :class => 'two-column' do
+            panel "Master Files" do
+               render partial: 'master_files', :locals=>{:unit=>u }
+            end
          end
       end
    end

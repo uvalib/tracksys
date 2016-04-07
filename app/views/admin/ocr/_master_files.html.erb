@@ -1,0 +1,27 @@
+<table class="ocr-master-files">
+   <tr>
+      <th>Exclude?</td>
+      <th>Status</th>
+      <th>Title</th>
+      <th>Filename</th>
+      <th>Thumbnail</th>
+   </tr>
+   <% row_class="odd" %>
+   <% unit.master_files.each do |mf| %>
+      <tr class="<%= row_class %>">
+         <td><input type="checkbox" id="exclude-<%= mf.id %>"/></td>
+         <td></td>
+         <td><%= mf.title %></td>
+         <td><%= mf.filename %></td>
+         <td>
+            <%= link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})" %>
+         </td>
+      </tr>
+      <% if row_class=="odd"
+            row_class="even"
+         else
+            row_class="odd"
+         end
+      %>
+   <% end %>
+</table>

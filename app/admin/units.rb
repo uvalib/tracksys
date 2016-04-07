@@ -23,6 +23,9 @@ ActiveAdmin.register Unit do
      raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
   end
   action_item only: :show do
+     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
+  end
+  action_item only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -127,6 +130,11 @@ ActiveAdmin.register Unit do
       if !current_user.viewer?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
+         end
+         if ocr_enabled?
+            div do
+               link_to "OCR", "/admin/ocr?u=#{unit.id}"
+            end
          end
       end
     end
@@ -236,6 +244,11 @@ ActiveAdmin.register Unit do
               if !current_user.viewer?
                  div do
                    link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                 end
+                 if ocr_enabled?
+                    div do
+                       link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                    end
                  end
               end
               if mf.in_dl?

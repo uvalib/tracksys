@@ -9,8 +9,10 @@ ActiveAdmin.register MasterFile do
 
   config.clear_action_items!
   action_item only: :show do
+     link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
+  end
+  action_item only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
-     link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer?
   end
 
   batch_action :download_from_archive do |selection|
@@ -83,8 +85,10 @@ ActiveAdmin.register MasterFile do
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
          end
-         div do
-            link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+         if ocr_enabled?
+            div do
+               link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+            end
          end
       end
       if mf.in_dl?

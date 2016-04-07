@@ -21,6 +21,9 @@ library_url: http://www.library.virginia.edu
 kdu_compress: /usr/bin/kakadu/kdu_compress
 num_jp2k_threads: 2
 
+# Set to on to enable OCR features
+ocr: "off"
+
 production:
    archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /digiserv-production

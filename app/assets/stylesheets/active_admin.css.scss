@@ -48,6 +48,11 @@ textarea.transcription {
    }
 }
 
+table.ocr-master-files {
+   input[type=checkbox] {
+      margin-right:5px;
+   }
+}
 span.ocr-button.disabled {
    opacity: 0.5;
    cursor: default;
