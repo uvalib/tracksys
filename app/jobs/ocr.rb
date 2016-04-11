@@ -11,8 +11,20 @@ class Ocr < BaseJob
 
       if object_class == "MasterFile"
          ocr_master_file(object, language)
+         on_success("OCR complete")
+      elsif object_class == "Unit"
+         ocr_unit(object, language, message[:exclude] )
+         on_success("OCR complete")
       else
-         raise "OCR can only be performed on master files"
+         raise "OCR can only be performed on units or master files"
+      end
+   end
+
+   def ocr_unit(unit, language, exclude)
+      logger().info("OCR Masterfiles from unit #{unit.id}, EXCEPT #{exclude}")
+      unit.mater_files.each do |mf|
+         next if exclude.include? mf.id
+         ocr_master_file(mf, language)
       end
    end
 
@@ -38,7 +50,5 @@ class Ocr < BaseJob
       logger().info("Cleaning up #{trans_file} and #{dest}")
       File.delete(trans_file)
       File.delete(dest)
-
-      on_success("OCR complete")
    end
 end

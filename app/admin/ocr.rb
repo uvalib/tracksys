@@ -2,38 +2,39 @@ ActiveAdmin.register_page "OCR" do
    menu false
 
    content :only=>:index do
+      # Get list of tesseract supported languages
+      lang_str = `tesseract --list-langs 2>&1`
+      # gives something like: List of available languages (107):\nafr\...
+      # split off info and make array
+      lang_str = lang_str.split(":")[1].strip
+      langs = lang_str.split("\n")
+
       if !params[:mf].nil?
          mf = MasterFile.find(params[:mf])
-         ocr_job = JobStatus.where("originator_type=? and originator_id=? and (status=? or status=?)", "MasterFile", 48, "pending", "running").first
-         job_id = 0
-         job_id = ocr_job.id if !ocr_job.nil?
-
-         # Get list of tesseract supported languages
-         lang_str = `tesseract --list-langs 2>&1`
-         # gives something like: List of available languages (107):\nafr\...
-         # split off info and make array
-         lang_str = lang_str.split(":")[1].strip
-         langs = lang_str.split("\n")
+         ocr_job = JobStatus.where("originator_type=? and originator_id=? and (status=? or status=?)", "MasterFile", params[:mf], "pending", "running").first
 
          div :class => 'two-column img-column' do
             panel "Master File" do
-               render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :working=>(!ocr_job.nil?), :job_id=>job_id, :lens=>params[:lens] }
+               render partial: 'ocr', :locals => {:mf => mf, :langs=>langs, :job=>ocr_job, :lens=>params[:lens] }
             end
          end
          div :class => 'two-column' do
             panel "Transcription", :class=>"transcription" do
-               render partial: 'transcription', :locals=>{:mf=>mf, :working=>(!ocr_job.nil?) }
+               render partial: 'transcription', :locals=>{:mf=>mf, :job=>ocr_job }
             end
          end
       else
          u = Unit.find(params[:u])
+         ocr_job = JobStatus.where("originator_type=? and originator_id=? and (status=? or status=?)", "Unit", params[:u], "pending", "running").first
+
          div :class => 'two-column' do
             panel "OCR" do
+               render partial: 'unit_ocr', :locals=>{:unit=>u, :langs=>langs, :job=>ocr_job }
             end
          end
          div :class => 'two-column' do
             panel "Master Files" do
-               render partial: 'master_files', :locals=>{:unit=>u }
+               render partial: 'master_files', :locals=>{:unit=>u, :job=>ocr_job }
             end
          end
       end
@@ -52,9 +53,14 @@ ActiveAdmin.register_page "OCR" do
    end
 
    # POST to start to start an OCR job. Payload includes starting object type and ID
+   # and other startup info: language and which pages to exclude
    #
    page_action :start, method: :post do
-      job_id = Ocr.exec({ :object_class=>params[:type], :object_id=>params[:id], :language=>params[:lang] })
+      exclude = []
+      if !params[:exclude].nil?
+         exclude = params[:exclude].map { |id_str| id_str.to_i }
+      end
+      job_id = Ocr.exec({ :object_class=>params[:type], :object_id=>params[:id], :language=>params[:lang], :exclude=>exclude })
       render :text=>job_id, :status=>:ok
    end
 

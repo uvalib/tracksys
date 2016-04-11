@@ -49,8 +49,44 @@ textarea.transcription {
 }
 
 table.ocr-master-files {
+   td.check {
+      cursor: pointer;
+   }
    input[type=checkbox] {
       margin-right:5px;
+   }
+   span.status {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+   }
+   span.status.pending {
+      background-image: image-url("pending.png");
+   }
+   span.status.working {
+      background-image: image-url("working.gif");
+   }
+   span.status.success {
+      border: 2px solid #444;
+      border-radius: 16px;
+      background-color: #0c0;
+      width: 12px;
+      height: 12px;
+   }
+   span.status.none {
+      border: 2px solid #444;
+      background-color: white;
+      border-radius: 16px;
+      width: 12px;
+      height: 12px;
+      opacity: 0.5;
+   }
+   span.status.error {
+      border: 2px solid #444;
+      background-color: #800;
+      border-radius: 16px;
+      width: 12px;
+      height: 12px;
    }
 }
 span.ocr-button.disabled {

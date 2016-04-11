@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160309193038) do
+ActiveRecord::Schema.define(:version => 20160411181706) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -442,6 +442,7 @@ ActiveRecord::Schema.define(:version => 20160309193038) do
     t.string   "originator_type"
     t.datetime "created_at",                             :null => false
     t.datetime "updated_at",                             :null => false
+    t.string   "params"
   end
 
   create_table "legacy_identifiers", :force => true do |t|

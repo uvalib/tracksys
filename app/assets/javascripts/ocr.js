@@ -81,6 +81,50 @@ $(function() {
       });
    });
 
+   /**
+    * Start OCR for master files owned by a unit
+    */
+   $("#start-unit-ocr").on("click", function() {
+      if ( $(this).hasClass("disabled")) {
+         return;
+      }
+
+      var exclude = [];
+      $(".exclude").each( function(idx) {
+         if ( $(this).is(":checked")) {
+            var id = $(this).attr("id").split("-")[1];
+            exclude.push(id);
+         }
+      });
+
+      $("#ocr-status-message").removeClass("error");
+      $("#ocr-status-message").text("");
+      $(this).addClass("disabled");
+      var btn = $(this);
+      var url = window.location.href;
+      var id = url.split("=")[1];
+      $.ajax({
+         url: "/admin/ocr/start",
+         data: {type: "Unit", id: id, lang: $("#language").val(), exclude: exclude },
+         method: "POST",
+         complete: function( jqXHR, textStatus ) {
+            if ( jqXHR.status != 200) {
+               $("#ocr-status-message").removeClass("error");
+               $("#ocr-status-message").text("Uable to perform OCR: "+textStatus);
+               btn.removeClass("disabled");
+            } else {
+               $("#ocr-status-message").text("OCR in progress...");
+               $("#ocr-spinner").show();
+               var jobId = jqXHR.responseText;
+               pollOcrJobStatus(jobId);
+            }
+         }
+      });
+   });
+
+   /**
+    * Start OCR for a single master file
+    */
    $("#start-ocr").on("click", function() {
       if ( $(this).hasClass("disabled")) {
          return;
@@ -110,9 +154,48 @@ $(function() {
       });
    });
 
-   var jobId = parseInt( $("#ocr-status-message").data("job-id"), 10);
-   if ( jobId > 0  ) {
-      $("#ocr-spinner").show();
-      pollOcrJobStatus(jobId);
+   $("td.check").on("click", function() {
+      $(this).find(".exclude").trigger("click");
+   });
+
+   $(".exclude").on("change", function() {
+      var excluded = 0;
+      var total = 0;
+      $(".exclude").each( function(idx) {
+         total += 1;
+         var img = $(this).closest("tr").find("img");
+         if ( $(this).is(":checked")) {
+            excluded += 1;
+            img.css("opacity", "0.25");
+         } else {
+            img.css("opacity", "1");
+         }
+      });
+      $("#ocr-count").text(total-excluded);
+   });
+
+   var showUnitOcrStatus = function(job) {
+      var params = JSON.parse(job.params)
+      $(".exclude").each( function(idx) {
+         var id = parseInt($(this).attr("id").split("-")[1],10);
+         if ( $.inArray(id, params.exclude) > -1) {
+            $(this).trigger("click");
+         } else {
+             $(this).closest("tr").find("span.status").removeClass("none").addClass("pending");
+         }
+         $(this).attr("disabled", "disabled");
+      });
+   };
+
+   // When page loads, see if there is an OCR job in progress for this
+   // unit or master file. If so, show some status and start polling
+   var job_json =$("#ocr-status-message").data("job-json");
+   if ( job_json  ) {
+      if (job_json.originator_type == "Unit") {
+         showUnitOcrStatus(job_json);
+      } else {
+         $("#ocr-spinner").show();
+      }
+      pollOcrJobStatus( job_json.id );
    }
 });

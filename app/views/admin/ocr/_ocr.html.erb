@@ -10,8 +10,8 @@
             <option <%= sel %> value="<%= lang %>"><%= lang.upcase  %></option>
          <% end %>
       </select>
-      <span class="ocr-button<% if working %> disabled<% end %>" id="start-ocr">Start OCR</span>
-      <div id="ocr-status-message" data-job-id="<%= job_id %>"><% if working %>OCR in progress...<% end %></div>
+      <span class="ocr-button<% if !job.nil? %> disabled<% end %>" id="start-ocr">Start OCR</span>
+      <div id="ocr-status-message" data-job-json="<%= job.to_jsob if !job.nil? %>"><% if !job.nil? %>OCR in progress...<% end %></div>
    </div>
    <% if lens %>
       <p>Hover over the image to zoom in</p>

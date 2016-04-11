@@ -99,6 +99,9 @@ ActiveAdmin.register JobStatus do
                      "None Available"
                   end
                end
+               row ("Parameters") do |job_status|
+                  raw("<code>#{JSON.pretty_generate JSON.parse(job_status.params)}</code>")
+               end
             end
          end
       end
@@ -116,9 +119,13 @@ ActiveAdmin.register JobStatus do
        def show
          @err_msg = JobStatus.find(params[:id]).error
          logpath = File.join(Rails.root,  "log", "jobs", "job_#{params[:id]}.log")
-         f = File.open(logpath, "r")
-         @job_log = f.read
-         f.close
+         if File.exist? logpath
+            f = File.open(logpath, "r")
+            @job_log = f.read
+            f.close
+         else
+            @job_log = "Job pending"
+         end
          show!
        end
    end

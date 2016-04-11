@@ -37,7 +37,7 @@ class BaseJob
    # Init the job status record for this workflow
    #
    def init_status(message)
-      @status = JobStatus.create(name: self.class.name)
+      @status = JobStatus.create(name: self.class.name, params: message.to_json)
       set_originator(message)
       originator = @status.originator
       if !originator.nil?
