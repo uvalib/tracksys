@@ -100,7 +100,7 @@ ActiveAdmin.register JobStatus do
                   end
                end
                row ("Parameters") do |job_status|
-                  raw("<code>#{JSON.pretty_generate JSON.parse(job_status.params)}</code>")
+                  raw("<code>#{JSON.parse(job_status.params)}</code>") if !job_status.params.nil?
                end
             end
          end
