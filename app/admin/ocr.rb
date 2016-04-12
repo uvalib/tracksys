@@ -78,7 +78,7 @@ ActiveAdmin.register_page "OCR" do
    page_action :status, method: :get do
       begin
          job = JobStatus.find(params[:job].to_i)
-         resp = {status: job.status}
+         resp = {status: job.status, type: job.originator_type }
          if job.status == 'failure'
             resp[:error] = job.error
          elsif job.status == 'success'
@@ -86,6 +86,19 @@ ActiveAdmin.register_page "OCR" do
                mf = MasterFile.find(job.originator_id)
                resp[:transcription] = mf.transcription_text
             end
+         elsif job.status == 'running' && job.originator_type == "Unit"
+            # check for transcriptions on MFs that are part of this job and include
+            # in response as completed
+            jp = JSON.parse(job.params)
+            excluded = jp["exclude"]
+            done = []
+            job.originator.master_files.each do |mf|
+               if !excluded.include?(mf.id) && !mf.transcription_text.nil? && mf.transcription_text != "PROCESSING"
+                  puts "TEXT #{mf.transcription_text}"
+                  done << mf.id
+               end
+            end
+            resp[:complete] = done
          end
          render :json=>resp, :status=>:ok
       rescue Exception => e

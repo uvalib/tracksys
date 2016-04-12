@@ -28,6 +28,25 @@ $(function() {
       }
    }, 500);
 
+   var updateUnitOcrStatus = function(statusObj) {
+      $(".exclude").each( function(idx) {
+         if ( !$(this).is(":checked") ) {
+            var id = parseInt($(this).data("id"),10);
+            var statusIcon = $(this).closest("tr").find("span.status");
+            if (statusObj.status == 'failure') {
+               $(statusIcon).removeClass().addClass("status").addClass("error");
+            } else if (statusObj.status == 'success') {
+               $(statusIcon).removeClass().addClass("status").addClass("success");
+            } else {
+               if ( $.inArray(id, statusObj.complete) > -1 ) {
+                  $(statusIcon).removeClass().addClass("status").addClass("success");
+               } else {
+                  $(statusIcon).removeClass().addClass("status").addClass("working");
+               }
+            }
+         }
+      });
+   };
 
    var pollOcrJobStatus = function(jobId) {
       var intervalId = setInterval( function() {
@@ -42,12 +61,24 @@ $(function() {
                      $("textarea.transcription").val(jqXHR.responseJSON.transcription);
                      $("#ocr-status-message").text("");
                      $("#start-ocr").removeClass("disabled");
+                     $("#start-unit-ocr").removeClass("disabled");
+                     if (jqXHR.responseJSON.type == "Unit") {
+                        updateUnitOcrStatus( jqXHR.responseJSON );
+                     }
                   } else if (jqXHR.responseJSON.status == 'failure' ) {
                      clearInterval(intervalId);
                      $("#ocr-spinner").hide();
                      $("#ocr-status-message").addClass("error");
                      $("#ocr-status-message").text(jqXHR.responseJSON.error);
                      $("#start-ocr").removeClass("disabled");
+                     $("#start-unit-ocr").removeClass("disabled");
+                     if (jqXHR.responseJSON.type == "Unit") {
+                        updateUnitOcrStatus( jqXHR.responseJSON );
+                     }
+                  } else if (jqXHR.responseJSON.status == 'running' ) {
+                     if (jqXHR.responseJSON.type == "Unit") {
+                        updateUnitOcrStatus( jqXHR.responseJSON );
+                     }
                   }
                } else {
                   $("#ocr-spinner").hide();
@@ -55,6 +86,7 @@ $(function() {
                   $("#ocr-status-message").addClass("error");
                   $("#ocr-status-message").text(textStatus);
                   $("#start-ocr").removeClass("disabled");
+                  $("#start-unit-ocr").removeClass("disabled");
                }
             }
          })
@@ -92,7 +124,7 @@ $(function() {
       var exclude = [];
       $(".exclude").each( function(idx) {
          if ( $(this).is(":checked")) {
-            var id = $(this).attr("id").split("-")[1];
+            var id = $(this).data("id");
             exclude.push(id);
          }
       });
@@ -114,7 +146,14 @@ $(function() {
                btn.removeClass("disabled");
             } else {
                $("#ocr-status-message").text("OCR in progress...");
-               $("#ocr-spinner").show();
+               $("input.exclude").each( function(idx) {
+                  $(this).attr("disabled", "disabled");
+                  var statusIcon = $(this).closest("tr").find("span.status")
+                  if ( !$(this).is(":checked") ) {
+                     $(statusIcon).removeClass().addClass("status").addClass("pending");
+                  }
+               });
+
                var jobId = jqXHR.responseText;
                pollOcrJobStatus(jobId);
             }
@@ -177,7 +216,7 @@ $(function() {
    var showUnitOcrStatus = function(job) {
       var params = JSON.parse(job.params)
       $(".exclude").each( function(idx) {
-         var id = parseInt($(this).attr("id").split("-")[1],10);
+         var id = parseInt($(this).data("id"),10);
          if ( $.inArray(id, params.exclude) > -1) {
             $(this).trigger("click");
          } else {

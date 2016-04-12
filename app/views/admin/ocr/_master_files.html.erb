@@ -9,8 +9,10 @@
    <% row_class="odd" %>
    <% unit.master_files.each do |mf| %>
       <tr class="<%= row_class %>">
-         <td class="check"><input type="checkbox" class="exclude" id="exclude-<%= mf.id %>"/></td>
-         <td><span class="status none" id="status-<%= mf.id  %>"</span></td>
+         <td class="check"><input type="checkbox" class="exclude" data-id="<%= mf.id %>"/></td>
+         <% status = "none"
+            status = "success" if job.nil? && !mf.transcription_text.nil? %>
+         <td><span class="status <%= status %>" id="status-<%= mf.id  %>"</span></td>
          <td><%= mf.filename %></td>
          <td>
             <%= link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})" %>
