@@ -29,14 +29,14 @@
     <%= f.input :is_personal_item, :as => :radio %>
     <%= f.input :is_manuscript, :as => :radio %>
     <%= f.input :is_collection, :as => :radio %>
-    <%= f.input :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES %>
-    <%= f.input :genre, :as => :select, :collection => Bibl::GENRES %>
+    <%= f.input :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+    <%= f.input :genre, :as => :select, :collection => Bibl::GENRES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
     <%= f.input :date_external_update, :as => :string, :input_html => {:class => "datepicker"} %>
   <% end %>
 
   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'show' do %>
       <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
-      <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chzn-select',  :style => 'width: 250px'} %>
+      <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
       <%= f.input :discoverability, :as => :select %>
       <%= f.input :indexing_scenario %>
       <%= f.input :index_destination %>

@@ -6,8 +6,7 @@ $(function() {
    $('.inline').colorbox({inline:true, width:"50%"})
 
    // Chosen javascript library
-   $('.chzn-select').chosen();
-   $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+   $('.chosen-select').chosen();
 
    // Toggle show panels and form sections
    $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {

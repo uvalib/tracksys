@@ -135,7 +135,7 @@ ActiveAdmin.register Customer do
           p.input :address_2
           p.input :city
           p.input :state
-          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true
+          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
           p.input :post_code
           p.input :phone
           p.input :organization
@@ -152,7 +152,7 @@ ActiveAdmin.register Customer do
           b.input :address_2
           b.input :city
           b.input :state
-          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true
+          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
           b.input :post_code
           b.input :phone
           b.input :organization

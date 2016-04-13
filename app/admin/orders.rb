@@ -158,8 +158,8 @@ ActiveAdmin.register Order do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :agency_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true
-      f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
+      f.input :agency_id, :as => :select,  :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true
+      f.input :customer, :as => :select, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
     end
 
     f.inputs "Delivery Information", :class => 'panel columns-none' do

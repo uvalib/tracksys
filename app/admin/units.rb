@@ -293,8 +293,8 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chzn-select', :style => 'width: 200px'}
-      f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :input_html => { :class => 'chzn-select', :style => 'width: 250px'}
+      f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chosen-select', :style => 'width: 200px'}
+      f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :input_html => { :class => 'chosen-select', :style => 'width: 200px'}
     end
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
