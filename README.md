@@ -14,8 +14,8 @@
 * Kakadu (No version for OSX; imagemagick used instead. www.kakadusoftware.com/)
 
 ### Rails
-* If using rbenv: rbenv 1.9.3-p448
-* gem install bundler -v1.3.5  (later version will not work)
+* If using rbenv: rbenv 2.2.4
+* gem install bundler
 * cd /usr/local/projects
 * git clone https://github.com/uvalib-dcs/tracksys.git
 * cd tracksys
