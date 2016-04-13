@@ -16,8 +16,27 @@
 @import "printable";
 @import "twilight";
 
+fieldset.panel.two-column {
+   margin-bottom: 10px;
+}
 ul.header-item.tabs {
    font-size: 0.9em;
+}
+
+#master_file_transcription_text_input {
+   label {
+      display: none;
+   }
+   textarea {
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+      font-size: 1em;
+      font-family: serif;
+      -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+   }
 }
 
 div.header #site_title {
@@ -35,6 +54,18 @@ textarea.transcription {
    padding: 15px;
    font-size: 1.2em;
    font-family: serif;
+}
+
+div.transcription {
+   border: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 8px;
+    background-color: white;
+    max-height: 500px;
+    overflow: scroll;
+    p {
+      font-family: serif;
+   }
 }
 
 #header ul.tabs > li.has_nested {
