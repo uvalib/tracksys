@@ -14,7 +14,6 @@
 @import "colorbox";
 @import "chosen";
 @import "printable";
-@import "twilight";
 
 fieldset.panel.two-column {
    margin-bottom: 10px;
@@ -56,7 +55,7 @@ textarea.transcription {
    font-family: serif;
 }
 
-div.transcription {
+div.mf-transcription {
    border: 1px solid #ccc;
     margin: 10px 0;
     padding: 8px;
@@ -192,9 +191,6 @@ span.ocr-button.transcription {
    background-repeat: no-repeat;
    background-position: center;
    min-height: 200px;
-   img {
-      outline: 1px solid #666;
-   }
 }
 
 .ocr-src-panel {

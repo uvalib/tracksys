@@ -18,9 +18,9 @@ ActiveAdmin.register Customer do
   filter :email
   filter :primary_address_organization, :as => :string, :label => "Primary Organization"
   filter :billable_address_organization, :as => :string, :label => "Billable Organization"
-  filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
-  filter :department, :as => :select, :input_html => {:class => 'chzn-select'}
-  filter :heard_about_service, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :academic_status, :as => :select
+  filter :department, :as => :select
+  filter :heard_about_service, :as => :select
   filter :heard_about_resources_id, :as => :numeric
   filter :orders_count
   filter :master_files_count
@@ -123,9 +123,9 @@ ActiveAdmin.register Customer do
       f.input :first_name
       f.input :last_name
       f.input :email
-      f.input :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
-      f.input :heard_about_service, :as => :select, :collection => HeardAboutService.where(:is_approved => true), :input_html => {:class => 'chzn-select'}
-      f.input :department, :as => :select, :collection => Department.order(:name), :input_html => {:class => 'chzn-select', :style => 'width: 250px'}
+      f.input :academic_status, :as => :select
+      f.input :heard_about_service, :as => :select, :collection => HeardAboutService.where(:is_approved => true)
+      f.input :department, :as => :select, :collection => Department.order(:name)
     end
 
     f.inputs "Primary Address (Required)", :class => 'inputs three-column' do
@@ -135,7 +135,7 @@ ActiveAdmin.register Customer do
           p.input :address_2
           p.input :city
           p.input :state
-          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chzn-select'}
+          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true
           p.input :post_code
           p.input :phone
           p.input :organization
@@ -152,7 +152,7 @@ ActiveAdmin.register Customer do
           b.input :address_2
           b.input :city
           b.input :state
-          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chzn-select'}
+          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true
           b.input :post_code
           b.input :phone
           b.input :organization

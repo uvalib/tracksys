@@ -77,15 +77,15 @@ ActiveAdmin.register Unit do
   filter :date_queued_for_ingest
   filter :special_instructions
   filter :staff_notes
-  filter :include_in_dl, :as => :select, :input_html => {:class => 'chzn-select'}
-  filter :intended_use, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :include_in_dl, :as => :select
+  filter :intended_use, :as => :select
   filter :bibl_call_number, :as => :string, :label => "Call Number"
   filter :bibl_title, :as => :string, :label => "Bibl. Title"
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
-  filter :agency, :as => :select, :input_html => {:class => 'chzn-select'}
-  filter :indexing_scenario, :input_html => {:class => 'chzn-select'}
-  filter :availability_policy, :input_html => {:class => 'chzn-select'}
+  filter :agency, :as => :select
+  filter :indexing_scenario
+  filter :availability_policy
   filter :master_files_count, :as => :numeric
 
   index do
@@ -275,7 +275,7 @@ ActiveAdmin.register Unit do
 
   form do |f|
     f.inputs "General Information", :class => 'panel three-column ' do
-      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES, :input_html => {:class => 'chzn-select', :style => 'width: 150px'}
+      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES
       f.input :unit_extent_estimated
       f.input :unit_extent_actual
       f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
@@ -283,7 +283,7 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Patron Request", :class => 'panel three-column' do
-      f.input :intended_use, :as => :select, :collection => IntendedUse.all, :input_html => {:class => 'chzn-select'}
+      f.input :intended_use, :as => :select, :collection => IntendedUse.all
       f.input :remove_watermark, :as => :radio
       f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker}
       f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker}

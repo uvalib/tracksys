@@ -132,7 +132,7 @@ ActiveAdmin.register Agency do
     f.inputs "Agency Information", :class => 'panel' do
       f.input :name
       f.input :description
-      f.input :parent_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}, :label => "Parent Agency"
+      f.input :parent_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true, :label => "Parent Agency"
     end
 
     f.inputs :class => 'columns-none' do

@@ -37,14 +37,13 @@
   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'show' do %>
       <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
       <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chzn-select',  :style => 'width: 250px'} %>
-      <%= f.input :discoverability, :as => :select, :input_html => {:class => 'chzn-select'} %>
-      <%= f.input :indexing_scenario, :input_html => {:class => 'chzn-select'} %>
-      <%= f.input :index_destination, :input_html => {:class => 'chzn-select'} %>
+      <%= f.input :discoverability, :as => :select %>
+      <%= f.input :indexing_scenario %>
+      <%= f.input :index_destination %>
       <%= f.input :dpla, :as => :radio %>
       <% if @bibl.dpla %>
       <%= f.input :parent_bibl_id, :as => :number  %>
       <% end %>
-      <%= f.input :use_right, :input_html => {:class => 'chzn-select'} %>
       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
       <%= f.input :collection_facet, :as => :string %>

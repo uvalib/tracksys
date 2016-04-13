@@ -37,8 +37,8 @@ ActiveAdmin.register Bibl do
   filter :location
   filter :index_destination, :as => :select
   filter :cataloging_source
-  filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES, :input_html => {:class => 'chzn-select'}
-  filter :availability_policy, :input_html => {:class => 'chzn-select'}
+  filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
+  filter :availability_policy
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric
   filter :agencies_id, :as => :numeric
@@ -196,7 +196,7 @@ ActiveAdmin.register Bibl do
               nil
             end
           end
-          row :use_right
+
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)
           end

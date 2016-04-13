@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160411181706) do
+ActiveRecord::Schema.define(:version => 20160413183829) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -638,67 +638,5 @@ ActiveRecord::Schema.define(:version => 20160411181706) do
   end
 
   add_index "use_rights", ["name"], :name => "index_use_rights_on_name", :unique => true
-
-  create_table "versions", :force => true do |t|
-    t.string   "item_type",  :null => false
-    t.integer  "item_id",    :null => false
-    t.string   "event",      :null => false
-    t.string   "whodunnit"
-    t.text     "object"
-    t.datetime "created_at"
-  end
-
-  add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
-
-  add_foreign_key "bibls", "availability_policies", name: "bibls_availability_policy_id_fk"
-  add_foreign_key "bibls", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
-  add_foreign_key "bibls", "use_rights", name: "bibls_use_right_id_fk"
-
-  add_foreign_key "bibls_components", "bibls", name: "bibls_components_ibfk_1"
-  add_foreign_key "bibls_components", "components", name: "bibls_components_ibfk_2"
-
-  add_foreign_key "bibls_legacy_identifiers", "bibls", name: "bibls_legacy_identifiers_bibl_id_fk"
-  add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
-
-  add_foreign_key "components", "availability_policies", name: "components_availability_policy_id_fk"
-  add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
-  add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
-  add_foreign_key "components", "use_rights", name: "components_use_right_id_fk"
-
-  add_foreign_key "components_containers", "components", name: "components_containers_ibfk_2"
-  add_foreign_key "components_containers", "containers", name: "components_containers_ibfk_1"
-
-  add_foreign_key "components_legacy_identifiers", "components", name: "components_legacy_identifiers_ibfk_1"
-  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", name: "components_legacy_identifiers_ibfk_2"
-
-  add_foreign_key "containers", "container_types", name: "containers_container_type_id_fk"
-
-  add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
-  add_foreign_key "customers", "departments", name: "customers_department_id_fk"
-  add_foreign_key "customers", "heard_about_services", name: "customers_heard_about_service_id_fk"
-
-  add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
-
-  add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
-
-  add_foreign_key "legacy_identifiers_master_files", "legacy_identifiers", name: "legacy_identifiers_master_files_legacy_identifier_id_fk"
-  add_foreign_key "legacy_identifiers_master_files", "master_files", name: "legacy_identifiers_master_files_master_file_id_fk"
-
-  add_foreign_key "master_files", "availability_policies", name: "master_files_availability_policy_id_fk"
-  add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
-  add_foreign_key "master_files", "indexing_scenarios", name: "master_files_indexing_scenario_id_fk"
-  add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
-  add_foreign_key "master_files", "use_rights", name: "master_files_use_right_id_fk"
-
-  add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
-  add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
-
-  add_foreign_key "units", "availability_policies", name: "units_availability_policy_id_fk"
-  add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
-  add_foreign_key "units", "heard_about_resources", name: "units_heard_about_resource_id_fk"
-  add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
-  add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
-  add_foreign_key "units", "orders", name: "units_order_id_fk"
-  add_foreign_key "units", "use_rights", name: "units_use_right_id_fk"
 
 end

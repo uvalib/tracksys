@@ -23,7 +23,7 @@ ActiveAdmin.register Order do
   scope :uniq
 
   filter :id
-  filter :agency, :as => :select, :input_html => {:class => 'chzn-select', :'data-placeholder' => 'Choose an agency...'}
+  filter :agency, :as => :select, :input_html => {:'data-placeholder' => 'Choose an agency...'}
   filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
   filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
@@ -38,7 +38,7 @@ ActiveAdmin.register Order do
   filter :fee_actual
   filter :staff_notes
   filter :special_instructions
-  filter :academic_status, :as => :select, :input_html => {:class => 'chzn-select'}
+  filter :academic_status, :as => :select
   filter :invoices_count
   filter :master_files_count
 
@@ -141,7 +141,7 @@ ActiveAdmin.register Order do
 
   form do |f|
     f.inputs "Basic Information", :class => 'panel three-column' do
-      f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES, :input_html => {:class => 'chzn-select'}
+      f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES
       f.input :order_title
       f.input :special_instructions, :input_html => {:rows => 3}
       f.input :staff_notes, :input_html => {:rows => 3}
@@ -158,7 +158,7 @@ ActiveAdmin.register Order do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :agency_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true, :input_html => {:class => 'chzn-select-deselect'}
+      f.input :agency_id, :as => :select, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true
       f.input :customer, :as => :select, :input_html => {:class => 'chzn-select'}
     end
 

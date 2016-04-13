@@ -11,7 +11,6 @@ gem 'validates_timeliness', '3.0.14'
 gem 'annotate', '2.4.1.beta1'
 gem 'mysql2', '~> 0.3.10'
 gem 'ancestry'
-gem 'foreigner'
 
 gem 'delayed_job_active_record'
 
@@ -58,9 +57,3 @@ gem 'jquery-rails', '2.3.0'
 gem 'jquery-ui-rails', '4.0.5'
 gem 'jquery-colorbox-rails', '0.1.4'
 gem "chosen-rails"
-
-# To version our models
-gem 'paper_trail'
-
-# Integrate tesseract OCR software
-#gem 'tesseract-ocr'
