@@ -109,6 +109,12 @@ class BaseJob
       complete()
    end
 
+   # Delayed job hook: Called when job has FAILED
+   #
+   def failure(job)
+      @logger.info "Workflow #{self.class.name} has FAILED"
+   end
+
    def handle_wokflow_exception(exception)
       # if this error was raised by on_error to end processing, the
       # status will have been bumped to failure. If status is still running
@@ -138,11 +144,7 @@ class BaseJob
       @logger.info message
    end
 
-   # Sends a warning message, where "warning" is defined as a message that you
-   # want to log without terminating processing. When you call this method like
-   # so:
-   #   on_warning "My message"
-   # the message is logged, but then your code continues to run.
+   # Log a warning message and keep processing
    #
    def on_failure(message)
       @status.update_attributes(:failures=>(@status.failures+1), :active_error=>true )
@@ -153,20 +155,12 @@ class BaseJob
    # Handles StandardError exceptions and keeps processing. Other exceptions
    # are raised, terminating processing.
    #
-   # Have on_error throw ActiveMessaging::AbortMessageException when you want a
-   # message to be aborted/rolled back, meaning that it can and should be
-   # retried (idempotency matters here). Retry logic varies by broker - see
-   # individual adapter code and docs for how it will be treated
-   #
    def on_error(err)
-      #
-      # For now, any errors terminate processing. Maybe relax this later
-      #
-      # if err.is_a? StandardError
-      #    @logger.error err.message
-      #    @logger.error err.backtrace.join("\n")
-      #    @status.update_attribute(:failures, (@status.failures+1) )
-      # else
+      if err.is_a? StandardError
+         @logger.error err.message
+         @logger.error err.backtrace.join("\n")
+         @status.update_attribute(:failures, (@status.failures+1) )
+      else
          if err.is_a? Exception
             @logger.fatal err.message
             @logger.fatal err.backtrace.join("\n")
@@ -179,6 +173,6 @@ class BaseJob
 
          # Stop processing
          raise err
-      # end
+      end
    end
 end
