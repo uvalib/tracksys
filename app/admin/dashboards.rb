@@ -3,7 +3,7 @@ ActiveAdmin.register_page "Dashboard" do
 
   content do
     div :class => 'three-column' do
-      panel "Workflow Status", :namespace => :admin, :priority => 1, :toggle => 'show' do
+      panel "Job Status Summary", :namespace => :admin, :priority => 1, :toggle => 'show' do
         table do
           tr do
             td do "Pending Jobs" end

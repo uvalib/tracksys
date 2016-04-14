@@ -1,5 +1,5 @@
 ActiveAdmin.register JobStatus do
-   menu :priority => 8, :label=>"Workflow Status"
+   menu :priority => 8
    actions :all, :except => [:edit, :new]
 
    batch_action :remove_active_error do |selection|
@@ -18,7 +18,7 @@ ActiveAdmin.register JobStatus do
 
    # Workflow Status Index
    #
-   index :title=>"Workflow Status" do
+   index :title=>"Job Status" do
       selectable_column
       column ("Job ID"), sortable: :id do |job_status|
          job_status.id
@@ -60,7 +60,7 @@ ActiveAdmin.register JobStatus do
 
    # Workflow status Details
    #
-   show :title => proc {|s| "Workflow Status ##{s.id}"} do
+   show :title => proc {|s| "Job #{s.id} Status "} do
       div :class => 'two-column' do
          panel "Summary" do
             attributes_table_for job_status do

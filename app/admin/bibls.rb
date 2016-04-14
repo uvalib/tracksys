@@ -247,7 +247,7 @@ ActiveAdmin.register Bibl do
       row :customers do |bibl|
         link_to "#{bibl.customers.count}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
       end
-      row :workflows do |bibl|
+      row :jobs do |bibl|
         link_to "#{bibl.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => bibl.id, :originator_type_eq => "Bibl"})
       end
       row :components do |bibl|
