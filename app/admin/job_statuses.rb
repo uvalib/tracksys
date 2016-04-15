@@ -108,7 +108,7 @@ ActiveAdmin.register JobStatus do
 
 
       div :class => 'columns-none' do
-         panel "Workflow Log" do
+         panel "Workflow Log", :class=>"log-panel" do
             render 'job_log'
          end
       end
@@ -121,11 +121,13 @@ ActiveAdmin.register JobStatus do
          logpath = File.join(Rails.root,  "log", "jobs", "job_#{params[:id]}.log")
          if File.exist? logpath
             f = File.open(logpath, "r")
-            @job_log = f.read
+            log = f.read
             f.close
          else
-            @job_log = "Job pending"
+            log= "Job pending"
          end
+         log.gsub! /,/, ", "
+         @job_log = log.split("\n")
          show!
        end
    end

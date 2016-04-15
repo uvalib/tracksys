@@ -5,5 +5,23 @@
    </div>
 <% end %>
 <div id="log-panel">
-   <%= simple_format @job_log %>
+   <ol>
+   <% @job_log.each do |line| %>
+      <% if line[0] == "#" %>
+         <li><%= raw("<span class='comment'>#{line}</comment>") %></li>
+      <% else %>
+         <% head = line[0..19] %>
+         <% frag = line[19..line.length] %>
+         <% frag.gsub! /FATAL/, "<span class='fatal'>FATAL</span>" %>
+         <% frag.gsub! /ERROR/, "<span class='error'>ERROR</span>" %>
+         <% frag.gsub! /INFO/, "<span class='info'>INFO</span>" %>
+         <% frag.gsub! /DEBUG/, "<span class='debug'>DEBUG</span>" %>
+         <% if head =~ /\d{4}-\d{2}-\d{2}/ %>
+            <li><b><%= line[0..19] %></b><%= raw(frag) %></li>
+         <% else %>
+            <li>&nbsp;&nbsp;&nbsp;&nbsp;<%= line[0..19] %><%= raw(frag) %></li>
+         <% end %>
+      <% end %>
+   <% end %>
+</ol>
 </div>
