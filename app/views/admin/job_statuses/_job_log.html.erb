@@ -9,6 +9,8 @@
    <% @job_log.each do |line| %>
       <% if line[0] == "#" %>
          <li><%= raw("<span class='comment'>#{line}</comment>") %></li>
+      <% elsif  line.length <= 19 %>
+         <li>&nbsp;&nbsp;&nbsp;&nbsp;<%= line %></li>
       <% else %>
          <% head = line[0..19] %>
          <% frag = line[19..line.length] %>
