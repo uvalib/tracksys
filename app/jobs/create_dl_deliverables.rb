@@ -35,22 +35,18 @@ class CreateDlDeliverables < BaseJob
    # "both"; order and unit numbers are required if mode is "patron" or "both".
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+      obj = message[:object]
+      @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
    end
 
    def do_workflow(message)
 
-      raise "Parameter 'mode' is required" if message[:mode].blank?
       raise "Parameter 'source' is required" if message[:source].blank?
-      raise "Parameter 'object_class' is required" if message[:object_class].blank?
-      raise "Parameter 'object_id' is required" if message[:object_id].blank?
+      raise "Parameter 'object' is required" if message[:object].blank?
 
       @source = message[:source]
-      @mode = message[:mode]
       @last = message[:last]
-      @object_class = message[:object_class]
-      @object_id = message[:object_id]
-      @object = @object_class.classify.constantize.find(@object_id)
+      @object = message[:object]
       @pid = @object.pid
 
       # Given the new requirment of recording md5 for MasterFile objects and the prohibition on downloading everything from
@@ -70,7 +66,7 @@ class CreateDlDeliverables < BaseJob
             tiff.compression=Magick::CompressionType.new("NoCompression", 1)
             tiff.write(@source)
             tiff.destroy!
-            on_success "#{@object_class.to_s} #{@object_id} is compressed.  This has been corrected automatically.  Update MD5 for #{@source} if necessary."
+            on_success "#{@object.class.to_s.to_s} #{@object.id} is compressed.  This has been corrected automatically.  Update MD5 for #{@source} if necessary."
          end
 
          tiff.destroy!
@@ -83,8 +79,7 @@ class CreateDlDeliverables < BaseJob
          FileUtils.copy(@source, jp2k_path)
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
-         IngestJp2k.exec_now( { :object_class => @object_class , :object_id => @object_id,
-            :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
+         IngestJp2k.exec_now( { :object=> @object, :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
          on_success "Copied JPEG-2000 image using '#{@source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif @source.match(/\.tiff?$/) and File.file?(@source)
@@ -113,8 +108,7 @@ class CreateDlDeliverables < BaseJob
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
          on_success "Generated JPEG-2000 image using '#{@source}' as input file for the creation of deliverable '#{jp2k_path}'"
-         IngestJp2k.exec_now( { :object_class => @object_class , :object_id => @object_id,
-            :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
+         IngestJp2k.exec_now( { :object=>@object, :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
       else
          raise "Source is not a .tif file: #{@source}"
       end

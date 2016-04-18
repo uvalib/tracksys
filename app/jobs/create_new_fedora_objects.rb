@@ -49,7 +49,7 @@ class CreateNewFedoraObjects < BaseJob
       # 2.  Bound for creating JP2 image
 
       # All objects get desc_metadata, rights_metadata
-      default_message = { :object_class => @object_class, :object_id => @object_id, :type => 'ingest' }
+      default_message = { :object=> @object}
       IngestDescMetadata.exec_now(default_message, self)
 
       if @object.is_a? Bibl
@@ -61,8 +61,7 @@ class CreateNewFedoraObjects < BaseJob
       # MasterFiles (i.e. images)
       if @object.is_a? MasterFile
          @file_path = File.join(@source, @object.filename)
-         CreateDlDeliverables.exec_now({ :mode => 'dl', :source => @file_path, :object_class => @object_class,
-             :object_id => @object_id, :last => @last, :type => 'ingest' }, self)
+         CreateDlDeliverables.exec_now({ :source => @file_path, :object=> @object, :last => @last, :type => 'ingest' }, self)
          IngestTechMetadata.exec_now( default_message, self )
 
          # Only MasterFiles with transcritpion need have

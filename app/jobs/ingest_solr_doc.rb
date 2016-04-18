@@ -5,7 +5,8 @@ class IngestSolrDoc < BaseJob
    require 'nokogiri'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+      obj = message[:object]
+      @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
    end
 
    def iterate_children( component, solr_connection )
@@ -30,13 +31,8 @@ class IngestSolrDoc < BaseJob
 
    def do_workflow(message)
 
-      # Validate incoming message
-      raise "Parameter 'object_class' is required" if message[:object_class].blank?
-      raise "Parameter 'object_id' is required" if message[:object_id].blank?
-
-      @object_class = message[:object_class]
-      @object_id = message[:object_id]
-      @object = @object_class.classify.constantize.find(@object_id)
+      raise "Parameter 'object' is required" if message[:object].nil?
+      @object = message[:object]
       @pid = @object.pid
 
       if ! @object.exists_in_repo?
@@ -45,7 +41,7 @@ class IngestSolrDoc < BaseJob
       end
 
       cascade = !message[:cascade].nil?
-      cascade = false if cascade && @object_class != "Component"
+      cascade = false if cascade && @object.class.to_s != "Component"
 
       # Open Solr Connection
       @solr_connection = Solr::Connection.new("#{STAGING_SOLR_URL}", :autocommit => :off)
@@ -57,6 +53,6 @@ class IngestSolrDoc < BaseJob
 
       do_ingest(@pid, @object, @solr_connection)
 
-      on_success "The solrArchive datastream has been created for #{@pid} - #{@object_class} #{@object_id} and posted to #{STAGING_SOLR_URL}."
+      on_success "The solrArchive datastream has been created for #{@pid} - #{@object.class.to_s} #{@object.id} and posted to #{STAGING_SOLR_URL}."
    end
 end

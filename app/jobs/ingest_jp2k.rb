@@ -4,20 +4,18 @@ class IngestJp2k < BaseJob
   require 'hydra'
 
   def set_originator(message)
-     @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+     obj = message[:object]
+     @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
   end
 
   def do_workflow(message)
 
     raise "Parameter 'last' is required" if message[:last].blank?
     raise "Parameter 'source' is required" if message[:source].blank?
-    raise "Parameter 'object_class' is required" if message[:object_class].blank?
-    raise "Parameter 'object_id' is required" if message[:object_id].blank?
+    raise "Parameter 'object' is required" if message[:object].blank?
     raise "Parameter 'jp2k_path' is required" if message[:jp2k_path].blank?
 
-    @object_class = message[:object_class]
-    @object_id = message[:object_id]
-    @object = @object_class.classify.constantize.find(@object_id)
+    @object = message[:object]
     @jp2k_path = message[:jp2k_path]
     @source = message[:source]
     @pid = @object.pid
@@ -34,11 +32,9 @@ class IngestJp2k < BaseJob
     # Delete jp2 file from disk
     File.delete(@jp2k_path)
 
-    on_success "The content datastream (JP2K) has been created for #{@pid} - #{@object_class} #{@object_id}."
+    on_success "The content datastream (JP2K) has been created for #{@pid} - #{@object.class.to_s} #{@object.id}."
 
     if message[:last] == 1
-      # Delete the instance variable so the following success and error messages only get posted to the Unit and not the MasterFile
-      instance_variable_set("@#{@object.class.to_s.underscore}_id", nil)
 
       @unit_id = @object.unit.id
       UpdateUnitDateDlDeliverablesReady.exec_now({ :unit_id => @unit_id }, self)

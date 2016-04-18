@@ -4,21 +4,14 @@ class IngestDescMetadata < BaseJob
   require 'hydra'
 
   def set_originator(message)
-     @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+     obj = message[:object]
+     @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
   end
 
   def do_workflow(message)
 
-    # Validate incoming message
-    raise "Parameter 'type' is reqiured" if message[:type].blank?
-    raise "Parameter 'type' must equal either 'ingest' or 'update'" unless message[:type].match('ingest') or message[:type].match('update')
-    raise "Parameter 'object_class' is required" if message[:object_class].blank?
-    raise "Parameter 'object_id' is required" if message[:object_id].blank?
-
-    @type = message[:type]
-    @object_class = message[:object_class]
-    @object_id = message[:object_id]
-    @object = @object_class.classify.constantize.find(@object_id)
+    raise "Parameter 'object' is required" if message[:object].nil?
+    @object = message[:object]
     @pid = @object.pid
 
     if ! @object.exists_in_repo?
@@ -34,12 +27,12 @@ class IngestDescMetadata < BaseJob
       Fedora.add_or_update_datastream(xml, @pid, 'descMetadata', 'MODS descriptive metadata', :controlGroup => 'M')
     end
 
-    msg = { :type => @type, :object_class => @object_class, :object_id => @object_id }
+    msg = { :object=> @object }
     IngestDcMetadata.exec_now( msg, self )
 
     # Since the creation of a solr <doc> now requires both the rels-ext and descMetadata of an object,
     # we must create both before a message is sent to ingest_solr_doc
     IngestRelsExt.exec_now( msg, self )
-    on_success "The descMetadata datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
+    on_success "The descMetadata datastream has been created for #{@pid} - #{@object.class.to_s} #{@object.id}."
   end
 end

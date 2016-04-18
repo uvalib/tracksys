@@ -4,21 +4,14 @@ class IngestRightsMetadata < BaseJob
    require 'hydra'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>message[:object_class], :originator_id=>message[:object_id])
+      obj = message[:object]
+      @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
    end
 
    def do_workflow(message)
 
-      # Validate incoming message
-      raise "Parameter 'type' is reqiured" if message[:type].blank?
-      raise "Parameter 'type' must equal either 'ingest' or 'update'" unless message[:type].match('ingest') or message[:type].match('update')
-      raise "Parameter 'object_class' is required" if message[:object_class].blank?
-      raise "Parameter 'object_id' is required" if message[:object_id].blank?
-
-      @type = message[:type]
-      @object_class = message[:object_class]
-      @object_id = message[:object_id]
-      @object = @object_class.classify.constantize.find(@object_id)
+      raise "Parameter 'object' is required" if message[:object].nil?
+      @object = message[:object]
       @pid = @object.pid
 
       if ! @object.exists_in_repo?
@@ -35,7 +28,7 @@ class IngestRightsMetadata < BaseJob
 
          # To conform to potentially legacy Fedora requirements, we will create a POLICY datastream.
          Fedora.add_or_update_datastream(xml, @pid, 'POLICY', 'Fedora-required policy datastream', :dsLocation => dsLocation, :controlGroup => 'R')
-         on_success "The POLICY datastream has been created for #{@pid} - #{@object_class} #{@object_id}."
+         on_success "The POLICY datastream has been created for #{@pid} - #{@object.class.to_s} #{@object.id}."
       else
          on_success "The POLICY datastream was not created because this object is set to Public."
       end
