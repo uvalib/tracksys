@@ -1,0 +1,33 @@
+<fieldset>
+    <legend>Customer Information</legend>
+    <div class="control-group">
+       <%= c.label :first_name, :class => 'control-label required' %>
+       <div class="controls">
+         <%= c.text_field :first_name, :value => @request.customer.first_name, :required => required_field_value %>
+       </div>
+    </div>
+    <div class="control-group">
+       <%= c.label :last_name, :class => 'control-label required' %>
+       <div class="controls">
+         <%= c.text_field :last_name, :value => @request.customer.last_name, :required => required_field_value %>
+       </div>
+    </div>
+    <div class="control-group">
+       <%= c.label :email, :class => 'control-label required' %>
+       <div class="controls">
+         <%= c.text_field :email, :value => @request.customer.email, :required => required_field_value %>
+       </div>
+    </div>
+    <div class="control-group">
+       <%= c.label :academic_status, :class => 'control-label required' %>
+       <div class="controls">
+         <%= c.select :academic_status_id, options_for_select(AcademicStatus.all.collect {|a| [a.name, a.id] }, @request.customer.academic_status_id), {:include_blank => true} %>
+       </div>
+    </div>
+    <div class="control-group">
+       <%= c.label "How do you hear about this service?", :class => 'control-label' %>
+       <div class="controls">
+         <%= c.select :heard_about_service_id, HeardAboutService.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
+       </div>
+    </div>
+</fieldset>

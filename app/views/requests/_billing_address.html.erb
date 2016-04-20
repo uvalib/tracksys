@@ -1,0 +1,59 @@
+<fieldset>
+ <legend>Billing Address</legend>
+ <%= c.fields_for :billable_address_attributes do |ba| %>
+    <div class="control-group">
+      <%= ba.label "First Name", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :first_name, :value => @request.customer.billable_address.first_name %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Last Name", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :last_name, :value => @request.customer.billable_address.last_name %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Address Line1", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :address_1, :value => @request.customer.billable_address.address_1 %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Address Line2", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :address_2, :value => @request.customer.billable_address.address_2 %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "City", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :city, :value => @request.customer.billable_address.city %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "State", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :state, :value => @request.customer.billable_address.state %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Zip Code", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :post_code, :value => @request.customer.billable_address.post_code %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Country", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.select :country, country_options_for_select(@request.customer.billable_address.country, ['United States', 'Canada']), :include_blank => true %>
+      </div>
+    </div>
+    <div class="control-group">
+      <%= ba.label "Phone", :class => 'control-label' %>
+      <div class="controls">
+        <%= ba.text_field :phone, :value => @request.customer.billable_address.phone %>
+      </div>
+    </div>
+ <% end %>
+</fieldset>

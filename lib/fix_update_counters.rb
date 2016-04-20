@@ -10,7 +10,7 @@ module FixUpdateCounters
         changed_class.camelcase.constantize.increment_counter(:"#{self.class.name.underscore.pluralize}_count", value[1]) unless value[1] == nil
       end
     }
-  end 
+  end
 end
 
 ActiveRecord::Base.send(:include, FixUpdateCounters)

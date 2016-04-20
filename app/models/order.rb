@@ -86,10 +86,6 @@ class Order < ActiveRecord::Base
    # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved" || "canceled"
    validate :validate_order_approval, :on => :update, :if => 'self.order_status == "approved"'
 
-   # Validate data that could be coming in from the request form such that < and > are not
-   # allowed in the text to prevent cross site scripting.
-   validates :order_title, :entered_by, :special_instructions, :xss => true
-
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------

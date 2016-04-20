@@ -29,10 +29,10 @@
 }
 
 /* from _gradients.css.scss */
-@mixin gradient($start, $end){ 
-  background: $start; 
-  background: -webkit-gradient(linear, left top, left bottom, from($start), to($end)); 
-  background: -moz-linear-gradient(-90deg, $start, $end); 
+@mixin gradient($start, $end){
+  background: $start;
+  background: -webkit-gradient(linear, left top, left bottom, from($start), to($end));
+  background: -moz-linear-gradient(-90deg, $start, $end);
   // IE 6 & 7
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$start}', endColorstr='#{$end}');
   // IE 8
@@ -92,6 +92,31 @@ the local UVA modifications. */
   *background-color: #004ab3;
 }
 
+div.form-actions {
+   padding-left: 15px !important;
+   padding-top: 15px;
+   padding-bottom: 15px;
+   a.add_nested_fields {
+      margin-top:0;
+      color: white;
+   }
+   div.fields {
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 15px;
+   }
+   .btn.btn-primary {
+      position: absolute;
+      right: 40px;
+   }
+}
+
+.item-form-data {
+   border-top:1px solid #ccc;
+   div.row {
+      padding-top: 25px;
+   }
+}
+
 /* A section divider to separate out items */
 .item-divider {
 /*  padding-bottom: 17px;*/
@@ -126,7 +151,7 @@ div.fields {
   border-bottom:1px solid #0D3268;
 }
 
-/* ensure that the text color of the button is always white.  
+/* ensure that the text color of the button is always white.
 Overrides the a:focus color styling in UVA style.css */
 div.fields > a:focus, a:visited {
     color: #FFFFFF;

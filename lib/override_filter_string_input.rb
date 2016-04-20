@@ -46,14 +46,11 @@ module ActiveAdmin
       end
 
       def default_filters
-        [ ['contains', 'contains'],
-          ['not contains', 'does_not_contain'],
-          ['starts with', 'starts_with'],
-          ['not start with', 'does_not_start_with'],
-          ['ends with', 'ends_with'],
-          ['not end with', 'does_not_end_with'],
-          ['is empty', 'is_null'],
-          ['is not empty', 'is_not_null'] ]
+        [ ['Equals', 'equals'],
+          ['Contains', 'contains'],
+          ['Starts With', 'starts_with'],
+          ['Ends With', 'ends_with'],
+          ['Empty', 'is_null'] ]
       end
     end
   end
