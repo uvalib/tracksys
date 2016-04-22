@@ -58,7 +58,7 @@ ActiveAdmin.register StaffMember do
       f.input :first_name
       f.input :last_name
       f.input :email
-      f.input :role, :as => :select, :collection => ["admin", "editor", "viewer"]
+      f.input :role, :as => :select
       f.input :is_active, :as => :radio
     end
 

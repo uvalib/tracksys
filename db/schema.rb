@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160413183829) do
+ActiveRecord::Schema.define(:version => 20160421201408) do
 
   create_table "academic_statuses", :force => true do |t|
     t.string   "name"
@@ -71,28 +71,6 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   add_index "agencies", ["ancestry"], :name => "index_agencies_on_ancestry"
   add_index "agencies", ["name"], :name => "index_agencies_on_name", :unique => true
 
-  create_table "automation_messages", :force => true do |t|
-    t.string   "pid"
-    t.string   "app"
-    t.string   "processor"
-    t.string   "message_type"
-    t.string   "message"
-    t.string   "class_name"
-    t.text     "backtrace"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "active_error",                  :default => false, :null => false
-    t.integer  "messagable_id",                                    :null => false
-    t.string   "messagable_type", :limit => 20,                    :null => false
-    t.string   "workflow_type"
-  end
-
-  add_index "automation_messages", ["active_error"], :name => "index_automation_messages_on_active_error"
-  add_index "automation_messages", ["messagable_id", "messagable_type"], :name => "index_automation_messages_on_messagable_id_and_messagable_type"
-  add_index "automation_messages", ["message_type"], :name => "index_automation_messages_on_message_type"
-  add_index "automation_messages", ["processor"], :name => "index_automation_messages_on_processor"
-  add_index "automation_messages", ["workflow_type"], :name => "index_automation_messages_on_workflow_type"
-
   create_table "availability_policies", :force => true do |t|
     t.string   "name"
     t.integer  "bibls_count",        :default => 0
@@ -106,12 +84,12 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   end
 
   create_table "bibls", :force => true do |t|
-    t.boolean  "is_approved",                                     :default => false, :null => false
-    t.boolean  "is_personal_item",                                :default => false, :null => false
+    t.boolean  "is_approved",                                  :default => false, :null => false
+    t.boolean  "is_personal_item",                             :default => false, :null => false
     t.string   "resource_type"
     t.string   "genre"
-    t.boolean  "is_manuscript",                                   :default => false, :null => false
-    t.boolean  "is_collection",                                   :default => false, :null => false
+    t.boolean  "is_manuscript",                                :default => false, :null => false
+    t.boolean  "is_collection",                                :default => false, :null => false
     t.text     "title"
     t.string   "description"
     t.string   "series_title"
@@ -130,29 +108,28 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.string   "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_in_catalog",                                   :default => false, :null => false
+    t.boolean  "is_in_catalog",                                :default => false, :null => false
     t.string   "issue"
     t.text     "citation"
     t.string   "exemplar"
-    t.integer  "parent_bibl_id",                                  :default => 0,     :null => false
+    t.integer  "parent_bibl_id",                               :default => 0,     :null => false
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                      :limit => 2147483647
+    t.text     "solr",                   :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                 :default => true
+    t.boolean  "discoverability",                              :default => true
     t.integer  "indexing_scenario_id"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.integer  "automation_messages_count",                       :default => 0
-    t.integer  "units_count",                                     :default => 0
+    t.integer  "units_count",                                  :default => 0
     t.integer  "availability_policy_id"
     t.integer  "use_right_id"
-    t.boolean  "dpla",                                            :default => false
+    t.boolean  "dpla",                                         :default => false
     t.string   "cataloging_source"
     t.string   "collection_facet"
     t.integer  "index_destination_id"
-    t.integer  "job_statuses_count",                              :default => 0,     :null => false
+    t.integer  "job_statuses_count",                           :default => 0,     :null => false
   end
 
   add_index "bibls", ["availability_policy_id"], :name => "index_bibls_on_availability_policy_id"
@@ -193,8 +170,8 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   add_index "component_types", ["name"], :name => "index_component_types_on_name", :unique => true
 
   create_table "components", :force => true do |t|
-    t.integer  "component_type_id",                               :default => 0,    :null => false
-    t.integer  "parent_component_id",                             :default => 0,    :null => false
+    t.integer  "component_type_id",                             :default => 0,    :null => false
+    t.integer  "parent_component_id",                           :default => 0,    :null => false
     t.string   "title"
     t.string   "label"
     t.string   "date"
@@ -207,10 +184,10 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.datetime "updated_at"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                      :limit => 2147483647
+    t.text     "solr",                    :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                 :default => true
+    t.boolean  "discoverability",                               :default => true
     t.integer  "indexing_scenario_id"
     t.text     "level"
     t.string   "ead_id_att"
@@ -220,8 +197,7 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id"
-    t.integer  "master_files_count",                              :default => 0,    :null => false
-    t.integer  "automation_messages_count",                       :default => 0,    :null => false
+    t.integer  "master_files_count",                            :default => 0,    :null => false
     t.string   "exemplar"
     t.string   "ancestry"
     t.string   "pids_depth_cache"
@@ -231,7 +207,7 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.text     "physical_desc"
     t.text     "scope_content"
     t.integer  "index_destination_id"
-    t.integer  "job_statuses_count",                              :default => 0,    :null => false
+    t.integer  "job_statuses_count",                            :default => 0,    :null => false
   end
 
   add_index "components", ["ancestry"], :name => "index_components_on_ancestry"
@@ -472,7 +448,7 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   add_index "legacy_identifiers_units", ["unit_id", "legacy_identifier_id"], :name => "units_legacy_ids_index"
 
   create_table "master_files", :force => true do |t|
-    t.integer  "unit_id",                                         :default => 0,     :null => false
+    t.integer  "unit_id",                                      :default => 0,     :null => false
     t.integer  "component_id"
     t.string   "tech_meta_type"
     t.string   "filename"
@@ -486,22 +462,21 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.text     "transcription_text"
     t.text     "desc_metadata"
     t.text     "rels_ext"
-    t.text     "solr",                      :limit => 2147483647
+    t.text     "solr",                   :limit => 2147483647
     t.text     "dc"
     t.text     "rels_int"
-    t.boolean  "discoverability",                                 :default => false
+    t.boolean  "discoverability",                              :default => false
     t.string   "md5"
     t.integer  "indexing_scenario_id"
     t.integer  "availability_policy_id"
-    t.integer  "automation_messages_count",                       :default => 0
     t.integer  "use_right_id"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.boolean  "dpla",                                            :default => false
+    t.boolean  "dpla",                                         :default => false
     t.string   "creator_death_date"
     t.string   "creation_date"
     t.string   "primary_author"
-    t.integer  "job_statuses_count",                              :default => 0,     :null => false
+    t.integer  "job_statuses_count",                           :default => 0,     :null => false
   end
 
   add_index "master_files", ["availability_policy_id"], :name => "index_master_files_on_availability_policy_id"
@@ -544,7 +519,6 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.datetime "date_finalization_begun"
     t.datetime "date_fee_estimate_sent_to_customer"
     t.integer  "units_count",                                                      :default => 0
-    t.integer  "automation_messages_count",                                        :default => 0
     t.integer  "invoices_count",                                                   :default => 0
     t.integer  "master_files_count",                                               :default => 0
     t.integer  "job_statuses_count",                                               :default => 0,     :null => false
@@ -558,6 +532,10 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   add_index "orders", ["date_request_submitted"], :name => "index_orders_on_date_request_submitted"
   add_index "orders", ["order_status"], :name => "index_orders_on_order_status"
 
+  create_table "roles", :force => true do |t|
+    t.string "name", :null => false
+  end
+
   create_table "sql_reports", :force => true do |t|
     t.string   "name"
     t.string   "description"
@@ -567,17 +545,16 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
   end
 
   create_table "staff_members", :force => true do |t|
-    t.integer  "access_level_id",           :default => 0,       :null => false
+    t.integer  "access_level_id",    :default => 0,     :null => false
     t.string   "computing_id"
     t.string   "last_name"
     t.string   "first_name"
-    t.boolean  "is_active",                 :default => false,   :null => false
+    t.boolean  "is_active",          :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "automation_messages_count", :default => 0
     t.string   "email"
-    t.integer  "job_statuses_count",        :default => 0,       :null => false
-    t.string   "role",                      :default => "admin", :null => false
+    t.integer  "job_statuses_count", :default => 0,     :null => false
+    t.integer  "role_id",            :default => 1
   end
 
   add_index "staff_members", ["access_level_id"], :name => "access_level_id"
@@ -611,7 +588,6 @@ ActiveRecord::Schema.define(:version => 20160413183829) do
     t.boolean  "checked_out",                    :default => false
     t.integer  "availability_policy_id"
     t.integer  "master_files_count",             :default => 0
-    t.integer  "automation_messages_count",      :default => 0
     t.integer  "index_destination_id"
     t.integer  "job_statuses_count",             :default => 0,     :null => false
   end

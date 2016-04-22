@@ -4,6 +4,7 @@ class StaffMember < ActiveRecord::Base
   # relationships
   #------------------------------------------------------------------
   has_many :job_statuses, :as => :originator, :dependent => :destroy
+  belongs_to :role
 
   #------------------------------------------------------------------
   # validation
@@ -28,13 +29,19 @@ public
   # public instance methods
   #------------------------------------------------------------------
   def admin?
-     return self.role == "admin"
+     return self.role.name == "Administrator"
   end
   def editor?
-     return self.role == "editor"
+     return self.role.name == "Editor"
   end
   def viewer?
-     return self.role == "viewer"
+     return self.role.name == "Viewer" || role.name == "Student" || role.name == "Supervisor"
+  end
+  def student?
+     return self.role.name == "Student"
+  end
+  def supervisor?
+     return self.role.name == "Supervisor"
   end
 
   # Returns a boolean value indicating whether the StaffMember is
