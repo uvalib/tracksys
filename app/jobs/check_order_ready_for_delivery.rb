@@ -31,7 +31,8 @@ class CheckOrderReadyForDelivery < BaseJob
          else
             # The 'patron' units within the order are complete
             on_success("All units in order #{message[:order_id]} are complete and will now begin the delivery process.")
-            UpdateOrderDatePatronDeliverablesComplete.exec_now({ :order_id => message[:order_id] }, self)
+            @working_order.update_attribute(:date_patron_deliverables_complete, Time.now)
+            QaOrderData.exec_now({ :order_id => @working_order.id }, self)
          end
       else
          # Order incomplete.  List units incomplete units in message

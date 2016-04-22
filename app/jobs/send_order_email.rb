@@ -16,7 +16,10 @@ class SendOrderEmail < BaseJob
       new_email.date = Time.now
       new_email.deliver
 
-      UpdateOrderDateCustomerNotified.exec_now({:order_id => @order_id}, self)
+      @working_order.update_attribute(:date_customer_notified, Time.now)
+
+      CreateInvoice.exec_now({:order_id => @order_id}, self)
+
       on_success("Email sent to #{@first_name} #{@last_name} (#{@email}) for Order #{@order_id}.")
    end
 end
