@@ -29,10 +29,9 @@ class ImportUnitIviewXML < BaseJob
       CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path }, self)
 
       logger().info ("Beginning finalization...")
-      @unit.order.date_finalization_begun = Time.now
-      @unit.order.save!
+      @unit.order.update_attribute(:date_finalization_begun, Time.now)
       logger().info("Date Finalization Begun updated for order #{@unit.order.id}")
-      
+
       CheckUnitDeliveryMode.exec_now({ :unit_id => @unit_id }, self)
    end
 end
