@@ -247,11 +247,15 @@ class Order < ActiveRecord::Base
    end
 
    def approve_order
-      UpdateOrderStatusApproved.exec( {:order_id => self.id})
+      self.order_status = 'approved'
+      self.date_order_approved = Time.now
+      self.save!
    end
 
    def cancel_order
-      UpdateOrderStatusCanceled.exec( {:order_id => self.id} )
+      self.order_status = 'canceled'
+      self.date_canceled = Time.now
+      self.save!
    end
 
    def check_order_ready_for_delivery

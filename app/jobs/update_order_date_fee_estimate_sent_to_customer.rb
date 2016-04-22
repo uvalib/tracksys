@@ -10,9 +10,9 @@ class UpdateOrderDateFeeEstimateSentToCustomer < BaseJob
       @order_id = message[:order_id]
       @working_order = Order.find(@order_id)
       @working_order.date_fee_estimate_sent_to_customer = Time.now
+      @working_order.order_status = 'deferred'
       @working_order.save!
 
-      UpdateOrderStatusDeferred({:order_id => @order_id})
       on_success "Date fee estiamte sent to customer has been updated."
    end
 end

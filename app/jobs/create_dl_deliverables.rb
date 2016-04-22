@@ -79,7 +79,7 @@ class CreateDlDeliverables < BaseJob
          FileUtils.copy(@source, jp2k_path)
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
-         IngestJp2k.exec_now( { :object=> @object, :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
+         IngestJp2k.exec_now( { :object=> @object, :jp2k_path => jp2k_path, :source => @source }, self )
          on_success "Copied JPEG-2000 image using '#{@source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif @source.match(/\.tiff?$/) and File.file?(@source)
@@ -108,9 +108,23 @@ class CreateDlDeliverables < BaseJob
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
          on_success "Generated JPEG-2000 image using '#{@source}' as input file for the creation of deliverable '#{jp2k_path}'"
-         IngestJp2k.exec_now( { :object=>@object, :jp2k_path => jp2k_path, :last => @last, :source => @source }, self )
+         IngestJp2k.exec_now( { :object=>@object, :jp2k_path => jp2k_path, :source => @source }, self )
       else
          raise "Source is not a .tif file: #{@source}"
+      end
+
+      if @last == 1
+         @unit_id = @object.unit.id
+         logger().info("Last JP2K for Unit #{@unit_id} created.")
+         @object.unit.update_attribute(:date_dl_deliverables_ready, Time.now)
+
+         SendCommitToSolr.exec_now({ :unit_id => @unit_id }, self)
+
+         on_success "Unit #{@unit_id} has completed ingestion to #{FEDORA_REST_URL}."
+
+         if @source.match("#{FINALIZATION_DIR_MIGRATION}") or @source.match("#{FINALIZATION_DIR_PRODUCTION}")
+           DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => @unit_id, :mode => 'dl'}, self)
+         end
       end
    end
 end

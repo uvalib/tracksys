@@ -10,7 +10,6 @@ class IngestJp2k < BaseJob
 
   def do_workflow(message)
 
-    raise "Parameter 'last' is required" if message[:last].blank?
     raise "Parameter 'source' is required" if message[:source].blank?
     raise "Parameter 'object' is required" if message[:object].blank?
     raise "Parameter 'jp2k_path' is required" if message[:jp2k_path].blank?
@@ -33,17 +32,5 @@ class IngestJp2k < BaseJob
     File.delete(@jp2k_path)
 
     on_success "The content datastream (JP2K) has been created for #{@pid} - #{@object.class.to_s} #{@object.id}."
-
-    if message[:last] == 1
-
-      @unit_id = @object.unit.id
-      UpdateUnitDateDlDeliverablesReady.exec_now({ :unit_id => @unit_id }, self)
-
-      on_success "Last JP2K for Unit #{@unit_id} created."
-
-      if @source.match("#{FINALIZATION_DIR_MIGRATION}") or @source.match("#{FINALIZATION_DIR_PRODUCTION}")
-        DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => @unit_id, :mode => 'dl'}, self)
-      end
-    end
   end
 end

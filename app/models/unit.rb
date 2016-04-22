@@ -148,7 +148,9 @@ class Unit < ActiveRecord::Base
 
    def check_order_status
       if self.order.ready_to_approve?
-         UpdateOrderStatusApproved.exec({ :order_id => order.id })
+         self.order.order_status = 'approved'
+         self.order.date_order_approved = Time.now
+         self.order.save!
       end
    end
 

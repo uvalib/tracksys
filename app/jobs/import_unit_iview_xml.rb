@@ -14,20 +14,25 @@ class ImportUnitIviewXML < BaseJob
       @unit_id = message[:unit_id]
       @unit_dir = "%09d" % @unit_id
       @path = message[:path]
+      @unit = Unit.find(@unit_id)
 
       # Import XML files
       xml_file = File.open(@path.to_s)
       ImportIviewXml.import_iview_xml(xml_file, @unit_id.to_s)
       xml_file.close
-      on_success "Iview XML for Unit #{@unit_id} successfully imported."
+      logger().info( "Iview XML for Unit #{@unit_id} successfully imported.")
 
       # copy metadata first because the finalization process will move the
       # data from in-process to ready-to-delete, causing the metadata copy to fail
       unit_path = File.join(IN_PROCESS_DIR, @unit_dir)
-      logger().debug ("Copying metadata for unit #{@unit_id} from #{unit_path}")
+      logger().info ("Copying metadata for unit #{@unit_id} from #{unit_path}")
       CopyMetadataToMetadataDirectory.exec_now({ :unit_id => @unit_id, :unit_path => unit_path }, self)
 
-      logger().debug ("Beginning finalization...")
-      UpdateOrderDateFinalizationBegun.exec_now({ :unit_id => @unit_id }, self)
+      logger().info ("Beginning finalization...")
+      @unit.order.date_finalization_begun = Time.now
+      @unit.order.save!
+      logger().info("Date Finalization Begun updated for order #{@unit.order.id}")
+      
+      CheckUnitDeliveryMode.exec_now({ :unit_id => @unit_id }, self)
    end
 end
