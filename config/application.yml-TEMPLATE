@@ -26,7 +26,7 @@ ocr: "off"
 
 # Email controls; use to prevent email from being sent
 # to customer from a dev server
-send_customer_email: true
+send_customer_email: "true"
 alternate_email_recipient: "lf6f@virginia.edu"
 
 production:
@@ -42,7 +42,6 @@ production:
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
    staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
-   tei_access_url: http://xtf.lib.virginia.edu/xtf/view
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"
 development:
@@ -59,6 +58,5 @@ development:
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
    staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
-   tei_access_url: http://xtf.lib.virginia.edu/xtf/view
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"

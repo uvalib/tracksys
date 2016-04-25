@@ -1,8 +1,10 @@
 source 'http://rubygems.org'
 
 gem 'rails', '3.2.22'
+#gem 'rails', '4.2.6'
 
-gem 'activeadmin', '0.6.6'
+#gem 'activeadmin', '0.6.6'
+gem 'activeadmin', '~> 1.0.0.pre2'
 gem 'passenger'
 gem 'figaro'
 

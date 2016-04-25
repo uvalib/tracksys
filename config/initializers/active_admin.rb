@@ -45,7 +45,7 @@ ActiveAdmin.setup do |config|
   #   end
   #
   config.namespace :admin do |admin|
-    admin.site_title = "Tracksys - Admin Portal"
+    admin.site_title = "Tracksys"
   end
 
   #   # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer
@@ -119,7 +119,7 @@ ActiveAdmin.setup do |config|
   #
   # Default:
   # config.allow_comments = true
-  config.allow_comments = false
+  config.comments = false
   config.show_comments_in_menu = false
   #
   # You can turn them on and off for any given namespace by using a
