@@ -13,17 +13,15 @@
       <span class="ocr-button<% if !job.nil? %> disabled<% end %>" id="start-ocr">Start OCR</span>
       <div id="ocr-status-message" data-job-json="<%= job.to_jsob if !job.nil? %>"><% if !job.nil? %>OCR in progress...<% end %></div>
    </div>
-   <% if lens %>
-      <p>Hover over the image to zoom in</p>
-   <% else %>
-      <div class="buttons">
-         <button class="zoom-in">Zoom In</button>
-         <button class="zoom-out">Zoom Out</button>
-         <input type="range" class="zoom-range">
-         <button class="reset">Reset</button>
-      </div>
-   <% end %>
-   <div class='img-box' data-lens="<%= lens %>">
+
+   <div class="buttons">
+      <button class="zoom-in">Zoom In</button>
+      <button class="zoom-out">Zoom Out</button>
+      <input type="range" class="zoom-range">
+      <button class="reset">Reset</button>
+   </div>
+
+   <div class='img-box'>
       <img src="/admin/ocr/zoom?mf=<%= mf.id %>" id="src-img"/>
    </div>
 </div>
