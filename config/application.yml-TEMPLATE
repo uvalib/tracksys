@@ -24,6 +24,11 @@ num_jp2k_threads: 2
 # Set to on to enable OCR features
 ocr: "off"
 
+# Email controls; use to prevent email from being sent
+# to customer from a dev server
+send_customer_email: true
+alternate_email_recipient: "lf6f@virginia.edu"
+
 production:
    archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /digiserv-production

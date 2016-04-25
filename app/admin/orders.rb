@@ -183,7 +183,7 @@ ActiveAdmin.register Order do
           div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
           div :class => 'workflow_button' do button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put end
           div :class => 'workflow_button' do button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true, :method => :put end
-          div do "Either enter an estimated fee must or cancel this order." end
+          div do "Either enter an estimated fee or cancel this order." end
         elsif order.fee_estimated
           if order.fee_actual.nil?
             # External customers (who require a fee estaimte) for which there IS estimated fee but actual fee is blank.
@@ -206,7 +206,7 @@ ActiveAdmin.register Order do
             div do "Either approve or cancel this order." end
           end
         end
-      elsif not order.customer.external?
+     else
         # Internal customers require no fee.
         if order.has_units_being_prepared.any?
           div :class => 'workflow_button' do button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put end
