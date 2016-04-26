@@ -54,7 +54,10 @@ class QaUnitData < BaseJob
          on_failure "Order #{@order_id} is not marked as approved.  Since this unit is undergoing finalization, the workflow has automatically updated this value and changed the order_status to approved."
          @working_order.date_order_approved = Time.now
          @working_order.order_status = 'approved'
-         @working_order.save!
+         if !@working_order.save
+            # if status cant be set, fail this  QA
+            on_error( @working_order.errors.full_messages.to_sentence )
+         end
          @order_id = nil
       end
 
