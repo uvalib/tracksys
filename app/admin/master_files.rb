@@ -268,9 +268,6 @@ ActiveAdmin.register MasterFile do
           link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
         end
       end
-      row :jobs do |master_file|
-        link_to "#{master_file.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => master_file.id, :originator_type_eq => "MasterFile"})
-      end
       row :agency
       row "Digital Library" do |master_file|
         if master_file.in_dl?

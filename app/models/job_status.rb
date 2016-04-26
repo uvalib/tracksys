@@ -4,7 +4,10 @@ class JobStatus < ActiveRecord::Base
       in: ["pending", "running", "success", "failure"],
       message: "%{value} is not a valid size" }
 
-
+   def status_class
+      return "failed" if self.status == "failure"
+      return "warn" if self.failures > 0
+   end
    def started
       self.update_attributes(:started_at => DateTime.now, :status=>"running") if self.status == 'pending'
    end
@@ -12,7 +15,7 @@ class JobStatus < ActiveRecord::Base
    def failed(err)
       # only handle this if the status is transitiong from running to failed
       return if self.status != 'running'
-      self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :active_error=>true, :error=>err)
+      self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err)
    end
 
    def finished

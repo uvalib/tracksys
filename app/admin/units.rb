@@ -323,9 +323,6 @@ ActiveAdmin.register Unit do
         link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
       end
       row :customer
-      row :jobs do |unit|
-        link_to "#{unit.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => unit.id, :originator_type_eq => "Unit"})
-      end
       row :agency
       row "Legacy Identifiers" do |unit|
        	unit.legacy_identifiers.each {|li|

@@ -19,7 +19,7 @@ ActiveAdmin.register_page "Dashboard" do
           end
           tr do
             td do "Failed Jobs" end
-            td do link_to "#{JobStatus.where(active_error: true).count}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
+            td do link_to "#{JobStatus.jobs_count("failure")}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
           end
         end
       end

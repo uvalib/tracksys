@@ -2,23 +2,17 @@ ActiveAdmin.register JobStatus do
    menu :priority => 8
    actions :all, :except => [:edit, :new]
 
-   batch_action :remove_active_error do |selection|
-      JobStatus.find(selection).each {|s| s.update_attribute(:active_error, false)}
-      redirect_to :back, :alert => "Removed #{selection.length} active error flags."
-   end
-
    filter :name, :label=>"Workflow"
    filter :originator_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object"
    filter :originator_id, :as => :numeric, :label => "Object ID"
    filter :status, :as => :select, :collection => [ :pending, :running, :success, :failure ]
-   filter :active_error, :as => :select, :collection => [true, false]
    filter :created_at, :label => "Submitted"
    filter :started_at, :label => "Started"
    filter :ended_at, :label => "Finished"
 
    # Workflow Status Index
    #
-   index :title=>"Job Status" do
+   index :title=>"Job Status", :row_class => -> record { record.status_class } do
       selectable_column
       column ("Job ID"), sortable: :id do |job_status|
          job_status.id
@@ -35,9 +29,6 @@ ActiveAdmin.register JobStatus do
       end
       column ("Status") do |job_status|
          job_status.status.slice(0,1).capitalize + job_status.status.slice(1..-1)
-      end
-      column ("Active Error") do |job_status|
-         job_status.active_error
       end
       column ("Warnings") do |job_status|
          job_status.failures
@@ -69,9 +60,6 @@ ActiveAdmin.register JobStatus do
                end
                row ("Status") do |job_status|
                   job_status.status.slice(0,1).capitalize + job_status.status.slice(1..-1)
-               end
-               row ("Active Error") do |job_status|
-                  job_status.active_error
                end
                row ("Warnings") do |job_status|
                   job_status.failures
