@@ -1,5 +1,5 @@
 class IndexDestination < ActiveRecord::Base
-  attr_accessible :nickname, :hostname, :context, :port, :protocol
+  #attr_accessible :nickname, :hostname, :context, :port, :protocol
   alias_attribute :name, :nickname
 
   #------------------------------------------------------------------
@@ -13,8 +13,8 @@ class IndexDestination < ActiveRecord::Base
   # validations
   #------------------------------------------------------------------
   validates :nickname, :hostname, :context, :port, :protocol, :presence => true
-  validates :protocol, :format => {:with => /^https?$/ }
- 
+  validates :protocol, :format => {:with => /\Ahttps?\z/ }
+
   def url
     "#{protocol}://#{hostname}:#{port}/#{context}"
   end
@@ -51,4 +51,3 @@ end
 #  units_count      :integer(4)
 #  components_count :integer(4)
 #
-

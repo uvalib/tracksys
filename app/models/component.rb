@@ -13,7 +13,7 @@ class Component < ActiveRecord::Base
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_many :master_files
-   has_many :image_master_files, :class_name => 'MasterFile', :conditions => "tech_meta_type = 'image'"
+   has_many :image_master_files,->{ where(tech_meta_type: 'image')}, :class_name => 'MasterFile'
 
    has_and_belongs_to_many :bibls
    has_and_belongs_to_many :containers

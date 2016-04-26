@@ -11,11 +11,11 @@ class Order < ActiveRecord::Base
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
-   has_many :bibls, :through => :units, :uniq => true
+   has_many :bibls, ->{uniq}, :through => :units
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
-   has_many :heard_about_resources, :through => :units, :uniq => true
+   has_many :heard_about_resources, ->{uniq}, :through => :units
 
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
@@ -34,22 +34,21 @@ class Order < ActiveRecord::Base
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   scope :complete, where("date_archiving_complete is not null")
-   scope :deferred, where("order_status = 'deferred'")
-   scope :in_process, where("date_archiving_complete is null").where("order_status = 'approved'")
-   scope :awaiting_approval, where("order_status = 'requested'")
-   scope :approved, where("order_status = 'approved'")
-   scope :ready_for_delivery, where("`orders`.email is not null").where(:date_customer_notified => nil)
+   scope :complete, ->{ where("date_archiving_complete is not null") }
+   scope :deferred, ->{where("order_status = 'deferred'") }
+   scope :in_process, ->{where("date_archiving_complete is null").where("order_status = 'approved'") }
+   scope :awaiting_approval, ->{where("order_status = 'requested'") }
+   scope :approved,->{ where("order_status = 'approved'") }
+   scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
    scope :recent,
    lambda {|limit=5|
       order('date_request_submitted DESC').limit(limit)
    }
-   scope :unpaid, where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc')
-   default_scope :include => [:agency]
-   scope :uniq, select( 'DISTINCT id' )
-   scope :from_fine_arts, joins(:agency).where("agencies.name" => "Fine Arts Library")
-   scope :not_from_fine_arts, where('agency_id != 37 or agency_id is null')
-   scope :complete, where("date_archiving_complete is not null OR order_status = 'completed'")
+   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
+   default_scope {include('agency')}
+   scope :from_fine_arts, ->{ joins(:agency).where("agencies.name" => "Fine Arts Library") }
+   scope :not_from_fine_arts, ->{ where('agency_id != 37 or agency_id is null') }
+   scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
 
    #------------------------------------------------------------------
    # validations

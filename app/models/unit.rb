@@ -20,7 +20,7 @@ class Unit < ActiveRecord::Base
    belongs_to :use_right, :counter_cache => true
 
    has_many :master_files
-   has_many :components, :through => :master_files, :uniq => true
+   has_many :components, :through => :master_files#, :uniq => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :agency, :through => :order
@@ -41,16 +41,16 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   scope :in_repo, where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC")
-   scope :ready_for_repo, where(:include_in_dl => true).where("`units`.availability_policy_id IS NOT NULL").where(:date_queued_for_ingest => nil).where("date_archived is not null")
-   scope :awaiting_copyright_approval, where(:unit_status => 'copyright')
-   scope :awaiting_condition_approval, where(:unit_status => 'condition')
-   scope :approved, where(:unit_status => 'approved')
-   scope :unapproved, where(:unit_status => 'unapproved')
-   scope :canceled, where(:unit_status => 'canceled')
-   scope :overdue_materials, where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
-   scope :checkedout_materials, where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"')
-   scope :uncompleted_units_of_partially_completed_orders, includes(:order).where(:unit_status => 'approved', :date_archived => nil).where('intended_use_id != 110').where('orders.date_finalization_begun is not null')
+   scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
+   scope :ready_for_repo, ->{where(:include_in_dl => true).where("`units`.availability_policy_id IS NOT NULL").where(:date_queued_for_ingest => nil).where("date_archived is not null") }
+   scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
+   scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
+   scope :approved, ->{where(:unit_status => 'approved') }
+   scope :unapproved, ->{where(:unit_status => 'unapproved') }
+   scope :canceled, ->{where(:unit_status => 'canceled') }
+   scope :overdue_materials, ->{where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
+   scope :checkedout_materials, ->{where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
+   scope :uncompleted_units_of_partially_completed_orders, ->{includes(:order).where(:unit_status => 'approved', :date_archived => nil).where('intended_use_id != 110').where('orders.date_finalization_begun is not null') }
 
 
    #------------------------------------------------------------------

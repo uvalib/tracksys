@@ -23,12 +23,12 @@ class HeardAboutResource < ActiveRecord::Base
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------
-  scope :approved, where(:is_approved => true)
-  scope :not_approved, where(:is_approved => false)
-  scope :internal_use_only, where(:is_internal_use_only => true)
-  scope :publicly_available, where(:is_internal_use_only => false)
-  default_scope :order => :description
-  scope :for_request_form, where(:is_approved => true).where(:is_internal_use_only => false)
+  scope :approved, ->{ where(:is_approved => true) }
+  scope :not_approved, ->{ where(:is_approved => false) }
+  scope :internal_use_only, ->{ where(:is_internal_use_only => true) }
+  scope :publicly_available, ->{ where(:is_internal_use_only => false) }
+  default_scope {order('description')}
+  scope :for_request_form, ->{ where(:is_approved => true).where(:is_internal_use_only => false) }
 
   #------------------------------------------------------------------
   # aliases

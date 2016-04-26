@@ -95,23 +95,23 @@ class Bibl < ActiveRecord::Base
 
   has_many :agencies, :through => :orders
   has_many :job_statuses, :as => :originator, :dependent => :destroy
-  has_many :customers, :through => :orders, :uniq => true
+  has_many :customers, ->{ uniq }, :through => :orders
   has_many :master_files, :through => :units
-  has_many :orders, :through => :units, :uniq => true
+  has_many :orders, ->{ uniq }, :through => :units
   has_many :units
   belongs_to :index_destination, :counter_cache => true
 
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------
-  scope :approved, where(:is_approved => true)
-  scope :in_digital_library, where("bibls.date_dl_ingest is not null").order("bibls.date_dl_ingest DESC")
-  scope :not_in_digital_library, where("bibls.date_dl_ingest is null")
-  scope :not_approved, where(:is_approved => false)
-  scope :has_exemplars, where("exemplar is NOT NULL")
-  scope :need_exemplars, where("exemplar is NULL")
-  scope :uniq, select( 'DISTINCT id' )
-  scope :dpla, where(:dpla => true)
+  scope :approved, ->{ where(:is_approved => true) }
+  scope :in_digital_library,  ->{ where("bibls.date_dl_ingest is not null").order("bibls.date_dl_ingest DESC") }
+  scope :not_in_digital_library,  ->{ where("bibls.date_dl_ingest is null") }
+  scope :not_approved,  ->{ where(:is_approved => false) }
+  scope :has_exemplars,  ->{ where("exemplar is NOT NULL") }
+  scope :need_exemplars,  ->{ where("exemplar is NULL") }
+  #scope :uniq, ->{select( 'DISTINCT id' ) }
+  scope :dpla, ->{where(:dpla => true) }
 
   #------------------------------------------------------------------
   # delegation

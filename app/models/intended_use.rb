@@ -12,9 +12,9 @@ class IntendedUse < ActiveRecord::Base
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------
-  scope :interal_use_only, where(:is_internal_use_only => true)
-  scope :external_use, where(:is_internal_use_only => false)
-  default_scope :order => :description
+  scope :interal_use_only, ->{ where(:is_internal_use_only => true) }
+  scope :external_use, ->{ where(:is_internal_use_only => false) }
+  default_scope {order('description') }
 
   #------------------------------------------------------------------
   # aliases

@@ -9,16 +9,16 @@ class Customer < ActiveRecord::Base
    belongs_to :heard_about_service, :counter_cache => true
 
    has_many :orders, :inverse_of => :customer
-   has_many :requests, :conditions => ['orders.order_status = ?', 'requested'], :inverse_of => :customer
+   has_many :requests, ->{ where('orders.order_status = ?', 'requested')}, :inverse_of => :customer
    has_many :units, :through => :orders
    has_many :master_files, :through => :units
-   has_many :bibls, :through => :units, :uniq => true
+   has_many :bibls, ->{ uniq }, :through => :units
    has_many :invoices, :through => :orders
-   has_many :agencies, :through => :orders, :uniq => true
-   has_many :heard_about_resources, :through => :orders, :uniq => true
+   has_many :agencies, ->{ uniq }, :through => :orders
+   has_many :heard_about_resources, ->{ uniq }, :through => :orders
 
-   has_one :primary_address, :class_name => 'Address', :as => :addressable, :conditions => {:address_type => 'primary'}, :dependent => :destroy, :autosave => true
-   has_one :billable_address, :class_name => 'Address', :as => :addressable, :conditions => {:address_type => 'billable_address'}, :dependent => :destroy, :autosave => true
+   has_one :primary_address, ->{ where(address_type: 'primary_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
+   has_one :billable_address, ->{ where(address_type: 'billable_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
 
    accepts_nested_attributes_for :primary_address, :update_only => true
    accepts_nested_attributes_for :billable_address, :reject_if => :all_blank
@@ -70,7 +70,7 @@ class Customer < ActiveRecord::Base
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   default_scope :order => [:last_name, :first_name]
+   default_scope {order('last_name ASC, first_name ASC')}
    scope :has_unpaid_invoices, lambda{ where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).where('orders.fee_actual > 0').uniq }
 
 

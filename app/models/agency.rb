@@ -6,13 +6,13 @@ class Agency < ActiveRecord::Base
   # relationships
   #------------------------------------------------------------------
   has_many :orders
-  has_many :requests, :conditions => ['orders.order_status = ?', 'requested']
+  has_many :requests, -> { where("orders.order_status=?", 'requested') }
   has_many :units, :through => :orders
   has_many :master_files, :through => :units
-  has_one :primary_address, :class_name => 'Address', :as => :addressable, :conditions => {:address_type => 'primary_address'}, :dependent => :destroy
-  has_one :billable_address, :class_name => 'Address', :as => :addressable, :conditions => {:address_type => 'billable_address'}, :dependent => :destroy
-  has_many :customers, :through => :orders, :uniq => true
-  has_many :bibls, :through => :units, :uniq => true
+  has_one :primary_address, ->{where(address_type: "primary_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
+  has_one :billable_address, ->{where(address_type: "billable_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
+  has_many :customers, ->{uniq}, :through => :orders
+  has_many :bibls, ->{uniq}, :through => :units
 
   #------------------------------------------------------------------
   # validations
@@ -32,7 +32,7 @@ class Agency < ActiveRecord::Base
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------
-  scope :no_parent, where(:ancestry => nil)
+  scope :no_parent, ->{ where(:ancestry => nil) }
 
   #------------------------------------------------------------------
   # public class methods
