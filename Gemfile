@@ -55,7 +55,7 @@ group :assets do
   gem 'sass-rails'
 end
 
-gem 'jquery-rails', '2.3.0'
-gem 'jquery-ui-rails', '4.0.5'
+gem 'jquery-rails'
+gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails', '0.1.4'
 gem "chosen-rails"
