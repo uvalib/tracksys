@@ -58,4 +58,4 @@ end
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails', '0.1.4'
-gem "chosen-rails"
+gem "chosen-rails", '1.4.3'
