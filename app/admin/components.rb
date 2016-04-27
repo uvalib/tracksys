@@ -268,9 +268,6 @@ ActiveAdmin.register Component do
           link_to "#{component.children.size}", admin_components_path(:q => {:parent_component_id_eq => component.id})
         end
       end
-      row :jobs do |component|
-        link_to "#{component.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => component.id, :originator_type_eq => "Component"})
-      end
       row "Digital Library" do |component|
         if component.exists_in_repo?
           link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"

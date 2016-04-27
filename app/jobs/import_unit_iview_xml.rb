@@ -18,9 +18,14 @@ class ImportUnitIviewXML < BaseJob
 
       # Import XML files
       xml_file = File.open(@path.to_s)
-      ImportIviewXml.import_iview_xml(xml_file, @unit_id.to_s)
-      xml_file.close
-      logger().info( "Iview XML for Unit #{@unit_id} successfully imported.")
+      begin
+         ImportIviewXml.import_iview_xml(xml_file, @unit_id.to_s)
+         xml_file.close
+         logger().info( "Iview XML for Unit #{@unit_id} successfully imported.")
+      rescue Exception=>e
+         on_error("Import Iview XML for Unit #{@unit_id} FAILED: #{e.message}")
+         xml_file.close
+      end
 
       # copy metadata first because the finalization process will move the
       # data from in-process to ready-to-delete, causing the metadata copy to fail

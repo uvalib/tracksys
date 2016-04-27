@@ -15,11 +15,12 @@ class StartFinalization < BaseJob
 
       # Check that the mounts are up and the directory that holds the files still exists.
       if not File.exist?(finalization_dir)
-         on_failure "#{finalization_dir} directory does not exist.  Check mounts to NetApps."
+         on_error "Finalization directory '#{finalization_dir}' does not exist."
       else
          contents = Dir.entries(finalization_dir).delete_if {|x| x == "." or x == ".." or x == ".AppleDouble" }
 
          # Check that there is content in the finalization directory
+         finalized_count = 0
          if contents.empty?
             on_failure "No items to finalize in #{finalization_dir}"
          else
@@ -38,15 +39,19 @@ class StartFinalization < BaseJob
                         if not regex_unit.match(content)
                            on_error "#{content} does not match departmental naming convention of 9 digits"
                         else
-                           # Entry passes all tests
-                           FileUtils.mv File.join(finalization_dir, content), File.join(IN_PROCESS_DIR, content)
-                           @unit_id = content.to_s.sub(/^0+/, '')
-                           on_success "Directory #{content} begins the finalization workflow."
-                           QaUnitData.exec_now( { :unit_id => @unit_id }, self)
+                           # schedule a new job to finalize this unit. This lets each unit have its own job log
+                           logger().info "Schedule finalization for #{content}"
+                           finalized_count += 1
+                           FinalizeUnit.exec( { user_id: message[:user_id], unit_dir: content, finalization_dir:  finalization_dir} )
                         end
                      end
                   end
                end
+            end
+            if finalized_count == 0
+               on_failure "No items to finalize in #{finalization_dir}"
+            else
+               on_success "All units in finalization directory have begun finalization"
             end
          end
       end

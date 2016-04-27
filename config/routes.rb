@@ -1,8 +1,6 @@
 Tracksys::Application.routes.draw do
   root :to => 'requests#index'
 
-  match '/request' => redirect('/')
-
   resources :requests do
     collection do
       get 'agree_to_copyright'

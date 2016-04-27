@@ -40,9 +40,6 @@ class BaseJob
       @status = JobStatus.create(name: self.class.name, params: message.to_json)
       set_originator(message)
       originator = @status.originator
-      if !originator.nil?
-         originator.update_attribute(:job_statuses_count, originator.job_statuses_count+1)
-      end
       return @status.id
    end
    def set_originator(message)
@@ -147,7 +144,7 @@ class BaseJob
    # Log a warning message and keep processing
    #
    def on_failure(message)
-      @status.update_attributes(:failures=>(@status.failures+1), :active_error=>true )
+      @status.update_attributes(:failures=>(@status.failures+1) )
       @logger.error message
    end
 

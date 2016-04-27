@@ -45,9 +45,6 @@ ActiveAdmin.register StaffMember do
         row :email
         row :role
         row :is_active
-        row :jobs do |staff_member|
-         link_to "#{staff_member.job_statuses_count}", admin_job_statuses_path(:q => {:originator_id_eq => staff_member.id, :originator_type_eq => "StaffMember"})
-       end
       end
     end
   end

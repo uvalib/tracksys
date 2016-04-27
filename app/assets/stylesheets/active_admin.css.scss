@@ -15,6 +15,31 @@
 @import "printable";
 @import "chosen";
 
+tr.odd, tr.even {
+    &.failed {
+        td.col {
+           background-color: #944;
+           color: white;
+        }
+        a {
+           color: white;
+        }
+    }
+    &.warn {
+      td.col {
+         background-color: palegoldenrod;
+      }
+    }
+}
+tr.even {
+    &.failed {
+      opacity: 0.7;
+   }
+   &.warn {
+     opacity: 0.7;
+  }
+}
+
 fieldset.panel.two-column {
    margin-bottom: 10px;
 }
