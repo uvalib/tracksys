@@ -1,10 +1,10 @@
 ActiveAdmin.register IntendedUse do
   menu :parent => "Miscellaneous"
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/intended_uses/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 

@@ -6,10 +6,10 @@ ActiveAdmin.register AcademicStatus do
   filter :name
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/academic_statuses/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -21,16 +21,16 @@ ActiveAdmin.register AcademicStatus do
       link_to "#{academic_status.customers_count.to_s}", admin_customers_path(:q => {:academic_status_id_eq => academic_status.id})
     end
     column :requests do |academic_status|
-      link_to "#{academic_status.requests.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
+      link_to "#{academic_status.requests.count}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
     end
     column :orders do |academic_status|
-      link_to "#{academic_status.orders.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
+      link_to "#{academic_status.orders.count}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
     end
     column :units do |academic_status|
-      link_to "#{academic_status.units.size.to_s}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
+      link_to "#{academic_status.units.count}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
     end
     column :master_files do |academic_status|
-      link_to "#{academic_status.master_files.size.to_s}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
+      link_to "#{academic_status.master_files.count}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
     end
     column :created_at do |academic_status|
       format_date(academic_status.created_at)

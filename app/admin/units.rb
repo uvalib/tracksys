@@ -19,13 +19,13 @@ ActiveAdmin.register Unit do
   end
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :ocr, only: :show do
      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -404,11 +404,11 @@ ActiveAdmin.register Unit do
     end
   end
 
-  action_item :only => :show do
+  action_item :previous, :only => :show do
     link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?
   end
 
-  action_item :only => :show do
+  action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
 

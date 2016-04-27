@@ -8,10 +8,10 @@ ActiveAdmin.register MasterFile do
   scope :not_in_digital_library, :show_count => true
 
   config.clear_action_items!
-  action_item only: :show do
+  action_item :ocr, only: :show do
      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -298,30 +298,15 @@ ActiveAdmin.register MasterFile do
     end
   end
 
-  action_item :only => :show do
+  action_item :previous, :only => :show do
     link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
   end
 
-  action_item :only => :show do
+  action_item :next, :only => :show do
     link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
   end
 
-  action_item :only => :show do
-    if master_file.in_dl?
-      if master_file.availability_policy_id == 1
-        if master_file.discoverability
-          link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.pid}/view", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
-        else
-          link_to "Pin It", "http://pinterest.com/pin/create/button/?#{URI.encode_www_form("url" => "http://search.lib.virginia.edu/catalog/#{master_file.bibl.pid}/view?&page=#{master_file.pid}", "media" => "http://fedoraproxy.lib.virginia.edu/fedora/get/#{master_file.pid}/djatoka:jp2SDef/getRegion?level=3", "description" => "#{master_file.title} from #{master_file.bibl_title} &#183; #{master_file.bibl_creator_name} &#183; #{master_file.bibl.year} &#183; Albert and Shirley Small Special Collections Library, University of Virginia.")}", :class => "pin-it-button", :'count-layout' => 'vertical'
-        end
-      else
-        "Cannot pin. UVA Only."
-      end
-    else
-    end
-  end
-
-  action_item :only => :show do
+  action_item :download, :only => :show do
     if master_file.date_archived
       link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
     end

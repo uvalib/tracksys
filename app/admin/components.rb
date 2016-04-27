@@ -4,10 +4,10 @@ ActiveAdmin.register Component do
   scope :all, :default => true
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/components/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -42,7 +42,7 @@ ActiveAdmin.register Component do
       end
     end
     column :master_files do |component|
-      link_to "#{component.master_files.size}", admin_master_files_path(:q => {:component_id_eq => component.id})
+      link_to "#{component.master_files.count}", admin_master_files_path(:q => {:component_id_eq => component.id})
     end
     column("Links") do |component|
       div do
@@ -294,15 +294,15 @@ ActiveAdmin.register Component do
     end
   end
 
-  action_item :only => :show do
+  action_item :previous, :only => :show do
     link_to("Previous", admin_component_path(component.new_previous)) unless component.new_previous.nil?
   end
 
-  action_item :only => :show do
+  action_item :next, :only => :show do
     link_to("Next", admin_component_path(component.new_next)) unless component.new_next.nil?
   end
 
-  action_item :only => :show do
+  action_item :create, :only => :show do
     link_to "Create iView Catalog", export_iview_admin_component_path, :method => :put
   end
 

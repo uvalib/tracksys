@@ -15,10 +15,10 @@ ActiveAdmin.register Invoice do
   filter :permanent_nonpayment
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/invoices/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :show, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 

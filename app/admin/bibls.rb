@@ -2,19 +2,19 @@ ActiveAdmin.register Bibl do
   menu :priority => 5
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/bibls/new'>New</a>") if !current_user.viewer?
   end
 
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :delete, only: :show do
      link_to "Delete", resource_path,
        data: {:confirm => "Are you sure you want to delete this BIBL?"}, :method => :delete  if current_user.admin?
   end
 
-  action_item :only => [:edit, :new] do
+  action_item :virgo, :only => [:edit, :new] do
     link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
   end
 
@@ -94,7 +94,7 @@ ActiveAdmin.register Bibl do
       format_boolean_as_yes_no(bibl.dpla)
     end
     column :units, :class => 'sortable_short', :sortable => :units_count do |bibl|
-      link_to bibl.units.size, admin_units_path(:q => {:bibl_id_eq => bibl.id})
+      link_to bibl.units.count, admin_units_path(:q => {:bibl_id_eq => bibl.id})
     end
     column("Master Files") do |bibl|
       link_to bibl.master_files.count, admin_master_files_path(:q => {:bibl_id_eq => bibl.id})

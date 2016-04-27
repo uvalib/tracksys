@@ -2,10 +2,10 @@ ActiveAdmin.register Customer do
   menu :priority => 2
 
   config.clear_action_items!
-  action_item only: :index do
+  action_item :new, only: :index do
      raw("<a href='/admin/customers/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -32,16 +32,16 @@ ActiveAdmin.register Customer do
       customer.full_name
     end
     column :requests do |customer|
-       link_to customer.requests.size.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
+       link_to customer.requests.to_a.size, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
     end
     column :orders do |customer|
       link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id})
     end
     column :units do |customer|
-      link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
+      link_to customer.units.to_a.size, admin_units_path(:q => {:customer_id_eq => customer.id})
     end
     column ("Bibliographic Records") do |customer|
-      link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
+      link_to customer.bibls.to_a.size, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
     end
     column :master_files do |customer|
       link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})

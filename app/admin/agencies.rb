@@ -7,10 +7,10 @@ ActiveAdmin.register Agency do
   scope :no_parent
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/agencies/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -21,22 +21,22 @@ ActiveAdmin.register Agency do
     selectable_column
     column :name
     column :customers do |agency|
-      link_to "#{agency.customers.size.to_s}", admin_customers_path(:q => {:agencies_id_eq => agency.id})
+      link_to "#{agency.customers.count}", admin_customers_path(:q => {:agencies_id_eq => agency.id})
     end
     column :requests do |agency|
-      link_to "#{agency.requests.size.to_s}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'awaiting_approval')
+      link_to "#{agency.requests.count}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'awaiting_approval')
     end
     column :orders do |agency|
-      link_to "#{agency.orders.size.to_s}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'approved')
+      link_to "#{agency.orders.count}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'approved')
     end
     column :units do |agency|
-      link_to "#{agency.units.size.to_s}", admin_units_path(:q => {:agency_id_eq => agency.id})
+      link_to "#{agency.units.count}", admin_units_path(:q => {:agency_id_eq => agency.id})
     end
     column :bibls do |agency|
-      link_to "#{agency.bibls.size.to_s}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
+      link_to "#{agency.bibls.count}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
     end
     column :master_files do |agency|
-      link_to "#{agency.master_files.size.to_s}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
+      link_to "#{agency.master_files.count}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
     end
     column :descendants do |agency|
       # agency.descendants.map(&:names_depth_cache).map {|cache| cache.gsub("#{agency.name}/", '')}.sort || "N/A"

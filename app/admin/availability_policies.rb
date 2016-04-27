@@ -3,10 +3,10 @@ ActiveAdmin.register AvailabilityPolicy do
   menu :parent => "Miscellaneous"
 
   config.clear_action_items!
-  action_item :only => :index do
+  action_item :new, :only => :index do
      raw("<a href='/admin/availability_policies/new'>New</a>") if !current_user.viewer?
   end
-  action_item only: :show do
+  action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
@@ -20,16 +20,16 @@ ActiveAdmin.register AvailabilityPolicy do
     column :repository_url
     column :pid
     column("Units") do |availability_policy|
-      link_to availability_policy.units_count.to_s, admin_units_path(:q => {:availability_policy_id_eq => availability_policy.id})
+      link_to availability_policy.units_count, admin_units_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
     column("Master Files") do |availability_policy|
-      link_to availability_policy.master_files_count.to_s, admin_master_files_path(:q => {:availability_policy_id_eq => availability_policy.id})
+      link_to availability_policy.master_files_count, admin_master_files_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
     column("Bibls") do |availability_policy|
-      link_to availability_policy.bibls_count.to_s, admin_bibls_path(:q => {:availability_policy_id_eq => availability_policy.id})
+      link_to availability_policy.bibls_count, admin_bibls_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
     column("Components") do |availability_policy|
-      link_to availability_policy.components_count.to_s, admin_components_path(:q => {:availability_policy_id_eq => availability_policy.id})
+      link_to availability_policy.components_count, admin_components_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
     column("") do |availability_policy|
       div do
