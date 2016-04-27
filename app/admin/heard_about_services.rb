@@ -1,5 +1,9 @@
 ActiveAdmin.register HeardAboutService do
   menu :parent => "Miscellaneous"
+
+  # strong paramters handling
+  permit_params :description, :is_approved, :is_internal_use_only
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/heard_about_services/new'>New</a>") if !current_user.viewer?

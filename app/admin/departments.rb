@@ -1,6 +1,9 @@
 ActiveAdmin.register Department do
   menu :parent => "Miscellaneous"
 
+  # strong paramters handling
+  permit_params :name
+
   filter :id
   filter :name
 

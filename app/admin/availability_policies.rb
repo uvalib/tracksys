@@ -2,6 +2,9 @@ ActiveAdmin.register AvailabilityPolicy do
   config.sort_order = 'name_asc'
   menu :parent => "Miscellaneous"
 
+  # strong paramters handling
+  permit_params :name, :repository_url, :pid
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/availability_policies/new'>New</a>") if !current_user.viewer?
