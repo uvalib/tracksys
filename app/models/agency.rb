@@ -9,7 +9,7 @@ class Agency < ActiveRecord::Base
   has_many :requests, -> { where("orders.order_status=?", 'requested') }
   has_many :units, :through => :orders
   has_many :master_files, :through => :units
-  has_one :primary_address, ->{where(address_type: "primary_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
+  has_one :primary_address, ->{where(address_type: "primary")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_one :billable_address, ->{where(address_type: "billable_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_many :customers, ->{uniq}, :through => :orders
   has_many :bibls, ->{uniq}, :through => :units

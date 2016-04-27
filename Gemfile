@@ -1,7 +1,8 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.22'
+#gem 'rails', '3.2.22'
 #gem 'rails', '4.2.6'
+gem 'rails', '4.0'
 
 #gem 'activeadmin', '0.6.6'
 gem 'activeadmin', '~> 1.0.0.pre2'
@@ -35,25 +36,14 @@ gem 'axlsx', '~> 2.1.0.pre'
 gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
 gem 'zip-zip' # will load compatibility for old rubyzip API.
 
-gem "rspec-rails", :group => [:test, :development]
-group :test do
-  gem "factory_girl_rails"
-  gem "capybara"
-  gem "guard-rspec"
-  gem 'test-unit', '~> 3.0'
-end
-
 group :development do
   gem 'byebug'
+  gem 'spring'
 end
 
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'uglifier'
-  gem 'sass'
-  gem 'sass-rails'
-end
+gem 'uglifier'
+gem 'sass-rails'
+gem 'rails-observers'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails'

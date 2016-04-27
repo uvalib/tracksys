@@ -17,7 +17,7 @@ class Customer < ActiveRecord::Base
    has_many :agencies, ->{ uniq }, :through => :orders
    has_many :heard_about_resources, ->{ uniq }, :through => :orders
 
-   has_one :primary_address, ->{ where(address_type: 'primary_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
+   has_one :primary_address, ->{ where(address_type: 'primary')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
    has_one :billable_address, ->{ where(address_type: 'billable_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
 
    accepts_nested_attributes_for :primary_address, :update_only => true

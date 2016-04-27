@@ -1,26 +1,34 @@
 class RequestsController < ApplicationController
+   def customer_params
+      req = params[:request]
+      req.require(:customer_attributes).permit(
+         :first_name, :last_name, :email, :academic_status_id, :heard_about_service_id,
+         :primary_address_attributes=>[:address_1, :address_2, :city, :state, :post_code, :country, :phone],
+         :billable_address_attributes=>[:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone] )
+   end
+
+   def units_params
+      params.require(:request).permit( :date_due, :special_instructions, :units_attributes=>[
+         :request_pages_to_digitize, :request_call_number, :request_title, :request_author, :request_year, :request_location,
+         :request_copy_number, :request_volume_number, :request_issue_number, :patron_source_url, :request_description,
+         :heard_about_resoure_id, :intended_use_id] )
+   end
 
    def create
-      original_params = params
-      request_params_without_units = params['request'].except('customer_attributes').except('units_attributes')
-      request_params_with_units =  params['request'].except('customer_attributes')
-      customer_params = params['request'].slice('customer_attributes')
-      units_params = params['request'].slice('units_attributes')
-
       # Customer Logic
       #
       # Find existing Customer record by email address, or instantiate new one
-      @customer = Customer.find_by_email(params[:request][:customer_attributes][:email].strip)
+      @customer = Customer.find_by( email: params[:request][:customer_attributes][:email].strip )
       if @customer.nil?
          @customer = Customer.new
       end
 
       # Update that record (in memory, without saving it to database yet) with
       # values from user input
-      @customer.update_attributes(customer_params['customer_attributes'])
+      @customer.update_attributes( customer_params )
 
       # request/order
-      @request = Request.new(request_params_with_units)
+      @request = Request.new( units_params )
       @request.order_status = 'requested'
       @request.date_request_submitted = Time.now
 
@@ -102,7 +110,7 @@ class RequestsController < ApplicationController
             uva_status = ldap_info.uva_status.first
 
             # If a UVa Customer exist, populate @request.customer with Tracksys sourced data.
-            customer_lookup = Customer.find_by_email(ldap_info.email.first)
+            customer_lookup = Customer.find_by(email: ldap_info.email.first)
             if customer_lookup.nil?
                uva_computing_id = ldap_info.uva_computing_id
                department_name = ldap_info.department.first
@@ -120,11 +128,11 @@ class RequestsController < ApplicationController
                   }
                }
             else
-               @request.customer = Customer.find_by_email(ldap_info.email.first)
+               @request.customer = Customer.find_by(email: ldap_info.email.first)
             end
 
             # Always update Academic Status
-            @request.customer.academic_status_id = AcademicStatus.find_by_name(uva_status).id
+            @request.customer.academic_status_id = AcademicStatus.find_by( name: uva_status).id
 
             # Must build a Billable Address if the existing customer doesn't have one
             # so form pre-population doesn't break.

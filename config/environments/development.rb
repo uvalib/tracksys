@@ -10,8 +10,6 @@ Tracksys::Application.configure do
   # Setting this to null avoids annoying database timeouts
   config.cache_store = :null_store
 
-  # Log error messages when you accidentally call methods on nil.
-  config.whiny_nils = true
   config.eager_load = false
 
   # Show full error reports and disable caching

@@ -45,7 +45,7 @@ class Order < ActiveRecord::Base
       order('date_request_submitted DESC').limit(limit)
    }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
-   default_scope {include('agency')}
+#default_scope {include('agency')}
    scope :from_fine_arts, ->{ joins(:agency).where("agencies.name" => "Fine Arts Library") }
    scope :not_from_fine_arts, ->{ where('agency_id != 37 or agency_id is null') }
    scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
