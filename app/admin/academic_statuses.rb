@@ -70,16 +70,16 @@ ActiveAdmin.register AcademicStatus do
         link_to "#{academic_status.customers_count.to_s}", admin_customers_path(:q => {:academic_status_id_eq => academic_status.id})
       end
       row :requests do |academic_status|
-        link_to "#{academic_status.requests.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
+        link_to "#{academic_status.requests.count}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'awaiting_approval')
       end
       row :orders do |academic_status|
-        link_to "#{academic_status.orders.size.to_s}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
+        link_to "#{academic_status.orders.count}", admin_orders_path(:q => {:academic_status_id_eq => academic_status.id}, :scope => 'approved')
       end
       row :units do |academic_status|
-        link_to "#{academic_status.units.size.to_s}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
+        link_to "#{academic_status.units.count}", admin_units_path(:q => {:academic_status_id_eq => academic_status.id})
       end
       row :master_files do |academic_status|
-        link_to "#{academic_status.master_files.size.to_s}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
+        link_to "#{academic_status.master_files.count}", admin_master_files_path(:q => {:academic_status_id_eq => academic_status.id})
       end
     end
   end

@@ -21,16 +21,16 @@ ActiveAdmin.register HeardAboutResource do
   index do
     column :description
     column :customers do |heard_about_resource|
-      link_to "#{heard_about_resource.customers.size.to_s}", admin_customers_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
+      link_to "#{heard_about_resource.customers.count}", admin_customers_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
     end
     column :orders do |heard_about_resource|
-      link_to "#{heard_about_resource.orders.size.to_s}", admin_orders_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
+      link_to "#{heard_about_resource.orders.count}", admin_orders_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
     end
     column :units do |heard_about_resource|
-      link_to "#{heard_about_resource.units.size.to_s}", admin_units_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
+      link_to "#{heard_about_resource.units.count}", admin_units_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
     end
     column :master_files do |heard_about_resource|
-      link_to "#{heard_about_resource.master_files.size.to_s}", admin_master_files_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
+      link_to "#{heard_about_resource.master_files.count}", admin_master_files_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
     end
     column ("Approved?") do |heard_about_resource|
       format_boolean_as_yes_no(heard_about_resource.is_approved)
@@ -67,16 +67,16 @@ ActiveAdmin.register HeardAboutResource do
   sidebar "Related Information", :only => :show do
     attributes_table_for heard_about_resource do
       row :customers do |heard_about_resource|
-        link_to "#{heard_about_resource.customers.size.to_s}", admin_customers_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
+        link_to "#{heard_about_resource.customers.count}", admin_customers_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
       end
       row :orders do |heard_about_resource|
-        link_to "#{heard_about_resource.orders.size.to_s}", admin_orders_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
+        link_to "#{heard_about_resource.orders.count}", admin_orders_path(:q => {:heard_about_resources_id_eq => heard_about_resource.id})
       end
       row :units do |heard_about_resource|
-        link_to "#{heard_about_resource.units.size.to_s}", admin_units_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
+        link_to "#{heard_about_resource.units.count}", admin_units_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
       end
       row :master_files do |heard_about_resource|
-        link_to "#{heard_about_resource.master_files.size.to_s}", admin_master_files_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
+        link_to "#{heard_about_resource.master_files.count}", admin_master_files_path(:q => {:heard_about_resource_id_eq => heard_about_resource.id})
       end
     end
   end

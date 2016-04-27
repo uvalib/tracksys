@@ -21,16 +21,16 @@ ActiveAdmin.register HeardAboutService do
   index do
     column :description
     column :customers do |heard_about_service|
-      link_to "#{heard_about_service.customers.size.to_s}", admin_customers_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+      link_to "#{heard_about_service.customers.count}", admin_customers_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
     end
     column :orders do |heard_about_service|
-      link_to "#{heard_about_service.orders.size.to_s}", admin_orders_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+      link_to "#{heard_about_service.orders.count}", admin_orders_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
     end
     column :units do |heard_about_service|
-      link_to "#{heard_about_service.units.size.to_s}", admin_units_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+      link_to "#{heard_about_service.units.count}", admin_units_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
     end
     column :master_files do |heard_about_service|
-      link_to "#{heard_about_service.master_files.size.to_s}", admin_master_files_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+      link_to "#{heard_about_service.master_files.count}", admin_master_files_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
     end
     column ("Approved?") do |heard_about_service|
       format_boolean_as_yes_no(heard_about_service.is_approved)
@@ -73,16 +73,16 @@ ActiveAdmin.register HeardAboutService do
   sidebar "Related Information", :only => :show do
     attributes_table_for heard_about_service do
       row :customers do |heard_about_service|
-        link_to "#{heard_about_service.customers.size.to_s}", admin_customers_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+        link_to "#{heard_about_service.customers.count}", admin_customers_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
       end
       row :orders do |heard_about_service|
-        link_to "#{heard_about_service.orders.size.to_s}", admin_orders_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+        link_to "#{heard_about_service.orders.count}", admin_orders_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
       end
       row :units do |heard_about_service|
-        link_to "#{heard_about_service.units.size.to_s}", admin_units_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+        link_to "#{heard_about_service.units.count}", admin_units_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
       end
       row :master_files do |heard_about_service|
-        link_to "#{heard_about_service.master_files.size.to_s}", admin_master_files_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
+        link_to "#{heard_about_service.master_files.count}", admin_master_files_path(:q => {:heard_about_service_id_eq => heard_about_service.id})
       end
     end
   end

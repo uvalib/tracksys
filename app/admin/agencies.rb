@@ -108,22 +108,22 @@ ActiveAdmin.register Agency do
   sidebar "Agency Related Information", :only => :show do
     attributes_table_for agency do
       row :customers do |agency|
-        link_to "#{agency.customers.size.to_s}", admin_customers_path(:q => {:agencies_id_eq => agency.id})
+        link_to "#{agency.customers.count}", admin_customers_path(:q => {:agencies_id_eq => agency.id})
       end
       row :requests do |agency|
-        link_to "#{agency.requests.size.to_s}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'awaiting_approval')
+        link_to "#{agency.requests.count}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'awaiting_approval')
       end
       row :orders do |agency|
-        link_to "#{agency.orders.size.to_s}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'approved')
+        link_to "#{agency.orders.count}", admin_orders_path(:q => {:agency_id_eq => agency.id}, :scope => 'approved')
       end
       row :units do |agency|
-        link_to "#{agency.units.size.to_s}", admin_units_path(:q => {:agency_id_eq => agency.id})
+        link_to "#{agency.units.count}", admin_units_path(:q => {:agency_id_eq => agency.id})
       end
       row :bibls do |agency|
-        link_to "#{agency.bibls.size.to_s}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
+        link_to "#{agency.bibls.count}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
       end
       row :master_files do |agency|
-        link_to "#{agency.master_files.size.to_s}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
+        link_to "#{agency.master_files.count}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
       end
     end
   end

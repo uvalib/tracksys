@@ -17,19 +17,19 @@ ActiveAdmin.register Department do
   index do
     column :name
     column :customers do |department|
-      link_to "#{department.customers.size.to_s}", admin_customers_path(:q => {:department_id_eq => department.id})
+      link_to "#{department.customers.count}", admin_customers_path(:q => {:department_id_eq => department.id})
     end
     column :requests do |department|
-      link_to "#{department.requests.size.to_s}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'awaiting_approval'})
+      link_to "#{department.requests.count}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'awaiting_approval'})
     end
     column :orders do |department|
-      link_to "#{department.orders.size.to_s}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'approved'})
+      link_to "#{department.orders.count}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'approved'})
     end
     column :units do |department|
-      link_to "#{department.units.size.to_s}", admin_units_path(:q => {:department_id_eq => department.id})
+      link_to "#{department.units.count}", admin_units_path(:q => {:department_id_eq => department.id})
     end
     column :master_files do |department|
-      link_to "#{department.master_files.size.to_s}", admin_master_files_path(:q => {:department_id_eq => department.id})
+      link_to "#{department.master_files.count}", admin_master_files_path(:q => {:department_id_eq => department.id})
     end
     column :created_at do |department|
       format_date(department.created_at)
@@ -66,19 +66,19 @@ ActiveAdmin.register Department do
   sidebar "Related Information", :only => :show do
     attributes_table_for department do
       row :customers do |department|
-        link_to "#{department.customers.size.to_s}", admin_customers_path(:q => {:department_id_eq => department.id})
+        link_to "#{department.customers.count}", admin_customers_path(:q => {:department_id_eq => department.id})
       end
       row :requests do |department|
-        link_to "#{department.requests.size.to_s}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'awaiting_approval'})
+        link_to "#{department.requests.count}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'awaiting_approval'})
       end
       row :orders do |department|
-        link_to "#{department.orders.size.to_s}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'approved'})
+        link_to "#{department.orders.count}", admin_orders_path(:q => {:department_id_eq => department.id, :scope => 'approved'})
       end
       row :units do |department|
-        link_to "#{department.units.size.to_s}", admin_units_path(:q => {:department_id_eq => department.id})
+        link_to "#{department.units.count}", admin_units_path(:q => {:department_id_eq => department.id})
       end
       row :master_files do |department|
-        link_to "#{department.master_files.size.to_s}", admin_master_files_path(:q => {:department_id_eq => department.id})
+        link_to "#{department.master_files.count}", admin_master_files_path(:q => {:department_id_eq => department.id})
       end
     end
   end

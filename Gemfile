@@ -28,7 +28,6 @@ gem 'prawn'
 gem 'prawn-table'
 gem 'nested_form'
 gem 'net-ldap'
-gem 'country-select'
 gem 'browser' # Browser detection for request form HTML5 attributes
 gem 'roadie' # for embedding CSS in request_form emails
 gem 'nokogiri-pretty'

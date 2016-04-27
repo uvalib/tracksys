@@ -135,7 +135,7 @@ ActiveAdmin.register Customer do
           p.input :address_2
           p.input :city
           p.input :state
-          p.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
+          p.input :country, as: :select, collection: ActionView::Helpers::FormOptionsHelper::COUNTRIES, :input_html => {:class => 'chosen-select',  :style => 'width: 225px'}
           p.input :post_code
           p.input :phone
           p.input :organization
@@ -152,7 +152,7 @@ ActiveAdmin.register Customer do
           b.input :address_2
           b.input :city
           b.input :state
-          b.input :country, :as => :country, :priority_countries => ['United States', 'Canada'], :include_blank => true, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
+          b.input :country, as: :select, collection: ActionView::Helpers::FormOptionsHelper::COUNTRIES, :input_html => {:class => 'chosen-select',  :style => 'width: 225px'}
           b.input :post_code
           b.input :phone
           b.input :organization
@@ -160,7 +160,7 @@ ActiveAdmin.register Customer do
       end
     end
 
-    f.inputs :class => 'columns-none' do
+    f.inputs :class => 'columns-none customer-edit-actions' do
       f.actions
     end
   end
@@ -168,16 +168,16 @@ ActiveAdmin.register Customer do
   sidebar "Related Information", :only => [:show] do
     attributes_table_for customer do
       row :requests do |customer|
-         link_to customer.requests.size.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
+         link_to customer.requests.count, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
       end
       row :orders do |customer|
         link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id})
       end
       row :units do |customer|
-        link_to customer.units.size.to_s, admin_units_path(:q => {:customer_id_eq => customer.id})
+        link_to customer.units.count, admin_units_path(:q => {:customer_id_eq => customer.id})
       end
       row ("Bibliographic Records") do |customer|
-        link_to customer.bibls.size.to_s, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
+        link_to customer.bibls.count, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
       end
       row :master_files do |customer|
         link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
