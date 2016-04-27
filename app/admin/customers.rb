@@ -1,7 +1,7 @@
 ActiveAdmin.register Customer do
   menu :priority => 2
 
-  # stron paramters handling
+  # strong paramters handling
   permit_params :first_name, :last_name, :email, :academic_status_id, :heard_about_service_id,
      primary_address_attributes: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
      billable_address_attributes: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]

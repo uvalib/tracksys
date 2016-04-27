@@ -2,6 +2,9 @@ ActiveAdmin.register AcademicStatus do
   menu :parent => "Miscellaneous"
   config.sort_order = 'name_asc'
 
+  # strong paramters handling
+  permit_params :name
+
   filter :id
   filter :name
 

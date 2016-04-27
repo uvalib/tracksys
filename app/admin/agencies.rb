@@ -1,6 +1,9 @@
 ActiveAdmin.register Agency do
   menu :parent => "Miscellaneous"
 
+  # strong paramters handling
+  permit_params :name, :description, :parent_id
+
   config.sort_order = 'name_asc'
 
   scope :all, :default => true
