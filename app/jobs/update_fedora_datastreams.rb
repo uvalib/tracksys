@@ -47,7 +47,7 @@ class UpdateFedoraDatastreams < BaseJob
             # Messages coming from this processor should only be for units that have already been archived.
             @source = mf.path_to_archved_version
             msg = { :object=> mf }
-            imsg = { :object=> mf, :source => @source, :mode => 'dl', :last => 0 }
+            imsg = { :object=> mf, :source => @source, :last => 0 }
             IngestDescMetadata.exec_now(msg, self)
             IngestRightsMetadata.exec_now(msg, self)
             IngestTechMetadata.exec_now(msg, self)
@@ -128,7 +128,7 @@ class UpdateFedoraDatastreams < BaseJob
       @source = File.join(ARCHIVE_DIR, @unit_dir, @object.filename)
 
       mmsg = { :object => @object}
-      imsg = { :object=> @object, :source => @source, :mode => 'dl', :last => 0 }
+      imsg = { :object=> @object, :source => @source, :last => 0 }
 
       if @datastream == 'all'
          IngestDescMetadata.exec_now(mmsg, self)
