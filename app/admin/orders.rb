@@ -1,6 +1,13 @@
 ActiveAdmin.register Order do
   menu :priority => 3
 
+  # strong paramters handling
+  permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
+     :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer, :date_permissions_given,
+     :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
+     :date_customer_notified, :email
+
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer?
