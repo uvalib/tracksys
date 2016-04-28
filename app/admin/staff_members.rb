@@ -3,6 +3,9 @@ ActiveAdmin.register StaffMember do
 
   menu :parent => "Miscellaneous"
 
+  # strong paramters handling
+  permit_params :computing_id, :last_name, :first_name, :is_active, :role_id, :email
+
   scope :all, :default => true
   config.clear_action_items!
   action_item :new, :only => :index do

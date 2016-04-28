@@ -10,7 +10,7 @@ class StaffMember < ActiveRecord::Base
   # validation
   #------------------------------------------------------------------
   validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
-  validates :role, :presence=>true, inclusion: { in: ["admin","editor","viewer"], message: "%{value} is not a valid role" }
+  validates :role, :presence=>true
 
 public
 

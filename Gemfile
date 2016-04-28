@@ -1,8 +1,6 @@
 source 'http://rubygems.org'
 
-#gem 'rails', '3.2.22'
-#gem 'rails', '4.2.6'
-gem 'rails', '4.0'
+gem 'rails', '4.2.6'
 
 #gem 'activeadmin', '0.6.6'
 gem 'activeadmin', '~> 1.0.0.pre2'
@@ -47,5 +45,7 @@ gem 'rails-observers'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
-gem 'jquery-colorbox-rails', '0.1.4'
-gem "chosen-rails", '1.4.3'
+gem 'jquery-colorbox-rails'
+
+gem 'compass-rails' # required by chosen rails
+gem "chosen-rails"

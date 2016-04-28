@@ -13,7 +13,7 @@ class Invoice < ActiveRecord::Base
    }
 
    delegate :date_order_approved, :date_customer_notified,
-   :to => :order, :allow_nil => true, :prefix => true
+      :to => :order, :allow_nil => true, :prefix => true
    delegate :customer, to: :order, prefix: true
    delegate :fee_actual, to: :order, prefix: true
 

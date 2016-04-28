@@ -1,6 +1,9 @@
 ActiveAdmin.register LegacyIdentifier do
   menu :parent => "Miscellaneous"
 
+  # strong paramters handling
+  permit_params :label, :description, :legacy_identifier
+
   actions :all, :except => [:new, :destroy]
   scope :all, :default => true
 

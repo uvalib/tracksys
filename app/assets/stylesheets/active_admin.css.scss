@@ -15,12 +15,26 @@
 @import "printable";
 @import "chosen";
 
-   fieldset.columns-none.customer-edit-actions {
+fieldset.inputs.columns-none {
    padding: 15px;
    margin: 15px 0;
    fieldset.actions {
       padding: 0;
       margin: 0;
+   }
+}
+
+#invoice_permanent_nonpayment_input {
+   label {
+      clear: both;
+      padding: 0;
+      font-weight: 800;
+      box-sizing: border-box;
+      width: 100%;
+   }
+   input[type=checkbox] {
+      width: auto !important;
+      margin-right: 10px;
    }
 }
 
