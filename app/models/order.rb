@@ -270,7 +270,7 @@ class Order < ActiveRecord::Base
    end
 
    def send_fee_estimate_to_customer(computing_id)
-      @user = StaffMember.find_by_computing_id(computing_id)
+      @user = StaffMember.find_by(computing_id: computing_id)
       @first_name = @user.first_name
       SendFeeEstimateToCustomer.exec( {:order_id => self.id, :first_name => @first_name})
    end

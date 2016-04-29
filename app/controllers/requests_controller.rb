@@ -120,7 +120,7 @@ class RequestsController < ApplicationController
                   :email => ldap_info.email.first,
                   :first_name => ldap_info.first_name.first,
                   :last_name => ldap_info.last_name.first,
-                  :academic_status_id => AcademicStatus.find_by_name(uva_status).id,
+                  :academic_status_id => AcademicStatus.find_by(name: uva_status).id,
                   :primary_address_attributes => {
                      :address_1 => ldap_info.address_1.first,
                      :address_2 => ldap_info.address_2.first,

@@ -1,5 +1,4 @@
 class IndexDestination < ActiveRecord::Base
-  #attr_accessible :nickname, :hostname, :context, :port, :protocol
   alias_attribute :name, :nickname
 
   #------------------------------------------------------------------

@@ -36,7 +36,7 @@ ActiveAdmin.register Component do
       end
       column :exemplar do |component|
          if not component.exemplar.blank?
-            exemplar_master_file = MasterFile.find_by_filename(component.exemplar)
+            exemplar_master_file = MasterFile.find_by(filename: component.exemplar)
             if exemplar_master_file.nil?
                "Exemplar not found"
             else

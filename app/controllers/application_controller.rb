@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
       if computing_id.blank? && Rails.env != "production"
          computing_id = Settings.dev_user_compute_id
       end
-      return StaffMember.find_by_computing_id(computing_id)
+      return StaffMember.find_by(computing_id: computing_id)
    end
 
    def authorize

@@ -89,7 +89,7 @@ class SendUnitToArchive < BaseJob
                   # Tracksys (i.e. those that are "MasterFile" objects) and those that are not (i.e .ivc files).  The following
                   # rescue condition is a hack but is easiest to institute at the time.
                   begin
-                     mf = MasterFile.find_by_filename!(basename)
+                     mf = MasterFile.find_by(filename: basename)
                      mf.update_attributes(:md5 => source_md5.hexdigest)
                   rescue ActiveRecord::RecordNotFound
                   end

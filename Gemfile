@@ -37,6 +37,7 @@ gem 'zip-zip' # will load compatibility for old rubyzip API.
 group :development do
   gem 'byebug'
   gem 'spring'
+  gem 'web-console', '~> 2.0'
 end
 
 gem 'uglifier'

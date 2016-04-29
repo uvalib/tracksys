@@ -180,7 +180,7 @@ module ImportIviewXml
   # it's pid which is contained in the <SetName> value.
   def self.link_to_component(master_file_id, pid)
     mf = MasterFile.find(master_file_id)
-    c = Component.find_by_pid(pid)
+    c = Component.find_by(pid: pid)
     mf.update_attribute(:component_id, c.id)
   end
   private_class_method :link_to_component
