@@ -6,7 +6,6 @@ class OrderMailer < ActionMailer::Base
             reply_to: "digitalservices@virginia.edu"
 
    def send_fee_estimate(order)
-      byebug
       @order = order
       @customer = order.customer
       address = @customer.email
