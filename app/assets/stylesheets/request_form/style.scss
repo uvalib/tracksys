@@ -387,16 +387,16 @@ html {
 }
 
 body {
-  background: url(header-texture.png) repeat scroll 0 0 #0d3268;
+  background: image-url("header-texture.png") repeat scroll 0 0 #0d3268;
   background-image:
    -moz-linear-gradient(top, rgba(13, 50, 104, 0.4), rgba(13, 50, 104, 0.1)),
-   url(header-texture.png);
+   image-url("header-texture.png");
   background-image:
    -webkit-linear-gradient(top, rgba(13, 50, 104, 0.4), rgba(13, 50, 104, 0.1)),
-   url(header-texture.png);
+   image-url("header-texture.png");
   background-image:
    linear-gradient(top, rgba(13, 50, 104, 0.4), rgba(13, 50, 104, 0.1)),
-   url(header-texture.png);
+   image-url("header-texture.png");
   font-size: 14px;
   font-size: 1.4rem;
   line-height: 1.231em;
@@ -432,59 +432,27 @@ body {
 #account-links li, #top-nav li { display: inline; }
 
 #account-links li.top-contact {
-  background: url(sprite.png) no-repeat scroll 0 -267px transparent;
+  background: image-url("sprite.png") no-repeat scroll 0 -267px transparent;
   margin-right: 1em;
   padding-left: 23px;
 }
 
 #account-links li.top-account {
-  background: url(sprite.png) no-repeat scroll 0 -611px transparent;
+  background: image-url("sprite.png") no-repeat scroll 0 -611px transparent;
   padding-left: 24px;
 }
 
-#feedback-ribbon {
-  background: url(mail.png) no-repeat scroll 1em 48% #5f7597;
-  border-bottom: 1px solid rgba(0,0,0,0.2);
-  border-left: 1px solid rgba(0,0,0,0.2);
-  border-right: 1px solid rgba(0,0,0,0.2);
-  color: #fff;
-  left: 42%;
-  padding: 0.33em 1em 0.33em 2.5em;
-  position: absolute;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  top: 0;
-  z-index: 999999;
-  -webkit-box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #5f7597, 0 1px 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow:    0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #5f7597, 0 1px 5px rgba(0, 0, 0, 0.5);
-  box-shadow:         0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #5f7597, 0 1px 5px rgba(0, 0, 0, 0.5);
-  -webkit-border-radius: 0 0 3px 3px;
-  -moz-border-radius:    0 0 3px 3px;
-  border-radius:         0 0 3px 3px;
-  -webkit-text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
-  -moz-text-shadow:    0 -1px 0 rgba(0,0,0,0.3);
-  text-shadow:         0 -1px 0 rgba(0,0,0,0.3);
-}
-
-#feedback-ribbon:hover {
-  background-color: #91a1ba;
-  -webkit-box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #91a1ba, 0 1px 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow:    0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #91a1ba, 0 1px 5px rgba(0, 0, 0, 0.5);
-  box-shadow:         0 0 0 1px rgba(255,255,255,0.3), 0 0 0 4px #91a1ba, 0 1px 5px rgba(0, 0, 0, 0.5);
-}
-
 .header-container {
-  background: url(header-texture.png) repeat scroll 0 0 #0d3268; /* Older browsers */
+  background: image-url("header-texture.png") repeat scroll 0 0 #0d3268; /* Older browsers */
   background-image:
     -moz-linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-    url(header-texture.png);
+    image-url("header-texture.png");
   background-image:
     -webkit-linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-    url(header-texture.png);
+    image-url("header-texture.png");
   background-image:
     linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-    url(header-texture.png);
+    image-url("header-texture.png");
   border-bottom: 1px solid #0c1a32;
   border-top: 1px solid #5d769a;
   position: relative;
@@ -731,8 +699,8 @@ body {
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.1);
   width: 8%;
 }
-#nav-main ul #menu-home a { background: url("home-i.png") no-repeat scroll 50% 10px transparent; text-indent: -9999px; }
-#nav-main ul #menu-home a:hover { background: url("home.png") no-repeat scroll 50% 10px transparent; }
+#nav-main ul #menu-home a { background: image-url("home-i.png") no-repeat scroll 50% 10px transparent; text-indent: -9999px; }
+#nav-main ul #menu-home a:hover { background: image-url("home.png") no-repeat scroll 50% 10px transparent; }
 #nav-main ul .sub-menu-indicator { color: #dadbdc; font-size: 11px; line-height: 18px; vertical-align: text-bottom; }
 #nav-main ul li a:hover .sub-menu-indicator,
 #nav-main ul li.hovering a .sub-menu-indicator { color: #6a6a6a; }
@@ -1117,7 +1085,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 }
 #sidebar .news-additional:hover { background: #f9f5ea; }
 .news-event-date {
-  background: url('calendar_icon.png') no-repeat scroll 100% 100% transparent;
+  background: image-url('calendar_icon.png') no-repeat scroll 100% 100% transparent;
   float: left;
   height: 57px;
   margin-top: 2px;
@@ -1213,11 +1181,11 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
   height: 82px;
   width: 36px;
   z-index: 30; }
-#prev { background: url(sprite.png) no-repeat scroll 0 -407px transparent; left: 0; }
-#next { background: url(sprite.png) no-repeat scroll 0 -509px transparent; right: -3px; }
+#prev { background: image-url("sprite.png") no-repeat scroll 0 -407px transparent; left: 0; }
+#next { background: image-url("sprite.png") no-repeat scroll 0 -509px transparent; right: -3px; }
 
 #ribbon {
-  background: url(sprite.png) no-repeat scroll 0 -304px transparent;
+  background: image-url("sprite.png") no-repeat scroll 0 -304px transparent;
   height: 83px;
   top: 0px;
   right: 0px;
@@ -1295,7 +1263,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 .home-panel .home-more { padding-left: 1em }
 
 .connect-container {
-  background: url('exhibit-texture.png') repeat scroll 0 0 #eaebec;
+  background: image-url('exhibit-texture.png') repeat scroll 0 0 #eaebec;
   border-top: 5px double #fff;
 }
 .connect-panel-wrap { padding: 15px 20px; }
@@ -1305,7 +1273,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
   width: 50%;
 }
 .development-panel {
-  background: url('engage-texture.png') repeat scroll 0 0 #ccc;
+  background: image-url('engage-texture.png') repeat scroll 0 0 #ccc;
   color: #222;
   margin-right: 0;
   padding-right: 1.8;
@@ -1363,7 +1331,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
   text-shadow: 0 -1px 0 #222;
 }
 .social-link a {
-  background: url('social-sprite.png') no-repeat scroll 0 0 transparent;
+  background: image-url('social-sprite.png') no-repeat scroll 0 0 transparent;
   height: 16px;
   margin: 0 15px 0 0;
   text-indent: -9999px;
@@ -1374,11 +1342,11 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 .social-link a.itunes-link { background-position: -1px -258px; }
 .social-link a.youtube-link { background-position: -1px -242px; }
 .social-link a.flickr-link { background-position: -1px -49px; }
-.social-link a.pinterest-link { background: url('pinterest-icon.png') no-repeat scroll 0 1px transparent; }
+.social-link a.pinterest-link { background: image-url('pinterest-icon.png') no-repeat scroll 0 1px transparent; }
 #social-bar a.more-link {text-transform: uppercase; }
 
 .exhibit-panel {
-  background: url('exhibit-texture.png') repeat scroll 0 0 #eaebec;
+  background: image-url('exhibit-texture.png') repeat scroll 0 0 #eaebec;
   color: #444;
   font-size: 15px;
   font-size: 1.5rem;
@@ -1403,7 +1371,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 --------------------------------------------------------- */
 
 .contact-container {
-  background: url('contact-texture.png') repeat scroll 0 0 transparent;
+  background: image-url('contact-texture.png') repeat scroll 0 0 transparent;
   border-top: 1px solid rgba(0,0,0,0.3);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   vertical-align: middle;
@@ -1435,7 +1403,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 }
 
 .contact-container .contact-info address { font-size: 16px; font-size: 1.6rem; font-style: normal; line-height: 24px; overflow: hidden; padding: 2px 1.3em 2px 37px; }
-.contact-container .contact-info .contact { background-image: url("sprite.png"); background-repeat: no-repeat; height: 32px; }
+.contact-container .contact-info .contact { background-image: image-url("sprite.png"); background-repeat: no-repeat; height: 32px; }
 .contact-container .contact-info .phone { background-position: 0 -82px;  }
 .contact-container .contact-info .email { background-position: 0 -41px;  }
 .contact-container .contact-info .chat { background-position: 0 0; }
@@ -1445,16 +1413,16 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
 --------------------------------------------------------- */
 
 .footer-container {
-  background: url('header-texture.png') repeat scroll 0 0 #0d3268;
+  background: image-url("header-texture.png") repeat scroll 0 0 #0d3268;
   background-image:
    -moz-linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-   url('header-texture.png');
+   image-url("header-texture.png");
   background-image:
    -webkit-linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-   url('header-texture.png');
+   image-url("header-texture.png");
   background-image:
    linear-gradient(top, rgba(13, 50, 104, 0.1), rgba(13, 50, 104, 0.4)),
-   url('header-texture.png');
+   image-url("header-texture.png");
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: #eef2f8;
   padding: 5px 0 3em;
@@ -1497,7 +1465,7 @@ nav#nav-main-select-container h2 { color: #f6f7f8; font-size: 13px; font-size: 1
   margin-bottom: 1em;
 }
 .footer-container .gov { margin-bottom: 1em; }
-#fdlp-badge { background: url("sprite.png") no-repeat scroll 0 -124px transparent; float: left; height: 36px; margin: 0 0.33em 0 0; text-indent: -9999px; width: 41px; }
+#fdlp-badge { background: image-url("sprite.png") no-repeat scroll 0 -124px transparent; float: left; height: 36px; margin: 0 0.33em 0 0; text-indent: -9999px; width: 41px; }
 
 #content-info {
   clear: both;
@@ -2101,7 +2069,7 @@ clear: both
 .controls.check-clear-all { margin-bottom: 1em; }
 #hours-check-all { margin-right: 0.67em; }
 #hours-check-all .check-icon {
-  background: url('check-icon.png') no-repeat scroll 0 50% transparent;
+  background: image-url('check-icon.png') no-repeat scroll 0 50% transparent;
   padding-left: 22px;
   height: 14px;
   width: 14px;
@@ -2128,7 +2096,7 @@ clear: both
 #calendar #helpButton {
     top:1em;
     right:1em;
-    background-image:url('icons/help.png');
+    background-image:image-url('icons/help.png');
     width:16px;
     height:16px;
     text-indent:-9999px; }
@@ -2138,7 +2106,7 @@ clear: both
     height:0;
     width: 5em; }
 #calendar #rssButton {
-    background-image:url('icons/rss.png');
+    background-image:image-url('icons/rss.png');
     width:48px;
     height:48px;
     text-indent:-9999px;
@@ -2264,9 +2232,9 @@ list-style-type:none; }
 #staff-directory-listing_filter input { display: inline; margin-left: 1em; }
 
 #staff-directory-listing th.sorting_asc, .account_container th.sorting_desc, .account_container th.sorting {cursor: pointer;}
-#staff-directory-listing th.sorting {background: url('datatables/sort_both.png') no-repeat scroll 90% 7px #e9edf5;}
-#staff-directory-listing th.sorting_asc {background: url('datatables/sort_asc.png') no-repeat scroll 90% 7px #e9edf5;}
-#staff-directory-listing th.sorting_desc {background: url('datatables/sort_desc.png') no-repeat scroll 90% 6px #e9edf5;}
+#staff-directory-listing th.sorting {background: image-url('datatables/sort_both.png') no-repeat scroll 90% 7px #e9edf5;}
+#staff-directory-listing th.sorting_asc {background: image-url('datatables/sort_asc.png') no-repeat scroll 90% 7px #e9edf5;}
+#staff-directory-listing th.sorting_desc {background: image-url('datatables/sort_desc.png') no-repeat scroll 90% 6px #e9edf5;}
 #staff-directory-listing td.dataTables_empty { font-size: 16px; font-size: 1.6rem; font-style: italic; padding: 2em 0; text-align: center; }
 
 /* ------------------------------------------------------
