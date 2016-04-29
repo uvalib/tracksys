@@ -11,6 +11,9 @@ module Tracksys
       config.autoload_paths << Rails.root.join('lib')
       config.autoload_paths << Rails.root.join('app', "validators")
 
+      config.assets.paths << "#{config.root}/assets/images/request_form"
+      config.assets.paths << "#{config.root}/assets/stylesheets/request"
+
       # Activate observers that should always be running.
       config.active_record.observers = :blank_value_observer, :add_pid_observer
 
