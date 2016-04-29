@@ -1,6 +1,13 @@
 ActiveAdmin.register Bibl do
   menu :priority => 5
 
+  # strong paramters handling
+  permit_params :catalog_key, :barcode, :title, :creator_name, :call_number, :year, :year_type, :copy, :location,
+      :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
+      :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
+      :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
+      :collection_facet, :desc_metadata, :rels_ext, :solr, :dc, :rels_int     
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/bibls/new'>New</a>") if !current_user.viewer?

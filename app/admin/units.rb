@@ -1,6 +1,12 @@
 ActiveAdmin.register Unit do
   menu :priority => 4
 
+  # strong paramters handling
+  permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
+     :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :index_scenario_id, :availability_policy_id,
+     :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
+
   scope :all, :default => true
   scope :approved
   scope :unapproved
@@ -96,20 +102,22 @@ ActiveAdmin.register Unit do
     end
     column ("Bibliographic Record") do |unit|
       div do
-        link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}")
+         if !unit.bibl_id.nil?
+            link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}")
+         end
       end
       div do
         unit.bibl_call_number
       end
     end
-    column ("DL Status") {|unit|
+    column ("DL Status") do |unit|
       case
         when unit.include_in_dl?
           Unit.human_attribute_name(:include_in_dl)
         when unit.exclude_from_dl?
           Unit.human_attribute_name(:exclude_from_dl)
       end
-    }
+    end
     column :date_archived do |unit|
       format_date(unit.date_archived)
     end
@@ -313,26 +321,26 @@ ActiveAdmin.register Unit do
 
   end
 
-  sidebar "Related Information", :only => [:show] do
-    attributes_table_for unit do
-      row :bibl
-      row :order do |unit|
-        link_to "##{unit.order.id}", admin_order_path(unit.order.id)
-      end
-      row :master_files do |unit|
-        link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
-      end
-      row :customer
-      row :agency
-      row "Legacy Identifiers" do |unit|
-       	unit.legacy_identifiers.each {|li|
-          div do
-            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-          end
-        } unless unit.legacy_identifiers.empty?
-      end
-    end
-  end
+  # sidebar "Related Information", :only => [:show] do
+  #   attributes_table_for unit do
+  #     row :bibl
+  #     row :order do |unit|
+  #       link_to "##{unit.order.id}", admin_order_path(unit.order.id)
+  #     end
+  #     row :master_files do |unit|
+  #       link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
+  #     end
+  #     row :customer
+  #     row :agency
+  #     row "Legacy Identifiers" do |unit|
+  #      	unit.legacy_identifiers.each {|li|
+  #         div do
+  #           link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+  #         end
+  #       } unless unit.legacy_identifiers.empty?
+  #     end
+  #   end
+  # end
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
@@ -475,21 +483,5 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
-  end
-
-  controller do
-    def update
-
-      if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
-        # logger.debug "Request body: #{request.body.read}"
-
-        body = request.body.read
-        xml = Hash.from_xml(body)
-        logger.debug "xml: #{xml}"
-        params.merge!(xml)
-        logger.debug "Params: #{params}"
-      end
-      update!
-    end
   end
 end
