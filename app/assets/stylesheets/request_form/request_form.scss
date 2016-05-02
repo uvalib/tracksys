@@ -96,6 +96,7 @@ div.form-actions {
    padding-left: 15px !important;
    padding-top: 15px;
    padding-bottom: 15px;
+   text-align: right;
    a.add_nested_fields {
       margin-top:0;
       color: white;
@@ -103,10 +104,6 @@ div.form-actions {
    div.fields {
       border-bottom: 1px solid #ccc;
       margin-bottom: 15px;
-   }
-   .btn.btn-primary {
-      position: absolute;
-      right: 40px;
    }
 }
 
