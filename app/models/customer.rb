@@ -136,19 +136,20 @@ class Customer < ActiveRecord::Base
    alias_attribute :name, :full_name
 
 end
+
 # == Schema Information
 #
 # Table name: customers
 #
-#  id                     :integer(4)      not null, primary key
-#  department_id          :integer(4)
-#  academic_status_id     :integer(4)      default(0), not null
-#  heard_about_service_id :integer(4)
+#  id                     :integer          not null, primary key
+#  department_id          :integer
+#  academic_status_id     :integer          default(0), not null
+#  heard_about_service_id :integer
 #  last_name              :string(255)
 #  first_name             :string(255)
 #  email                  :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
-#  master_files_count     :integer(4)      default(0)
-#  orders_count           :integer(4)      default(0)
+#  master_files_count     :integer          default(0)
+#  orders_count           :integer          default(0)
 #

@@ -70,20 +70,4 @@ module ApplicationHelper
       return words[0..(length-1)].join(' ') + (words.length > length ? end_string : '')
     end
   end
-
-  # Since Kaminari needs a "pagination object" to operate on, it is essential to turn a single
-  # object into an Array that Kaminari can use.
-  # def pagify(object)
-  #   return Kaminari.paginate_array(Array[object])
-  # end
-
-  # Utility method for cleaning up xml fragments
-  def tidy(str)
-    raise ArgumentError unless str.is_a?(String)
-	  xml=Nokogiri::XML(str)
-    raise ArgumentError unless xml.is_a?(Nokogiri::XML::Document)
-	  temp_str = xml.human
-	  xml2=Nokogiri::XML(temp_str)
-	  return xml2.root.to_s
-  end
 end

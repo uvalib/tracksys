@@ -228,46 +228,47 @@ class Component < ActiveRecord::Base
 
    alias :parent_component :parent
 end
+
 # == Schema Information
 #
 # Table name: components
 #
-#  id                        :integer(4)      not null, primary key
-#  component_type_id         :integer(4)      default(0), not null
-#  parent_component_id       :integer(4)      default(0), not null
-#  title                     :string(255)
-#  label                     :string(255)
-#  date                      :string(255)
-#  content_desc              :text
-#  idno                      :string(255)
-#  barcode                   :string(255)
-#  seq_number                :integer(4)
-#  pid                       :string(255)
-#  created_at                :datetime
-#  updated_at                :datetime
-#  desc_metadata             :text
-#  rels_ext                  :text
-#  solr                      :text(2147483647
-#  dc                        :text
-#  rels_int                  :text
-#  discoverability           :boolean(1)      default(TRUE)
-#  indexing_scenario_id      :integer(4)
-#  level                     :text
-#  ead_id_att                :string(255)
-#  parent_ead_ref_id         :integer(4)
-#  ead_ref_id                :integer(4)
-#  availability_policy_id    :integer(4)
-#  date_dl_ingest            :datetime
-#  date_dl_update            :datetime
-#  use_right_id              :integer(4)
-#  master_files_count        :integer(4)      default(0), not null
-#  exemplar                  :string(255)
-#  ancestry                  :string(255)
-#  pids_depth_cache          :string(255)
-#  ead_id_atts_depth_cache   :string(255)
-#  followed_by_id            :integer(4)
-#  legacy_ead                :text
-#  physical_desc             :text
-#  scope_content             :text
-#  index_destination_id      :integer(4)
+#  id                      :integer          not null, primary key
+#  component_type_id       :integer          default(0), not null
+#  parent_component_id     :integer          default(0), not null
+#  title                   :string(255)
+#  label                   :string(255)
+#  date                    :string(255)
+#  content_desc            :text(65535)
+#  idno                    :string(255)
+#  barcode                 :string(255)
+#  seq_number              :integer
+#  pid                     :string(255)
+#  created_at              :datetime
+#  updated_at              :datetime
+#  desc_metadata           :text(65535)
+#  rels_ext                :text(65535)
+#  solr                    :text(4294967295)
+#  dc                      :text(65535)
+#  rels_int                :text(65535)
+#  discoverability         :boolean          default(TRUE)
+#  indexing_scenario_id    :integer
+#  level                   :text(65535)
+#  ead_id_att              :string(255)
+#  parent_ead_ref_id       :integer
+#  ead_ref_id              :integer
+#  availability_policy_id  :integer
+#  date_dl_ingest          :datetime
+#  date_dl_update          :datetime
+#  use_right_id            :integer
+#  master_files_count      :integer          default(0), not null
+#  exemplar                :string(255)
+#  ancestry                :string(255)
+#  pids_depth_cache        :string(255)
+#  ead_id_atts_depth_cache :string(255)
+#  followed_by_id          :integer
+#  legacy_ead              :text(65535)
+#  physical_desc           :text(65535)
+#  scope_content           :text(65535)
+#  index_destination_id    :integer
 #

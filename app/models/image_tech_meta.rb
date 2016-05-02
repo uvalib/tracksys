@@ -74,18 +74,19 @@ class ImageTechMeta < ActiveRecord::Base
       end
    end
 end
+
 # == Schema Information
 #
 # Table name: image_tech_meta
 #
-#  id             :integer(4)      not null, primary key
-#  master_file_id :integer(4)      default(0), not null
+#  id             :integer          not null, primary key
+#  master_file_id :integer          default(0), not null
 #  image_format   :string(255)
-#  width          :integer(4)
-#  height         :integer(4)
-#  resolution     :integer(4)
+#  width          :integer
+#  height         :integer
+#  resolution     :integer
 #  color_space    :string(255)
-#  depth          :integer(4)
+#  depth          :integer
 #  compression    :string(255)
 #  created_at     :datetime
 #  updated_at     :datetime
@@ -95,9 +96,9 @@ end
 #  model          :string(255)
 #  exif_version   :string(255)
 #  capture_date   :datetime
-#  iso            :integer(4)
+#  iso            :integer
 #  exposure_bias  :string(255)
 #  exposure_time  :string(255)
 #  aperture       :string(255)
-#  focal_length   :integer(10)
+#  focal_length   :decimal(10, )
 #

@@ -106,16 +106,17 @@ class Agency < ActiveRecord::Base
   end
 
 end
+
 # == Schema Information
 #
 # Table name: agencies
 #
-#  id                :integer(4)      not null, primary key
+#  id                :integer          not null, primary key
 #  name              :string(255)
 #  description       :string(255)
 #  created_at        :datetime
 #  updated_at        :datetime
 #  ancestry          :string(255)
 #  names_depth_cache :string(255)
-#  orders_count      :integer(4)      default(0)
+#  orders_count      :integer          default(0)
 #

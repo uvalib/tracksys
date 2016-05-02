@@ -182,38 +182,38 @@ class MasterFile < ActiveRecord::Base
       end
    end
 end
+
 # == Schema Information
 #
 # Table name: master_files
 #
-#  id                        :integer(4)      not null, primary key
-#  unit_id                   :integer(4)      default(0), not null
-#  component_id              :integer(4)
-#  tech_meta_type            :string(255)
-#  filename                  :string(255)
-#  filesize                  :integer(4)
-#  title                     :string(255)
-#  date_archived             :datetime
-#  description               :string(255)
-#  pid                       :string(255)
-#  created_at                :datetime
-#  updated_at                :datetime
-#  transcription_text        :text
-#  desc_metadata             :text
-#  rels_ext                  :text
-#  solr                      :text(2147483647
-#  dc                        :text
-#  rels_int                  :text
-#  discoverability           :boolean(1)      default(FALSE)
-#  md5                       :string(255)
-#  indexing_scenario_id      :integer(4)
-#  availability_policy_id    :integer(4)
-#  use_right_id              :integer(4)
-#  date_dl_ingest            :datetime
-#  date_dl_update            :datetime
-#  dpla                      :boolean(1)      default(FALSE)
-#  type                      :string(255)
-#  creator_death_date        :string(255)
-#  creation_date             :string(255)
-#  primary_author            :string(255)
+#  id                     :integer          not null, primary key
+#  unit_id                :integer          default(0), not null
+#  component_id           :integer
+#  tech_meta_type         :string(255)
+#  filename               :string(255)
+#  filesize               :integer
+#  title                  :string(255)
+#  date_archived          :datetime
+#  description            :string(255)
+#  pid                    :string(255)
+#  created_at             :datetime
+#  updated_at             :datetime
+#  transcription_text     :text(65535)
+#  desc_metadata          :text(65535)
+#  rels_ext               :text(65535)
+#  solr                   :text(4294967295)
+#  dc                     :text(65535)
+#  rels_int               :text(65535)
+#  discoverability        :boolean          default(FALSE)
+#  md5                    :string(255)
+#  indexing_scenario_id   :integer
+#  availability_policy_id :integer
+#  use_right_id           :integer
+#  date_dl_ingest         :datetime
+#  date_dl_update         :datetime
+#  dpla                   :boolean          default(FALSE)
+#  creator_death_date     :string(255)
+#  creation_date          :string(255)
+#  primary_author         :string(255)
 #

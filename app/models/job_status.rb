@@ -1,3 +1,21 @@
+# == Schema Information
+#
+# Table name: job_statuses
+#
+#  id              :integer          not null, primary key
+#  name            :string(255)      not null
+#  status          :string(255)      default("pending"), not null
+#  started_at      :datetime
+#  ended_at        :datetime
+#  failures        :integer          default(0), not null
+#  error           :string(255)
+#  originator_id   :integer
+#  originator_type :string(255)
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  params          :string(255)
+#
+
 class JobStatus < ActiveRecord::Base
    belongs_to :originator, :polymorphic=>true
    validates :status, inclusion: {

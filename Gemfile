@@ -7,14 +7,13 @@ gem 'activeadmin', '~> 1.0.0.pre2'
 gem 'passenger'
 gem 'figaro'
 
-gem 'validates_timeliness', '3.0.14'
-gem 'annotate', '2.4.1.beta1'
-gem 'mysql2' #, '~> 0.3.10'
+gem 'validates_timeliness', '~> 4.0' #   , '3.0.14'
+gem 'annotate'
+gem 'mysql2'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
 
-gem "daemons"
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
@@ -26,9 +25,7 @@ gem 'prawn-table'
 gem 'nested_form'
 gem 'net-ldap'
 gem 'country-select'
-gem 'browser' # Browser detection for request form HTML5 attributes
 gem 'roadie' # for embedding CSS in request_form emails
-gem 'nokogiri-pretty'
 gem 'axlsx', '~> 2.1.0.pre'
 gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
 gem 'zip-zip' # will load compatibility for old rubyzip API.

@@ -10,14 +10,15 @@ class Address < ActiveRecord::Base
   validates :phone, :phone_format => true, :allow_blank => true
 
 end
+
 # == Schema Information
 #
 # Table name: addresses
 #
-#  id               :integer(4)      not null, primary key
-#  addressable_id   :integer(4)      not null
-#  addressable_type :string(20)      not null
-#  address_type     :string(20)      not null
+#  id               :integer          not null, primary key
+#  addressable_id   :integer          not null
+#  addressable_type :string(20)       not null
+#  address_type     :string(20)       not null
 #  last_name        :string(255)
 #  first_name       :string(255)
 #  address_1        :string(255)
@@ -28,6 +29,6 @@ end
 #  post_code        :string(255)
 #  phone            :string(255)
 #  organization     :string(255)
-#  created_at       :datetime        not null
-#  updated_at       :datetime        not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #

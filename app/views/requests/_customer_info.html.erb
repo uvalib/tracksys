@@ -3,19 +3,19 @@
     <div class="control-group">
        <%= c.label :first_name, :class => 'control-label required' %>
        <div class="controls">
-         <%= c.text_field :first_name, :value => @request.customer.first_name, :required => required_field_value %>
+         <%= c.text_field :first_name, :value => @request.customer.first_name, :required => true %>
        </div>
     </div>
     <div class="control-group">
        <%= c.label :last_name, :class => 'control-label required' %>
        <div class="controls">
-         <%= c.text_field :last_name, :value => @request.customer.last_name, :required => required_field_value %>
+         <%= c.text_field :last_name, :value => @request.customer.last_name, :required => true %>
        </div>
     </div>
     <div class="control-group">
        <%= c.label :email, :class => 'control-label required' %>
        <div class="controls">
-         <%= c.text_field :email, :value => @request.customer.email, :required => required_field_value %>
+         <%= c.text_field :email, :value => @request.customer.email, :required => true %>
        </div>
     </div>
     <div class="control-group">

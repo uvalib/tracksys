@@ -587,7 +587,7 @@ module Hydra
         end
       }
 
-      output = doc.human
+      output = doc.to_xml
     else
       output = ''
       xml = Builder::XmlMarkup.new(:target => output, :indent => 2)

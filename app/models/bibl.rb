@@ -324,54 +324,55 @@ class Bibl < ActiveRecord::Base
     return "#{url}/select?q=id:\"#{self.pid}\""
   end
 end
+
 # == Schema Information
 #
 # Table name: bibls
 #
-#  id                        :integer(4)      not null, primary key
-#  is_approved               :boolean(1)      default(FALSE), not null
-#  is_personal_item          :boolean(1)      default(FALSE), not null
-#  resource_type             :string(255)
-#  genre                     :string(255)
-#  is_manuscript             :boolean(1)      default(FALSE), not null
-#  is_collection             :boolean(1)      default(FALSE), not null
-#  title                     :text
-#  description               :string(255)
-#  series_title              :string(255)
-#  creator_name              :string(255)
-#  creator_name_type         :string(255)
-#  catalog_key               :string(255)
-#  title_control             :string(255)
-#  barcode                   :string(255)
-#  call_number               :string(255)
-#  copy                      :integer(4)
-#  volume                    :string(255)
-#  location                  :string(255)
-#  year                      :string(255)
-#  year_type                 :string(255)
-#  date_external_update      :datetime
-#  pid                       :string(255)
-#  created_at                :datetime
-#  updated_at                :datetime
-#  is_in_catalog             :boolean(1)      default(FALSE), not null
-#  issue                     :string(255)
-#  citation                  :text
-#  exemplar                  :string(255)
-#  parent_bibl_id            :integer(4)      default(0), not null
-#  desc_metadata             :text
-#  rels_ext                  :text
-#  solr                      :text(2147483647
-#  dc                        :text
-#  rels_int                  :text
-#  discoverability           :boolean(1)      default(TRUE)
-#  indexing_scenario_id      :integer(4)
-#  date_dl_ingest            :datetime
-#  date_dl_update            :datetime
-#  units_count               :integer(4)      default(0)
-#  availability_policy_id    :integer(4)
-#  use_right_id              :integer(4)
-#  dpla                      :boolean(1)      default(FALSE)
-#  cataloging_source         :string(255)
-#  collection_facet          :string(255)
-#  index_destination_id      :integer(4)
+#  id                     :integer          not null, primary key
+#  is_approved            :boolean          default(FALSE), not null
+#  is_personal_item       :boolean          default(FALSE), not null
+#  resource_type          :string(255)
+#  genre                  :string(255)
+#  is_manuscript          :boolean          default(FALSE), not null
+#  is_collection          :boolean          default(FALSE), not null
+#  title                  :text(65535)
+#  description            :string(255)
+#  series_title           :string(255)
+#  creator_name           :string(255)
+#  creator_name_type      :string(255)
+#  catalog_key            :string(255)
+#  title_control          :string(255)
+#  barcode                :string(255)
+#  call_number            :string(255)
+#  copy                   :integer
+#  volume                 :string(255)
+#  location               :string(255)
+#  year                   :string(255)
+#  year_type              :string(255)
+#  date_external_update   :datetime
+#  pid                    :string(255)
+#  created_at             :datetime
+#  updated_at             :datetime
+#  is_in_catalog          :boolean          default(FALSE), not null
+#  issue                  :string(255)
+#  citation               :text(65535)
+#  exemplar               :string(255)
+#  parent_bibl_id         :integer          default(0), not null
+#  desc_metadata          :text(65535)
+#  rels_ext               :text(65535)
+#  solr                   :text(4294967295)
+#  dc                     :text(65535)
+#  rels_int               :text(65535)
+#  discoverability        :boolean          default(TRUE)
+#  indexing_scenario_id   :integer
+#  date_dl_ingest         :datetime
+#  date_dl_update         :datetime
+#  units_count            :integer          default(0)
+#  availability_policy_id :integer
+#  use_right_id           :integer
+#  dpla                   :boolean          default(FALSE)
+#  cataloging_source      :string(255)
+#  collection_facet       :string(255)
+#  index_destination_id   :integer
 #

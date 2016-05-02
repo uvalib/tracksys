@@ -4,7 +4,7 @@
     <div class="control-group">
       <%= pa.label "Address Line1", :class => 'control-label required' %>
       <div class="controls">
-        <%= pa.text_field :address_1, :value => @request.customer.primary_address.address_1, :required => required_field_value %>
+        <%= pa.text_field :address_1, :value => @request.customer.primary_address.address_1, :required => true %>
       </div>
     </div>
     <div class="control-group">
@@ -16,7 +16,7 @@
     <div class="control-group">
       <%= pa.label "City", :class => 'control-label required' %>
       <div class="controls">
-        <%= pa.text_field :city, :value => @request.customer.primary_address.city, :required => required_field_value %>
+        <%= pa.text_field :city, :value => @request.customer.primary_address.city, :required => true %>
       </div>
     </div>
     <div class="control-group">

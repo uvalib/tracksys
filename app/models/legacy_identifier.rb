@@ -35,11 +35,12 @@ class LegacyIdentifier < ActiveRecord::Base
     end
   end
 end
+
 # == Schema Information
 #
 # Table name: legacy_identifiers
 #
-#  id                :integer(4)      not null, primary key
+#  id                :integer          not null, primary key
 #  label             :string(255)
 #  description       :string(255)
 #  legacy_identifier :string(255)

@@ -244,37 +244,38 @@ class Unit < ActiveRecord::Base
    end
 
 end
+
 # == Schema Information
 #
 # Table name: units
 #
-#  id                             :integer(4)      not null, primary key
-#  order_id                       :integer(4)      default(0), not null
-#  bibl_id                        :integer(4)
-#  heard_about_resource_id        :integer(4)
+#  id                             :integer          not null, primary key
+#  order_id                       :integer          default(0), not null
+#  bibl_id                        :integer
+#  heard_about_resource_id        :integer
 #  unit_status                    :string(255)
 #  date_materials_received        :datetime
 #  date_materials_returned        :datetime
-#  unit_extent_estimated          :integer(4)
-#  unit_extent_actual             :integer(4)
-#  patron_source_url              :text
-#  special_instructions           :text
+#  unit_extent_estimated          :integer
+#  unit_extent_actual             :integer
+#  patron_source_url              :text(65535)
+#  special_instructions           :text(65535)
 #  created_at                     :datetime
 #  updated_at                     :datetime
-#  intended_use_id                :integer(4)
-#  exclude_from_dl                :boolean(1)      default(FALSE), not null
-#  staff_notes                    :text
-#  use_right_id                   :integer(4)
+#  intended_use_id                :integer
+#  exclude_from_dl                :boolean          default(FALSE), not null
+#  staff_notes                    :text(65535)
+#  use_right_id                   :integer
 #  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime
 #  date_patron_deliverables_ready :datetime
-#  include_in_dl                  :boolean(1)      default(FALSE)
+#  include_in_dl                  :boolean          default(FALSE)
 #  date_dl_deliverables_ready     :datetime
-#  remove_watermark               :boolean(1)      default(FALSE)
-#  master_file_discoverability    :boolean(1)      default(FALSE)
-#  indexing_scenario_id           :integer(4)
-#  checked_out                    :boolean(1)      default(FALSE)
-#  availability_policy_id         :integer(4)
-#  master_files_count             :integer(4)      default(0)
-#  index_destination_id           :integer(4)
+#  remove_watermark               :boolean          default(FALSE)
+#  master_file_discoverability    :boolean          default(FALSE)
+#  indexing_scenario_id           :integer
+#  checked_out                    :boolean          default(FALSE)
+#  availability_policy_id         :integer
+#  master_files_count             :integer          default(0)
+#  index_destination_id           :integer
 #
