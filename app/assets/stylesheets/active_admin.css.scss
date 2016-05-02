@@ -38,28 +38,28 @@ fieldset.inputs.columns-none {
 }
 
 tr.odd, tr.even {
-    &.failed {
-        td.col {
-           background-color: #944;
-           color: white;
-        }
-        a {
-           color: white;
-        }
-    }
-    &.warn {
+   &.failed {
+      td.col {
+         background-color: #944;
+         color: white;
+      }
+      a {
+         color: white;
+      }
+   }
+   &.warn {
       td.col {
          background-color: palegoldenrod;
       }
-    }
+   }
 }
 tr.even {
-    &.failed {
+   &.failed {
       opacity: 0.7;
    }
    &.warn {
-     opacity: 0.7;
-  }
+      opacity: 0.7;
+   }
 }
 
 fieldset.panel.two-column {
@@ -80,8 +80,8 @@ ul.header-item.tabs {
       font-size: 1em;
       font-family: serif;
       -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
    }
 }
 
@@ -104,12 +104,12 @@ textarea.transcription {
 
 div.mf-transcription {
    border: 1px solid #ccc;
-    margin: 10px 0;
-    padding: 8px;
-    background-color: white;
-    max-height: 500px;
-    overflow: scroll;
-    p {
+   margin: 10px 0;
+   padding: 8px;
+   background-color: white;
+   max-height: 500px;
+   overflow: scroll;
+   p {
       font-family: serif;
    }
 }
@@ -257,16 +257,16 @@ span.ocr-button.transcription {
 
 .log-panel {
    #log-panel {
-       box-sizing: border-box;
-       background: #333;
-       padding: 8px 24px;
-       border-radius: 3px;
-       max-height: 500px;
-       overflow-y: scroll;
-       color: #ccc;
-       word-wrap: break-word;
-       position: justify;
-       ol {
+      box-sizing: border-box;
+      background: #333;
+      padding: 8px 24px;
+      border-radius: 3px;
+      max-height: 500px;
+      overflow-y: scroll;
+      color: #ccc;
+      word-wrap: break-word;
+      position: justify;
+      ol {
          font-family: "Courier New", Courier, monospace;
          font-size: 1.1em;
       }
@@ -297,84 +297,45 @@ span.ocr-button.transcription {
 }
 
 #job-error-info {
-    margin-bottom: 5px;
-    label {
+   margin-bottom: 5px;
+   label {
       font-weight: bolder;
       margin-right: 10px;
    }
 }
 
-// Overriding any non-variable SASS must be done after the fact.
-// For example, to change the default status-tag color:
-//
-//   body.active_admin {
-//      .status_tag { background: #6090DB; }
-//   }
-//
-// Notice that Active Admin CSS rules are nested within a
-// 'body.active_admin' selector to prevent conflicts with
-// other pages in the app. It is best to wrap your changes in a
-// namespace so they are properly recognized. You have options
-// if you e.g. want different styles for different namespaces:
-//
-// .active_admin       applies to any Active Admin namespace
-// .admin_namespace    applies to the admin namespace (eg: /admin)
-// .other_namespace    applies to a custom namespace named other (eg: /other)
 body.active_admin {
-  .special_instructions {
-    min-width: 180px;
-  }
+   .special_instructions {
+      min-width: 180px;
+   }
 }
 
 body.active_admin {
-  div.workflow_note {
-    padding: 10px 0px 10px 0px;
-    font-family: sans-serif;
-    font-weight: 600;
-    color: orange;
-  }
+   div.workflow_note {
+      padding: 10px 0px 10px 0px;
+      font-family: sans-serif;
+      font-weight: 600;
+      color: orange;
+   }
 }
 body.active_admin {
-  .admin-information {
-    background-color: rgba(100,150,90,0.5);
-    padding: 1em;
-  }
-  .admin-information h2, h3 { color:black;}
+   .admin-information {
+      background-color: rgba(100,150,90,0.5);
+      padding: 1em;
+   }
+   .admin-information h2, h3 { color:black;}
 }
 
 th.date_patron_deliverables_complete a, body.active_admin table.index_table th.date_patron_deliverables_complete a:visited,
 body.active_admin table.index_table th.date_patron_deliverables_complete a:link {
- white-space:normal;
+   white-space:normal;
 }
 table.index_table th a, body.active_admin table.index_table th a:link, body.active_admin table.index_table th a:visited {
-color: #5e6469;
-text-decoration: none;
-display: block;
-white-space: normal;
-max-height: 39px;
-overflow: normal;
--webkit-font-smoothing: antialiased;
-}
-body.active_admin {
-  table.index_table {
-    th {
-      &.sortable.sortable_short a { // column headers with one row of text
-        background: url(active_admin_image_path('orderable.png')) no-repeat 0 4px; padding-left: 13px;
-      }
-
-      &.sortable a { // longer (2-3 row) column headers
-        background: url(active_admin_image_path('orderable.png')) no-repeat 0 12px; padding-left: 13px;
-      }
-
-      &.sortable_short.sorted-asc a { background-position: 0 -27px; }
-      &.sortable_short.sorted-desc a {  background-position: 0 -56px;}
-
-      &.sorted-asc a { background-position: 0 -16px; }
-      &.sorted-desc a {  background-position: 0 -47px;}
-
-      &.sorted-asc, &.sorted-desc {
-        @include gradient(darken($secondary-gradient-start, 5%), darken($secondary-gradient-stop, 5%));
-      }
-    }
-  }
+   color: #5e6469;
+   text-decoration: none;
+   display: block;
+   white-space: normal;
+   max-height: 39px;
+   overflow: normal;
+   -webkit-font-smoothing: antialiased;
 }

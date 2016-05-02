@@ -9,10 +9,10 @@ $border-width: 9;
 .border_pretty {
 border-style: solid;
 border-width: $border-width px;
--moz-border-image: url(bg_body.png) $border-width repeat;
--webkit-border-image: url(bg_body.png) $border-width repeat;
--o-border-image: url(bg_body.png) $border-width repeat;
-border-image: url(bg_body.png) $border-width fill repeat;
+-moz-border-image: image-url("bg_body.png") $border-width repeat;
+-webkit-border-image: image-url("bg_body.png") $border-width repeat;
+-o-border-image: image-url("bg_body.png") $border-width repeat;
+border-image: image-url("bg_body.png") $border-width fill repeat;
 }
 
 .heading { font-size: 12px; font-weight: 120%;  }
