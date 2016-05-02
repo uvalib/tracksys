@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160428183610) do
+ActiveRecord::Schema.define(version: 20160502201455) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -81,12 +81,12 @@ ActiveRecord::Schema.define(version: 20160428183610) do
   end
 
   create_table "bibls", force: :cascade do |t|
-    t.boolean  "is_approved",                               default: false, null: false
-    t.boolean  "is_personal_item",                          default: false, null: false
+    t.boolean  "is_approved",                          default: false, null: false
+    t.boolean  "is_personal_item",                     default: false, null: false
     t.string   "resource_type",          limit: 255
     t.string   "genre",                  limit: 255
-    t.boolean  "is_manuscript",                             default: false, null: false
-    t.boolean  "is_collection",                             default: false, null: false
+    t.boolean  "is_manuscript",                        default: false, null: false
+    t.boolean  "is_collection",                        default: false, null: false
     t.text     "title",                  limit: 65535
     t.string   "description",            limit: 255
     t.string   "series_title",           limit: 255
@@ -105,24 +105,20 @@ ActiveRecord::Schema.define(version: 20160428183610) do
     t.string   "pid",                    limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_in_catalog",                             default: false, null: false
+    t.boolean  "is_in_catalog",                        default: false, null: false
     t.string   "issue",                  limit: 255
     t.text     "citation",               limit: 65535
     t.string   "exemplar",               limit: 255
-    t.integer  "parent_bibl_id",         limit: 4,          default: 0,     null: false
+    t.integer  "parent_bibl_id",         limit: 4,     default: 0,     null: false
     t.text     "desc_metadata",          limit: 65535
-    t.text     "rels_ext",               limit: 65535
-    t.text     "solr",                   limit: 4294967295
-    t.text     "dc",                     limit: 65535
-    t.text     "rels_int",               limit: 65535
-    t.boolean  "discoverability",                           default: true
+    t.boolean  "discoverability",                      default: true
     t.integer  "indexing_scenario_id",   limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.integer  "units_count",            limit: 4,          default: 0
+    t.integer  "units_count",            limit: 4,     default: 0
     t.integer  "availability_policy_id", limit: 4
     t.integer  "use_right_id",           limit: 4
-    t.boolean  "dpla",                                      default: false
+    t.boolean  "dpla",                                 default: false
     t.string   "cataloging_source",      limit: 255
     t.string   "collection_facet",       limit: 255
     t.integer  "index_destination_id",   limit: 4
@@ -166,8 +162,8 @@ ActiveRecord::Schema.define(version: 20160428183610) do
   add_index "component_types", ["name"], name: "index_component_types_on_name", unique: true, using: :btree
 
   create_table "components", force: :cascade do |t|
-    t.integer  "component_type_id",       limit: 4,          default: 0,    null: false
-    t.integer  "parent_component_id",     limit: 4,          default: 0,    null: false
+    t.integer  "component_type_id",       limit: 4,     default: 0,    null: false
+    t.integer  "parent_component_id",     limit: 4,     default: 0,    null: false
     t.string   "title",                   limit: 255
     t.string   "label",                   limit: 255
     t.string   "date",                    limit: 255
@@ -179,11 +175,7 @@ ActiveRecord::Schema.define(version: 20160428183610) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "desc_metadata",           limit: 65535
-    t.text     "rels_ext",                limit: 65535
-    t.text     "solr",                    limit: 4294967295
-    t.text     "dc",                      limit: 65535
-    t.text     "rels_int",                limit: 65535
-    t.boolean  "discoverability",                            default: true
+    t.boolean  "discoverability",                       default: true
     t.integer  "indexing_scenario_id",    limit: 4
     t.text     "level",                   limit: 65535
     t.string   "ead_id_att",              limit: 255
@@ -193,13 +185,12 @@ ActiveRecord::Schema.define(version: 20160428183610) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "use_right_id",            limit: 4
-    t.integer  "master_files_count",      limit: 4,          default: 0,    null: false
+    t.integer  "master_files_count",      limit: 4,     default: 0,    null: false
     t.string   "exemplar",                limit: 255
     t.string   "ancestry",                limit: 255
     t.string   "pids_depth_cache",        limit: 255
     t.string   "ead_id_atts_depth_cache", limit: 255
     t.integer  "followed_by_id",          limit: 4
-    t.text     "legacy_ead",              limit: 65535
     t.text     "physical_desc",           limit: 65535
     t.text     "scope_content",           limit: 65535
     t.integer  "index_destination_id",    limit: 4

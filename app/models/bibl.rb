@@ -360,10 +360,6 @@ end
 #  exemplar               :string(255)
 #  parent_bibl_id         :integer          default(0), not null
 #  desc_metadata          :text(65535)
-#  rels_ext               :text(65535)
-#  solr                   :text(4294967295)
-#  dc                     :text(65535)
-#  rels_int               :text(65535)
 #  discoverability        :boolean          default(TRUE)
 #  indexing_scenario_id   :integer
 #  date_dl_ingest         :datetime

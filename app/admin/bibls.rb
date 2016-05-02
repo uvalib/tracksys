@@ -6,7 +6,7 @@ ActiveAdmin.register Bibl do
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
       :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
-      :collection_facet, :desc_metadata, :rels_ext, :solr, :dc, :rels_int     
+      :collection_facet, :desc_metadata
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -209,10 +209,6 @@ ActiveAdmin.register Bibl do
           end
           row :collection_facet
           row :desc_metadata
-          row :rels_ext
-          row :solr
-          row :dc
-          row :rels_int
         end
       end
     end

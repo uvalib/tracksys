@@ -247,10 +247,6 @@ end
 #  created_at              :datetime
 #  updated_at              :datetime
 #  desc_metadata           :text(65535)
-#  rels_ext                :text(65535)
-#  solr                    :text(4294967295)
-#  dc                      :text(65535)
-#  rels_int                :text(65535)
 #  discoverability         :boolean          default(TRUE)
 #  indexing_scenario_id    :integer
 #  level                   :text(65535)
@@ -267,7 +263,6 @@ end
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)
 #  followed_by_id          :integer
-#  legacy_ead              :text(65535)
 #  physical_desc           :text(65535)
 #  scope_content           :text(65535)
 #  index_destination_id    :integer
