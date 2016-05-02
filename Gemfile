@@ -7,10 +7,9 @@ gem 'activeadmin', '~> 1.0.0.pre2'
 gem 'passenger'
 gem 'figaro'
 
-gem 'json'
 gem 'validates_timeliness', '3.0.14'
 gem 'annotate', '2.4.1.beta1'
-gem 'mysql2', '~> 0.3.10'
+gem 'mysql2' #, '~> 0.3.10'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'

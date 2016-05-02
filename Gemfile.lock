@@ -152,7 +152,7 @@ GEM
     mini_portile2 (2.0.0)
     minitest (5.8.4)
     multi_json (1.11.3)
-    mysql2 (0.3.20)
+    mysql2 (0.4.4)
     nested_form (0.3.2)
     net-ldap (0.14.0)
     netrc (0.11.0)
@@ -284,8 +284,7 @@ DEPENDENCIES
   jquery-colorbox-rails
   jquery-rails
   jquery-ui-rails
-  json
-  mysql2 (~> 0.3.10)
+  mysql2
   nested_form
   net-ldap
   nokogiri-pretty
