@@ -14,9 +14,6 @@ module Tracksys
       config.assets.paths << "#{config.root}/assets/images/request_form"
       config.assets.paths << "#{config.root}/assets/stylesheets/request"
 
-      # Activate observers that should always be running.
-      config.active_record.observers = :blank_value_observer, :add_pid_observer
-
       # Settings in config/environments/* take precedence over those specified here.
       # Application configuration should go into files in config/initializers
       # -- all .rb files in that directory are automatically loaded.

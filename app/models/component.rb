@@ -32,6 +32,15 @@ class Component < ActiveRecord::Base
    #------------------------------------------------------------------
    before_save :copy_parent_reference
    before_save :cache_ancestry
+   before_save do
+      if self.pid.blank?
+         begin
+            self.pid = AssignPids.get_pid
+         rescue Exception => e
+            #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
+         end
+      end
+   end
 
    #------------------------------------------------------------------
    # scopes

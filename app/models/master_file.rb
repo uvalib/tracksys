@@ -28,22 +28,22 @@ class MasterFile < ActiveRecord::Base
    # delegation
    #------------------------------------------------------------------
    delegate :call_number, :title, :catalog_key, :barcode, :id, :creator_name, :year,
-   :to => :bibl, :allow_nil => true, :prefix => true
+      :to => :bibl, :allow_nil => true, :prefix => true
 
    delegate :include_in_dl, :exclude_in_dl, :date_archived, :date_queued_for_ingest, :date_dl_deliverables_ready,
-   :to => :unit, :allow_nil => true, :prefix => true
+      :to => :unit, :allow_nil => true, :prefix => true
 
    delegate :date_due, :date_order_approved, :date_request_submitted, :date_customer_notified, :id,
-   :to => :order, :allow_nil => true, :prefix => true
+      :to => :order, :allow_nil => true, :prefix => true
 
    delegate :full_name, :id, :last_name, :first_name,
-   :to => :customer, :allow_nil => true, :prefix => true
+      :to => :customer, :allow_nil => true, :prefix => true
 
    delegate :name,
-   :to => :academic_status, :allow_nil => true, :prefix => true
+      :to => :academic_status, :allow_nil => true, :prefix => true
 
    delegate :name,
-   :to => :agency, :allow_nil => true, :prefix => true
+      :to => :agency, :allow_nil => true, :prefix => true
 
    #------------------------------------------------------------------
    # validations
@@ -74,6 +74,15 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    after_create :increment_counter_caches
    after_destroy :decrement_counter_caches
+   before_save do
+      if self.pid.blank?
+         begin
+            self.pid = AssignPids.get_pid
+         rescue Exception => e
+            #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
+         end
+      end
+   end
 
    #------------------------------------------------------------------
    # scopes

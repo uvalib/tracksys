@@ -39,8 +39,6 @@ end
 
 gem 'uglifier'
 gem 'sass-rails'
-gem 'rails-observers'
-
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'
