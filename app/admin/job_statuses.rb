@@ -12,7 +12,7 @@ ActiveAdmin.register JobStatus do
 
    # Workflow Status Index
    #
-   index :title=>"Job Status", :row_class => -> record { record.status_class } do
+   index :title=>"Recent Job Statuses", :row_class => -> record { record.status_class } do
       selectable_column
       column ("Job ID"), sortable: :id do |job_status|
          job_status.id
