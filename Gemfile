@@ -13,6 +13,8 @@ gem 'mysql2'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
+gem 'daemons'
+
 gem 'whenever', :require => false   # to age off job status records
 gem "rmagick", :require => false
 gem 'exifr'

@@ -99,6 +99,7 @@ GEM
       sprockets (< 4.0)
     concurrent-ruby (1.0.2)
     country-select (1.1.1)
+    daemons (1.2.3)
     debug_inspector (0.0.2)
     delayed_job (4.1.1)
       activesupport (>= 3.0, < 5.0)
@@ -271,6 +272,7 @@ DEPENDENCIES
   chosen-rails
   compass-rails
   country-select
+  daemons
   delayed_job_active_record
   exifr
   figaro
