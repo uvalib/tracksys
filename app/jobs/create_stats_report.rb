@@ -1,7 +1,5 @@
 class CreateStatsReport < BaseJob
 
-   require 'spreadsheet'
-
    def set_originator(message)
       @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>message[:user_id])
    end
