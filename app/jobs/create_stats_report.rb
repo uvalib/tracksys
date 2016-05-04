@@ -17,327 +17,282 @@ class CreateStatsReport < BaseJob
       end
 
       # Create workbook and specify formatting
-      book = Spreadsheet::Workbook.new
-      heading_format = Spreadsheet::Format.new(:weight => :bold, :size => 16, :align => :merge)
-      sub_heading_format = Spreadsheet::Format.new(:italic => 1)
+      pkg = Axlsx::Package.new
+      wb = pkg.workbook
+      wb.styles do |s|
+         wb_style = {}
+         wb_style[:header] = s.add_style :bg_color => "255FA6", :fg_color => "FFFFFF", :b=>true, :sz=>16, alignment: {horizontal: :center}
+         wb_style[:date] = s.add_style :sz=>16, alignment: {horizontal: :center}
+         wb_style[:right] =  s.add_style  alignment: {horizontal: :right}
+         wb_style[:subheader] =  s.add_style  :b=>true, alignment: {horizontal: :right}
 
-      ######################################
-      # Sheet 1
-      ######################################
-      sheet1 = book.create_worksheet
-      sheet1.name = 'By Category'
-      row_number = 0
-
-      # Part I - Orders Submitted
-      orders_submitted_heading_row = sheet1.row(row_number)
-      for i in 1..17 do
-         orders_submitted_heading_row.set_format(i, heading_format)
-      end
-      orders_submitted_heading_row[1] = "Orders Submitted #{query_year}"
-      row_number += 1
-
-      sheet1.row(row_number).replace [ 'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Year-To-Date']
-      sheet1.row(row_number).set_format(i, sub_heading_format)
-      row_number += 1
-
-      # Submitted orders broken down by Academic Status
-      AcademicStatus.order(:name).each do |status|
-         sheet1.row(row_number).push "#{status.name}"
-         # monthly orders submitted
-         for i in 1..12 do
-            sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-         end
-         # quarterly orders submitted
-         sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-03-31'").count
-         sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-04-01' and '#{query_year}-06-30'").count
-         sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-07-01' and '#{query_year}-09-30'").count
-         sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-10-01' and '#{query_year}-12-31'").count
-         sheet1.row(row_number).push status.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         row_number += 1
-      end
-
-      # Totalling orders submitted
-      sheet1.row(row_number).push "Total"
-      for i in 1..12 do
-         sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-      end
-      sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-03-31'").count
-      sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-04-01' and '#{query_year}-06-30'").count
-      sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-07-01' and '#{query_year}-09-30'").count
-      sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-10-01' and '#{query_year}-12-31'").count
-      sheet1.row(row_number).push Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      row_number += 2 # Double increment to accomodate the next section
-
-      # Part II - Orders Delivered
-      orders_delivered_heading_row = sheet1.row(row_number)
-      for i in 1..17 do
-         orders_delivered_heading_row.set_format(i, heading_format)
-      end
-      orders_delivered_heading_row[1] = "Orders Delivered #{query_year}"
-      row_number += 1
-
-      sheet1.row(row_number).replace [ 'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Year-To-Date']
-      sheet1.row(row_number).set_format(i, sub_heading_format)
-      row_number += 1
-
-      # Delivered Orders broken down by Academic Status
-      AcademicStatus.order(:name).each do |status|
-         sheet1.row(row_number).push "#{status.name}"
-         # monthly orders submitted
-         for i in 1..12 do
-            sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-         end
-         # quarterly orders submitted
-         sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-03-31'").count
-         sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-04-01' and '#{query_year}-06-30'").count
-         sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-07-01' and '#{query_year}-09-30'").count
-         sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-10-01' and '#{query_year}-12-31'").count
-         sheet1.row(row_number).push status.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         row_number += 1
-      end
-
-      # Totalling orders submitted
-      sheet1.row(row_number).push "Total"
-      for i in 1..12 do
-         sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-      end
-      sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-03-31'").count
-      sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-04-01' and '#{query_year}-06-30'").count
-      sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-07-01' and '#{query_year}-09-30'").count
-      sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-10-01' and '#{query_year}-12-31'").count
-      sheet1.row(row_number).push Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-
-
-      ####################################
-      # Sheet2
-      ####################################
-      sheet2 = book.create_worksheet
-      sheet2.name = 'Orders & Units'
-
-      orders_and_units_heading_row = sheet2.row(0)
-      for i in 1..13 do
-         orders_and_units_heading_row.set_format(i, heading_format)
-      end
-      orders_and_units_heading_row[1] = "Orders and Units Data - #{query_year}"
-
-      # Sheet2 Sub-headings
-      sheet2.row(1).replace [ 'Statistic', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Year-To-Date', 'Average per month']
-
-      for i in 0..15 do
-         sheet2.row(1).set_format(i, sub_heading_format)
-      end
-
-      sheet2.row(2).push 'Orders Submitted'
-      sheet2.row(3).push 'Orders Delivered'
-      sheet2.row(4).push 'Orders Approved'
-      sheet2.row(5).push 'Orders Deferred'
-      sheet2.row(6).push 'Orders Canceled'
-      sheet2.row(7).push 'Units Archived'
-      sheet2.row(8).push 'Master Files Archived'
-      sheet2.row(9).push 'Size of Master Files Archived (GB)'
-      sheet2.row(10).push 'Units Delivered to DL'
-      sheet2.row(11).push 'Master Files Delivered to DL'
-
-      for i in 1..12 do
-         # Total size of master files is for all units, so the emtpy integer variable can be decleared up front
-         size_of_master_files_archived_month = 0
-
-         # Orders Submitted
-         number_of_orders_submitted_month = Order.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Orders Delivered
-         number_of_orders_delivered_month = Order.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Orders Approved
-         number_of_orders_approved_month = Order.where("date_order_approved between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Orders Deferred
-         number_of_orders_deferred_month = Order.where("date_deferred between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Orders Canceled
-         number_of_orders_canceled_month = Order.where("date_canceled between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Units and Master Files Archived
-         number_of_units_archived_month = Unit.where("date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-         number_of_master_files_archived_month = MasterFile.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-         if number_of_master_files_archived_month > 0
-            size_of_master_files_archived_month =  MasterFile.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").map(&:filesize).inject(:+)
+         wb.add_worksheet(:name => "By Category") do |sheet|
+            self.create_category( sheet, wb_style, query_year )
          end
 
-         # Units and Master Files Delivered to DL
-         number_of_units_delivered_to_dl_month = Unit.where("date_dl_deliverables_ready between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-         number_of_master_files_delivered_to_dl_month = MasterFile.where("date_dl_ingest between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-         # Begin writing data for sheet2
-         sheet2.row(2).push number_of_orders_submitted_month
-         sheet2.row(3).push number_of_orders_delivered_month
-         sheet2.row(4).push number_of_orders_approved_month
-         sheet2.row(5).push number_of_orders_deferred_month
-         sheet2.row(6).push number_of_orders_canceled_month
-         sheet2.row(7).push number_of_units_archived_month
-         sheet2.row(8).push number_of_master_files_archived_month
-         sheet2.row(9).push size_of_master_files_archived_month / 1024000000 # convert the size from bytes to gigabytes
-         sheet2.row(10).push number_of_units_delivered_to_dl_month
-         sheet2.row(11).push number_of_master_files_delivered_to_dl_month
-      end
-
-      # Year to Date Stats
-      number_of_orders_submitted_year_to_date = Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_orders_delivered_year_to_date = Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_orders_approved_year_to_date = Order.where("date_order_approved between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_orders_deferred_year_to_date = Order.where("date_deferred between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_orders_canceled_year_to_date = Order.where("date_canceled between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_units_archived_year_to_date = Unit.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-
-      if number_of_master_files_archived_year_to_date > 0
-         size_of_master_files_archived_year_to_date = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").map(&:filesize).inject(:+)
-      end
-
-      number_of_units_delivered_to_dl_year_to_date = Unit.where("date_dl_deliverables_ready between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-      number_of_master_files_delivered_to_dl_year_to_date = MasterFile.where("date_dl_ingest between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-
-      sheet2.row(2).push number_of_orders_submitted_year_to_date, number_of_orders_submitted_year_to_date / query_month
-      sheet2.row(3).push number_of_orders_delivered_year_to_date, number_of_orders_delivered_year_to_date / query_month
-      sheet2.row(4).push number_of_orders_approved_year_to_date, number_of_orders_approved_year_to_date / query_month
-      sheet2.row(5).push number_of_orders_deferred_year_to_date, number_of_orders_deferred_year_to_date / query_month
-      sheet2.row(6).push number_of_orders_canceled_year_to_date, number_of_orders_canceled_year_to_date / query_month
-      sheet2.row(7).push number_of_units_archived_year_to_date, number_of_units_archived_year_to_date / query_month
-      sheet2.row(8).push number_of_master_files_archived_year_to_date, number_of_master_files_archived_year_to_date / query_month
-      if !size_of_master_files_archived_year_to_date.nil?
-         sheet2.row(9).push size_of_master_files_archived_year_to_date / 1024000000, (size_of_master_files_archived_year_to_date / 1024000000) / query_month
-      end
-      sheet2.row(10).push number_of_units_delivered_to_dl_year_to_date, number_of_units_delivered_to_dl_year_to_date / query_month
-      sheet2.row(11).push number_of_master_files_delivered_to_dl_year_to_date, number_of_master_files_delivered_to_dl_year_to_date / query_month
-
-      ####################################
-      # Sheet 3 (By Agency Monthly Data)
-      ####################################
-      sheet3 = book.create_worksheet
-      sheet3.name = 'By Agency (Monthly Data)'
-
-      agency_month_heading_text = "Agency Orders By Month"
-      agency_month_heading_row = sheet3.row(0)
-      for j in 0..10 do
-         agency_month_heading_row.set_format(j, heading_format)
-      end
-      agency_month_heading_row[0] = agency_month_heading_text
-
-      sheet3_i = 1 #Start on row 1
-
-      for i in 1..12 do
-         month_text = "#{i}/#{query_year}"
-         month_text_row = sheet3.row(sheet3_i)
-
-         month_text_row[0] = month_text
-
-         for x in 0..10 do
-            month_text_row.set_format(x, heading_format)
+         wb.add_worksheet(:name => "Orders & Units") do |sheet|
+            self.create_orders_and_units(sheet, wb_style, query_year, query_month)
          end
 
-         sheet3_i = sheet3_i.next
-
-         # Sheet3 Sub-headings
-         sheet3.row(sheet3_i).replace [ 'Agencies', 'Orders Submitted', 'Orders Deferred', 'Orders Approved', 'Orders Canceled', 'Orders Archived', 'Orders Delivered', 'Units Delivered', 'Master Files Delivered', 'Units Archived', 'Master Files Archived' ]
-         for k in 0..10 do
-            sheet3.row(sheet3_i).set_format(k, sub_heading_format)
-         end
-         sheet3_i += 1
-
-         Agency.order(:name).each do |agency|
-            number_of_agency_orders_submitted_month = agency.orders.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_orders_deferred_month = agency.orders.where("date_deferred between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_orders_approved_month = agency.orders.where("date_order_approved between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_orders_canceled_month = agency.orders.where("date_canceled between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_orders_archived_month = agency.orders.where("date_archiving_complete between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_orders_delivered_month = agency.orders.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_units_delivered_month = agency.units.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_units_archived_month = agency.units.where("date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_master_files_archived_month = agency.master_files.where("`master_files`.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-            number_of_agency_master_files_delivered_month = agency.master_files.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
-
-            if number_of_agency_orders_submitted_month == 0 and number_of_agency_orders_deferred_month == 0 and number_of_agency_orders_approved_month == 0 and number_of_agency_orders_canceled_month == 0 and number_of_agency_orders_archived_month == 0 and number_of_agency_orders_delivered_month == 0 and number_of_agency_units_delivered_month == 0 and number_of_agency_units_archived_month == 0 and number_of_agency_master_files_archived_month == 0 and number_of_agency_master_files_delivered_month == 0
-            else
-               sheet3.row(sheet3_i).push agency.name, number_of_agency_orders_submitted_month, number_of_agency_orders_deferred_month, number_of_agency_orders_approved_month, number_of_agency_orders_canceled_month, number_of_agency_orders_archived_month, number_of_agency_orders_delivered_month, number_of_agency_units_delivered_month, number_of_agency_master_files_delivered_month, number_of_agency_units_archived_month, number_of_agency_master_files_archived_month
-               sheet3_i = sheet3_i.next
-            end
+         wb.add_worksheet(:name => "By Agency (Monthly Data)") do |sheet|
+            self.create_agency_monthly(sheet, wb_style, query_year)
          end
 
-         sheet3_i += 1
-      end
+         wb.add_worksheet(:name => "By Agency (Year-To-Date)") do |sheet|
+            self.create_agency_yearly(sheet, wb_style, query_year)
+         end
 
-      ####################################
-      # Sheet 4 (By Agency Year-To-Date)
-      ####################################
-      sheet4 = book.create_worksheet
-      sheet4.name = 'By Agency (Year-To-Date)'
-
-      agency_year_heading_text = "Total Orders By Agency - Year-To-Date (#{query_year})"
-      agency_year_heading_row = sheet4.row(0)
-      for i in 0..11 do
-         agency_year_heading_row.set_format(i, heading_format)
-      end
-      agency_year_heading_row[0] = agency_year_heading_text
-
-      sheet4_i = 2 #Start on row 2
-
-      # Sheet4 Sub-headings
-      sheet4.row(1).replace [ 'Agencies', 'Orders in Process', 'Orders Submitted', 'Orders Deferred', 'Orders Approved', 'Orders Canceled', 'Orders Archived', 'Orders Delivered', 'Units Delivered', 'Master Files Delivered', 'Units Archived', 'Master Files Archived' ]
-      for i in 0..11 do
-         sheet4.row(1).set_format(i, sub_heading_format)
-      end
-
-      Agency.order(:name).each do |agency|
-         number_of_agency_orders_currently_in_process = agency.orders.in_process.count
-         number_of_agency_orders_submitted_year = agency.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_orders_deferred_year = agency.orders.where("date_deferred between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_orders_approved_year = agency.orders.where("date_order_approved between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_orders_canceled_year = agency.orders.where("date_canceled between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_orders_archived_year = agency.orders.where("date_archiving_complete between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_orders_delivered_year = agency.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_units_delivered_year = agency.units.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_units_archived_year = agency.units.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_master_files_archived_year = agency.master_files.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-         number_of_agency_master_files_delivered_year = agency.master_files.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
-
-         if number_of_agency_orders_currently_in_process == 0 and number_of_agency_orders_submitted_year == 0 and number_of_agency_orders_deferred_year == 0 and number_of_agency_orders_approved_year == 0 and number_of_agency_orders_canceled_year == 0 and number_of_agency_orders_archived_year == 0 and number_of_agency_orders_delivered_year == 0 and number_of_agency_units_delivered_year == 0 and number_of_agency_units_archived_year == 0 and number_of_agency_master_files_archived_year == 0 and number_of_agency_master_files_delivered_year == 0
-         else
-            sheet4.row(sheet4_i).push agency.name, number_of_agency_orders_currently_in_process, number_of_agency_orders_submitted_year, number_of_agency_orders_deferred_year, number_of_agency_orders_approved_year, number_of_agency_orders_canceled_year, number_of_agency_orders_archived_year, number_of_agency_orders_delivered_year, number_of_agency_units_delivered_year, number_of_agency_master_files_delivered_year, number_of_agency_units_archived_year, number_of_agency_master_files_archived_year
-            sheet4_i = sheet4_i.next
+         wb.add_worksheet(:name => "Current Orders") do |sheet|
+            self.create_current_orders(sheet, wb_style, query_year)
          end
       end
-
-      ####################################
-      # Sheet 5 (Current Orders)
-      ####################################
-      sheet5 = book.create_worksheet
-      sheet5.name = 'Current Orders'
-
-      sheet5.row(0).replace ['Status', "Total as of #{today.month}/#{today.day}/#{today.year}"]
-      for i in 0..1 do
-         sheet5.row(0).set_format(i, sub_heading_format)
-      end
-
-      sheet5.row(1).push 'Orders Currently in Process', Order.in_process.count
-      sheet5.row(2).push 'Orders Currently Pending Approval', Order.awaiting_approval.count
-      sheet5.row(3).push 'Orders Currently Deferred', Order.deferred.count
-
-      # Let's do some formatting!
-      # Some templates
-      format = Spreadsheet::Format.new :horizontal_align => :center
-
-      # Sheet 1
-      sheet1.row(0).default_format = format
-      sheet1.row(1).default_format = format
-      sheet1.row(11).default_format = format
 
       # Save the entire workbook
       t = DateTime.now
       filename = "#{query_year}_Report_#{t.year}-#{t.month}-#{t.day}-#{t.hour}-#{t.min}-#{t.sec}"
-      report_path = "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xls"
+      report_path = "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xlsx"
       logger.info("Writing stats report to: #{report_path}")
-      book.write report_path
+      pkg.serialize(report_path)
       on_success "Stats reported created."
+   end
 
+   # Create current order worksheet
+   #
+   def create_current_orders(sheet, styles, query_year)
+      sheet.add_row ["Current Orders"], :style => [ styles[:header] ]
+      sheet.merge_cells("A1:B1")
+      sheet.add_row ['Status', "Total as of #{Date.today.strftime('%Y/%m/%d')}"], :style => styles[:subheader]
+      sheet.add_row ['Orders Currently in Process', Order.in_process.count], :style => styles[:right]
+      sheet.add_row ['Orders Currently Pending Approval', Order.awaiting_approval.count], :style => styles[:right]
+      sheet.add_row ['Orders Currently Deferred', Order.deferred.count], :style => styles[:right]
+   end
+
+   # Create Yearly agency worksheet
+   #
+   def create_agency_yearly(sheet, styles, query_year)
+      sheet.add_row ["Total Orders by Agency - Year-To-Date (#{query_year})"], :style => [ styles[:header] ]
+      sheet.merge_cells("A1:L1")
+      sheet.add_row [ 'Agencies', 'Orders in Process', 'Orders Submitted', 'Orders Deferred',
+                      'Orders Approved', 'Orders Canceled', 'Orders Archived', 'Orders Delivered',
+                      'Units Delivered', 'Master Files Delivered', 'Units Archived', 'Master Files Archived' ],
+                      :style=> styles[:subheader]
+      sheet.column_widths 22,18,16,16,16,16,16,16,16,20,16,20
+
+      Agency.order(:name).each do |agency|
+         r = [agency.name]
+         r << agency.orders.in_process.count
+         r << agency.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.orders.where("date_deferred between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.orders.where("date_order_approved between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.orders.where("date_canceled between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.orders.where("date_archiving_complete between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.units.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.master_files.joins(:order).where("`orders`.date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.units.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         r << agency.master_files.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         sum = 0
+         r.each { |v| sum+=v if v.is_a? Integer }
+
+         if sum > 0
+            sheet.add_row r, :style=> styles[:right]
+         end
+      end
+   end
+
+   # Create monthly angency worksheet
+   #
+   def create_agency_monthly(sheet, styles, query_year)
+      sheet.add_row ["Agency Orders by Month"], :style => [ styles[:header] ]
+      sheet.merge_cells("A1:K1")
+
+      for i in 1..12 do
+         header_added = false
+         data_added = false
+         Agency.order(:name).each do |agency|
+            r = [ agency.name ]
+            r <<  agency.orders.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.orders.where("date_deferred between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.orders.where("date_order_approved between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.orders.where("date_canceled between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.orders.where("date_archiving_complete between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.orders.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.units.joins(:order).where("orders.date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.master_files.joins(:order).where("orders.date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.units.where("date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            r <<  agency.master_files.where("master_files.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+            sum = 0
+            r.each { |v| sum+=v if v.is_a? Integer }
+
+            if sum > 0
+               if header_added == false
+                  header_added = true
+                  month_text = "#{i}/#{query_year}"
+                  sr = sheet.add_row [month_text], :style => styles[:date]
+                  sheet.merge_cells("A#{sr.row_index+1}:K#{sr.row_index+1}")
+
+                  sheet.add_row [ 'Agencies', 'Orders Submitted', 'Orders Deferred', 'Orders Approved', 'Orders Canceled',
+                                  'Orders Archived', 'Orders Delivered', 'Units Delivered', 'Master Files Delivered',
+                                  'Units Archived', 'Master Files Archived' ], :style => styles[:subheader]
+                  sheet.column_widths 20,16,16,16,16,16,16,16,20,16,20
+               end
+               sheet.add_row r, :style => styles[:right]
+               data_added = true
+            end
+         end
+
+         if data_added == true
+            sr = sheet.add_row []
+            sheet.merge_cells("A#{sr.row_index+1}:K#{sr.row_index+1}")
+         end
+      end
+   end
+
+   # Create Categories worksheet
+   #
+   def create_category( sheet, styles, query_year )
+      sheet.add_row ["Orders Submitted #{query_year}"], :style => styles[:header]
+      sheet.merge_cells("A1:R1")
+      sheet.add_row [ 'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July',
+                      'August', 'September', 'October', 'November', 'December', '1st Quarter',
+                      '2nd Quarter', '3rd Quarter', '4th Quarter', 'Year-To-Date'],
+                      :style => styles[:subheader]
+      sheet.column_widths 20,10,10,10,10,10,10,10,10,10,10,10,10,12,12,12,12,12
+      AcademicStatus.order(:name).each do |status|
+         r = [status.name]
+         # monthly orders submitted
+         for i in 1..12 do
+            r << status.orders.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         end
+         # quarterly orders submitted
+         r << status.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-03-31'").count
+         r << status.orders.where("date_request_submitted between '#{query_year}-04-01' and '#{query_year}-06-30'").count
+         r << status.orders.where("date_request_submitted between '#{query_year}-07-01' and '#{query_year}-09-30'").count
+         r << status.orders.where("date_request_submitted between '#{query_year}-10-01' and '#{query_year}-12-31'").count
+         r << status.orders.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         sheet.add_row r, :style => styles[:right]
+      end
+
+      r = ["Total"]
+      for i in 1..12 do
+         r << Order.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+      end
+      r << Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-03-31'").count
+      r << Order.where("date_request_submitted between '#{query_year}-04-01' and '#{query_year}-06-30'").count
+      r << Order.where("date_request_submitted between '#{query_year}-07-01' and '#{query_year}-09-30'").count
+      r << Order.where("date_request_submitted between '#{query_year}-10-01' and '#{query_year}-12-31'").count
+      r << Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      sheet.add_row r, :style => styles[:right]
+
+      # Part II - Orders Delivered
+      sheet.add_row []
+      sheet.add_row ["Orders Delivered #{query_year}"], :style => styles[:header]
+      sheet.merge_cells("A11:R11")
+
+      sheet.add_row [ 'Category', 'January', 'February', 'March', 'April', 'May',
+                      'June', 'July', 'August', 'September', 'October', 'November',
+                      'December', '1st Quarter', '2nd Quarter', '3rd Quarter',
+                      '4th Quarter', 'Year-To-Date'], :style => styles[:subheader]
+      sheet.column_widths 20,10,10,10,10,10,10,10,10,10,10,10,10,12,12,12,12,12
+
+      # Delivered Orders broken down by Academic Status
+      AcademicStatus.order(:name).each do |status|
+         r = [status.name]
+         # monthly orders submitted
+         for i in 1..12 do
+            r << status.orders.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         end
+         # quarterly orders submitted
+         r << status.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-03-31'").count
+         r << status.orders.where("date_customer_notified between '#{query_year}-04-01' and '#{query_year}-06-30'").count
+         r << status.orders.where("date_customer_notified between '#{query_year}-07-01' and '#{query_year}-09-30'").count
+         r << status.orders.where("date_customer_notified between '#{query_year}-10-01' and '#{query_year}-12-31'").count
+         r << status.orders.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+         sheet.add_row r, :style => styles[:right]
+      end
+
+      # Totalling orders submitted
+      r =  ["Total"]
+      for i in 1..12 do
+         r << Order.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+      end
+      r << Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-03-31'").count
+      r << Order.where("date_customer_notified between '#{query_year}-04-01' and '#{query_year}-06-30'").count
+      r << Order.where("date_customer_notified between '#{query_year}-07-01' and '#{query_year}-09-30'").count
+      r << Order.where("date_customer_notified between '#{query_year}-10-01' and '#{query_year}-12-31'").count
+      r << Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      sheet.add_row r, :style => styles[:right]
+   end
+
+   # Create Orders and Units workbook sheet
+   #
+   def create_orders_and_units( sheet, styles, query_year, query_month )
+      sheet.add_row ["Orders and Units Data - #{query_year}"], :style => [ styles[:header] ]
+      sheet.merge_cells("A1:O1")
+      sheet.add_row [ 'Statistic', 'January', 'February', 'March', 'April', 'May',
+                      'June', 'July', 'August', 'September', 'October', 'November',
+                      'December', 'Year-To-Date', 'Average per month'],
+                      :style => styles[:subheader]
+      sheet.column_widths 28,10,10,10,10,10,10,10,10,10,10,10,10,18,18
+
+      # define table with 9 arrays, one for each row in the work book. Start each row with a name.
+      # the remaining data will be filled in below...
+      r = [ ['Orders Submitted'], ['Orders Delivered'], ['Orders Approved'],
+            ['Orders Deferred'], ['Orders Canceled'], ['Units Archived'],
+            ['Master Files Archived'], ['Size of Master Files Archived (GB)'], ['Units Delivered to DL'],
+            ['Master Files Delivered to DL'] ]
+
+      # Append monthly stats to each row in the table structure defined above
+      for i in 1..12 do
+         r[0] << Order.where("date_request_submitted between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[1] << Order.where("date_customer_notified between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[2] << Order.where("date_order_approved between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[3] << Order.where("date_deferred between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[4] << Order.where("date_canceled between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[5] << Unit.where("date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[6] << MasterFile.where("master_files.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         arch_size = MasterFile.where("master_files.date_archived between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").map(&:filesize).inject(:+)
+         if !arch_size.nil?
+            r[7] << ( arch_size / 1024000000 )
+         else
+            r[7] << 0
+         end
+         r[8] << Unit.where("date_dl_deliverables_ready between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+         r[9] << MasterFile.where("date_dl_ingest between '#{query_year}-#{i}-01' and '#{query_year}-#{i}-31'").count
+      end
+
+      # Year to Date Stats
+      r[0] << Order.where("date_request_submitted between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[1] << Order.where("date_customer_notified between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[2] << Order.where("date_order_approved between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[3] << Order.where("date_deferred between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[4] << Order.where("date_canceled between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[5] << Unit.where("date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[6] << MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      arch_size = MasterFile.where("`master_files`.date_archived between '#{query_year}-01-01' and '#{query_year}-12-31'").map(&:filesize).inject(:+)
+      if !arch_size.nil?
+         r[7] << ( arch_size / 1024000000 )
+      else
+         r[7] << 0
+      end
+      r[8] << Unit.where("date_dl_deliverables_ready between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+      r[9] << MasterFile.where("date_dl_ingest between '#{query_year}-01-01' and '#{query_year}-12-31'").count
+
+      # AVG Stats
+      r[0] << r[0].last.to_i / query_month
+      r[1] << r[1].last.to_i / query_month
+      r[2] << r[2].last.to_i / query_month
+      r[3] << r[3].last.to_i / query_month
+      r[4] << r[4].last.to_i / query_month
+      r[5] << r[5].last.to_i / query_month
+      r[6] << r[6].last.to_i / query_month
+      r[7] << r[7].last.to_i / query_month
+      r[8] << r[8].last.to_i / query_month
+      r[9] << r[9].last.to_i / query_month
+
+      # add all rows to the sheet
+      r.each do |chart_row|
+         sheet.add_row chart_row, :style => styles[:right]
+      end
    end
 end
