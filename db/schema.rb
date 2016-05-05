@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160502201455) do
+ActiveRecord::Schema.define(version: 20160505140411) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -403,7 +403,6 @@ ActiveRecord::Schema.define(version: 20160502201455) do
     t.string   "originator_type", limit: 255
     t.datetime "created_at",                                      null: false
     t.datetime "updated_at",                                      null: false
-    t.string   "params",          limit: 255
   end
 
   create_table "legacy_identifiers", force: :cascade do |t|

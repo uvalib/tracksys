@@ -4,7 +4,7 @@ class BaseJob
    #
    def self.exec(message)
       job = self.new()
-      job_id = job.init_status(message)
+      job_id = job.prepare(message)
       job.delay.perform(message)
       return job_id
    end
@@ -15,15 +15,9 @@ class BaseJob
    def self.exec_now(message, workflow_context = nil)
       job = self.new()
 
-      # Is this being called from another job?
-      if workflow_context.nil?
-         # No: start a new workflow and create a new status object
-         job.init_status(message)
-      else
-         # Called from anoter job; reuse status/logger from preceeding step in workflow
-         job.reuse_context(workflow_context)
-      end
-
+      # setup status and logging using context if available, then perform the job
+      @params_logged = false
+      job.prepare(message, workflow_context)
       job.perform(message)
 
       # nil context means this is the start point of a workflow
@@ -34,21 +28,46 @@ class BaseJob
       end
    end
 
-   # Init the job status record for this workflow
+   # Prepare the job status and logging for this job.
+   # If this job has been chained from another, the context will be
+   # non-nil. In this case, re-use the logger and status from the
+   # preceeding job
    #
-   def init_status(message)
-      @status = JobStatus.create(name: self.class.name, params: message.to_json)
-      set_originator(message)
-      originator = @status.originator
+   def prepare(message, workflow_context=nil)
+      if !workflow_context.nil?
+         @logger = workflow_context.logger
+         @status = workflow_context.status_object
+      else
+         @status = JobStatus.create(name: self.class.name)
+         set_originator(message)
+         originator = @status.originator
+
+         # Log initial job params so they will always appear in job log - even before start
+         # IMPORTANT:
+         # logger needs to be created before job starts, and again after it starts
+         # not sure why, but if it is created prior and saved as member variable
+         # the job does not run, and produces no errors nor logs
+         create_logger(@status.id).info "Schedule #{self.class.name} with params: #{message.to_json}"
+         @params_logged = true
+      end
       return @status.id
    end
-   def set_originator(message)
-      raise "Derived jobs must override set_originator!"
+
+   # helper to create job logger
+   #
+   def create_logger(job_id)
+      log_file_path = File.join(JOB_LOG_DIR, "job_#{job_id}.log")
+      logger = Logger.new(log_file_path)
+      logger.formatter = proc do |severity, datetime, progname, msg|
+         "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
+      end
+      return logger
    end
 
-   def reuse_context(workflow_context)
-      @logger = workflow_context.logger
-      @status = workflow_context.status_object
+   # Set the originiator of this job request. BaseJob
+   # implementaion will raise an error. All subclasses must implement
+   def set_originator(message)
+      raise "Derived jobs must override set_originator!"
    end
 
    # Start logging and update status, then launch into workflow
@@ -57,15 +76,15 @@ class BaseJob
       # If this job has been chained from another, the log will already exist and
       # should not be created
       if @logger.nil?
-         log_file_path = File.join(JOB_LOG_DIR, "job_#{@status.id}.log")
-         @logger = Logger.new(log_file_path)
-         @logger.formatter = proc do |severity, datetime, progname, msg|
-            "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
-         end
+         @logger = create_logger(@status.id)
       end
 
       # Flag job started running
-      @logger.info "Start #{self.class.name} with params: #{message.to_json}"
+      if @params_logged
+         @logger.info "Start #{self.class.name}"
+      else
+         @logger.info "Start #{self.class.name} with params: #{message.to_json}"
+      end
       @status.started
 
       begin
