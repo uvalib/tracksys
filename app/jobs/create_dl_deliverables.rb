@@ -118,7 +118,7 @@ class CreateDlDeliverables < BaseJob
          logger().info("Last JP2K for Unit #{@unit_id} created.")
          @object.unit.update_attribute(:date_dl_deliverables_ready, Time.now)
 
-         SendCommitToSolr.exec_now({ :unit_id => @unit_id }, self)
+         SendCommitToSolr.exec_now({}, self)
 
          on_success "Unit #{@unit_id} has completed ingestion to #{FEDORA_REST_URL}."
 

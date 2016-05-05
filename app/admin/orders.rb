@@ -312,14 +312,12 @@ ActiveAdmin.register Order do
   member_action :check_order_ready_for_delivery, :method => :put do
     order = Order.find(params[:id])
     order.check_order_ready_for_delivery
-    sleep(0.5)
     redirect_to :back, :notice => "Order #{order.id} is being checked to see if it is ready."
   end
 
   member_action :send_order_email, :method => :put do
     order = Order.find(params[:id])
     order.send_order_email
-    sleep(4.0)
     redirect_to :back, :notice => "Email sent to #{order.customer.full_name}."
   end
 
@@ -327,17 +325,5 @@ ActiveAdmin.register Order do
     order = Order.find(params[:id])
     pdf = order.generate_notice
     send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
-  end
-
-  controller do
-   #  # Only cache the index view if it is the base index_url (i.e. /orders) and is devoid of either params[:page] or params[:q].
-   #  # The absence of these params values ensures it is the base url.
-   #  caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) || c.params.include?(:order) }
-   #  caches_action :show
-   #  cache_sweeper :orders_sweeper
-    # scoped collection for sortable column on Customers
-    def scoped_collection
-      end_of_association_chain.includes([:customer])
-    end
   end
 end
