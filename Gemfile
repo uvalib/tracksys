@@ -20,7 +20,6 @@ gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
 gem 'solr-ruby'
-gem 'rqrcode'
 gem 'prawn'
 gem 'prawn-table'
 gem 'nested_form'

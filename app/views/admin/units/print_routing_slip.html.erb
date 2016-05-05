@@ -11,7 +11,7 @@ units_sorted = @order.units.sort_by {|unit| unit.id}
   end
 end
 %>
-<% operator = @user.full_name || "Tracksys" %>
+<% operator = current_user.full_name || "Tracksys" %>
 <div id="container">
     <div class="row" id="header">
         <div class="item w100">Digital Production Group Routing Slip</div>

@@ -1,6 +1,5 @@
 class Unit < ActiveRecord::Base
    include Pidable
-   require 'rqrcode'
 
    UNIT_STATUSES = %w[approved canceled condition copyright unapproved]
 
@@ -216,33 +215,6 @@ class Unit < ActiveRecord::Base
    end
 
    # End processors
-
-   def qr
-      code = RQRCode::QRCode.new("#{TRACKSYS_URL}/admin/unit/checkin/#{self.id}", :size => 7)
-      return code
-   end
-
-   # utility method to present consistent Fedora object structure within a unit
-   # Ordinarily, MasterFiles without transcription text do not generate a 'transcription'
-   # datastream upon ingest, but this method will add blank transcription fields to
-   # MasterFile objects and update their Repository counterparts as needed
-   def fill_in_missing_transcriptions
-      text=" \n"
-      empty_items=self.master_files.where(:transcription_text => nil)
-      if empty_items.count > 0
-         empty_items.each do |item|
-            item.transcription_text=text unless item.transcription_text
-            item.save!
-            item.reload
-            if item.exists_in_repo?
-               Fedora.add_or_update_datastream(item.transcription_text, item.pid,
-               'transcription', 'Transcription', :contentType => 'text/plain',
-               :mimeType => 'text/plain', :controlGroup => 'M')
-            end
-         end
-      end
-   end
-
 end
 
 # == Schema Information
