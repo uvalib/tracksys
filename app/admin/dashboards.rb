@@ -137,43 +137,37 @@ ActiveAdmin.register_page "Dashboard" do
   end
 
   page_action :get_yearly_stats do
-    @user = StaffMember.find_by(computing_id: current_user.computing_id)
-    CreateStatsReport.exec( {:user_id=>@user.id, :year => params[:year]} )
+    CreateStatsReport.exec( {:user_id=>current_user.id, :year => params[:year]} )
     flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
     redirect_to :back
   end
 
   page_action :start_finalization_production do
-    @user = StaffMember.find_by(computing_id: current_user.computing_id)
-    StartFinalization.exec( {:user_id=>@user.id, :directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
+    StartFinalization.exec( {:user_id=>current_user.id, :directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
     flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_PRODUCTION} have begun finalization workflow."
     redirect_to :back
   end
 
   page_action :start_finalization_migration do
-    @user = StaffMember.find_by( computing_id: current_user.computing_id)
-    StartFinalization.exec( {:user_id=>@user.id, :directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
+    StartFinalization.exec( {:user_id=>current_user.id, :directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
     flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_MIGRATION} have begun finalization workflow."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_batch_migration do
-    @user = StaffMember.find_by(computing_id: current_user.computing_id)
-    StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION } )
+    StartManualUploadToArchive.exec( {:user_id => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION } )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_production do
-    @user = StaffMember.find_by(computing_id: current_user.computing_id)
-    StartManualUploadToArchive.exec( {:user_id => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
+    StartManualUploadToArchive.exec( {:user_id => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
 
   page_action :start_manual_upload_to_archive_migration do
-    @user = StaffMember.find_by(computing_id: current_user.computing_id)
-    StartManualUploadToArchive.exec( {:user => @user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
+    StartManualUploadToArchive.exec( {:user => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to :back
   end
