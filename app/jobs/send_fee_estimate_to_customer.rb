@@ -1,13 +1,13 @@
 class SendFeeEstimateToCustomer < BaseJob
    def set_originator(message)
-      @status.update_attributes( :originator_type=> "Order", :originator_id=>message[:order_id])
+      @status.update_attributes( :originator_type=> "Order", :originator_id=>message[:order].id )
    end
 
    def do_workflow(message)
 
-      raise "Parameter 'order_id' is required" if message[:order_id].blank?
+      raise "Parameter 'order' is required" if message[:order].blank?
 
-      order = Order.find( message[:order_id] )
+      order = message[:order]
       OrderMailer.send_fee_estimate(order).deliver
       logger().info "Fee estimate email sent to customer."
 

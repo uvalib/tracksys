@@ -7,21 +7,20 @@ class CreateOrderPdf < BaseJob
    require 'prawn/table'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id)
    end
 
    def do_workflow(message)
 
-      raise "Parameter 'order_id' is required" if message[:order_id].blank?
+      raise "Parameter 'order' is required" if message[:order].blank?
       raise "Parameter 'fee' is required" if message[:fee].blank?
 
-      @order_id = message[:order_id]
-      @working_order = Order.find(@order_id)
+      @order = message[:order]
       @fee = message[:fee]
-      @customer = @working_order.customer
+      @customer = @order.customer
 
       @units_in_pdf = Array.new
-      @working_order.units.each do |unit|
+      @order.units.each do |unit|
          if unit.unit_status == 'approved'
             @units_in_pdf.push(unit)
          end
@@ -33,14 +32,14 @@ class CreateOrderPdf < BaseJob
       @pdf.text "Digital Production Group,  University of Virginia Library", :align => :center
       @pdf.text "Post Office Box 400155, Charlottesville, Virginia 22904 U.S.A.", :align => :center
       @pdf.text "\n\n"
-      @pdf.text "Order ID: #{@working_order.id}", :align => :right, :font_size => 14
+      @pdf.text "Order ID: #{@order.id}", :align => :right, :font_size => 14
       @pdf.text "\n"
       @pdf.text "Dear #{@customer.first_name.capitalize} #{@customer.last_name.capitalize}, \n\n"
 
       if @units_in_pdf.length > 1
-         @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
+         @pdf.text "On #{@order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
       else
-         @pdf.text "On #{@working_order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
+         @pdf.text "On #{@order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
       end
       @pdf.text "\n"
       if not @fee.to_i.eql?(0)
@@ -115,13 +114,13 @@ class CreateOrderPdf < BaseJob
          @pdf.number_pages string, options
 
          # Write out the PDF file, ensuring that the order dir exists
-         order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order_id}")
+         order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order.id}")
          Dir.mkdir(order_dir) unless File.exists?(order_dir)
-         @pdf.render_file( File.join(order_dir, "#{@order_id}.pdf") )
+         @pdf.render_file( File.join(order_dir, "#{@order.id}.pdf") )
 
          # Publish message
-         on_success "PDF created for order #{@order_id}."
-         CreateOrderZip.exec_now({:order_id => @order_id}, self)
+         on_success "PDF created for order #{@order.id}."
+         CreateOrderZip.exec_now({:order_id => @order.id}, self)
       end
 
       # Physical Component Methods

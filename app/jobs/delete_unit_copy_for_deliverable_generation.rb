@@ -10,7 +10,7 @@ class DeleteUnitCopyForDeliverableGeneration < BaseJob
       @unit_id = message[:unit_id]
       @unit_dir = "%09d" % @unit_id
       @working_unit = Unit.find(@unit_id)
-      order_id = @working_unit.order.id
+      order = @working_unit.order
 
       # Delete logic
       del_dir = File.join(PROCESS_DELIVERABLES_DIR, @mode, @unit_dir)
@@ -23,7 +23,7 @@ class DeleteUnitCopyForDeliverableGeneration < BaseJob
          @working_unit.update_attribute(:date_patron_deliverables_ready, Time.now)
          on_success "Date patron deliverables ready for unit #{@unit_id} has been updated."
 
-         CheckOrderReadyForDelivery.exec_now( { :order_id => order_id, :unit_id => @unit_id }, self  )
+         CheckOrderReadyForDelivery.exec_now( { :order => order, :unit_id => @unit_id }, self  )
       end
    end
 end

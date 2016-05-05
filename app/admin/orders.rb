@@ -300,14 +300,12 @@ ActiveAdmin.register Order do
   member_action :cancel_order, :method => :put do
     order = Order.find(params[:id])
     order.cancel_order
-    sleep(0.5)
     redirect_to :back, :notice => "Order #{params[:id]} is now canceled."
   end
 
   member_action :send_fee_estimate_to_customer, :method => :put do
     order = Order.find(params[:id])
-    order.send_fee_estimate_to_customer(current_user.computing_id)
-    sleep(0.5)
+    order.send_fee_estimate_to_customer()
     redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
   end
 

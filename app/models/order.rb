@@ -3,6 +3,10 @@ class Order < ActiveRecord::Base
    ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed']
    include BuildOrderPDF
 
+   def as_json(options)
+      super(:except => [:email])
+   end
+
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
@@ -258,25 +262,23 @@ class Order < ActiveRecord::Base
    end
 
    def check_order_ready_for_delivery
-      CheckOrderReadyForDelivery.exec( {:order_id => self.id})
+      CheckOrderReadyForDelivery.exec( {:order => self})
    end
 
    def create_order_pdf
-      CreateOrderPdf.exec( {:order_id => self.id, :fee => self.fee_actual.to_i})
+      CreateOrderPdf.exec( {:order => self, :fee => self.fee_actual.to_i})
    end
 
    def qa_order_data
-      QaOrderData.exec({:order_id => self.id})
+      QaOrderData.exec({:order => self})
    end
 
-   def send_fee_estimate_to_customer(computing_id)
-      @user = StaffMember.find_by(computing_id: computing_id)
-      @first_name = @user.first_name
-      SendFeeEstimateToCustomer.exec( {:order_id => self.id, :first_name => @first_name})
+   def send_fee_estimate_to_customer()
+      SendFeeEstimateToCustomer.exec( {:order => self})
    end
 
    def send_order_email
-      SendOrderEmail.exec({:order_id => self.id})
+      SendOrderEmail.exec({:order => self})
    end
 end
 

@@ -1,25 +1,24 @@
 class CreateInvoice < BaseJob
+   require 'fileutils'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id )
    end
 
    def do_workflow(message)
+      raise "Parameter 'order' is required" if message[:order].blank?
 
-      raise "Parameter 'order_id' is required" if message[:order_id].blank?
-
-      order_id = message[:order_id]
-      order = Order.find(message[:order_id])
+      order = message[:order]
 
       # Create invoice
       invoice = Invoice.new
-      invoice.order=order
-      invoice.date_invoice=Time.now
-      invoice.invoice_copy=File.read("#{ASSEMBLE_DELIVERY_DIR}/order_#{order_id}/#{order_id}.pdf")
+      invoice.order = order
+      invoice.date_invoice = Time.now
+      invoice.invoice_copy = File.read("#{ASSEMBLE_DELIVERY_DIR}/order_#{order.id}/#{order.id}.pdf")
       invoice.save!
+      on_success "A new invoice has been created for order #{order.id}."
 
-      MoveDeliverablesToDeliveredOrdersDirectory.exec_now({:order_id => order_id}, self)
-
-      on_success "A new invoice has been created for order #{order_id}."
+      FileUtils.mv File.join(ASSEMBLE_DELIVERY_DIR, "order_#{order.id}"), File.join(DELETE_DIR_DELIVERED_ORDERS, "order_#{order.id}")
+      on_success "Directory the deliverables for order #{order.id} have been moved from #{ASSEMBLE_DELIVERY_DIR} to #{DELETE_DIR_DELIVERED_ORDERS}."
    end
 end
