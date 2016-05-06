@@ -1,9 +1,5 @@
 class CopyUnitForDeliverableGeneration < BaseJob
 
-   def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
-   end
-
    def do_workflow(message)
 
       @mode = message[:mode]

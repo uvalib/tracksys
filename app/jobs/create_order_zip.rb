@@ -2,17 +2,13 @@ class CreateOrderZip < BaseJob
 
    require 'zip/zip'
 
-   def set_originator(message)
-      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id])
-   end
-
    def do_workflow(message)
 
-      @order_id = message[:order_id]
+      order_id = message[:order_id]
 
       # Test for existing order*_1.zip file.  Warn staff if present and stop working.
-      if File.exist?(File.join("#{DELIVERY_DIR}", "order_#{@order_id}_1.zip"))
-         on_error "A .zip archive for Order #{@order_id} already exists."
+      if File.exist?(File.join("#{DELIVERY_DIR}", "order_#{order_id}_1.zip"))
+         on_error "A .zip archive for Order #{order_id} already exists."
       end
 
       dirs = Array.new
@@ -24,7 +20,7 @@ class CreateOrderZip < BaseJob
       part = 1
 
       # Make path the parent directory of the order's deliverables
-      path = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{@order_id}")
+      path = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{order_id}")
 
       # Add the order's root directory to the array of directories that will be added
       # to the order zip file. Since the order's root is carried in the order number
@@ -38,7 +34,7 @@ class CreateOrderZip < BaseJob
       }
 
       # Create template for .zip filename
-      zip_filename = "order_#{@order_id}_#{part}.zip"
+      zip_filename = "order_#{order_id}_#{part}.zip"
 
       # Must add the first file to the delivery_files array up front
       delivery_files.push("#{zip_filename}")
@@ -49,14 +45,14 @@ class CreateOrderZip < BaseJob
 
             if not File.directory?("#{content}")
                Zip::ZipFile.open(File.join("#{DELIVERY_DIR}", "#{zip_filename}"), Zip::ZipFile::CREATE) do |zipfile|
-                  zipfile.add(File.join("#{@order_id}", "#{dir}", "#{content}"), File.join("#{path}", "#{dir}", "#{content}"))
+                  zipfile.add(File.join("#{order_id}", "#{dir}", "#{content}"), File.join("#{path}", "#{dir}", "#{content}"))
                   zipfile.commit
 
                   # If the zip archive is larger than 500MB, create a new archive
                   size = File.size("#{zipfile}")
                   if size > 500.megabyte and not content.to_s == contents.last.to_s
                      part += 1
-                     zip_filename = "order_#{@order_id}_#{part}.zip"
+                     zip_filename = "order_#{order_id}_#{part}.zip"
                      delivery_files.push("#{zip_filename}")
                   end
                end
@@ -69,7 +65,7 @@ class CreateOrderZip < BaseJob
          File.chmod(0664, File.join("#{DELIVERY_DIR}", "#{delivery_file}"))
       end
 
-      on_success("#{part} zip file(s) have been created for order #{@order_id} ")
-      CreateOrderEmail.exec_now({:order_id => @order_id, :delivery_files => delivery_files}, self)
+      on_success("#{part} zip file(s) have been created for order #{order_id} ")
+      CreateOrderEmail.exec_now({:order_id => order_id, :delivery_files => delivery_files}, self)
    end
 end

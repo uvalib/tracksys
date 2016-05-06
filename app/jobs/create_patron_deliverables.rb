@@ -34,10 +34,6 @@ class CreatePatronDeliverables < BaseJob
    # but "source" is always required; "pid" is required if mode is "dl", "dl-archive" or
    # "both"; order and unit numbers are required if mode is "patron" or "both".
 
-   def set_originator(message)
-      @status.update_attributes( :originator_type=>"MasterFile", :originator_id=>message[:master_file_id])
-   end
-
    def do_workflow(message)
 
       raise "Parameter 'mode' is required" if message[:mode].blank?

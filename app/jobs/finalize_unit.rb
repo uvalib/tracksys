@@ -1,10 +1,6 @@
 class FinalizeUnit < BaseJob
    require 'fileutils'
 
-   def set_originator(message)
-      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>message[:user_id])
-   end
-
    def do_workflow(message)
       raise "Parameter 'user_id' is required" if message[:user_id].blank?
       raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?

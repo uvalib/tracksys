@@ -160,8 +160,6 @@ class MasterFile < ActiveRecord::Base
       if self.image_tech_meta
          self.image_tech_meta.destroy
       end
-      sleep(0.1)
-
       message = { :master_file_id => self.id, :source => self.path_to_archved_version}
       CreateImageTechnicalMetadataAndThumbnail.exec( message )
    end

@@ -187,17 +187,11 @@ class Unit < ActiveRecord::Base
    end
 
    def qa_filesystem_and_iview_xml
-      logger.tagged("MS3UF") { logger.debug "model method Unit#qa_filesystem_and_iview_xml called on #{self.id}" }
       QaFilesystemAndIviewXml.exec( {:unit_id => self.id} )
    end
 
    def qa_unit_data
       QaUnitData.exec( {:unit_id => self.id})
-   end
-
-   def queue_unit_deliverables
-      @unit_dir = "%09d" % self.id
-      QueueUnitDeliverables.exec( {:unit_id => self.id, :mode => 'patron', :source => File.join(PROCESS_DELIVERABLES_DIR, 'patron', @unit_dir)})
    end
 
    def send_unit_to_archive
@@ -206,12 +200,6 @@ class Unit < ActiveRecord::Base
 
    def start_ingest_from_archive
       StartIngestFromArchive.exec( {:unit_id => self.id, :order_id => self.order_id })
-   end
-
-   def copy_metadata_to_metadata_directory
-      unit_dir = "%09d" % self.id
-      unit_path = File.join(IN_PROCESS_DIR, unit_dir)
-      CopyMetadataToMetadataDirectory.exec( {:unit_id => self.id, :unit_path => unit_path})
    end
 
    # End processors

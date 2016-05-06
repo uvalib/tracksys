@@ -265,14 +265,6 @@ class Order < ActiveRecord::Base
       CheckOrderReadyForDelivery.exec( {:order => self})
    end
 
-   def create_order_pdf
-      CreateOrderPdf.exec( {:order => self, :fee => self.fee_actual.to_i})
-   end
-
-   def qa_order_data
-      QaOrderData.exec({:order => self})
-   end
-
    def send_fee_estimate_to_customer()
       SendFeeEstimateToCustomer.exec( {:order => self})
    end
