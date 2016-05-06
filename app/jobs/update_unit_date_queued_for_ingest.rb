@@ -1,9 +1,5 @@
 class UpdateUnitDateQueuedForIngest < BaseJob
 
-   def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
-   end
-
    def do_workflow(message)
 
       # Validate incoming message
@@ -16,6 +12,6 @@ class UpdateUnitDateQueuedForIngest < BaseJob
       unit.update_attribute(:date_queued_for_ingest, Time.now)
 
       on_success "Date queued for ingest for Unit #{unit_id} has been updated."
-      QueueObjectsForFedora.exec_now({ :unit_id => unit_id, :source => source }, self)
+      QueueObjectsForFedora.exec_now({ :unit => unit, :source => source }, self)
    end
 end

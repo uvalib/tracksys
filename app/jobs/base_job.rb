@@ -64,10 +64,11 @@ class BaseJob
       return logger
    end
 
-   # Set the originiator of this job request. BaseJob
-   # implementaion will raise an error. All subclasses must implement
+   # Set the originiator of this job request. Default is no originator
+   #
    def set_originator(message)
-      raise "Derived jobs must override set_originator!"
+      # no originator. For jobs that are only called from within other
+      # jobs, there is no need to override this method.
    end
 
    # Start logging and update status, then launch into workflow

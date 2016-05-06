@@ -204,6 +204,7 @@ class UpdateFedoraDatastreams < BaseJob
    # Update COMPONENT datastreams
    #
    def update_component_datastreams()
+      logger.info "Update Component datastreams...."
       @object.update_attribute(:date_dl_update, Time.now)
 
       cmsg = { :object => @object }

@@ -34,11 +34,6 @@ class CreateDlDeliverables < BaseJob
    # but "source" is always required; "pid" is required if mode is "dl", "dl-archive" or
    # "both"; order and unit numbers are required if mode is "patron" or "both".
 
-   def set_originator(message)
-      obj = message[:object]
-      @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
-   end
-
    def do_workflow(message)
 
       raise "Parameter 'source' is required" if message[:source].blank?

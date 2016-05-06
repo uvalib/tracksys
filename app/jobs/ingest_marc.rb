@@ -3,11 +3,6 @@ class IngestMarc < BaseJob
    require 'fedora'
    require 'hydra'
 
-   def set_originator(message)
-      obj = message[:object]
-      @status.update_attributes( :originator_type=>obj.class.to_s, :originator_id=>obj.id)
-   end
-
    def do_workflow(message)
 
       raise "Parameter 'object' is required" if message[:object].nil?
