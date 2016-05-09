@@ -1,3 +1,32 @@
+===============================================================================
+Top Level Jobs
+===============================================================================
+   These are the jobs initiated by users from the UI.
+   All other jobs are kicked off from one of these
+===============================================================================
+
+⁃	CheckOrderReadyForDelivery
+⁃	CheckUnitDeliveryMode
+⁃	CopyArchivedFilesToProduction
+⁃	CreateDlManifest
+⁃	CreateImageTechnicalMetadataAndThumbnail: Only used in DP rake task
+⁃	CreateStatsReport
+⁃	ImportUnitIviewXML
+⁃	OCR
+⁃	QaFilesystemAndIviewXml
+⁃	QaUnitData
+⁃	QueueUnitDeliverables
+⁃	SendCommitToSolr
+⁃	SendFeeEstimateToCustomer
+⁃	SendOrderEmail
+⁃	SendUnitToArchive
+⁃	StartFinalization
+⁃	StartIngestFromArchive
+⁃	StartManualUploadToArchive
+⁃	UpdateFedoraDatastreams
+
+===============================================================================
+
 ================================
 START INGEST FROM ARCHIVE FLOW
 ================================
@@ -11,7 +40,6 @@ START INGEST FROM ARCHIVE FLOW
                      ⁃  ingest_desc_metadata
                         ⁃  ingest dc metadata
                         ⁃  ingest_rels_ext
-                           ⁃  ingest_solr_doc
                      ⁃  ingest_marc
                      ⁃  ingest_tei_doc
                      ⁃  create_dl_deliverables
@@ -27,7 +55,7 @@ START INGEST FROM ARCHIVE FLOW
 ========================
 START FINALIZATION FLOW
 ========================
-⁃  start_finalization_production or start_finalization_migration
+⁃  start_finalization
    ⁃  qa_unit_data
       ⁃  qa_filesystem_and_iview_xml
          ⁃  import_unit_iview_xml

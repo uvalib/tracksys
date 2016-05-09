@@ -61,7 +61,8 @@ namespace :workflow do
       cid = ENV['cid']
       cid = 'aec6v' if cid.nil?
       puts "   => Create DL Manifest for #{cid}"
-      CreateDlManifest.exec_now( { :computing_id => "#{cid}", :deliver=>false } )
+      staff = StaffMember.where(:computing_id => cid).first
+      CreateDlManifest.exec_now( { :staff_member => staff, :deliver=>false } )
    end
 
    desc "Create stats report for the specified year year=year"

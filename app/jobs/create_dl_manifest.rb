@@ -1,24 +1,21 @@
 class CreateDlManifest < BaseJob
 
    def set_originator(message)
-      staff_member = StaffMember.where(:computing_id => message[:computing_id]).first
-      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>staff_member.id)
+      @status.update_attributes( :originator_type=>"StaffMember", :originator_id=>message[:staff_member].id)
    end
 
    def do_workflow(message)
 
-      computing_id = message[:computing_id]
       send_email = message[:deliver]
       send_email = true if send_email.nil?
-
-      @staff_member = StaffMember.where(:computing_id => computing_id).first
+      staff_member = message[:staff_member]
 
       report_file = create_workbook()
 
       if send_email
-         ReportMailer.send_dl_manifest(@staff_member).deliver
+         ReportMailer.send_dl_manifest(staff_member).deliver
          File.delete(report_file)
-         on_success "DL Manifest emailed to #{@staff_member.full_name}."
+         on_success "DL Manifest emailed to #{staff_member.full_name}."
       else
          on_success "DL Manifest created here: #{report_file}."
       end

@@ -174,11 +174,11 @@ class Unit < ActiveRecord::Base
    end
 
    def check_unit_delivery_mode
-      CheckUnitDeliveryMode.exec( {:unit_id => self.id})
+      CheckUnitDeliveryMode.exec( {:unit => self} )
    end
 
    def get_from_stornext(computing_id)
-      CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit_id => self.id, :computing_id => computing_id })
+      CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit => self, :computing_id => computing_id })
    end
 
    def import_unit_iview_xml

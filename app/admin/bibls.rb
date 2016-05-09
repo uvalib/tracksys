@@ -315,7 +315,7 @@ ActiveAdmin.register Bibl do
   end
 
   collection_action :create_dl_manifest do
-    CreateDlManifest.exec( {:computing_id => current_user.computing_id } )
+    CreateDlManifest.exec( {:staff_member => current_user } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 

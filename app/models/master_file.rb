@@ -153,7 +153,8 @@ class MasterFile < ActiveRecord::Base
    alias_attribute :staff_notes, :description
 
    def get_from_stornext(computing_id)
-      CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit_id => self.unit_id, :master_file_filename => self.filename, :computing_id => computing_id })
+      CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit => self.unit,
+         :master_file_filename => self.filename, :computing_id => computing_id })
    end
 
    def update_thumb_and_tech

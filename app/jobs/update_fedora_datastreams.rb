@@ -47,11 +47,11 @@ class UpdateFedoraDatastreams < BaseJob
             # Messages coming from this processor should only be for units that have already been archived.
             @source = mf.path_to_archved_version
             msg = { :object=> mf }
-            imsg = { :object=> mf, :source => @source, :last => 0 }
+            dl_msg = { :master_file=> mf, :source => @source, :last => 0 }
             IngestDescMetadata.exec_now(msg, self)
             IngestRightsMetadata.exec_now(msg, self)
             IngestTechMetadata.exec_now(msg, self)
-            CreateDlDeliverables.exec_now(imsg, self)
+            CreateDlDeliverables.exec_now(dl_msg, self)
 
             if not mf.transcription_text.blank?
                IngestTranscription.exec_now(msg, self)
@@ -70,8 +70,8 @@ class UpdateFedoraDatastreams < BaseJob
             # Messages coming from this processor should only be for units that have already been archived.
             @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
 
-            imsg = { :object=>mf, :source => @source, :last => 0 }
-            CreateDlDeliverables.exec_now(imsg, self) if mf.datastream_exists?("content")
+            dl_msg = { :master_file=>mf, :source => @source, :last => 0 }
+            CreateDlDeliverables.exec_now(dl_msg, self) if mf.datastream_exists?("content")
 
             # Update the object's date_dl_update value
             mf.update_attribute(:date_dl_update, Time.now)
@@ -128,7 +128,7 @@ class UpdateFedoraDatastreams < BaseJob
       @source = File.join(ARCHIVE_DIR, @unit_dir, @object.filename)
 
       mmsg = { :object => @object}
-      imsg = { :object=> @object, :source => @source, :last => 0 }
+      dl_msg = { :master_file=> @object, :source => @source, :last => 0 }
 
       if @datastream == 'all'
          IngestDescMetadata.exec_now(mmsg, self)
@@ -139,7 +139,7 @@ class UpdateFedoraDatastreams < BaseJob
             IngestTranscription.exec_now( mmsg, self )
          end
 
-         CreateDlDeliverables.exec_now(imsg, self)
+         CreateDlDeliverables.exec_now(dl_msg, self)
          on_success "All datastreams for #{@object_class} #{@object_id} have been updated."
       elsif @datastream == 'allxml'
          IngestDescMetadata.exec_now(mmsg, self)
@@ -165,7 +165,7 @@ class UpdateFedoraDatastreams < BaseJob
       elsif @datastream == 'solr_doc'
          IngestSolrDoc.exec_now(mmsg, self)
       elsif @datastream == 'jp2k'
-         CreateDlDeliverables.exec_now(imsg, self)
+         CreateDlDeliverables.exec_now(dl_msg, self)
       else
          on_error "Datastream variable #{@datastream} is unknown."
       end

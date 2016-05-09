@@ -48,7 +48,7 @@ class CreateNewFedoraObjects < BaseJob
       # MasterFiles (i.e. images)
       if object.is_a? MasterFile
          file_path = File.join(source, object.filename)
-         CreateDlDeliverables.exec_now({ :source => file_path, :object=> object, :last => last }, self)
+         CreateDlDeliverables.exec_now({ :source => file_path, :master_file=> object, :last => last }, self)
          IngestTechMetadata.exec_now( default_message, self )
 
          # Only MasterFiles with transcritpion need have
