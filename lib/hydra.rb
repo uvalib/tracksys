@@ -390,7 +390,7 @@ module Hydra
         # Exemplar images are used in the Blacklight display on the _index_partial/_dl_jp2k view.
         if object.is_a? Bibl
           if object.exemplar
-            exemplar_master_file = MasterFile.find(:first, :conditions => "filename = '#{object.exemplar}'")
+            exemplar_master_file = MasterFile.find_by(filename: object.exemplar)
             if !exemplar_master_file.nil?
                pid = exemplar_master_file.pid
                xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"

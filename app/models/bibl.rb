@@ -198,7 +198,7 @@ class Bibl < ActiveRecord::Base
   # Returns the array of Bibl objects for which this Bibl is parent.
   def child_bibls
     begin
-      return Bibl.find(:all, :conditions => "parent_bibl_id = #{id}")
+      return Bibl.where(parent_bibl_id: id).to_a
     rescue ActiveRecord::RecordNotFound
       return Array.new
     end

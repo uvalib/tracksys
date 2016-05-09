@@ -96,7 +96,7 @@ module ImportIviewXml
           master_file = new_master_file(item, unit_id)
           # if a MasterFile with this filename already exists for this Unit, do
           # not overwrite it
-          if MasterFile.find(:first, :conditions => ["unit_id = :unit_id AND filename = :filename", {:unit_id => unit_id, :filename => master_file.filename}])
+          if MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
             @master_file_count += 1
             Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
             next
