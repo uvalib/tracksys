@@ -93,7 +93,6 @@ class Order < ActiveRecord::Base
    # callbacks
    #------------------------------------------------------------------
    before_destroy :destroyable?
-   serialize :email
    after_update :fix_updated_counters
 
    before_save do
