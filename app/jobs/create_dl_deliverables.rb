@@ -73,7 +73,7 @@ class CreateDlDeliverables < BaseJob
          FileUtils.copy(source, jp2k_path)
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
-         IngestJp2k.exec_now( { :master_file=> master_file, :jp2k_path => jp2k_path, :source => source }, self )
+         IngestJp2k.exec_now( { :object=> master_file, :jp2k_path => jp2k_path, :source => source }, self )
          on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
@@ -89,7 +89,7 @@ class CreateDlDeliverables < BaseJob
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
             logger().info("Compressing #{source} to #{jp2k_path}...")
-            ifffilesize > 524000000
+            if filesize > 524000000
                `#{executable} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
             else
                `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
@@ -102,22 +102,22 @@ class CreateDlDeliverables < BaseJob
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
          on_success "Generated JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
-         IngestJp2k.exec_now( { :master_file=>master_file, :jp2k_path => jp2k_path, :source => source }, self )
+         IngestJp2k.exec_now( { :object=>master_file, :jp2k_path => jp2k_path, :source => source }, self )
       else
          raise "Source is not a .tif file: #{source}"
       end
 
       if last == 1
-         unit = master_file.unit
-         logger().info("Last JP2K for Unit #{unit.id} created.")
+         unit_id = master_file.unit.id
+         logger().info("Last JP2K for Unit #{unit_id} created.")
          master_file.unit.update_attribute(:date_dl_deliverables_ready, Time.now)
 
          SendCommitToSolr.exec_now({}, self)
 
-         on_success "Unit #{unit.id} has completed ingestion to #{FEDORA_REST_URL}."
+         on_success "Unit #{unit_id} has completed ingestion to #{FEDORA_REST_URL}."
 
          if source.match("#{FINALIZATION_DIR_MIGRATION}") or source.match("#{FINALIZATION_DIR_PRODUCTION}")
-           DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => unit.id, :mode => 'dl'}, self)
+            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => unit_id, :mode => 'dl'}, self)
          end
       end
    end
