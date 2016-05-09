@@ -100,6 +100,7 @@ class Order < ActiveRecord::Base
       # boolean fields cannot be NULL at database level
       self.is_approved = 0 if self.is_approved.nil?
       self.is_approved = 1 if self.order_status == 'approved'
+      self.email = nil if self.email.empty?
    end
 
    #------------------------------------------------------------------
