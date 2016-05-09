@@ -199,7 +199,7 @@ class Unit < ActiveRecord::Base
    end
 
    def start_ingest_from_archive
-      StartIngestFromArchive.exec( {:unit_id => self.id, :order_id => self.order_id })
+      StartIngestFromArchive.exec( {:unit => self })
    end
 
    # End processors

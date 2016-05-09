@@ -319,7 +319,7 @@ namespace :daily_progress do
                      message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                      Object.publish :start_ingest_from_archive, message
                   else
-                     StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
+                     StartIngestFromArchive.exec_now( { :unit => issue_unit })
                   end
                end
             end
@@ -430,7 +430,7 @@ namespace :daily_progress do
                message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
                Object.publish :start_ingest_from_archive, message
             else
-               StartIngestFromArchive.exec_now( { :unit_id => "#{issue_unit.id}" })
+               StartIngestFromArchive.exec_now( { :unit => issue_unit })
             end
          end
       end

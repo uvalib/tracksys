@@ -36,13 +36,11 @@ class CreatePatronDeliverables < BaseJob
 
    def do_workflow(message)
 
-      raise "Parameter 'mode' is required" if message[:mode].blank?
       raise "Parameter 'source' is required" if message[:source].blank?
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'master_file_id' is required" if message[:master_file_id].blank?
 
       @source = message[:source]
-      @mode = message[:mode]
       @last = message[:last]
       @master_file_id = message[:master_file_id]
 
@@ -170,7 +168,7 @@ class CreatePatronDeliverables < BaseJob
             @messagable = Unit.find(@unit_id)
 
             on_success "All patron deliverables created."
-            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => message[:unit_id], :mode => @mode }, self)
+            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => message[:unit_id], :mode => 'patron' }, self)
          end
       else
          raise "Source is not a .tif file: #{@source}"

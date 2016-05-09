@@ -53,7 +53,7 @@ namespace :workflow do
       unit = Unit.find(id)
 
       puts "   => Start ingest for unit #{unit.id}:#{unit.special_instructions}"
-      StartIngestFromArchive.exec_now( { :unit_id => "#{unit.id}" } )
+      StartIngestFromArchive.exec_now( { :unit => unit.id } )
    end
 
    desc "Create DL Manifest for user cid=computing_id (default = aec6v)"
