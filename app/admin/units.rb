@@ -321,26 +321,26 @@ ActiveAdmin.register Unit do
 
   end
 
-  # sidebar "Related Information", :only => [:show] do
-  #   attributes_table_for unit do
-  #     row :bibl
-  #     row :order do |unit|
-  #       link_to "##{unit.order.id}", admin_order_path(unit.order.id)
-  #     end
-  #     row :master_files do |unit|
-  #       link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
-  #     end
-  #     row :customer
-  #     row :agency
-  #     row "Legacy Identifiers" do |unit|
-  #      	unit.legacy_identifiers.each {|li|
-  #         div do
-  #           link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-  #         end
-  #       } unless unit.legacy_identifiers.empty?
-  #     end
-  #   end
-  # end
+  sidebar "Related Information", :only => [:show] do
+    attributes_table_for unit do
+      row :bibl
+      row :order do |unit|
+        link_to "##{unit.order.id}", admin_order_path(unit.order.id)
+      end
+      row :master_files do |unit|
+        link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
+      end
+      row :customer
+      row :agency
+      row "Legacy Identifiers" do |unit|
+       	unit.legacy_identifiers.each {|li|
+          div do
+            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
+          end
+        } unless unit.legacy_identifiers.empty?
+      end
+    end
+  end
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
