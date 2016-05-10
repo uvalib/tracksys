@@ -3,7 +3,8 @@ class CheckOrderDateArchivingComplete < BaseJob
    def do_workflow(message)
 
       raise "Parameter 'unit' is required" if message[:unit].blank?
-      order = message[:unit]
+      src_unit = message[:unit]
+      order = src_unit.order
 
       incomplete_units = Array.new
       order.units.each do |unit|
