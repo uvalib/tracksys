@@ -25,7 +25,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       destination_dir = File.join(range_dir, unit_dir)
       logger().debug "Metadata SRC: #{unit_path} => DEST #{destination_dir }"
       if File.exist?(destination_dir)
-         on_failure "The metadata for unit #{unit_id} already exists in #{PRODUCTION_METADATA_DIR}/#{range_dir}.  The directory will be deleted and a new one created in its place.."
+         on_failure "The metadata for unit #{unit_id} already exists in #{destination_dir}.  The directory will be deleted and a new one created in its place.."
          FileUtils.rm_rf(destination_dir)
          FileUtils.mkdir_p(destination_dir)
       else

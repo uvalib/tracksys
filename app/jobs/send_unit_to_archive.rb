@@ -88,10 +88,9 @@ class SendUnitToArchive < BaseJob
                   # TODO: We need a way to discriminate between those files being archived that are managed directly by
                   # Tracksys (i.e. those that are "MasterFile" objects) and those that are not (i.e .ivc files).  The following
                   # rescue condition is a hack but is easiest to institute at the time.
-                  begin
-                     mf = MasterFile.find_by(filename: basename)
+                  mf = MasterFile.find_by(filename: basename)
+                  if !mf.nil?
                      mf.update_attributes(:md5 => source_md5.hexdigest)
-                  rescue ActiveRecord::RecordNotFound
                   end
                end
             end
