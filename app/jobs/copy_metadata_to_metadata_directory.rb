@@ -11,23 +11,19 @@ class CopyMetadataToMetadataDirectory < BaseJob
       unit_path = message[:unit_path] # IN_PROCESS_DIR/unit
       failure_messages = Array.new
 
-      # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
-      # will eliminate other directories that are of non-Tracksys managed content.
-      metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
-      metadata_dir_contents.each do |dir|
-         range = dir.split('-')
-         if unit_id.to_i.between?(range.first.to_i, range.last.to_i)
-            range_dir = dir
-         end
+      # See if the metadata range dir exists. Create it if not.
+      min_range = unit_id / 1000 * 1000  # round unit to thousands
+      max_range = min_range + 999        # add 999 for a 1000 span range, like 33000-33999
+      range_sub_dir = "#{min_range}-#{max_range}"
+      range_dir = File.join(PRODUCTION_METADATA_DIR, range_sub_dir)
+      if !Dir.exists?(range_dir)
+         logger().info "Metadata range dir #{range_dir} does not exist. Creating now."
+         FileUtils.mkdir_p(range_dir)
       end
 
-      if not range_dir
-         on_error "No subdirectories of #{PRODUCTION_METADATA_DIR} appear to be suitable for #{unit_id}.  Please create a directory in the format 'dddd-dddd' to house the metadata for this unit."
-      end
-
+      # tack the unit dir to this range. this is where metadata will be stored
       destination_dir = File.join(PRODUCTION_METADATA_DIR,  range_dir, unit_dir)
       logger().debug "Metadata SRC: #{unit_path} => DEST #{destination_dir }"
-
       if File.exist?(destination_dir)
          on_failure "The metadata for unit #{unit_id} already exists in #{PRODUCTION_METADATA_DIR}/#{range_dir}.  The directory will be deleted and a new one created in its place.."
          FileUtils.rm_rf(destination_dir)
