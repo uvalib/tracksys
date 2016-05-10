@@ -22,7 +22,7 @@ class CopyMetadataToMetadataDirectory < BaseJob
       end
 
       # tack the unit dir to this range. this is where metadata will be stored
-      destination_dir = File.join(PRODUCTION_METADATA_DIR,  range_dir, unit_dir)
+      destination_dir = File.join(range_dir, unit_dir)
       logger().debug "Metadata SRC: #{unit_path} => DEST #{destination_dir }"
       if File.exist?(destination_dir)
          on_failure "The metadata for unit #{unit_id} already exists in #{PRODUCTION_METADATA_DIR}/#{range_dir}.  The directory will be deleted and a new one created in its place.."
