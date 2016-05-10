@@ -1,5 +1,5 @@
 class QueueObjectsForFedora < BaseJob
-   
+
    def do_workflow(message)
 
       # Validate incoming message
@@ -59,10 +59,11 @@ class QueueObjectsForFedora < BaseJob
             end
          end
 
-         # TODO Stopped here
          PropogateAccessPolicies.exec_now({
             :unit => unit, :source => source, :object => thing, :last => last }, self)
       end
       on_success "All ingestable objects related to Unit #{unit.id} have been ingested."
+
+       ## HERE
    end
 end

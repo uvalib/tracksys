@@ -5,10 +5,8 @@ class CreatePatronDeliverables < BaseJob
    require 'digest/md5'
 
    # Message can have these keys:
-   # * pid - pid of the source image file
    # * source - full path to the source image file (master TIFF) to be
    #   processed
-   # * mode - "dl", "dl-archive", "patron" or "both"
    # * format - "jpeg" or "tiff" (only applies when mode is "patron" or "both";
    #   defaults to "jpeg")
    # * unit_id (only applies when mode is "patron" or "both")
@@ -17,8 +15,6 @@ class CreatePatronDeliverables < BaseJob
    # * desired_resolution - resolution requested by customer for deliverables
    #   (only applies when mode is "patron" or "both"; defaults to highest
    #   possible)
-   # * last - If the master file is the last one for a unit, then this processor
-   #   will send a message to the archive processor to archive the unit.
    # * remove_watermark - This option, set at the unit level, allows staff to
    #   to disable the inclusion of a watermark for the entire unit if the
    #   deliverable format is JPEG.
@@ -40,19 +36,14 @@ class CreatePatronDeliverables < BaseJob
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'master_file_id' is required" if message[:master_file_id].blank?
 
-      @source = message[:source]
-      @last = message[:last]
-      @master_file_id = message[:master_file_id]
+      source = message[:source]
+      master_file_id = message[:master_file_id]
 
-      # Watermarking variable
-      @remove_watermark = message[:remove_watermark]
-      @personal_item = message[:personal_item]
-      @call_number = message[:call_number]
-      @title = message[:title]
-      @location = message[:location]
+      # In order to construct the directory for deliverables, this processor must know the order_id
+      order_id = Unit.find(message[:unit_id]).order.id
 
-      if @source.match(/\.tiff?$/) and File.file?(@source)
-         tiff = Magick::Image.read(@source).first
+      if source.match(/\.tiff?$/) and File.file?(source)
+         tiff = Magick::Image.read(source).first
 
          # generate deliverables to be delivered directly to customer (not destined for DL)
          # set output filename (filename suffix determines format of output file)
@@ -62,9 +53,9 @@ class CreatePatronDeliverables < BaseJob
          if format.blank? or format =~ /^jpe?g$/i
             suffix = '.jpg'
             # If the item is a personal item or if the remove_watermark value is set to 1, remove add_legal_notice (I know the syntax is confusing)
-            if @personal_item
+            if message[:personal_item]
                add_legal_notice = false
-            elsif @remove_watermark
+            elsif message[:remove_watermark]
                add_legal_notice = false
             else
                add_legal_notice = true
@@ -76,29 +67,25 @@ class CreatePatronDeliverables < BaseJob
             raise "Unexpected format value '#{message[:format]}'"
          end
 
-         # In order to construct the directory for deliverables, this processor must know the order_id
-         order_id = Unit.find(message[:unit_id]).order.id
-
          # format output path so it includes order number and unit number, like so: .../order123/54321/...
          dest_dir = File.join(ASSEMBLE_DELIVERY_DIR, 'order_' + order_id.to_i.to_s, message[:unit_id].to_i.to_s)
          FileUtils.mkdir_p(dest_dir)
-         dest_path = File.join(dest_dir, File.basename(@source, '.*') + suffix)
+         dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
 
          # make changes to original image, if applicable
          new_tiff = nil
          desired_res = message[:desired_resolution]
          if desired_res.blank? or desired_res.to_s =~ /highest/i
             # keep original resolution
+            logger.info("Keeping original resolution")
          elsif desired_res.to_i > 0
             if message[:actual_resolution].blank?
                raise "actual_resolution is required when desired_resolution is specified"
             end
-            if message[:actual_resolution].to_i >= desired_res.to_i
-               # write at desired resolution
+            # only downsize
+            if message[:actual_resolution].to_i > desired_res.to_i
                logger().debug("Resampling image...")
                new_tiff = tiff.resample(desired_res.to_i)
-            else
-               # desired resolution not achievable; keep original resolution
             end
          else
             raise "Unexpected desired_resolution value '#{desired_res}'"
@@ -108,18 +95,18 @@ class CreatePatronDeliverables < BaseJob
             logger().debug "Add legal notice"
             notice = String.new
 
-            if @title.length < 145
-               notice << "Title: #{@title}\n"
+            if message[:title].length < 145
+               notice << "Title: #{message[:title]}\n"
             else
-               notice << "Title: #{@title[0,145]}... \n"
+               notice << "Title: #{message[:title][0,145]}... \n"
             end
 
-            if @call_number
-               notice << "Call Number: #{@call_number}\n"
+            if message[:call_number]
+               notice << "Call Number: #{message[:call_number]}\n"
             end
 
-            if @location
-               notice << "Location: #{@location}\n\n"
+            if message[:location]
+               notice << "Location: #{message[:location]}\n\n"
             end
 
             notice << "Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.\nNo further copies should be made. Copyright and other legal restrictions may apply. Special Collections, University of Virginia Library."
@@ -157,21 +144,9 @@ class CreatePatronDeliverables < BaseJob
          new_tiff.destroy!
          tiff.destroy!
 
-         on_success "Deliverable image for MasterFile #{@master_file_id}."
-
-         # If the file is the last of its unit to have deliverables made, the archive process can begin and the text file can be created.
-         if @last == '1'
-            # Nullify @maser_file_id because we don't want the final message attached to a MasterFile, just a Unit.
-            # Create @unit_id so completion message can be posted to Unit.
-            @master_file_id = nil
-            @unit_id = message[:unit_id]
-            @messagable = Unit.find(@unit_id)
-
-            on_success "All patron deliverables created."
-            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => message[:unit_id], :mode => 'patron' }, self)
-         end
+         on_success "Deliverable image for MasterFile #{master_file_id}."
       else
-         raise "Source is not a .tif file: #{@source}"
+         raise "Source is not a .tif file: #{source}"
       end
    end
 end

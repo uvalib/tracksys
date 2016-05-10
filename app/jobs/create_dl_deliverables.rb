@@ -88,13 +88,13 @@ class CreateDlDeliverables < BaseJob
          # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
-            logger().info("Compressing #{source} to #{jp2k_path}...")
+            logger().debug("Compressing #{source} to #{jp2k_path}...")
             if filesize > 524000000
                `#{executable} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
             else
                `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
             end
-            logger().info("...compression complete")
+            logger().debug("...compression complete")
          else
             logger().warn("#{executable} not found, using ImageMagick instead")
             `/usr/local/bin/convert #{source} -quiet -compress JPEG2000 -quality 75 -define jp2:rate=1.5 #{jp2k_path}`
@@ -107,7 +107,7 @@ class CreateDlDeliverables < BaseJob
          raise "Source is not a .tif file: #{source}"
       end
 
-      if last == 1
+      if last.to_i == 1
          unit_id = master_file.unit.id
          logger().info("Last JP2K for Unit #{unit_id} created.")
          master_file.unit.update_attribute(:date_dl_deliverables_ready, Time.now)
@@ -117,7 +117,9 @@ class CreateDlDeliverables < BaseJob
          on_success "Unit #{unit_id} has completed ingestion to #{FEDORA_REST_URL}."
 
          if source.match("#{FINALIZATION_DIR_MIGRATION}") or source.match("#{FINALIZATION_DIR_PRODUCTION}")
-            DeleteUnitCopyForDeliverableGeneration.exec_now({ :unit_id => unit_id, :mode => 'dl'}, self)
+            logger().debug("Removing processing directory #{source}/...")
+            FileUtils.rm_rf(del_dir)
+            logger.info("Files for unit #{unit_id} copied for the creation of #{@dl} deliverables have now been deleted.")
          end
       end
    end
