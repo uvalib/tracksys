@@ -15,7 +15,7 @@ class PropogateDiscoverability < BaseJob
       source = message[:source]
       object = message[:object]
       last = message[:last]
-      unit = message[:unit_id]
+      unit = message[:unit]
 
       # This should never fail becuase discoverability is checked at an earlier stage, but I will keep it here for sanity checking.
       if unit.master_file_discoverability.nil?
