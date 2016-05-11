@@ -44,14 +44,13 @@ class StartManualUploadToArchive < BaseJob
                      FileUtils.mv File.join(original_source_dir, content), File.join(in_process_directory, content)
 
                      if regex_unit.match(content).nil?
-                        on_success "Non-Tracking System managed content (#{content}) sent to StorNext worklfow via manual upload directory from #{directory}/#{day}."
-                        SendUnitToArchive.exec_now({:unit_dir => content, :source_dir => in_process_directory, :internal_dir => "no"}, self)
+                        SendUnitToArchive.exec_now({:unit_dir => content, :internal_dir => false, :source_dir => in_process_directory}, self)
+                        on_success "Non-Tracking System managed content (#{content}) sent to archive via manual upload directory from #{directory}/#{day}."
                      else
                         unit_id = content.to_s.sub(/^0+/, '')
+                        unit = Unit.find(unit_id)
+                        SendUnitToArchive.exec_now( {:unit => unit, :unit_dir => content, :internal_dir => true, :source_dir => in_process_directory}, self)
                         on_success "Unit #{unit_id} sent to StorNext workflow via manual upload directory from #{directory}/#{day}."
-                        SendUnitToArchive.exec_now( {
-                           :unit_id => unit_id, :unit_dir => content,
-                           :source_dir => in_process_directory, :internal_dir => 'yes'}, self)
                      end
                   end
                end

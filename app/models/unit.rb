@@ -192,7 +192,7 @@ class Unit < ActiveRecord::Base
    end
 
    def send_unit_to_archive
-      SendUnitToArchive.exec( {:unit_id => self.id, :internal_dir => 'yes', :source_dir => "#{IN_PROCESS_DIR}"})
+      SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
    end
 
    def start_ingest_from_archive

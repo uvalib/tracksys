@@ -52,7 +52,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
       # If a unit has not already been archived (i.e. this unit did not arrive at this processor from start_ingest_from_archive) archive it.
       if unit.date_archived.blank?
          logger.info "Because this unit has not already been archived, it is being sent to the archive."
-         SendUnitToArchive.exec_now({ :unit_id => unit.id, :internal_dir => 'yes', :source_dir => IN_PROCESS_DIR }, self)
+         SendUnitToArchive.exec_now({ :unit => unit, :internal_dir =>true, :source_dir => IN_PROCESS_DIR }, self)
       end
    end
 end

@@ -10,46 +10,36 @@ class SendUnitToArchive < BaseJob
 
    def do_workflow(message)
 
-      # Validate incoming message.
-      raise "Parameter 'internal_dir' is required" if message[:internal_dir].blank?
       raise "Parameter 'source_dir' is required" if message[:source_dir].blank?
+      raise "Parameter 'internal_dir' is required" if message[:internal_dir].nil?
+      source_dir = message[:source_dir]
+      internal_dir = message[:internal_dir]
 
-      @internal_dir = message[:internal_dir]
-      @source_dir = message[:source_dir]
       # The next fork is whether the messages are coming from the start_manual processor or the regular finalization workflow
-
       # First, messages coming from the automated workflow
-      if @source_dir == "#{IN_PROCESS_DIR}"
-         raise "Parameter 'internal_dir' must equal 'yes' if 'source_dir' == #{@source_dir}" if not @internal_dir == 'yes'
-         raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
-
-         @unit_id = message[:unit_id]
-         @unit_dir = "%09d" % @unit_id
-
-         # Second, messages coming from the start_manual processor
+      if source_dir == "#{IN_PROCESS_DIR}"
+         raise "Parameter 'unit' is required" if message[:unit].blank?
+         unit = message[:unit]
+         unit_dir = "%09d" % unit.id
       else
-         if @internal_dir == 'yes'
-            raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
-            raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
+         # Second, messages coming from the start_manual processor
+         raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
+         unit_dir = message[:unit_dir]
+         unit = nil
 
-            @unit_id = message[:unit_id]
-            @unit_dir = message[:unit_dir]
-         elsif @internal_dir == 'no'
-            raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
-            @unit_dir = message[:unit_dir]
-         else
-            on_error "Message to send_unit_to_archive_processor is incorrectly formatted.  Parameter 'internal_dir' is set to #{@internal_dir} but must equal either 'yes' or 'no'"
+         if internal_dir
+            raise "Parameter 'unit' is required" if message[:unit].blank?
+            unit = message[:unit]
          end
       end
 
       # Create array to hold all created directories so they can be removed after the process is complete
       created_dirs = Array.new
-      @errors = 0
-      unit = Unit.find(@unit_id)
+      error_count = 0
 
-      Dir.chdir(@source_dir)
+      Dir.chdir(source_dir)
 
-      Find.find(@unit_dir) do |f|
+      Find.find(unit_dir) do |f|
          case
          when File.file?(f)
             # Get pertinent information for creating dirs in REVIEW and DELETE dirs
@@ -80,7 +70,7 @@ class SendUnitToArchive < BaseJob
                if copy_md5.hexdigest != source_md5.hexdigest
                   # Introduce logic here to move the entire unit directory to REVIEW_DIR, or 50_fail_checksum
                   on_failure("** Warning ** - File #{f} has failed checksum test")
-                  @errors += 1
+                  error_count += 1
                else
                   # While we've got the md5 available, add to MasterFile object.  Record the md5 is a new feature
                   # added in Summer 2012.
@@ -103,23 +93,22 @@ class SendUnitToArchive < BaseJob
          end
       end
 
-      if @errors.eql?(0)
-         # If message originated from the finalization automation workflow, send a message to continue the unit (which has no deliverables) on the automated workflow.
-         if @source_dir == "#{IN_PROCESS_DIR}"
-            on_success "The directory #{@unit_dir} has been successfully archived."
-            UpdateUnitDateArchived.exec_now({ :unit => unit, :source_dir => @source_dir }, self)
-         end
-
-         # If the unit is managed by TrackSys, more data must be updated.  Otherwise, nothing more can be done.
-         if @source_dir != "#{IN_PROCESS_DIR}" and @internal_dir == 'yes'
-            # Send message to update the 'archive' field in the Unit table.
-            on_success "The directory #{@unit_dir} has been archived and may be deleted."
-            UpdateUnitDateArchived.exec_now({ :unit => unit, :source_dir => @source_dir }, self)
-         elsif @internal_dir == 'no'
-            # If @internal_dir is 'no', no more information can be added to the tracking system and the item is ready for deletion.
-            on_success "The directory #{@unit_dir} has been archived and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
-            MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => @unit_id, :source_dir => @source_dir, :unit_dir => @unit_dir}, self)
+      if error_count == 0
+         # If message originated from the finalization automation workflow,
+         # send a message to continue the unit (which has no deliverables) on the automated workflow.
+         if source_dir == "#{IN_PROCESS_DIR}"
+            on_success "The directory #{unit_dir} has been successfully archived."
+            UpdateUnitDateArchived.exec_now({ :unit => unit, :source_dir => source_dir }, self)
          else
+            if internal_dir
+               # Unit is managed by TrackSys, more data must be updated.
+               on_success "The directory #{unit_dir} has been archived and may be deleted."
+               UpdateUnitDateArchived.exec_now({ :unit => unit, :source_dir => source_dir }, self)
+            else
+               # Non TrackSys data, no more information can be added to the tracking system and the item is ready for deletion.
+               on_success "The directory #{unit_dir} has been archived and will now be moved to the #{DELETE_DIR_FROM_STORNEXT}."
+               MoveCompletedDirectoryToDeleteDirectory.exec_now({ :source_dir => source_dir, :unit_dir => unit_dir}, self)
+            end
          end
       else
          on_error "There were errors with the archiving process"

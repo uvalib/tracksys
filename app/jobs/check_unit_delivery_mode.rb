@@ -36,7 +36,7 @@ class CheckUnitDeliveryMode < BaseJob
       # All units with no deliverables (either patron or DL) get sent to the archive at this step.
       if not unit.intended_use_deliverable_resolution and not unit.intended_use_deliverable_format and not unit.include_in_dl
          on_success "Unit #{unit.id} has no deliverables so is being sent directly to the archive."
-         SendUnitToArchive.exec_now({ :unit_id => unit.id, :internal_dir => 'yes', :source_dir => IN_PROCESS_DIR }, self)
+         SendUnitToArchive.exec_now({ :unit => unit, :internal_dir => true, :source_dir => IN_PROCESS_DIR }, self)
       end
    end
 end
