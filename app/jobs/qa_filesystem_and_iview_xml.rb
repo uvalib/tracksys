@@ -2,18 +2,17 @@ class QaFilesystemAndIviewXml < BaseJob
    require 'nokogiri'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
    end
 
    def do_workflow(message)
 
       # Validate incoming message
-      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
+      raise "Parameter 'unit' is required" if message[:unit].blank?
 
       # Set unit variables
-      @unit_id = message[:unit_id]
-      @unit_dir = "%09d" % @unit_id
-      @working_unit = Unit.find(@unit_id)
+      @unit = message[:unit]
+      @unit_dir = "%09d" % @unit.id
 
       # Create error message holder array
       @error_messages = Array.new
@@ -59,7 +58,6 @@ class QaFilesystemAndIviewXml < BaseJob
       check_content_files
       check_xml_files
       check_ivc_files
-      check_thumb_dir
       check_unknown_files
       handle_errors
    end
@@ -142,8 +140,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
          # Check XML for expected elements
          root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
-         unit = Unit.find @unit_id
-         error_list = ImportIviewXml.qa_iview_xml(doc, unit)
+         error_list = ImportIviewXml.qa_iview_xml(doc, @unit)
          if error_list != []
             ( @error_messages << error_list ).flatten!
          end
@@ -217,7 +214,7 @@ class QaFilesystemAndIviewXml < BaseJob
          end
 
          # Raise error if the Bibl record is a manuscript but there are no <SetList> elements or if it has <SetList> elements but is not a manuscript Bibl.
-         if @working_unit.bibl.is_manuscript?
+         if @unit.bibl.is_manuscript?
             unless has_SetList == true
                @error_messages.push("Unit pertains to a manuscript, but XML has no <SetList> element.")
             end
@@ -262,10 +259,6 @@ class QaFilesystemAndIviewXml < BaseJob
       end
    end
 
-   def check_thumb_dir
-
-   end
-
    def check_unknown_files
       if not @unknown_files.empty?
          logger().debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
@@ -288,20 +281,17 @@ class QaFilesystemAndIviewXml < BaseJob
    end
 
    def handle_errors
-      #-------------------------
-      # Error Message Handling
-      #-------------------------
       @error_messages.compact!
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
-         on_success "Unit #{@unit_id} has passed the Filesystem and Iview XML QA Processor"
-         ImportUnitIviewXML.exec_now({ :unit_id => @unit_id, :path => path }, self)
+         on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA Processor"
+         ImportUnitIviewXML.exec_now({ :unit => @unit, :path => path }, self)
       else
          @error_messages.each do |message|
             logger().debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
             on_failure message
             if message == @error_messages.last
-               on_error "Unit #{@unit_id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
+               on_error "Unit #{@unit.id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
             end
          end
       end

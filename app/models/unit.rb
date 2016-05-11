@@ -183,15 +183,15 @@ class Unit < ActiveRecord::Base
 
    def import_unit_iview_xml
       unit_dir = "%09d" % self.id
-      ImportUnitIviewXML.exec( {:unit_id => self.id, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
+      ImportUnitIviewXML.exec( {:unit => self, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
    end
 
    def qa_filesystem_and_iview_xml
-      QaFilesystemAndIviewXml.exec( {:unit_id => self.id} )
+      QaFilesystemAndIviewXml.exec( {:unit => self} )
    end
 
    def qa_unit_data
-      QaUnitData.exec( {:unit_id => self.id})
+      QaUnitData.exec( {:unit => self})
    end
 
    def send_unit_to_archive
