@@ -26,13 +26,13 @@ class Unit < ActiveRecord::Base
    has_one :customer, :through => :order
 
    delegate :call_number, :title, :catalog_key, :barcode, :pid, :exemplar,
-   :to => :bibl, :allow_nil => true, :prefix => true
+      :to => :bibl, :allow_nil => true, :prefix => true
    delegate :id, :full_name,
-   :to => :customer, :allow_nil => true, :prefix => true
+      :to => :customer, :allow_nil => true, :prefix => true
    delegate :date_due,
-   :to => :order, :allow_nil => true, :prefix => true
+      :to => :order, :allow_nil => true, :prefix => true
    delegate :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit,
-   :to => :intended_use, :allow_nil => true, :prefix => true
+      :to => :intended_use, :allow_nil => true, :prefix => true
 
    belongs_to :index_destination, :counter_cache => true
    has_and_belongs_to_many :legacy_identifiers
@@ -86,9 +86,6 @@ class Unit < ActiveRecord::Base
       :if => 'self.use_right_id',
       :message => "association with this UseRight is no longer valid because it no longer exists."
    }
-
-   # comment this out for the time being
-   # validates :unit_status, :inclusion => { :in => UNIT_STATUSES, :message => 'must be one of these values: ' + UNIT_STATUSES.join(", ")}
 
    #------------------------------------------------------------------
    # callbacks
@@ -178,7 +175,7 @@ class Unit < ActiveRecord::Base
    end
 
    def get_from_stornext(computing_id)
-      CopyArchivedFilesToProduction.exec( {:workflow_type => 'patron', :unit => self, :computing_id => computing_id })
+      CopyArchivedFilesToProduction.exec( {:unit => self, :computing_id => computing_id })
    end
 
    def import_unit_iview_xml
@@ -201,8 +198,6 @@ class Unit < ActiveRecord::Base
    def start_ingest_from_archive
       StartIngestFromArchive.exec( {:unit => self })
    end
-
-   # End processors
 end
 
 # == Schema Information
