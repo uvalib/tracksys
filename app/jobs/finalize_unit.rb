@@ -12,6 +12,7 @@ class FinalizeUnit < BaseJob
       logger().info "Directory #{unit_dir} begins the finalization workflow."
       FileUtils.mv File.join(finalization_dir, unit_dir), File.join(IN_PROCESS_DIR, unit_dir)
       unit_id = unit_dir.to_s.sub(/^0+/, '')
-      QaUnitData.exec_now( { :unit_id => unit_id }, self)
+      unit = Unit.find(unit_id)
+      QaUnitData.exec_now( { :unit => unit }, self)
    end
 end
