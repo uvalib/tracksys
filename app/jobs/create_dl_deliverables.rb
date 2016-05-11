@@ -73,7 +73,7 @@ class CreateDlDeliverables < BaseJob
          FileUtils.copy(source, jp2k_path)
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
-         IngestJp2k.exec_now( { :object=> master_file, :jp2k_path => jp2k_path, :source => source }, self )
+         IngestJp2k.exec_now( { :master_file=> master_file, :jp2k_path => jp2k_path, :source => source }, self )
          on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
@@ -102,7 +102,7 @@ class CreateDlDeliverables < BaseJob
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
          on_success "Generated JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
-         IngestJp2k.exec_now( { :object=>master_file, :jp2k_path => jp2k_path, :source => source }, self )
+         IngestJp2k.exec_now( { :master_file=>master_file, :jp2k_path => jp2k_path, :source => source }, self )
       else
          raise "Source is not a .tif file: #{source}"
       end
