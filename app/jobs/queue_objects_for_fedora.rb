@@ -7,7 +7,7 @@ class QueueObjectsForFedora < BaseJob
       raise "Parameter 'source' is required" if message[:source].blank?
 
       source = message[:source] # this is the unit's archive directory file path
-      unit = message[:unit_id]
+      unit = message[:unit]
 
       # Will put all objects to be ingested into repo into an array called things
       things = Array.new
