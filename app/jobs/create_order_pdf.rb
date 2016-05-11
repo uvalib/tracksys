@@ -116,7 +116,7 @@ class CreateOrderPdf < BaseJob
 
          # Publish message
          on_success "PDF created for order #{@order.id}."
-         CreateOrderZip.exec_now({:order_id => @order.id}, self)
+         CreateOrderZip.exec_now({:order => @order}, self)
       end
 
       # Physical Component Methods
