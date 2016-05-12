@@ -157,7 +157,6 @@ ActiveAdmin.register Unit do
           end
           row :unit_extent_estimated
           row :unit_extent_actual
-          row :heard_about_resource
           row :patron_source_url
           row :special_instructions do |unit|
             raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))

@@ -45,7 +45,7 @@ ActiveAdmin.setup do |config|
   #   end
   #
   config.namespace :admin do |admin|
-    admin.site_title = "Tracksys"
+    admin.site_title = "Tracksys #{TRACKSYS_VERSION}"
   end
 
   #   # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer

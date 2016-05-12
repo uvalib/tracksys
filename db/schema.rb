@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160512145952) do
+ActiveRecord::Schema.define(version: 20160512174637) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -240,23 +240,21 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   add_index "containers", ["container_type_id"], name: "containers_container_type_id_fk", using: :btree
 
   create_table "customers", force: :cascade do |t|
-    t.integer  "department_id",          limit: 4
-    t.integer  "academic_status_id",     limit: 4,   default: 0, null: false
-    t.integer  "heard_about_service_id", limit: 4
-    t.string   "last_name",              limit: 255
-    t.string   "first_name",             limit: 255
-    t.string   "email",                  limit: 255
+    t.integer  "department_id",      limit: 4
+    t.integer  "academic_status_id", limit: 4,   default: 0, null: false
+    t.string   "last_name",          limit: 255
+    t.string   "first_name",         limit: 255
+    t.string   "email",              limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "master_files_count",     limit: 4,   default: 0
-    t.integer  "orders_count",           limit: 4,   default: 0
+    t.integer  "master_files_count", limit: 4,   default: 0
+    t.integer  "orders_count",       limit: 4,   default: 0
   end
 
   add_index "customers", ["academic_status_id"], name: "index_customers_on_academic_status_id", using: :btree
   add_index "customers", ["department_id"], name: "index_customers_on_department_id", using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", using: :btree
   add_index "customers", ["first_name"], name: "index_customers_on_first_name", using: :btree
-  add_index "customers", ["heard_about_service_id"], name: "index_customers_on_heard_about_service_id", using: :btree
   add_index "customers", ["last_name"], name: "index_customers_on_last_name", using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -283,28 +281,6 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   end
 
   add_index "departments", ["name"], name: "index_departments_on_name", unique: true, using: :btree
-
-  create_table "heard_about_resources", force: :cascade do |t|
-    t.string   "description",          limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "is_approved",                      default: false, null: false
-    t.boolean  "is_internal_use_only",             default: false, null: false
-    t.integer  "units_count",          limit: 4
-  end
-
-  add_index "heard_about_resources", ["description"], name: "index_heard_about_resources_on_description", using: :btree
-
-  create_table "heard_about_services", force: :cascade do |t|
-    t.string   "description",          limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "is_approved",                      default: false, null: false
-    t.boolean  "is_internal_use_only",             default: false, null: false
-    t.integer  "customers_count",      limit: 4,   default: 0
-  end
-
-  add_index "heard_about_services", ["description"], name: "index_heard_about_services_on_description", using: :btree
 
   create_table "image_tech_meta", force: :cascade do |t|
     t.integer  "master_file_id", limit: 4,                  default: 0, null: false
@@ -540,7 +516,6 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false
     t.integer  "bibl_id",                        limit: 4
-    t.integer  "heard_about_resource_id",        limit: 4
     t.string   "unit_status",                    limit: 255
     t.datetime "date_materials_received"
     t.datetime "date_materials_returned"
@@ -571,7 +546,6 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   add_index "units", ["bibl_id"], name: "index_units_on_bibl_id", using: :btree
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
   add_index "units", ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready", using: :btree
-  add_index "units", ["heard_about_resource_id"], name: "index_units_on_heard_about_resource_id", using: :btree
   add_index "units", ["indexing_scenario_id"], name: "index_units_on_indexing_scenario_id", using: :btree
   add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
@@ -603,7 +577,6 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   add_foreign_key "containers", "container_types", name: "containers_container_type_id_fk"
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
   add_foreign_key "customers", "departments", name: "customers_department_id_fk"
-  add_foreign_key "customers", "heard_about_services", name: "customers_heard_about_service_id_fk"
   add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
   add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
   add_foreign_key "legacy_identifiers_master_files", "legacy_identifiers", name: "legacy_identifiers_master_files_legacy_identifier_id_fk"
@@ -617,7 +590,6 @@ ActiveRecord::Schema.define(version: 20160512145952) do
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
   add_foreign_key "units", "availability_policies", name: "units_availability_policy_id_fk"
   add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
-  add_foreign_key "units", "heard_about_resources", name: "units_heard_about_resource_id_fk"
   add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
   add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
   add_foreign_key "units", "orders", name: "units_order_id_fk"

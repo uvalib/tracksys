@@ -3,16 +3,17 @@ class Unit < ActiveRecord::Base
 
    UNIT_STATUSES = %w[approved canceled condition copyright unapproved]
 
-   # The request form requires having data stored temporarily to the unit model and then concatenated into special instructions.  Those fields are:
-   attr_accessor :request_call_number, :request_copy_number, :request_volume_number, :request_issue_number, :request_location, :request_title, :request_author, :request_year, :request_description, :request_pages_to_digitize
-
+   # The request form requires having data stored temporarily to the unit model and
+   # then concatenated into special instructions.  Those fields are:
+   attr_accessor :request_call_number, :request_copy_number, :request_volume_number,
+      :request_issue_number, :request_location, :request_title, :request_author, :request_year,
+      :request_description, :request_pages_to_digitize
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
    belongs_to :availability_policy, :counter_cache => true
    belongs_to :bibl, :counter_cache => true
-   belongs_to :heard_about_resource, :counter_cache => true
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
@@ -65,10 +66,6 @@ class Unit < ActiveRecord::Base
    validates :bibl, :presence => {
       :if => 'self.bibl_id',
       :message => "association with this Bibl is no longer valid because it no longer exists."
-   }
-   validates :heard_about_resource, :presence => {
-      :if => 'self.heard_about_resource_id',
-      :message => "association with this HeardAboutResource is no longer valid because it no longer exists."
    }
    validates :intended_use, :presence => {
       :message => "must be selected."
@@ -202,7 +199,6 @@ end
 #  id                             :integer          not null, primary key
 #  order_id                       :integer          default(0), not null
 #  bibl_id                        :integer
-#  heard_about_resource_id        :integer
 #  unit_status                    :string(255)
 #  date_materials_received        :datetime
 #  date_materials_returned        :datetime

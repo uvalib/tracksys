@@ -1,6 +1,10 @@
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 
+# VERSION INFO
+#
+TRACKSYS_VERSION = '4.0.0'
+
 # Setup logger for all jobs processors
 #
 JOB_LOG_DIR = File.join(Rails.root,"log", "jobs")

@@ -17,10 +17,6 @@
               <dd><%= empty2nbsp(@customer.email) %></dd>
               <dt>Academic Status</dt>
               <dd><%= empty2nbsp(@customer.academic_status.name) %></dd>
-              <% if @customer.heard_about_service %>
-                <dt>Heard About Service</dt>
-                <dd><%= empty2nbsp(@customer.heard_about_service.description) %></dd>
-              <% end %>
             </dl>
         </div>
 
@@ -98,10 +94,6 @@
             <dd><%= empty2nbsp(unit.intended_use.deliverable_format) %></dd>
             <dt>Resolution</dt>
             <dd><%= empty2nbsp(unit.intended_use.deliverable_resolution) %></dd>
-            <% if unit.heard_about_resource %>
-              <dt>Heard About Item</dt>
-              <dd><%= empty2nbsp(unit.heard_about_resource.name) %></dd>
-            <% end %>
           </dl>
         <% end %>
       </div>
@@ -135,4 +127,3 @@
     </div>
   </body>
 </html>
- 

@@ -6,7 +6,6 @@ class Customer < ActiveRecord::Base
    #------------------------------------------------------------------
    belongs_to :academic_status, :counter_cache => true
    belongs_to :department, :counter_cache => true
-   belongs_to :heard_about_service, :counter_cache => true
 
    has_many :orders, :inverse_of => :customer
    has_many :requests, ->{ where('orders.order_status = ?', 'requested')}, :inverse_of => :customer
@@ -15,7 +14,6 @@ class Customer < ActiveRecord::Base
    has_many :bibls, ->{ uniq }, :through => :units
    has_many :invoices, :through => :orders
    has_many :agencies, ->{ uniq }, :through => :orders
-   has_many :heard_about_resources, ->{ uniq }, :through => :orders
 
    has_one :primary_address, ->{ where(address_type: 'primary')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
    has_one :billable_address, ->{ where(address_type: 'billable_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
@@ -43,12 +41,6 @@ class Customer < ActiveRecord::Base
    validates_presence_of :primary_address
 
    # Validating presence of continued association with valid external data
-   validates :heard_about_service,
-   :presence => {
-      :if => 'self.heard_about_service_id',
-      :message => "association with this Customer is no longer valid because the Heard About Service object does not exists."
-   }
-
    validates :academic_status,
    :presence => {
       :if => 'self.academic_status_id',
@@ -144,7 +136,6 @@ end
 #  id                     :integer          not null, primary key
 #  department_id          :integer
 #  academic_status_id     :integer          default(0), not null
-#  heard_about_service_id :integer
 #  last_name              :string(255)
 #  first_name             :string(255)
 #  email                  :string(255)

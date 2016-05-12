@@ -24,10 +24,4 @@
          <%= c.select :academic_status_id, options_for_select(AcademicStatus.all.collect {|a| [a.name, a.id] }, @request.customer.academic_status_id), {:include_blank => true} %>
        </div>
     </div>
-    <div class="control-group">
-       <%= c.label "How do you hear about this service?", :class => 'control-label' %>
-       <div class="controls">
-         <%= c.select :heard_about_service_id, HeardAboutService.for_request_form.collect {|h| [h.description, h.id] }, {:include_blank => true} %>
-       </div>
-    </div>
 </fieldset>

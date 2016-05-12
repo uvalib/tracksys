@@ -19,11 +19,9 @@ class Order < ActiveRecord::Base
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
-   has_many :heard_about_resources, ->{uniq}, :through => :units
 
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
-   has_one :heard_about_service, :through => :customer
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
 

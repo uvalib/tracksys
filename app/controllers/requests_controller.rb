@@ -1,43 +1,8 @@
-# == Schema Information
-#
-# Table name: orders
-#
-#  id                                 :integer          not null, primary key
-#  customer_id                        :integer          default(0), not null
-#  agency_id                          :integer
-#  order_status                       :string(255)
-#  is_approved                        :boolean          default(FALSE), not null
-#  order_title                        :string(255)
-#  date_request_submitted             :datetime
-#  date_order_approved                :datetime
-#  date_deferred                      :datetime
-#  date_canceled                      :datetime
-#  date_permissions_given             :datetime
-#  date_started                       :datetime
-#  date_due                           :date
-#  date_customer_notified             :datetime
-#  fee_estimated                      :decimal(7, 2)
-#  fee_actual                         :decimal(7, 2)
-#  entered_by                         :string(255)
-#  special_instructions               :text(65535)
-#  created_at                         :datetime
-#  updated_at                         :datetime
-#  staff_notes                        :text(65535)
-#  email                              :text(65535)
-#  date_patron_deliverables_complete  :datetime
-#  date_archiving_complete            :datetime
-#  date_finalization_begun            :datetime
-#  date_fee_estimate_sent_to_customer :datetime
-#  units_count                        :integer          default(0)
-#  invoices_count                     :integer          default(0)
-#  master_files_count                 :integer          default(0)
-#
-
 class RequestsController < ApplicationController
    def customer_params
       req = params[:request]
       req.require(:customer_attributes).permit(
-         :first_name, :last_name, :email, :academic_status_id, :heard_about_service_id,
+         :first_name, :last_name, :email, :academic_status_id,
          :primary_address_attributes=>[:address_1, :address_2, :city, :state, :post_code, :country, :phone],
          :billable_address_attributes=>[:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone] )
    end
@@ -46,7 +11,7 @@ class RequestsController < ApplicationController
       params.require(:request).permit( :date_due, :special_instructions, :units_attributes=>[
          :request_pages_to_digitize, :request_call_number, :request_title, :request_author, :request_year, :request_location,
          :request_copy_number, :request_volume_number, :request_issue_number, :patron_source_url, :request_description,
-         :heard_about_resoure_id, :intended_use_id] )
+         :intended_use_id] )
    end
 
    def create

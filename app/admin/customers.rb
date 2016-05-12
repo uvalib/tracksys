@@ -2,7 +2,7 @@ ActiveAdmin.register Customer do
   menu :priority => 2
 
   # strong paramters handling
-  permit_params :first_name, :last_name, :email, :academic_status_id, :heard_about_service_id,
+  permit_params :first_name, :last_name, :email, :academic_status_id,
      primary_address_attributes: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
      billable_address_attributes: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]
 
@@ -25,8 +25,6 @@ ActiveAdmin.register Customer do
   filter :billable_address_organization, :as => :string, :label => "Billable Organization"
   filter :academic_status, :as => :select
   filter :department, :as => :select
-  filter :heard_about_service, :as => :select
-  filter :heard_about_resources_id, :as => :numeric
   filter :orders_count
   filter :master_files_count
   filter :agencies_id, :as => :numeric
@@ -74,7 +72,6 @@ ActiveAdmin.register Customer do
             format_email_in_sidebar(customer.email).gsub(/\s/, "")
           end
           row :academic_status
-          row :heard_about_service
           row :department
         end
       end
@@ -129,7 +126,6 @@ ActiveAdmin.register Customer do
       f.input :last_name
       f.input :email
       f.input :academic_status, :as => :select
-      f.input :heard_about_service, :as => :select, :collection => HeardAboutService.where(:is_approved => true)
       f.input :department, :as => :select, :collection => Department.order(:name)
     end
 
@@ -199,12 +195,4 @@ ActiveAdmin.register Customer do
       end
     end
   end
-
-  # controller do
-  #   # Only cache the index view if it is the base index_url (i.e. /customers) and is devoid of either params[:page] or params[:q].
-  #   # The absence of these params values ensures it is the base url.
-  #   caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-  #   caches_action :show
-  #   cache_sweeper :customers_sweeper
-  # end
 end
