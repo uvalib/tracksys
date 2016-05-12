@@ -16,7 +16,6 @@ class Unit < ActiveRecord::Base
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
-   belongs_to :use_right, :counter_cache => true
 
    has_many :master_files
    has_many :components, :through => :master_files#, :uniq => true
@@ -81,10 +80,6 @@ class Unit < ActiveRecord::Base
    validates :order, :presence => {
       :if => 'self.order_id',
       :message => "association with this Order is no longer valid because it no longer exists."
-   }
-   validates :use_right, :presence => {
-      :if => 'self.use_right_id',
-      :message => "association with this UseRight is no longer valid because it no longer exists."
    }
 
    #------------------------------------------------------------------
@@ -220,7 +215,6 @@ end
 #  intended_use_id                :integer
 #  exclude_from_dl                :boolean          default(FALSE), not null
 #  staff_notes                    :text(65535)
-#  use_right_id                   :integer
 #  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime
 #  date_patron_deliverables_ready :datetime

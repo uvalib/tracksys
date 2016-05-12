@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160505140411) do
+ActiveRecord::Schema.define(version: 20160512145952) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -184,7 +184,6 @@ ActiveRecord::Schema.define(version: 20160505140411) do
     t.integer  "availability_policy_id",  limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.integer  "use_right_id",            limit: 4
     t.integer  "master_files_count",      limit: 4,     default: 0,    null: false
     t.string   "exemplar",                limit: 255
     t.string   "ancestry",                limit: 255
@@ -202,7 +201,6 @@ ActiveRecord::Schema.define(version: 20160505140411) do
   add_index "components", ["ead_ref_id"], name: "ead_ref_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
   add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
-  add_index "components", ["use_right_id"], name: "index_components_on_use_right_id", using: :btree
 
   create_table "components_containers", id: false, force: :cascade do |t|
     t.integer "container_id", limit: 4
@@ -555,7 +553,6 @@ ActiveRecord::Schema.define(version: 20160505140411) do
     t.integer  "intended_use_id",                limit: 4
     t.boolean  "exclude_from_dl",                              default: false, null: false
     t.text     "staff_notes",                    limit: 65535
-    t.integer  "use_right_id",                   limit: 4
     t.datetime "date_queued_for_ingest"
     t.datetime "date_archived"
     t.datetime "date_patron_deliverables_ready"
@@ -578,17 +575,13 @@ ActiveRecord::Schema.define(version: 20160505140411) do
   add_index "units", ["indexing_scenario_id"], name: "index_units_on_indexing_scenario_id", using: :btree
   add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
-  add_index "units", ["use_right_id"], name: "index_units_on_use_right_id", using: :btree
 
   create_table "use_rights", force: :cascade do |t|
     t.string   "name",               limit: 255
-    t.string   "description",        limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "bibls_count",        limit: 4,   default: 0
-    t.integer  "components_count",   limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
-    t.integer  "units_count",        limit: 4,   default: 0
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
@@ -603,7 +596,6 @@ ActiveRecord::Schema.define(version: 20160505140411) do
   add_foreign_key "components", "availability_policies", name: "components_availability_policy_id_fk"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
   add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
-  add_foreign_key "components", "use_rights", name: "components_use_right_id_fk"
   add_foreign_key "components_containers", "components", name: "components_containers_ibfk_2"
   add_foreign_key "components_containers", "containers", name: "components_containers_ibfk_1"
   add_foreign_key "components_legacy_identifiers", "components", name: "components_legacy_identifiers_ibfk_1"
@@ -629,5 +621,4 @@ ActiveRecord::Schema.define(version: 20160505140411) do
   add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
   add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
   add_foreign_key "units", "orders", name: "units_order_id_fk"
-  add_foreign_key "units", "use_rights", name: "units_use_right_id_fk"
 end

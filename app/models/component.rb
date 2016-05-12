@@ -9,7 +9,6 @@ class Component < ActiveRecord::Base
    belongs_to :availability_policy, :counter_cache => true
    belongs_to :component_type, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
-   belongs_to :use_rights, :counter_cache => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_many :master_files
@@ -265,7 +264,6 @@ end
 #  availability_policy_id  :integer
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
-#  use_right_id            :integer
 #  master_files_count      :integer          default(0), not null
 #  exemplar                :string(255)
 #  ancestry                :string(255)
