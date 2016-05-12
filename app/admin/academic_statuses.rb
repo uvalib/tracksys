@@ -8,6 +8,9 @@ ActiveAdmin.register AcademicStatus do
   filter :id
   filter :name
 
+  config.batch_actions = false
+  config.filters = false
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/academic_statuses/new'>New</a>") if !current_user.viewer?
@@ -15,8 +18,6 @@ ActiveAdmin.register AcademicStatus do
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
-
-  scope :all, :default => true
 
   index do
     column :name

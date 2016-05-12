@@ -16,7 +16,8 @@ ActiveAdmin.register AvailabilityPolicy do
   filter :id
   filter :name
 
-  scope :all, :default => true
+  config.batch_actions = false
+  config.filters = false
 
   index do
     column :name

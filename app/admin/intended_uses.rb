@@ -12,7 +12,8 @@ ActiveAdmin.register IntendedUse do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
 
-   scope :all, :default => true
+   config.batch_actions = false
+   config.filters = false
 
    index do
       column :description
