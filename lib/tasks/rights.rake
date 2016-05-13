@@ -1,14 +1,11 @@
 require 'fileutils'
 
 namespace :rights do
-   desc "Clear use rights table"
-   task :clear  => :environment do
-      ActiveRecord::Base.connection.execute("TRUNCATE TABLE use_rights")
-   end
 
    desc "Populate use rights"
    task :populate  => :environment do
       UseRight.create([
+         { :name => 'Copyright Not Evaluated' },
          { :name => 'No Known Copyright' },
          { :name => 'In Copyright' },
          { :name => 'In Copyright Educational Use Permitted' },

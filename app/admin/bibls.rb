@@ -6,7 +6,7 @@ ActiveAdmin.register Bibl do
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
       :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
-      :collection_facet, :desc_metadata
+      :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -182,7 +182,7 @@ ActiveAdmin.register Bibl do
     end
 
     div :class => 'columns-none' do
-      panel "Digital Library Information", :toggle => 'hide' do
+      panel "Digital Library Information!", :toggle => 'show' do
         attributes_table_for bibl do
           row ("In Digital Library?") do |bibl|
             format_boolean_as_yes_no(bibl.in_dl?)
@@ -193,7 +193,8 @@ ActiveAdmin.register Bibl do
           row :exemplar do |bibl|
             link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
           end
-		  row :dpla
+		    row :dpla
+          row('Right Statement'){ |r| r.use_right }
           row :availability_policy
           row :indexing_scenario
           row :index_destination do |bibl|

@@ -4,7 +4,7 @@ ActiveAdmin.register MasterFile do
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
       :md5, :filesize, :unit_id, :component_id, :transcription_text,
-      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata
+      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
 
@@ -134,6 +134,7 @@ ActiveAdmin.register MasterFile do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
+               row('Right Statement'){ |r| r.use_right }
                row :availability_policy
                row :indexing_scenario
                row :discoverability do |mf|
@@ -239,6 +240,7 @@ ActiveAdmin.register MasterFile do
 
       f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
          f.input :pid, :input_html => { :disabled => true }
+         f.input :use_right, label: "Right Statement"
          f.input :availability_policy
          f.input :indexing_scenario
          f.input :desc_metadata, :input_html => { :rows => 5 }
