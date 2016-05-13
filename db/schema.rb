@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160512174637) do
+ActiveRecord::Schema.define(version: 20160513183901) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -406,7 +406,7 @@ ActiveRecord::Schema.define(version: 20160512174637) do
   add_index "legacy_identifiers_units", ["unit_id", "legacy_identifier_id"], name: "units_legacy_ids_index", using: :btree
 
   create_table "master_files", force: :cascade do |t|
-    t.integer  "unit_id",                limit: 4,          default: 0,     null: false
+    t.integer  "unit_id",                limit: 4,     default: 0,     null: false
     t.integer  "component_id",           limit: 4
     t.string   "tech_meta_type",         limit: 255
     t.string   "filename",               limit: 255
@@ -419,18 +419,14 @@ ActiveRecord::Schema.define(version: 20160512174637) do
     t.datetime "updated_at"
     t.text     "transcription_text",     limit: 65535
     t.text     "desc_metadata",          limit: 65535
-    t.text     "rels_ext",               limit: 65535
-    t.text     "solr",                   limit: 4294967295
-    t.text     "dc",                     limit: 65535
-    t.text     "rels_int",               limit: 65535
-    t.boolean  "discoverability",                           default: false
+    t.boolean  "discoverability",                      default: false
     t.string   "md5",                    limit: 255
     t.integer  "indexing_scenario_id",   limit: 4
     t.integer  "availability_policy_id", limit: 4
     t.integer  "use_right_id",           limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.boolean  "dpla",                                      default: false
+    t.boolean  "dpla",                                 default: false
     t.string   "creator_death_date",     limit: 255
     t.string   "creation_date",          limit: 255
     t.string   "primary_author",         limit: 255
