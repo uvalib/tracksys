@@ -127,61 +127,14 @@ ActiveAdmin.register MasterFile do
                end
             end
          end
-      end
 
-      div :class => 'two-column', :toggle => 'hide' do
-         panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
-            attributes_table_for master_file do
-               row :pid
-               row :date_dl_ingest
-               row :date_dl_update
-               row('Right Statement'){ |r| r.use_right }
-               row :availability_policy
-               row :indexing_scenario
-               row :discoverability do |mf|
-                  case mf.discoverability
-                  when false
-                     "Not uniquely discoverable"
-                  when true
-                     "Uniquely discoverable"
-                  else
-                     "Unknown"
-                  end
-               end
-               row(:desc_metadata) {|master_file|
-                  if not master_file.desc_metadata.nil?
-                     div do
-                        link_to "Edit", "#inline_content", :class => "inline"
-                     end
-                     div :style => 'display:none' do
-                        div :id => 'inline_content' do
-                           div "Open the following URL in your Oxygen XML Editor (cmd-U)"
-                           div "#{TRACKSYS_URL}admin/master_files/#{master_file.id}/mods"
-                        end
-                     end
-                     div :id => "desc_meta_div" do
-                        span :class => "click-advice" do
-                           "click in the code window to expand/collapse display"
-                        end
-                        pre :id => "desc_meta", :class => "no-whitespace code-window" do
-                           code :'data-language' => 'html' do
-                              word_wrap(master_file.desc_metadata.to_s, :line_width => 80)
-                           end
-                        end
-                     end
-                  end
-               }
-            end
-         end
-      end
-
-      div :class => 'two-column' do
          panel "Transcription Text", :toggle => 'show' do
             div :class=>'mf-transcription' do
                simple_format(master_file.transcription_text)
             end
          end
       end
+
 
       div :class => 'two-column' do
          panel "Technical Information", :id => 'master_files', :toggle => 'show' do
@@ -210,6 +163,42 @@ ActiveAdmin.register MasterFile do
                   end
                end
             end
+         end
+      end
+
+      div :class => 'columns-none', :toggle => 'hide' do
+         panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
+            attributes_table_for master_file do
+               row :pid
+               row :date_dl_ingest
+               row :date_dl_update
+               row :availability_policy
+               row :indexing_scenario
+               row :discoverability do |mf|
+                  case mf.discoverability
+                  when false
+                     "Not uniquely discoverable"
+                  when true
+                     "Uniquely discoverable"
+                  else
+                     "Unknown"
+                  end
+               end
+            end
+
+            div :id => "desc_meta_div" do
+               div :id=>"master-file-desc-metadata" do "DESC METADATA" end
+               span :class => "click-advice" do
+                  "click in the code window to expand/collapse display"
+               end
+               pre :id => "desc_meta", :class => "no-whitespace code-window" do
+                  code :'data-language' => 'html' do
+                     word_wrap(master_file.desc_metadata.to_s, :line_width => 200)
+                  end
+               end
+            end
+
+
          end
       end
    end
@@ -244,7 +233,7 @@ ActiveAdmin.register MasterFile do
          f.input :use_right, label: "Right Statement"
          f.input :availability_policy
          f.input :indexing_scenario
-         f.input :desc_metadata, :input_html => { :rows => 5 }
+         f.input :desc_metadata, :input_html => { :rows => 10}
       end
 
       f.inputs :class => 'columns-none' do
