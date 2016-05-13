@@ -42,6 +42,7 @@ ActiveAdmin.register Bibl do
   filter :pid
   filter :dpla, :as => :select
   filter :location
+  filter :use_right, :as => :select, label: 'Right Statement'
   filter :index_destination, :as => :select
   filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES

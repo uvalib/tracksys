@@ -44,6 +44,7 @@ ActiveAdmin.register MasterFile do
    filter :bibl_call_number, :as => :string, :label => "Call Number"
    filter :bibl_barcode, :as => :string, :label => "Barcode"
    filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
+   filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :availability_policy
    filter :indexing_scenario
