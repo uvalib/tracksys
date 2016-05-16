@@ -2,6 +2,14 @@ require 'fileutils'
 
 namespace :rights do
 
+   desc "initialize all bibls to CNE"
+   task :init_cne  => :environment do
+      cne = UseRight.find_by(name: "Copyright Not Evaluated")
+      puts "Update all bibls with no right statement to #{cne.name}..."
+      ActiveRecord::Base.connection.execute("update bibls set use_right_id=#{cne.id} where use_right_id is null")
+      puts "DONE"
+   end
+
    desc "Populate use rights"
    task :populate  => :environment do
       UseRight.create([
