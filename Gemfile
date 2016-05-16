@@ -43,3 +43,6 @@ gem 'jquery-colorbox-rails'
 
 gem 'compass-rails'           # required by chosen rails, but not included by it directly
 gem "chosen-rails"
+
+# See https://github.com/rails/execjs#readme for more supported runtimes
+gem 'therubyracer', platforms: :ruby
