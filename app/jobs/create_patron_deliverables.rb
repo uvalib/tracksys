@@ -45,6 +45,9 @@ class CreatePatronDeliverables < BaseJob
       if source.match(/\.tiff?$/) and File.file?(source)
          tiff = Magick::Image.read(source).first
 
+         # Directly invoke Ruby's garbage collection to clear memory
+         GC.start
+
          # generate deliverables to be delivered directly to customer (not destined for DL)
          # set output filename (filename suffix determines format of output file)
 
