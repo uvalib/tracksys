@@ -5,10 +5,16 @@ ActiveAdmin.register LegacyIdentifier do
   permit_params :label, :description, :legacy_identifier
 
   actions :all, :except => [:new, :destroy]
-  scope :all, :default => true
+  config.batch_actions = false
+
+  filter :id
+  filter :label
+  filter :description
+  filter :legacy_identifier
+  filter :created_at
+  filter :updated_at
 
   index do
-     selectable_column
      column :id
      column :label
      column :description

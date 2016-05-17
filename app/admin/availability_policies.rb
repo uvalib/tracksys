@@ -13,9 +13,6 @@ ActiveAdmin.register AvailabilityPolicy do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
-  filter :id
-  filter :name
-
   config.batch_actions = false
   config.filters = false
 

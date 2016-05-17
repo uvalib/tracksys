@@ -6,7 +6,6 @@ ActiveAdmin.register StaffMember do
   # strong paramters handling
   permit_params :computing_id, :last_name, :first_name, :is_active, :role_id, :email
 
-  scope :all, :default => true
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/staff_members/new'>New</a>") if !current_user.viewer?
@@ -18,6 +17,8 @@ ActiveAdmin.register StaffMember do
   filter :id
   filter :last_name
   filter :first_name
+
+  config.batch_actions = false
 
   index do
     selectable_column

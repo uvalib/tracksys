@@ -5,9 +5,6 @@ ActiveAdmin.register AcademicStatus do
   # strong paramters handling
   permit_params :name
 
-  filter :id
-  filter :name
-
   config.batch_actions = false
   config.filters = false
 
