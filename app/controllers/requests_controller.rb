@@ -106,38 +106,43 @@ class RequestsController < ApplicationController
 
          else
             # UVa user; get LDAP info for user (already authenticated via NetBadge)
-            ldap_info = UvaLdap.new(session[:computing_id])
-            uva_status = ldap_info.uva_status.first
+            begin
+               ldap_info = UvaLdap.new(session[:computing_id])
+               uva_status = ldap_info.uva_status.first
 
-            # If a UVa Customer exist, populate @request.customer with Tracksys sourced data.
-            customer_lookup = Customer.find_by(email: ldap_info.email.first)
-            if customer_lookup.nil?
-               uva_computing_id = ldap_info.uva_computing_id
-               department_name = ldap_info.department.first
+               # If a UVa Customer exist, populate @request.customer with Tracksys sourced data.
+               customer_lookup = Customer.find_by(email: ldap_info.email.first)
+               if customer_lookup.nil?
+                  uva_computing_id = ldap_info.uva_computing_id
+                  department_name = ldap_info.department.first
 
-               # Set values for customer pulled from LDAP
-               @request.customer_attributes = {
-                  :email => ldap_info.email.first,
-                  :first_name => ldap_info.first_name.first,
-                  :last_name => ldap_info.last_name.first,
-                  :academic_status_id => AcademicStatus.find_by(name: uva_status).id,
-                  :primary_address_attributes => {
-                     :address_1 => ldap_info.address_1.first,
-                     :address_2 => ldap_info.address_2.first,
-                     :phone => ldap_info.phone  # no need to do first, since uva_ldap does not return an array for this value.
+                  # Set values for customer pulled from LDAP
+                  @request.customer_attributes = {
+                     :email => ldap_info.email.first,
+                     :first_name => ldap_info.first_name.first,
+                     :last_name => ldap_info.last_name.first,
+                     :academic_status_id => AcademicStatus.find_by(name: uva_status).id,
+                     :primary_address_attributes => {
+                        :address_1 => ldap_info.address_1.first,
+                        :address_2 => ldap_info.address_2.first,
+                        :phone => ldap_info.phone  # no need to do first, since uva_ldap does not return an array for this value.
+                     }
                   }
-               }
-            else
-               @request.customer = Customer.find_by(email: ldap_info.email.first)
-            end
+               else
+                  @request.customer = Customer.find_by(email: ldap_info.email.first)
+               end
 
-            # Always update Academic Status
-            @request.customer.academic_status_id = AcademicStatus.find_by( name: uva_status).id
+               # Always update Academic Status
+               @request.customer.academic_status_id = AcademicStatus.find_by( name: uva_status).id
 
-            # Must build a Billable Address if the existing customer doesn't have one
-            # so form pre-population doesn't break.
-            if not @request.customer.billable_address
-               @request.customer.build_billable_address
+               # Must build a Billable Address if the existing customer doesn't have one
+               # so form pre-population doesn't break.
+               if not @request.customer.billable_address
+                  @request.customer.build_billable_address
+               end
+            rescue Exception=>e
+               # Failed trying to get UVA info; default to not affiliated with UVa
+               @request.customer.academic_status_id = 1 # set academic_status to "Non-UVa"
             end
          end
       end
