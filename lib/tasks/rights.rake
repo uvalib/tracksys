@@ -17,6 +17,13 @@ namespace :rights do
       #          ' 23 x 32 cm. on sheet 29 x 33 cm', 'Febry. 13th, 1755','1845-52','1892-']
       # tests.each do |raw_year|
       nkc = UseRight.find_by(name: "No Known Copyright")
+
+      # for all bibl with no year, pull the MARC and look at field 260
+      Bibl.where.not(year: nil).find_each do |bibl|
+         # check MARC record
+      end
+
+      # check bibls with year data
       Bibl.where.not(year: nil).find_each do |bibl|
          puts "====> Raw [#{bibl.year}]"
          year = bibl.year.strip
@@ -66,7 +73,7 @@ namespace :rights do
          if !year.blank?
             if year.to_i < 1923
                puts "*** NKC"
-               bibl.update_attribute(:use_right_id, nkc.id) }
+               bibl.update_attribute(:use_right_id, nkc.id)
             end
          else
             puts "Unable to identify year"
