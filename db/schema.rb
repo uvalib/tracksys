@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160518152341) do
+ActiveRecord::Schema.define(version: 20160518182719) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -408,7 +408,7 @@ ActiveRecord::Schema.define(version: 20160518152341) do
     t.integer  "filesize",               limit: 4
     t.string   "title",                  limit: 255
     t.datetime "date_archived"
-    t.string   "description",            limit: 255
+    t.text     "description",            limit: 65535
     t.string   "pid",                    limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
