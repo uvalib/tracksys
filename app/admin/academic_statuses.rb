@@ -5,8 +5,8 @@ ActiveAdmin.register AcademicStatus do
   # strong paramters handling
   permit_params :name
 
-  filter :id
-  filter :name
+  config.batch_actions = false
+  config.filters = false
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -15,8 +15,6 @@ ActiveAdmin.register AcademicStatus do
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
-
-  scope :all, :default => true
 
   index do
     column :name

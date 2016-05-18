@@ -4,7 +4,7 @@ ActiveAdmin.register MasterFile do
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
       :md5, :filesize, :unit_id, :component_id, :transcription_text,
-      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata
+      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
 
@@ -44,6 +44,7 @@ ActiveAdmin.register MasterFile do
    filter :bibl_call_number, :as => :string, :label => "Call Number"
    filter :bibl_barcode, :as => :string, :label => "Barcode"
    filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
+   filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :availability_policy
    filter :indexing_scenario
@@ -229,6 +230,7 @@ ActiveAdmin.register MasterFile do
 
       f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
          f.input :pid, :input_html => { :disabled => true }
+         f.input :use_right, label: "Right Statement"
          f.input :availability_policy
          f.input :indexing_scenario
          f.input :desc_metadata, :input_html => { :rows => 10}

@@ -14,13 +14,32 @@ ActiveAdmin.register IndexDestination do
 
    menu :parent => "Miscellaneous"
 
-   scope :all, :default => true
+   config.batch_actions = false
+   config.filters = false
 
    index do
-      div :class => 'admin-information' do
-         h2 "Note: Index Destinations only control a flag generated and inserted in Solr records"
-         h3 "They will always get posted to #{STAGING_SOLR_URL}, and then pulled by Bob H. on request."
+      div :class => 'two-column' do
+         panel "NOTE" do
+            h3 "Index Destinations only control a flag generated and inserted in Solr records."
+            h3 "They will always get posted to #{STAGING_SOLR_URL}, and then pulled by Bob H. on request."
+         end
       end
+      div :class => 'two-column' do
+        panel "Config Environment Info" do
+           dl do
+             dt "Rails.env="
+             dd Rails.env
+             dt "SOLR_PRODUCTION_SERVER="
+             dd link_to  SOLR_PRODUCTION_NAME, 'http://' + SOLR_PRODUCTION_NAME + '/admin' , :target => "_blank"
+             dt "STAGING_SOLR_URL="
+             dd link_to STAGING_SOLR_URL, STAGING_SOLR_URL + '/admin/' , :target => "_blank"
+             dt "FEDORA_REST_URL="
+             dd link_to FEDORA_REST_URL, FEDORA_REST_URL , :target => "_blank"
+             dt "FEDORA_PROXY_URL="
+             dd link_to FEDORA_PROXY_URL, FEDORA_PROXY_URL , :target => "_blank"
+          end
+        end
+     end
       column :nickname
       column :hostname
       column :port
@@ -84,21 +103,6 @@ ActiveAdmin.register IndexDestination do
          row("Components") do |index_destination|
             link_to index_destination.components.size, admin_components_path(:q => {:index_destination_id_eq => index_destination.id})
          end
-      end
-   end
-
-   sidebar "Config Environment Info" do
-      dl do
-         dt "Rails.env="
-         dd Rails.env
-         dt "SOLR_PRODUCTION_SERVER="
-         dd link_to  SOLR_PRODUCTION_NAME, 'http://' + SOLR_PRODUCTION_NAME + '/admin' , :target => "_blank"
-         dt "STAGING_SOLR_URL="
-         dd link_to STAGING_SOLR_URL, STAGING_SOLR_URL + '/admin/' , :target => "_blank"
-         dt "FEDORA_REST_URL="
-         dd link_to FEDORA_REST_URL, FEDORA_REST_URL , :target => "_blank"
-         dt "FEDORA_PROXY_URL="
-         dd link_to FEDORA_PROXY_URL, FEDORA_PROXY_URL , :target => "_blank"
       end
    end
 end

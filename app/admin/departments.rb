@@ -15,7 +15,7 @@ ActiveAdmin.register Department do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
-  scope :all, :default => true
+  config.batch_actions = false
 
   index do
     column :name

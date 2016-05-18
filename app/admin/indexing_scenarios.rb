@@ -13,7 +13,8 @@ ActiveAdmin.register IndexingScenario do
 
    menu :parent => "Miscellaneous"
 
-   scope :all, :default => true
+   config.batch_actions = false
+   config.filters = false
 
    index do
       column :name

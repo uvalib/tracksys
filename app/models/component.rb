@@ -259,8 +259,6 @@ end
 #  indexing_scenario_id    :integer
 #  level                   :text(65535)
 #  ead_id_att              :string(255)
-#  parent_ead_ref_id       :integer
-#  ead_ref_id              :integer
 #  availability_policy_id  :integer
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
@@ -270,7 +268,5 @@ end
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)
 #  followed_by_id          :integer
-#  physical_desc           :text(65535)
-#  scope_content           :text(65535)
 #  index_destination_id    :integer
 #
