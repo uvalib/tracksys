@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160513183901) do
+ActiveRecord::Schema.define(version: 20160518152341) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -179,8 +179,6 @@ ActiveRecord::Schema.define(version: 20160513183901) do
     t.integer  "indexing_scenario_id",    limit: 4
     t.text     "level",                   limit: 65535
     t.string   "ead_id_att",              limit: 255
-    t.integer  "parent_ead_ref_id",       limit: 4
-    t.integer  "ead_ref_id",              limit: 4
     t.integer  "availability_policy_id",  limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
@@ -190,15 +188,12 @@ ActiveRecord::Schema.define(version: 20160513183901) do
     t.string   "pids_depth_cache",        limit: 255
     t.string   "ead_id_atts_depth_cache", limit: 255
     t.integer  "followed_by_id",          limit: 4
-    t.text     "physical_desc",           limit: 65535
-    t.text     "scope_content",           limit: 65535
     t.integer  "index_destination_id",    limit: 4
   end
 
   add_index "components", ["ancestry"], name: "index_components_on_ancestry", using: :btree
   add_index "components", ["availability_policy_id"], name: "index_components_on_availability_policy_id", using: :btree
   add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
-  add_index "components", ["ead_ref_id"], name: "ead_ref_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
   add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
 
