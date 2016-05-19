@@ -25,6 +25,26 @@ module Virgo
     end
   end
 
+  def self.get_260c(barcode)
+     xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+     doc = xml_doc.xpath("/response/result/doc").first
+     marc_ele = doc.xpath("str[@name='marc_display']").first
+     return "" if marc_ele.nil?
+
+     marc_string = marc_ele.text
+     begin
+        marc_xml = Nokogiri::XML(marc_string)
+        marc_xml.remove_namespaces!
+        marc_record = marc_xml.xpath("/collection/record").first
+        marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
+        if marc260c and marc260c.text
+           return marc260c.text.strip.sub(/^\[/,'').sub(/\]$/,'').sub(/\.$/,'')
+        end
+     rescue
+     end
+     return ""
+  end
+
   # Queries the external metadata server for the catalog ID passed, and returns
   # a new Bibl object populated with values from that external record.
   #
@@ -32,11 +52,11 @@ module Virgo
   # barcode from the external metadata record. For some fields, under certain
   # circumstances, such comparison is needed to disambiguate multiple MARC 999
   # (local use) fields.
-  # 
+  #
   # UPDATE: Alternatively, this method can be called by passing nil for
   # catalog_key, in which case it queries the metadata server for the barcode
   # passed.
-  # 
+  #
   # Does not save the Bibl record to the database; the Bibl object is just a
   # convenient carrier for the metadata values gleaned from the external record.
   #
@@ -49,11 +69,11 @@ module Virgo
     if catalog_key.blank? and barcode.blank?
       raise ArgumentError, "BiblExternalUpdate#external_lookup: catalog_key and barcode are both blank; nothing to look up"
     end
-    
+
     # instantiate a new Bibl object to populate with values and return
     bibl = Bibl.new
     bibl.date_external_update = Time.now
-    
+
     # query Solr index
     begin
       # query the metadata server for this catalog ID or barcode
@@ -64,17 +84,17 @@ module Virgo
         # query for catalog ID
         xml_doc = query_metadata_server(@metadata_server, catalog_key)
       end
-      
+
       # from the server's response XML, get the <doc> element (which
       # contains everything we're interested in here)
       doc = get_main_element(xml_doc, catalog_key)
-      
+
       # pull values from <doc> element and plug those values into Bibl object
       set_bibl_attributes(doc, bibl, barcode)
     rescue
       raise "Query to #{@metadata_server} failed to return a valid result."
     end
-    
+
     return bibl
   end
 
@@ -95,7 +115,7 @@ module Virgo
     when Bibl
       Virgo.external_update_single(bibls, computing_id)
     end
-    
+
     return nil
   end
 
@@ -104,14 +124,14 @@ module Virgo
       #add_notification(computing_id, bibl.id, 'missing_catalog_key')
       return
     end
-    
+
     # query the metadata server for this catalog ID
     # Note: Any exception occurring here is likely to occur for all Bibl
     # objects; instead of saving a notification for each and every Bibl
     # object, let exceptions bubble up to calling method to be handled for
     # the whole process.
     xml_doc = query_metadata_server(@metadata_server, bibl.catalog_key)
-    
+
     # from the server's response XML, get the <doc> element (which
     # contains everything we're interested in here)
     begin
@@ -121,10 +141,10 @@ module Virgo
       # add_notification(computing_id, bibl.id, 'record_not_found')
       return
     end
-    
+
     # pull values from <doc> element and plug those values into Bibl object
     set_bibl_attributes(doc, bibl, bibl.barcode)
-    
+
     # save changes to Bibl record
     bibl.save
     # add_notification(computing_id, bibl.id, 'updated')
@@ -186,19 +206,19 @@ module Virgo
       else
         barcode = ''
       end
-      
+
       # Get local call number from subfield "a"
       marc999a = marc999.xpath("subfield[@code='a']").first
       if marc999a and marc999a.text
         barcodes[barcode]['call_number'] = marc999a.text.strip unless barcode.blank?
       end
-      
+
       # Get copy from subfield "c"
       marc999c = marc999.xpath("subfield[@code='c']").first
       if marc999c and marc999c.text
         barcodes[barcode]['copy'] = marc999c.text.strip unless barcode.blank?
       end
-      
+
       # Get location from subfield "l"
       marc999l = marc999.xpath("subfield[@code='l']").first
       if marc999l and marc999l.text
@@ -223,19 +243,19 @@ module Virgo
     else
       compare_barcode = compare_barcode.strip.upcase  # normalize for comparison
     end
-    
+
     # catalog ID
     el = doc.xpath( "str[@name='id']" ).first
     bibl.catalog_key = el.text unless el.nil?
-    
+
     # title
     el = doc.xpath("arr[@name='title_display']/str").first
     bibl.title = el.text unless el.nil?
-    
+
     # creator name
     el = doc.xpath("arr[@name='author_display']/str").first
     bibl.creator_name = el.text unless el.nil?
-    
+
     # Get MARC XML record (embedded in Blacklight response in <arr name="marc_display">)
     marc_record = nil
     el = doc.xpath("str[@name='marc_display']").first
@@ -249,7 +269,7 @@ module Virgo
       # we're highlighting the fields that actually get updated (see
       # BiblController#external_lookup)
     end
-    
+
     if marc_record
       # title
       #
@@ -269,7 +289,7 @@ module Virgo
           end
         end
       end
-      
+
       # creator name type (personal or corporate)
       marc100 = marc_record.xpath("datafield[@tag='100']").first
       marc110 = marc_record.xpath("datafield[@tag='110']").first
@@ -281,7 +301,7 @@ module Virgo
       else
         bibl.creator_name_type = nil
       end
-      
+
       # title control number
       #
       # MARC 035 is repeatable; we want the Sirsi control number
@@ -301,7 +321,7 @@ module Virgo
           end
         end
       end
-      
+
       # year
       #
       # Get date of publication from MARC 260$c. Both field 260 and subfield c
@@ -314,7 +334,7 @@ module Virgo
 
       # Note: For call number, we don't want MARC 050, which is the LC call
       # number; we want the local/UVa call number, which is in 999$a.
-      
+
       # Get call number, copy, and location from MARC 999 (local use) field
       #
       # <datafield tag='999' ind1=' ' ind2=' '>
@@ -331,9 +351,9 @@ module Virgo
       if marc524a and marc524a.text
         bibl.citation = marc524a.text
       end
-      
-      # MARC 040a - Cataloging Source.  In order to certify that our records are CC0 for 
-      # submission to DPLA, we need to record where the MARC record was authored.  
+
+      # MARC 040a - Cataloging Source.  In order to certify that our records are CC0 for
+      # submission to DPLA, we need to record where the MARC record was authored.
       # VA@ is the code for the University of Virgina
       marc040a = marc_record.xpath("datafield[@tag='040']/subfield[@code='a']").first
       if marc040a and marc040a.text
@@ -364,7 +384,7 @@ module Virgo
         end
       end
     end  # END if marc_record
-    
+
     # record date/time this Bibl record was updated from external source
     bibl.date_external_update = Time.now
   end
