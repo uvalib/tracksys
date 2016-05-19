@@ -55,24 +55,22 @@ module Virgo
   end
 
   def self.get_260c(barcode)
-   #   xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
-   #   doc = xml_doc.xpath("/response/result/doc").first
-   #   marc_ele = doc.xpath("str[@name='marc_display']").first
-   #   return "" if marc_ele.nil?
-     #
-   #   marc_string = marc_ele.text
-   #   marc_xml = Nokogiri::XML(marc_string)
-   #   marc_xml.remove_namespaces!
-   #   marc_record = marc_xml.xpath("/collection/record").first
-   #   return "" if marc_record.nil?
-     #
-   #   marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
-   #   return "" if marc260c.nil?
-     #
-   #   year = marc260c.text.strip.gsub(/([\[\]\(\)]|\.\z)/, '')
-   #   return "" if year.blank?
+     xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+     doc = xml_doc.xpath("/response/result/doc").first
+     marc_ele = doc.xpath("str[@name='marc_display']").first
+     return "" if marc_ele.nil?
 
-   year = "MDCCXCVI"
+     marc_string = marc_ele.text
+     marc_xml = Nokogiri::XML(marc_string)
+     marc_xml.remove_namespaces!
+     marc_record = marc_xml.xpath("/collection/record").first
+     return "" if marc_record.nil?
+
+     marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
+     return "" if marc260c.nil?
+
+     year = marc260c.text.strip.gsub(/([\[\]\(\)]|\.\z)/, '')
+     return "" if year.blank?
 
      begin
         # convert to date obj, then to year-only string.
@@ -113,7 +111,9 @@ module Virgo
              if latest > 0
                 year = latest.to_s
              else
-                year.gsub(/[^IVXLCDM ]/, '').split(" ").each do |bit|
+                # Still nothing... see if anything looks like roman numeral year
+                year = year.gsub(/[^IVXLCDM ]/, '')
+                year.split(" ").each do |bit|
                    val = to_arabic(bit)
                    latest = val if val >= 1500 and val > latest
                 end
