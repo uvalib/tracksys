@@ -172,6 +172,7 @@ ActiveAdmin.register MasterFile do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
+               row('Right Statement'){ |r| r.use_right }
                row :availability_policy
                row :indexing_scenario
                row :discoverability do |mf|

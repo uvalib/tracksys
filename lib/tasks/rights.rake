@@ -10,6 +10,14 @@ namespace :rights do
       puts "DONE"
    end
 
+   desc "initialize all MASTER FILES to CNE"
+   task :init_mf_cne  => :environment do
+      cne = UseRight.find_by(name: "Copyright Not Evaluated")
+      puts "Update all master_files with no right statement to #{cne.name}..."
+      ActiveRecord::Base.connection.execute("update master_files set use_right_id=#{cne.id} where use_right_id is null")
+      puts "DONE"
+   end
+
    desc "Mark all pre-1923 content as NKC"
    task :nkc  => :environment do
       nkc = UseRight.find_by(name: "No Known Copyright")
