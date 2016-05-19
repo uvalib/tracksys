@@ -18,13 +18,20 @@ namespace :rights do
       # tests.each do |raw_year|
       nkc = UseRight.find_by(name: "No Known Copyright")
 
-      # for all bibl with no year, pull the MARC and look at field 260
-      Bibl.where.not(year: nil).find_each do |bibl|
-         # check MARC record
-      end
+      # hierarchical collection PIDs. These will be skipped
+      # daily progress, Our Mountain Work in the Dioces of Virginia, Our Mountain Work
+      # Corks and Curls, Walter Reed Yellow Fever Collection, Dr. Henry Thomas Skinner Papers
+      # NOTE: these PIDs are COMPONENT PID for the top-level component in the hierarchy
+      skip = ["uva-lib:2137307", "uva-lib:2253857", "uva-lib:2528441", "uva-lib:2250968", "uva-lib:2513789", "uva-lib:1330419"]
 
-      # check bibls with year data
+      # check bibls with year data (this year field is extracted from the MARC 260c)
       Bibl.where.not(year: nil).find_each do |bibl|
+         # Skip hierarchical collections:
+         if bibl.components?
+            top_component = bibl.components.first
+            next if skip.include? top_component.pid
+         end
+         
          puts "====> Raw [#{bibl.year}]"
          year = bibl.year.strip
 
@@ -75,9 +82,6 @@ namespace :rights do
                puts "*** NKC"
                bibl.update_attribute(:use_right_id, nkc.id)
             end
-         else
-            puts "Unable to identify year"
-            #bibl = Virgo.external_lookup(params[:catalog_key], params[:barcode])
          end
       end
    end

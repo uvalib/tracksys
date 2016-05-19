@@ -149,6 +149,12 @@ class Bibl < ActiveRecord::Base
     self.is_personal_item = 0 if self.is_personal_item.nil?
     self.discoverability = 1 if self.discoverability.nil? # For Bibl objects, the default value is 1 (i.e. is discoverable)
 
+    # default right statement to not Evaluated
+    if self.use_right.blank?
+      cne = UseRight.find_by(name: "Copyright Not Evaluated")
+      self.use_right = cne
+    end
+
     # get pid
     if self.pid.blank?
       begin
