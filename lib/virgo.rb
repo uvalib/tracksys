@@ -32,17 +32,58 @@ module Virgo
      return "" if marc_ele.nil?
 
      marc_string = marc_ele.text
+     marc_xml = Nokogiri::XML(marc_string)
+     marc_xml.remove_namespaces!
+     marc_record = marc_xml.xpath("/collection/record").first
+     return "" if marc_record.nil?
+
+     marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
+     return "" if marc260c.nil?
+
+     year = marc260c.text.strip.gsub(/([\[\]]|\.\z)/, '')
+     return "" if year.blank?
+
      begin
-        marc_xml = Nokogiri::XML(marc_string)
-        marc_xml.remove_namespaces!
-        marc_record = marc_xml.xpath("/collection/record").first
-        marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
-        if marc260c and marc260c.text
-           return marc260c.text.strip.sub(/^\[/,'').sub(/\]$/,'').sub(/\.$/,'')
-        end
-     rescue
+        # convert to date obj, then to year-only string.
+        # make sure the resultant year is contained in the original string
+        test = year.to_date.strftime("%Y")
+        raise "Invalid" if year.index(test).nil?
+        year = test
+     rescue Exception=>e
+        # if rails cant parse, it will raise an exception
+        # next, look for stuff like 1871.0
+        if !year.match(/^\d{4}.0/).nil?
+           year = year.split(".")[0]
+        else
+           if !year.match(/^\d{2}--/).nil?
+             # only century know
+             year = "#{year[0...2]}99"
+          elsif !year.match(/^\d{3}-/).nil?
+             # only decade known
+             year = "#{year[0...3]}9"
+          elsif !year.match(/^\d{4}\s*-\s*\d{4}/).nil?
+             # range of years separated by dash
+             year = year.split("-")[1].strip
+          elsif !year.match(/^\d{4}\s*-\s*\d{2}/).nil?
+             # range of years separated by dash; only 2 digits listed after dash
+             bits = year.split("-")
+             year = "#{bits[0].strip[0...2]}#{bits[1].strip}"
+          else
+             # mess. just strip out non-number/non-space and see if anything looks like a year
+             year = year.gsub(/[^0-9 ]/i, '').gsub(/\s+/, ' ')
+             latest = 0
+             year.split(" ").each do |bit|
+                bit.strip!
+                if bit.length == 4
+                   latest = bit.to_i if bit.to_i > latest
+                end
+             end
+             year = ""
+             year = latest.to_s if latest > 0
+          end
+       end
      end
-     return ""
+     return year
   end
 
   # Queries the external metadata server for the catalog ID passed, and returns

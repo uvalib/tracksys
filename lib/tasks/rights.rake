@@ -25,13 +25,13 @@ namespace :rights do
       skip = ["uva-lib:2137307", "uva-lib:2253857", "uva-lib:2528441", "uva-lib:2250968", "uva-lib:2513789", "uva-lib:1330419"]
 
       # check bibls with year data (this year field is extracted from the MARC 260c)
-      Bibl.where.not(year: nil).find_each do |bibl|
+      Bibl.where.not(barcode: nil).find_each do |bibl|
          # Skip hierarchical collections:
          if bibl.components?
             top_component = bibl.components.first
             next if skip.include? top_component.pid
          end
-         
+
          puts "====> Raw [#{bibl.year}]"
          year = bibl.year.strip
 
