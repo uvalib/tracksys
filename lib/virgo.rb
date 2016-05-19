@@ -112,7 +112,7 @@ module Virgo
              if latest > 0
                 year = latest.to_s
              else
-                year.gsub(/[^IVXLCDM ]/, '').each do |bit|
+                year.gsub(/[^IVXLCDM ]/, '').split(" ").each do |bit|
                    val = to_arabic(bit)
                    latest = val if val >= 1500 and val > latest
                 end
