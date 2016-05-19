@@ -123,7 +123,7 @@ module Virgo
           end
        end
      end
-     return year.split(" ")[0] # in case there is junk after last year
+     return year.split(" ")[0] if !year.blank? # in case there is junk after last year
   end
 
   # Queries the external metadata server for the catalog ID passed, and returns
