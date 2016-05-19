@@ -69,7 +69,7 @@ module Virgo
      marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
      return "" if marc260c.nil?
 
-     year = marc260c.text.strip.gsub(/([\[\]]|\.\z)/, '')
+     year = marc260c.text.strip.gsub(/([\[\]\(\)]|\.\z)/, '')
      return "" if year.blank?
 
      begin
@@ -121,7 +121,7 @@ module Virgo
           end
        end
      end
-     return year
+     return year.split(" ")[0] # in case there is junk after last year
   end
 
   # Queries the external metadata server for the catalog ID passed, and returns
