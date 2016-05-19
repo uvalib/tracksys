@@ -25,6 +25,35 @@ module Virgo
     end
   end
 
+  def self.roman_mapping
+     {
+        1000 => "M",
+        900 => "CM",
+        500 => "D",
+        400 => "CD",
+        100 => "C",
+        90 => "XC",
+        50 => "L",
+        40 => "XL",
+        10 => "X",
+        9 => "IX",
+        5 => "V",
+        4 => "IV",
+        1 => "I"
+     }
+  end
+
+  def self.to_arabic(str, result = 0)
+     return result if str.empty?
+     roman_mapping.values.each do |roman|
+        if str.start_with?(roman)
+           result += roman_mapping.invert[roman]
+           str = str.slice(roman.length, str.length)
+           return to_arabic(str, result)
+        end
+     end
+  end
+
   def self.get_260c(barcode)
      xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
      doc = xml_doc.xpath("/response/result/doc").first
@@ -70,16 +99,25 @@ module Virgo
              year = "#{bits[0].strip[0...2]}#{bits[1].strip}"
           else
              # mess. just strip out non-number/non-space and see if anything looks like a year
-             year = year.gsub(/[^0-9 ]/i, '').gsub(/\s+/, ' ')
+             year = year.gsub(/\s+/, ' ')
+             stripped_year = year.gsub(/[^0-9 ]/i, '')
              latest = 0
-             year.split(" ").each do |bit|
+             stripped_year.split(" ").each do |bit|
                 bit.strip!
                 if bit.length == 4
                    latest = bit.to_i if bit.to_i > latest
                 end
              end
              year = ""
-             year = latest.to_s if latest > 0
+             if latest > 0
+                year = latest.to_s
+             else
+                year.gsub(/[^IVXLCDM ]/, '').each do |bit|
+                   val = to_arabic(bit)
+                   latest = val if val >= 1500 and val > latest
+                end
+                year = latest.to_s if latest > 0
+             end
           end
        end
      end

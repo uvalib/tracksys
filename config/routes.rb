@@ -1,5 +1,6 @@
 Tracksys::Application.routes.draw do
   root :to => 'requests#index'
+  get "request" => 'requests#index'
 
   resources :requests do
     collection do
