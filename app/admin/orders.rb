@@ -139,7 +139,7 @@ ActiveAdmin.register Order do
             format_date(order.date_customer_notified)
           end
           row :email do |order|
-            raw(order.email)
+            raw( strip_email(order.email) )
           end
         end
       end
