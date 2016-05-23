@@ -321,6 +321,10 @@ body.active_admin {
 }
 
 body.active_admin {
+   font-size: 0.8em;
+   ul.header-item.tabs {
+          font-size: inherit;
+   }
    div.workflow_note {
       padding: 10px 0px 10px 0px;
       font-family: sans-serif;
