@@ -18,6 +18,20 @@ namespace :rights do
       puts "DONE"
    end
 
+   desc "Mark all MF that are manuscripts and in virgo as NKC"
+   task :nkc_mf  => :environment do
+      nkc = UseRight.find_by(name: "No Known Copyright")
+      puts "Update MF belonging to NKC Bibl to be NKC..."
+      Bibl.where("use_right_id=#{nkc.id}").find_each do |bibl|
+         bibl.master_files.update_all(use_right_id: nkc.id)
+      end
+
+      puts "Update manuscript MF that are in digital Library as NKC..."
+      Bibl.where('is_manuscript=1').where.not(date_dl_ingest: nil).find_each do |ms|
+         ms.master_files.update_all(use_right_id: nkc.id)
+      end
+   end
+
    desc "Mark all pre-1923 content as NKC"
    task :nkc  => :environment do
       nkc = UseRight.find_by(name: "No Known Copyright")
