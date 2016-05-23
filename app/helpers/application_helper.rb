@@ -45,6 +45,7 @@ module ApplicationHelper
   end
 
   def strip_email(orig_email)
+     return orig_email if orig_email.blank?
      return orig_email if orig_email.index("---").nil?
      email = orig_email.gsub(/\A-{3}[^<]*/, "")
      return email[0..email.rindex(">")]

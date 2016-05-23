@@ -55,8 +55,15 @@ module Virgo
   end
 
   def self.get_260c(barcode)
-     xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+     xml_doc = nil
+     begin
+        xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+     rescue Exception=>e
+        # filed request. nothing to do, blank will be returned below
+     end
+     return "" if xml_doc.blank?
      doc = xml_doc.xpath("/response/result/doc").first
+     return "" if doc.blank?
      marc_ele = doc.xpath("str[@name='marc_display']").first
      return "" if marc_ele.nil?
 
