@@ -73,6 +73,12 @@ class MasterFile < ActiveRecord::Base
    after_create :increment_counter_caches
    after_destroy :decrement_counter_caches
    before_save do
+      # default right statement to not Evaluated
+      if self.use_right.blank?
+        cne = UseRight.find_by(name: "Copyright Not Evaluated")
+        self.use_right = cne
+      end
+      
       if self.pid.blank?
          begin
             self.pid = AssignPids.get_pid

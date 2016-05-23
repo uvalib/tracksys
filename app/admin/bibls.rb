@@ -40,6 +40,7 @@ ActiveAdmin.register Bibl do
   filter :catalog_key
   filter :barcode
   filter :pid
+  filter :is_manuscript
   filter :dpla, :as => :select
   filter :location
   filter :use_right, :as => :select, label: 'Right Statement'
