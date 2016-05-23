@@ -32,6 +32,27 @@ namespace :rights do
       end
    end
 
+   desc "Fix MS Bibls that are in Virgo. Set to NKC"
+   task :bibl_nkc_fix  => :environment do
+      # if a bibl is a manuscript and is in virgo, mark it as NKC
+      nkc = UseRight.find_by(name: "No Known Copyright")
+      puts "Update manuscript Bibl that are in digital Library as NKC..."
+      Bibl.where('is_manuscript=1').where(use_right_id: 1).where.not(date_dl_ingest: nil).update_all(use_right_id: nkc.id)
+   end
+
+   desc "report of NKC bibls in digital library"
+   task :report  => :environment do
+      # if a bibl is a manuscript and is in virgo, mark it as NKC
+      nkc = UseRight.find_by(name: "No Known Copyright")
+      progress_logfile = "log/rights_report.csv"
+      f = File.open(progress_logfile)
+      f << "title, barcode, call_number\n"
+      Bibl.where(use_right_id: nkc.id).where.not(date_dl_ingest: nil).find_by do |bibl|
+         f << "#{bibl.title}, #{bibl.barcode}, #{bibl.call_number}\n"
+      end
+      f.close
+   end
+
    desc "Mark all pre-1923 content as NKC"
    task :nkc  => :environment do
       nkc = UseRight.find_by(name: "No Known Copyright")
