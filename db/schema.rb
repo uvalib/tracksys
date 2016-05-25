@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160518182719) do
+ActiveRecord::Schema.define(version: 20160525152946) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -122,6 +122,7 @@ ActiveRecord::Schema.define(version: 20160518182719) do
     t.string   "cataloging_source",      limit: 255
     t.string   "collection_facet",       limit: 255
     t.integer  "index_destination_id",   limit: 4
+    t.string   "publication_place",      limit: 255
   end
 
   add_index "bibls", ["availability_policy_id"], name: "index_bibls_on_availability_policy_id", using: :btree

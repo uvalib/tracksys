@@ -50,17 +50,33 @@ namespace :rights do
       puts "Report file created, adding data..."
       cnt = 0
       Bibl.where(use_right_id: nkc.id).where.not(date_dl_ingest: nil).find_each do |bibl|
-         cnt += 1
-         if cnt == 100
-            put "."
-            cnt = 0
-         end
          info = Virgo.get_marc_publication_info( bibl.barcode )
-         f << "#{bibl.id}\t#{bibl.title}\t#{bibl.barcode}\t#{bibl.call_number}\t#{bibl.year}\t#{Virgo.extract_year_from_raw_260c(bibl.year)}\t#{info[:place]}\n"
+         place = ""
+         place = info[:place] if !info.nil?
+         f << "#{bibl.id}\t#{bibl.title}\t#{bibl.barcode}\t#{bibl.call_number}\t#{bibl.year}\t#{Virgo.extract_year_from_raw_260c(bibl.year)}\t#{place}\n"
          sleep 0.1
       end
       puts "DONE"
       f.close
+   end
+
+   desc "Add place of publication"
+   task :add_pub_place  => :environment do
+      progress_logfile = "log/pub_place.log"
+      progress_log = Logger.new(progress_logfile)
+      progress_log.formatter = proc do |severity, datetime, progname, msg|
+         "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
+      end
+
+      # check bibls with year data (this year field is extracted from the MARC 260c)
+      puts "start processing..."
+      progress_log.info "Checking all bibl records with a barcode or catalog key..."
+      Bibl.where.not(barcode: nil).where.not(catalog_key: nil).find_each do |bibl|
+         info = Virgo.get_marc_publication_info(bibl.barcode, bibl.catalog_key)
+         progress_log.info "Bibl ID #{bibl.id} catalog key #{bibl.catalog_key} published in #{info[:place]}"
+         bibl.update_attribute(:publication_place, info[:place] ) if !info[:place].blank?
+         sleep 0.15  # don't hammer solr constantly
+      end
    end
 
    desc "Mark all pre-1923 content as NKC"

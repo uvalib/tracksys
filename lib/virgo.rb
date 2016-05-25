@@ -54,24 +54,36 @@ module Virgo
      end
   end
 
-  def self.get_marc_publication_info(barcode)
+  def self.get_marc_publication_info(barcode, catalog_key=nil)
      xml_doc = nil
+     blank = {year: "", place: ""}
+
+     catalog_key = catalog_key.strip.downcase unless catalog_key.blank?
+     barcode = barcode.strip.upcase unless barcode.blank?
+     if catalog_key.blank? and barcode.blank?
+       raise "catalog_key and barcode are both blank"
+     end
+
      begin
-        xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+        if catalog_key.blank?
+         xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+       else
+         xml_doc = query_metadata_server(@metadata_server, catalog_key)
+       end
      rescue Exception=>e
         # filed request. nothing to do, blank will be returned below
      end
-     return nil if xml_doc.blank?
+     return blank if xml_doc.blank?
      doc = xml_doc.xpath("/response/result/doc").first
-     return nil if doc.blank?
+     return blank if doc.blank?
      marc_ele = doc.xpath("str[@name='marc_display']").first
-     return nil if marc_ele.nil?
+     return blank if marc_ele.nil?
 
      marc_string = marc_ele.text
      marc_xml = Nokogiri::XML(marc_string)
      marc_xml.remove_namespaces!
      marc_record = marc_xml.xpath("/collection/record").first
-     return nil if marc_record.nil?
+     return blank if marc_record.nil?
 
      year = ""
      marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
