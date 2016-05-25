@@ -174,18 +174,17 @@ class BaseJob
    #
    def on_error(err)
       if err.is_a? StandardError
+         @status.update_attribute(:failures, (@status.failures+1) )
          @logger.error err.message
          @logger.error err.backtrace.join("\n")
-         @status.update_attribute(:failures, (@status.failures+1) )
       else
          if err.is_a? Exception
+            @status.failed( err.message )
             @logger.fatal err.message
             @logger.fatal err.backtrace.join("\n")
-            @status.failed( err.message )
          else
-            @logger.fatal err
-            @logger.fatal caller.join("\n")
             @status.failed( err )
+            @logger.fatal err
          end
 
          # Stop processing

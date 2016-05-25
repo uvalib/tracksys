@@ -184,7 +184,7 @@ ActiveAdmin.register Bibl do
     end
 
     div :class => 'columns-none' do
-      panel "Digital Library Information!", :toggle => 'show' do
+      panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for bibl do
           row ("In Digital Library?") do |bibl|
             format_boolean_as_yes_no(bibl.in_dl?)

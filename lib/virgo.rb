@@ -54,29 +54,52 @@ module Virgo
      end
   end
 
-  def self.get_260c(barcode)
+  def self.get_marc_publication_info(barcode)
      xml_doc = nil
      begin
         xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
      rescue Exception=>e
         # filed request. nothing to do, blank will be returned below
      end
-     return "" if xml_doc.blank?
+     return nil if xml_doc.blank?
      doc = xml_doc.xpath("/response/result/doc").first
-     return "" if doc.blank?
+     return nil if doc.blank?
      marc_ele = doc.xpath("str[@name='marc_display']").first
-     return "" if marc_ele.nil?
+     return nil if marc_ele.nil?
 
      marc_string = marc_ele.text
      marc_xml = Nokogiri::XML(marc_string)
      marc_xml.remove_namespaces!
      marc_record = marc_xml.xpath("/collection/record").first
-     return "" if marc_record.nil?
+     return nil if marc_record.nil?
 
+     year = ""
      marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
-     return "" if marc260c.nil?
+     if !marc260c.nil?
+        year = extract_year_from_raw_260c(marc260c.text)
+     end
 
-     year = marc260c.text.strip.gsub(/([\[\]\(\)]|\.\z)/, '')
+     place = ""
+     foo= marc_record.xpath("datafield[@tag='260']")
+     marc044c = marc_record.xpath("datafield[@tag='260']/subfield[@code='a']").first
+     if !marc044c.nil?
+        place = marc044c.text
+        if place.match(/.*:\s*\z/)  # end with a colon
+           place = place[0...place.rindex(":")].strip
+        end
+        if place.match(/.*,\s*\z/)  # end with a comma
+           place = place[0...place.rindex(",")].strip
+        end
+        if !place.match(/[\[].*[\]]/) # just open bracket
+           place.gsub! /\[/, ''
+        end
+     end
+     return { year: year, place: place}
+  end
+
+  def self.extract_year_from_raw_260c(year)
+     return "" if year.blank?
+     year = year.strip.gsub(/([\[\]\(\)]|\.\z)/, '')
      return "" if year.blank?
 
      begin

@@ -44,12 +44,22 @@ namespace :rights do
    task :report  => :environment do
       # if a bibl is a manuscript and is in virgo, mark it as NKC
       nkc = UseRight.find_by(name: "No Known Copyright")
-      progress_logfile = "log/rights_report.csv"
-      f = File.open(progress_logfile)
-      f << "title, barcode, call_number\n"
-      Bibl.where(use_right_id: nkc.id).where.not(date_dl_ingest: nil).find_by do |bibl|
-         f << "#{bibl.title}, #{bibl.barcode}, #{bibl.call_number}\n"
+      f = File.open(Rails.root.join("log", "rights_report.csv"),"w")
+      f << "ID\tTitle\tBarcode\tCall Number\tRaw Date\tDate\tPlace of Publication\n"
+      f << "\n"
+      puts "Report file created, adding data..."
+      cnt = 0
+      Bibl.where(use_right_id: nkc.id).where.not(date_dl_ingest: nil).find_each do |bibl|
+         cnt += 1
+         if cnt == 100
+            put "."
+            cnt = 0
+         end
+         info = Virgo.get_marc_publication_info( bibl.barcode )
+         f << "#{bibl.id}\t#{bibl.title}\t#{bibl.barcode}\t#{bibl.call_number}\t#{bibl.year}\t#{Virgo.extract_year_from_raw_260c(bibl.year)}\t#{info[:place]}\n"
+         sleep 0.1
       end
+      puts "DONE"
       f.close
    end
 
