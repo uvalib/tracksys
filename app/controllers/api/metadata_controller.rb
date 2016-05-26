@@ -11,14 +11,20 @@ class Api::MetadataController < ApplicationController
       resource_type = pid_bits.first[2].upcase
       if resource_type == "B"
          object = Bibl.find(id)
-      elsif resource_type == "U"
-         object = Unit.find(id)
       elsif resource_type == "M"
          object = MasterFile.find(id)
       else
-         render :text=>"PID is invalid", status: :bad_request and return
+         object = Bibl.find_by(pid: params[:pid])
+         if object.nil?
+            object = MasterFile.find_by(pid: params[:pid])
+         end
+         render :text=>"PID is invalid", status: :bad_request and return if object.nil?
       end
 
-      render :xml=> Hydra.desc(object)
+      if object.desc_metadata.blank?
+         render :xml=> Hydra.desc(object)
+      else
+         render :xml=> object.desc_metadata
+      end
    end
 end
