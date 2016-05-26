@@ -6,7 +6,7 @@ ActiveAdmin.register Bibl do
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
       :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
-      :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id
+      :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id, :publication_place
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -40,6 +40,7 @@ ActiveAdmin.register Bibl do
   filter :catalog_key
   filter :barcode
   filter :pid
+  filter :publication_place, label: 'Place of Publication'
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :location
@@ -132,6 +133,7 @@ ActiveAdmin.register Bibl do
           row :call_number
           row :year
           row :year_type
+          row('Place of Publication') { |b| b.publication_place }
           row :copy
           row :location
         end
