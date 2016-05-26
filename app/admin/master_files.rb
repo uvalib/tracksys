@@ -333,28 +333,34 @@ ActiveAdmin.register MasterFile do
    member_action :print_image, :method => :put do
       mf = MasterFile.find(params[:id])
       pdf = Prawn::Document.new
-      pdf.font "Times-Roman"
+      pdf.font_families.update(
+         "DejaVu" => {
+            :normal => "#{Rails.root}/public/fonts/DejaVuSans.ttf",
+            :bold => "#{Rails.root}/public/fonts/DejaVuSans-Bold.ttf",
+            :italic => "#{Rails.root}/public/fonts/DejaVuSans-Oblique.ttf"
+         }
+      )
+      pdf.font("DejaVu")
+
       pdf.image "#{Rails.root.to_s}/app/assets/images/lib_letterhead.jpg", :at => [pdf.bounds.width - 275, pdf.cursor + 5], :fit => [275, 275]
-      pdf.font("#{Rails.root.to_s}/app/assets/fonts/PTF55F.ttf") do
-         pdf.text "ALBERT AND SHIRLEY SMALL", :position => :left, :size => 18
-         pdf.text "Special Collections Library", :position => :left, :size => 16
-      end
+      pdf.text "ALBERT AND SHIRLEY SMALL", :position => :left, :size => 16
+      pdf.text "Special Collections Library", :position => :left, :size => 14
       pdf.move_down 5
       pdf.text "Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.   No further copies should be made. Copyright and other legal restrictions may apply. Additionally, this copy may not be donated to other repositories.", :align => :center, :style => :italic, :size => 8
 
       pdf.image File.join(PRODUCTION_MOUNT, "#{mf.link_to_static_thumbnail}"), :fit => [550, 550], :position => :center
       pdf.move_down 5
 
-      pdf.text "<b>Citation:</b> <i>#{mf.bibl.get_citation}</i>", :inline_format => true
+      pdf.text "<b>Citation:</b> <i>#{mf.bibl.get_citation}</i>", :inline_format => true, :size => 10
       pdf.move_down 2
 
       if mf.bibl.catalog_key
-         pdf.text "<b>Catalog Record:</b> <i>#{mf.bibl.physical_virgo_url}</i>", :inline_format => true
+         pdf.text "<b>Catalog Record:</b> <i>#{mf.bibl.physical_virgo_url}</i>", :inline_format => true, :size => 10
          pdf.move_down 2
       end
 
       if mf.in_dl? and mf.availability_policy_id == 1
-         pdf.text "<b>Online Access:</b>  <i>#{mf.link_to_dl_page_turner}</i>", :inline_format => true
+         pdf.text "<b>Online Access:</b>  <i>#{mf.link_to_dl_page_turner}</i>", :inline_format => true, :size => 10
          pdf.move_down 2
       end
 
@@ -370,11 +376,11 @@ ActiveAdmin.register MasterFile do
             end
             text << name_details
          end
-         pdf.text "<b>Manuscript Information:</b>  " + text, :inline_format => true
+         pdf.text "<b>Manuscript Information:</b>  " + text, :inline_format => true, :size => 10
          pdf.move_down 2
       end
 
-      pdf.text "<b>Page Title:</b> <i>#{mf.title}</i>", :inline_format => true
+      pdf.text "<b>Page Title:</b> <i>#{mf.title}</i>", :inline_format => true, :size => 10
       pdf.move_down 2
 
       # Page numbering

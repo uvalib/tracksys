@@ -173,11 +173,11 @@ class BaseJob
    # are raised, terminating processing.
    #
    def on_error(err)
-      if err.is_a? StandardError
-         @status.update_attribute(:failures, (@status.failures+1) )
-         @logger.error err.message
-         @logger.error err.backtrace.join("\n")
-      else
+      # if err.is_a? StandardError
+      #    @status.update_attribute(:failures, (@status.failures+1) )
+      #    @logger.error err.message
+      #    @logger.error err.backtrace.join("\n")
+      # else
          if err.is_a? Exception
             @status.failed( err.message )
             @logger.fatal err.message
@@ -189,6 +189,6 @@ class BaseJob
 
          # Stop processing
          raise err
-      end
+      # end
    end
 end

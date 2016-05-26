@@ -11,35 +11,44 @@ class CreateOrderPdf < BaseJob
       raise "Parameter 'order' is required" if message[:order].blank?
       raise "Parameter 'fee' is required" if message[:fee].blank?
 
-      @order = message[:order]
-      @fee = message[:fee]
-      @customer = @order.customer
+      order = message[:order]
+      fee = message[:fee]
+      customer = order.customer
 
-      @units_in_pdf = Array.new
-      @order.units.each do |unit|
+      units_in_pdf = Array.new
+      order.units.each do |unit|
          if unit.unit_status == 'approved'
-            @units_in_pdf.push(unit)
+            units_in_pdf.push(unit)
          end
       end
 
       @pdf = Prawn::Document.new
-      @pdf.font "Helvetica", :encoding => nil
+      @pdf.font_families.update(
+         "DejaVu" => {
+            :normal => "#{Rails.root}/public/fonts/DejaVuSans.ttf",
+            :bold => "#{Rails.root}/public/fonts/DejaVuSans-Bold.ttf",
+            :italic => "#{Rails.root}/public/fonts/DejaVuSans-Oblique.ttf"
+         }
+      )
+
+      @pdf.font("DejaVu")
       @pdf.image "#{Rails.root}/app/assets/images/lib_letterhead.jpg", :position => :center, :width => 500
       @pdf.text "Digital Production Group,  University of Virginia Library", :align => :center
+
       @pdf.text "Post Office Box 400155, Charlottesville, Virginia 22904 U.S.A.", :align => :center
       @pdf.text "\n\n"
-      @pdf.text "Order ID: #{@order.id}", :align => :right, :font_size => 14
+      @pdf.text "Order ID: #{order.id}", :align => :right, :font_size => 14
       @pdf.text "\n"
-      @pdf.text "Dear #{@customer.first_name.capitalize} #{@customer.last_name.capitalize}, \n\n"
+      @pdf.text "Dear #{customer.first_name.capitalize} #{customer.last_name.capitalize}, \n\n"
 
-      if @units_in_pdf.length > 1
-         @pdf.text "On #{@order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
+      if units_in_pdf.length > 1
+         @pdf.text "On #{order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{units_in_pdf.length} items.  Below you will find a description of your digital order and how to cite the material for publication."
       else
-         @pdf.text "On #{@order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{@units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
+         @pdf.text "On #{order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
       end
       @pdf.text "\n"
-      if not @fee.to_i.eql?(0)
-         @pdf.text "Our records show that you accepted a fee of $#{@fee.to_i} for this order. This fee must be paid within 30 days.  You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:", :inline_format => true
+      if not fee.to_i.eql?(0)
+         @pdf.text "Our records show that you accepted a fee of $#{fee.to_i} for this order. This fee must be paid within 30 days.  You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:", :inline_format => true
          @pdf.text "\n"
          @pdf.text "<u><link href='http://dcs.library.virginia.edu/online-payments-for-digitization-orders/'>http://dcs.library.virginia.edu/online-payments-for-digitization-orders/</link></u>" , :inline_format => true
          @pdf.text "\n"
@@ -65,12 +74,12 @@ class CreateOrderPdf < BaseJob
       @pdf.text "\n"
 
       # Iterate through all the units belonging to this order
-      @units_in_pdf.each do |unit|
+      units_in_pdf.each do |unit|
          # For pretty printing purposes, create pagebreak if there is less than 10 lines remaining on the current page.
          @pdf.start_new_page unless @pdf.cursor > 30
 
          # Add 1 to incrementation because index starts at 0
-         item_number = @units_in_pdf.index(unit) + 1
+         item_number = units_in_pdf.index(unit) + 1
 
          @pdf.text "Item ##{item_number}:", :font_size => 14
          @pdf.text "\n"
@@ -85,7 +94,6 @@ class CreateOrderPdf < BaseJob
          @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 if unit.bibl.volume?
          @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
          @pdf.text "\n"
-
          @pdf.text "<b>Citation:</b> <i>#{unit.bibl.get_citation}</i>", :left => 10, :inline_format => true
          @pdf.text "\n"
 
@@ -110,13 +118,13 @@ class CreateOrderPdf < BaseJob
          @pdf.number_pages string, options
 
          # Write out the PDF file, ensuring that the order dir exists
-         order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{@order.id}")
+         order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{order.id}")
          Dir.mkdir(order_dir) unless File.exists?(order_dir)
-         @pdf.render_file( File.join(order_dir, "#{@order.id}.pdf") )
+         @pdf.render_file( File.join(order_dir, "#{order.id}.pdf") )
 
          # Publish message
-         on_success "PDF created for order #{@order.id}."
-         CreateOrderZip.exec_now({:order => @order}, self)
+         on_success "PDF created for order #{order.id}."
+         CreateOrderZip.exec_now({:order => order}, self)
       end
 
       # Physical Component Methods
