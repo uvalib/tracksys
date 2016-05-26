@@ -12,4 +12,8 @@ Tracksys::Application.routes.draw do
     end
   end
   ActiveAdmin.routes(self)
+
+  namespace :api do
+     get "metadata" => "metadata#index"
+  end
 end

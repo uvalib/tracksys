@@ -613,7 +613,12 @@ module Hydra
   end
 
   def self.mods_from_marc(object)
-    xslt = Nokogiri::XSLT(File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl"))
+    xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl")
+    i0 = xslt_str.index "<xsl:include"
+    i1 = xslt_str.index("\n", i0)
+    inc = "<xsl:include href=\"#{Rails.root}/lib/xslt/MARC21slimUtils.xsl\"/>"
+    fixed = "#{xslt_str[0...i0]}#{inc}#{xslt_str[i1+1...-1]}"
+    xslt = Nokogiri::XSLT(fixed)
     xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
     mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'"])
 
