@@ -2,17 +2,16 @@ class CheckOrderDateArchivingComplete < BaseJob
 
    def do_workflow(message)
 
-      raise "Parameter 'unit' is required" if message[:unit].blank?
-      src_unit = message[:unit]
-      order = src_unit.order
+      raise "Parameter 'order_id' is required" if message[:order_id].blank?
+      order = Order.find(message[:order_id])
 
       incomplete_units = Array.new
       order.units.each do |unit|
          # If an order can have both patron and dl-only units (i.e. some units have an intended use of "Digital Collection Building")
          # then we have to remove from consideration those units whose intended use is "Digital Collection Building"
          # and consider all other units.
-         if not unit.unit_status == "canceled"
-            if not unit.date_archived
+         if unit.unit_status != "canceled"
+            if unit.date_archived.blank?
                incomplete_units.push(unit.id)
             end
          end

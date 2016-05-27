@@ -13,6 +13,7 @@ class FinalizeUnit < BaseJob
       FileUtils.mv File.join(finalization_dir, unit_dir), File.join(IN_PROCESS_DIR, unit_dir)
       unit_id = unit_dir.to_s.sub(/^0+/, '')
       unit = Unit.find(unit_id)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>unit_id )
       QaUnitData.exec_now( { :unit => unit }, self)
    end
 end
