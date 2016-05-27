@@ -1,6 +1,5 @@
 class Api::MetadataController < ApplicationController
-   def index
-      render :text=>"pid is required", status: :bad_request and return if params[:pid].blank?
+   def show
       render :text=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
       render :text=>"Only desc_metadata is supported", status: :bad_request and return if type != "desc_metadata"
