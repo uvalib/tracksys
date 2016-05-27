@@ -16,5 +16,7 @@ Tracksys::Application.routes.draw do
   namespace :api do
      get "metadata/:pid" => "metadata#show"
      get "pid/:pid" => "pid#show"
+     get "solr/:pid" => "solr#show"
+     get "solr" => "solr#index"
   end
 end
