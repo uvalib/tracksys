@@ -105,6 +105,9 @@ module Virgo
         if !place.match(/[\[].*[\]]/) # just open bracket
            place.gsub! /\[/, ''
         end
+        if place.match(/\A[\[].*[\]]\z/) # start and end with []
+           place.gsub!(/(\[|\])/, '')
+        end
      end
      return { year: year, place: place}
   end
