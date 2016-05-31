@@ -1,7 +1,43 @@
 {
-    "@context":"http://iiif.io/api/presentation/2/context.json",
-    "@id":"http://fedora02.lib.virginia.edu/dl/uva-lib:2576945/manifest.json",
-    "@type":"SC:Manifest",
-    "label":"<%= @bibl.title %>",
-    "sequences":[]
+   "@context":"http://iiif.io/api/presentation/2/context.json",
+   "@id":"<%= FEDORA_REST_URL %>/dl/<%= @bibl.pid %>/manifest.json",
+   "@type":"SC:Manifest",
+   "label":"<%= @bibl.title %>",
+   "description":"<%= @bibl.description %>",
+   "sequences":[
+      {
+         "@type":"sc:Sequence",
+         "viewingHint":"paged",
+         "canvases":[
+            <% @bibl.master_files.each_with_index do |mf, idx| %>
+            {
+               "@id":"http://iiif.lib.virginia.edu/dl/<%= @bibl.pid %>/canvas/c<%= idx %>",
+               "@type":"SC:Canvas",
+               "label":"<%= mf.title %>",
+               "thumbnail":"http://iiif.lib.virginia.edu/iiif/<%= mf.pid %>/full/90,146/0/default.jpg",
+               "width":<%= mf.image_tech_meta.width %>,
+               "height":<%= mf.image_tech_meta.height %>,
+               "images":[
+                  {
+                     "@type":"oa:Annotation",
+                     "motivation":"sc:painting",
+                     "resource":{
+                        "@type":"dcTypes:Image",
+                        "format":"image/jp2",
+                        "width":<%= mf.image_tech_meta.width %>,
+                        "height":<%= mf.image_tech_meta.height %>,
+                        "service":{
+                           "@context":"http://iiif.io/api/image/2/context.json",
+                           "@id":"http://iiif.lib.virginia.edu/iiif/<%= mf.pid %>",
+                           "profile":"http://iiif.io/api/image/2/level1.json"
+                        }
+                     },
+                     "on":"http://iiif.lib.virginia.edu/dl/<%= @bibl.pid %>/canvas/c<%= idx   %>"
+                  }
+               ]
+            }<% if mf.id != @bibl.master_files.last.id %>,<% end %>
+            <% end %>
+         ]
+      }
+   ]
 }
