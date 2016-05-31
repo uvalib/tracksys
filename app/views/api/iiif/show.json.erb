@@ -1,6 +1,6 @@
 {
    "@context":"http://iiif.io/api/presentation/2/context.json",
-   "@id":"<%= FEDORA_REST_URL %>/dl/<%= @bibl.pid %>/manifest.json",
+   "@id":"<%= request.base_url %>/api/iiif/<%= @bibl.pid %>/manifest.json",
    "@type":"SC:Manifest",
    "label":"<%= @bibl.title %>",
    "description":"<%= @bibl.description %>",
