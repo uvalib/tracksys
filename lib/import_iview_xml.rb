@@ -23,7 +23,6 @@ module ImportIviewXml
     Rails.logger.info "ImportIvewXML: importing #{unit_id}"
     @master_file_count = 0
     @pid_count = 0
-    @pids = Array.new
 
     # Get Unit object
     begin
@@ -55,14 +54,6 @@ module ImportIviewXml
         # Each <MediaItem> becomes a MasterFile record
         @pid_count += 1
       end
-    end
-
-    # Request pids
-    begin
-      @pids = AssignPids.request_pids(@pid_count)
-    rescue Exception => e
-      # TODO: Restore ErrorMailer
-      # ErrorMailer.deliver_notify_pid_failure(e)
     end
 
     # Check for processing instruction indicating software name and version
@@ -106,9 +97,7 @@ module ImportIviewXml
           if not master_file.valid?
             raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
           end
-          # save MasterFile to database, raising any error that occurs
-          master_file.pid = @pids.shift unless @pids.blank?
-          # master_file.skip_pid_notification = true  # Don't send email notification if can't obtain pid for this individual record upon save; we already sent one if pid request for entire unit failed
+
           # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
           if ImportIviewXml.get_transcription_text(master_file)
             Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"

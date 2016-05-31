@@ -71,7 +71,7 @@ class UpdateFedoraDatastreams < BaseJob
             @source = File.join(ARCHIVE_DIR, @unit_dir, mf.filename)
 
             dl_msg = { :master_file=>mf, :source => @source, :last => 0 }
-            CreateDlDeliverables.exec_now(dl_msg, self) if mf.datastream_exists?("content")
+            CreateDlDeliverables.exec_now(dl_msg, self)
 
             # Update the object's date_dl_update value
             mf.update_attribute(:date_dl_update, Time.now)
@@ -85,11 +85,6 @@ class UpdateFedoraDatastreams < BaseJob
          @object.bibl.update_attribute(:date_dl_update, Time.now)
          @object.master_files.each do |mf|
             IngestDescMetadata.exec_now({ :object=>mf }, self)
-            mf.update_attribute(:date_dl_update, Time.now)
-         end
-      elsif @datastream == 'solr_doc'
-         @object.master_files.each do |mf|
-            IngestSolrDoc.exec_now({ :object=>mf}, self)
             mf.update_attribute(:date_dl_update, Time.now)
          end
       elsif @datastream == 'allxml'
@@ -162,8 +157,6 @@ class UpdateFedoraDatastreams < BaseJob
          IngestRightsMetadata.exec_now(mmsg, self)
       elsif @datastream == 'dc_metadata'
          IngestDcMetadata.exec_now(mmsg, self)
-      elsif @datastream == 'solr_doc'
-         IngestSolrDoc.exec_now(mmsg, self)
       elsif @datastream == 'jp2k'
          CreateDlDeliverables.exec_now(dl_msg, self)
       else
@@ -194,8 +187,6 @@ class UpdateFedoraDatastreams < BaseJob
          IngestTeiDoc.exec_now(bmsg, self)
       elsif @datastream == 'dc_metadata'
          IngestDcMetadata.exec_now(bmsg, self)
-      elsif @datastream == 'solr_doc'
-         IngestSolrDoc.exec_now(bmsg, self)
       else
          on_error "Datastream variable #{@datastream} is unknown."
       end
@@ -216,9 +207,6 @@ class UpdateFedoraDatastreams < BaseJob
          IngestRelsExt.exec_now( cmsg, self )
       elsif @datastream == 'dc_metadata'
          IngestDcMetadata.exec_now(cmsg, self)
-      elsif @datastream == 'solr_doc'
-         cmsg[:cascade] = message[:cascade]
-         IngestSolrDoc.exec_now(cmsg, self)
       else
          on_error "Datastream variable #{@datastream} is unknown."
       end

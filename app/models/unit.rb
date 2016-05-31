@@ -1,5 +1,4 @@
 class Unit < ActiveRecord::Base
-   include Pidable
 
    UNIT_STATUSES = %w[approved canceled condition copyright unapproved]
 

@@ -15,7 +15,6 @@ Top Level Jobs
 ⁃	OCR
 ⁃	QaFilesystemAndIviewXml
 ⁃	QaUnitData
-⁃	SendCommitToSolr
 ⁃	SendFeeEstimateToCustomer
 ⁃	SendOrderEmail
 ⁃	SendUnitToArchive

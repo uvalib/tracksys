@@ -1,5 +1,4 @@
 class Bibl < ActiveRecord::Base
-  include Pidable
 
   CREATOR_NAME_TYPES = %w[corporate personal]
   YEAR_TYPES = %w[copyright creation publication]
@@ -155,15 +154,6 @@ class Bibl < ActiveRecord::Base
       self.use_right = cne
     end
 
-    # get pid
-    if self.pid.blank?
-      begin
-        self.pid = AssignPids.get_pid
-      rescue Exception => e
-        #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
-      end
-    end
-
     # Moved from after_initialize in order to make compliant with 2.3.8
     if self.is_in_catalog.nil?
       # set default value
@@ -174,6 +164,9 @@ class Bibl < ActiveRecord::Base
         self.is_in_catalog = true
       end
     end
+  end
+  after_create do
+     update_attribute(:pid, "tsb:#{self.id}")
   end
   after_update :fix_updated_counters
   before_destroy :destroyable?
@@ -320,14 +313,6 @@ class Bibl < ActiveRecord::Base
 
   def dl_virgo_url
     return "#{VIRGO_URL}/#{self.pid}"
-  end
-
-  def fedora_url
-    return "#{FEDORA_REST_URL}/objects/#{self.pid}"
-  end
-
-  def solr_url(url=STAGING_SOLR_URL)
-    return "#{url}/select?q=id:\"#{self.pid}\""
   end
 end
 

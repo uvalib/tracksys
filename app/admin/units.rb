@@ -258,14 +258,6 @@ ActiveAdmin.register Unit do
                     end
                  end
               end
-              if mf.in_dl?
-                div do
-                  link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
-                end
-                div do
-                  link_to "Solr", "#{STAGING_SOLR_URL}/select?q=id:\"#{mf.pid}\"", :class => 'member_link', :target => "_blank"
-                end
-              end
               if mf.date_archived
                 div do
                   link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
@@ -388,29 +380,6 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-    if unit.ready_for_repo?
-      div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
-    end
-    if unit.in_dl?
-      if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? )
-        div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
-      end
-      div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_unit_path(:datastream => 'desc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_unit_path(:datastream => 'rels_ext'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Index Records", update_metadata_admin_unit_path(:datastream => 'solr_doc'), :method => :put end
-    end
-  end
-
-  sidebar "Solr Index", :only => [:show],  if: proc{ !current_user.viewer? } do
-    if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => current_user, :method => :get end
-    end
-  end
-
   action_item :previous, :only => :show do
     link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?
   end
@@ -461,17 +430,6 @@ ActiveAdmin.register Unit do
   member_action :start_ingest_from_archive, :method => :put do
     Unit.find(params[:id]).start_ingest_from_archive
     redirect_to :back, :notice => "Unit being put into digital library."
-  end
-
-  member_action :update_metadata, :method => :put do
-    Unit.find(params[:id]).update_metadata(params[:datastream])
-    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
-  end
-
-  member_action :update_all_solr_docs do
-    SendCommitToSolr.exec()
-    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
-    redirect_to :back
   end
 
   member_action :checkout_to_digiserv, :method => :put do

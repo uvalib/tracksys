@@ -95,11 +95,6 @@ ActiveAdmin.register MasterFile do
                end
             end
          end
-         if mf.in_dl?
-            div do
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
-            end
-         end
          if mf.date_archived
             div do
                link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
@@ -267,11 +262,6 @@ ActiveAdmin.register MasterFile do
             end
          end
          row :agency
-         row "Digital Library" do |master_file|
-            if master_file.in_dl?
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{master_file.pid}", :class => 'member_link', :target => "_blank"
-            end
-         end
          row "Legacy Identifiers" do |master_file|
             master_file.legacy_identifiers.each do |li|
                div do
@@ -279,34 +269,6 @@ ActiveAdmin.register MasterFile do
                end
             end unless master_file.legacy_identifiers.empty?
          end
-      end
-   end
-
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-      if master_file.in_dl?
-         div :class => 'workflow_button' do
-            button_to "Update All Datastreams", update_metadata_admin_master_file_path(:datastream => 'all'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update All XML Datastreams", update_metadata_admin_master_file_path(:datastream => 'allxml'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update JPEG-2000", update_metadata_admin_master_file_path(:datastream => 'jp2k'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Dublin Core", update_metadata_admin_master_file_path(:datastream => 'dc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Descriptive Metadata", update_metadata_admin_master_file_path(:datastream => 'desc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Relationships", update_metadata_admin_master_file_path(:datastream => 'rels_ext'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Index Record", update_metadata_admin_master_file_path(:datastream => 'solr_doc'), :method => :put
-         end
-      else
-         "No options available.  Object not yet ingested."
       end
    end
 
@@ -393,11 +355,6 @@ ActiveAdmin.register MasterFile do
 
       # pdf.text "<b>Identifiers:</b> <i>#{mf.pid} (Repository), #{mf.filename} (Filename)</i>", :inline_format => true
       send_data pdf.render, :filename => "#{mf.filename.gsub(/.tif/, '')}.pdf", :type => "application/pdf", :disposition => 'inline'
-   end
-
-   member_action :update_metadata, :method => :put do
-      MasterFile.find(params[:id]).update_metadata(params[:datastream])
-      redirect_to :back, :notice => "#{params[:datastream]} is being updated."
    end
 
    # Specified in routes.rb to return the XML partial mods.xml.erb

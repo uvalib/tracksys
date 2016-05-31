@@ -198,11 +198,6 @@ ActiveAdmin.register Component do
                      div do
                         link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
                      end
-                     if mf.in_dl?
-                        div do
-                           link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
-                        end
-                     end
                      if mf.date_archived
                         div do
                            link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
@@ -260,41 +255,6 @@ ActiveAdmin.register Component do
                link_to "#{component.children.size}", admin_components_path(:q => {:parent_component_id_eq => component.id})
             end
          end
-         row "Digital Library" do |component|
-            if component.exists_in_repo?
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"
-            end
-         end
-      end
-   end
-
-   sidebar "Digital Library Workflow", :only => [:show], if: proc{ !current_user.viewer? } do
-      if component.exists_in_repo?
-         div :class => 'workflow_button' do
-            button_to "Update All XML Datastreams", update_metadata_admin_component_path(:datastream => 'allxml'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Dublin Core", update_metadata_admin_component_path(:datastream => 'dc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Descriptive Metadata", update_metadata_admin_component_path(:datastream => 'desc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Relationships", update_metadata_admin_component_path(:datastream => 'rels_ext'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Index Record", update_metadata_admin_component_path(:datastream => 'solr_doc'), :method => :put
-         end
-      else
-         "No options available.  Object not yet ingested."
-      end
-   end
-
-   sidebar "Solr Index", :only => [:show], if: proc{ !current_user.viewer? }  do
-      if component.in_dl?
-         div :class => 'workflow_button' do
-            button_to "Commit Records to Solr", update_all_solr_docs_admin_component_path, :user => current_user, :method => :get
-         end
       end
    end
 
@@ -314,17 +274,6 @@ ActiveAdmin.register Component do
    member_action :export_iview, :method => :put do
       Component.find(params[:id]).create_iview_xml
       redirect_to :back, :notice => "New Iview Catalog written to file system."
-   end
-
-   member_action :update_metadata, :method => :put do
-      Component.find(params[:id]).update_metadata(params[:datastream])
-      redirect_to :back, :notice => "#{params[:datastream]} is being updated."
-   end
-
-   member_action :update_all_solr_docs do
-      SendCommitToSolr.exec()
-      flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
-      redirect_to :back
    end
 
    member_action :tree, :method => :get do

@@ -110,12 +110,6 @@ ActiveAdmin.register_page "Dashboard" do
 
     if !current_user.viewer?
        div :class => 'three-column' do
-         panel "Digital Library Buttons", :priority => 5, :toggle => 'show' do
-           div :class => 'workflow_button' do button_to "Commit Records to Solr", admin_dashboard_update_all_solr_docs_path, :user => current_user, :method => :get end
-         end
-       end
-
-       div :class => 'three-column' do
          panel "Statistics", :priority => 6, :toggle => 'show' do
            div :class => 'workflow_button' do
              render 'admin/stats_report'
@@ -169,12 +163,6 @@ ActiveAdmin.register_page "Dashboard" do
   page_action :start_manual_upload_to_archive_migration do
     StartManualUploadToArchive.exec( {:user => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
-    redirect_to :back
-  end
-
-  page_action :update_all_solr_docs do
-    SendCommitToSolr.exec()
-    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
     redirect_to :back
   end
 

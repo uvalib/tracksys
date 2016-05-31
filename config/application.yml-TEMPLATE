@@ -40,7 +40,6 @@ production:
    fedora_password: pass
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
-   staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"
@@ -56,7 +55,6 @@ development:
    fedora_password: pass
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
-   staging_solr_url: http://tracksysdev.lib.virginia.edu:8080/solr/tracksys  # virgo pulls data from here nightly
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"

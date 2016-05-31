@@ -37,18 +37,10 @@ class QueueObjectsForFedora < BaseJob
       things.flatten!
 
       things.uniq.each do |thing|
-         # If object does not have a pid, request one and save the object with newly requested pid
-         if not thing.pid
-            pid =  AssignPids.request_pids(1)
-            thing.pid = pid[0]
-            thing.save!
-         else
-            pid = thing.pid
-         end
 
          # LFF Don't send the top-level Daily Progress component or bibl
-         if pid == "uva-lib:2137307" || pid == "uva-lib:2065830"
-           logger.info "Skipping Daily Progress top-level component/bibl (pid: #{pid})"
+         if thing.pid == "uva-lib:2137307" || thing.pid == "uva-lib:2065830"
+           logger.info "Skipping Daily Progress top-level component/bibl (pid: #{thing.pid})"
            next
          end
 
@@ -63,7 +55,5 @@ class QueueObjectsForFedora < BaseJob
             :unit => unit, :source => source, :object => thing, :last => last }, self)
       end
       on_success "All ingestable objects related to Unit #{unit.id} have been ingested."
-
-       ## HERE
    end
 end

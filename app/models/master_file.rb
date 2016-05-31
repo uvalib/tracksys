@@ -1,5 +1,4 @@
 class MasterFile < ActiveRecord::Base
-   include Pidable
 
    #------------------------------------------------------------------
    # relationships
@@ -78,14 +77,9 @@ class MasterFile < ActiveRecord::Base
         cne = UseRight.find_by(name: "Copyright Not Evaluated")
         self.use_right = cne
       end
-      
-      if self.pid.blank?
-         begin
-            self.pid = AssignPids.get_pid
-         rescue Exception => e
-            #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
-         end
-      end
+   end
+   after_create do
+      update_attribute(:pid, "tsm:#{self.id}")
    end
 
    #------------------------------------------------------------------
@@ -115,10 +109,6 @@ class MasterFile < ActiveRecord::Base
 
    def sorted_set
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
-   end
-
-   def link_to_dl_thumbnail
-      return "http://fedoraproxy.lib.virginia.edu/fedora/get/#{self.pid}/djatoka:jp2SDef/getRegion?scale=125"
    end
 
    def link_to_dl_page_turner
