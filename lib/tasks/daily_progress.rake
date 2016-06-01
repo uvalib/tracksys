@@ -263,7 +263,6 @@ namespace :daily_progress do
                year_component = Component.new
                year_component.discoverability = 0
                year_component.indexing_scenario_id = 1
-               year_component.index_destination_id = 3
                year_component.availability_policy_id = 1
                year_component.component_type = series
                year_component.date = year
@@ -287,7 +286,6 @@ namespace :daily_progress do
                month_component = Component.new
                month_component.discoverability = 0
                month_component.indexing_scenario_id = 1
-               month_component.index_destination_id = 3
                month_component.availability_policy_id = 1
                month_component.component_type = subseries
                month_component.date = month
@@ -329,7 +327,6 @@ namespace :daily_progress do
             if curr_issue.nil?
                curr_issue = Component.new
                curr_issue.discoverability = 0
-               curr_issue.index_destination_id = 3
                curr_issue.indexing_scenario_id = 1
                curr_issue.availability_policy_id = 1
                curr_issue.component_type = item
@@ -344,7 +341,6 @@ namespace :daily_progress do
                issue_unit = Unit.new
                issue_unit.order = order
                issue_unit.archive_id = 5 if legacy == true
-               issue_unit.index_destination_id = 3    # virgo
                issue_unit.indexing_scenario_id = 1    # default
                issue_unit.availability_policy_id = 1  # public
                issue_unit.intended_use_id = 110       # Digital collection building

@@ -43,6 +43,7 @@ production:
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"
+   index_destintion: "virgo"
 development:
    dev_user_compute_id: aec6v
    archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
@@ -58,3 +59,4 @@ development:
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    saxon_url: fedora-staging.lib.virginia.edu
    saxon_port: "8080"
+   index_destintion: "localhost"

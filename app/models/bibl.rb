@@ -98,7 +98,6 @@ class Bibl < ActiveRecord::Base
   has_many :master_files, :through => :units
   has_many :orders, ->{ uniq }, :through => :units
   has_many :units
-  belongs_to :index_destination, :counter_cache => true
 
   #------------------------------------------------------------------
   # scopes
@@ -361,5 +360,4 @@ end
 #  dpla                   :boolean          default(FALSE)
 #  cataloging_source      :string(255)
 #  collection_facet       :string(255)
-#  index_destination_id   :integer
 #

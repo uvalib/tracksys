@@ -67,10 +67,6 @@ module Hydra
 
          analog_solr_record = "http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.catalog_key}"
 
-         index_destination = "localhost"
-         if object.index_destination.respond_to?(:name)
-            index_destination = object.index_destination.name
-         end
          if object.availability_policy_id == 1
             availability_policy_pid = false
          else
@@ -92,7 +88,7 @@ module Hydra
             "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
             "style" => "#{object.indexing_scenario.complete_url}",
             "repository" => "#{FEDORA_PROXY_URL}",
-            "destination" => "#{index_destination}",
+            "destination" => "#{Settings.index_destination}",
             "pid" => "#{object.pid}",
             "analogSolrRecord" => "#{analog_solr_record}",
             "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
@@ -101,7 +97,6 @@ module Hydra
             "sourceFacet" => "UVA Library Digital Repository",
             "shadowedItem" => "#{shadowed}",
             "externalRelations" => "#{external_relations}",
-            #        "totalTranscriptions" => "#{total_transcription}",
             collectionFacetParam => "#{object.collection_facet}",
             "totalTitles" => "#{total_title}",
             "totalDescriptions" => "#{total_description}",
@@ -122,10 +117,6 @@ module Hydra
             total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
             total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
 
-            index_destination = "localhost"
-            if object.bibl.index_destination.respond_to?(:name)
-               index_destination = object.bibl.index_destination.name
-            end
             if object.availability_policy_id == 1
                availability_policy_pid = false
             elsif object.availability_policy
@@ -150,7 +141,7 @@ module Hydra
                "source" => "#{FEDORA_REST_URL}/objects/#{object.pid}/datastreams/descMetadata/content",
                "style" => "#{indexing_scenario_url}",
                "repository" => "#{FEDORA_PROXY_URL}",
-               "destination" => "#{index_destination}",
+               "destination" => "#{Settings.index_destination}",
                "pid" => "#{object.pid}",
                "analogSolrRecord" => "#{analog_solr_record}",
                "dateIngestNow" => "#{Time.now.strftime('%Y%m%d%H')}",
@@ -168,13 +159,7 @@ module Hydra
                return response.body
             elsif object.is_a? Component
                # Return the response from the getIndexingMetadata Fedora Disseminator
-               destination = ""
-               if object.index_destination && object.index_destination_id > 1
-                  destination = object.index_destination.name
-               else
-                  destination = IndexDestination.find(1).name # 'searchdev' as a default
-               end
-               return open("#{FEDORA_REST_URL}/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
+               return open("#{FEDORA_REST_URL}/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{Settings.index_destination}").read
             else
                raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
             end

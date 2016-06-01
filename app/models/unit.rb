@@ -33,7 +33,6 @@ class Unit < ActiveRecord::Base
    delegate :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit,
       :to => :intended_use, :allow_nil => true, :prefix => true
 
-   belongs_to :index_destination, :counter_cache => true
    has_and_belongs_to_many :legacy_identifiers
 
    #------------------------------------------------------------------
@@ -221,5 +220,4 @@ end
 #  checked_out                    :boolean          default(FALSE)
 #  availability_policy_id         :integer
 #  master_files_count             :integer          default(0)
-#  index_destination_id           :integer
 #

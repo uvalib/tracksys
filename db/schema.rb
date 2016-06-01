@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160525152946) do
+ActiveRecord::Schema.define(version: 20160601154913) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -121,7 +121,6 @@ ActiveRecord::Schema.define(version: 20160525152946) do
     t.boolean  "dpla",                                 default: false
     t.string   "cataloging_source",      limit: 255
     t.string   "collection_facet",       limit: 255
-    t.integer  "index_destination_id",   limit: 4
     t.string   "publication_place",      limit: 255
   end
 
@@ -189,7 +188,6 @@ ActiveRecord::Schema.define(version: 20160525152946) do
     t.string   "pids_depth_cache",        limit: 255
     t.string   "ead_id_atts_depth_cache", limit: 255
     t.integer  "followed_by_id",          limit: 4
-    t.integer  "index_destination_id",    limit: 4
   end
 
   add_index "components", ["ancestry"], name: "index_components_on_ancestry", using: :btree
@@ -303,19 +301,6 @@ ActiveRecord::Schema.define(version: 20160525152946) do
   end
 
   add_index "image_tech_meta", ["master_file_id"], name: "index_image_tech_meta_on_master_file_id", using: :btree
-
-  create_table "index_destinations", force: :cascade do |t|
-    t.string   "nickname",         limit: 255
-    t.string   "hostname",         limit: 255, default: "localhost"
-    t.string   "port",             limit: 255, default: "8080"
-    t.string   "protocol",         limit: 255, default: "http"
-    t.string   "context",          limit: 255, default: "solr"
-    t.datetime "created_at",                                         null: false
-    t.datetime "updated_at",                                         null: false
-    t.integer  "bibls_count",      limit: 4
-    t.integer  "units_count",      limit: 4
-    t.integer  "components_count", limit: 4
-  end
 
   create_table "indexing_scenarios", force: :cascade do |t|
     t.string   "name",               limit: 255
@@ -531,7 +516,6 @@ ActiveRecord::Schema.define(version: 20160525152946) do
     t.boolean  "checked_out",                                  default: false
     t.integer  "availability_policy_id",         limit: 4
     t.integer  "master_files_count",             limit: 4,     default: 0
-    t.integer  "index_destination_id",           limit: 4
   end
 
   add_index "units", ["availability_policy_id"], name: "index_units_on_availability_policy_id", using: :btree

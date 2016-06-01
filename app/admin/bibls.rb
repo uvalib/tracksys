@@ -5,7 +5,7 @@ ActiveAdmin.register Bibl do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number, :year, :year_type, :copy, :location,
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
-      :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
+      :exemplar, :discoverability, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
       :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id, :publication_place
 
   config.clear_action_items!
@@ -45,7 +45,6 @@ ActiveAdmin.register Bibl do
   filter :dpla, :as => :select
   filter :location
   filter :use_right, :as => :select, label: 'Right Statement'
-  filter :index_destination, :as => :select
   filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
   filter :availability_policy
@@ -198,14 +197,6 @@ ActiveAdmin.register Bibl do
           row('Right Statement'){ |r| r.use_right }
           row :availability_policy
           row :indexing_scenario
-          row :index_destination do |bibl|
-            if bibl.index_destination
-              link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
-            else
-              nil
-            end
-          end
-
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)
           end

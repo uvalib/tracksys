@@ -186,16 +186,6 @@ class Component < ActiveRecord::Base
       return self.date_dl_ingest?
    end
 
-   # temporary method: use until db migration adds relationship
-   def index_destination
-      identifier = self.index_destination_id
-      if identifier
-         return IndexDestination.find(identifier)
-      else
-         return nil
-      end
-   end
-
    # hashes for serializing hierarchies
    # TO DO: improve sorting; The assumption here
    # is that the ordering in iView Catalog, reflected
@@ -261,5 +251,4 @@ end
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)
 #  followed_by_id          :integer
-#  index_destination_id    :integer
 #
