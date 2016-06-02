@@ -21,7 +21,6 @@ Top Level Jobs
 ⁃	StartFinalization
 ⁃	StartIngestFromArchive
 ⁃	StartManualUploadToArchive
-⁃	UpdateFedoraDatastreams
 
 ===============================================================================
 
@@ -30,25 +29,9 @@ START INGEST FROM ARCHIVE FLOW
 ================================
 ⁃  start_ingest_from_archive
    ⁃  update_unit_date_queued_for_ingest
-      ⁃  queue_objects_for_fedora : This spins through the entire ancestry of the unit and creates/updates all
-         ⁃  propogate_access_policies
-            ⁃  propogate_indexing_scenarios
-               ⁃  propagate_discoverability
-                  ⁃  create_new_fedora_objects   ** UPDATE_FEDORA_DATASTREAMS FLOW STARTS HERE AS WELL **
-                     ⁃  ingest_desc_metadata
-                        ⁃  ingest dc metadata
-                        ⁃  ingest_rels_ext
-                     ⁃  ingest_marc
-                     ⁃  ingest_tei_doc
-                     ⁃  create_dl_deliverables
-                        ⁃  ingest_jp2k
-                           ⁃  update_unit_date_dl_deliverables_ready
-                              ⁃  send_commit_to_solr
-                           ⁃  delete_unit_copy_for_deliverable_generation
-                              ⁃  update_unit_date_patron_deliverables_ready
-                              ⁃  CHECK ORDER READY FOR DELIVERY FLOW
-                     ⁃  ingest_tech_metadata
-                     ⁃  ingest_transcription
+      ⁃  queue_dl_deliverables : This spins through the entire ancestry of the unit
+         ⁃ propogate_dl_attributes (for each item in unit)
+            - create_dl_deliverables (only for master files)
 
 ========================
 START FINALIZATION FLOW
@@ -60,16 +43,17 @@ START FINALIZATION FLOW
             ⁃ copy_metadata_to_metadata_directory
             ⁃ check_unit_delivery_mode
                   ⁃  copy_unit_for_deliverable_generation
-                     ⁃  queue_patron_deliverables
-                        ⁃  create_patron_deliverables
-                           ⁃  delete_unit_copy_for_deliverable_generation
-                              ⁃  (patron mode only)
-                                 ⁃  update_unit_patron_deliverables_ready
-                                 ⁃  CHECK ORDER READY FOR DELIVERY FLOW
-                     ⁃  update_unit_date_queued_for_ingest
-                        ⁃  START ARCHIVE INGEST FLOW
+                     ==>  BRANCH: Patron Deliverable or DL deliverables <==
+                     **  PATRON **
+                        *  queue_patron_deliverables
+                           * create_patron_deliverables (for each master file in unit)
+                           * CHECK ORDER READY FOR DELIVERY FLOW
+                     **  DL **
+                        * update_unit_date_queued_for_ingest
+                           * queue_dl_deliverables
+                              * propogate_dl_attributes (for each item in unit)
+                                 * create_dl_deliverables (only for master files)
                      ⁃  SEND UNIT TO ARCHIVE FLOW
-         ⁃
 
 ==========================
 SEND UNIT TO ARCHIVE FLOW
@@ -78,7 +62,6 @@ SEND UNIT TO ARCHIVE FLOW
    ⁃  update_unit_date_archived
       ⁃  check_order_date_archiving_complete
          ⁃  update_order_date_archiving_complete
-      ⁃  move_completed_directory_to_delete_directory
       ⁃  move_completed_directory_to_delete_directory
 
 =====================

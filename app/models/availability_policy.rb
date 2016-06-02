@@ -10,8 +10,7 @@ class AvailabilityPolicy < ActiveRecord::Base
   #------------------------------------------------------------------
   # validations
   #------------------------------------------------------------------
-  validates :name, :xacml_policy_url, :presence => true, :uniqueness => true
-  validates :xacml_policy_url, :format => {:with => URI::regexp(['http','https'])}
+  validates :name, :presence => true, :uniqueness => true
 
   #------------------------------------------------------------------
   # callbacks
@@ -31,9 +30,6 @@ class AvailabilityPolicy < ActiveRecord::Base
   #------------------------------------------------------------------
   # public instance methods
   #------------------------------------------------------------------
-  def xacml_policy_url
-    return "#{self.repository_url}/fedora/objects/#{self.pid}/datastreams/XACML/content"
-  end
 end
 
 # == Schema Information

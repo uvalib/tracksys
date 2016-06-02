@@ -4,7 +4,7 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :index_scenario_id, :availability_policy_id,
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :indexing_scenario_id, :availability_policy_id,
      :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
@@ -379,6 +379,16 @@ ActiveAdmin.register Unit do
       div do "This unit cannot be downloaded because it is not archived." end
     end
   end
+
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+    if unit.ready_for_repo?
+      div :class => 'workflow_button' do button_to "Put into Digital Library",
+         start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
+    end
+    if unit.in_dl?
+      # FIXME
+    end
+    end
 
   action_item :previous, :only => :show do
     link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?

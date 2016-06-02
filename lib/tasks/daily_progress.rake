@@ -87,19 +87,6 @@ namespace :daily_progress do
       puts "TOTAL: #{cnt}"
    end
 
-
-   def update_rels_ext_datastreams(component_ids, legacy)
-      puts "Update RELS_EXT for component IDs: #{component_ids}"
-      component_ids.each do |id|
-         if legacy
-            message = ActiveSupport::JSON.encode(  { :object_class => "Component", :object_id => id, :datastream => "rels_ext" } )
-            Object.publish :update_fedora_datastreams, message
-         else
-            UpdateFedoraDatastreams.exec_now( { :object_class => "Component", :object_id => id, :datastream => "rels_ext" })
-         end
-      end
-   end
-
    def update_followed_by(parent_component, new_component )
       prior = nil
       linked = false
