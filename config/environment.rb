@@ -21,8 +21,6 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
-Fedora_username = Settings.fedora_username
-Fedora_password = Settings.fedora_password
 FEDORA_REST_URL = Settings.fedora_rest_url
 FEDORA_PROXY_URL = Settings.fedora_proxy_url
 TRACKSYS_URL = Settings.tracksys_url
