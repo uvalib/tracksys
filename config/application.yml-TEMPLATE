@@ -35,7 +35,6 @@ production:
    migration_mount: /digiserv-migration
    delivery_dir: /digiserv-delivery/patron
    batch_migration_mount: /lib_content37/Rimage
-   xtf_delivery_dir: /xtf_delivery/text
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
    tracksys_url: http://tracksysdev.lib.virginia.edu/
@@ -49,7 +48,6 @@ development:
    migration_mount:  /home/user/tracksys-dev/sandbox/digiserv-migration
    delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron
    batch_migration_mount:  /home/user/tracksys-dev/sandbox/lib_content37/Rimage
-   xtf_delivery_dir:  /home/user/tracksys-dev/sandbox/xtf_delivery/text
    fedora_rest_url: http://fedoratest01.lib.virginia.edu:8080/fedora          # for internal rest calls
    fedora_proxy_url: http://fedoratest01.lib.virginia.edu:8080/fedora         # nicer version of url for public links
    tracksys_url: http://tracksysdev.lib.virginia.edu/
