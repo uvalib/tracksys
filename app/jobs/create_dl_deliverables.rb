@@ -1,7 +1,7 @@
 class CreateDlDeliverables < BaseJob
 
-   require 'rubygems'
    require 'rmagick'
+   require 'fileutils'
 
    def do_workflow(message)
 
@@ -34,10 +34,20 @@ class CreateDlDeliverables < BaseJob
          tiff.destroy!
       end
 
+      # set path to jp2k storage location
+      if master_file.availability_policy.nil?
+         avail = "public"
+      else
+         avail = master_file.availability_policy.name.downcase
+      end
+      dir = master_file.filename.split("_")[0]
+      jp2k_filename = master_file.pid.sub(/:/, '_') + '.jp2'
+      jp2k_path = File.join(Settings.jp2k_dir, "tsm", avail, dir[0...2], dir[2...4], dir[4...6], dir[6...8], dir[8])
+      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
+      jp2k_path = File.join(jp2k_path, jp2k_filename)
+
       if master_file.filename.match(".jp2$")
          # write a JPEG-2000 file to the destination directory
-         jp2k_filename = master_file.pid.sub(/:/, '_') + '.jp2'
-         jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)
          FileUtils.copy(source, jp2k_path)
          on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
@@ -46,10 +56,6 @@ class CreateDlDeliverables < BaseJob
          GC.start
 
          # generate deliverables for DL use
-         # write a JPEG-2000 file to the destination directory
-         jp2k_filename = master_file.pid.sub(/:/, '_') + '.jp2'
-         jp2k_path = File.join(BASE_DESTINATION_PATH_DL, jp2k_filename)
-
          # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable

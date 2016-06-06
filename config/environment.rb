@@ -62,9 +62,6 @@ BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_de
 # and in engaging lib/bibl_external_update
 SOLR_PRODUCTION_NAME = Settings.solr
 
-# Will have to change this one when I figure out where to put the jp2k images
-BASE_DESTINATION_PATH_DL  = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverables"
-
 # Kakadu JPEG2000 executable
 KDU_COMPRESS= Settings.kdu_compress
 
