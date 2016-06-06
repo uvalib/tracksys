@@ -21,12 +21,6 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
-FEDORA_REST_URL = Settings.fedora_rest_url
-FEDORA_PROXY_URL = Settings.fedora_proxy_url
-TRACKSYS_URL = Settings.tracksys_url
-SAXON_URL = Settings.saxon_url
-SAXON_PORT = Settings.saxon_port.to_i
-
 FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DIR_MIGRATION = "#{MIGRATION_MOUNT}/finalization"
 
