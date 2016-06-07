@@ -19,7 +19,7 @@ class StartManualUploadToArchive < BaseJob
          on_error "Manual upload directory #{directory}/#{day} does not exist."
       else
          original_source_dir = File.join(directory, day)
-         contents = Dir.entries(original_source_dir).delete_if {|x| x == "." or x == ".."}
+         contents = Dir.entries(original_source_dir).delete_if {|x| x == "." or x == ".." or x == ".AppleDouble" or x == ".DS_Store"}
 
          if contents.empty?
             on_success "No items to upload in #{original_source_dir}"
