@@ -22,7 +22,8 @@ class Api::IiifController < ApplicationController
          @bibl = Bibl.find_by(pid: params[:pid])
       end
 
-      render :text=>"PID is invalid", status: :bad_request and return if @bibl.nil?
+      render :text=>"PID not found", status: :not_found and return if @bibl.nil?
+      render :text=>"PID not found", status: :not_found and return if @bibl.availability_policy.nil?
 
       render "/api/iiif/show.json"
    end

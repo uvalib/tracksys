@@ -35,14 +35,12 @@ class CreateDlDeliverables < BaseJob
       end
 
       # set path to jp2k storage location
-      if master_file.availability_policy.nil?
-         avail = "public"
-      else
-         avail = master_file.availability_policy.name.downcase
-      end
-      dir = master_file.filename.split("_")[0]
-      jp2k_filename = master_file.pid.sub(/:/, '_') + '.jp2'
-      jp2k_path = File.join(Settings.jp2k_dir, "tsm", avail, dir[0...2], dir[2...4], dir[4...6], dir[6...8], dir[8])
+      base = master_file.pid.split(":")[1]
+      parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd
+      parts << base.last if parts.length * 2 !=  base.length
+      pid_dirs = parts.join("/")
+      jp2k_filename = "#{base}.jp2"
+      jp2k_path = File.join(Settings.jp2k_dir, "tsm", pid_dirs)
       FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
       jp2k_path = File.join(jp2k_path, jp2k_filename)
 

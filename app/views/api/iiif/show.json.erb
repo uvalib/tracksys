@@ -11,10 +11,10 @@
          "canvases":[
             <% @bibl.master_files.each_with_index do |mf, idx| %>
             {
-               "@id":"http://iiif.lib.virginia.edu/dl/<%= @bibl.pid %>/canvas/c<%= idx %>",
+               "@id":"<%= @bibl.iiif_base_url %>/dl/<%= @bibl.pid %>/canvas/c<%= idx %>",
                "@type":"SC:Canvas",
                "label":"<%= mf.title %>",
-               "thumbnail":"http://iiif.lib.virginia.edu/iiif/<%= mf.pid %>/full/90,146/0/default.jpg",
+               "thumbnail":"<%= @bibl.iiif_base_url %>/<%= mf.pid %>/full/90,146/0/default.jpg",
                "width":<%= mf.image_tech_meta.width %>,
                "height":<%= mf.image_tech_meta.height %>,
                "images":[
@@ -28,11 +28,11 @@
                         "height":<%= mf.image_tech_meta.height %>,
                         "service":{
                            "@context":"http://iiif.io/api/image/2/context.json",
-                           "@id":"http://iiif.lib.virginia.edu/iiif/<%= mf.pid %>",
+                           "@id":"<%= @bibl.iiif_base_url %>/<%= mf.pid %>",
                            "profile":"http://iiif.io/api/image/2/level1.json"
                         }
                      },
-                     "on":"http://iiif.lib.virginia.edu/dl/<%= @bibl.pid %>/canvas/c<%= idx   %>"
+                     "on":"<%= @bibl.iiif_base_url %>/dl/<%= @bibl.pid %>/canvas/c<%= idx   %>"
                   }
                ]
             }<% if mf.id != @bibl.master_files.last.id %>,<% end %>
