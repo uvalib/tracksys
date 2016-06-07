@@ -270,6 +270,10 @@ class Order < ActiveRecord::Base
    def send_order_email
       SendOrderEmail.exec({:order => self})
    end
+
+   def generate_notice
+       generate_invoice_pdf(self, self.fee_actual)
+   end
 end
 
 # == Schema Information
