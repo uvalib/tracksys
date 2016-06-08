@@ -20,17 +20,15 @@ module Hydra
       end
 
       # init commont xsl param / value array
-      payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}"
-      payload["source"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata"
-      payload["repository"] = "#{Settings.tracksys_url}"
-      payload["destination"] = "#{Settings.index_destintion}"
-      payload["pid"] = "#{object.pid}"
-      payload["dateIngestNow"] = "#{now_str}"
-      payload["dateReceived"] = "#{date_received}"
-      payload["sourceFacet"] = "UVA Library Digital Repository"
-      payload["policyFacet"] = "#{availability_policy_pid}"
-      payload["externalRelations"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=rels_ext"
-      payload["clear-stylesheet-cache"] = "yes"
+      payload["repository"] = "'#{Settings.tracksys_url}'"
+      payload["destination"] = "'#{Settings.index_destintion}'"
+      payload["pid"] = "'#{object.pid}'"
+      payload["dateIngestNow"] = "'#{now_str}'"
+      payload["dateReceived"] = "'#{date_received}'"
+      payload["sourceFacet"] = "'UVA Library Digital Repository'"
+      payload["policyFacet"] = "'#{availability_policy_pid}'"
+      payload["externalRelations"] = "'#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=rels_ext'"
+      payload["clear-stylesheet-cache"] = "'yes'"
 
       if object.is_a? Bibl
 
@@ -47,45 +45,36 @@ module Hydra
          total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_description.blank?
          total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_title.blank?
 
-         payload["analogSolrRecord"] = "http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.catalog_key}"
-         payload["totalTitles"] = "#{total_title}"
-         payload["totalDescriptions"] = "#{total_description}"
-         payload["totalTranscriptions"] = "#{total_transcription}"
+         payload["analogSolrRecord"] = "'http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.catalog_key}'"
+         payload["totalTitles"] = "'#{total_title}'"
+         payload["totalDescriptions"] = "'#{total_description}'"
+         payload["totalTranscriptions"] = "'#{total_transcription}'"
 
          if !object.discoverability
-            payload["shadowedItem"] = "HIDDEN"
+            payload["shadowedItem"] = "'HIDDEN'"
          else
-            payload["shadowedItem"] = "VISIBLE"
+            payload["shadowedItem"] = "'VISIBLE'"
          end
 
          # if there is a collection_facet, pass it thru to XSLT as a param
          collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
-         payload["contentModel"] = "digital_book"
-         payload["collectionFacetParam"] = "#{object.collection_facet}"
+         payload["contentModel"] = "'digital_book'"
+         payload["collectionFacetParam"] = "'#{object.collection_facet}'"
 
-         uri = URI("http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet")
-         response = Net::HTTP.post_form(uri, payload)
-         Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
-         return response.body
 
-         #return solr_transform(object, payload)
+         return solr_transform(object, payload)
       elsif object.is_a? MasterFile
-         payload["parentModsRecord"] = "#{Settings.tracksys_url}/api/metadata/#{object.bibl.pid}?type=desc_metadata"
+         payload["parentModsRecord"] = "'#{Settings.tracksys_url}/api/metadata/#{object.bibl.pid}?type=desc_metadata'"
          total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
          total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
          total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
-         payload["totalTitles"] = "#{total_title}"
-         payload["totalDescriptions"] = "#{total_description}"
-         payload["totalTranscriptions"] = "#{total_transcription}"
-         payload["contentModel"] = "jp2k"
-         payload["analogSolrRecord"] = "http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.bibl.catalog_key}"
+         payload["totalTitles"] = "'#{total_title}'"
+         payload["totalDescriptions"] = "'#{total_description}'"
+         payload["totalTranscriptions"] = "'#{total_transcription}'"
+         payload["contentModel"] = "'jp2k'"
+         payload["analogSolrRecord"] = "'http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.bibl.catalog_key}'"
 
-         uri = URI("http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet")
-         response = Net::HTTP.post_form(uri, payload)
-         Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
-         return response.body
-
-         #return solr_transform(object, payload)
+         return solr_transform(object, payload)
       # elsif object.is_a? Component
       #    # Return the response from the getIndexingMetadata Fedora Disseminator
       #    destination = ""
@@ -106,7 +95,7 @@ module Hydra
       xslt = Nokogiri::XSLT(style_xsl)
       xml = Hydra.desc(object)
       xml_doc = Nokogiri::XML( xml )
-      out = xslt.transform(xml_doc, payload.flatten )
+      return xslt.transform(xml_doc, payload.flatten )
    end
 
    # given the output of an object's solr_xml method, return a
