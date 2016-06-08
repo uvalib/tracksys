@@ -258,6 +258,16 @@ ActiveAdmin.register Component do
       end
    end
 
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+      if component.in_dl?
+         div :class => 'workflow_button' do button_to "Publish",
+           publish_admin_component_path(:datastream => 'all'), :method => :put end
+      else
+         "No options available.  Component is not in DL."
+      end
+   end
+
+
    action_item :previous, :only => :show do
       link_to("Previous", admin_component_path(component.new_previous)) unless component.new_previous.nil?
    end
@@ -271,6 +281,12 @@ ActiveAdmin.register Component do
    end
 
    # member actions
+   member_action :publish, :method => :put do
+     c = Component.find(params[:id])
+     FlagForPublication.exec({object: c})
+     redirect_to :back, :notice => "Component flagged for Publication"
+   end
+
    member_action :export_iview, :method => :put do
       Component.find(params[:id]).create_iview_xml
       redirect_to :back, :notice => "New Iview Catalog written to file system."

@@ -368,7 +368,7 @@ ActiveAdmin.register Unit do
               div do "This unit has been archived and patron deliverables are generated.  There are no more finalization steps available." end
             end
        else
-         div do "Files for this unit do not reside in the finalization directory. No work can be done on them." end
+         div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
        end
     end
 
@@ -380,15 +380,16 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library",
          start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
     if unit.in_dl?
-      # FIXME
+      div :class => 'workflow_button' do button_to "Publish",
+         publish_admin_unit_path(:datastream => 'all'), :method => :put end
     end
-    end
+  end
 
   action_item :previous, :only => :show do
     link_to("Previous", admin_unit_path(unit.previous)) unless unit.previous.nil?
@@ -440,6 +441,12 @@ ActiveAdmin.register Unit do
   member_action :start_ingest_from_archive, :method => :put do
     Unit.find(params[:id]).start_ingest_from_archive
     redirect_to :back, :notice => "Unit being put into digital library."
+  end
+
+  member_action :publish, :method => :put do
+    u = Unit.find(params[:id])
+    FlagForPublication.exec({object: u})
+    redirect_to :back, :notice => "Unit flagged for Publication"
   end
 
   member_action :checkout_to_digiserv, :method => :put do

@@ -261,6 +261,15 @@ ActiveAdmin.register Bibl do
     end
   end
 
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+     if bibl.in_dl?
+        div :class => 'workflow_button' do button_to "Publish",
+          publish_admin_bibl_path(:datastream => 'all'), :method => :put end
+     else
+        "No options available.  Object is not in DL."
+     end
+  end
+
   form :partial => "form"
 
   collection_action :external_lookup
@@ -268,6 +277,12 @@ ActiveAdmin.register Bibl do
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:staff_member => current_user } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
+  end
+
+  member_action :publish, :method => :put do
+    b = Bibl.find(params[:id])
+    FlagForPublication.exec({object: b})
+    redirect_to :back, :notice => "Bibl flagged for Publication"
   end
 
   controller do

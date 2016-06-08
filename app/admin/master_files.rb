@@ -272,6 +272,15 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+      if master_file.in_dl?
+         div :class => 'workflow_button' do button_to "Publish",
+           publish_admin_master_file_path(:datastream => 'all'), :method => :put end
+      else
+         "No options available.  Master File is not in DL."
+      end
+   end
+
    action_item :previous, :only => :show do
       link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
    end
@@ -284,6 +293,12 @@ ActiveAdmin.register MasterFile do
       if master_file.date_archived
          link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
       end
+   end
+
+   member_action :publish, :method => :put do
+     mf = MasterFile.find(params[:id])
+     FlagForPublication.exec({object: mf})
+     redirect_to :back, :notice => "Master File flagged for Publication"
    end
 
    member_action :copy_from_archive, :method => :put do
