@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160601173946) do
+ActiveRecord::Schema.define(version: 20160608133049) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -301,9 +301,8 @@ ActiveRecord::Schema.define(version: 20160601173946) do
   add_index "intended_uses", ["description"], name: "index_intended_uses_on_description", unique: true, using: :btree
 
   create_table "invoices", force: :cascade do |t|
-    t.integer  "order_id",                limit: 4,        default: 0,     null: false
+    t.integer  "order_id",                limit: 4,     default: 0,     null: false
     t.datetime "date_invoice"
-    t.text     "invoice_content",         limit: 65535
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "invoice_number",          limit: 4
@@ -312,8 +311,7 @@ ActiveRecord::Schema.define(version: 20160601173946) do
     t.datetime "date_second_notice_sent"
     t.text     "transmittal_number",      limit: 65535
     t.text     "notes",                   limit: 65535
-    t.binary   "invoice_copy",            limit: 16777215
-    t.boolean  "permanent_nonpayment",                     default: false
+    t.boolean  "permanent_nonpayment",                  default: false
   end
 
   add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree

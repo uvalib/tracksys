@@ -51,7 +51,6 @@ end
 #  id                      :integer          not null, primary key
 #  order_id                :integer          default(0), not null
 #  date_invoice            :datetime
-#  invoice_content         :text(65535)
 #  created_at              :datetime
 #  updated_at              :datetime
 #  invoice_number          :integer
@@ -60,6 +59,5 @@ end
 #  date_second_notice_sent :datetime
 #  transmittal_number      :text(65535)
 #  notes                   :text(65535)
-#  invoice_copy            :binary(16777215)
 #  permanent_nonpayment    :boolean          default(FALSE)
 #
