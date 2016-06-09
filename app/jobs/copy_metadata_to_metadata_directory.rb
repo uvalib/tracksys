@@ -32,18 +32,21 @@ class CopyMetadataToMetadataDirectory < BaseJob
          FileUtils.mkdir_p(destination_dir)
       end
 
-      unit_dir_contents = Dir.entries(unit_path).delete_if {|x| x == '.' or x == '..' or /.tif/ =~ x}
+      unit_dir_contents = Dir.entries(unit_path).delete_if {|x| x == ".AppleDouble" or x == '.' or x == '..' or /.tif/ =~ x}
       unit_dir_contents.each do |content|
          begin
             if File.directory?(File.join(unit_path, content))
                if /Thumbnails/ =~ content
-                  FileUtils.cp_r(File.join(unit_path, content), File.join(destination_dir, content))
-               elsif content == ".AppleDouble"  # ignore .AppleDouble for now
+                  dest_file = File.join(destination_dir, content)
+                  FileUtils.cp_r(File.join(unit_path, content), dest_file)
+                  FileUtils.chmod_R 'a+r', "#{dest_file}"
                else
                   failure_messages << "Unknown directory in #{unit_dir}"
                end
             else
-               FileUtils.cp(File.join(unit_path, content), File.join(destination_dir, content))
+               dest_file = File.join(destination_dir, content)
+               FileUtils.cp(File.join(unit_path, content), dest_file)
+               FileUtils.chmod_R 'a+r', "#{dest_file}"
 
                # compare MD5 checksums
                source_md5 = Digest::MD5.hexdigest(File.read(File.join(unit_path, content)))
