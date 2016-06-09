@@ -39,7 +39,7 @@ class QueueDlDeliverables < BaseJob
          del_dir = File.dirname(source)
          logger().debug("Removing processing directory #{del_dir}/...")
          FileUtils.rm_rf(del_dir)
-         logger.info("Files for unit #{unit_id} copied for the creation of #{@dl} deliverables have now been deleted.")
+         logger.info("Files for unit #{unit.id} copied for the creation of #{@dl} deliverables have now been deleted.")
       end
 
    end
