@@ -19,7 +19,6 @@ gem 'whenever', :require => false   # to age off job status records
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
-gem 'solr-ruby'
 gem 'prawn'
 gem 'prawn-table'
 gem 'nested_form'

@@ -50,10 +50,6 @@ BATCH_MIGRATION_MOUNT = Settings.batch_migration_mount
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff"
 BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_delete/from_stornext_manual_upload"
 
-# Solr URL variables for interacting with sanctioned solr server.  Used in constructing solr records
-# and in engaging lib/bibl_external_update
-SOLR_PRODUCTION_NAME = Settings.solr
-
 # Kakadu JPEG2000 executable
 KDU_COMPRESS= Settings.kdu_compress
 

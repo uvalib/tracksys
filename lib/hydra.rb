@@ -45,7 +45,7 @@ module Hydra
          total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_description.blank?
          total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_title.blank?
 
-         payload["analogSolrRecord"] = "'http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.catalog_key}'"
+         payload["analogSolrRecord"] = "'#{Settings.solr_url}/core/select?q=id%3A#{object.catalog_key}'"
          payload["totalTitles"] = "'#{total_title}'"
          payload["totalDescriptions"] = "'#{total_description}'"
          payload["totalTranscriptions"] = "'#{total_transcription}'"
@@ -72,7 +72,7 @@ module Hydra
          payload["totalDescriptions"] = "'#{total_description}'"
          payload["totalTranscriptions"] = "'#{total_transcription}'"
          payload["contentModel"] = "'jp2k'"
-         payload["analogSolrRecord"] = "'http://#{SOLR_PRODUCTION_NAME}/core/select?q=id%3A#{object.bibl.catalog_key}'"
+         payload["analogSolrRecord"] = "'#{Settings.solr_url}/core/select?q=id%3A#{object.bibl.catalog_key}'"
 
          return solr_transform(object, payload)
       # elsif object.is_a? Component
@@ -91,7 +91,10 @@ module Hydra
    end
 
    def self.solr_transform(object, payload)
-      style_xsl = File.read("#{Rails.root}/lib/xslt/defaultModsTransformation.xsl")
+      is = object.indexing_scenario.name.downcase
+      xsl_name = "defaultModsTransformation"
+      xsl_name = "holsingerTransformation" if is.include? "holsinger"
+      style_xsl = File.read("#{Rails.root}/lib/xslt/#{xsl_name}.xsl")
       xslt = Nokogiri::XSLT(style_xsl)
       xml = Hydra.desc(object)
       xml_doc = Nokogiri::XML( xml )

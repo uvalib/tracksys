@@ -9,12 +9,10 @@ module Virgo
 
   @log = Logger.new(STDOUT)
 
-  @metadata_server = "#{SOLR_PRODUCTION_NAME}"
-
   # utility method to report on presence of barcode in Solr index
 
   def self.validate_barcode(barcode)
-    xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+    xml_doc = query_metadata_server(barcode, 'barcode_facet')
     begin
       doc = xml_doc.xpath("/response/result/doc").first
       raise if doc.nil?
@@ -66,9 +64,9 @@ module Virgo
 
      begin
         if catalog_key.blank?
-         xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+         xml_doc = query_metadata_server(barcode, 'barcode_facet')
        else
-         xml_doc = query_metadata_server(@metadata_server, catalog_key)
+         xml_doc = query_metadata_server(catalog_key)
        end
      rescue Exception=>e
         # filed request. nothing to do, blank will be returned below
@@ -205,10 +203,10 @@ module Virgo
       # query the metadata server for this catalog ID or barcode
       if catalog_key.blank?
         # query for barcode
-        xml_doc = query_metadata_server(@metadata_server, barcode, 'barcode_facet')
+        xml_doc = query_metadata_server( barcode, 'barcode_facet')
       else
         # query for catalog ID
-        xml_doc = query_metadata_server(@metadata_server, catalog_key)
+        xml_doc = query_metadata_server(catalog_key)
       end
 
       # from the server's response XML, get the <doc> element (which
@@ -218,7 +216,7 @@ module Virgo
       # pull values from <doc> element and plug those values into Bibl object
       set_bibl_attributes(doc, bibl, barcode)
     rescue
-      raise "Query to #{@metadata_server} failed to return a valid result."
+      raise "Query to #{Settings.solr_url} failed to return a valid result."
     end
 
     return bibl
@@ -256,7 +254,7 @@ module Virgo
     # objects; instead of saving a notification for each and every Bibl
     # object, let exceptions bubble up to calling method to be handled for
     # the whole process.
-    xml_doc = query_metadata_server(@metadata_server, bibl.catalog_key)
+    xml_doc = query_metadata_server(bibl.catalog_key)
 
     # from the server's response XML, get the <doc> element (which
     # contains everything we're interested in here)
@@ -301,9 +299,9 @@ module Virgo
   # Queries the metadata server using the hostname passed and the ID of the
   # metadata record to look up. Returns Nokogiri::XML::Document object containing the
   # server's response.
-  def self.query_metadata_server(host, query_value, query_field='id')
+  def self.query_metadata_server(query_value, query_field='id')
     # query Solr server to get XML results for this catalog ID
-    xml_string = RestClient.get( "http://#{host}/core/select/?q=#{query_field}:#{query_value}" )
+    xml_string = RestClient.get( "#{Settings.solr_url}/core/select/?q=#{query_field}:#{query_value}" )
     # read XML string into Nokogiri::XML::Document object
     begin
       xml_doc = Nokogiri::XML(xml_string)
