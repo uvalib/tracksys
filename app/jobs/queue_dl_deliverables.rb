@@ -4,11 +4,12 @@ class QueueDlDeliverables < BaseJob
       raise "Parameter 'unit' is required" if message[:unit].blank?
       raise "Parameter 'source' is required" if message[:source].blank?
 
-      # get a list of all items related to this unit
-      things = Array.new
+      unit = message[:unit]
+      source = message[:source]
 
+      # get a list of all items related to this unit
       # Always add a unit's Bibl, master files and components (and their ancestors)
-      things << unit.bibl
+      things = [unit.bibl]
       unit.master_files.each {|mf| things << mf }
       unit.components.each do |component|
          things << component
