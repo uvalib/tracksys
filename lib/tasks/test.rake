@@ -1,6 +1,4 @@
 #encoding: utf-8
-#require 'solr'
-#require 'rest-client'
 
 SOLR_URL="http://localhost:8983/solr"
 
@@ -8,6 +6,8 @@ namespace :test do
    desc "Publish to test solr index by querying APIs for avaialble data as of Date.today"
    task :publish  => :environment do
       port = ENV['port']
+      core = ENV['core']
+      core = 'core' if core.blank?
       api_root = "http://localhost"
       api_root << ":#{port}" if !port.blank?
       api_root << "/api"
@@ -19,8 +19,10 @@ namespace :test do
       pids = resp.split(",")
       pids.each do |pid|
          puts "====> Get Solr index for #{pid}..."
-         resp = RestClient.get "#{api_root}/solr/#{pid}", {:accept => :xml}
-         puts resp
+         xml = RestClient.get "#{api_root}/solr/#{pid}", {:accept => :xml}
+         puts "====> Sending to #{SOLR_URL}/#{core}..."
+         response = RestClient.post "#{SOLR_URL}/#{core}/update?commit=true", xml, {:content_type => 'application/xml'}
+         puts response
       end
    end
 end
