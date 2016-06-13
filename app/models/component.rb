@@ -5,7 +5,6 @@ class Component < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
    belongs_to :component_type, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
@@ -242,7 +241,6 @@ end
 #  indexing_scenario_id    :integer
 #  level                   :text(65535)
 #  ead_id_att              :string(255)
-#  availability_policy_id  :integer
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
 #  master_files_count      :integer          default(0), not null

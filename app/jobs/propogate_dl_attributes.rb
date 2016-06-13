@@ -10,10 +10,11 @@ class PropogateDlAttributes < BaseJob
       source = message[:source]
       object = message[:object]
       unit = message[:unit]
+      bibl = unit.bibl
 
       # sanity check all attributes are in place
-      if unit.availability_policy.nil?
-         on_error "Unit #{unit.id} has no availability value.  Please fill in and restart ingestion."
+      if bibl.availability_policy.nil?
+         on_error "Bibl #{unit.bibl.id} for Unit #{unit.id} has no availability value.  Please fill in and restart ingestion."
       end
       if unit.master_file_discoverability.nil?
          on_error "Unit #{unit.id} has no discoverability value.  Please fill in and restart ingestion."
@@ -22,15 +23,6 @@ class PropogateDlAttributes < BaseJob
          unit.indexing_scenario = IndexingScenario.find(1)
          unit.save!
          on_failure "Unit #{unit.id} has no indexing scenario selected so it is assumed to use the default scenario."
-      end
-
-      # Set attributes on this object based on arent unit
-      if object.availability_policy.nil?
-         object.availability_policy = unit.availability_policy
-         object.save!
-         on_success "Access policy for object #{object.class.name} #{object.id} is changed to #{unit.availability_policy.name}."
-      else
-         on_success "Access policy for object #{object.class.name} #{object.id} is already set to #{object.availability_policy.name} and will not be changed."
       end
 
       if object.indexing_scenario.nil?

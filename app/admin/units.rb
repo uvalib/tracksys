@@ -4,7 +4,7 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :indexing_scenario_id, :availability_policy_id,
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :indexing_scenario_id,
      :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
@@ -91,7 +91,6 @@ ActiveAdmin.register Unit do
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :agency, :as => :select
   filter :indexing_scenario
-  filter :availability_policy
   filter :master_files_count, :as => :numeric
 
   index do
@@ -197,7 +196,6 @@ ActiveAdmin.register Unit do
       panel "Digital Library Information", :toggle => 'hide' do
         attributes_table_for unit do
           row :indexing_scenario
-          row :availability_policy
           row ("Digital Library Status") do |unit|
             case
               when unit.include_in_dl?
@@ -298,7 +296,6 @@ ActiveAdmin.register Unit do
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
       f.input :indexing_scenario
-      f.input :availability_policy
       f.input :include_in_dl, :as => :radio
       f.input :exclude_from_dl, :as => :radio
       f.input :master_file_discoverability, :as => :radio

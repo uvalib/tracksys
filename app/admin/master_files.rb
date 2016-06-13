@@ -4,7 +4,7 @@ ActiveAdmin.register MasterFile do
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
       :md5, :filesize, :unit_id, :component_id, :transcription_text,
-      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata, :use_right_id
+      :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
 
@@ -46,7 +46,6 @@ ActiveAdmin.register MasterFile do
    filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
-   filter :availability_policy
    filter :indexing_scenario
    filter :date_archived
    filter :date_dl_ingest
@@ -168,7 +167,6 @@ ActiveAdmin.register MasterFile do
                row :date_dl_ingest
                row :date_dl_update
                row('Right Statement'){ |r| r.use_right }
-               row :availability_policy
                row :indexing_scenario
                row :discoverability do |mf|
                   case mf.discoverability
@@ -227,7 +225,6 @@ ActiveAdmin.register MasterFile do
       f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
          f.input :pid, :input_html => { :disabled => true }
          f.input :use_right, label: "Right Statement"
-         f.input :availability_policy
          f.input :indexing_scenario
          f.input :desc_metadata, :input_html => { :rows => 10}
       end
@@ -336,7 +333,7 @@ ActiveAdmin.register MasterFile do
          pdf.move_down 2
       end
 
-      if mf.in_dl? and mf.availability_policy_id == 1
+      if mf.in_dl? and mf.bibl.availability_policy_id == 1
          pdf.text "<b>Online Access:</b>  <i>#{mf.link_to_dl_page_turner}</i>", :inline_format => true, :size => 10
          pdf.move_down 2
       end

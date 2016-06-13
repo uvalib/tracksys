@@ -15,7 +15,7 @@ class CheckUnitDeliveryMode < BaseJob
       source_dir = File.join(IN_PROCESS_DIR, unit_dir)
 
       # The filter to determine which units get sent to repo must be worked on later at an appropriate time.
-      if unit.include_in_dl and unit.availability_policy_id? and unit.intended_use.description == "Digital Collection Building"
+      if unit.include_in_dl and unit.bibl.availability_policy_id? and unit.intended_use.description == "Digital Collection Building"
          mode = "dl"
          on_success("Unit #{unit.id} requires the creation of repository deliverables.")
          CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
@@ -27,7 +27,7 @@ class CheckUnitDeliveryMode < BaseJob
          CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
       end
 
-      if unit.include_in_dl and unit.availability_policy_id? and not unit.intended_use.description == "Digital Collection Building"
+      if unit.include_in_dl and unit.bibl.availability_policy_id? and not unit.intended_use.description == "Digital Collection Building"
          mode = "both"
          on_success("Unit #{unit.id} requires the creation of patron deliverables.")
          CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)

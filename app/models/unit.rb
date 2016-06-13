@@ -11,7 +11,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
    belongs_to :bibl, :counter_cache => true
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
@@ -39,7 +38,7 @@ class Unit < ActiveRecord::Base
    # scopes
    #------------------------------------------------------------------
    scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
-   scope :ready_for_repo, ->{where(:include_in_dl => true).where("`units`.availability_policy_id IS NOT NULL").where(:date_queued_for_ingest => nil).where("date_archived is not null") }
+   scope :ready_for_repo, ->{joins(:bibl).where("bibls.availability_policy_id is not null").where(:include_in_dl => true).where(:date_queued_for_ingest => nil).where("date_archived is not null") }
    scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
    scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
    scope :approved, ->{where(:unit_status => 'approved') }
@@ -53,14 +52,8 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # validations
    #------------------------------------------------------------------
-
-   # validates :order_id, :numericality => { :greater_than => 1 }
    validates_presence_of :order
    validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   validates :availability_policy, :presence => {
-      :if => 'self.availability_policy_id',
-      :message => "association with this AvailabilityPolicy is no longer valid because it no longer exists."
-   }
    validates :bibl, :presence => {
       :if => 'self.bibl_id',
       :message => "association with this Bibl is no longer valid because it no longer exists."
@@ -125,7 +118,7 @@ class Unit < ActiveRecord::Base
    end
 
    def ready_for_repo?
-      if self.include_in_dl == true and not self.availability_policy_id.nil? and self.date_queued_for_ingest.nil? and not self.date_archived.nil?
+      if self.include_in_dl == true and not self.bibl.availability_policy_id.nil? and self.date_queued_for_ingest.nil? and not self.date_archived.nil?
          return true
       else
          return false
@@ -218,6 +211,5 @@ end
 #  master_file_discoverability    :boolean          default(FALSE)
 #  indexing_scenario_id           :integer
 #  checked_out                    :boolean          default(FALSE)
-#  availability_policy_id         :integer
 #  master_files_count             :integer          default(0)
 #

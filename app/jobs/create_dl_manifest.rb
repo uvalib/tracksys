@@ -98,8 +98,8 @@ class CreateDlManifest < BaseJob
                sheet.add_row
 
                # Image Counts
-               public_image_count = MasterFile.in_digital_library.where(:availability_policy_id => 1).count
-               uva_only_image_count = MasterFile.in_digital_library.where(:availability_policy_id => 3).count
+               public_image_count = MasterFile.in_digital_library.joins(:bibl).where("bibls.availability_policy_id = 1").count
+               uva_only_image_count = MasterFile.in_digital_library.joins(:bibl).where("bibls.availability_policy_id = 3").count
                total_image_count = MasterFile.in_digital_library.count
 
                # Bibliographic Record Counts

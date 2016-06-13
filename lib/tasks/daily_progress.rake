@@ -250,7 +250,6 @@ namespace :daily_progress do
                year_component = Component.new
                year_component.discoverability = 0
                year_component.indexing_scenario_id = 1
-               year_component.availability_policy_id = 1
                year_component.component_type = series
                year_component.date = year
                year_component.title = "Issues from #{year}"
@@ -273,7 +272,6 @@ namespace :daily_progress do
                month_component = Component.new
                month_component.discoverability = 0
                month_component.indexing_scenario_id = 1
-               month_component.availability_policy_id = 1
                month_component.component_type = subseries
                month_component.date = month
                month_component.title = "Daily Progress Issues from #{month_str} #{year}"
@@ -315,7 +313,6 @@ namespace :daily_progress do
                curr_issue = Component.new
                curr_issue.discoverability = 0
                curr_issue.indexing_scenario_id = 1
-               curr_issue.availability_policy_id = 1
                curr_issue.component_type = item
                curr_issue.date = issue
                curr_issue.content_desc = content_desc
@@ -329,7 +326,6 @@ namespace :daily_progress do
                issue_unit.order = order
                issue_unit.archive_id = 5 if legacy == true
                issue_unit.indexing_scenario_id = 1    # default
-               issue_unit.availability_policy_id = 1  # public
                issue_unit.intended_use_id = 110       # Digital collection building
                issue_unit.special_instructions = "Reel: #{date_range}\nIssue: #{issue}".gsub(/,/,'')
                issue_unit.staff_notes = "From #{box}"
@@ -350,7 +346,6 @@ namespace :daily_progress do
          mf = MasterFile.new
          mf.discoverability = 0
          mf.indexing_scenario_id = 1
-         mf.availability_policy_id = 1
          mf.unit = issue_unit
          mf.title = pagenum.to_s
          mf.tech_meta_type = "image"

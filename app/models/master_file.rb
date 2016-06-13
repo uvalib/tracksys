@@ -3,7 +3,6 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
    belongs_to :component, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :unit, :counter_cache => true
@@ -46,10 +45,6 @@ class MasterFile < ActiveRecord::Base
    # validations
    #------------------------------------------------------------------
    validates :filename, :unit_id, :filesize, :presence => true
-   validates :availability_policy, :presence => {
-      :if => 'self.availability_policy_id',
-      :message => "association with this AvailabilityPolicy is no longer valid because it no longer exists."
-   }
    validates :component, :presence => {
       :if => 'self.component_id',
       :message => "association with this Component is no longer valid because it no longer exists."
@@ -87,7 +82,6 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    scope :in_digital_library, ->{ where("master_files.date_dl_ingest is not null").order("master_files.date_dl_ingest ASC") }
    scope :not_in_digital_library, ->{ where("master_files.date_dl_ingest is null") }
-   # default_scope :include => [:availability_policy, :component, :indexing_scenario, :unit, :use_right]
 
    #------------------------------------------------------------------
    # public class methods
@@ -205,7 +199,6 @@ end
 #  discoverability        :boolean          default(FALSE)
 #  md5                    :string(255)
 #  indexing_scenario_id   :integer
-#  availability_policy_id :integer
 #  use_right_id           :integer
 #  date_dl_ingest         :datetime
 #  date_dl_update         :datetime
