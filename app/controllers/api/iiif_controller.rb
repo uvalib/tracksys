@@ -21,9 +21,19 @@ class Api::IiifController < ApplicationController
       else
          @bibl = Bibl.find_by(pid: params[:pid])
       end
+      if @bibl.nil?
+         @bibl = Component.find_by( pid: params[:pid])
+      end
 
       render :text=>"PID is invalid", status: :bad_request and return if @bibl.nil?
 
       render "/api/iiif/show.json"
+   end
+   
+   def display
+     render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
+
+          
+     render "api/iiif/display.html"
    end
 end

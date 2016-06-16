@@ -20,5 +20,6 @@ Tracksys::Application.routes.draw do
      get "solr" => "solr#index"
      get "iiif/:pid" => "iiif#show"
      get "iiif/:pid/manifest.json" => "iiif#show"
+     get "iiif/:pid/display" => "iiif#display"
   end
 end

@@ -1,0 +1,25 @@
+<html>
+<head>
+    <title><%= params[:pid] %></title>
+    <link rel="stylesheet" href="/css/diva.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="/js/diva.min.js" type="text/javascript"></script>
+    <script>
+    $(document).ready(function() {
+        $('#diva-wrapper').diva({
+            objectData: "<%= request.base_url %>/api/iiif/<%= params[:pid] %>",
+            // Other options can be set here as well - see the Settings wiki page            
+            enableIIIFMetadata: true,
+            zoomLevel: 1,
+            inGrid: false, 
+            inBookLayout: false,
+        });  diva = $('#diva-wrapper').data('diva');  window.console.log( diva.getSettings() );
+        // diva.changeView('document');
+    });
+    </script>
+</head>
+<body>
+    <h1><%= params[:pid] %></h1>
+    <div id="diva-wrapper"></div>
+</body>
+</html>

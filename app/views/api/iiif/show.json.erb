@@ -3,11 +3,11 @@
    "@id":"<%= request.base_url %>/api/iiif/<%= @bibl.pid %>/manifest.json",
    "@type":"SC:Manifest",
    "label":"<%= @bibl.title %>",
-   "description":"<%= @bibl.description %>",
+   "description":"<%= @bibl.respond_to?(:description) ? @bibl.description : @bibl.content_desc %>",
    "sequences":[
       {
          "@type":"sc:Sequence",
-         "viewingHint":"paged",
+         "viewingHint":"continuous",
          "canvases":[
             <% @bibl.master_files.each_with_index do |mf, idx| %>
             {
