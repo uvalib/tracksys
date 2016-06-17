@@ -2,7 +2,7 @@
    "@context":"http://iiif.io/api/presentation/2/context.json",
    "@id":"<%= request.base_url %>/api/iiif/<%= @bibl.pid %>/manifest.json",
    "@type":"SC:Manifest",
-   "label":"<%= @bibl.title %>",
+   "label":"<%= @bibl.title || truncate(@bibl.name, length: 60) %>",
    "description":"<%= @bibl.respond_to?(:description) ? @bibl.description : @bibl.content_desc %>",
    "sequences":[
       {
