@@ -265,7 +265,12 @@ ActiveAdmin.register Component do
                link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"
             end
          end
-      end
+         row "IIIF/diva" do |component|
+            if component.exists_in_repo?
+              link_to "page viewer",  "/api/iiif/#{component.pid}/display", :target => "_blank"
+            end
+         end
+       end
    end
 
    sidebar "Digital Library Workflow", :only => [:show], if: proc{ !current_user.viewer? } do

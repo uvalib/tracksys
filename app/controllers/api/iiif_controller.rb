@@ -34,6 +34,6 @@ class Api::IiifController < ApplicationController
      render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
           
-     render "api/iiif/display.html"
+     render "api/iiif/display.html" , :layout => false
    end
 end
