@@ -241,6 +241,9 @@ ActiveAdmin.register Bibl do
           div do
             link_to "Solr Record", bibl.solr_url, :target => "_blank"
           end
+          div do
+            link_to "IIIF page viewer",  "/api/iiif/#{bibl.pid}/display", :target => "_blank"
+          end
         end
       end
       row :master_files do |bibl|

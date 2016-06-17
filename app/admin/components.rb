@@ -262,12 +262,12 @@ ActiveAdmin.register Component do
          end
          row "Digital Library" do |component|
             if component.exists_in_repo?
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"
-            end
-         end
-         row "IIIF/diva" do |component|
-            if component.exists_in_repo?
-              link_to "page viewer",  "/api/iiif/#{component.pid}/display", :target => "_blank"
+              div do
+                link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{component.pid}", :class => 'member_link', :target => "_blank"
+              end
+              div do
+                link_to "IIIF page viewer",  "/api/iiif/#{component.pid}/display", :target => "_blank"
+              end
             end
          end
        end
