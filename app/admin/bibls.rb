@@ -10,7 +10,7 @@ ActiveAdmin.register Bibl do
 
   config.clear_action_items!
   action_item :pdf, :only => :show do
-     raw("<a href='#{Settings.pdf_url}/#{bibl.pid}' target='_blank'>Download PDF</a>") if bibl.in_dl?
+     raw("<a href='#{Settings.pdf_url}/#{bibl.pid}' target='_blank'>Download PDF</a>") if bibl.in_dl? || Settings.allow_unpublished_pdf
   end
 
   action_item :new, :only => :index do
