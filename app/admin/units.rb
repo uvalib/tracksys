@@ -193,7 +193,7 @@ ActiveAdmin.register Unit do
     end
 
     div :class => "columns-none" do
-      panel "Digital Library Information", :toggle => 'hide' do
+      panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for unit do
           row :indexing_scenario
           row ("Digital Library Status") do |unit|
