@@ -39,10 +39,10 @@ def build (hash)
   hash.collect do |k,v|
     { :component_id => k.id, 
       :ead_id => k.ead_id_att, :ead_id_cache => k.ead_id_atts_depth_cache, 
-    	:level => k.level, :pid => k.pid, 
+    	:level => k.level, :pid => k.pid, :in_dl => k.in_dl? ,
     	:desc => k.content_desc, 
       :master_files => k.master_files.collect { |mf| 
-          mfhash = { pid: mf.pid, filename: mf.filename, static_thumb: TS_URL + mf.link_to_static_thumbnail }
+          mfhash = { pid: mf.pid, filename: mf.filename, static_thumb: TS_URL + mf.link_to_static_thumbnail, in_dl: mf.in_dl? }
           mfhash[:dl_thumb] = mf.link_to_dl_thumbnail  if mf.in_dl? 
           mfhash[:pageturner] = mf.link_to_dl_page_turner if mf.in_dl? && mf.bibl && mf.bibl.in_dl? && mf.bibl.index_destination && mf.bibl.index_destination == 3
           mfhash
