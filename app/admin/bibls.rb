@@ -5,7 +5,7 @@ ActiveAdmin.register Bibl do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number, :year, :year_type, :copy, :location,
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
-      :exemplar, :discoverability, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
+      :exemplar, :discoverability, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id, :publication_place
 
   config.clear_action_items!
