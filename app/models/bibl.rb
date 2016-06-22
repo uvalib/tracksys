@@ -313,12 +313,6 @@ class Bibl < ActiveRecord::Base
   def dl_virgo_url
     return "#{VIRGO_URL}/#{self.pid}"
   end
-
-  def iiif_base_url
-     raise "IIIF URL not available; availability not policy set" if self.availability_policy.nil?
-     return Settings.iiif_uvaonly_url if self.availability_policy.name.downcase == "uva only"
-     return Settings.iiif_url
-  end
 end
 
 # == Schema Information

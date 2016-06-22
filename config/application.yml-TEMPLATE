@@ -33,8 +33,6 @@ production:
    delivery_dir: /digiserv-delivery/patron
    batch_migration_mount: /lib_content37/Rimage
    jp2k_dir: /home/user/tracksys-dev/sandbox/jp2k        # storage location for iiif images
-   iiif_url: http://iiif.lib.virginia.edu/iiif           # for images with public availability policy
-   iiif_uvaonly_url: http://iiif.lib.virginia.edu/iiif   # for images with UVA Only availability policy
    solr_url: http://solr.lib.virginia.edu:8082/solr      # Virgo solr instance
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "virgo"
