@@ -17,7 +17,6 @@ module Hydra
       # init commont xsl param / value array
       payload["pid"] = "'#{object.pid}'"
       payload["destination"] = "'#{Settings.index_destintion}'"
-      payload["repository"] = "'#{Settings.tracksys_url}'"
       payload["dateReceived"] = "'#{date_received}'"
       payload["dateIngestNow"] = "'#{now_str}'"
       payload["sourceFacet"] = "'UVA Library Digital Repository'"
@@ -32,7 +31,7 @@ module Hydra
          end
          payload["policyFacet"] = "'#{availability_policy_pid}'"
          payload["iiifRoot"] = "'#{Settings.iiif_uvaonly_url}'" if object.availability_policy.id == 3
-         payload["exemplarPid"] = MasterFile.find_by(filename: object.exemplar).pid if !object.exemplar.blank?
+         payload["exemplarPid"] = "'000033529_0001.tif'"#MasterFile.find_by(filename: object.exemplar).pid if !object.exemplar.blank?
 
          # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
          total_transcription = ""
