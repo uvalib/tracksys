@@ -22,8 +22,11 @@ module Hydra
       payload["sourceFacet"] = "'UVA Library Digital Repository'"
       payload["iiifManifest"] = "'#{Settings.iiif_manifest_url}/#{object.pid}/manifest.json'"
       payload["iiifRoot"] = "'#{Settings.iiif_url}'"
+      payload["style"] = "'#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}'"
+      payload["source"] = "'#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata'"
 
       if object.is_a? Bibl
+
          if object.availability_policy_id == 1 || object.availability_policy_id.blank?
             availability_policy_pid = false
          else
@@ -99,14 +102,20 @@ module Hydra
    end
 
    def self.solr_transform(object, payload)
-      is = object.indexing_scenario.name.downcase
-      xsl_name = "defaultModsTransformation"
-      xsl_name = "holsingerTransformation" if is.include? "holsinger"
-      style_xsl = File.read("#{Rails.root}/lib/xslt/#{xsl_name}.xsl")
-      xslt = Nokogiri::XSLT(style_xsl)
-      xml = Hydra.desc(object)
-      xml_doc = Nokogiri::XML( xml )
-      return xslt.transform(xml_doc, payload.flatten )
+      payload.each do |k,v|
+         payload[k] = v.gsub(/'/,"")
+      end
+      uri = URI("http://fedora-staging.lib.virginia.edu:8080/saxon/SaxonServlet")
+      response = Net::HTTP.post_form(uri,payload)
+      return response.body
+      # is = object.indexing_scenario.name.downcase
+      # xsl_name = "defaultModsTransformation"
+      # xsl_name = "holsingerTransformation" if is.include? "holsinger"
+      # style_xsl = File.read("#{Rails.root}/lib/xslt/#{xsl_name}.xsl")
+      # xslt = Nokogiri::XSLT(style_xsl)
+      # xml = Hydra.desc(object)
+      # xml_doc = Nokogiri::XML( xml )
+      # return xslt.transform(xml_doc, payload.flatten )
    end
 
    # given the output of an object's solr_xml method, return a
