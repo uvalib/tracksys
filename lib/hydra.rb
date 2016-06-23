@@ -13,24 +13,26 @@ module Hydra
       now_str = Time.now.strftime('%Y%m%d%H')
       date_received = now_str
       date_received = object.date_dl_ingest.strftime('%Y%m%d%H') if !object.date_dl_ingest.blank?
-      if object.availability_policy_id == 1 || object.availability_policy_id.blank?
-         availability_policy_pid = false
-      else
-         availability_policy_pid = object.availability_policy.pid
-      end
 
       # init commont xsl param / value array
-      payload["repository"] = "'#{Settings.tracksys_url}'"
-      payload["destination"] = "'#{Settings.index_destintion}'"
       payload["pid"] = "'#{object.pid}'"
-      payload["dateIngestNow"] = "'#{now_str}'"
+      payload["destination"] = "'#{Settings.index_destintion}'"
+      payload["repository"] = "'#{Settings.tracksys_url}'"
       payload["dateReceived"] = "'#{date_received}'"
+      payload["dateIngestNow"] = "'#{now_str}'"
       payload["sourceFacet"] = "'UVA Library Digital Repository'"
-      payload["policyFacet"] = "'#{availability_policy_pid}'"
-      payload["externalRelations"] = "'#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=rels_ext'"
-      payload["clear-stylesheet-cache"] = "'yes'"
+      payload["iiifManifest"] = "'#{Settings.iiif_manifest_url}/#{object.pid}/manifest.json'"
+      payload["iiifRoot"] = "'#{Settings.iiif_url}'"
 
       if object.is_a? Bibl
+         if object.availability_policy_id == 1 || object.availability_policy_id.blank?
+            availability_policy_pid = false
+         else
+            availability_policy_pid = object.availability_policy.pid
+         end
+         payload["policyFacet"] = "'#{availability_policy_pid}'"
+         payload["iiifRoot"] = "'#{Settings.iiif_uvaonly_url}'" if object.availability_policy.id == 3
+         payload["exemplarPid"] = MasterFile.find_by(filename: object.exemplar).pid if !object.exemplar.blank?
 
          # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
          total_transcription = ""
@@ -56,14 +58,17 @@ module Hydra
             payload["shadowedItem"] = "'VISIBLE'"
          end
 
-         # if there is a collection_facet, pass it thru to XSLT as a param
-         collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
-         payload["contentModel"] = "'digital_book'"
-         payload["collectionFacetParam"] = "'#{object.collection_facet}'"
-
-
          return solr_transform(object, payload)
       elsif object.is_a? MasterFile
+         if object.bibl.availability_policy_id == 1 || object.bibl.availability_policy_id.blank?
+            availability_policy_pid = false
+         else
+            availability_policy_pid = object.bibl.availability_policy.pid
+         end
+         payload["policyFacet"] = "'#{availability_policy_pid}'"
+         payload["iiifRoot"] = "'#{Settings.iiif_uvaonly_url}'" if object.bibl.availability_policy.id == 3
+         payload["exemplarPid"] = "'#{object.pid}'"
+
          payload["parentModsRecord"] = "'#{Settings.tracksys_url}/api/metadata/#{object.bibl.pid}?type=desc_metadata'"
          total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
          total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
@@ -71,7 +76,6 @@ module Hydra
          payload["totalTitles"] = "'#{total_title}'"
          payload["totalDescriptions"] = "'#{total_description}'"
          payload["totalTranscriptions"] = "'#{total_transcription}'"
-         payload["contentModel"] = "'jp2k'"
          payload["analogSolrRecord"] = "'#{Settings.solr_url}/core/select?q=id%3A#{object.bibl.catalog_key}'"
 
          return solr_transform(object, payload)
