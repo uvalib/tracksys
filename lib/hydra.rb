@@ -31,7 +31,12 @@ module Hydra
          end
          payload["policyFacet"] = "'#{availability_policy_pid}'"
          payload["iiifRoot"] = "'#{Settings.iiif_uvaonly_url}'" if object.availability_policy.id == 3
-         payload["exemplarPid"] = "'000033529_0001.tif'"#MasterFile.find_by(filename: object.exemplar).pid if !object.exemplar.blank?
+         if !object.exemplar.blank?
+            payload["exemplarPid"] = "'#{MasterFile.find_by(filename: object.exemplar).pid}'"
+         else
+            # one not set; just pick the first masterfile
+            payload["exemplarPid"] = "'#{object.master_files.first.pid}'"
+         end
 
          # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
          total_transcription = ""
