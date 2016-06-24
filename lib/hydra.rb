@@ -34,7 +34,7 @@ module Hydra
             availability_policy_pid = object.availability_policy.pid
          end
          payload["policyFacet"] = "#{availability_policy_pid}"
-         payload["iiifRoot"] = "#{Settings.iiif_uvaonly_url}" if object.availability_policy.id == 3
+         payload["iiifRoot"] = "#{Settings.iiif_uvaonly_url}/" if object.availability_policy.id == 3
          if !object.exemplar.blank?
             payload["exemplarPid"] = "#{MasterFile.find_by(filename: object.exemplar).pid}"
          else
@@ -74,7 +74,7 @@ module Hydra
             availability_policy_pid = object.bibl.availability_policy.pid
          end
          payload["policyFacet"] = "#{availability_policy_pid}"
-         payload["iiifRoot"] = "#{Settings.iiif_uvaonly_url}" if object.bibl.availability_policy.id == 3
+         payload["iiifRoot"] = "#{Settings.iiif_uvaonly_url}/" if object.bibl.availability_policy.id == 3
          payload["exemplarPid"] = "#{object.pid}"
 
          payload["parentModsRecord"] = "#{Settings.tracksys_url}/api/metadata/#{object.bibl.pid}?type=desc_metadata"
