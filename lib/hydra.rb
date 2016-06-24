@@ -24,6 +24,7 @@ module Hydra
       payload["iiifRoot"] = "#{Settings.iiif_url}/"
       payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}"
       payload["source"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata"
+      payload["clear-stylesheet-cache"] = "yes"
 
       if object.is_a? Bibl
 
