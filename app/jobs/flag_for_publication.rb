@@ -35,6 +35,9 @@ class FlagForPublication < BaseJob
 
    def flag_bibl_for_publication(bibl)
       bibl.update_attribute(:date_dl_update, Time.now)
+      bibl.master_files.each do |mf|
+         mf.update_attribute(:date_dl_update, now)
+      end
       logger.info "Bibl #{bibl.id} has been flagged for an update in the DL"
    end
 
