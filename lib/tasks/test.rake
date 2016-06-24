@@ -1,6 +1,6 @@
 #encoding: utf-8
 
-SOLR_URL="http://localhost:8983/solr"
+SOLR_URL="http://docker1.lib.virginia.edu:8060/solr"
 
 namespace :test do
    desc "Publish to test solr index by querying APIs for avaialble data as of Date.today"
