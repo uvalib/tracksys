@@ -9,7 +9,7 @@ namespace :iiif do
       puts "Src: #{src}"
       u.master_files.each do |mf|
          puts "create DL deliverable for MF #{mf.pid}"
-         CreateDlDeliverables.exec_now({source: src, master_file: mf})
+         CreateDlDeliverables.exec_now({source: "#{src}/#{master_file.filename}", master_file: mf})
       end
    end
 end
