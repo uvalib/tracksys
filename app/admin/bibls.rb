@@ -9,9 +9,6 @@ ActiveAdmin.register Bibl do
       :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id, :publication_place
 
   config.clear_action_items!
-  action_item :pdf, :only => :show do
-     raw("<a href='#{Settings.pdf_url}/#{bibl.pid}' target='_blank'>Download PDF</a>") if bibl.in_dl? || Settings.allow_unpublished_pdf
-  end
 
   action_item :new, :only => :index do
      raw("<a href='/admin/bibls/new'>New</a>") if !current_user.viewer?

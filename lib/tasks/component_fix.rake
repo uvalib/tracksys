@@ -12,7 +12,7 @@ require 'nokogiri'
 
 
 def check_unit( unit_id, fix=false, xmlfile=nil )
-
+raise "NO LONGER SUPPORTED; PRODUCTION_METADATA_DIR NOT USED ANYMORE"
 	range_dir = nil
 	good = 0; bad = 0; total=0;
 

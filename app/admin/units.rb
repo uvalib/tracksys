@@ -25,6 +25,9 @@ ActiveAdmin.register Unit do
   end
 
   config.clear_action_items!
+  action_item :pdf, :only => :show do
+    raw("<a href='#{Settings.pdf_url}/#{unit.bibl.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
+  end
   action_item :new, :only => :index do
      raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
   end

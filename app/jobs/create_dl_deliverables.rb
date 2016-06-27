@@ -34,7 +34,7 @@ class CreateDlDeliverables < BaseJob
          tiff.destroy!
       end
 
-      # set path to jp2k storage location
+      # set path to IIIF jp2k storage location
       pid_parts = master_file.pid.split(":")
       base = pid_parts[1]
       parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd

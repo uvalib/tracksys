@@ -13,6 +13,9 @@ ActiveAdmin.register MasterFile do
    scope :not_in_digital_library, :show_count => true
 
    config.clear_action_items!
+   action_item :pdf, :only => :show do
+     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>") 
+   end
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
    end
