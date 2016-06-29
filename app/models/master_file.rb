@@ -114,7 +114,7 @@ class MasterFile < ActiveRecord::Base
    end
 
    def link_to_static_thumbnail
-      iiif_url = URI.parse(iiif_url_str)
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
       req = Net::HTTP.new(url.host, url.port)
       resp = req.request_head(url.path)
       if resp.code == 200
