@@ -114,22 +114,19 @@ class MasterFile < ActiveRecord::Base
    end
 
    def link_to_static_thumbnail
-      thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
-      unit_dir = "%09d" % self.unit_id
-      begin
-         # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
-         # will eliminate other directories that are of non-Tracksys managed content.
-         metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
-         metadata_dir_contents.each {|dir|
-            range = dir.split('-')
-            if self.unit_id.to_i.between?(range.first.to_i, range.last.to_i)
-               @range_dir = dir
-            end
-         }
-      rescue
-         @range_dir="fixme"
+      iiif_url = URI.parse(iiif_url_str)
+      req = Net::HTTP.new(url.host, url.port)
+      resp = req.request_head(url.path)
+      if resp.code == 200
+         return iiif_url.to_s
+      else
+         thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
+         unit_dir = "%09d" % self.unit_id
+         min_range = self.unit_id / 1000 * 1000    # round unit to thousands
+         max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
+         range_sub_dir = "#{min_range}-#{max_range}"
+         return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
       end
-      return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
    end
 
    def mime_type
@@ -142,14 +139,6 @@ class MasterFile < ActiveRecord::Base
 
    def get_from_stornext(computing_id)
       CopyArchivedFilesToProduction.exec( {:unit => self.unit, :master_file_filename => self.filename, :computing_id => computing_id })
-   end
-
-   def update_thumb_and_tech
-      if self.image_tech_meta
-         self.image_tech_meta.destroy
-      end
-      message = { :master_file_id => self.id, :source => self.path_to_archved_version}
-      CreateImageTechnicalMetadataAndThumbnail.exec( message )
    end
 
    def increment_counter_caches

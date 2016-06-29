@@ -9,7 +9,7 @@ Top Level Jobs
 ⁃	CheckUnitDeliveryMode
 ⁃	CopyArchivedFilesToProduction
 ⁃	CreateDlManifest
-⁃	CreateImageTechnicalMetadataAndThumbnail: Only used in DP rake task
+⁃	CreateImageTechnicalMetadata: Only used in DP rake task
 ⁃	CreateStatsReport
 ⁃	ImportUnitIviewXML
 ⁃	OCR

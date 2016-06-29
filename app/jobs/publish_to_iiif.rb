@@ -1,4 +1,4 @@
-class CreateDlDeliverables < BaseJob
+class PublishToIiif < BaseJob
 
    require 'rmagick'
    require 'fileutils'
@@ -41,7 +41,7 @@ class CreateDlDeliverables < BaseJob
       parts << base.last if parts.length * 2 !=  base.length
       pid_dirs = parts.join("/")
       jp2k_filename = "#{base}.jp2"
-      jp2k_path = File.join(Settings.jp2k_dir, pid_parts[0], pid_dirs)
+      jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
       FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
       jp2k_path = File.join(jp2k_path, jp2k_filename)
 

@@ -44,10 +44,10 @@ class PropogateDlAttributes < BaseJob
       # All ingestable objects have a date_dl_ingest attribute which can be updated at this time.
       object.update_attribute(:date_dl_ingest, Time.now)
 
-      # Create deliverables
+      # Publish masterfile images to iiif server
       if object.is_a? MasterFile
          file_path = File.join(source, object.filename)
-         CreateDlDeliverables.exec_now({ :source => file_path, :master_file=> object }, self)
+         PublishToIiif.exec_now({ :source => file_path, :master_file=> object }, self)
       end
    end
 end

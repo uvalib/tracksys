@@ -20,6 +20,9 @@ class QueuePatronDeliverables < BaseJob
             :unit_id => unit.id, :personal_item => unit.bibl.personal_item?,
             :call_number => unit.bibl.call_number, :title => unit.bibl.title,
             :location => unit.bibl.location, :remove_watermark => unit.remove_watermark}, self)
+
+         # also send to IIIF server for thumbnail generation and visibility from archivesspace
+         PublishToIiif.exec_now({ :source => file_source, :master_file=> master_file }, self)
       end
 
       logger().info("All patron deliverables created")

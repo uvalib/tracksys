@@ -26,12 +26,6 @@ class ImportUnitIviewXML < BaseJob
          xml_file.close
       end
 
-      # copy metadata first because the finalization process will move the
-      # data from in-process to ready-to-delete, causing the metadata copy to fail
-      unit_path = File.join(IN_PROCESS_DIR, unit_dir)
-      logger().info ("Copying metadata for unit #{unit.id} from #{unit_path}")
-      CopyMetadataToMetadataDirectory.exec_now({ :unit_id => unit.id, :unit_path => unit_path }, self)
-
       logger().info ("Beginning finalization...")
       unit.order.update_attribute(:date_finalization_begun, Time.now)
       logger().info("Date Finalization Begun updated for order #{unit.order.id}")

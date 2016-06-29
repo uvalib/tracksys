@@ -42,7 +42,6 @@ MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION = "#{MIGRATION_MOUNT}/stornext_dropoff"
 
 PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
-PRODUCTION_METADATA_DIR = "#{PRODUCTION_MOUNT}/metadata"
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 
 # Batch migration variables

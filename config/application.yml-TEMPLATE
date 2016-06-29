@@ -32,11 +32,10 @@ production:
    migration_mount: /digiserv-migration
    delivery_dir: /digiserv-delivery/patron
    batch_migration_mount: /lib_content37/Rimage
-   jp2k_dir: /home/user/tracksys-dev/sandbox/jp2k        # storage location for iiif images
    solr_url: http://solr.lib.virginia.edu:8082/solr      # Virgo solr instance
-   iiif_manifest_url: http://localhost:8080/iiif         # Base URL to get iiif presentation metadata manifest
-   iiif_url: http://iiif.lib.virginia.edu/iiif           # for images with public availability policy
-   iiif_uvaonly_url: http://iiif.lib.virginia.edu/iiif   # for images with UVA Only availability policy
+   iiif_mount: /iiif/jp2k                                # storage mount for iiif images
+   iiif_manifest_url: http://localhost:8080/iiif         # IIIF presentation metadata base URL
+   iiif_url: http://iiif.lib.virginia.edu/iiif           # IIIF image server base URL
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "virgo"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
@@ -48,11 +47,10 @@ development:
    migration_mount:  /home/user/tracksys-dev/sandbox/digiserv-migration
    delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron
    batch_migration_mount:  /home/user/tracksys-dev/sandbox/lib_content37/Rimage
-   jp2k_dir: /home/user/tracksys-dev/sandbox/jp2k           # storage location for iiif images
-   iiif_manifest_url: http://localhost:8080/iiif            # Base URL to get iiif presentation metadata manifest
-   iiif_url: http://iiifdev.lib.virginia.edu/iiif           # for images with public availability policy
-   iiif_uvaonly_url: http://iiifdev.lib.virginia.edu/iiif   # for images with UVA Only availability policy
    solr_url: http://solr.lib.virginia.edu:8082/solr         # Virgo solr instance
+   iiif_mount: /home/user/tracksys-dev/sandbox/jp2k         # storage mount for iiif images
+   iiif_manifest_url: http://localhost:8080/iiif            # IIIF presentation metadata base URL
+   iiif_url: http://iiif.lib.virginia.edu/iiif              # IIIF image server base URL
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "localhost"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf

@@ -16,77 +16,6 @@ namespace :daily_progress do
       end
    end
 
-   desc "Ingest unit from archive using active messaging"
-   task :ingest_unit => :environment do
-      id = ENV['id']
-      raise "ID is required" if id.nil?
-      unit = Unit.find(id)
-
-      include ActiveMessaging::MessageSender
-
-      puts "   => Start ingest for unit #{unit.id}:#{unit.special_instructions}"
-      message = ActiveSupport::JSON.encode( { :unit_id => "#{unit.id}" })
-      Object.publish :start_ingest_from_archive, message
-   end
-
-   desc "Update SOLR for somponent. Cascade to children"
-   task :update_solr_datastreams => :environment do
-      component_id = ENV['id']
-      puts "Update SOLR for component ID: #{component_id}"
-      include ActiveMessaging::MessageSender
-      c = Component.find(component_id)
-      message = ActiveSupport::JSON.encode(  {
-         :cascade=>true, :object_class => "Component", :object_id => component_id, :datastream => "solr_doc" } )
-      Object.publish :update_fedora_datastreams, message
-   end
-
-#   desc "Update image tech meta for all MF in a UNIT"
-#   task :update_tech_meta => :environment do
-#      u_id = ENV['id']
-#      puts "Update tech meta for UNIT ID: #{u_id}"
-#      include ActiveMessaging::MessageSender
-#      u = Unit.find(u_id)
-#      u.master_files.each do |mf|
-#         puts "   update MF #{mf.id}"
-#         message = ActiveSupport::JSON.encode(  {
-#            :object_class => "MasterFile", :object_id => mf.id, :datastream => "tech_metadata" } )
-#         Object.publish :update_fedora_datastreams, message
-#      end
-#   end
-
-   # NOTE This is here because approximately 4000 pages from box04 (1951-1953) do not
-   # have a technicalMetadata stream in Fedora. Cause was asynchronous processing. Generating
-   # thumbnail and metadata in tracksys was in one message queue, and the process that extracted
-   # it for fedora in another. Generation is slow, so that queue fell behind. Process to
-   # extract for fedora was serviced first, and there was no data to harvest. I've Since
-   # made this synchronous to eliminate the problem.
-   #
-   # This task can be used to fix one year at a time by passing that years component ID.
-   # year 1951: 512824, year 1952: 512579, year 1953: 512661
-   #
-   desc "Update image tech meta for all MF in a YEAR"
-   task :update_tech_meta => :environment do
-      id = ENV['id']
-      puts "Update tech meta for Year component ID: #{id}"
-      include ActiveMessaging::MessageSender
-      cnt = 0
-      yc = Component.find(id)
-      yc.children.each do |mc|
-         mc.children.each do |mdc|
-            puts mdc.title
-            mdc.master_files.each do |mf|
-               puts "   #{mf.filename}"
-               cnt += 1
-               message = ActiveSupport::JSON.encode(  {
-                  :object_class => "MasterFile", :object_id => mf.id, :datastream => "tech_metadata" } )
-               Object.publish :update_fedora_datastreams, message
-               sleep 0.2
-            end
-         end
-      end
-      puts "TOTAL: #{cnt}"
-   end
-
    def update_followed_by(parent_component, new_component )
       prior = nil
       linked = false
@@ -125,15 +54,6 @@ namespace :daily_progress do
       progress_log = Logger.new(progress_logfile)
       progress_log.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
-      end
-
-      legacy = false
-      legacy = true if !ENV['legacy'].nil?
-
-      if legacy == true
-         include ActiveMessaging::MessageSender
-         ARCHIVE_DIR = "/lib_content44/RMDS_archive/CheckSummed_archive"
-         progress_log.info "** USING ACTIVE MESSAGING AND ARCHIVE #{ARCHIVE_DIR} **"
       end
 
       # extract target issue, month or year if requested
@@ -298,12 +218,7 @@ namespace :daily_progress do
                issue_unit.save
                if ingest
                   progress_log.info "   => Start ingest for unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
-                  if legacy == true
-                     message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
-                     Object.publish :start_ingest_from_archive, message
-                  else
-                     StartIngestFromArchive.exec_now( { :unit => issue_unit })
-                  end
+                  StartIngestFromArchive.exec_now( { :unit => issue_unit })
                end
             end
 
@@ -324,7 +239,6 @@ namespace :daily_progress do
                progress_log.info "   *  Create Unit for issue #{issue}"
                issue_unit = Unit.new
                issue_unit.order = order
-               issue_unit.archive_id = 5 if legacy == true
                issue_unit.indexing_scenario_id = 1    # default
                issue_unit.intended_use_id = 110       # Digital collection building
                issue_unit.special_instructions = "Reel: #{date_range}\nIssue: #{issue}".gsub(/,/,'')
@@ -389,14 +303,7 @@ namespace :daily_progress do
 
          # Create metadata from the file moved above
          payload = {source: dest_file, master_file_id: mf.id, last: 0, quiet: true}
-         if legacy == true
-            #ActiveMessaging::MessageSender.publish :create_image_technical_metadata_and_thumbnail, payload.to_json
-            # EXEC SYNCHRONOUSLY SO INGEST METADATA WILL HAVE TECH METADATA PRESENT
-            p = CreateImageTechnicalMetadataAndThumbnailProcessor.new
-            p.on_message( payload.to_json )
-         else
-            CreateImageTechnicalMetadataAndThumbnail.exec_now( payload )
-         end
+         CreateImageTechnicalMetadata.exec_now( payload )
       end
 
       # ingest the last unit, unless it was already ingested
@@ -404,19 +311,14 @@ namespace :daily_progress do
          log << "#{curr_issue_date}\n"
          if ingest
             progress_log.info "   => Start ingest for FINAL unit #{issue_unit.id}:#{issue_unit.special_instructions} containing #{page_cnt} master files"
-            if legacy == true
-               message = ActiveSupport::JSON.encode( { :unit_id => "#{issue_unit.id}" })
-               Object.publish :start_ingest_from_archive, message
-            else
-               StartIngestFromArchive.exec_now( { :unit => issue_unit })
-            end
+            StartIngestFromArchive.exec_now( { :unit => issue_unit })
          end
       end
 
       # update compnents on either side of newly added components. ex:
       # 1930/03 was added and 1930/02 and 1930/04 already existed. The 02 and 04
       # components need to have their rels_ext updated
-      update_rels_ext_datastreams( update_rels_ext.flatten.uniq, legacy )
+      update_rels_ext_datastreams( update_rels_ext.flatten.uniq )
 
       # close out the ingested tracekr
       log.close
