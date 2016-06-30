@@ -234,9 +234,9 @@ ActiveAdmin.register Bibl do
       row :customers do |bibl|
         link_to "#{bibl.customers.count}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
       end
-      row :components do |bibl|
-        link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
-      end
+      # row :components do |bibl|
+      #   link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
+      # end
       row "Agencies Requesting Resource" do |bibl|
         bibl.agencies.uniq.sort_by(&:name).each {|agency|
           div do

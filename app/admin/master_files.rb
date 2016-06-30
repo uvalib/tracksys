@@ -3,7 +3,7 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :component_id, :transcription_text,
+      :md5, :filesize, :unit_id, :transcription_text, #:component_id, 
       :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
@@ -14,7 +14,7 @@ ActiveAdmin.register MasterFile do
 
    config.clear_action_items!
    action_item :pdf, :only => :show do
-     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>") 
+     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
    end
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
@@ -218,7 +218,7 @@ ActiveAdmin.register MasterFile do
 
       f.inputs "Related Information", :class => 'panel two-column', :toggle => 'show' do
          f.input :unit_id, :as => :number
-         f.input :component_id, :as => :number
+         # f.input :component_id, :as => :number
       end
 
       f.inputs "Transcription Text", :class => 'panel two-column', :toggle => 'hide' do
@@ -256,11 +256,11 @@ ActiveAdmin.register MasterFile do
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
          row :customer
-         row :component do |master_file|
-            if master_file.component
-               link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
-            end
-         end
+         # row :component do |master_file|
+         #    if master_file.component
+         #       link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
+         #    end
+         # end
          row :agency
          row "Legacy Identifiers" do |master_file|
             master_file.legacy_identifiers.each do |li|

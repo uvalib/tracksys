@@ -22,9 +22,9 @@ ActiveAdmin.register IndexingScenario do
       column("Bibls") do |indexing_scenario|
          link_to indexing_scenario.bibls.count, admin_bibls_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
       end
-      column("Components") do |indexing_scenario|
-         link_to indexing_scenario.components.count, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
-      end
+      # column("Components") do |indexing_scenario|
+      #    link_to indexing_scenario.components.count, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
+      # end
       column("Master Files") do |indexing_scenario|
          link_to indexing_scenario.master_files.count, admin_master_files_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
       end
@@ -72,9 +72,9 @@ ActiveAdmin.register IndexingScenario do
          row("Bibls") do |indexing_scenario|
             link_to indexing_scenario.bibls.count, admin_bibls_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
          end
-         row("Components") do |indexing_scenario|
-            link_to indexing_scenario.components.count, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
-         end
+         # row("Components") do |indexing_scenario|
+         #    link_to indexing_scenario.components.count, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
+         # end
       end
    end
 
