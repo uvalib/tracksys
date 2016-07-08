@@ -27,7 +27,7 @@ module Hydra
       payload["clear-stylesheet-cache"] = "yes"
 
       if object.is_a? Bibl
-
+         payload["pdfServiceUrl"] = "#{Settings.pdf_url}"               
          if object.availability_policy_id == 1 || object.availability_policy_id.blank?
             availability_policy_pid = false
          else
