@@ -22,6 +22,7 @@ module Hydra
       payload["sourceFacet"] = "UVA Library Digital Repository"
       payload["iiifManifest"] = "#{Settings.iiif_manifest_url}/#{object.pid}/manifest.json"
       payload["iiifRoot"] = "#{Settings.iiif_url}/"
+      payload["rightsWrapperServiceUrl"] = "#{Settings.rights_wrapper_url}?pid=#{object.pid}?pagePid="
       payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}"
       payload["source"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata"
       payload["clear-stylesheet-cache"] = "yes"

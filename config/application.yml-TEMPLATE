@@ -36,6 +36,7 @@ production:
    iiif_mount: /iiif/jp2k                                # storage mount for iiif images
    iiif_manifest_url: http://localhost:8080/iiif         # IIIF presentation metadata base URL
    iiif_url: http://iiif.lib.virginia.edu/iiif           # IIIF image server base URL
+   rights_wrapper_url:                                   # rights-wrapper service base URL
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "virgo"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
@@ -51,6 +52,7 @@ development:
    iiif_mount: /home/user/tracksys-dev/sandbox/jp2k         # storage mount for iiif images
    iiif_manifest_url: http://localhost:8080/iiif            # IIIF presentation metadata base URL
    iiif_url: http://iiif.lib.virginia.edu/iiif              # IIIF image server base URL
+   rights_wrapper_url:                                      # rights-wrapper service base URL
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "localhost"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
