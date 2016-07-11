@@ -3,7 +3,7 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :transcription_text, #:component_id, 
+      :md5, :filesize, :unit_id, :transcription_text, #:component_id,
       :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
@@ -86,6 +86,9 @@ ActiveAdmin.register MasterFile do
       column("") do |mf|
          div do
             link_to "Details", resource_path(mf), :class => "member_link view_link"
+         end
+         div do
+            link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
          end
          if !current_user.viewer?
             div do
