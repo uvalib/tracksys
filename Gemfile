@@ -4,7 +4,7 @@ gem 'rails', '4.2.6'
 
 #gem 'activeadmin', '0.6.6'
 gem 'activeadmin', '~> 1.0.0.pre4'
-gem 'passenger'
+gem 'passenger', '5.0.28'
 gem 'figaro'
 
 gem 'validates_timeliness', '~> 4.0'
