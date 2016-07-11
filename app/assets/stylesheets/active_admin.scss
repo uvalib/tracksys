@@ -24,6 +24,19 @@ fieldset.inputs.columns-none {
    }
 }
 
+a.agency-ancestry {
+   border: 1px solid #dedede;
+   padding: 2px 4px;
+   border-radius: 2px;
+   margin-bottom: 3px;
+   display:block;
+   text-decoration: none;
+   &:hover {
+      text-decoration: underline;
+       box-shadow: 1px 1px 2px #ddd;
+   }
+}
+
 #master_file_desc_metadata {
    font-size: 1.25em;
    padding: 10px;

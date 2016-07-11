@@ -42,15 +42,10 @@ ActiveAdmin.register Agency do
       link_to "#{agency.master_files.count}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
     end
     column :descendants do |agency|
-      # agency.descendants.map(&:names_depth_cache).map {|cache| cache.gsub("#{agency.name}/", '')}.sort || "N/A"
-      agency.children.sort_by(&:name).each {|child|
-        div do link_to "#{child.name}", admin_agency_path(child) end
-      }
+      raw(agency.descendant_links)
     end
     column "Parents" do |agency|
-      agency.ancestors.each {|ancestor|
-        div do link_to "#{ancestor.name}", admin_agency_path(ancestor) end
-      }
+      raw(agency.parent_links)
     end
     column("Links") do |agency|
       div {link_to "Details", resource_path(agency), :class => "member_link view_link"}
@@ -66,14 +61,10 @@ ActiveAdmin.register Agency do
         row :name
         row :description
         row :parent do |agency|
-          agency.ancestors.each {|ancestor|
-            div do link_to "#{ancestor.name}", admin_agency_path(ancestor) end
-          } unless agency.ancestors.empty?
+          raw(agency.parent_links)
         end
         row :children do |agency|
-          agency.children.sort_by(&:name).each {|child|
-            div do link_to "#{child.name}", admin_agency_path(child) end
-          } unless agency.children.empty?
+          raw(agency.descendant_links)
         end
         row :created_at do |agency|
           format_date(agency.created_at)
