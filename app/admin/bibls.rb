@@ -195,7 +195,7 @@ ActiveAdmin.register Bibl do
             link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
           end
 		    row :dpla
-          row('Right Statement'){ |r| r.use_right }
+          row('Right Statement'){ |r| r.use_right.name }
           row :availability_policy
           row :indexing_scenario
           row ("Discoverable?") do |bibl|
