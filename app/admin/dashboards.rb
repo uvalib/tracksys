@@ -63,7 +63,7 @@ ActiveAdmin.register_page "Dashboard" do
                if mf.nil?
                   "missing thumbnail"
                else
-                 image_tag("#{Settings.iiif_url}/#{mf}/full/!125,125/0/default.jpg")
+                 image_tag("#{Settings.iiif_url}/#{mf.pid}/full/!125,125/0/default.jpg")
                end
             else
                "no thumbnail"
