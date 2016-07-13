@@ -332,11 +332,7 @@ ActiveAdmin.register Unit do
       row :customer
       row :agency
       row "Legacy Identifiers" do |unit|
-       	unit.legacy_identifiers.each {|li|
-          div do
-            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-          end
-        } unless unit.legacy_identifiers.empty?
+       	raw(unit.legacy_identifier_links)
       end
     end
   end

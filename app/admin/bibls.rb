@@ -238,18 +238,10 @@ ActiveAdmin.register Bibl do
       #   link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
       # end
       row "Agencies Requesting Resource" do |bibl|
-        bibl.agencies.uniq.sort_by(&:name).each {|agency|
-          div do
-            link_to "#{agency.name}", admin_agency_path(agency)
-          end
-        } unless bibl.agencies.empty?
+        raw(bibl.agency_links)
       end
       row "Legacy Identifiers" do |bibl|
-        bibl.legacy_identifiers.each {|li|
-          div do
-            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-          end
-        } unless bibl.legacy_identifiers.empty?
+        raw(bibl.legacy_identifier_links)
       end
       row("Collection Bibliographic Record") do |bibl|
         if bibl.parent_bibl

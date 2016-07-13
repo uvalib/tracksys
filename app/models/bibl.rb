@@ -313,6 +313,23 @@ class Bibl < ActiveRecord::Base
   def dl_virgo_url
     return "#{VIRGO_URL}/#{self.pid}"
   end
+
+  def agency_links
+     return "" if self.agencies.empty?
+     out = ""
+     self.agencies.uniq.sort_by(&:name).each do |agency|
+       out << "<div><a href='/admin/agencies/#{agency.id}'>#{agency.name}</a></div>"
+     end
+     return out
+  end
+  def legacy_identifier_links
+     return "" if self.legacy_identifiers.empty?
+     out = ""
+     self.legacy_identifiers.each do |li|
+        out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
+     end
+     return out
+  end
 end
 
 # == Schema Information

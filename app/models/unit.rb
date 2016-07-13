@@ -181,6 +181,15 @@ class Unit < ActiveRecord::Base
    def start_ingest_from_archive
       StartIngestFromArchive.exec( {:unit => self })
    end
+
+   def legacy_identifier_links
+      return "" if self.legacy_identifiers.empty?
+      out = ""
+      self.legacy_identifiers.each do |li|
+         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
+      end
+      return out
+  end
 end
 
 # == Schema Information

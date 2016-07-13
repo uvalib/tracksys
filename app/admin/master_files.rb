@@ -172,7 +172,7 @@ ActiveAdmin.register MasterFile do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
-               row('Right Statement'){ |r| r.use_right }
+               row('Right Statement'){ |r| r.use_right.name }
                row :indexing_scenario
                row :discoverability do |mf|
                   case mf.discoverability
@@ -266,11 +266,7 @@ ActiveAdmin.register MasterFile do
          # end
          row :agency
          row "Legacy Identifiers" do |master_file|
-            master_file.legacy_identifiers.each do |li|
-               div do
-                  link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-               end
-            end unless master_file.legacy_identifiers.empty?
+            raw(master_file.legacy_identifier_links)
          end
       end
    end
