@@ -105,14 +105,6 @@ class MasterFile < ActiveRecord::Base
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
-   def link_to_dl_page_turner
-      return "#{VIRGO_URL}/#{self.bibl.pid}"
-   end
-
-   def path_to_archved_version
-      return "#{ARCHIVE_DIR}/" + "#{'%09d' % self.unit_id}/" + "#{self.filename}"
-   end
-
    def link_to_static_thumbnail
       iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
       req = Net::HTTP.new(iiif_url.host, iiif_url.port)
@@ -127,10 +119,6 @@ class MasterFile < ActiveRecord::Base
          range_sub_dir = "#{min_range}-#{max_range}"
          return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
       end
-   end
-
-   def mime_type
-      "image/tiff"
    end
 
    # alias_attributes as CYA for legacy migration.

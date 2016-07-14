@@ -28,7 +28,7 @@ module Hydra
       payload["clear-stylesheet-cache"] = "yes"
 
       if object.is_a? Bibl
-         payload["pdfServiceUrl"] = "#{Settings.pdf_url}"               
+         payload["pdfServiceUrl"] = "#{Settings.pdf_url}"
          if object.availability_policy_id == 1 || object.availability_policy_id.blank?
             availability_policy_pid = false
          else
@@ -358,16 +358,11 @@ module Hydra
             mods_bibl(xml, object, units_filter)
          else
             xml.mods(:mods,
-            "xmlns:mods".to_sym => Fedora_namespaces['mods'],
-            "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
-            "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
-            ) do
-               if object.is_a? Component
-                  mods_component(xml, object)
-               elsif object.is_a? MasterFile
-                  mods_master_file(xml, object)
-               end
-            end
+               "xmlns:mods".to_sym => Fedora_namespaces['mods'],
+               "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
+               "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
+            )
+            mods_master_file(xml, object)
          end
       end
       return output
@@ -461,70 +456,6 @@ module Hydra
       end  # </mods:mods>
    end
    private_class_method :mods_bibl
-
-   #-----------------------------------------------------------------------------
-
-   # Outputs a Component record as a +mods:relatedItem+ element
-   def self.mods_component(xml, component)
-      if component.seq_number.blank?
-         display_label = component.component_type.name.capitalize
-      else
-         display_label = "#{component.component_type.name.capitalize} #{component.seq_number}"
-      end
-
-      if component.pid.blank?
-         relatedItem_id = "component_#{component.id}"
-      else
-         relatedItem_id = format_pid(component.pid)
-      end
-
-      # title
-      unless component.title.blank?
-         xml.mods :titleInfo do
-            xml.mods :title, component.title
-         end
-      end
-
-      # label
-      unless component.label.blank? or component.label == component.title
-         xml.mods :titleInfo do
-            xml.mods :title, component.label
-         end
-      end
-
-      # date
-      unless component.date.blank?
-         xml.mods :originInfo do
-            xml.mods :dateCreated, component.date, :keydate => 'yes', :encoding => "w3cdtf"
-         end
-      end
-
-      # content description
-      unless component.content_desc.blank?
-         xml.mods :abstract, component.content_desc
-      end
-
-      # identifiers
-      unless component.idno.blank?
-         xml.mods :identifier, component.idno, :type => 'local', :displayLabel => 'Local identifier'
-      end
-      unless component.barcode.blank?
-         xml.mods :identifier, component.barcode, :type => 'local', :displayLabel => 'Barcode'
-      end
-
-      # # Include each associated MasterFile as a nested <mods:atedItem>
-      # count = 0
-      # component.master_files.sort_by{|mf| mf.filename}.each do |master_file|
-      #   count += 1
-      #   mods_master_file(xml, master_file, count)
-      # end
-
-      # # Output each child Component as a nested <mods:relatedItem>
-      # component.childr  en.each do |child_component|
-      #   mods_component(xml, child_component)
-      # end
-   end
-   private_class_method :mods_component
 
    #-----------------------------------------------------------------------------
 
@@ -670,20 +601,10 @@ module Hydra
          # form" (MODS documentation).
          xml.mods :digitalOrigin, 'reformatted digital'
 
-         # List the mime types applicable to this bibl record (based on the
-         # MasterFile records associated with this bibl record).
-         # build hash of mime types
-         mime_types = Hash.new
-         bibl.units.each do |unit|
-            next if units_filter.is_a? Array and ! units_filter.include? unit
-            unit.master_files.each do |master_file|
-               mime_types[master_file.mime_type] = nil
-            end
-         end
-         # output list of mime types
-         mime_types.each_key do |mime_type|
-            xml.mods :internetMediaType, mime_type
-         end
+         # NOTE: all masterfiles were hardcoded to image/tiff. The
+         # code previously here to loop thru available types and add
+         # multiples did nothing except this:
+         xml.mods :internetMediaType, 'image/tiff'
       end
    end
    private_class_method :mods_physicalDescription
