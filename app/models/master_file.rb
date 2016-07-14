@@ -106,7 +106,7 @@ class MasterFile < ActiveRecord::Base
    end
 
    def link_to_dl_page_turner
-      return "#{VIRGO_URL}/#{self.bibl.pid}/view?&page=#{self.pid}"
+      return "#{VIRGO_URL}/#{self.bibl.pid}"
    end
 
    def path_to_archved_version
