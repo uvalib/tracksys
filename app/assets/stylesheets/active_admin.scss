@@ -124,8 +124,20 @@ textarea.transcription {
    border-color: #ccc;
    margin-top: 5px;
    padding: 15px;
-   font-size: 1.2em;
+   font-size: 1em;
    font-family: serif;
+}
+
+div.image-panel {
+   margin-top: 5px;
+   .img-box {
+      border-color: #ccc;
+      margin-top: 0;
+   }
+   div.buttons {
+      text-align: center;
+      margin-top: 10px;
+   }
 }
 
 div.mf-transcription {
@@ -133,10 +145,24 @@ div.mf-transcription {
    margin: 10px 0;
    padding: 8px;
    background-color: white;
-   max-height: 500px;
+   max-height: 300px;
    overflow: scroll;
+   font-size: 0.95em;
    p {
+      margin: 2px 0;
       font-family: serif;
+   }
+}
+a.workflow_button {
+   border: 1px solid #6A7176;
+    padding: 5px 25px;
+    text-decoration: initial;
+    border-radius: 15px;
+    background: #6A7176;
+    color: white;
+    &:hover {
+      background: #ddd;
+      color: #666;
    }
 }
 
@@ -192,7 +218,7 @@ table.ocr-master-files {
       height: 12px;
    }
 }
-span.ocr-button.disabled {
+.ocr-button.disabled {
    opacity: 0.5;
    cursor: default;
    &:hover {
@@ -209,7 +235,7 @@ span.ocr-button.disabled {
    color: firebrick;
 }
 
-span.ocr-button {
+.ocr-button {
    margin: 0 10px;
    background: steelblue;
    padding: 3px 30px;
@@ -249,10 +275,14 @@ div.panel.transcription {
    }
 }
 
-span.ocr-button.transcription {
+.ocr-button.transcription, .ocr-button.done {
    font-size: 1.1em;
    margin:10px 0 0 0;
    display: inline-block;
+}
+a.ocr-button.done {
+   color:white;
+   text-decoration: none;
 }
 
 .img-box {

@@ -1,7 +1,7 @@
 $(function() {
 
    setTimeout( function() {
-      
+
       $("#src-img").panzoom({
          minScale: 1,
          maxScale: 10,

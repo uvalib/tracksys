@@ -19,6 +19,9 @@ ActiveAdmin.register MasterFile do
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
    end
+   action_item :transcribe, only: :show do
+      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
+   end
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
@@ -197,8 +200,6 @@ ActiveAdmin.register MasterFile do
                   end
                end
             end
-
-
          end
       end
    end
@@ -222,10 +223,6 @@ ActiveAdmin.register MasterFile do
       f.inputs "Related Information", :class => 'panel two-column', :toggle => 'show' do
          f.input :unit_id, :as => :number
          # f.input :component_id, :as => :number
-      end
-
-      f.inputs "Transcription Text", :class => 'panel two-column', :toggle => 'hide' do
-         f.input :transcription_text, :input_html => { :rows => 10 }
       end
 
       f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
@@ -289,6 +286,9 @@ ActiveAdmin.register MasterFile do
       if master_file.date_archived
          link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
       end
+   end
+
+   member_action :transcribe, :method => :get do
    end
 
    member_action :publish, :method => :put do
