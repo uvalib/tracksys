@@ -105,12 +105,24 @@ class MasterFile < ActiveRecord::Base
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
+   def iiif_path(pid)
+      pid_parts = pid.split(":")
+      base = pid_parts[1]
+      parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd
+      parts << base.last if parts.length * 2 !=  base.length
+      pid_dirs = parts.join("/")
+      jp2k_filename = "#{base}.jp2"
+      jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
+      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
+      jp2k_path = File.join(jp2k_path, jp2k_filename)
+      return jp2k_path
+   end
+
    def link_to_static_thumbnail
       iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
-      req = Net::HTTP.new(iiif_url.host, iiif_url.port)
-      resp = req.request_head(iiif_url.path)
-      if resp.code != 200
-         # Not found, create the thumbnail on the fly
+      test_path = iiif_path(self.pid)
+      if File.exists?(test_path) == false
+         Rails.logger.info "CREATE JP2 for #{self.pid}"
          unit_id = self.unit.id.to_s
          src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
          PublishToIiif.exec_now({source: "#{src}/#{self.filename}", master_file: self})
