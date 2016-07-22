@@ -109,16 +109,14 @@ class MasterFile < ActiveRecord::Base
       iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
       req = Net::HTTP.new(iiif_url.host, iiif_url.port)
       resp = req.request_head(iiif_url.path)
-      if resp.code == 200
-         return iiif_url.to_s
-      else
-         thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
-         unit_dir = "%09d" % self.unit_id
-         min_range = self.unit_id / 1000 * 1000    # round unit to thousands
-         max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
-         range_sub_dir = "#{min_range}-#{max_range}"
-         return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
+      if resp.code != 200
+         # Not found, create the thumbnail on the fly
+         unit_id = self.unit.id.to_s
+         src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
+         PublishToIiif.exec_now({source: "#{src}/#{self.filename}", master_file: self})
       end
+
+      return iiif_url.to_s
    end
 
    # alias_attributes as CYA for legacy migration.
