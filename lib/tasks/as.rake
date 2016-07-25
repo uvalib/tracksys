@@ -11,11 +11,12 @@ namespace :as do
       resp = RestClient.post url, {password: pw}
       json = JSON.parse(resp.body)
       session = json['session']
+      puts session
 
       # Make the rest header with session info to be used for all other requests
       hdr = {:content_type => :json, :accept => :json, :'X-ArchivesSpace-Session'=>session}
 
-      # example; find URI for resporce specified
+      # Find URI for resporce specified
       out = RestClient.get "#{as_root}/repositories", hdr
       repo_uri = ""
       JSON.parse(out.body).each do |repo|
@@ -43,81 +44,53 @@ namespace :as do
          tgt_ao = ao
          break
       end
-
-      puts "Create Digital Object in: AO \"#{tgt_ao['title']}\": #{tgt_ao['uri']}"
+      puts "Found target AO: \"#{tgt_ao['title']}\": #{tgt_ao['uri']}"
 
       payload = {
          digital_object_id: "tsi:12",
          title: "Digital object for 1st letter",
          publish: true,
          file_versions: [
-            {file_uri: "http://tracksysdev.lib.virginia.edu:8080/uva-lib:2137592", publish: true}
-         ],
-         linked_instances: [ {ref: tgt_ao['uri'] } ],
-         repository: { ref: repo_uri}
+            {file_uri: "http://tracksysdev.lib.virginiaedu:8080/uva-lib:2137592", publish: true}
+         ]
       }
+      puts "Create Digital Object #{payload.to_json}"
+      digital_obj_id = -1
+      begin
+         resp = RestClient.post "#{as_root}#{repo_uri}/digital_objects", "#{payload.to_json}", hdr
+         if resp.code.to_i == 200
+            json = JSON.parse(resp)
+            digital_obj_id = json['id']
+            puts "Digital object created. ID: #{json['id']}"
+         else
+            raise "Add digital object FAILED: #{resp.to_s}"
+         end
+      rescue RestClient::Exception => rce
+         raise "*** ADD FAILED #{rce.response}"
+      end
 
-      # CREATE responses:
-      # 200 – {:status => “Created”, :id => (id of created object), :warnings => {(warnings)}}
-      # 400 – {:error => (description of error)}
+      # Add newly created digital object URI reference as an instance in the target archival object
+      tgt_ao['instances'] << { instance_type: "digital_object", digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"} }
+      puts "UPDATE AO WITH: #{tgt_ao.to_json}"
+      begin
+         resp = RestClient.post "#{as_root}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
+         if resp.code.to_i == 200
+            puts "Archival object updated"
+         else
+            raise "Archival object update FAILED: #{resp.to_s}"
+         end
+      rescue RestClient::Exception => rce
+         raise "*** Archival object update FAILED #{rce.response}"
+      end
 
-      # # Get ALL Digital objects for the repo. Used to get JSON structure of object. Listed at end of file
-      # out = RestClient.get "#{as_root}#{uri}/digital_objects?all_ids=true", hdr
+      # # Get ALL Digital objects for the repo. Can be used to get JSON structure of object
+      # out = RestClient.get "#{as_root}#{repo_uri}/digital_objects?all_ids=true", hdr
       # dos = JSON.parse(out.body)
       # puts "DIGITAL OBJECTS ==========================="
       # dos.each do |id|
-      #    out = RestClient.get "#{as_root}#{uri}/digital_objects/#{id}", hdr
+      #    out = RestClient.get "#{as_root}#{repo_uri}/digital_objects/#{id}", hdr
       #    dobj = JSON.parse(out.body)
       #    puts "#{dobj.to_json} ==============================\n\n"
       # end
    end
-
-   #GET /repositories/:repo_id/archival_objects/:id
 end
-
-# EXAMPLE Digital Object JSON:
-# {
-# 	"lock_version": 1,
-# 	"digital_object_id": "tsi:11",
-# 	"title": "Digital object for 4th letter",
-# 	"publish": true,
-# 	"restrictions": false,
-# 	"created_by": "admin",
-# 	"last_modified_by": "admin",
-# 	"create_time": "2016-07-22T19:15:47Z",
-# 	"system_mtime": "2016-07-22T19:15:54Z",
-# 	"user_mtime": "2016-07-22T19:15:47Z",
-# 	"suppressed": false,
-# 	"jsonmodel_type": "digital_object",
-# 	"external_ids": [],
-# 	"subjects": [],
-# 	"linked_events": [],
-# 	"extents": [],
-# 	"dates": [],
-# 	"external_documents": [],
-# 	"rights_statements": [],
-# 	"linked_agents": [],
-# 	"file_versions": [{
-# 		"lock_version": 0,
-# 		"file_uri": "http://tracksysdev.lib.virginia.edu:8080/uva-lib:2137592",
-# 		"publish": true,
-# 		"created_by": "admin",
-# 		"last_modified_by": "admin",
-# 		"create_time": "2016-07-22T19:15:47Z",
-# 		"system_mtime": "2016-07-22T19:15:47Z",
-# 		"user_mtime": "2016-07-22T19:15:47Z",
-# 		"jsonmodel_type": "file_version",
-# 		"identifier": "3"
-# 	}],
-# 	"notes": [],
-# 	"linked_instances": [{
-# 		"ref": "/repositories/9/archival_objects/39750"
-# 	}],
-# 	"uri": "/repositories/9/digital_objects/3",
-# 	"repository": {
-# 		"ref": "/repositories/9"
-# 	},
-# 	"tree": {
-# 		"ref": "/repositories/9/digital_objects/3/tree"
-# 	}
-# }
