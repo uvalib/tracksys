@@ -7,6 +7,7 @@ class MasterFile < ActiveRecord::Base
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :unit, :counter_cache => true
    belongs_to :use_right, :counter_cache => true
+   belongs_to :item
 
    has_and_belongs_to_many :legacy_identifiers
 
@@ -125,7 +126,7 @@ class MasterFile < ActiveRecord::Base
          Rails.logger.info "CREATE JP2 for #{self.pid}"
          unit_id = self.unit.id.to_s
          src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
-         PublishToIiif.exec_now({source: "#{src}/#{self.filename}", master_file: self})
+         PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file: self})
       end
 
       return iiif_url.to_s

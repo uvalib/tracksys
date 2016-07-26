@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160610191324) do
+ActiveRecord::Schema.define(version: 20160725193651) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -310,6 +310,16 @@ ActiveRecord::Schema.define(version: 20160610191324) do
 
   add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree
 
+  create_table "items", force: :cascade do |t|
+    t.string   "pid",          limit: 255
+    t.string   "external_uri", limit: 255
+    t.integer  "unit_id",      limit: 4
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
+  add_index "items", ["unit_id"], name: "index_items_on_unit_id", using: :btree
+
   create_table "job_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255,                     null: false
     t.string   "status",          limit: 255, default: "pending", null: false
@@ -373,6 +383,7 @@ ActiveRecord::Schema.define(version: 20160610191324) do
     t.string   "creator_death_date",   limit: 255
     t.string   "creation_date",        limit: 255
     t.string   "primary_author",       limit: 255
+    t.integer  "item_id",              limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
@@ -381,6 +392,7 @@ ActiveRecord::Schema.define(version: 20160610191324) do
   add_index "master_files", ["dpla"], name: "index_master_files_on_dpla", using: :btree
   add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
   add_index "master_files", ["indexing_scenario_id"], name: "index_master_files_on_indexing_scenario_id", using: :btree
+  add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree
   add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
   add_index "master_files", ["tech_meta_type"], name: "index_master_files_on_tech_meta_type", using: :btree
   add_index "master_files", ["title"], name: "index_master_files_on_title", using: :btree
