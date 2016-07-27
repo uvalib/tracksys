@@ -17,8 +17,10 @@ namespace :items do
          end
 
          # get page num from title. Return 0 if any non-numeric data present
-         # only care of page is 1 as this is where item may change
+         # only care of page is 1 as this is where item may change. If title
+         # fails, fall back to desctiption as some store this info there
          page_num = get_page_number(mf.title)
+         page_num = get_page_number(mf.description) if page_num == 0
          if page_num == 1
             if pg_1_found == false
                puts "   Found page 1 in #{mf.component.title}"
@@ -36,10 +38,10 @@ namespace :items do
       end
    end
 
-   def get_page_number( title )
-      return 0 if title.blank?
-      return 0 if title.strip.match(/\A[-+]?[0-9]*\.?[0-9]+\Z/).nil?
-      return title.to_i
+   def get_page_number( text )
+      return 0 if text.blank?
+      return 0 if text.strip.match(/\A[-+]?[0-9]*\.?[0-9]+\Z/).nil?
+      return text.to_i
    end
 
    desc "Create items from all units"
@@ -65,8 +67,10 @@ namespace :items do
             end
 
             # get page num from title. Return 0 if any non-numeric data present
-            # only care of page is 1 as this is where item may change
+            # only care of page is 1 as this is where item may change. If title
+            # fails, fall back to desctiption as some store this info there
             page_num = get_page_number(mf.title)
+            page_num = get_page_number(mf.description) if page_num == 0
             if pg_num == 1
                if page_one_found == false
                   page_one_found = true
