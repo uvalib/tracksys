@@ -273,8 +273,9 @@ ActiveAdmin.register Bibl do
   end
 
   member_action :publish, :method => :put do
-    b = Bibl.find(params[:id])
-    FlagForPublication.exec({object: b})
+    bibl = Bibl.find(params[:id])
+    bibl.update_attribute(:date_dl_update, Time.now)
+    logger.info "Bibl #{bibl.id} has been flagged for an update in the DL"
     redirect_to :back, :notice => "Bibl flagged for Publication"
   end
 

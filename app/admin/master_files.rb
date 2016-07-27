@@ -293,7 +293,8 @@ ActiveAdmin.register MasterFile do
 
    member_action :publish, :method => :put do
      mf = MasterFile.find(params[:id])
-     FlagForPublication.exec({object: mf})
+     mf.update_attribute(:date_dl_update, Time.now)
+     logger.info "Master File #{mf.id} has been flagged for an update in the DL"
      redirect_to :back, :notice => "Master File flagged for Publication"
    end
 

@@ -448,8 +448,13 @@ ActiveAdmin.register Unit do
   end
 
   member_action :publish, :method => :put do
-    u = Unit.find(params[:id])
-    FlagForPublication.exec({object: u})
+    unit = Unit.find(params[:id])
+    now = Time.now
+    unit.bibl.update_attribute(:date_dl_update, now)
+    unit.master_files.each do |mf|
+      mf.update_attribute(:date_dl_update, now)
+    end
+    logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
     redirect_to :back, :notice => "Unit flagged for Publication"
   end
 
