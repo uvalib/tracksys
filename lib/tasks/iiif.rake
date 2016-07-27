@@ -10,7 +10,7 @@ namespace :iiif do
 
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
 
-      puts "Use #{kdu} to generate JP2K file all master files in #{iiif_mount}..."
+      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
       MasterFile.find_each do |mf|
          jp2k_path = iiif_path(mf.pid)
          if File.exists?(jp2k_path) == false
