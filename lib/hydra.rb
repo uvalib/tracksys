@@ -25,6 +25,7 @@ module Hydra
       payload["rightsWrapperServiceUrl"] = "#{Settings.rights_wrapper_url}?pid=#{object.pid}&pagePid="
       payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}"
       payload["source"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata"
+      payload["permanentUrl"] = "#{Settings.virgo_url}/catalog/#{object.pid}"
       payload["clear-stylesheet-cache"] = "yes"
 
       if object.is_a? Bibl
