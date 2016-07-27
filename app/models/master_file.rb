@@ -126,7 +126,7 @@ class MasterFile < ActiveRecord::Base
          Rails.logger.info "CREATE JP2 for #{self.pid}"
          unit_id = self.unit.id.to_s
          src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
-         PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file: self})
+         PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
       end
 
       return iiif_url.to_s

@@ -44,7 +44,7 @@ class PropogateDlAttributes < BaseJob
       # Publish masterfile images to iiif server
       if object.is_a? MasterFile
          file_path = File.join(source, object.filename)
-         PublishToIiif.exec_now({ :source => file_path, :master_file=> object }, self)
+         PublishToIiif.exec_now({ :source => file_path, :master_file_id=> object.id }, self)
       end
    end
 end

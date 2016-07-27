@@ -9,7 +9,7 @@ namespace :iiif do
       puts "Src: #{src}"
       u.master_files.each do |mf|
          puts "Publish MF #{mf.pid} to IIIF server"
-         PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file: mf})
+         PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file_id: mf.id})
       end
    end
 
@@ -22,7 +22,7 @@ namespace :iiif do
          puts "  Unit #{u.id} from #{src}..."
          u.master_files.each do |mf|
             begin
-               PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file: mf})
+               PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file_id: mf.id})
                cnt += 1
             rescue Exception=>e
                puts "    * Master File #{mf.id} FAILED: #{e.to_s}"

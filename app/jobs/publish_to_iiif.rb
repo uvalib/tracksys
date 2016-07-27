@@ -6,10 +6,10 @@ class PublishToIiif < BaseJob
    def do_workflow(message)
 
       raise "Parameter 'source' is required" if message[:source].blank?
-      raise "Parameter 'master_file' is required" if message[:master_file].blank?
+      raise "Parameter 'master_file_id' is required" if message[:master_file_id].blank?
 
       source = message[:source]
-      master_file = message[:master_file]
+      master_file = MasterFile.find(message[:master_file_id])
 
       # Given the new requirment of recording md5 for MasterFile objects and the prohibition on downloading everything from
       # tape to record those md5's, we will take the opportunity here to record them as we pull them down from Stornext.
