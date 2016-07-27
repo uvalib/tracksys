@@ -46,7 +46,7 @@ namespace :items do
 
    desc "Create items from all units"
    task :from_units  => :environment do
-      Unit.all.where(unit_status: "approved") do |u|
+      Unit.where(unit_status: "approved").each do |u|
          next if u.master_files.first.nil?               # no master files; skip!!
          next if !u.master_files.first.component.nil?    # components handled by other task
 
@@ -71,7 +71,7 @@ namespace :items do
             # fails, fall back to desctiption as some store this info there
             page_num = get_page_number(mf.title)
             page_num = get_page_number(mf.description) if page_num == 0
-            if pg_num == 1
+            if page_num == 1
                if page_one_found == false
                   page_one_found = true
                else
