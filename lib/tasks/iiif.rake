@@ -9,6 +9,7 @@ namespace :iiif do
       raise "archive_mount is required" if archive_mount.blank?
 
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
+      raise "KDU_COMPRESS not found" if !File.exist?(kdu)
 
       puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
       MasterFile.find_each do |mf|
