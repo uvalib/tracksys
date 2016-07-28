@@ -6,7 +6,7 @@ namespace :items do
       curr_component_id = nil
       pg_1_found = false
 
-      MasterFile.where("component_id is not null").order(component_id: :asc).each do |mf|
+      MasterFile.where("component_id is not null").where("item_id is null").order(component_id: :asc).each do |mf|
 
          # when a new component is found, create a new item for it
          if mf.component_id != curr_component_id
@@ -55,6 +55,7 @@ namespace :items do
 
          # Check for page cycles in this unts master_files
          u.master_files.each do |mf|
+            next if !mf.item.nil? # if item already set, don't create new!
 
             # If MF has desc_metadata, it always goes in its own item
             if !mf.desc_metadata.blank?
