@@ -17,8 +17,7 @@ Tracksys::Application.routes.draw do
      get "metadata/:pid" => "metadata#show"
      get "pid/:pid" => "pid#show"
      get "solr/:pid" => "solr#show"
+     get "style/:pid" => "style#show"
      get "solr" => "solr#index"
-     get "iiif/:pid" => "iiif#show"
-     get "iiif/:pid/manifest.json" => "iiif#show"
   end
 end

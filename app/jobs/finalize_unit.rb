@@ -15,5 +15,8 @@ class FinalizeUnit < BaseJob
       unit = Unit.find(unit_id)
       @status.update_attributes( :originator_type=>"Unit", :originator_id=>unit_id )
       QaUnitData.exec_now( { :unit => unit }, self)
+
+      # unit has been finalized. Now generate items
+      GenerateItems.exec_now({ :unit => unit }, self)
    end
 end

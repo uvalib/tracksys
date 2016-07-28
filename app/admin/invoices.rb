@@ -2,7 +2,7 @@ ActiveAdmin.register Invoice do
    menu :parent => "Miscellaneous"
 
    # strong paramters handling
-   permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes, :invoice_content
+   permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes
 
    scope :all, :default => true
    scope :past_due
@@ -58,9 +58,6 @@ ActiveAdmin.register Invoice do
          end
       end
       column :notes
-      column ("PDF of Invoice") do |invoice|
-         link_to "Download", get_pdf_admin_invoice_path(invoice.id), :method => :get
-      end
       column("") do |invoice|
          div do
             link_to "Details", resource_path(invoice), :class => "member_link view_link"
@@ -107,12 +104,6 @@ ActiveAdmin.register Invoice do
                end
                row :transmittal_number
                row :notes
-               row ("PDF") do |invoice|
-                  link_to "Download", get_pdf_admin_invoice_path(invoice.id), :method => :get
-               end
-               row("Old type invoice (if available)") do |invoice|
-                  raw(invoice.invoice_content)
-               end
             end
          end
       end
@@ -131,7 +122,6 @@ ActiveAdmin.register Invoice do
          f.input :fee_amount_paid, :as => :string
          f.input :transmittal_number, :as => :string
          f.input :notes, :input_html => {:rows => 5}
-         f.input :invoice_content, :input_html => {:rows => 15}
       end
 
       f.inputs "Related Information", :class => 'panel three-column' do

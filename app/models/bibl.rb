@@ -1,5 +1,4 @@
 class Bibl < ActiveRecord::Base
-  include Pidable
 
   CREATOR_NAME_TYPES = %w[corporate personal]
   YEAR_TYPES = %w[copyright creation publication]
@@ -99,7 +98,6 @@ class Bibl < ActiveRecord::Base
   has_many :master_files, :through => :units
   has_many :orders, ->{ uniq }, :through => :units
   has_many :units
-  belongs_to :index_destination, :counter_cache => true
 
   #------------------------------------------------------------------
   # scopes
@@ -155,15 +153,6 @@ class Bibl < ActiveRecord::Base
       self.use_right = cne
     end
 
-    # get pid
-    if self.pid.blank?
-      begin
-        self.pid = AssignPids.get_pid
-      rescue Exception => e
-        #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
-      end
-    end
-
     # Moved from after_initialize in order to make compliant with 2.3.8
     if self.is_in_catalog.nil?
       # set default value
@@ -174,6 +163,9 @@ class Bibl < ActiveRecord::Base
         self.is_in_catalog = true
       end
     end
+  end
+  after_create do
+     update_attribute(:pid, "tsb:#{self.id}")
   end
   after_update :fix_updated_counters
   before_destroy :destroyable?
@@ -322,12 +314,21 @@ class Bibl < ActiveRecord::Base
     return "#{VIRGO_URL}/#{self.pid}"
   end
 
-  def fedora_url
-    return "#{FEDORA_REST_URL}/objects/#{self.pid}"
+  def agency_links
+     return "" if self.agencies.empty?
+     out = ""
+     self.agencies.uniq.sort_by(&:name).each do |agency|
+       out << "<div><a href='/admin/agencies/#{agency.id}'>#{agency.name}</a></div>"
+     end
+     return out
   end
-
-  def solr_url(url=STAGING_SOLR_URL)
-    return "#{url}/select?q=id:\"#{self.pid}\""
+  def legacy_identifier_links
+     return "" if self.legacy_identifiers.empty?
+     out = ""
+     self.legacy_identifiers.each do |li|
+        out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
+     end
+     return out
   end
 end
 
@@ -376,5 +377,4 @@ end
 #  dpla                   :boolean          default(FALSE)
 #  cataloging_source      :string(255)
 #  collection_facet       :string(255)
-#  index_destination_id   :integer
 #

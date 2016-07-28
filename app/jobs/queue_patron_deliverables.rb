@@ -12,12 +12,6 @@ class QueuePatronDeliverables < BaseJob
       # where unit_dir is the 9-digit, 0-padded unit ID
 
       unit.master_files.each do |master_file|
-         # Ensure that master file has a pid
-         if master_file.pid.nil?
-            master_file.pid = AssignPids.get_pid
-            master_file.save!
-         end
-
          file_source = File.join(source, master_file.filename)
          CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id,
             :source => file_source, :format => unit.intended_use_deliverable_format,
@@ -26,6 +20,9 @@ class QueuePatronDeliverables < BaseJob
             :unit_id => unit.id, :personal_item => unit.bibl.personal_item?,
             :call_number => unit.bibl.call_number, :title => unit.bibl.title,
             :location => unit.bibl.location, :remove_watermark => unit.remove_watermark}, self)
+
+         # also send to IIIF server for thumbnail generation and visibility from archivesspace
+         PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
       end
 
       logger().info("All patron deliverables created")

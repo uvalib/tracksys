@@ -4,25 +4,25 @@
 
     <%= f.input :catalog_key %>
     <%= f.input :barcode %>
-    <%= f.input :title, :as => :text, :input_html => { :rows => 5 } %>
-    <%= f.input :creator_name %>
-    <%= f.input :call_number %>
-    <%= f.input :year %>
-    <%= f.input :year_type %>
-    <%= f.input :publication_place, label: "Place of Publication" %>
-    <%= f.input :copy, :as => :string %>
-    <%= f.input :location %>
+    <%= f.input :title, :input_html => { :rows=>5, :disabled => true } %>
+    <%= f.input :creator_name, :input_html => { :disabled => true } %>
+    <%= f.input :call_number, :input_html => { :disabled => true } %>
+    <%= f.input :year, :input_html => { :disabled => true } %>
+    <%= f.input :year_type, :input_html => { :disabled => true } %>
+    <%= f.input :publication_place, label: "Place of Publication", :input_html => { :disabled => true } %>
+    <%= f.input :copy, :as => :string, :input_html => { :disabled => true } %>
+    <%= f.input :location, :input_html => { :disabled => true } %>
   <% end %>
 
   <%= f.inputs "Detailed Bibliographic Information", :class => 'three-column panel' do %>
-    <%= f.input :cataloging_source %>
-    <%= f.input :citation, :input_html => { :rows => 5 } %>
-    <%= f.input :description %>
-    <%= f.input :title_control %>
-    <%= f.input :series_title %>
-    <%= f.input :volume %>
-    <%= f.input :issue %>
-    <%= f.input :creator_name_type %>
+    <%= f.input :cataloging_source, :input_html => { :disabled => true } %>
+    <%= f.input :citation, :input_html => { :rows => 5, :disabled => true } %>
+    <%= f.input :description, :input_html => { :disabled => true }  %>
+    <%= f.input :title_control, :input_html => { :disabled => true }  %>
+    <%= f.input :series_title, :input_html => { :disabled => true }  %>
+    <%= f.input :volume, :input_html => { :disabled => true }  %>
+    <%= f.input :issue, :input_html => { :disabled => true }  %>
+    <%= f.input :creator_name_type, :input_html => { :disabled => true }  %>
   <% end %>
 
   <%= f.inputs "Administrative Information", :class => 'three-column panel' do %>
@@ -35,13 +35,13 @@
     <%= f.input :date_external_update, :as => :string, :input_html => {:class => "datepicker"} %>
   <% end %>
 
-  <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'show' do %>
+  <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
       <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
       <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+      <%= f.input :availability_policy %>
       <%= f.input :discoverability, :as => :select %>
       <%= f.input :use_right, label: "Right Statement" %>
       <%= f.input :indexing_scenario %>
-      <%= f.input :index_destination %>
       <%= f.input :dpla, :as => :radio %>
       <% if @bibl.dpla %>
       <%= f.input :parent_bibl_id, :as => :number  %>

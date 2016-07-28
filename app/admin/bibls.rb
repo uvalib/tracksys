@@ -5,10 +5,11 @@ ActiveAdmin.register Bibl do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number, :year, :year_type, :copy, :location,
       :cataloging_source, :citation, :description, :title_control, :series_title, :volume, :issue, :creator_name_type,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre, :date_external_update,
-      :exemplar, :discoverability, :index_destination_id, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update,
+      :exemplar, :discoverability, :dpla, :parent_bibl, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :desc_metadata, :use_right_id, :indexing_scenario_id, :parent_bibl_id, :publication_place
 
   config.clear_action_items!
+
   action_item :new, :only => :index do
      raw("<a href='/admin/bibls/new'>New</a>") if !current_user.viewer?
   end
@@ -45,7 +46,6 @@ ActiveAdmin.register Bibl do
   filter :dpla, :as => :select
   filter :location
   filter :use_right, :as => :select, label: 'Right Statement'
-  filter :index_destination, :as => :select
   filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
   filter :availability_policy
@@ -94,9 +94,6 @@ ActiveAdmin.register Bibl do
       if bibl.in_dl?
         div do
           link_to "VIRGO", bibl.dl_virgo_url, :target => "_blank"
-        end
-        div do
-          link_to "Fedora", bibl.fedora_url, :target => "_blank"
         end
       end
     end
@@ -198,17 +195,9 @@ ActiveAdmin.register Bibl do
             link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
           end
 		    row :dpla
-          row('Right Statement'){ |r| r.use_right }
+          row('Right Statement'){ |r| r.use_right.name }
           row :availability_policy
           row :indexing_scenario
-          row :index_destination do |bibl|
-            if bibl.index_destination
-              link_to "#{bibl.index_destination.nickname} (aka #{bibl.index_destination.url})", admin_index_destinations_path(:q => bibl.index_destination_id)
-            else
-              nil
-            end
-          end
-
           row ("Discoverable?") do |bibl|
             format_boolean_as_yes_no(bibl.discoverability)
           end
@@ -233,16 +222,6 @@ ActiveAdmin.register Bibl do
           end
         end
       end
-      row "Digital Library" do |bibl|
-        if bibl.in_dl?
-          div do
-            link_to "Fedora Object", bibl.fedora_url, :target => "_blank"
-          end
-          div do
-            link_to "Solr Record", bibl.solr_url, :target => "_blank"
-          end
-        end
-      end
       row :master_files do |bibl|
         link_to "#{bibl.master_files.count}", admin_master_files_path(:q => {:bibl_id_eq => bibl.id})
       end
@@ -255,22 +234,14 @@ ActiveAdmin.register Bibl do
       row :customers do |bibl|
         link_to "#{bibl.customers.count}", admin_customers_path(:q => {:bibls_id_eq => bibl.id})
       end
-      row :components do |bibl|
-        link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
-      end
+      # row :components do |bibl|
+      #   link_to "#{bibl.components.count}", admin_components_path(:q => {:bibls_id_eq => bibl.id})
+      # end
       row "Agencies Requesting Resource" do |bibl|
-        bibl.agencies.uniq.sort_by(&:name).each {|agency|
-          div do
-            link_to "#{agency.name}", admin_agency_path(agency)
-          end
-        } unless bibl.agencies.empty?
+        raw(bibl.agency_links)
       end
       row "Legacy Identifiers" do |bibl|
-        bibl.legacy_identifiers.each {|li|
-          div do
-            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-          end
-        } unless bibl.legacy_identifiers.empty?
+        raw(bibl.legacy_identifier_links)
       end
       row("Collection Bibliographic Record") do |bibl|
         if bibl.parent_bibl
@@ -284,44 +255,28 @@ ActiveAdmin.register Bibl do
   end
 
   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-    if bibl.exists_in_repo? # actually in Fedora
-      div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_bibl_path(:datastream => 'allxml'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_bibl_path(:datastream => 'dc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_bibl_path(:datastream => 'desc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_bibl_path(:datastream => 'rels_ext'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Index Record", update_metadata_admin_bibl_path(:datastream => 'solr_doc'), :method => :put end
-    elsif bibl.in_dl? && ! bibl.exists_in_repo? # marked in db as in dl but not found in Fedora
-      div :class => 'workflow note' do "Item missing from repo." end
-      link_to "Go to the Units page to ingest.", admin_units_path(:q => {:bibl_id_eq => bibl.id})
-    else
-      "No options available.  Object not yet ingested."
-    end
-  end
-
-  sidebar "Solr Index", :only => [:show],  if: proc{ !current_user.viewer? } do
-    if bibl.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_bibl_path, :user => current_user(), :method => :get end
-    end
+     if bibl.in_dl?
+        div :class => 'workflow_button' do button_to "Publish",
+          publish_admin_bibl_path(:datastream => 'all'), :method => :put end
+     else
+        "No options available.  Object is not in DL."
+     end
   end
 
   form :partial => "form"
 
   collection_action :external_lookup
 
-  member_action :update_metadata, :method => :put do
-    Bibl.find(params[:id]).update_metadata(params[:datastream])
-    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
-  end
-
-  member_action :update_all_solr_docs do
-    SendCommitToSolr.exec()
-    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
-    redirect_to :back
-  end
-
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:staff_member => current_user } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
+  end
+
+  member_action :publish, :method => :put do
+    bibl = Bibl.find(params[:id])
+    bibl.update_attribute(:date_dl_update, Time.now)
+    logger.info "Bibl #{bibl.id} has been flagged for an update in the DL"
+    redirect_to :back, :notice => "Bibl flagged for Publication"
   end
 
   controller do

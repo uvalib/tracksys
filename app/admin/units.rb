@@ -4,7 +4,7 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :index_scenario_id, :availability_policy_id,
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :indexing_scenario_id,
      :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
@@ -25,6 +25,9 @@ ActiveAdmin.register Unit do
   end
 
   config.clear_action_items!
+  action_item :pdf, :only => :show do
+    raw("<a href='#{Settings.pdf_url}/#{unit.bibl.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.bibl.nil?
+  end
   action_item :new, :only => :index do
      raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
   end
@@ -91,7 +94,6 @@ ActiveAdmin.register Unit do
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :agency, :as => :select
   filter :indexing_scenario
-  filter :availability_policy
   filter :master_files_count, :as => :numeric
 
   index do
@@ -134,6 +136,11 @@ ActiveAdmin.register Unit do
     column("") do |unit|
       div do
         link_to "Details", resource_path(unit), :class => "member_link view_link"
+      end
+      if !unit.bibl.nil?
+         div do
+            link_to "PDF", "#{Settings.pdf_url}/#{unit.bibl.pid}?unit=#{unit.id}", target: "_blank"
+         end
       end
       if !current_user.viewer?
          div do
@@ -194,10 +201,9 @@ ActiveAdmin.register Unit do
     end
 
     div :class => "columns-none" do
-      panel "Digital Library Information", :toggle => 'hide' do
+      panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for unit do
           row :indexing_scenario
-          row :availability_policy
           row ("Digital Library Status") do |unit|
             case
               when unit.include_in_dl?
@@ -248,6 +254,9 @@ ActiveAdmin.register Unit do
               div do
                 link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
               end
+              div do
+                 link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+              end
               if !current_user.viewer?
                  div do
                    link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
@@ -257,14 +266,6 @@ ActiveAdmin.register Unit do
                        link_to "OCR", "/admin/ocr?mf=#{mf.id}"
                     end
                  end
-              end
-              if mf.in_dl?
-                div do
-                  link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
-                end
-                div do
-                  link_to "Solr", "#{STAGING_SOLR_URL}/select?q=id:\"#{mf.pid}\"", :class => 'member_link', :target => "_blank"
-                end
               end
               if mf.date_archived
                 div do
@@ -306,7 +307,6 @@ ActiveAdmin.register Unit do
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
       f.input :indexing_scenario
-      f.input :availability_policy
       f.input :include_in_dl, :as => :radio
       f.input :exclude_from_dl, :as => :radio
       f.input :master_file_discoverability, :as => :radio
@@ -332,11 +332,7 @@ ActiveAdmin.register Unit do
       row :customer
       row :agency
       row "Legacy Identifiers" do |unit|
-       	unit.legacy_identifiers.each {|li|
-          div do
-            link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-          end
-        } unless unit.legacy_identifiers.empty?
+       	raw(unit.legacy_identifier_links)
       end
     end
   end
@@ -376,7 +372,7 @@ ActiveAdmin.register Unit do
               div do "This unit has been archived and patron deliverables are generated.  There are no more finalization steps available." end
             end
        else
-         div do "Files for this unit do not reside in the finalization directory. No work can be done on them." end
+         div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
        end
     end
 
@@ -388,26 +384,14 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
-      div :class => 'workflow_button' do button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
+      div :class => 'workflow_button' do button_to "Put into Digital Library",
+         start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
     if unit.in_dl?
-      if ( unit.master_files.last.kind_of?(MasterFile) && ! unit.master_files.last.exists_in_repo? )
-        div :class => 'workflow_note' do "Warning: last MasterFile in this unit not found in #{FEDORA_REST_URL}" end
-      end
-      div :class => 'workflow_button' do button_to "Update All Datastreams", update_metadata_admin_unit_path(:datastream => 'all'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update All XML Datastreams", update_metadata_admin_unit_path(:datastream => 'allxml'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Dublin Core", update_metadata_admin_unit_path(:datastream => 'dc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Descriptive Metadata", update_metadata_admin_unit_path(:datastream => 'desc_metadata'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Relationships", update_metadata_admin_unit_path(:datastream => 'rels_ext'), :method => :put end
-      div :class => 'workflow_button' do button_to "Update Index Records", update_metadata_admin_unit_path(:datastream => 'solr_doc'), :method => :put end
-    end
-  end
-
-  sidebar "Solr Index", :only => [:show],  if: proc{ !current_user.viewer? } do
-    if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Commit Records to Solr", update_all_solr_docs_admin_unit_path, :user => current_user, :method => :get end
+      div :class => 'workflow_button' do button_to "Publish",
+         publish_admin_unit_path(:datastream => 'all'), :method => :put end
     end
   end
 
@@ -463,15 +447,15 @@ ActiveAdmin.register Unit do
     redirect_to :back, :notice => "Unit being put into digital library."
   end
 
-  member_action :update_metadata, :method => :put do
-    Unit.find(params[:id]).update_metadata(params[:datastream])
-    redirect_to :back, :notice => "#{params[:datastream]} is being updated."
-  end
-
-  member_action :update_all_solr_docs do
-    SendCommitToSolr.exec()
-    flash[:notice] = "All Solr records have been committed to #{STAGING_SOLR_URL}."
-    redirect_to :back
+  member_action :publish, :method => :put do
+    unit = Unit.find(params[:id])
+    now = Time.now
+    unit.bibl.update_attribute(:date_dl_update, now)
+    unit.master_files.each do |mf|
+      mf.update_attribute(:date_dl_update, now)
+    end
+    logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
+    redirect_to :back, :notice => "Unit flagged for Publication"
   end
 
   member_action :checkout_to_digiserv, :method => :put do

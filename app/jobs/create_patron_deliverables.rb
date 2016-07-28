@@ -43,25 +43,12 @@ class CreatePatronDeliverables < BaseJob
       order_id = Unit.find(message[:unit_id]).order.id
 
       if source.match(/\.tiff?$/) and File.file?(source)
-         tiff = Magick::Image.read(source).first
-
-         # Directly invoke Ruby's garbage collection to clear memory
-         GC.start
-
-         # generate deliverables to be delivered directly to customer (not destined for DL)
-         # set output filename (filename suffix determines format of output file)
-
-         # Add switch to prevent jpg deliverables of personal items from having watermark.
          format = message[:format].to_s.strip
          if format.blank? or format =~ /^jpe?g$/i
             suffix = '.jpg'
-            # If the item is a personal item or if the remove_watermark value is set to 1, remove add_legal_notice (I know the syntax is confusing)
-            if message[:personal_item]
+            add_legal_notice = true
+            if message[:personal_item] || message[:remove_watermark]
                add_legal_notice = false
-            elsif message[:remove_watermark]
-               add_legal_notice = false
-            else
-               add_legal_notice = true
             end
          elsif format =~ /^tiff?$/i
             suffix = '.tif'
@@ -74,6 +61,18 @@ class CreatePatronDeliverables < BaseJob
          dest_dir = File.join(ASSEMBLE_DELIVERY_DIR, 'order_' + order_id.to_i.to_s, message[:unit_id].to_i.to_s)
          FileUtils.mkdir_p(dest_dir)
          dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
+
+         # Simple case; just a copy of tif at full resolution. No imagemagick needed
+         if suffix == '.tif' && (desired_res.blank? or desired_res.to_s =~ /highest/i)
+            FileUtils.cp(source, dest_path)
+            on_success "Deliverable image for MasterFile #{master_file_id}."
+            return
+         end
+
+         tiff = Magick::Image.read(source).first
+
+         # Directly invoke Ruby's garbage collection to clear memory
+         GC.start
 
          # make changes to original image, if applicable
          new_tiff = nil

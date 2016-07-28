@@ -120,7 +120,7 @@ ActiveAdmin.setup do |config|
   # Default:
   # config.allow_comments = true
   config.comments = false
-  config.show_comments_in_menu = false
+  config.comments_menu = false
   #
   # You can turn them on and off for any given namespace by using a
   # namespace config block.

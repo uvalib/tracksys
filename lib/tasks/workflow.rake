@@ -2,50 +2,6 @@
 
 namespace :workflow do
 
-   desc "Update tech metadata for issue by PID"
-   task :update_tech_metadata => :environment do
-      pid = ENV['pid']
-      raise "PID is required" if pid.nil?
-      cmp = Component.where(pid: pid).first
-      raise "Invalid PID" if cmp.nil?
-
-      mfs = MasterFile.where(component_id: cmp.id)
-      mfs.each do | mf |
-         puts "Update TechMetadata for #{mf.filename}"
-         UpdateFedoraDatastreams.exec_now( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "tech_metadata" })
-      end
-   end
-
-   desc "Update RELS-EXT for issue by ID"
-   task :update_rels_ext => :environment do
-      id = ENV['id']
-      raise "ID is required" if id.nil?
-      cmp = Component.find(id)
-      UpdateFedoraDatastreams.exec_now( { :object_class => cmp.class.to_s, :object_id => cmp.id, :datastream => "rels_ext" })
-   end
-
-   desc "Update solr index for issue by ID"
-   task :update_index => :environment do
-      id = ENV['id']
-      raise "ID is required" if id.nil?
-      cmp = Component.find(id)
-      UpdateFedoraDatastreams.exec_now( { :cascade=> true, :object_class => cmp.class.to_s, :object_id => cmp.id, :datastream => "solr_doc" })
-   end
-
-   desc "Update Images for issue by PID"
-   task :update_images => :environment do
-      pid = ENV['pid']
-      raise "PID is required" if pid.nil?
-      cmp = Component.where(pid: pid).first
-      raise "Invalid PID" if cmp.nil?
-
-      mfs = MasterFile.where(component_id: cmp.id)
-      mfs.each do | mf |
-         puts "Update Images for #{mf.filename}"
-         UpdateFedoraDatastreams.exec_now( { :object_class => mf.class.to_s, :object_id => mf.id, :datastream => "jp2k" })
-      end
-   end
-
    desc "Ingest unit from archive"
    task :ingest_unit => :environment do
       id = ENV['id']

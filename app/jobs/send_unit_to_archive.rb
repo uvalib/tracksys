@@ -68,7 +68,6 @@ class SendUnitToArchive < BaseJob
 
                # Run checksum tests
                if copy_md5.hexdigest != source_md5.hexdigest
-                  # Introduce logic here to move the entire unit directory to REVIEW_DIR, or 50_fail_checksum
                   on_failure("** Warning ** - File #{f} has failed checksum test")
                   error_count += 1
                else

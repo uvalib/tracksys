@@ -1,12 +1,10 @@
 class Component < ActiveRecord::Base
    has_ancestry
-   include Pidable
    include ExportIviewXML
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
    belongs_to :component_type, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
@@ -31,14 +29,8 @@ class Component < ActiveRecord::Base
    #------------------------------------------------------------------
    before_save :copy_parent_reference
    before_save :cache_ancestry
-   before_save do
-      if self.pid.blank?
-         begin
-            self.pid = AssignPids.get_pid
-         rescue Exception => e
-            #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
-         end
-      end
+   after_create do
+      update_attribute(:pid, "tsc:#{self.id}")
    end
 
    #------------------------------------------------------------------
@@ -193,16 +185,6 @@ class Component < ActiveRecord::Base
       return self.date_dl_ingest?
    end
 
-   # temporary method: use until db migration adds relationship
-   def index_destination
-      identifier = self.index_destination_id
-      if identifier
-         return IndexDestination.find(identifier)
-      else
-         return nil
-      end
-   end
-
    # hashes for serializing hierarchies
    # TO DO: improve sorting; The assumption here
    # is that the ordering in iView Catalog, reflected
@@ -259,7 +241,6 @@ end
 #  indexing_scenario_id    :integer
 #  level                   :text(65535)
 #  ead_id_att              :string(255)
-#  availability_policy_id  :integer
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
 #  master_files_count      :integer          default(0), not null
@@ -268,5 +249,4 @@ end
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)
 #  followed_by_id          :integer
-#  index_destination_id    :integer
 #

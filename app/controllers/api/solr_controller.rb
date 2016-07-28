@@ -18,6 +18,7 @@ class Api::SolrController < ApplicationController
          pids << o.pid
       end
       MasterFile.where("date_dl_ingest >= ? or date_dl_update >= ?", dt,dt).find_each do |o|
+         next if o.desc_metadata.blank?   # never report MF without metadata; they are always shadowed
          pids << o.pid
       end
       Component.where("date_dl_ingest >= ? or date_dl_update >= ?", dt,dt).find_each do |o|

@@ -1,14 +1,13 @@
 class MasterFile < ActiveRecord::Base
-   include Pidable
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
    belongs_to :component, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :unit, :counter_cache => true
    belongs_to :use_right, :counter_cache => true
+   belongs_to :item
 
    has_and_belongs_to_many :legacy_identifiers
 
@@ -47,10 +46,6 @@ class MasterFile < ActiveRecord::Base
    # validations
    #------------------------------------------------------------------
    validates :filename, :unit_id, :filesize, :presence => true
-   validates :availability_policy, :presence => {
-      :if => 'self.availability_policy_id',
-      :message => "association with this AvailabilityPolicy is no longer valid because it no longer exists."
-   }
    validates :component, :presence => {
       :if => 'self.component_id',
       :message => "association with this Component is no longer valid because it no longer exists."
@@ -78,14 +73,9 @@ class MasterFile < ActiveRecord::Base
         cne = UseRight.find_by(name: "Copyright Not Evaluated")
         self.use_right = cne
       end
-      
-      if self.pid.blank?
-         begin
-            self.pid = AssignPids.get_pid
-         rescue Exception => e
-            #ErrorMailer.deliver_notify_pid_failure(e) unless @skip_pid_notification
-         end
-      end
+   end
+   after_create do
+      update_attribute(:pid, "tsm:#{self.id}")
    end
 
    #------------------------------------------------------------------
@@ -93,7 +83,6 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    scope :in_digital_library, ->{ where("master_files.date_dl_ingest is not null").order("master_files.date_dl_ingest ASC") }
    scope :not_in_digital_library, ->{ where("master_files.date_dl_ingest is null") }
-   # default_scope :include => [:availability_policy, :component, :indexing_scenario, :unit, :use_right]
 
    #------------------------------------------------------------------
    # public class methods
@@ -117,39 +106,39 @@ class MasterFile < ActiveRecord::Base
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
-   def link_to_dl_thumbnail
-      return "http://fedoraproxy.lib.virginia.edu/fedora/get/#{self.pid}/djatoka:jp2SDef/getRegion?scale=125"
-   end
-
-   def link_to_dl_page_turner
-      return "#{VIRGO_URL}/#{self.bibl.pid}/view?&page=#{self.pid}"
-   end
-
-   def path_to_archved_version
-      return "#{ARCHIVE_DIR}/" + "#{'%09d' % self.unit_id}/" + "#{self.filename}"
+   def iiif_path(pid)
+      pid_parts = pid.split(":")
+      base = pid_parts[1]
+      parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd
+      parts << base.last if parts.length * 2 !=  base.length
+      pid_dirs = parts.join("/")
+      jp2k_filename = "#{base}.jp2"
+      jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
+      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
+      jp2k_path = File.join(jp2k_path, jp2k_filename)
+      return jp2k_path
    end
 
    def link_to_static_thumbnail
-      thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
-      unit_dir = "%09d" % self.unit_id
-      begin
-         # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
-         # will eliminate other directories that are of non-Tracksys managed content.
-         metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
-         metadata_dir_contents.each {|dir|
-            range = dir.split('-')
-            if self.unit_id.to_i.between?(range.first.to_i, range.last.to_i)
-               @range_dir = dir
-            end
-         }
-      rescue
-         @range_dir="fixme"
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
+      test_path = iiif_path(self.pid)
+      if File.exists?(test_path) == false
+         if Settings.create_missing_kp2k == "true"
+            Rails.logger.info "CREATE JP2 for #{self.pid}"
+            unit_id = self.unit.id.to_s
+            src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
+            PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
+         else
+            thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
+            unit_dir = "%09d" % self.unit_id
+            min_range = self.unit_id / 1000 * 1000    # round unit to thousands
+            max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
+            range_sub_dir = "#{min_range}-#{max_range}"
+            return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
+         end
       end
-      return "/metadata/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
-   end
 
-   def mime_type
-      "image/tiff"
+      return iiif_url.to_s
    end
 
    # alias_attributes as CYA for legacy migration.
@@ -158,14 +147,6 @@ class MasterFile < ActiveRecord::Base
 
    def get_from_stornext(computing_id)
       CopyArchivedFilesToProduction.exec( {:unit => self.unit, :master_file_filename => self.filename, :computing_id => computing_id })
-   end
-
-   def update_thumb_and_tech
-      if self.image_tech_meta
-         self.image_tech_meta.destroy
-      end
-      message = { :master_file_id => self.id, :source => self.path_to_archved_version}
-      CreateImageTechnicalMetadataAndThumbnail.exec( message )
    end
 
    def increment_counter_caches
@@ -192,6 +173,15 @@ class MasterFile < ActiveRecord::Base
          return nil
       end
    end
+
+   def legacy_identifier_links
+      return ""  if self.legacy_identifiers.empty?
+      out = ""
+      self.legacy_identifiers.each do |li|
+         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
+      end
+      return out
+   end
 end
 
 # == Schema Information
@@ -215,7 +205,6 @@ end
 #  discoverability        :boolean          default(FALSE)
 #  md5                    :string(255)
 #  indexing_scenario_id   :integer
-#  availability_policy_id :integer
 #  use_right_id           :integer
 #  date_dl_ingest         :datetime
 #  date_dl_update         :datetime

@@ -18,19 +18,9 @@ ActiveAdmin.register AvailabilityPolicy do
 
   index do
     column :name
-    column :repository_url
     column :pid
-    column("Units") do |availability_policy|
-      link_to availability_policy.units_count, admin_units_path(:q => {:availability_policy_id_eq => availability_policy.id})
-    end
-    column("Master Files") do |availability_policy|
-      link_to availability_policy.master_files_count, admin_master_files_path(:q => {:availability_policy_id_eq => availability_policy.id})
-    end
     column("Bibls") do |availability_policy|
       link_to availability_policy.bibls_count, admin_bibls_path(:q => {:availability_policy_id_eq => availability_policy.id})
-    end
-    column("Components") do |availability_policy|
-      link_to availability_policy.components_count, admin_components_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
     column("") do |availability_policy|
       div do
@@ -48,7 +38,6 @@ ActiveAdmin.register AvailabilityPolicy do
     panel "General Information" do
       attributes_table_for availability_policy do
         row :name
-        row :repository_url
         row :pid
         row :created_at
         row :updated_at
@@ -58,18 +47,9 @@ ActiveAdmin.register AvailabilityPolicy do
 
   sidebar "Related Information", :only => [:show] do
     attributes_table_for availability_policy do
-      row("Units") do |availability_policy|
-        link_to availability_policy.units_count.to_s, admin_units_path(:q => {:availability_policy_id_eq => availability_policy.id})
-      end
-      row("Master Files") do |availability_policy|
-        link_to availability_policy.master_files_count.to_s, admin_master_files_path(:q => {:availability_policy_id_eq => availability_policy.id})
-      end
       row("Bibls") do |availability_policy|
         link_to availability_policy.bibls_count.to_s, admin_bibls_path(:q => {:availability_policy_id_eq => availability_policy.id})
-      end
-      row("Components") do |availability_policy|
-        link_to availability_policy.components_count.to_s, admin_components_path(:q => {:availability_policy_id_eq => availability_policy.id})
-      end
+     end
     end
   end
 end

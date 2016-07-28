@@ -105,6 +105,27 @@ class Agency < ActiveRecord::Base
     end
   end
 
+  # need these becaue the call to ancestry causes junk in output like this:
+  #   Corks and Curls Preservation
+  #   #<Agency:0x007fadc7629c70>#<Agency:0x007fadc76299f0>#<Agency:0x007fadc7629540>#<Agency:0x007fadc7628e60>
+  # Happened on the update to activeadmin pre4
+  def descendant_links
+     out = ""
+     Agency.where('ancestry REGEXP ?', "[[:<:]]#{self.id}[[:>:]]").order(name: :asc).each do |a|
+        out << "<a class='agency-ancestry' href='/admin/agencies/#{a.id}'>#{a.name}</a>"
+     end
+     return out
+  end
+  def parent_links
+     out = ""
+     return out if self.ancestry.blank?
+     ids = self.ancestry.split("/")
+     ids.each do |id|
+        a = Agency.find_by(id: id)
+        out << "<a class='agency-ancestry' href='/admin/agencies/#{a.id}'>#{a.name}</a>" if !a.nil?
+     end
+     return out
+  end
 end
 
 # == Schema Information

@@ -121,11 +121,16 @@ class Customer < ActiveRecord::Base
       end
    end
 
-   def admin_permalink
-      admin_customer_path(self)
-   end
-
    alias_attribute :name, :full_name
+
+   def agency_links
+      return ""  if agencies.empty?
+      out = ""
+      self.agencies.sort_by(&:name).each do |agency|
+         out << "<div><a href='/admin/agencies/#{agency.id}'>#{agency.name}</a></div>"
+      end
+      return out
+   end
 
 end
 

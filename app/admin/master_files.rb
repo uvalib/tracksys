@@ -3,8 +3,8 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :component_id, :transcription_text,
-      :pid, :availability_policy_id, :indexing_scenario_id, :desc_metadata, :use_right_id
+      :md5, :filesize, :unit_id, :transcription_text, #:component_id,
+      :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
 
@@ -13,8 +13,14 @@ ActiveAdmin.register MasterFile do
    scope :not_in_digital_library, :show_count => true
 
    config.clear_action_items!
+   action_item :pdf, :only => :show do
+     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
+   end
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
+   end
+   action_item :transcribe, only: :show do
+      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
    end
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
@@ -46,7 +52,6 @@ ActiveAdmin.register MasterFile do
    filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
-   filter :availability_policy
    filter :indexing_scenario
    filter :date_archived
    filter :date_dl_ingest
@@ -85,6 +90,9 @@ ActiveAdmin.register MasterFile do
          div do
             link_to "Details", resource_path(mf), :class => "member_link view_link"
          end
+         div do
+            link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+         end
          if !current_user.viewer?
             div do
                link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
@@ -93,11 +101,6 @@ ActiveAdmin.register MasterFile do
                div do
                   link_to "OCR", "/admin/ocr?mf=#{mf.id}"
                end
-            end
-         end
-         if mf.in_dl?
-            div do
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{mf.pid}", :class => 'member_link', :target => "_blank"
             end
          end
          if mf.date_archived
@@ -172,8 +175,7 @@ ActiveAdmin.register MasterFile do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
-               row('Right Statement'){ |r| r.use_right }
-               row :availability_policy
+               row('Right Statement'){ |r| r.use_right.name }
                row :indexing_scenario
                row :discoverability do |mf|
                   case mf.discoverability
@@ -198,8 +200,6 @@ ActiveAdmin.register MasterFile do
                   end
                end
             end
-
-
          end
       end
    end
@@ -222,17 +222,12 @@ ActiveAdmin.register MasterFile do
 
       f.inputs "Related Information", :class => 'panel two-column', :toggle => 'show' do
          f.input :unit_id, :as => :number
-         f.input :component_id, :as => :number
-      end
-
-      f.inputs "Transcription Text", :class => 'panel two-column', :toggle => 'hide' do
-         f.input :transcription_text, :input_html => { :rows => 10 }
+         # f.input :component_id, :as => :number
       end
 
       f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
          f.input :pid, :input_html => { :disabled => true }
          f.input :use_right, label: "Right Statement"
-         f.input :availability_policy
          f.input :indexing_scenario
          f.input :desc_metadata, :input_html => { :rows => 10}
       end
@@ -243,11 +238,8 @@ ActiveAdmin.register MasterFile do
    end
 
    sidebar "Thumbnail", :only => [:show] do
-      div do
+      div :style=>"text-align:center" do
          link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
-      end
-      div do
-         button_to "Print Image", print_image_admin_master_file_path, :method => :put
       end
    end
 
@@ -261,52 +253,24 @@ ActiveAdmin.register MasterFile do
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
          row :customer
-         row :component do |master_file|
-            if master_file.component
-               link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
-            end
-         end
+         # row :component do |master_file|
+         #    if master_file.component
+         #       link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
+         #    end
+         # end
          row :agency
-         row "Digital Library" do |master_file|
-            if master_file.in_dl?
-               link_to "Fedora", "#{FEDORA_REST_URL}/objects/#{master_file.pid}", :class => 'member_link', :target => "_blank"
-            end
-         end
          row "Legacy Identifiers" do |master_file|
-            master_file.legacy_identifiers.each do |li|
-               div do
-                  link_to "#{li.description} (#{li.legacy_identifier})", admin_legacy_identifier_path(li)
-               end
-            end unless master_file.legacy_identifiers.empty?
+            raw(master_file.legacy_identifier_links)
          end
       end
    end
 
    sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
       if master_file.in_dl?
-         div :class => 'workflow_button' do
-            button_to "Update All Datastreams", update_metadata_admin_master_file_path(:datastream => 'all'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update All XML Datastreams", update_metadata_admin_master_file_path(:datastream => 'allxml'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update JPEG-2000", update_metadata_admin_master_file_path(:datastream => 'jp2k'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Dublin Core", update_metadata_admin_master_file_path(:datastream => 'dc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Descriptive Metadata", update_metadata_admin_master_file_path(:datastream => 'desc_metadata'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Relationships", update_metadata_admin_master_file_path(:datastream => 'rels_ext'), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Update Index Record", update_metadata_admin_master_file_path(:datastream => 'solr_doc'), :method => :put
-         end
+         div :class => 'workflow_button' do button_to "Publish",
+           publish_admin_master_file_path(:datastream => 'all'), :method => :put end
       else
-         "No options available.  Object not yet ingested."
+         "No options available.  Master File is not in DL."
       end
    end
 
@@ -324,80 +288,20 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   member_action :transcribe, :method => :get do
+   end
+
+   member_action :publish, :method => :put do
+     mf = MasterFile.find(params[:id])
+     mf.update_attribute(:date_dl_update, Time.now)
+     logger.info "Master File #{mf.id} has been flagged for an update in the DL"
+     redirect_to :back, :notice => "Master File flagged for Publication"
+   end
+
    member_action :copy_from_archive, :method => :put do
       mf = MasterFile.find(params[:id])
       mf.get_from_stornext(current_user.computing_id)
       redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-   end
-
-   member_action :print_image, :method => :put do
-      mf = MasterFile.find(params[:id])
-      pdf = Prawn::Document.new
-      pdf.font_families.update(
-         "DejaVu" => {
-            :normal => "#{Rails.root}/public/fonts/DejaVuSans.ttf",
-            :bold => "#{Rails.root}/public/fonts/DejaVuSans-Bold.ttf",
-            :italic => "#{Rails.root}/public/fonts/DejaVuSans-Oblique.ttf"
-         }
-      )
-      pdf.font("DejaVu")
-
-      pdf.image "#{Rails.root.to_s}/app/assets/images/lib_letterhead.jpg", :at => [pdf.bounds.width - 275, pdf.cursor + 5], :fit => [275, 275]
-      pdf.text "ALBERT AND SHIRLEY SMALL", :position => :left, :size => 16
-      pdf.text "Special Collections Library", :position => :left, :size => 14
-      pdf.move_down 5
-      pdf.text "Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.   No further copies should be made. Copyright and other legal restrictions may apply. Additionally, this copy may not be donated to other repositories.", :align => :center, :style => :italic, :size => 8
-
-      pdf.image File.join(PRODUCTION_MOUNT, "#{mf.link_to_static_thumbnail}"), :fit => [550, 550], :position => :center
-      pdf.move_down 5
-
-      pdf.text "<b>Citation:</b> <i>#{mf.bibl.get_citation}</i>", :inline_format => true, :size => 10
-      pdf.move_down 2
-
-      if mf.bibl.catalog_key
-         pdf.text "<b>Catalog Record:</b> <i>#{mf.bibl.physical_virgo_url}</i>", :inline_format => true, :size => 10
-         pdf.move_down 2
-      end
-
-      if mf.in_dl? and mf.availability_policy_id == 1
-         pdf.text "<b>Online Access:</b>  <i>#{mf.link_to_dl_page_turner}</i>", :inline_format => true, :size => 10
-         pdf.move_down 2
-      end
-
-      if mf.component
-         text = String.new
-         mf.component.path_ids.each do |component_id|
-            c = Component.find(component_id)
-            name_details = String.new
-            if c.date
-               name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i> #{c.date}  "
-            else
-               name_details = "(#{c.component_type.name.titleize}) <i>#{c.name}.</i>  "
-            end
-            text << name_details
-         end
-         pdf.text "<b>Manuscript Information:</b>  " + text, :inline_format => true, :size => 10
-         pdf.move_down 2
-      end
-
-      pdf.text "<b>Page Title:</b> <i>#{mf.title}</i>", :inline_format => true, :size => 10
-      pdf.move_down 2
-
-      # Page numbering
-      string = "#{mf.pid}, #{mf.filename}, Printed: #{Time.now.strftime("%Y-%m-%d")}"
-      options = { :at => [pdf.bounds.right - 300, 0],
-         :width => 300,
-         :size => 8,
-         :align => :right}
-      pdf.number_pages string, options
-
-      # pdf.text "<b>Identifiers:</b> <i>#{mf.pid} (Repository), #{mf.filename} (Filename)</i>", :inline_format => true
-      send_data pdf.render, :filename => "#{mf.filename.gsub(/.tif/, '')}.pdf", :type => "application/pdf", :disposition => 'inline'
-   end
-
-   member_action :update_metadata, :method => :put do
-      MasterFile.find(params[:id]).update_metadata(params[:datastream])
-      redirect_to :back, :notice => "#{params[:datastream]} is being updated."
    end
 
    # Specified in routes.rb to return the XML partial mods.xml.erb

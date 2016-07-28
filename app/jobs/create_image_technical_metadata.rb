@@ -1,4 +1,4 @@
-class CreateImageTechnicalMetadataAndThumbnail < BaseJob
+class CreateImageTechnicalMetadata < BaseJob
 
    require 'exifr'
    require 'rmagick'
@@ -23,7 +23,6 @@ class CreateImageTechnicalMetadataAndThumbnail < BaseJob
      @image_exif = EXIFR::TIFF.new("#{@image_path}")
 
      create_image_technical_metadata(mf)
-     create_thumbnail(mf)
 
      # Make sure that the memory is cleared after the processor no longer needs these two objects.
      @image.destroy!
@@ -99,27 +98,5 @@ class CreateImageTechnicalMetadataAndThumbnail < BaseJob
      end
 
      return color_profile_name
-   end
-
-   def create_thumbnail(mf)
-     unit_dir = "%09d" % mf.unit.id
-     thumbnail = @image.resize_to_fit(1024,1024)
-
-     # Get the contents of /digiserv-production/metadata and exclude directories that don't begin with and end with a number.  Hopefully this
-     # will eliminate other directories that are of non-Tracksys managed content.
-     @metadata_dir_contents = Dir.entries(PRODUCTION_METADATA_DIR).delete_if {|x| x == '.' or x == '..' or not /^[0-9](.*)[0-9]$/ =~ x}
-     @metadata_dir_contents.each do |dir|
-       @range = dir.split('-')
-       if mf.unit.id.to_i.between?(@range.first.to_i, @range.last.to_i)
-         @range_dir = dir
-       end
-    end
-
-     if not File.exist?("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
-       FileUtils.mkdir_p("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})")
-     end
-
-     thumbnail.write("#{PRODUCTION_METADATA_DIR}/#{@range_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{mf.filename.gsub(/tif/, 'jpg')}")
-     thumbnail.destroy!
    end
 end

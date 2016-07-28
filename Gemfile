@@ -1,10 +1,9 @@
 source 'http://rubygems.org'
 
-gem 'rails', '4.2.6'
+gem 'rails', '4.2.7'
 
-#gem 'activeadmin', '0.6.6'
-gem 'activeadmin', '~> 1.0.0.pre2'
-gem 'passenger'
+gem 'activeadmin', '~> 1.0.0.pre4'
+gem 'passenger', '5.0.28'
 gem 'figaro'
 
 gem 'validates_timeliness', '~> 4.0'
@@ -19,7 +18,6 @@ gem 'whenever', :require => false   # to age off job status records
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
-gem 'solr-ruby'
 gem 'prawn'
 gem 'prawn-table'
 gem 'nested_form'
