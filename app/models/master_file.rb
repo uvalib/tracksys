@@ -123,10 +123,19 @@ class MasterFile < ActiveRecord::Base
       iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
       test_path = iiif_path(self.pid)
       if File.exists?(test_path) == false
-         Rails.logger.info "CREATE JP2 for #{self.pid}"
-         unit_id = self.unit.id.to_s
-         src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
-         PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
+         if Settings.create_missing_kp2k == "true"
+            Rails.logger.info "CREATE JP2 for #{self.pid}"
+            unit_id = self.unit.id.to_s
+            src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
+            PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
+         else
+            thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
+            unit_dir = "%09d" % self.unit_id
+            min_range = self.unit_id / 1000 * 1000    # round unit to thousands
+            max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
+            range_sub_dir = "#{min_range}-#{max_range}"
+            return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
+         end
       end
 
       return iiif_url.to_s

@@ -17,6 +17,7 @@ library_url: http://www.library.virginia.edu
 # Kakadu (for j2k image conversions)
 kdu_compress: /usr/bin/kakadu/kdu_compress
 num_jp2k_threads: 2
+create_missing_kp2k: "false"
 
 # Set to on to enable OCR features
 ocr: "off"
