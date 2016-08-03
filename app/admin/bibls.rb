@@ -22,31 +22,26 @@ ActiveAdmin.register Bibl do
        data: {:confirm => "Are you sure you want to delete this BIBL?"}, :method => :delete  if current_user.admin?
   end
 
-  action_item :virgo, :only => [:edit, :new] do
-    link_to "Get Metadata From VIRGO", external_lookup_admin_bibls_path, :class => 'bibl_update_button', :method => :get, :remote => true
-  end
-
   scope :all, :default => true
   scope :approved
   scope :not_approved
   scope :in_digital_library
   scope :not_in_digital_library
   scope :dpla
-  scope :uniq
 
   filter :id
   filter :title
-  filter :call_number
+  #filter :call_number
   filter :creator_name
   filter :catalog_key
   filter :barcode
   filter :pid
-  filter :publication_place, label: 'Place of Publication'
+  #filter :publication_place, label: 'Place of Publication'
   filter :is_manuscript
   filter :dpla, :as => :select
-  filter :location
+  #filter :location
   filter :use_right, :as => :select, label: 'Right Statement'
-  filter :cataloging_source
+  #filter :cataloging_source
   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
   filter :availability_policy
   filter :customers_id, :as => :numeric
@@ -70,11 +65,10 @@ ActiveAdmin.register Bibl do
       truncate_words(bibl.title, 25)
     end
     column :creator_name
-    column :call_number
-    column :volume, :class => 'sortable_short'
-    column ("Source"), :class => 'sortable_short', :sortable => :cataloging_source do |bibl|
-    	bibl.cataloging_source
-    end
+   #  column :call_number
+   #  column ("Source"), :class => 'sortable_short', :sortable => :cataloging_source do |bibl|
+   #  	bibl.cataloging_source
+   #  end
     column :catalog_key, :sortable => :catalog_key do |bibl|
       div do
         bibl.catalog_key
@@ -86,7 +80,7 @@ ActiveAdmin.register Bibl do
       end
     end
     column :barcode, :class => 'sortable_short'
-    column :location, :class => 'sortable_short'
+    #column :location, :class => 'sortable_short'
     column ("Digital Library?") do |bibl|
       div do
         format_boolean_as_yes_no(bibl.in_dl?)
@@ -118,36 +112,16 @@ ActiveAdmin.register Bibl do
     end
   end
 
-  show :title => proc { |bibl| truncate(bibl.title, :length => 60) } do
+  show :title => proc { truncate(@virgo_meta[:title], :length => 60) } do
     div :class => 'three-column' do
-      panel "Basic Information", :toggle => 'show' do
-        attributes_table_for bibl do
-          row :catalog_key
-          row :barcode
-          row :title
-          row :creator_name
-          row :creator_name_type
-          row :call_number
-          row :year
-          row :year_type
-          row('Place of Publication') { |b| b.publication_place }
-          row :copy
-          row :location
-        end
+      panel "Basic Information" do
+        render 'virgo_meta'
       end
     end
 
     div :class => 'three-column' do
-      panel "Detailed Bibliographic Information", :toggle => 'show' do
-        attributes_table_for bibl do
-          row :cataloging_source
-          row :citation
-          row :description
-          row :title_control
-          row :series_title
-          row :volume
-          row :issue
-        end
+      panel "Detailed Bibliographic Information" do
+        render 'virgo_detail'
       end
     end
 
@@ -265,8 +239,6 @@ ActiveAdmin.register Bibl do
 
   form :partial => "form"
 
-  collection_action :external_lookup
-
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:staff_member => current_user } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
@@ -280,29 +252,23 @@ ActiveAdmin.register Bibl do
   end
 
   controller do
-    #-----------------------------------------------------------------------------
-    # Methods relating to updating Bibl records with metadata from an external
-    # source, namely U.Va. Library catalog / Blacklight
-    #-----------------------------------------------------------------------------
-    # Looks up (via Ajax request) a record in the external metadata source (U.Va.
-    # Library catalog / Blacklight) based on external-record-ID and populates the
-    # HTML form fields on the page with corresponding values from the external
-    # metadata record.
-    def external_lookup
-      # look up catalog ID (passed as a parameter) in external metadata source,
-      # getting back a Bibl object with the values from the external source
-      begin
-        # Note: The Bibl object (variable "bibl") here is just a convenient
-        # carrier for the metadata values gleaned from the external metadata
-        # record; it is a new Bibl object that never gets saved to the database.
-        # (If the user chooses to save the new values to the database, the user
-        # clicks the Update button in the GUI.)
-        @bibl = Virgo.external_lookup(params[:catalog_key], params[:barcode])
+      before_filter :get_virgo, only: [:edit, :show]
+      def get_virgo
+         @virgo_meta = {}
+         if !resource.catalog_key.blank? || !resource.barcode.blank?
+            @virgo_meta =  Virgo.external_lookup(resource.catalog_key, resource.barcode)
+         end
+      end
+      before_filter :blank_virgo, only: [:new ]
+      def blank_virgo
+         @virgo_meta = {catalog_key: '', barcode: '' }
       end
 
-      respond_to do |format|
-        format.js
+      def external_lookup
+         # look up catalog ID (passed as a parameter) in external metadata source,
+         # getting back a Bibl object with the values from the external source
+         @virgo_meta = Virgo.external_lookup(params[:catalog_key], params[:barcode])
+         render json: @virgo_meta, status: :ok
       end
-    end
   end
 end

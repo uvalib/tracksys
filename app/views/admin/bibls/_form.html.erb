@@ -1,29 +1,14 @@
 <%= semantic_form_for([:admin, @bibl]) do |f| %>
 
-  <%= f.inputs "Basic Information", :class => 'three-column panel' do %>
+<fieldset class="three-column panel">
+   <legend><span>Basic Information</span></legend>
+  <%= render :partial=>'virgo_meta', locals: {edit: true} %>
+</fieldset>
 
-    <%= f.input :catalog_key %>
-    <%= f.input :barcode %>
-    <%= f.input :title, :input_html => { :rows=>5, :disabled => true } %>
-    <%= f.input :creator_name, :input_html => { :disabled => true } %>
-    <%= f.input :call_number, :input_html => { :disabled => true } %>
-    <%= f.input :year, :input_html => { :disabled => true } %>
-    <%= f.input :year_type, :input_html => { :disabled => true } %>
-    <%= f.input :publication_place, label: "Place of Publication", :input_html => { :disabled => true } %>
-    <%= f.input :copy, :as => :string, :input_html => { :disabled => true } %>
-    <%= f.input :location, :input_html => { :disabled => true } %>
-  <% end %>
-
-  <%= f.inputs "Detailed Bibliographic Information", :class => 'three-column panel' do %>
-    <%= f.input :cataloging_source, :input_html => { :disabled => true } %>
-    <%= f.input :citation, :input_html => { :rows => 5, :disabled => true } %>
-    <%= f.input :description, :input_html => { :disabled => true }  %>
-    <%= f.input :title_control, :input_html => { :disabled => true }  %>
-    <%= f.input :series_title, :input_html => { :disabled => true }  %>
-    <%= f.input :volume, :input_html => { :disabled => true }  %>
-    <%= f.input :issue, :input_html => { :disabled => true }  %>
-    <%= f.input :creator_name_type, :input_html => { :disabled => true }  %>
-  <% end %>
+  <fieldset class="three-column panel">
+     <legend><span>Detailed Bibliographic Information</span></legend>
+    <%= render :partial=>'virgo_detail' %>
+  </fieldset>
 
   <%= f.inputs "Administrative Information", :class => 'three-column panel' do %>
     <%= f.input :is_approved, :as => :radio %>

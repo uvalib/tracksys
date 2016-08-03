@@ -16,6 +16,17 @@
 @import "chosen";
 @import "twilight";
 
+div.attributes_table {
+   input[type="text"].bibl-edit {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px;
+   }
+   .ocr-button {
+      margin:0;
+   }
+}
+
 fieldset.inputs.columns-none {
    margin: 15px 0;
    fieldset.actions {

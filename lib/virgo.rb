@@ -5,23 +5,6 @@ module Virgo
 
   require 'rest_client'
   require 'nokogiri'
-  require 'logger'
-
-  @log = Logger.new(STDOUT)
-
-  # utility method to report on presence of barcode in Solr index
-
-  def self.validate_barcode(barcode)
-    xml_doc = query_metadata_server(barcode, 'barcode_facet')
-    begin
-      doc = xml_doc.xpath("/response/result/doc").first
-      raise if doc.nil?
-      return true
-    rescue
-      # no catalog record found
-      return false
-    end
-  end
 
   def self.roman_mapping
      {
@@ -194,10 +177,6 @@ module Virgo
       raise ArgumentError, "BiblExternalUpdate#external_lookup: catalog_key and barcode are both blank; nothing to look up"
     end
 
-    # instantiate a new Bibl object to populate with values and return
-    bibl = Bibl.new
-    bibl.date_external_update = Time.now
-
     # query Solr index
     begin
       # query the metadata server for this catalog ID or barcode
@@ -214,64 +193,10 @@ module Virgo
       doc = get_main_element(xml_doc, catalog_key)
 
       # pull values from <doc> element and plug those values into Bibl object
-      set_bibl_attributes(doc, bibl, barcode)
+      return get_bibl_json(doc, barcode)
     rescue
       raise "Query to #{Settings.solr_url} failed to return a valid result."
     end
-
-    return bibl
-  end
-
-  # Updates Bibl records with metadata from an external source
-  #
-  # In:
-  # * Bibl or array of Bibl records to be updated
-  # * computing ID of user (used to associate notifications about this batch
-  #   process with this specific user)
-  # Out: Returns nil. Notifications of warnings/errors are saved to database (as
-  # ProcessNotificationRef records).
-  def self.external_update(bibls, computing_id)
-    case bibls
-    when Array
-      bibls.each do |bibl|
-        Virgo.external_update_single(bibl, computing_id)
-      end
-    when Bibl
-      Virgo.external_update_single(bibls, computing_id)
-    end
-
-    return nil
-  end
-
-  def self.external_update_single(bibl, computing_id)
-    if bibl.catalog_key.blank?
-      #add_notification(computing_id, bibl.id, 'missing_catalog_key')
-      return
-    end
-
-    # query the metadata server for this catalog ID
-    # Note: Any exception occurring here is likely to occur for all Bibl
-    # objects; instead of saving a notification for each and every Bibl
-    # object, let exceptions bubble up to calling method to be handled for
-    # the whole process.
-    xml_doc = query_metadata_server(bibl.catalog_key)
-
-    # from the server's response XML, get the <doc> element (which
-    # contains everything we're interested in here)
-    begin
-      doc = get_main_element(xml_doc, bibl.catalog_key)
-    rescue
-      # no catalog record found for that catalog ID
-      # add_notification(computing_id, bibl.id, 'record_not_found')
-      return
-    end
-
-    # pull values from <doc> element and plug those values into Bibl object
-    set_bibl_attributes(doc, bibl, bibl.barcode)
-
-    # save changes to Bibl record
-    bibl.save
-    # add_notification(computing_id, bibl.id, 'updated')
   end
 
 
@@ -361,24 +286,25 @@ module Virgo
   # Third parameter is a barcode value to be used for comparison against the
   # barcode from the external metadata record. For some fields, such comparison
   # is needed to disambiguate multiple MARC 999 (local use) fields.
-  def self.set_bibl_attributes(doc, bibl, compare_barcode)
+  def self.get_bibl_json(doc, compare_barcode)
     if compare_barcode.nil?
       compare_barcode = ''
     else
       compare_barcode = compare_barcode.strip.upcase  # normalize for comparison
     end
+    bibl = {}
 
     # catalog ID
     el = doc.xpath( "str[@name='id']" ).first
-    bibl.catalog_key = el.text unless el.nil?
+    bibl[:catalog_key] = el.text unless el.nil?
 
     # title
     el = doc.xpath("arr[@name='title_display']/str").first
-    bibl.title = el.text unless el.nil?
+    bibl[:title] = el.text unless el.nil?
 
     # creator name
     el = doc.xpath("arr[@name='author_display']/str").first
-    bibl.creator_name = el.text unless el.nil?
+    bibl[:creator_name] = el.text unless el.nil?
 
     # Get MARC XML record (embedded in Blacklight response in <arr name="marc_display">)
     marc_record = nil
@@ -389,9 +315,6 @@ module Virgo
       marc_xml.remove_namespaces!
       marc_record = marc_xml.xpath("/collection/record").first
     rescue
-      # No need to alert user that not all possible fields could be updated;
-      # we're highlighting the fields that actually get updated (see
-      # BiblController#external_lookup)
     end
 
     if marc_record
@@ -409,7 +332,7 @@ module Virgo
           if marc245b and marc245b.text
             title_a = marc245a.text.strip
             title_b = marc245b.text.strip.sub(/\s*\/$/,'')  # remove trailing / character
-            bibl.title = "#{title_a} #{title_b}"
+            bibl[:title] = "#{title_a} #{title_b}"
           end
         end
       end
@@ -419,11 +342,9 @@ module Virgo
       marc110 = marc_record.xpath("datafield[@tag='110']").first
       marc111 = marc_record.xpath("datafield[@tag='111']").first
       if marc100
-        bibl.creator_name_type = 'personal'
+        bibl[:creator_name_type] = 'personal'
       elsif marc110 or marc111
-        bibl.creator_name_type = 'corporate'
-      else
-        bibl.creator_name_type = nil
+        bibl[:creator_name_type] = 'corporate'
       end
 
       # title control number
@@ -441,7 +362,7 @@ module Virgo
           matchdata = marc035a.text.match(/^\(Sirsi\)/)
           if matchdata
             title_control = matchdata.post_match.strip
-            bibl.title_control = title_control unless title_control.blank?
+            bibl[:title_control] = title_control unless title_control.blank?
           end
         end
       end
@@ -452,8 +373,8 @@ module Virgo
       # are repeatable; just grab first one.
       marc260c = marc_record.xpath("datafield[@tag='260']/subfield[@code='c']").first
       if marc260c and marc260c.text
-        bibl.year = marc260c.text.strip.sub(/^\[/,'').sub(/\]$/,'').sub(/\.$/,'')
-        bibl.year_type = 'publication'
+        bibl[:year] = marc260c.text.strip.sub(/^\[/,'').sub(/\]$/,'').sub(/\.$/,'')
+        bibl[:year_type] = 'publication'
       end
 
       # Note: For call number, we don't want MARC 050, which is the LC call
@@ -473,7 +394,7 @@ module Virgo
       # this field.  If present in the marcxml file, pull and store in bibl record.
       marc524a = marc_record.xpath("datafield[@tag='524']/subfield[@code='a']").first
       if marc524a and marc524a.text
-        bibl.citation = marc524a.text
+        bibl[:citation] = marc524a.text
       end
 
       # MARC 040a - Cataloging Source.  In order to certify that our records are CC0 for
@@ -481,7 +402,7 @@ module Virgo
       # VA@ is the code for the University of Virgina
       marc040a = marc_record.xpath("datafield[@tag='040']/subfield[@code='a']").first
       if marc040a and marc040a.text
-        bibl.cataloging_source = marc040a.text
+        bibl[:cataloging_source] = marc040a.text
       end
 
       # MARC 999 is repeatable -- normally one for each barcode. Build a hash of
@@ -493,25 +414,24 @@ module Virgo
       # If barcode passed matches a barcode found in a MARC 999 field, then set
       # the call number, copy, and location associated with that barcode
       if barcodes.has_key? compare_barcode
-        bibl.barcode = compare_barcode
-        bibl.call_number = barcodes[compare_barcode]['call_number']
-        bibl.copy = barcodes[compare_barcode]['copy']
-        bibl.location = barcodes[compare_barcode]['location']
+        bibl[:barcode] = compare_barcode
+        bibl[:call_number] = barcodes[compare_barcode]['call_number']
+        bibl[:copy] = barcodes[compare_barcode]['copy']
+        bibl[:location] = barcodes[compare_barcode]['location']
       else
         # if there is exactly one 999 field, use it
         if barcodes.length == 1
           barcode = barcodes.keys.first
-          bibl.barcode = barcode
-          bibl.call_number = barcodes[barcode]['call_number']
-          bibl.copy = barcodes[barcode]['copy']
-          bibl.location = barcodes[barcode]['location']
+          bibl[:barcode] = barcode
+          bibl[:call_number] = barcodes[barcode]['call_number']
+          bibl[:copy] = barcodes[barcode]['copy']
+          bibl[:location] = barcodes[barcode]['location']
         end
       end
     end  # END if marc_record
-
-    # record date/time this Bibl record was updated from external source
-    bibl.date_external_update = Time.now
+    
+    return bibl
   end
-  private_class_method :set_bibl_attributes
+  private_class_method :get_bibl_json
 
 end
