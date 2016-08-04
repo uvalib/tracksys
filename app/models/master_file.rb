@@ -114,7 +114,6 @@ class MasterFile < ActiveRecord::Base
       pid_dirs = parts.join("/")
       jp2k_filename = "#{base}.jp2"
       jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
-      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
       jp2k_path = File.join(jp2k_path, jp2k_filename)
       return jp2k_path
    end
