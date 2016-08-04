@@ -239,6 +239,8 @@ ActiveAdmin.register Bibl do
 
   form :partial => "form"
 
+  collection_action :external_lookup
+
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:staff_member => current_user } )
     redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."

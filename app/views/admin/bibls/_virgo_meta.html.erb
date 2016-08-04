@@ -3,6 +3,8 @@
       <% if !defined?(edit) %>
          <tr class="row"><th>CATALOG KEY</th><td><%= raw format_td(@virgo_meta[:catalog_key]) %></td></tr>
          <tr class="row"><th>BARCODE</th><td><%= raw format_td(@virgo_meta[:barcode]) %></td></tr>
+         <tr class="row"><th>TITLE</th><td class="bibl-data" id="title"><%= raw format_td(@virgo_meta[:title]) %></td></tr>
+         <tr class="row"><th>CREATOR NAME</th><td  class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></td></tr>
       <% else %>
          <tr class="row">
             <th>CATALOG KEY</th>
@@ -19,9 +21,16 @@
          <tr class="row">
             <td colspan="2" style="text-align:right"><span id="refresh-metadata" class="ocr-button">Refresh Metadata</span></td>
          </tr>
+         <tr class="row">
+            <th>TITLE</th>
+            <td id="title">
+               <input class='bibl-edit' maxlength="255" id="bibl_title" type="text" value="<%= @virgo_meta[:title] %>" name="bibl[title]">
+            </td>
+         </tr>
+         <tr class="row">
+            <th>CREATOR NAME</th><td  class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></td></tr>
       <% end %>
-      <tr class="row"><th>TITLE</th><td class="bibl-data" id="title"><%= raw format_td(@virgo_meta[:title]) %></td></tr>
-      <tr class="row"><th>CREATOR NAME</th><td  class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></td></tr>
+
       <tr class="row"><th>CREATOR NAME TYPE</th><td  class="bibl-data" id="creator_name_type"><%= raw format_td(@virgo_meta[:creator_name_type]) %></td></tr>
       <tr class="row"><th>CALL NUMBER</th><td  class="bibl-data" id="call_number"><%= raw format_td(@virgo_meta[:call_number]) %></td></tr>
       <tr class="row"><th>YEAR</th><td  class="bibl-data" id="year"><%= raw format_td(@virgo_meta[:year]) %></td></tr>

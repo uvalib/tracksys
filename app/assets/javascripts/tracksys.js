@@ -45,6 +45,7 @@ $(function() {
             $(this).html( empty );
          }
       });
+      $("#bibl_title").val( bibl.title );
    };
 
    $('#refresh-metadata').click(function(e) {
