@@ -248,7 +248,7 @@ ActiveAdmin.register Unit do
             end
             column :pid, :sortable => false
             column("Thumbnail") do |mf|
-              link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+              link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
             end
             column("") do |mf|
               div do
