@@ -269,14 +269,14 @@ ActiveAdmin.register Bibl do
 
   collection_action :create_dl_manifest do
     CreateDlManifest.exec( {:staff_member => current_user } )
-    redirect_to :back, :notice => "Digital library manifest creation started.  Check your email in a few minutes."
+    redirect_to "/admin/dashboard", :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 
   member_action :publish, :method => :put do
     bibl = Bibl.find(params[:id])
     bibl.update_attribute(:date_dl_update, Time.now)
     logger.info "Bibl #{bibl.id} has been flagged for an update in the DL"
-    redirect_to :back, :notice => "Bibl flagged for Publication"
+    redirect_to "/admin/bibls/#{params[:id]}", :notice => "Bibl flagged for Publication"
   end
 
   controller do

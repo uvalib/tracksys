@@ -291,34 +291,34 @@ ActiveAdmin.register Order do
     begin
       order = Order.find(params[:id])
       order.update_attributes!(:order_status => "approved")
-      redirect_to :back, :notice => "Order #{params[:id]} is now approved."
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
     rescue ActiveRecord::RecordInvalid => invalid
-      redirect_to :back, :alert => "#{invalid.record.errors.full_messages.join(', ')}"
+      redirect_to "/admin/orders/#{params[:id]}", :alert => "#{invalid.record.errors.full_messages.join(', ')}"
     end
   end
 
   member_action :cancel_order, :method => :put do
     order = Order.find(params[:id])
     order.cancel_order
-    redirect_to :back, :notice => "Order #{params[:id]} is now canceled."
+    redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now canceled."
   end
 
   member_action :send_fee_estimate_to_customer, :method => :put do
     order = Order.find(params[:id])
     order.send_fee_estimate_to_customer()
-    redirect_to :back, :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
+    redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
   end
 
   member_action :check_order_ready_for_delivery, :method => :put do
     order = Order.find(params[:id])
     order.check_order_ready_for_delivery
-    redirect_to :back, :notice => "Order #{order.id} is being checked to see if it is ready."
+    redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{order.id} is being checked to see if it is ready."
   end
 
   member_action :send_order_email, :method => :put do
     order = Order.find(params[:id])
     order.send_order_email
-    redirect_to :back, :notice => "Email sent to #{order.customer.full_name}."
+    redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{order.customer.full_name}."
   end
 
   member_action :generate_pdf_notice, :method => :put do

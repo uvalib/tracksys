@@ -41,39 +41,39 @@ ActiveAdmin.register Unit do
   batch_action :approve_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'approved') }
     flash[:notice] = "Units #{selection.join(", ")} are now approved."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :cancel_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'canceled') }
     flash[:notice] = "Units #{selection.join(", ")} are now canceled."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :check_condition_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'condition') }
     flash[:notice] = "Units #{selection.join(", ")} need to be vetted for condition."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :check_copyright_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'copyright') }
     flash[:notice] = "Units #{selection.join(", ")} need to be vetted for copyright."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :include_in_dl_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, true) }
     Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, false) }
     flash[:notice] = "Units #{selection.join(", ")} have been marked for inclusion in the Digital Library."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :exclude_from_dl_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, true) }
     Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, false) }
     flash[:notice] = "Units #{selection.join(", ")} have been marked for exclusion from the Digital Library."
-    redirect_to :back
+    redirect_to "/admin/units"
   end
 
   batch_action :print_routing_slips do |selection|
@@ -414,37 +414,37 @@ ActiveAdmin.register Unit do
   # Member actions for workflow
   member_action :check_unit_delivery_mode, :method => :put do
     Unit.find(params[:id]).check_unit_delivery_mode
-    redirect_to :back, :notice => "Workflow started at the checking of the unit's delivery mode."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
   end
 
   member_action :copy_from_archive, :method => :put do
     Unit.find(params[:id]).get_from_stornext( current_user.computing_id )
-    redirect_to :back, :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
   end
 
   member_action :import_unit_iview_xml, :method => :put do
     Unit.find(params[:id]).import_unit_iview_xml
-    redirect_to :back, :notice => "Workflow started at the importation of the Iview XML and creation of master files."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
   end
 
   member_action :qa_filesystem_and_iview_xml, :method => :put do
     Unit.find(params[:id]).qa_filesystem_and_iview_xml
-    redirect_to :back, :notice => "Workflow started at QA of filesystem and Iview XML."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem and Iview XML."
   end
 
   member_action :qa_unit_data, :method => :put do
     Unit.find(params[:id]).qa_unit_data
-    redirect_to :back, :notice => "Workflow started at QA unit data."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA unit data."
   end
 
   member_action :send_unit_to_archive, :method => :put do
     Unit.find(params[:id]).send_unit_to_archive
-    redirect_to :back, :notice => "Workflow started at the archiving of the unit."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
   end
 
   member_action :start_ingest_from_archive, :method => :put do
     Unit.find(params[:id]).start_ingest_from_archive
-    redirect_to :back, :notice => "Unit being put into digital library."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
   end
 
   member_action :publish, :method => :put do
@@ -455,16 +455,16 @@ ActiveAdmin.register Unit do
       mf.update_attribute(:date_dl_update, now)
     end
     logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
-    redirect_to :back, :notice => "Unit flagged for Publication"
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
   end
 
   member_action :checkout_to_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_received, Time.now)
-    redirect_to :back, :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
   end
 
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
-    redirect_to :back, :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
+    redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
   end
 end
