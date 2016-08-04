@@ -23,12 +23,19 @@
          </tr>
          <tr class="row">
             <th>TITLE</th>
-            <td id="title">
-               <input class='bibl-edit' maxlength="255" id="bibl_title" type="text" value="<%= @virgo_meta[:title] %>" name="bibl[title]">
+            <td>
+               <span class="bibl-data" id="title"><%= raw format_td(@virgo_meta[:title]) %></span>
+               <input style="display:none" class='bibl-edit' maxlength="255" id="bibl_title" type="text" value="<%= @virgo_meta[:title] %>" name="bibl[title]">
             </td>
          </tr>
          <tr class="row">
-            <th>CREATOR NAME</th><td  class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></td></tr>
+            <th>CREATOR NAME</th>
+            <td>
+               <span class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></span>
+               <input style="display:none" class='bibl-edit' maxlength="255"
+                      id="bibl_creator_name" type="text" value="<%= @virgo_meta[:creator_name] %>" name="bibl[creator_name]">
+            </td>
+         </tr>
       <% end %>
 
       <tr class="row"><th>CREATOR NAME TYPE</th><td  class="bibl-data" id="creator_name_type"><%= raw format_td(@virgo_meta[:creator_name_type]) %></td></tr>
