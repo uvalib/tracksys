@@ -40,7 +40,7 @@ ActiveAdmin.register Component do
             if exemplar_master_file.nil?
                "Exemplar not found"
             else
-               link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
+               link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
             end
          else
             "No exemplar set."
@@ -95,10 +95,8 @@ ActiveAdmin.register Component do
                      component.exemplar.to_s
                      mf = MasterFile.where(:filename => component.exemplar).first
                      if mf.kind_of?(MasterFile)
-                        link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} #{mf.title} #{mf.description}"
+                        link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} #{mf.title} #{mf.description}"
                      end
-                     #link_to "#{bibl.exemplar}", admin_master_files_path(:q => {:filename_eq => bibl.exemplar})
-                     #link_to image_tag(component.exemplar.link_to_static_thumbnail, :height => 125), "#{component.exemplar.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{component.exemplar.filename} (#{component.exemplar.title} #{component.exemplar.description})"
                   else
                      nil
                   end
@@ -189,7 +187,7 @@ ActiveAdmin.register Component do
                      link_to "#{mf.bibl_title}", admin_bibl_path(mf.bibl.id)
                   end
                   column("Thumbnail") do |mf|
-                     link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+                     link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
                   end
                   column("") do |mf|
                      div do

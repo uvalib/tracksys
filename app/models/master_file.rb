@@ -5,7 +5,7 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    belongs_to :component, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
-   belongs_to :unit, :counter_cache => true
+   belongs_to :unit
    belongs_to :use_right, :counter_cache => true
    belongs_to :item
 
@@ -114,13 +114,13 @@ class MasterFile < ActiveRecord::Base
       pid_dirs = parts.join("/")
       jp2k_filename = "#{base}.jp2"
       jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
-      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
       jp2k_path = File.join(jp2k_path, jp2k_filename)
       return jp2k_path
    end
 
-   def link_to_static_thumbnail
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg")
+   def link_to_static_thumbnail(large=false)
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/!125,125/0/default.jpg")
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg") if large == true
       test_path = iiif_path(self.pid)
       if File.exists?(test_path) == false
          if Settings.create_missing_kp2k == "true"
@@ -153,14 +153,12 @@ class MasterFile < ActiveRecord::Base
       # Conditionalize Bibl increment because it is not required.
       # Bibl.increment_counter('master_files_count', self.bibl.id) if self.bibl
       Customer.increment_counter('master_files_count', self.customer.id)
-      Order.increment_counter('master_files_count', self.order.id)
    end
 
    def decrement_counter_caches
       # Conditionalize Bibl decrement because it is not required.
       # Bibl.decrement_counter('master_files_count', self.bibl.id) if self.bibl
       Customer.decrement_counter('master_files_count', self.customer.id)
-      Order.decrement_counter('master_files_count', self.order.id)
    end
 
    # Within the scope of a current MasterFile's Unit, return the MasterFile object

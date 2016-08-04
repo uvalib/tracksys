@@ -13,16 +13,10 @@ module ImportIviewXml
   # 1. An open File object for the XML file to be imported
   # 2. Integer; unit_id value to assign to each new MasterFile object
   #
-  # Out: Returns a hash with these keys:
-  # * +:is_manuscript+ (boolean)
-  # * +:has_SetList+ (boolean)
-  # * +:master_file_count+ (integer; number of MasterFile records imported)
-  # * +:warnings+ (string; warning messages, only applicable in a non-batch
-  #   context)
+  # Out: master file count
   def self.import_iview_xml(file, unit_id)
     Rails.logger.info "ImportIvewXML: importing #{unit_id}"
     @master_file_count = 0
-    @pid_count = 0
 
     # Get Unit object
     begin
@@ -46,16 +40,6 @@ module ImportIviewXml
       raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
     end
 
-    # Read XML to determine number of PIDs needed for this import
-    # This is done in advance to alleviate the number of calls made
-    # to the API for Fedora.
-    root.xpath('MediaItemList').each do |list|
-      list.xpath('MediaItem').each do |item|
-        # Each <MediaItem> becomes a MasterFile record
-        @pid_count += 1
-      end
-    end
-
     # Check for processing instruction indicating software name and version
     format_software = 'iview'
     format_version = nil
@@ -69,95 +53,96 @@ module ImportIviewXml
       end
     end
 
-    # Start a database transaction, so all changes get rolled back if an
-    # unhandled exception occurs
-    retry_attempts = 5 # for database deadlocks during large transactions
-    begin
-    MasterFile.transaction do
-      # Create one MasterFile record for each iView <MediaItem>
-      root.xpath('MediaItemList').each do |list|
-        list.xpath('MediaItem').each do |item|
-          element = item.xpath('AssetProperties/UniqueID').first
-          iview_id = element.nil? ? nil : element.text
-          if iview_id.blank?
-            raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
-          end
+   #  # Start a database transaction, so all changes get rolled back if an
+   #  # unhandled exception occurs
+   #  retry_attempts = 5 # for database deadlocks during large transactions
+   #  begin
+   #    MasterFile.transaction do
+         # Create one MasterFile record for each iView <MediaItem>
+         root.xpath('MediaItemList').each do |list|
+           list.xpath('MediaItem').each do |item|
+             element = item.xpath('AssetProperties/UniqueID').first
+             iview_id = element.nil? ? nil : element.text
+             if iview_id.blank?
+               raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
+             end
 
-          # instantiate MasterFile object in memory
-          master_file = new_master_file(item, unit_id)
-          # if a MasterFile with this filename already exists for this Unit, do
-          # not overwrite it
-          if MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
-            @master_file_count += 1
-            Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
-            next
-            #raise ImportError, "Import failed for Unit #{unit_id}, because a Master File with filename '#{master_file.filename}' already exists for this Unit"
-          end
-          # if MasterFile object fails validity, raise error with custom error message
-          if not master_file.valid?
-            raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
-          end
+             # instantiate MasterFile object in memory
+             master_file = new_master_file(item, unit_id)
+             # if a MasterFile with this filename already exists for this Unit, do
+             # not overwrite it
+             if MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
+               @master_file_count += 1
+               Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
+               next
+             end
 
-          # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
-          if ImportIviewXml.get_transcription_text(master_file)
-            Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
-          end
-          master_file.save!
-          sleep 0.3
+             # if MasterFile object fails validity, raise error with custom error message
+             if not master_file.valid?
+               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
+             end
 
-          # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
-          if unit.bibl && unit.bibl.is_manuscript?
-            # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
-            # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
-            #
-            # If the setname does not include a PID value, raise an error.
-            setname = root.xpath("//SetName/following-sibling::UniqueID[normalize-space()='#{iview_id}']/preceding-sibling::SetName").last.text
-            pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
-            Rails.logger.info "Link manuscript to PID #{pid}"
-            if pid.nil?
-              raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
-            else
-              link_to_component(master_file.id, pid)
-            end
-          end
+             # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
+             if ImportIviewXml.get_transcription_text(master_file)
+               Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
+             end
+             master_file.save!
 
-          # instantiate ImageTechMeta object in memory
-          image_tech_meta = new_image_tech_meta(item, master_file.id)
-          # if object fails validity, raise error with custom error message
-          if not image_tech_meta.valid?
-            raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
-          end
-          # save ImageTechMeta to database, raising any error that occurs
-          image_tech_meta.save!
+             # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
+             if unit.bibl && unit.bibl.is_manuscript?
+               # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
+               # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
+               #
+               # If the setname does not include a PID value, raise an error.
+               setname = root.xpath("//SetName/following-sibling::UniqueID[normalize-space()='#{iview_id}']/preceding-sibling::SetName").last.text
+               pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
+               Rails.logger.info "Link manuscript to PID #{pid}"
+               if pid.nil?
+                 raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
+               else
+                 link_to_component(master_file.id, pid)
+               end
+             end
 
-          @master_file_count += 1
-        end
-      end
-    end  # end database transaction
-    @current_caller = caller[0][/`([^']*)'/, 1]
-    Rails.logger.info "[#{Time.now}] #{@current_caller}: MasterFile batch transaction completed (#{@pid_count} items)."
-    rescue ActiveRecord::StatementInvalid => e # or Mysql2::Error
-      Rails.logger.warn "#{@current_caller}: Caught Mysql2 exeption #{e.message}"
-      if retry_attempts > 0
-        amount = 300 / retry_attempts # take more time on successive attempts
-        Rails.logger.info "[#{Time.now}] #{@current_caller}: Sleeping for #{300/retry_attempts}s and retrying transaction"
-        sleep amount
-        ActiveRecord::Base.connection.reconnect!
-        Rails.logger.info "[#{Time.now}] #{self.class} retrying transaction now."
-        retry
-      else
-        report = "Exceeded retry limit: unable to overcome #{e.inspect}"
-        Rails.logger.error report
-        raise RuntimeError, report # will send failure message to bus, storing report in db
-      end
-      retry_attempts -= 1
-    end
+             # instantiate ImageTechMeta object in memory
+             image_tech_meta = new_image_tech_meta(item, master_file.id)
+             # if object fails validity, raise error with custom error message
+             if not image_tech_meta.valid?
+               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
+             end
+             # save ImageTechMeta to database, raising any error that occurs
+             image_tech_meta.save!
+
+             @master_file_count += 1
+           end
+         end
+      # end
+
+      #  @current_caller = caller[0][/`([^']*)'/, 1]
+      #  Rails.logger.info "[#{Time.now}] #{@current_caller}: MasterFile batch transaction completed (#{@master_file_count} items)."
+   #  rescue ActiveRecord::StatementInvalid => e # or Mysql2::Error
+   #    Rails.logger.warn "#{@current_caller}: Caught Mysql2 exeption #{e.message}"
+   #    if retry_attempts > 0
+   #      amount = 300 / retry_attempts # take more time on successive attempts
+   #      Rails.logger.info "[#{Time.now}] #{@current_caller}: Sleeping for #{300/retry_attempts}s and retrying transaction"
+   #      sleep amount
+   #      ActiveRecord::Base.connection.reconnect!
+   #      Rails.logger.info "[#{Time.now}] #{self.class} retrying transaction now."
+   #      retry
+   #    else
+   #      report = "Exceeded retry limit: unable to overcome #{e.inspect}"
+   #      Rails.logger.error report
+   #      raise RuntimeError, report # will send failure message to bus, storing report in db
+   #    end
+   #    retry_attempts -= 1
+   #  end
 
 
     # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
-    unit.unit_extent_actual = @master_file_count
-    unit.save
-    return Hash[:master_file_count => @master_file_count]
+   #  unit.unit_extent_actual = @master_file_count
+   #  unit.save
+    unit.update_attributes(unit_extent_actual: @master_file_count, master_files_count: @master_file_count)
+    return @master_file_count
   end
 
   #-----------------------------------------------------------------------------

@@ -38,6 +38,7 @@ class CreatePatronDeliverables < BaseJob
 
       source = message[:source]
       master_file_id = message[:master_file_id]
+      desired_res = message[:desired_resolution]
 
       # In order to construct the directory for deliverables, this processor must know the order_id
       order_id = Unit.find(message[:unit_id]).order.id
@@ -76,7 +77,6 @@ class CreatePatronDeliverables < BaseJob
 
          # make changes to original image, if applicable
          new_tiff = nil
-         desired_res = message[:desired_resolution]
          if desired_res.blank? or desired_res.to_s =~ /highest/i
             # keep original resolution
             logger.info("Keeping original resolution")

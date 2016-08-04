@@ -21,7 +21,7 @@
   <% end %>
 
   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
-      <%= f.input :pid, :as => :string, :input_html => { :disabled => true } %>
+      <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
       <%= f.input :exemplar, :as => :select, :collection => f.object.dl_master_files.map(&:filename), :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
       <%= f.input :availability_policy %>
       <%= f.input :discoverability, :as => :select %>
