@@ -1,7 +1,7 @@
 #encoding: utf-8
 
 namespace :iiif do
-   desc "Publish unit jp2 files to IIIF server"
+   desc "Publish jp2 files to IIIF server"
    task :publish_all  => :environment do
       iiif_mount = ENV['iiif_mount']
       raise "iiif_mount is required" if iiif_mount.blank?
@@ -13,6 +13,34 @@ namespace :iiif do
 
       puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
       MasterFile.find_each do |mf|
+         jp2k_path = iiif_path(mf.pid)
+         if File.exists?(jp2k_path) == false
+            source = File.join(Settings.archive_mount, mf.unit.id.to_s.rjust(9, "0"), mf.filename )
+            puts "Generate JP2K from #{source}"
+            if mf.filesize > 524000000
+               `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
+            else
+               `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
+            end
+         end
+      end
+   end
+
+   desc "Publish UNIT jp2 files to IIIF server"
+   task :publish_unit  => :environment do
+      iiif_mount = ENV['iiif_mount']
+      raise "iiif_mount is required" if iiif_mount.blank?
+      archive_mount = ENV['archive_mount']
+      raise "archive_mount is required" if archive_mount.blank?
+      unit_id = ENV['unit']
+      raise "unit_id is required" if unit_id.blank?
+      unit = Unit.find(unit_id)
+
+      kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
+      raise "KDU_COMPRESS not found" if !File.exist?(kdu)
+
+      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
+      unit.master_files.each do |mf|
          jp2k_path = iiif_path(mf.pid)
          if File.exists?(jp2k_path) == false
             source = File.join(Settings.archive_mount, mf.unit.id.to_s.rjust(9, "0"), mf.filename )
