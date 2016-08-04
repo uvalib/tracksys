@@ -269,7 +269,7 @@ ActiveAdmin.register Component do
 
    member_action :export_iview, :method => :put do
       Component.find(params[:id]).create_iview_xml
-      redirect_to :back, :notice => "New Iview Catalog written to file system."
+      redirect_to "/admin/components/#{params[:id]}", :notice => "New Iview Catalog written to file system."
    end
 
    member_action :tree, :method => :get do

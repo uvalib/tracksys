@@ -29,7 +29,7 @@ ActiveAdmin.register MasterFile do
    batch_action :download_from_archive do |selection|
       MasterFile.find(selection).each {|s| s.get_from_stornext }
       flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-      redirect_to :back
+      redirect_to "/admin/master_files"
    end
 
    filter :id
@@ -295,13 +295,13 @@ ActiveAdmin.register MasterFile do
      mf = MasterFile.find(params[:id])
      mf.update_attribute(:date_dl_update, Time.now)
      logger.info "Master File #{mf.id} has been flagged for an update in the DL"
-     redirect_to :back, :notice => "Master File flagged for Publication"
+     redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File flagged for Publication"
    end
 
    member_action :copy_from_archive, :method => :put do
       mf = MasterFile.find(params[:id])
       mf.get_from_stornext(current_user.computing_id)
-      redirect_to :back, :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+      redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
    end
 
    # Specified in routes.rb to return the XML partial mods.xml.erb
