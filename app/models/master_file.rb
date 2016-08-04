@@ -5,7 +5,7 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    belongs_to :component, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
-   belongs_to :unit, :counter_cache => true
+   belongs_to :unit
    belongs_to :use_right, :counter_cache => true
    belongs_to :item
 
@@ -153,14 +153,12 @@ class MasterFile < ActiveRecord::Base
       # Conditionalize Bibl increment because it is not required.
       # Bibl.increment_counter('master_files_count', self.bibl.id) if self.bibl
       Customer.increment_counter('master_files_count', self.customer.id)
-      Order.increment_counter('master_files_count', self.order.id)
    end
 
    def decrement_counter_caches
       # Conditionalize Bibl decrement because it is not required.
       # Bibl.decrement_counter('master_files_count', self.bibl.id) if self.bibl
       Customer.decrement_counter('master_files_count', self.customer.id)
-      Order.decrement_counter('master_files_count', self.order.id)
    end
 
    # Within the scope of a current MasterFile's Unit, return the MasterFile object
