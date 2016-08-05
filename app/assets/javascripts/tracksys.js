@@ -46,6 +46,8 @@ $(function() {
          }
       });
       $("#bibl_title").val( bibl.title );
+      $("#bibl_creator_name").val( bibl.creator_name );
+      $("#bibl_call_number").val( bibl.call_number );
    };
 
    $('#refresh-metadata').click(function(e) {

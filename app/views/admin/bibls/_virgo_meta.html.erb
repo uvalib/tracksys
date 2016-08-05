@@ -5,6 +5,8 @@
          <tr class="row"><th>BARCODE</th><td><%= raw format_td(@virgo_meta[:barcode]) %></td></tr>
          <tr class="row"><th>TITLE</th><td class="bibl-data" id="title"><%= raw format_td(@virgo_meta[:title]) %></td></tr>
          <tr class="row"><th>CREATOR NAME</th><td  class="bibl-data" id="creator_name"><%= raw format_td( @virgo_meta[:creator_name]) %></td></tr>
+         <tr class="row"><th>CREATOR NAME TYPE</th><td  class="bibl-data" id="creator_name_type"><%= raw format_td(@virgo_meta[:creator_name_type]) %></td></tr>
+         <tr class="row"><th>CALL NUMBER</th><td  class="bibl-data" id="call_number"><%= raw format_td(@virgo_meta[:call_number]) %></td></tr>
       <% else %>
          <tr class="row">
             <th>CATALOG KEY</th>
@@ -36,10 +38,17 @@
                       id="bibl_creator_name" type="text" value="<%= @virgo_meta[:creator_name] %>" name="bibl[creator_name]">
             </td>
          </tr>
+         <tr class="row"><th>CREATOR NAME TYPE</th><td  class="bibl-data" id="creator_name_type"><%= raw format_td(@virgo_meta[:creator_name_type]) %></td></tr>
+         <tr class="row">
+            <th>CALL NUMBER</th>
+            <td>
+               <span class="bibl-data" id="call_number"><%= raw format_td(@virgo_meta[:call_number]) %></span>
+               <input style="display:none" class='bibl-edit' maxlength="255" id="bibl_call_number"
+                      type="text" value="<%= @virgo_meta[:call_number] %>" name="bibl[call_number]">
+            </td>
+         </tr>
       <% end %>
 
-      <tr class="row"><th>CREATOR NAME TYPE</th><td  class="bibl-data" id="creator_name_type"><%= raw format_td(@virgo_meta[:creator_name_type]) %></td></tr>
-      <tr class="row"><th>CALL NUMBER</th><td  class="bibl-data" id="call_number"><%= raw format_td(@virgo_meta[:call_number]) %></td></tr>
       <tr class="row"><th>YEAR</th><td  class="bibl-data" id="year"><%= raw format_td(@virgo_meta[:year]) %></td></tr>
       <tr class="row"><th>YEAR TYPE</th><td  class="bibl-data" id="year_type"><%= raw format_td(@virgo_meta[:year_type]) %></td></tr>
       <tr class="row"><th>PLACE OF PUBLICATION</th><td  class="bibl-data" id="publication_place"><%= raw format_td(@virgo_meta[:publication_place]) %></td></tr>

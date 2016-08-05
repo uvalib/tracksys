@@ -31,7 +31,7 @@ ActiveAdmin.register Bibl do
 
   filter :id
   filter :title
-  #filter :call_number
+  filter :call_number
   filter :creator_name
   filter :catalog_key
   filter :barcode
@@ -65,7 +65,7 @@ ActiveAdmin.register Bibl do
       truncate_words(bibl.title, 25)
     end
     column :creator_name
-   #  column :call_number
+    column :call_number
    #  column ("Source"), :class => 'sortable_short', :sortable => :cataloging_source do |bibl|
    #  	bibl.cataloging_source
    #  end
