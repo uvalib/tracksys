@@ -25,6 +25,14 @@ div.attributes_table {
    .ocr-button {
       margin:0;
    }
+   pre.xml-meta {
+      background-color: white;
+      color: #333;
+      font-family: monospace;
+      border: 1px solid #ccc;
+      padding: 5px;
+      white-space: pre-wrap;
+   }
 }
 
 fieldset.inputs.columns-none {

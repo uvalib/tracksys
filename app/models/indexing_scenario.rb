@@ -4,6 +4,7 @@ class IndexingScenario < ActiveRecord::Base
   # relationships
   #------------------------------------------------------------------
   has_many :bibls
+  has_many :xml_metadata, class_name: "XmlMetadata"
   has_many :components
   has_many :master_files
   has_many :units

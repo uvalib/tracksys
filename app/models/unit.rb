@@ -11,7 +11,9 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :bibl, :counter_cache => true
+   belongs_to :bibl, :counter_cache => true  # TODO Retire this bibl reference
+   belongs_to :metadata, polymorphic: true
+
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units

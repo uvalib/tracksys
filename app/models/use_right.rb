@@ -1,5 +1,6 @@
 class UseRight < ActiveRecord::Base
   has_many :bibls
+  has_many :xml_metadata, class_name: "XmlMetadata"
   has_many :master_files
   validates :name, :uniqueness => true
 end

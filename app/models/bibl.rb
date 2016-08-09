@@ -97,7 +97,7 @@ class Bibl < ActiveRecord::Base
   has_many :customers, ->{ uniq }, :through => :orders
   has_many :master_files, :through => :units
   has_many :orders, ->{ uniq }, :through => :units
-  has_many :units
+  has_many :units, as: :metadata
 
   #------------------------------------------------------------------
   # scopes

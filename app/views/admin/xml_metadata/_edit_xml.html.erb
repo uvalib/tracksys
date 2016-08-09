@@ -1,0 +1,35 @@
+<%= semantic_form_for([:admin, @xml_metadata]) do |f| %>
+
+   <%= f.inputs "Digital Library Information", :class => 'two-column panel' do %>
+       <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
+       <%= f.input :exemplar, :as => :select,
+         :collection => f.object.exemplar_files.map(&:filename),
+         :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+       <%= f.input :availability_policy %>
+       <%= f.input :discoverability, :as => :select %>
+       <%= f.input :use_right, label: "Right Statement" %>
+       <%= f.input :indexing_scenario %>
+       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
+       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
+       <%= f.input :collection_facet, :as => :string %>
+   <% end %>
+
+   <%= f.inputs "Administrative Information", :class => 'two-column panel' do %>
+      <%= f.input :is_approved, :as => :radio %>
+      <%= f.input :is_personal_item, :as => :radio %>
+      <%= f.input :is_manuscript, :as => :radio %>
+      <%= f.input :is_collection, :as => :radio %>
+      <%= f.input :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :genre, :as => :select, :collection => Bibl::GENRES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+   <% end %>
+
+   <%= f.inputs "XML Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
+       <%= f.input :title, :as => :string %>
+       <%= f.input :creator_name, :as => :string %>
+       <%= f.input :schema, :as => :select, :collection => XmlMetadata::SCHEMAS, :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+       <%= f.input :content,  :input_html => { :rows => 15 } %>
+   <% end %>
+
+   <%= f.actions :class => 'columns-none' %>
+
+<% end %>

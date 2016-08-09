@@ -22,6 +22,9 @@ ActiveAdmin.register IndexingScenario do
       column("Bibls") do |indexing_scenario|
          link_to indexing_scenario.bibls.count, admin_bibls_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
       end
+      column("XML Metadata") do |indexing_scenario|
+         link_to indexing_scenario.xml_metadata.count, admin_xml_metadata_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
+      end
       # column("Components") do |indexing_scenario|
       #    link_to indexing_scenario.components.count, admin_components_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
       # end

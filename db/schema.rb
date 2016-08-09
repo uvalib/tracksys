@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160725193651) do
+ActiveRecord::Schema.define(version: 20160808133534) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -69,11 +69,12 @@ ActiveRecord::Schema.define(version: 20160725193651) do
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
 
   create_table "availability_policies", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.integer  "bibls_count", limit: 4,   default: 0
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "pid",         limit: 255
+    t.string   "name",               limit: 255
+    t.integer  "bibls_count",        limit: 4,   default: 0
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.string   "pid",                limit: 255
+    t.integer  "xml_metadata_count", limit: 4,   default: 0
   end
 
   create_table "bibls", force: :cascade do |t|
@@ -278,6 +279,7 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.integer  "components_count",   limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
     t.integer  "units_count",        limit: 4,   default: 0
+    t.integer  "xml_metadata_count", limit: 4,   default: 0
   end
 
   create_table "intended_uses", force: :cascade do |t|
@@ -488,6 +490,8 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.integer  "indexing_scenario_id",           limit: 4
     t.boolean  "checked_out",                                  default: false
     t.integer  "master_files_count",             limit: 4,     default: 0
+    t.integer  "metadata_id",                    limit: 4
+    t.string   "metadata_type",                  limit: 255
   end
 
   add_index "units", ["bibl_id"], name: "index_units_on_bibl_id", using: :btree
@@ -495,6 +499,7 @@ ActiveRecord::Schema.define(version: 20160725193651) do
   add_index "units", ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready", using: :btree
   add_index "units", ["indexing_scenario_id"], name: "index_units_on_indexing_scenario_id", using: :btree
   add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
+  add_index "units", ["metadata_type", "metadata_id"], name: "index_units_on_metadata_type_and_metadata_id", using: :btree
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
 
   create_table "use_rights", force: :cascade do |t|
@@ -503,9 +508,40 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.datetime "updated_at"
     t.integer  "bibls_count",        limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
+    t.integer  "xml_metadata_count", limit: 4,   default: 0
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
+
+  create_table "xml_metadata", force: :cascade do |t|
+    t.text     "title",                  limit: 65535
+    t.text     "creator_name",           limit: 65535
+    t.string   "schema",                 limit: 255
+    t.text     "content",                limit: 65535
+    t.boolean  "is_approved"
+    t.boolean  "is_personal_item"
+    t.string   "resource_type",          limit: 255
+    t.string   "genre",                  limit: 255
+    t.boolean  "is_manuscript"
+    t.boolean  "is_collection"
+    t.string   "pid",                    limit: 255
+    t.boolean  "is_in_catalog"
+    t.string   "exemplar",               limit: 255
+    t.boolean  "discoverability"
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
+    t.integer  "units_count",            limit: 4
+    t.string   "collection_facet",       limit: 255
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.integer  "indexing_scenario_id",   limit: 4
+    t.integer  "availability_policy_id", limit: 4
+    t.integer  "use_right_id",           limit: 4
+  end
+
+  add_index "xml_metadata", ["availability_policy_id"], name: "index_xml_metadata_on_availability_policy_id", using: :btree
+  add_index "xml_metadata", ["indexing_scenario_id"], name: "index_xml_metadata_on_indexing_scenario_id", using: :btree
+  add_index "xml_metadata", ["use_right_id"], name: "index_xml_metadata_on_use_right_id", using: :btree
 
   add_foreign_key "bibls", "availability_policies", name: "bibls_availability_policy_id_fk"
   add_foreign_key "bibls", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"

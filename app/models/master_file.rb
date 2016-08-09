@@ -15,7 +15,8 @@ class MasterFile < ActiveRecord::Base
 
    has_one :image_tech_meta, :dependent => :destroy
    has_one :order, :through => :unit
-   has_one :bibl, :through => :unit
+### FIXME EVIL BROKEN BAD
+#has_one :bibl, :through => :unit
    has_one :customer, :through => :order
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
@@ -24,6 +25,7 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
+   ## FIXME These are all broken. Assume metadata is BIBL only
    delegate :call_number, :title, :catalog_key, :barcode, :id, :creator_name, :year,
       :to => :bibl, :allow_nil => true, :prefix => true
 

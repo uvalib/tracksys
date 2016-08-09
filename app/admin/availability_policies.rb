@@ -22,6 +22,9 @@ ActiveAdmin.register AvailabilityPolicy do
     column("Bibls") do |availability_policy|
       link_to availability_policy.bibls_count, admin_bibls_path(:q => {:availability_policy_id_eq => availability_policy.id})
     end
+    column("XML Metadata") do |availability_policy|
+      link_to availability_policy.xml_metadata.count, admin_xml_metadata_path(:q => {:availability_policy_id_eq => availability_policy.id})
+    end
     column("") do |availability_policy|
       div do
         link_to "Details", resource_path(availability_policy), :class => "member_link view_link"

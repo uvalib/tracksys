@@ -18,8 +18,11 @@ ActiveAdmin.register UseRight do
 
    index do
       column :name
-      column("Bibls") do |use_right|
+      column("Sirsi Metadata") do |use_right|
          link_to use_right.bibls.count, admin_bibls_path(:q => {:use_right_id_eq => use_right.id})
+      end
+      column("XML Metadata") do |use_right|
+         link_to use_right.xml_metadata.count, admin_xml_metadata_path(:q => {:use_right_id_eq => use_right.id})
       end
       column("Master Files") do |use_right|
          link_to use_right.master_files.count, admin_master_files_path(:q => {:use_right_id_eq => use_right.id})
