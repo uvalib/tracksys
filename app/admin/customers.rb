@@ -43,9 +43,6 @@ ActiveAdmin.register Customer do
     column :units do |customer|
       link_to customer.units.to_a.size, admin_units_path(:q => {:customer_id_eq => customer.id})
     end
-    column ("Bibliographic Records") do |customer|
-      link_to customer.bibls.to_a.size, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
-    end
     column :master_files do |customer|
       link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
     end
@@ -176,9 +173,6 @@ ActiveAdmin.register Customer do
       end
       row :units do |customer|
         link_to customer.units.count, admin_units_path(:q => {:customer_id_eq => customer.id})
-      end
-      row ("Bibliographic Records") do |customer|
-        link_to customer.bibls.count, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
       end
       row :master_files do |customer|
         link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})

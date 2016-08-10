@@ -11,7 +11,6 @@ class Customer < ActiveRecord::Base
    has_many :requests, ->{ where('orders.order_status = ?', 'requested')}, :inverse_of => :customer
    has_many :units, :through => :orders
    has_many :master_files, :through => :units
-   has_many :bibls, ->{ uniq }, :through => :units
    has_many :invoices, :through => :orders
    has_many :agencies, ->{ uniq }, :through => :orders
 

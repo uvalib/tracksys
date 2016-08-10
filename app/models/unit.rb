@@ -11,22 +11,22 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :bibl, :counter_cache => true  # TODO Retire this bibl reference
-   belongs_to :metadata, polymorphic: true
+   belongs_to :metadata, polymorphic: true   # NOTE: must manually handle counter cache
 
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
 
    has_many :master_files
-   has_many :components, :through => :master_files#, :uniq => true
+   has_many :components, :through => :master_files
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :agency, :through => :order
    has_one :customer, :through => :order
 
-   delegate :call_number, :title, :catalog_key, :barcode, :pid, :exemplar,
-      :to => :bibl, :allow_nil => true, :prefix => true
+   # FIXME non-polymorphic reference to metadata!!
+   # delegate :call_number, :title, :catalog_key, :barcode, :pid, :exemplar,
+   #    :to => :bibl, :allow_nil => true, :prefix => true
    delegate :id, :full_name,
       :to => :customer, :allow_nil => true, :prefix => true
    delegate :date_due,
@@ -36,11 +36,25 @@ class Unit < ActiveRecord::Base
 
    has_and_belongs_to_many :legacy_identifiers
 
+   scope :to_future_events, lambda { self.to_events.joins
+      ("join events on events.id = invites.inviteable_id").where('events.starttime > ?', Time.now) }
+
+
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
    scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
-   scope :ready_for_repo, ->{joins(:bibl).where("bibls.availability_policy_id is not null").where(:include_in_dl => true).where(:date_queued_for_ingest => nil).where("date_archived is not null") }
+   scope :sirsi_ready_for_repo, -> {
+      where(include_in_dl: true).where(date_queued_for_ingest: nil).where.not(date_archived: nil)
+      .joins("inner join sirsi_metadata on sirsi_metadata.id=metadata_id").where.not(:"sirsi_metadata.availability_policy_id"=>nil)
+   }
+   scope :xml_ready_for_repo, -> {
+      where(include_in_dl: true).where(date_queued_for_ingest: nil).where.not(date_archived: nil)
+      .joins("inner join xml_metadata on xml_metadata.id=metadata_id").where.not(:"xml_metadata.availability_policy_id"=>nil)
+   }
+   scope :ready_for_repo, -> {
+      sirsi_ready_for_repo.or(xml_ready_for_repo)
+   }
    scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
    scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
    scope :approved, ->{where(:unit_status => 'approved') }
@@ -56,10 +70,7 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    validates_presence_of :order
    validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   validates :bibl, :presence => {
-      :if => 'self.bibl_id',
-      :message => "association with this Bibl is no longer valid because it no longer exists."
-   }
+   validates :metadata, :presence => true
    validates :intended_use, :presence => {
       :message => "must be selected."
    }
@@ -120,11 +131,10 @@ class Unit < ActiveRecord::Base
    end
 
    def ready_for_repo?
-      if self.include_in_dl == true and not self.bibl.availability_policy_id.nil? and self.date_queued_for_ingest.nil? and not self.date_archived.nil?
-         return true
-      else
-         return false
-      end
+      return false if self.include_in_dl == false
+      return false if self.availability_policy_id.nil?
+      return true if self.date_queued_for_ingest.nil? and not self.date_archived.nil?
+      return false
    end
 
    def check_order_status

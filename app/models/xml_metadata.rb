@@ -89,14 +89,6 @@ class XmlMetadata < ActiveRecord::Base
       return self.is_personal_item
    end
 
-   def units?
-      if units.any?
-         return true
-      else
-         return false
-      end
-   end
-
    def agency_links
       return "" if self.agencies.empty?
       out = ""

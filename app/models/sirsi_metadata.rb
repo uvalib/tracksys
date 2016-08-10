@@ -1,4 +1,4 @@
-class Bibl < ActiveRecord::Base
+class SirsiMetadata < ActiveRecord::Base
 
   CREATOR_NAME_TYPES = %w[corporate personal]
   YEAR_TYPES = %w[copyright creation publication]
@@ -89,8 +89,8 @@ class Bibl < ActiveRecord::Base
   belongs_to :indexing_scenario, :counter_cache => true
   belongs_to :use_right, :counter_cache => true
 
-  has_and_belongs_to_many :legacy_identifiers
-  has_and_belongs_to_many :components
+  has_and_belongs_to_many :legacy_identifiers,  :join_table => :sirsi_metadata_legacy_identifiers
+  has_and_belongs_to_many :components,  :join_table => :sirsi_metadata_components
 
   has_many :agencies, :through => :orders
   has_many :job_statuses, :as => :originator, :dependent => :destroy
@@ -103,12 +103,11 @@ class Bibl < ActiveRecord::Base
   # scopes
   #------------------------------------------------------------------
   scope :approved, ->{ where(:is_approved => true) }
-  scope :in_digital_library,  ->{ where("bibls.date_dl_ingest is not null").order("bibls.date_dl_ingest DESC") }
-  scope :not_in_digital_library,  ->{ where("bibls.date_dl_ingest is null") }
+  scope :in_digital_library,  ->{ where("sirsi_metadata.date_dl_ingest is not null").order("sirsi_metadata.date_dl_ingest DESC") }
+  scope :not_in_digital_library,  ->{ where("sirsi_metadata.date_dl_ingest is null") }
   scope :not_approved,  ->{ where(:is_approved => false) }
   scope :has_exemplars,  ->{ where("exemplar is NOT NULL") }
   scope :need_exemplars,  ->{ where("exemplar is NULL") }
-  #scope :uniq, ->{select( 'DISTINCT id' ) }
   scope :dpla, ->{where(:dpla => true) }
 
   #------------------------------------------------------------------
@@ -145,7 +144,7 @@ class Bibl < ActiveRecord::Base
     self.is_in_catalog = 0 if self.is_in_catalog.nil?
     self.is_manuscript = 0 if self.is_manuscript.nil?
     self.is_personal_item = 0 if self.is_personal_item.nil?
-    self.discoverability = 1 if self.discoverability.nil? # For Bibl objects, the default value is 1 (i.e. is discoverable)
+    self.discoverability = 1 if self.discoverability.nil?
 
     # default right statement to not Evaluated
     if self.use_right.blank?
@@ -168,7 +167,6 @@ class Bibl < ActiveRecord::Base
      update_attribute(:pid, "tsb:#{self.id}")
   end
   after_update :fix_updated_counters
-  before_destroy :destroyable?
 
   #------------------------------------------------------------------
   # public class methods
@@ -177,8 +175,8 @@ class Bibl < ActiveRecord::Base
   #------------------------------------------------------------------
   # public instance methods
   #------------------------------------------------------------------
-  # Returns an array of Bibl objects that are the parent, grandparent, etc... of the
-  # Bibl object upon which this method is invoked.
+  # Returns an array of Sirsi metadata objects that are the parent, grandparent, etc... of the
+  # Sirsi metadata object upon which this method is invoked.
   def ancestors
     parent_bibls = Array.new
     if parent_bibl_id != 0
@@ -193,20 +191,12 @@ class Bibl < ActiveRecord::Base
     end
   end
 
-  # Returns the array of Bibl objects for which this Bibl is parent.
+  # Returns the array of sirsi_metadata objects for which this sirsi_metadata is parent.
   def child_bibls
     begin
-      return Bibl.where(parent_bibl_id: id).to_a
+      return SirsiMetadata.where(parent_bibl_id: id).to_a
     rescue ActiveRecord::RecordNotFound
       return Array.new
-    end
-  end
-
-  def components?
-    if components.any?
-      return true
-    else
-      return false
     end
   end
 
@@ -216,19 +206,6 @@ class Bibl < ActiveRecord::Base
       return Array.new
     else
       return MasterFile.joins(:bibl).joins(:unit).where('`units`.include_in_dl = true').where("`bibls`.id = #{self.id}")
-    end
-  end
-
-  # Returns a boolean value indicating whether it is safe to delete this record
-  # from the database. Returns +false+ if this record has dependent records in
-  # other tables, namely associated Unit, Component, or EadRef records.
-  #
-  # This method is public but is also called as a +before_destroy+ callback.
-  def destroyable?
-    if components? || units?
-      return false
-    else
-      return true
     end
   end
 
@@ -246,7 +223,7 @@ class Bibl < ActiveRecord::Base
 
   def parent_bibl
     begin
-      return Bibl.find(parent_bibl_id)
+      return SirsiMetadata.find(parent_bibl_id)
     rescue ActiveRecord::RecordNotFound
       return nil
     end
@@ -254,14 +231,6 @@ class Bibl < ActiveRecord::Base
 
   def personal_item?
     return self.is_personal_item
-  end
-
-  def units?
-    if units.any?
-      return true
-    else
-      return false
-    end
   end
 
   #------------------------------------------------------------------
@@ -344,26 +313,14 @@ end
 #  is_manuscript          :boolean          default(FALSE), not null
 #  is_collection          :boolean          default(FALSE), not null
 #  title                  :text(65535)
-#  description            :string(255)
-#  series_title           :string(255)
 #  creator_name           :string(255)
-#  creator_name_type      :string(255)
 #  catalog_key            :string(255)
-#  title_control          :string(255)
 #  barcode                :string(255)
 #  call_number            :string(255)
-#  copy                   :integer
-#  volume                 :string(255)
-#  location               :string(255)
-#  year                   :string(255)
-#  year_type              :string(255)
-#  date_external_update   :datetime
 #  pid                    :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
 #  is_in_catalog          :boolean          default(FALSE), not null
-#  issue                  :string(255)
-#  citation               :text(65535)
 #  exemplar               :string(255)
 #  parent_bibl_id         :integer          default(0), not null
 #  desc_metadata          :text(65535)
@@ -375,6 +332,5 @@ end
 #  availability_policy_id :integer
 #  use_right_id           :integer
 #  dpla                   :boolean          default(FALSE)
-#  cataloging_source      :string(255)
 #  collection_facet       :string(255)
 #

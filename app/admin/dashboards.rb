@@ -54,12 +54,12 @@ ActiveAdmin.register_page "Dashboard" do
 
     div :class => 'three-column' do
       panel "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
-        table_for Bibl.in_digital_library.limit(20) do
-          column :call_number
-          column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") do |bibl|
-            if bibl.exemplar?
-               mf = MasterFile.find_by( filename: bibl.exemplar)
+         # FIXME this only shows sirsi metadata items.
+        table_for SirsiMetadata.in_digital_library.limit(20) do
+          column ("Title") {|sirsi_metadata| truncate(sirsi_metadata.title, :length => 80)}
+          column ("Thumbnail") do |sirsi_metadata|
+            if sirsi_metadata.exemplar?
+               mf = MasterFile.find_by( filename: sirsi_metadata.exemplar)
                if mf.nil?
                   "missing thumbnail"
                else
@@ -69,9 +69,9 @@ ActiveAdmin.register_page "Dashboard" do
                "no thumbnail"
             end
           end
-          column("Links") do |bibl|
+          column("Links") do |sirsi_metadata|
             div do
-              link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
+              link_to "Details", admin_sirsi_metadata_path(sirsi_metadata), :class => "member_link view_link"
             end
           end
         end
@@ -116,7 +116,7 @@ ActiveAdmin.register_page "Dashboard" do
              render 'admin/stats_report'
            end
            div :class => 'workflow_button' do
-             button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
+             button_to "Generate DL Manifest", create_dl_manifest_admin_sirsi_metadata_path, :method => :get
            end
            tr do
              td do

@@ -34,7 +34,7 @@ ActiveAdmin.register XmlMetadata do
    filter :pid
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
-   filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
+   filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
    filter :availability_policy
    filter :customers_id, :as => :numeric
    filter :orders_id, :as => :numeric

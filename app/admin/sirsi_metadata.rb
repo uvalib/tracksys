@@ -1,4 +1,4 @@
-ActiveAdmin.register Bibl do
+ActiveAdmin.register SirsiMetadata do
   menu :priority => 5
 
   # strong paramters handling
@@ -42,7 +42,7 @@ ActiveAdmin.register Bibl do
   #filter :location
   filter :use_right, :as => :select, label: 'Right Statement'
   #filter :cataloging_source
-  filter :resource_type, :as => :select, :collection => Bibl::RESOURCE_TYPES
+  filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
   filter :availability_policy
   filter :customers_id, :as => :numeric
   filter :orders_id, :as => :numeric
@@ -247,7 +247,7 @@ ActiveAdmin.register Bibl do
   end
 
   member_action :publish, :method => :put do
-    bibl = Bibl.find(params[:id])
+    bibl = SirsiMetadata.find(params[:id])
     bibl.update_attribute(:date_dl_update, Time.now)
     logger.info "Bibl #{bibl.id} has been flagged for an update in the DL"
     redirect_to "/admin/bibls/#{params[:id]}", :notice => "Bibl flagged for Publication"

@@ -27,7 +27,6 @@ ActiveAdmin.register Order do
   scope :due_in_a_week
   scope :overdue
   scope :unpaid
-  scope :uniq
 
   filter :id
   filter :agency, :as => :select, :input_html => {:'data-placeholder' => 'Choose an agency...'}
@@ -35,7 +34,6 @@ ActiveAdmin.register Order do
   filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-  filter :bibls_id, :as => :numeric
   filter :date_request_submitted
   filter :date_due
   filter :date_archiving_complete
@@ -275,9 +273,6 @@ ActiveAdmin.register Order do
       end
       row :master_files do |order|
         link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
-      end
-      row :bibls do |order|
-        link_to "#{order.bibls.uniq.size}", admin_bibls_path(:q => {:orders_id_eq => order.id}, :scope => :uniq )
       end
       row :customer
       row :agency
