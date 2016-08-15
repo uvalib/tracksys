@@ -19,10 +19,10 @@ ActiveAdmin.register IndexingScenario do
         indexing_scenario.metadata.count
       end
       column("Master Files") do |indexing_scenario|
-         link_to indexing_scenario.master_files.count, admin_master_files_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
+         indexing_scenario.master_files.count
       end
       column("Units") do |indexing_scenario|
-         link_to indexing_scenario.units.count, admin_units_path(:q => {:indexing_scenario_id_eq => indexing_scenario.id})
+         indexing_scenario.units.count
       end
       column("Links") do |indexing_scenario|
          if !current_user.viewer?

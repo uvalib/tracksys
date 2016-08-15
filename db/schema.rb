@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160810134244) do
+ActiveRecord::Schema.define(version: 20160815134324) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -198,9 +198,6 @@ ActiveRecord::Schema.define(version: 20160810134244) do
 
   create_table "indexing_scenarios", force: :cascade do |t|
     t.string   "name",               limit: 255
-    t.string   "pid",                limit: 255
-    t.string   "datastream_name",    limit: 255
-    t.string   "repository_url",     limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "metadata_count",     limit: 4,   default: 0
