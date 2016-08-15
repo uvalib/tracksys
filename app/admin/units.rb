@@ -331,9 +331,6 @@ ActiveAdmin.register Unit do
       end
       row :customer
       row :agency
-      row "Legacy Identifiers" do |unit|
-       	raw(unit.legacy_identifier_links)
-      end
     end
   end
 

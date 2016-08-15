@@ -250,9 +250,6 @@ ActiveAdmin.register MasterFile do
          end
          row :customer
          row :agency
-         row "Legacy Identifiers" do |master_file|
-            raw(master_file.legacy_identifier_links)
-         end
       end
    end
 

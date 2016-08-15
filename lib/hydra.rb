@@ -329,17 +329,6 @@ module Hydra
          bibl_id_node.content = "#{object.id}"
          last_node.add_next_sibling(bibl_id_node)
 
-         # Add nodes with Legacy Identifier information, if any
-         if not object.legacy_identifiers.empty?
-            object.legacy_identifiers.each {|li|
-               li_node = Nokogiri::XML::Node.new "identifier", doc
-               li_node['type'] = 'legacy'
-               li_node['displayLabel'] = "#{li.description}"
-               li_node.content = "#{li.legacy_identifier}"
-               last_node.add_next_sibling(li_node)
-            }
-         end
-
          # Add nodes with Unit IDs that are included in DL
          object.units.each {|unit|
             if unit.include_in_dl == true

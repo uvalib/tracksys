@@ -200,9 +200,6 @@ ActiveAdmin.register SirsiMetadata do
       row "Agencies Requesting Resource" do |sirsi_metadata|
         raw(sirsi_metadata.agency_links)
       end
-      row "Legacy Identifiers" do |sirsi_metadata|
-        raw(sirsi_metadata.legacy_identifier_links)
-      end
       row("Collection Metadata Record") do |sirsi_metadata|
         if sirsi_metadata.parent_bibl
           link_to "#{sirsi_metadata.parent_bibl.title}", admin_sirsi_metadata_path(sirsi_metadata.parent_bibl)

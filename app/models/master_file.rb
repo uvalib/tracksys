@@ -9,8 +9,6 @@ class MasterFile < ActiveRecord::Base
    belongs_to :use_right, :counter_cache => true
    belongs_to :item
 
-   has_and_belongs_to_many :legacy_identifiers
-
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :image_tech_meta, :dependent => :destroy
@@ -139,15 +137,6 @@ class MasterFile < ActiveRecord::Base
       else
          return nil
       end
-   end
-
-   def legacy_identifier_links
-      return ""  if self.legacy_identifiers.empty?
-      out = ""
-      self.legacy_identifiers.each do |li|
-         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
-      end
-      return out
    end
 end
 

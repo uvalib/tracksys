@@ -13,8 +13,6 @@ class Component < ActiveRecord::Base
    has_many :image_master_files,->{ where(tech_meta_type: 'image')}, :class_name => 'MasterFile'
 
    has_and_belongs_to_many :metadata
-   has_and_belongs_to_many :containers
-   has_and_belongs_to_many :legacy_identifiers
 
    #------------------------------------------------------------------
    # validations

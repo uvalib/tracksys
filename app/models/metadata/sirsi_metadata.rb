@@ -115,7 +115,6 @@ class SirsiMetadata < Metadata
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   has_and_belongs_to_many :legacy_identifiers, join_table: :sirsi_metadata_legacy_identifiers
    has_and_belongs_to_many :components, join_table: :sirsi_metadata_components
 
    #------------------------------------------------------------------
@@ -161,15 +160,6 @@ class SirsiMetadata < Metadata
       rescue ActiveRecord::RecordNotFound
          return nil
       end
-   end
-
-   def legacy_identifier_links
-     return "" if self.legacy_identifiers.empty?
-     out = ""
-     self.legacy_identifiers.each do |li|
-         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
-     end
-     return out
    end
 
    # Although many Bibl records have citations provided through the MARC record, many do not

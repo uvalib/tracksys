@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160815134324) do
+ActiveRecord::Schema.define(version: 20160815135016) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -118,14 +118,6 @@ ActiveRecord::Schema.define(version: 20160815134324) do
   add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
   add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
-
-  create_table "components_legacy_identifiers", id: false, force: :cascade do |t|
-    t.integer "component_id",         limit: 4
-    t.integer "legacy_identifier_id", limit: 4
-  end
-
-  add_index "components_legacy_identifiers", ["component_id"], name: "component_id", using: :btree
-  add_index "components_legacy_identifiers", ["legacy_identifier_id"], name: "legacy_identifier_id", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.integer  "department_id",      limit: 4
@@ -258,32 +250,6 @@ ActiveRecord::Schema.define(version: 20160815134324) do
     t.datetime "created_at",                                      null: false
     t.datetime "updated_at",                                      null: false
   end
-
-  create_table "legacy_identifiers", force: :cascade do |t|
-    t.string   "label",             limit: 255
-    t.string   "description",       limit: 255
-    t.string   "legacy_identifier", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "legacy_identifiers", ["label"], name: "index_legacy_identifiers_on_label", using: :btree
-  add_index "legacy_identifiers", ["legacy_identifier"], name: "index_legacy_identifiers_on_legacy_identifier", using: :btree
-
-  create_table "legacy_identifiers_master_files", id: false, force: :cascade do |t|
-    t.integer "legacy_identifier_id", limit: 4
-    t.integer "master_file_id",       limit: 4
-  end
-
-  add_index "legacy_identifiers_master_files", ["legacy_identifier_id"], name: "index_legacy_identifiers_master_files_on_legacy_identifier_id", using: :btree
-  add_index "legacy_identifiers_master_files", ["master_file_id"], name: "index_legacy_identifiers_master_files_on_master_file_id", using: :btree
-
-  create_table "legacy_identifiers_units", id: false, force: :cascade do |t|
-    t.integer "legacy_identifier_id", limit: 4
-    t.integer "unit_id",              limit: 4
-  end
-
-  add_index "legacy_identifiers_units", ["unit_id", "legacy_identifier_id"], name: "units_legacy_ids_index", using: :btree
 
   create_table "master_files", force: :cascade do |t|
     t.integer  "unit_id",              limit: 4,     default: 0,     null: false
@@ -419,14 +385,6 @@ ActiveRecord::Schema.define(version: 20160815134324) do
   add_index "sirsi_metadata_components", ["component_id"], name: "component_id", using: :btree
   add_index "sirsi_metadata_components", ["sirsi_metadata_id"], name: "bibl_id", using: :btree
 
-  create_table "sirsi_metadata_legacy_identifiers", id: false, force: :cascade do |t|
-    t.integer "legacy_identifier_id", limit: 4
-    t.integer "sirsi_metadata_id",    limit: 4
-  end
-
-  add_index "sirsi_metadata_legacy_identifiers", ["legacy_identifier_id"], name: "index_sirsi_metadata_legacy_identifiers_on_legacy_identifier_id", using: :btree
-  add_index "sirsi_metadata_legacy_identifiers", ["sirsi_metadata_id"], name: "index_sirsi_metadata_legacy_identifiers_on_sirsi_metadata_id", using: :btree
-
   create_table "sql_reports", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "description", limit: 255
@@ -494,14 +452,10 @@ ActiveRecord::Schema.define(version: 20160815134324) do
 
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
   add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
-  add_foreign_key "components_legacy_identifiers", "components", name: "components_legacy_identifiers_ibfk_1"
-  add_foreign_key "components_legacy_identifiers", "legacy_identifiers", name: "components_legacy_identifiers_ibfk_2"
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
   add_foreign_key "customers", "departments", name: "customers_department_id_fk"
   add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
   add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
-  add_foreign_key "legacy_identifiers_master_files", "legacy_identifiers", name: "legacy_identifiers_master_files_legacy_identifier_id_fk"
-  add_foreign_key "legacy_identifiers_master_files", "master_files", name: "legacy_identifiers_master_files_master_file_id_fk"
   add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
   add_foreign_key "master_files", "indexing_scenarios", name: "master_files_indexing_scenario_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
@@ -513,8 +467,6 @@ ActiveRecord::Schema.define(version: 20160815134324) do
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
   add_foreign_key "sirsi_metadata_components", "components", name: "sirsi_metadata_components_ibfk_2"
   add_foreign_key "sirsi_metadata_components", "metadata", column: "sirsi_metadata_id", name: "sirsi_metadata_components_ibfk_1"
-  add_foreign_key "sirsi_metadata_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
-  add_foreign_key "sirsi_metadata_legacy_identifiers", "metadata", column: "sirsi_metadata_id", name: "bibls_legacy_identifiers_bibl_id_fk"
   add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
   add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
   add_foreign_key "units", "metadata", column: "metadata_id", name: "units_bibl_id_fk"
