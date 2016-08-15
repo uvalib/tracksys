@@ -15,7 +15,8 @@ class Order < ActiveRecord::Base
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
-   has_many :bibls, ->{uniq}, :through => :units
+   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
+   has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
@@ -24,14 +25,6 @@ class Order < ActiveRecord::Base
    has_one :department, :through => :customer
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
-
-   #------------------------------------------------------------------
-   # delegation
-   #------------------------------------------------------------------
-   delegate :full_name, :last_name, :first_name,
-   :to => :customer, :allow_nil => true, :prefix => true
-   delegate :name,
-   :to => :agency, :allow_nil => true, :prefix => true
 
    #------------------------------------------------------------------
    # scopes
@@ -47,7 +40,6 @@ class Order < ActiveRecord::Base
       order('date_request_submitted DESC').limit(limit)
    }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
-#default_scope {include('agency')}
    scope :from_fine_arts, ->{ joins(:agency).where("agencies.name" => "Fine Arts Library") }
    scope :not_from_fine_arts, ->{ where('agency_id != 37 or agency_id is null') }
    scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
@@ -91,7 +83,6 @@ class Order < ActiveRecord::Base
    # callbacks
    #------------------------------------------------------------------
    before_destroy :destroyable?
-   after_update :fix_updated_counters
 
    before_save do
       # boolean fields cannot be NULL at database level

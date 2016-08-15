@@ -3,7 +3,7 @@ class IndexingScenario < ActiveRecord::Base
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------
-  has_many :bibls
+  has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
   has_many :components
   has_many :master_files
   has_many :units
@@ -13,7 +13,6 @@ class IndexingScenario < ActiveRecord::Base
   #------------------------------------------------------------------
   validates :name, :pid, :repository_url, :datastream_name, :presence => true
   validates :name, :pid, :uniqueness => true
-  validates :repository_url, :format => {:with => URI::regexp(['http','https'])}
 
   #------------------------------------------------------------------
   # callbacks
@@ -26,17 +25,6 @@ class IndexingScenario < ActiveRecord::Base
   # scopes
   #------------------------------------------------------------------
   default_scope { order('name') }
-
-  #------------------------------------------------------------------
-  # public class methods
-  #------------------------------------------------------------------
-
-  #------------------------------------------------------------------
-  # public instance methods
-  #------------------------------------------------------------------
-  def complete_url
-    return "#{self.repository_url}/fedora/objects/#{self.pid}/datastreams/#{self.datastream_name}/content"
-  end
 
 end
 
@@ -51,7 +39,7 @@ end
 #  repository_url     :string(255)
 #  created_at         :datetime
 #  updated_at         :datetime
-#  bibls_count        :integer          default(0)
+#  metadata_count     :integer          default(0)
 #  components_count   :integer          default(0)
 #  master_files_count :integer          default(0)
 #  units_count        :integer          default(0)

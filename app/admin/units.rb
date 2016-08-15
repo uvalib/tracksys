@@ -4,7 +4,7 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :bibl_id, :indexing_scenario_id,
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :indexing_scenario_id,
      :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
@@ -18,15 +18,14 @@ ActiveAdmin.register Unit do
 
   csv do
     column :id
-    column :bibl_title
-    column :bibl_call_number
+    column :metadata_title
     column("Date Archived") {|unit| format_date(unit.date_archived)}
     column :master_files_count
   end
 
   config.clear_action_items!
   action_item :pdf, :only => :show do
-    raw("<a href='#{Settings.pdf_url}/#{unit.bibl.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.bibl.nil?
+    raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
   end
   action_item :new, :only => :index do
      raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
@@ -88,8 +87,7 @@ ActiveAdmin.register Unit do
   filter :staff_notes
   filter :include_in_dl, :as => :select
   filter :intended_use, :as => :select
-  filter :bibl_call_number, :as => :string, :label => "Call Number"
-  filter :bibl_title, :as => :string, :label => "Bibl. Title"
+  filter :metadata_title, :as => :string, :label => "Metadata Title"
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :agency, :as => :select
@@ -102,14 +100,11 @@ ActiveAdmin.register Unit do
     column("Status") do |unit|
       status_tag(unit.unit_status)
     end
-    column ("Bibliographic Record") do |unit|
+    column ("Metadata Record") do |unit|
       div do
-         if !unit.bibl_id.nil?
-            link_to "#{unit.bibl_title}", admin_bibl_path("#{unit.bibl_id}")
+         if !unit.metadata.nil?
+            link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
          end
-      end
-      div do
-        unit.bibl_call_number
       end
     end
     column ("DL Status") do |unit|
@@ -137,9 +132,9 @@ ActiveAdmin.register Unit do
       div do
         link_to "Details", resource_path(unit), :class => "member_link view_link"
       end
-      if !unit.bibl.nil?
+      if !unit.metadata.nil?
          div do
-            link_to "PDF", "#{Settings.pdf_url}/#{unit.bibl.pid}?unit=#{unit.id}", target: "_blank"
+            link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end
       end
       if !current_user.viewer?
@@ -301,8 +296,12 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :order, :as => :select, :collection => Order.all, :input_html => {:class => 'chosen-select', :style => 'width: 200px'}
-      f.input :bibl, :as => :select, :collection => Hash[Bibl.all.map{|b| [b.barcode,b.id]}], :input_html => { :class => 'chosen-select', :style => 'width: 200px'}
+      f.input :order, :as => :select, :collection => Order.all,
+         :input_html => {:class => 'chosen-select', :style => 'width: 260px'}
+
+      f.input :metadata, :as => :select,
+         :collection => Hash[Metadata.all.map{|b| ["#{b.id}: #{truncate(b.title, :length => 50)}", b.id]}],
+         :input_html => { :class => 'chosen-select', :style => 'width: 260px'}
     end
 
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
@@ -317,12 +316,13 @@ ActiveAdmin.register Unit do
     f.inputs :class => 'columns-none' do
       f.actions
     end
-
   end
 
   sidebar "Related Information", :only => [:show] do
     attributes_table_for unit do
-      row :bibl
+      row "Metadata" do |unit|
+         link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}" if !unit.metadata.nil?
+      end
       row :order do |unit|
         link_to "##{unit.order.id}", admin_order_path(unit.order.id)
       end
@@ -365,7 +365,6 @@ ActiveAdmin.register Unit do
             end
             if not unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Buidling'
               div :class => 'workflow_button' do button_to "Begin Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
-              # <%=button_to "Begin Generate Deliverables", {:action=>"check_unit_delivery_mode", :unit_id => unit.id, :order_id => unit.order.id} %>
             end
 
             if unit.date_archived and unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Building'
@@ -405,7 +404,16 @@ ActiveAdmin.register Unit do
 
   member_action :print_routing_slip, :method => :put do
     @unit = Unit.find(params[:id])
-    @bibl = @unit.bibl
+    @metadata = { title: "", location: "", call_number:"" }
+    if !@unit.metadata.nil?
+       @metadata[:title] = @unit.metadata.title
+       if @unit.metadata.type == "SirsiMetadata"
+         sm = @unit.metadata.becomes(@unit.metadata.type.constantize)
+         vm =  Virgo.external_lookup(sm.catalog_key, sm.barcode)
+         @metadata[:call_number] = sm.call_number
+         @metadata[:location] = vm[:location]
+       end
+    end
     @order = @unit.order
     @customer = @order.customer
     render :layout => 'printable'
@@ -450,7 +458,7 @@ ActiveAdmin.register Unit do
   member_action :publish, :method => :put do
     unit = Unit.find(params[:id])
     now = Time.now
-    unit.bibl.update_attribute(:date_dl_update, now)
+    unit.metadata.update_attribute(:date_dl_update, now)
     unit.master_files.each do |mf|
       mf.update_attribute(:date_dl_update, now)
     end

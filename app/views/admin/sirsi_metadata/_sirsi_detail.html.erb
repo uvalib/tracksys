@@ -1,0 +1,32 @@
+<div class="attributes_table">
+   <table border="0" cellspacing="0" callpadding="0">
+      <tr class="row">
+         <th>cataloging SOURCE</th>
+         <td class="bibl-data" id="cataloging_source"><%= raw format_td(@sirsi_meta[:cataloging_source]) %></td>
+      </tr>
+      <tr class="row">
+         <th>CITATION</th>
+         <td class="bibl-data" id="citation"><%= raw format_td(@sirsi_meta[:citation]) %></td>
+      </tr>
+      <tr class="row">
+         <th>description</th>
+         <td class="bibl-data" id="description"><%= raw format_td(@sirsi_meta[:description]) %></td>
+      </tr>
+      <tr class="row">
+         <th>title control</th>
+         <td class="bibl-data" id="title_control"><%= raw format_td( @sirsi_meta[:title_control]) %></td>
+      </tr>
+      <tr class="row">
+         <th>series title</th>
+         <td class="bibl-data" id="series_title"><%= raw format_td(@sirsi_meta[:series_title]) %></td>
+      </tr>
+      <tr class="row">
+         <th>volume</th>
+         <td class="bibl-data" id="volume"><%= raw format_td(@sirsi_meta[:volume]) %></td>
+      </tr>
+      <tr class="row">
+         <th>issue</th>
+         <td class="bibl-data" id="issue"><%= raw format_td(@sirsi_meta[:issue]) %></td>
+      </tr>
+   </table>
+</div>

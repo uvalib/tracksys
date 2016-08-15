@@ -54,12 +54,11 @@ ActiveAdmin.register_page "Dashboard" do
 
     div :class => 'three-column' do
       panel "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
-        table_for Bibl.in_digital_library.limit(20) do
-          column :call_number
-          column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") do |bibl|
-            if bibl.exemplar?
-               mf = MasterFile.find_by( filename: bibl.exemplar)
+        table_for Metadata.in_digital_library.limit(20) do
+          column ("Title") {|metadata| truncate(metadata.title, :length => 80)}
+          column ("Thumbnail") do |metadata|
+            if metadata.exemplar?
+               mf = MasterFile.find_by( filename: metadata.exemplar)
                if mf.nil?
                   "missing thumbnail"
                else
@@ -69,9 +68,13 @@ ActiveAdmin.register_page "Dashboard" do
                "no thumbnail"
             end
           end
-          column("Links") do |bibl|
+          column("Links") do |metadata|
             div do
-              link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
+               if metadata.type == "XmlMetadata"
+                  link_to "Details", "/admin/xml_metadata/#{metadata.id}", :class => "member_link view_link"
+               else
+                 link_to "Details", "/admin/sirsi_metadata/#{metadata.id}", :class => "member_link view_link"
+              end
             end
           end
         end
@@ -116,7 +119,7 @@ ActiveAdmin.register_page "Dashboard" do
              render 'admin/stats_report'
            end
            div :class => 'workflow_button' do
-             button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
+             button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
            end
            tr do
              td do
@@ -129,6 +132,11 @@ ActiveAdmin.register_page "Dashboard" do
          end
        end
     end
+  end
+
+  page_action :create_dl_manifest do
+    CreateDlManifest.exec( {:staff_member => current_user } )
+    redirect_to "/admin/dashboard", :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 
   page_action :get_yearly_stats do

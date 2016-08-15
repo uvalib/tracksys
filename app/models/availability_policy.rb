@@ -2,7 +2,7 @@ class AvailabilityPolicy < ActiveRecord::Base
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------
-  has_many :bibls
+  has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
   has_many :components
   has_many :master_files
   has_many :units
@@ -36,14 +36,10 @@ end
 #
 # Table name: availability_policies
 #
-#  id                 :integer          not null, primary key
-#  name               :string(255)
-#  bibls_count        :integer          default(0)
-#  components_count   :integer          default(0)
-#  master_files_count :integer          default(0)
-#  units_count        :integer          default(0)
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  repository_url     :string(255)
-#  pid                :string(255)
+#  id             :integer          not null, primary key
+#  name           :string(255)
+#  metadata_count :integer          default(0)
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  pid            :string(255)
 #

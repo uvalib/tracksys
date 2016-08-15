@@ -34,20 +34,20 @@ $(function() {
 
    $('#desc_meta_div').click( anobj );
 
-   // Begin JS for Updating Bibl Records
-   var updateBiblFields = function(bibl) {
+   // Begin JS for Updating Sirsi Records
+   var updateMetadataFields = function(metadata) {
       var empty = "<span class='empty'>Empty</span>";
-      $(".attributes_table .bibl-data").each( function() {
+      $(".attributes_table .sirsi-data").each( function() {
          var id = $(this).attr("id");
-         if ( bibl[id] ) {
-            $(this).text( bibl[id] );
+         if ( metadata[id] ) {
+            $(this).text( metadata[id] );
          } else {
             $(this).html( empty );
          }
       });
-      $("#bibl_title").val( bibl.title );
-      $("#bibl_creator_name").val( bibl.creator_name );
-      $("#bibl_call_number").val( bibl.call_number );
+      $("#sirsi_metadata_title").val( metadata.title );
+      $("#sirsi_metadata_creator_name").val( metadata.creator_name );
+      $("#sirsi_metadata_call_number").val( metadata.call_number );
    };
 
    $('#refresh-metadata').click(function(e) {
@@ -56,9 +56,9 @@ $(function() {
          return;
       }
       btn.addClass("disabled");
-      var bibl_catalog_key = $('#bibl_catalog_key').val();
-      var bibl_barcode = $('#bibl_barcode').val();
-      var new_url = "/admin/bibls/external_lookup?catalog_key=" + bibl_catalog_key + "&barcode=" + bibl_barcode;
+      var sirsi_catalog_key = $('#sirsi_metadata_catalog_key').val();
+      var sirsi_barcode = $('#sirsi_metadata_barcode').val();
+      var new_url = "/admin/sirsi_metadata/external_lookup?catalog_key=" + sirsi_catalog_key + "&barcode=" + sirsi_barcode;
       $.ajax({
          url: new_url,
          method: "GET",
@@ -67,8 +67,8 @@ $(function() {
             if ( textStatus != "success" ) {
                alert("Unable to refresh metadata. Check that the catalog key and/or barcode are correct");
             } else {
-               bibl = jqXHR.responseJSON;
-               updateBiblFields(bibl);
+               metadata = jqXHR.responseJSON;
+               updateMetadataFields(metadata);
             }
          }
       });

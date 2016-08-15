@@ -35,9 +35,6 @@ ActiveAdmin.register Agency do
     column :units do |agency|
       link_to "#{agency.units.count}", admin_units_path(:q => {:agency_id_eq => agency.id})
     end
-    column :bibls do |agency|
-      link_to "#{agency.bibls.count}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
-    end
     column :master_files do |agency|
       link_to "#{agency.master_files.count}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
     end
@@ -76,29 +73,6 @@ ActiveAdmin.register Agency do
     end
   end
 
-  sidebar "Agency and Descendant Counts", :only => :show do
-    attributes_table_for agency do
-      row :customers do |agency|
-        agency.total_class_count('customers')
-      end
-      row :requests do |agency|
-        agency.total_class_count('requests')
-      end
-      row :orders do |agency|
-        agency.total_class_count('orders')
-      end
-      row :units do |agency|
-        agency.total_class_count('units')
-      end
-      row :bibls do |agency|
-        agency.total_class_count('bibls')
-      end
-      row :master_files do |agency|
-        agency.total_class_count('master_files')
-      end
-    end
-  end
-
   sidebar "Agency Related Information", :only => :show do
     attributes_table_for agency do
       row :customers do |agency|
@@ -112,9 +86,6 @@ ActiveAdmin.register Agency do
       end
       row :units do |agency|
         link_to "#{agency.units.count}", admin_units_path(:q => {:agency_id_eq => agency.id})
-      end
-      row :bibls do |agency|
-        link_to "#{agency.bibls.count}", admin_bibls_path(:q => {:agencies_id_eq => agency.id})
       end
       row :master_files do |agency|
         link_to "#{agency.master_files.count}", admin_master_files_path(:q => {:agency_id_eq => agency.id})
@@ -133,10 +104,4 @@ ActiveAdmin.register Agency do
       f.actions
     end
   end
-
-  # controller do
-  #   caches_action :index, :unless => Proc.new { |c| c.params.include?(:page) || c.params.include?(:q) }
-  #   caches_action :show
-  #   cache_sweeper :agencies_sweeper
-  # end
 end

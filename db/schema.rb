@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160725193651) do
+ActiveRecord::Schema.define(version: 20160810134244) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -69,83 +69,12 @@ ActiveRecord::Schema.define(version: 20160725193651) do
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
 
   create_table "availability_policies", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.integer  "bibls_count", limit: 4,   default: 0
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "pid",         limit: 255
+    t.string   "name",           limit: 255
+    t.integer  "metadata_count", limit: 4,   default: 0
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.string   "pid",            limit: 255
   end
-
-  create_table "bibls", force: :cascade do |t|
-    t.boolean  "is_approved",                          default: false, null: false
-    t.boolean  "is_personal_item",                     default: false, null: false
-    t.string   "resource_type",          limit: 255
-    t.string   "genre",                  limit: 255
-    t.boolean  "is_manuscript",                        default: false, null: false
-    t.boolean  "is_collection",                        default: false, null: false
-    t.text     "title",                  limit: 65535
-    t.string   "description",            limit: 255
-    t.string   "series_title",           limit: 255
-    t.string   "creator_name",           limit: 255
-    t.string   "creator_name_type",      limit: 255
-    t.string   "catalog_key",            limit: 255
-    t.string   "title_control",          limit: 255
-    t.string   "barcode",                limit: 255
-    t.string   "call_number",            limit: 255
-    t.integer  "copy",                   limit: 4
-    t.string   "volume",                 limit: 255
-    t.string   "location",               limit: 255
-    t.string   "year",                   limit: 255
-    t.string   "year_type",              limit: 255
-    t.datetime "date_external_update"
-    t.string   "pid",                    limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "is_in_catalog",                        default: false, null: false
-    t.string   "issue",                  limit: 255
-    t.text     "citation",               limit: 65535
-    t.string   "exemplar",               limit: 255
-    t.integer  "parent_bibl_id",         limit: 4,     default: 0,     null: false
-    t.text     "desc_metadata",          limit: 65535
-    t.boolean  "discoverability",                      default: true
-    t.integer  "indexing_scenario_id",   limit: 4
-    t.datetime "date_dl_ingest"
-    t.datetime "date_dl_update"
-    t.integer  "units_count",            limit: 4,     default: 0
-    t.integer  "availability_policy_id", limit: 4
-    t.integer  "use_right_id",           limit: 4
-    t.boolean  "dpla",                                 default: false
-    t.string   "cataloging_source",      limit: 255
-    t.string   "collection_facet",       limit: 255
-    t.string   "publication_place",      limit: 255
-  end
-
-  add_index "bibls", ["availability_policy_id"], name: "index_bibls_on_availability_policy_id", using: :btree
-  add_index "bibls", ["barcode"], name: "index_bibls_on_barcode", using: :btree
-  add_index "bibls", ["call_number"], name: "index_bibls_on_call_number", using: :btree
-  add_index "bibls", ["catalog_key"], name: "index_bibls_on_catalog_key", using: :btree
-  add_index "bibls", ["cataloging_source"], name: "index_bibls_on_cataloging_source", using: :btree
-  add_index "bibls", ["dpla"], name: "index_bibls_on_dpla", using: :btree
-  add_index "bibls", ["indexing_scenario_id"], name: "index_bibls_on_indexing_scenario_id", using: :btree
-  add_index "bibls", ["parent_bibl_id"], name: "index_bibls_on_parent_bibl_id", using: :btree
-  add_index "bibls", ["pid"], name: "index_bibls_on_pid", using: :btree
-  add_index "bibls", ["use_right_id"], name: "index_bibls_on_use_right_id", using: :btree
-
-  create_table "bibls_components", id: false, force: :cascade do |t|
-    t.integer "bibl_id",      limit: 4
-    t.integer "component_id", limit: 4
-  end
-
-  add_index "bibls_components", ["bibl_id"], name: "bibl_id", using: :btree
-  add_index "bibls_components", ["component_id"], name: "component_id", using: :btree
-
-  create_table "bibls_legacy_identifiers", id: false, force: :cascade do |t|
-    t.integer "legacy_identifier_id", limit: 4
-    t.integer "bibl_id",              limit: 4
-  end
-
-  add_index "bibls_legacy_identifiers", ["bibl_id"], name: "index_bibls_legacy_identifiers_on_bibl_id", using: :btree
-  add_index "bibls_legacy_identifiers", ["legacy_identifier_id"], name: "index_bibls_legacy_identifiers_on_legacy_identifier_id", using: :btree
 
   create_table "component_types", force: :cascade do |t|
     t.string   "name",             limit: 255
@@ -274,7 +203,7 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.string   "repository_url",     limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "bibls_count",        limit: 4,   default: 0
+    t.integer  "metadata_count",     limit: 4,   default: 0
     t.integer  "components_count",   limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
     t.integer  "units_count",        limit: 4,   default: 0
@@ -399,6 +328,49 @@ ActiveRecord::Schema.define(version: 20160725193651) do
   add_index "master_files", ["unit_id"], name: "index_master_files_on_unit_id", using: :btree
   add_index "master_files", ["use_right_id"], name: "index_master_files_on_use_right_id", using: :btree
 
+  create_table "metadata", force: :cascade do |t|
+    t.boolean  "is_approved",                          default: false,           null: false
+    t.boolean  "is_personal_item",                     default: false,           null: false
+    t.string   "resource_type",          limit: 255
+    t.string   "genre",                  limit: 255
+    t.boolean  "is_manuscript",                        default: false,           null: false
+    t.boolean  "is_collection",                        default: false,           null: false
+    t.text     "title",                  limit: 65535
+    t.string   "creator_name",           limit: 255
+    t.string   "catalog_key",            limit: 255
+    t.string   "barcode",                limit: 255
+    t.string   "call_number",            limit: 255
+    t.string   "pid",                    limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "is_in_catalog",                        default: false,           null: false
+    t.string   "exemplar",               limit: 255
+    t.integer  "parent_bibl_id",         limit: 4,     default: 0,               null: false
+    t.text     "desc_metadata",          limit: 65535
+    t.boolean  "discoverability",                      default: true
+    t.integer  "indexing_scenario_id",   limit: 4
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
+    t.integer  "units_count",            limit: 4,     default: 0
+    t.integer  "availability_policy_id", limit: 4
+    t.integer  "use_right_id",           limit: 4
+    t.boolean  "dpla",                                 default: false
+    t.string   "collection_facet",       limit: 255
+    t.string   "type",                   limit: 255,   default: "SirsiMetadata"
+    t.string   "xml_schema",             limit: 255
+    t.text     "external_attributes",    limit: 65535
+  end
+
+  add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
+  add_index "metadata", ["barcode"], name: "index_metadata_on_barcode", using: :btree
+  add_index "metadata", ["call_number"], name: "index_metadata_on_call_number", using: :btree
+  add_index "metadata", ["catalog_key"], name: "index_metadata_on_catalog_key", using: :btree
+  add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
+  add_index "metadata", ["indexing_scenario_id"], name: "index_metadata_on_indexing_scenario_id", using: :btree
+  add_index "metadata", ["parent_bibl_id"], name: "index_metadata_on_parent_bibl_id", using: :btree
+  add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
+  add_index "metadata", ["use_right_id"], name: "index_metadata_on_use_right_id", using: :btree
+
   create_table "orders", force: :cascade do |t|
     t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
     t.integer  "agency_id",                          limit: 4
@@ -442,6 +414,22 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.string "name", limit: 255, null: false
   end
 
+  create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
+    t.integer "sirsi_metadata_id", limit: 4
+    t.integer "component_id",      limit: 4
+  end
+
+  add_index "sirsi_metadata_components", ["component_id"], name: "component_id", using: :btree
+  add_index "sirsi_metadata_components", ["sirsi_metadata_id"], name: "bibl_id", using: :btree
+
+  create_table "sirsi_metadata_legacy_identifiers", id: false, force: :cascade do |t|
+    t.integer "legacy_identifier_id", limit: 4
+    t.integer "sirsi_metadata_id",    limit: 4
+  end
+
+  add_index "sirsi_metadata_legacy_identifiers", ["legacy_identifier_id"], name: "index_sirsi_metadata_legacy_identifiers_on_legacy_identifier_id", using: :btree
+  add_index "sirsi_metadata_legacy_identifiers", ["sirsi_metadata_id"], name: "index_sirsi_metadata_legacy_identifiers_on_sirsi_metadata_id", using: :btree
+
   create_table "sql_reports", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "description", limit: 255
@@ -465,7 +453,7 @@ ActiveRecord::Schema.define(version: 20160725193651) do
 
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false
-    t.integer  "bibl_id",                        limit: 4
+    t.integer  "metadata_id",                    limit: 4
     t.string   "unit_status",                    limit: 255
     t.datetime "date_materials_received"
     t.datetime "date_materials_returned"
@@ -490,30 +478,23 @@ ActiveRecord::Schema.define(version: 20160725193651) do
     t.integer  "master_files_count",             limit: 4,     default: 0
   end
 
-  add_index "units", ["bibl_id"], name: "index_units_on_bibl_id", using: :btree
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
   add_index "units", ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready", using: :btree
   add_index "units", ["indexing_scenario_id"], name: "index_units_on_indexing_scenario_id", using: :btree
   add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
+  add_index "units", ["metadata_id"], name: "index_units_on_metadata_id", using: :btree
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
 
   create_table "use_rights", force: :cascade do |t|
     t.string   "name",               limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "bibls_count",        limit: 4,   default: 0
+    t.integer  "metadata_count",     limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
 
-  add_foreign_key "bibls", "availability_policies", name: "bibls_availability_policy_id_fk"
-  add_foreign_key "bibls", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
-  add_foreign_key "bibls", "use_rights", name: "bibls_use_right_id_fk"
-  add_foreign_key "bibls_components", "bibls", name: "bibls_components_ibfk_1"
-  add_foreign_key "bibls_components", "components", name: "bibls_components_ibfk_2"
-  add_foreign_key "bibls_legacy_identifiers", "bibls", name: "bibls_legacy_identifiers_bibl_id_fk"
-  add_foreign_key "bibls_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
   add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
   add_foreign_key "components_legacy_identifiers", "components", name: "components_legacy_identifiers_ibfk_1"
@@ -528,10 +509,17 @@ ActiveRecord::Schema.define(version: 20160725193651) do
   add_foreign_key "master_files", "indexing_scenarios", name: "master_files_indexing_scenario_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
   add_foreign_key "master_files", "use_rights", name: "master_files_use_right_id_fk"
+  add_foreign_key "metadata", "availability_policies", name: "bibls_availability_policy_id_fk"
+  add_foreign_key "metadata", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
+  add_foreign_key "metadata", "use_rights", name: "bibls_use_right_id_fk"
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
-  add_foreign_key "units", "bibls", name: "units_bibl_id_fk"
+  add_foreign_key "sirsi_metadata_components", "components", name: "sirsi_metadata_components_ibfk_2"
+  add_foreign_key "sirsi_metadata_components", "metadata", column: "sirsi_metadata_id", name: "sirsi_metadata_components_ibfk_1"
+  add_foreign_key "sirsi_metadata_legacy_identifiers", "legacy_identifiers", name: "bibls_legacy_identifiers_legacy_identifier_id_fk"
+  add_foreign_key "sirsi_metadata_legacy_identifiers", "metadata", column: "sirsi_metadata_id", name: "bibls_legacy_identifiers_bibl_id_fk"
   add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
   add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
+  add_foreign_key "units", "metadata", column: "metadata_id", name: "units_bibl_id_fk"
   add_foreign_key "units", "orders", name: "units_order_id_fk"
 end

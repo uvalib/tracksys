@@ -2,7 +2,7 @@ class LegacyIdentifier < ActiveRecord::Base
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------
-  has_and_belongs_to_many :bibls
+  has_and_belongs_to_many :metadata
   has_and_belongs_to_many :components
   has_and_belongs_to_many :master_files
   has_and_belongs_to_many :units

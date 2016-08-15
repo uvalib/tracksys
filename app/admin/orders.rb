@@ -35,7 +35,6 @@ ActiveAdmin.register Order do
   filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-  filter :bibls_id, :as => :numeric
   filter :date_request_submitted
   filter :date_due
   filter :date_archiving_complete
@@ -276,8 +275,19 @@ ActiveAdmin.register Order do
       row :master_files do |order|
         link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
       end
-      row :bibls do |order|
-        link_to "#{order.bibls.uniq.size}", admin_bibls_path(:q => {:orders_id_eq => order.id}, :scope => :uniq )
+      row :sirsi_metadata do |order|
+        if order.sirsi_metadata.uniq.size > 0
+           link_to "#{order.sirsi_metadata.uniq.size}", "/admin/sirsi_metadata?q%5borders_id%5d=#{order.id}&scope=uniq"
+        else
+           0
+        end
+      end
+      row :xml_metadata do |order|
+        if order.xml_metadata.uniq.size > 0
+           link_to "#{order.xml_metadata.uniq.size}", "/admin/xml_metadata?q%5borders_id%5d=#{order.id}&scope=uniq"
+        else
+           0
+        end
       end
       row :customer
       row :agency

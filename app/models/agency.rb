@@ -12,15 +12,13 @@ class Agency < ActiveRecord::Base
   has_one :primary_address, ->{where(address_type: "primary")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_one :billable_address, ->{where(address_type: "billable_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_many :customers, ->{uniq}, :through => :orders
-  has_many :bibls, ->{uniq}, :through => :units
+  has_many :metadata, ->{uniq}, :through => :units
 
   #------------------------------------------------------------------
   # validations
   #------------------------------------------------------------------
   # Should be :case_sensitive => true, but might be a bug in 3.1-rc6
   validates :name, :presence => true, :uniqueness => true
-
-  before_destroy :destroyable?
 
   #------------------------------------------------------------------
   # callbacks
@@ -32,44 +30,8 @@ class Agency < ActiveRecord::Base
   scope :no_parent, ->{ where(:ancestry => nil) }
 
   #------------------------------------------------------------------
-  # public class methods
-  #------------------------------------------------------------------
-  # Returns a string containing a brief, general description of this
-  # class/model.
-  def Agency.class_description
-    return 'Agency represents a project or organization associated with an Order.'
-  end
-
-  #------------------------------------------------------------------
   # public instance methods
   #------------------------------------------------------------------
-  # Returns a boolean value indicating whether it is safe to delete this
-  # Customer from the database. Returns +false+ if this record has dependent
-  # records in other tables, namely associated Order records. (We do not check
-  # for a BillingAddress record, because it is considered merely an extension of
-  # the Customer record; it gets destroyed when the Customer is destroyed.)
-  #
-  # This method is public but is also called as a +before_destroy+ callback.
-  # def destroyable?
-  def destroyable?
-    if orders? || requests?
-      return false
-    else
-      return true
-    end
-  end
-
-  # Returns a boolean value indicating whether this Customer has
-  # associated Order records.
-  def orders?
-   return orders.any?
-  end
-
-  # Returns a boolean value indicating whether this Customer has
-  # associated Request (unapproved Order) records.
-  def requests?
-   return requests.any?
-  end
 
   def cache_ancestry
     cached_ancestry = String.new
@@ -79,13 +41,6 @@ class Agency < ActiveRecord::Base
       cached_ancestry = path.map(&:name).join('/')
     end
     self.names_depth_cache = cached_ancestry
-  end
-
-  def total_order_count
-    # start with self.orders.size and then add all descendant agency's orders.size
-    count = self.orders.size
-    self.descendant_ids.each {|id| count += Agency.find(id).orders.size}
-    return count
   end
 
   # total_class_count accepts a Sting of a class related to Agency.  Thsi method intended to

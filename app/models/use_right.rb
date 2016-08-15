@@ -1,7 +1,7 @@
 class UseRight < ActiveRecord::Base
-  has_many :bibls
-  has_many :master_files
-  validates :name, :uniqueness => true
+   has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
+   has_many :master_files
+   validates :name, :uniqueness => true
 end
 
 # == Schema Information
@@ -12,6 +12,6 @@ end
 #  name               :string(255)
 #  created_at         :datetime
 #  updated_at         :datetime
-#  bibls_count        :integer          default(0)
+#  metadata_count     :integer          default(0)
 #  master_files_count :integer          default(0)
 #

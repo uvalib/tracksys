@@ -23,7 +23,7 @@ end
     </div>
     <div class="row">
         <div class="item w50">Condition of Item: Good / Bad</div>
-        <div class="item w50 red">Call Number: <%= if @bibl then empty2nbsp(@bibl.call_number) else empty2nbsp('') end %></div>
+        <div class="item w50 red">Call Number: <%= empty2nbsp(@metadata[:call_number]) %></div>
     </div>
     <div class="row">
         <div class="item w50">Condition Notes: ___________________</div>
@@ -31,11 +31,11 @@ end
     </div>
     <div class="row">
         <div class="item w50">_________________________________</div>
-        <div class="item w50 section-underline">Location: <%= if @bibl then empty2nbsp(@bibl.location) else empty2nbsp('') end %></div>
+        <div class="item w50 section-underline">Location: <%= empty2nbsp(@metadata[:location]) %></div>
     </div>
     <div class="row">
         <div class="item w50">_________________________________</div>
-        <div class="item w50 underline">Title: <%= if @bibl then empty2nbsp(truncate(@bibl.title, :length => 100)) else empty2nbsp('') end %></div>
+        <div class="item w50 underline">Title: <%= empty2nbsp(truncate(@metadata[:title], :length => 100)) %></div>
     </div>
     <div class="row">
         <div class="item w50">Camera/Lens: ______________________</div>

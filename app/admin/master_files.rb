@@ -43,13 +43,10 @@ ActiveAdmin.register MasterFile do
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :customer_id, :as => :numeric, :label => "Customer ID"
-   filter :bibl_id, :as => :numeric, :label => "Bibl ID"
+   filter :metadata_id, :as => :numeric, :label => "Metadata ID"
    filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-   filter :bibl_title, :as => :string, :label => "Bibl Title"
-   filter :bibl_creator_name, :as => :string, :label => "Author"
-   filter :bibl_call_number, :as => :string, :label => "Call Number"
-   filter :bibl_barcode, :as => :string, :label => "Barcode"
-   filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
+   filter :metadata_title, :as => :string, :label => "Title"
+   filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :indexing_scenario
@@ -74,12 +71,9 @@ ActiveAdmin.register MasterFile do
          format_date(mf.date_dl_ingest)
       end
       column :pid, :sortable => false
-      column ("Bibliographic Record") do |mf|
+      column ("Metadata Record") do |mf|
          div do
-            link_to "#{mf.bibl_title}", admin_bibl_path("#{mf.bibl_id}")
-         end
-         div do
-            mf.bibl_call_number
+            link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
          end
       end
       column :unit
@@ -248,16 +242,13 @@ ActiveAdmin.register MasterFile do
          row :unit do |master_file|
             link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
          end
-         row :bibl
+         row "Metadata" do |unit|
+            link_to "#{master_file.metadata.title}", "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}" if !master_file.metadata.nil?
+         end
          row :order do |master_file|
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
          row :customer
-         # row :component do |master_file|
-         #    if master_file.component
-         #       link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
-         #    end
-         # end
          row :agency
          row "Legacy Identifiers" do |master_file|
             raw(master_file.legacy_identifier_links)

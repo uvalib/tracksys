@@ -73,18 +73,21 @@ module BuildOrderPDF
          @pdf.text "Item ##{item_number}:", :font_size => 14
          @pdf.text "\n"
 
-         # Begin work on Bibl record
+         # Begin work on metadata record
          #
-         # Output all present fields in Bibl record.  Almost all values in Bibl aoptional, so tests are required.
-         @pdf.text "Title: #{unit.bibl.title}", :left => 14 if unit.bibl.title?
-         @pdf.text "Author: #{unit.bibl.creator_name}", :left => 14 if unit.bibl.creator_name?
-         @pdf.text "Call Number: #{unit.bibl.call_number}", :left => 14 if unit.bibl.call_number?
-         @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 if unit.bibl.copy?
-         @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 if unit.bibl.volume?
-         @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
-         @pdf.text "\n"
-         @pdf.text "<b>Citation:</b> <i>#{unit.bibl.get_citation}</i>", :left => 10, :inline_format => true
-         @pdf.text "\n"
+         # Output all present fields in record.  Almost all values are optional, so tests are required.
+         @pdf.text "Title: #{unit.metadata.title}", :left => 14 if unit.metadata.title?
+         @pdf.text "Author: #{unit.metadata.creator_name}", :left => 14 if unit.metadata.creator_name?
+         if unit.metadata.type == "SirsiMetadata"
+            sirsi = unit.metadata.becomes(unit.metadata.type.constantize)
+            @pdf.text "Call Number: #{sirsi.call_number}", :left => 14 if sirsi.call_number?
+            # @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 if unit.bibl.copy?
+            # @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 if unit.bibl.volume?
+            # @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
+            @pdf.text "\n"
+            @pdf.text "<b>Citation:</b> <i>#{sirsi.get_citation}</i>", :left => 10, :inline_format => true
+            @pdf.text "\n"
+         end
 
          # Create special tables to hold component information
          if unit.components.any?
