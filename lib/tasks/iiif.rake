@@ -43,9 +43,11 @@ namespace :iiif do
       raise "iiif_mount is required" if iiif_mount.blank?
       archive_mount = ENV['archive_mount']
       raise "archive_mount is required" if archive_mount.blank?
-      unit_id = ENV['unit']
-      raise "unit_id is required" if unit_id.blank?
+      unit_id = ENV['id']
+      raise "id is required" if unit_id.blank?
       unit = Unit.find(unit_id)
+      overwrite = ENV['overwrite'] == "1"
+      puts "Overwrite? #{overwrite}"
 
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
       raise "KDU_COMPRESS not found" if !File.exist?(kdu)
@@ -58,14 +60,25 @@ namespace :iiif do
          end
 
          jp2k_path = iiif_path(mf.pid)
-         if File.exists?(jp2k_path) == false
+         if File.exists?(jp2k_path) == false || overwrite == true
             source = File.join(Settings.archive_mount, mf.unit.id.to_s.rjust(9, "0"), mf.filename )
             if File.exists?(source) == false
                 puts "ERROR: source not found: #{source}"
             else
-               puts "Generate JP2K from #{source}"
+               puts "Generate JP2K from #{source} to #{jp2k_path}"
                jp2k_dir = File.dirname(jp2k_path)
                FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
+
+               # only supports uncompressed...
+               tiff = Magick::Image.read(source).first
+               unless tiff.compression.to_s == "NoCompression"
+                   source = "#{Rails.root}/tmp/tiffs/#{mf.filename}"
+                   puts "wrinting uncompresed tif #{source}"
+                   tiff.compression=Magick::CompressionType.new("NoCompression", 1)
+                   tiff.write(source)
+               end
+               tiff.destroy!
+
                if !mf.filesize.blank? && mf.filesize > 524000000
                   `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads 2`
                else
@@ -88,36 +101,4 @@ namespace :iiif do
       jp2k_path = File.join(jp2k_path, jp2k_filename)
       return jp2k_path
    end
-
-   # desc "Publish unit jp2 files to IIIF server"
-   # task :publish_unit  => :environment do
-   #    id = ENV['id']
-   #    u = Unit.find(id)
-   #    src = File.join(Settings.archive_mount, id.rjust(9, "0") )
-   #    puts "Src: #{src}"
-   #    u.master_files.each do |mf|
-   #       puts "Publish MF #{mf.pid} to IIIF server"
-   #       PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file_id: mf.id})
-   #    end
-   # end
-   #
-   # desc "Publish PATRON (non-DL) jp2 files to IIIF server"
-   # task :publish_patron  => :environment do
-   #    puts "Publishing JP2 files to IIIF for units not in DL..."
-   #    Unit.where("include_in_dl = ?",0).each do |u|
-   #       cnt = 0
-   #       src = File.join(Settings.archive_mount, u.id.to_s.rjust(9, "0") )
-   #       puts "  Unit #{u.id} from #{src}..."
-   #       u.master_files.each do |mf|
-   #          begin
-   #             PublishToIiif.exec_now({source: "#{src}/#{mf.filename}", master_file_id: mf.id})
-   #             cnt += 1
-   #          rescue Exception=>e
-   #             puts "    * Master File #{mf.id} FAILED: #{e.to_s}"
-   #          end
-   #       end
-   #       puts "    published #{cnt} images to IIIF"
-   #       raise "stop"
-   #    end
-   # end
 end
