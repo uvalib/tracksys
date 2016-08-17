@@ -13,8 +13,6 @@ module Hydra
       now_str = Time.now.strftime('%Y%m%d%H')
       date_received = now_str
       date_received = object.date_dl_ingest.strftime('%Y%m%d%H') if !object.date_dl_ingest.blank?
-
-      # init commont xsl param / value array
       payload["pid"] = "#{object.pid}"
       payload["destination"] = "#{Settings.index_destintion}"
       payload["dateReceived"] = "#{date_received}"
@@ -24,12 +22,12 @@ module Hydra
       payload["iiifRoot"] = "#{Settings.iiif_url}/"
       payload["rightsWrapperServiceUrl"] = "#{Settings.rights_wrapper_url}?pid=#{object.pid}&pagePid="
       payload["useRightsString"] = "#{object.use_right.name}"
-      payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.pid}"
+      payload["style"] = "#{Settings.tracksys_url}/api/style/#{object.indexing_scenario.id}"
       payload["source"] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=desc_metadata"
       payload["permanentUrl"] = "#{Settings.virgo_url}/#{object.pid}"
       payload["clear-stylesheet-cache"] = "yes"
 
-      if object.is_a? Bibl
+      if object.is_a? Metadata
          payload["pageCount"] = object.master_files.count.to_s
          payload["pdfServiceUrl"] = "#{Settings.pdf_url}"
          if object.availability_policy_id == 1 || object.availability_policy_id.blank?
@@ -45,14 +43,14 @@ module Hydra
             payload["exemplarPid"] = "#{object.master_files.first.pid}"
          end
 
-         # Create two String variables that hold the total data of a Bibl records' transcriptions and staff_notes
+         # Create string variables that hold the total data of a metadata records' transcriptions, descriptions and titles
          total_transcription = ""
          total_description = ""
          total_title = ""
          object.dl_master_files.each do |mf|
             total_transcription << mf.transcription_text + " " unless mf.transcription_text.nil?
-            total_description << mf.staff_notes + " " unless mf.staff_notes.nil?
-            total_title << mf.name_num + " " unless mf.name_num.nil?
+            total_description << mf.description + " " unless mf.description.nil?
+            total_title << mf.title + " " unless mf.title.nil?
          end
          total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_transcription.blank?
          total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_description.blank?
@@ -71,33 +69,27 @@ module Hydra
 
          return solr_transform(object, payload)
       elsif object.is_a? MasterFile
-         if object.bibl.availability_policy_id == 1 || object.bibl.availability_policy_id.blank?
+         if object.metadata.availability_policy_id == 1 || object.metadata.availability_policy_id.blank?
             availability_policy_pid = false
          else
-            availability_policy_pid = object.bibl.availability_policy.pid
+            availability_policy_pid = object.metadata.availability_policy.pid
          end
          payload["policyFacet"] = "#{availability_policy_pid}"
          payload["exemplarPid"] = "#{object.pid}"
 
-         payload["parentModsRecord"] = "#{Settings.tracksys_url}/api/metadata/#{object.bibl.pid}?type=desc_metadata"
+         payload["parentModsRecord"] = "#{Settings.tracksys_url}/api/metadata/#{object.metadata.pid}?type=desc_metadata"
          total_transcription = object.transcription_text.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.transcription_text.blank?
          total_description = object.description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.description.blank?
          total_title = object.title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless object.title.blank?
          payload["totalTitles"] = "#{total_title}"
          payload["totalDescriptions"] = "#{total_description}"
          payload["totalTranscriptions"] = "#{total_transcription}"
-         payload["analogSolrRecord"] = "#{Settings.solr_url}/core/select?q=id%3A#{object.bibl.catalog_key}"
+         if object.metadata.type == "SirsiMetadata"
+            sirsi_metadata = object.metadata.becomes(SirsiMetadata)
+            payload["analogSolrRecord"] = "#{Settings.solr_url}/core/select?q=id%3A#{sirsi_metadata.catalog_key}"
+         end
 
          return solr_transform(object, payload)
-      # elsif object.is_a? Component
-      #    # Return the response from the getIndexingMetadata Fedora Disseminator
-      #    destination = ""
-      #    if object.index_destination && object.index_destination_id > 1
-      #       destination = object.index_destination.name
-      #    else
-      #       destination = IndexDestination.find(1).name # 'searchdev' as a default
-      #    end
-      #    return open("#{FEDORA_REST_URL}/objects/#{object.pid}/methods/uva-lib%3AindexableSDef/getIndexingMetadata?released_facet=#{destination.to_s}").read
       else
          raise "Unexpected object type passed to Hydra.solr.  Please inspect code"
       end
@@ -113,8 +105,7 @@ module Hydra
       return response.body
    end
 
-   # given the output of an object's solr_xml method, return a
-   # solr-ruby object, e.g., doc = read_solr_xml(bibl.solr_xml)
+   # given the output of an object's solr_xml method, return a solr-ruby object
    def self.read_solr_xml(solr_xml)
       xml = Nokogiri::XML(solr_xml) { |config| config.strict.nonet }  # Issue #194 strict parsing here will throw an error instead of posting BAD xml
       doc = Solr::Document.new
@@ -129,7 +120,7 @@ module Hydra
       return doc
    end
 
-   # Takes a Bibl, Component, or MasterFile record and returns a string
+   # Takes Metadata, Component or MasterFile record and returns a string
    # containing metadata indicating external relationships (Fedora RELS-EXT
    # datastream), in the form of an RDF XML document.
    def self.rels_ext(object)
@@ -167,18 +158,17 @@ module Hydra
                   parent_pid = object.component.pid
                   xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                else
-                  parent_pid = object.unit.bibl.pid
+                  parent_pid = object.unit.metadata.pid
                   xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                   xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                end
-            elsif object.is_a? Bibl
+            elsif object.is_a? Metadata
                if object.parent_bibl
                   parent_pid = object.parent_bibl.pid
                   xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                end
             else
             end
-
 
             if object.is_a? Component
                # Assign visibility status for Components
@@ -206,9 +196,9 @@ module Hydra
                end
             end
 
-            # Acquire PID of image that has been selected as the exemplar image for this Bibl.
+            # Acquire PID of image that has been selected as the exemplar image for this record.
             # Exemplar images are used in the Blacklight display on the _index_partial/_dl_jp2k view.
-            if object.is_a? Bibl
+            if object.is_a? Metadata
                if object.exemplar
                   exemplar_master_file = MasterFile.find_by(filename: object.exemplar)
                   if !exemplar_master_file.nil?
@@ -216,14 +206,14 @@ module Hydra
                      xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"
                   end
                else
-                  # Using the mean of the files output from the method in Bibl model to get only those masterfiles
-                  # associated with this Bibl record that belong to units that have already been queued for ingest.
+                  # Using the mean of the files output from the method in metadata model to get only those masterfiles
+                  # associated with this metadata record that belong to units that have already been queued for ingest.
                   #
                   # dl_master_files might return Nil prior to ingest, so we will use the master_files method
                   mean_of_master_files = object.master_files.length / 2
                   pid = object.master_files[mean_of_master_files.to_i].pid
 
-                  # save master file designated as the exemplar to the Bibl record
+                  # save master file designated as the exemplar to the metadata record
                   object.exemplar = object.master_files[mean_of_master_files.to_i].filename
                   object.save!
 
@@ -247,7 +237,7 @@ module Hydra
 
             # Indicate content model using <fedora-model:hasModel>
             content_models = Array.new
-            if object.is_a? Bibl
+            if object.is_a? Metadata
                content_models.push(Fedora_content_models['fedora-generic'])
                if object.dpla
                   if object.parent_bibl
@@ -290,21 +280,21 @@ module Hydra
 
    #-----------------------------------------------------------------------------
 
-   # Takes a Bibl, Component, or MasterFile record and returns a string
+   # Takes a Metadata Record, Component, or MasterFile record and returns a string
    # containing descriptive metadata, in the form of a MODS XML document. See
    # http://www.loc.gov/standards/mods/
    #
-   # By default, all Units associated with the Bibl are exported. Optionally
+   # By default, all Units associated with the Metadata record are exported. Optionally
    # takes an array of Unit records which serves as a filter for the Units to
    # be exported; that is, a Unit must be included in the array passed to be
    # included in the export.
+   #
    def self.desc(object, units_filter = nil)
-      # If there is a Bibl with MARC XML available, that MARC XML will be transformed into
+      # If there is a Metadata record with Sirsi MARC XML available, that MARC XML will be transformed into
       # the MODS that will be ingested as the Hydra-compliant descMetadata
-      if object.is_a? Bibl and object.catalog_key
-         # Need to modify the output of mods_from_marc to include local identifier used to determine
-         # discoverablity in the index.
-         doc = Nokogiri::XML(mods_from_marc(object))
+      if object.is_a? Metadata and object.type == "SirsiMetadata"
+         sirsi_metadata = object.becomes(SirsiMetadata)
+         doc = Nokogiri::XML( mods_from_marc(sirsi_metadata) )
          last_node = doc.xpath("//mods:mods/mods:location").last
 
          # Add node for indexing
@@ -315,22 +305,15 @@ module Hydra
          index_node.content = "#{object.pid}"
          last_node.add_next_sibling(index_node)
 
-         # Add node with Fedora PID
-         pid_node = Nokogiri::XML::Node.new "identifier", doc
-         pid_node['type'] = 'pid'
-         pid_node['displayLabel'] = 'UVA Library Fedora Repository PID'
-         pid_node.content = "#{object.pid}"
-         last_node.add_next_sibling(pid_node)
-
-         # Add node with Tracksys Bibl ID
-         bibl_id_node = Nokogiri::XML::Node.new "identifier", doc
-         bibl_id_node['type'] = 'local'
-         bibl_id_node['displayLabel'] = 'Digital Production Group Tracksys Bibl ID'
-         bibl_id_node.content = "#{object.id}"
-         last_node.add_next_sibling(bibl_id_node)
+         # Add node with Tracksys Metadata ID
+         metadata_id_node = Nokogiri::XML::Node.new "identifier", doc
+         metadata_id_node['type'] = 'local'
+         metadata_id_node['displayLabel'] = 'Digital Production Group Tracksys Metadata ID'
+         metadata_id_node.content = "#{object.id}"
+         last_node.add_next_sibling(metadata_id_node)
 
          # Add nodes with Unit IDs that are included in DL
-         object.units.each {|unit|
+         object.units.each do |unit|
             if unit.include_in_dl == true
                unit_id_node = Nokogiri::XML::Node.new "identifier", doc
                unit_id_node['type'] = 'local'
@@ -338,28 +321,33 @@ module Hydra
                unit_id_node.content = "#{unit.id}"
                last_node.add_next_sibling(unit_id_node)
             end
-         }
+         end
 
          output = doc.to_xml
       else
+         # Object is not sirsi metadata
          output = ''
          xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
          xml.instruct! :xml  # Include XML declaration
 
-         if object.is_a? Bibl
-            mods_bibl(xml, object, units_filter)
+         # If it is metadata, it must be XML metadata
+         if object.is_a? Metadata
+            mods_from_xml_metadata(xml, object, units_filter)
          else
+            # Must be a master file
             xml.mods(:mods,
                "xmlns:mods".to_sym => Fedora_namespaces['mods'],
                "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
                "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
             )
-            mods_master_file(xml, object)
+            mods_from_master_file(xml, object)
          end
       end
       return output
    end
 
+   # Generate mods from sirsi metadata
+   #
    def self.mods_from_marc(object)
       xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl")
       i0 = xslt_str.index "<xsl:include"
@@ -367,7 +355,21 @@ module Hydra
       inc = "<xsl:include href=\"#{Rails.root}/lib/xslt/MARC21slimUtils.xsl\"/>"
       fixed = "#{xslt_str[0...i0]}#{inc}#{xslt_str[i1+1...-1]}"
       xslt = Nokogiri::XSLT(fixed)
+
+      # first try virgi as a source for marc as it has filterd out sensitive data
+      # If not found, the response will just be: <?xml version="1.0"?> with no mods: info
       xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
+      if xml.to_s.include?("mods:") == false
+         # Not found, try solr index. If found, data is wrapped in a collection. Fix it
+         xml_string = Virgo.get_marc(object.catalog_key)
+         idx = xml_string.index("<record>")
+         a = xml_string[idx..-1]
+         idx = a.index("</collection>")
+         b = a[0...idx]
+         c = b.gsub(/<record>/, "<record xmlns=\"http:\/\/www.loc.gov\/MARC21\/slim\">")
+         xml = Nokogiri::XML( c )
+      end
+
       mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'"])
 
       # In order to reformat and pretty print the MODS record after string insertion, the document is reopened and then
@@ -378,83 +380,68 @@ module Hydra
       return doc.to_xml
    end
 
-   # Outputs descriptive metadata for a Bibl record as a MODS document
-   def self.mods_bibl(xml, bibl, units_filter)
+   # Outputs descriptive metadata for a metadata record as a MODS document
+   #
+   def self.mods_from_xml_metadata(xml, metadata, units_filter)  ## TODO STOPPED
       # start <mods:mods> element
       xml.mods(:mods,
-      "xmlns:mods".to_sym => Fedora_namespaces['mods'],
-      "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
-      "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
+         "xmlns:mods".to_sym => Fedora_namespaces['mods'],
+         "xmlns:xsi".to_sym => Fedora_namespaces['xsi'],
+         "xsi:schemaLocation".to_sym => Fedora_namespaces['mods'] + ' ' + Schema_locations['mods']
       ) do
 
          # Put PID for object into MODS.  In order to transform this into a SOLR doc, there must be a PID in the MODS.
-         xml.mods :identifier, bibl.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
-
-         # Create an identifier statement that indicates whether this item will be uniquely discoverable in VIRGO.  Default for an individual bibl will be to
-         # display the SOLR record (i.e. no 'invalid' attribute).  Will draw value from bibl.discoverability.
-         if bibl.discoverability
-            xml.mods :identifier, bibl.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
+         xml.mods :identifier, metadata.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
+         if metadata.discoverability
+            xml.mods :identifier, metadata.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO'
          else
-            xml.mods :identifier, bibl.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
+            xml.mods :identifier, metadata.pid, :type =>'uri', :displayLabel => 'Accessible index record displayed in VIRGO', :invalid => 'yes'
          end
 
          # type of resource
-         if bibl.is_manuscript? and bibl.is_collection?
-            xml.mods :typeOfResource, bibl.resource_type, :manuscript => 'yes', :collection => 'yes'
-         elsif bibl.is_manuscript?
-            xml.mods :typeOfResource, bibl.resource_type, :manuscript => 'yes'
-         elsif bibl.is_collection?
-            xml.mods :typeOfResource, bibl.resource_type, :collection => 'yes'
+         if metadata.is_manuscript? and metadata.is_collection?
+            xml.mods :typeOfResource, metadata.resource_type, :manuscript => 'yes', :collection => 'yes'
+         elsif metadata.is_manuscript?
+            xml.mods :typeOfResource, metadata.resource_type, :manuscript => 'yes'
+         elsif metadata.is_collection?
+            xml.mods :typeOfResource, metadata.resource_type, :collection => 'yes'
          else
-            xml.mods :typeOfResource, bibl.resource_type
+            xml.mods :typeOfResource, metadata.resource_type
          end
 
          # genre
-         unless bibl.genre.blank?
-            xml.mods :genre, bibl.genre, :authority => 'marcgt'
+         unless metadata.genre.blank?
+            xml.mods :genre, metadata.genre, :authority => 'marcgt'
          end
 
          # title
-         unless bibl.title.blank?
+         unless metadata.title.blank?
             xml.mods :titleInfo do
-               xml.mods :title, bibl.title
+               xml.mods :title, metadata.title
             end
-         end
-
-         # description
-         unless bibl.description.blank?
-            xml.mods :abstract, bibl.description
          end
 
          # creator
-         unless bibl.creator_name.blank?
-            if bibl.creator_name_type.blank?
-               # omit 'type' attribute
-               xml.mods :name do
-                  xml.mods :namePart, bibl.creator_name
-               end
-            else
-               # include 'type' attribute
-               xml.mods :name, :type => bibl.creator_name_type do
-                  xml.mods :namePart, bibl.creator_name
-               end
+         unless metadata.creator_name.blank?
+            xml.mods :name do
+               xml.mods :namePart, metadata.creator_name
             end
          end
 
-         mods_originInfo(xml, bibl, units_filter)
-         mods_physicalDescription(xml, bibl, units_filter)
-         mods_location(xml, bibl)
-         mods_recordInfo(xml, bibl)
+         mods_originInfo(xml, metadata, units_filter)
+         mods_physicalDescription(xml, metadata, units_filter)
+         mods_location(xml, metadata)
+         mods_recordInfo(xml)
       end  # </mods:mods>
    end
-   private_class_method :mods_bibl
+   private_class_method :mods_from_xml_metadata
 
    #-----------------------------------------------------------------------------
 
    # Outputs a +mods:location+ element
-   def self.mods_location(xml, bibl)
+   def self.mods_location(xml, metadata)
       xml.mods :location do
-         if bibl.is_personal_item
+         if metadata.is_personal_item
             xml.mods :physicalLocation, '[personal copy]'
          else
             #xml.mods :physicalLocation, 'University of Virginia Library'
@@ -462,14 +449,6 @@ module Hydra
          end
 
          xml.mods :url, @xml_file_name, :usage => 'primary display', :access => 'object in context'
-
-         unless bibl.copy.blank?
-            xml.mods :holdingSimple do
-               xml.mods :copyInformation do
-                  xml.mods :enumerationAndChronology, "copy #{bibl.copy}"
-               end
-            end
-         end
       end
    end
    private_class_method :mods_location
@@ -477,7 +456,7 @@ module Hydra
    #-----------------------------------------------------------------------------
 
    # Outputs a MasterFile record as a +mods:relatedItem+ element
-   def self.mods_master_file(xml, master_file, count = nil)
+   def self.mods_from_master_file(xml, master_file, count = nil)
 
       # Put PID for object into MODS.  In order to transform this into a SOLR doc, there must be a PID in the MODS.
       xml.mods :identifier, master_file.pid, :type =>'pid', :displayLabel => 'UVA Library Fedora Repository PID'
@@ -533,18 +512,17 @@ module Hydra
          xml.mods :note, master_file.staff_notes
       end
    end
-   private_class_method :mods_master_file
+   private_class_method :mods_from_master_file
 
    #-----------------------------------------------------------------------------
 
    # Outputs a +mods:originInfo+ element
-   def self.mods_originInfo(xml, bibl, units_filter)
+   def self.mods_originInfo(xml, metadata, units_filter)
       xml.mods :originInfo do
          # date captured (date of digitization)
-         # Looking at the units associated with this bibl record, use the latest
-         # date_completed value.
+         # Use the latest date_completed value from associated units
          date_completed = nil
-         bibl.units.each do |unit|
+         metadata.units.each do |unit|
             next if units_filter.is_a? Array and ! units_filter.include? unit
             if not unit.date_archived.blank?
                if date_completed.blank?
@@ -570,13 +548,13 @@ module Hydra
    #-----------------------------------------------------------------------------
 
    # Outputs a +mods:physicalDescription+ element
-   def self.mods_physicalDescription(xml, bibl, units_filter)
+   def self.mods_physicalDescription(xml, metadata, units_filter)
       xml.mods :physicalDescription do
          # Determine extent -- that is, number of files. First preference is to count
-         # MasterFile records associated with this bibl record; second is
+         # MasterFile records associated with this record; second is
          # unit_extent_actual value; last resort is unit_extent_estimated value.
          c = 0
-         bibl.units.each do |unit|
+         metadata.units.each do |unit|
             next if units_filter.is_a? Array and ! units_filter.include? unit
             if unit.master_files.size > 0
                c += unit.master_files.size
@@ -604,7 +582,7 @@ module Hydra
    #-----------------------------------------------------------------------------
 
    # Outputs a +mods:recordInfo+ element
-   def self.mods_recordInfo(xml, bibl)
+   def self.mods_recordInfo(xml)
       xml.mods :recordInfo do
          # organization that created this MODS metadata record
          xml.mods :recordContentSource, 'viu', :authority => 'marcorg'

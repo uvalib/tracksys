@@ -98,19 +98,19 @@ class CreateDlManifest < BaseJob
                sheet.add_row
 
                # Image Counts
-               public_image_count = MasterFile.in_digital_library.joins(:bibl).where("bibls.availability_policy_id = 1").count
-               uva_only_image_count = MasterFile.in_digital_library.joins(:bibl).where("bibls.availability_policy_id = 3").count
+               public_image_count = MasterFile.in_digital_library.joins(:metadata).where("metadata.availability_policy_id = 1").count
+               uva_only_image_count = MasterFile.in_digital_library.joins(:metadata).where("metadata.availability_policy_id = 3").count
                total_image_count = MasterFile.in_digital_library.count
 
-               # Bibliographic Record Counts
-               public_bibl_record_count = Bibl.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 1).count
-               uva_only_bibl_record_count = Bibl.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 3).count
-               total_bibl_count = Bibl.in_digital_library.count
+               # Metadata Record Counts
+               public_metadata_record_count = Metadata.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 1).count
+               uva_only_metadata_record_count = Metadata.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 3).count
+               total_metadata_count = Metadata.in_digital_library.count
 
                sheet.add_row [nil, "Image Counts", nil, nil, "Catalog Record Counts", nil, nil], :style => [nil, @summary_subheadings, @summary_subheadings, nil, @summary_subheadings, @summary_subheadings, nil]
-               sheet.add_row [nil, "Public", "#{public_image_count}", nil, "Public", "#{public_bibl_record_count}", nil], :style => [nil, @summary_table_text_content, @summary_table_number_content, nil, @summary_table_text_content, @summary_table_number_content, nil]
-               sheet.add_row [nil, "UVA Only", "#{uva_only_image_count}", nil, "UVA Only", "#{uva_only_bibl_record_count}", nil], :style => [nil, @summary_table_text_content, @summary_table_number_content, nil, @summary_table_text_content, @summary_table_number_content, nil]
-               sheet.add_row [nil, "Total", "#{total_image_count}", nil, "Total", "#{total_bibl_count}", nil], :style => [nil, @summary_table_totals, @summary_table_totals, nil, @summary_table_totals, @summary_table_totals, nil]
+               sheet.add_row [nil, "Public", "#{public_image_count}", nil, "Public", "#{public_metadata_record_count}", nil], :style => [nil, @summary_table_text_content, @summary_table_number_content, nil, @summary_table_text_content, @summary_table_number_content, nil]
+               sheet.add_row [nil, "UVA Only", "#{uva_only_image_count}", nil, "UVA Only", "#{uva_only_metadata_record_count}", nil], :style => [nil, @summary_table_text_content, @summary_table_number_content, nil, @summary_table_text_content, @summary_table_number_content, nil]
+               sheet.add_row [nil, "Total", "#{total_image_count}", nil, "Total", "#{total_metadata_count}", nil], :style => [nil, @summary_table_totals, @summary_table_totals, nil, @summary_table_totals, @summary_table_totals, nil]
                sheet.merge_cells("B4:C4")
                sheet.merge_cells("E4:F4")
 
@@ -157,8 +157,8 @@ class CreateDlManifest < BaseJob
                sheet.column_info[6].width = 2
             end
 
-            generate_worksheet(wb, 'Publicly Available', Bibl.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 1))
-            generate_worksheet(wb, 'UVA Only', Bibl.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 3))
+            generate_worksheet(wb, 'Publicly Available', Metadata.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 1))
+            generate_worksheet(wb, 'UVA Only', Metadata.in_digital_library.where(:discoverability => true).where(:availability_policy_id => 3))
          end
          p.use_autowidth = false
          s = p.to_stream()
@@ -168,15 +168,23 @@ class CreateDlManifest < BaseJob
    end
 
   # Helper method for creating DL Manifest XLS file
-  def generate_worksheet(wb, name, bibls)
+  def generate_worksheet(wb, name, metadata_records)
      wb.add_worksheet(:name => name) do |sheet|
         row_number = 2 # Since title row is 1, we start at 2.
         sheet.add_row ['Title', 'Author', 'Call Number', 'Date Created', '# of images', 'Date Ingested', 'Link'], :style => @header_text
-        bibls.each do |bibl|
+        metadata_records.each do |md|
+           call_number = "N/A"
+           year = "N/A"
+           if md.type == "SirsiMetadata"
+             smd = md.becomes(SirsiMetadata)
+             call_number = smd.call_number
+             year = smd.get_full_metadata[:year]
+           end
            style = row_number.odd? ? @wrap_text_even : @wrap_text_odd
-           # row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.dl_image_count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
-           row = sheet.add_row ["#{bibl.title}", "#{bibl.creator_name}", "#{bibl.call_number}", "#{bibl.year}", "#{bibl.master_files.in_digital_library.count}", "#{bibl.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
-           sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{bibl.pid}", :ref => "G#{row.row_index + 1}"
+           row = sheet.add_row [
+             "#{md.title}", "#{md.creator_name}", "#{call_number}", "#{year}", "#{md.master_files.in_digital_library.count}",
+             "#{md.date_dl_ingest.strftime('%Y-%m-%d')}", "VIRGO"], :style => style
+           sheet.add_hyperlink :location => "http://search.lib.virginia.edu/catalog/#{md.pid}", :ref => "G#{row.row_index + 1}"
            sheet["G#{row.row_index + 1}"].style = @blue_link
            row_number += 1
         end

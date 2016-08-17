@@ -10,12 +10,12 @@ class Api::MetadataController < ApplicationController
       id = pid_bits.last
       resource_type = pid_bits.first[2].upcase
       if resource_type == "B"
-         object = Bibl.find(id)
+         object = Metadata.find(id)
       elsif resource_type == "M"
          object = MasterFile.find(id)
       else
          # see if it is an old-style PID
-         object = Bibl.find_by(pid: params[:pid])
+         object = Metadata.find_by(pid: params[:pid])
          if object.nil?
             object = MasterFile.find_by(pid: params[:pid])
          end

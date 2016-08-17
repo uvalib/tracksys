@@ -205,16 +205,16 @@ class QaFilesystemAndIviewXml < BaseJob
             end
          end
 
-         # TODO: If unit.bibl.is_manuscript? there should be <SetName> that contain useful information
-         # Check for <SetList> element
+         # If is_manuscript? there should be <SetName> that contain useful information
          if root.xpath('SetList/Set').empty?
             has_SetList = false
          else
             has_SetList = true
          end
 
-         # Raise error if the Bibl record is a manuscript but there are no <SetList> elements or if it has <SetList> elements but is not a manuscript Bibl.
-         if @unit.bibl.is_manuscript?
+         # Raise error if the metadata record is a manuscript but there are no <SetList>
+         # elements or if it has <SetList> elements but is not a manuscript.
+         if @unit.metadata.is_manuscript?
             unless has_SetList == true
                @error_messages.push("Unit pertains to a manuscript, but XML has no <SetList> element.")
             end

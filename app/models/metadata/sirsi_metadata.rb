@@ -162,6 +162,10 @@ class SirsiMetadata < Metadata
       end
    end
 
+   def get_full_metadata
+      return Virgo.external_lookup(self.catalog_key, self.barcode)
+   end
+
    # Although many Bibl records have citations provided through the MARC record, many do not
    # (especially those which lack a MARC record or are otherwise not cataloged in VIRGO).  As
    # a result, this method will impose some general order on the act of creating citations where

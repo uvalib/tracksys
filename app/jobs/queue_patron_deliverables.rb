@@ -11,15 +11,23 @@ class QueuePatronDeliverables < BaseJob
       # NOTES: in this case source is File.join(PROCESS_DELIVERABLES_DIR, 'patron', unit_dir)
       # where unit_dir is the 9-digit, 0-padded unit ID
 
+      call_number = nil
+      location = nil
+      if unit.metadata.type == "SirsiMetadata"
+         sm = unit.metadata.becomes(SirsiMetadata)
+         call_number = sm.call_number
+         location = sm.get_full_metadata[:location]
+      end
+
       unit.master_files.each do |master_file|
          file_source = File.join(source, master_file.filename)
          CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id,
             :source => file_source, :format => unit.intended_use_deliverable_format,
             :actual_resolution => master_file.image_tech_meta.resolution,
             :desired_resolution => unit.intended_use_deliverable_resolution,
-            :unit_id => unit.id, :personal_item => unit.bibl.personal_item?,
-            :call_number => unit.bibl.call_number, :title => unit.bibl.title,
-            :location => unit.bibl.location, :remove_watermark => unit.remove_watermark}, self)
+            :unit_id => unit.id, :personal_item => unit.metadata.personal_item?,
+            :call_number => call_number, :title => unit.metadata.title,
+            :location => location, :remove_watermark => unit.remove_watermark}, self)
 
          # also send to IIIF server for thumbnail generation and visibility from archivesspace
          PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)

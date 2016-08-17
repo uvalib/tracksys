@@ -81,9 +81,6 @@ module BuildOrderPDF
          if unit.metadata.type == "SirsiMetadata"
             sirsi = unit.metadata.becomes(unit.metadata.type.constantize)
             @pdf.text "Call Number: #{sirsi.call_number}", :left => 14 if sirsi.call_number?
-            # @pdf.text "Copy: #{unit.bibl.copy}", :left => 14 if unit.bibl.copy?
-            # @pdf.text "Volume: #{unit.bibl.volume}", :left => 14 if unit.bibl.volume?
-            # @pdf.text "Issue: #{unit.bibl.issue}", :left => 14 if unit.bibl.issue?
             @pdf.text "\n"
             @pdf.text "<b>Citation:</b> <i>#{sirsi.get_citation}</i>", :left => 10, :inline_format => true
             @pdf.text "\n"

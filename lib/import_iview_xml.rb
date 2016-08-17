@@ -88,8 +88,8 @@ module ImportIviewXml
              end
              master_file.save!
 
-             # Only attempt to link MasterFiles with Components if the MasterFile's Bibl record is a manuscript item
-             if unit.bibl && unit.bibl.is_manuscript?
+             # Only attempt to link MasterFiles with Components if the MasterFile's metadata record is a manuscript item
+             if unit.metadata && unit.metadata.is_manuscript?
                # Determine if this newly created MasterFile's <UniqueID> (now saved in the iview_id variable)
                # is part of a <Set> within this Iview XML.  If so grab it and find the PID value.
                #
@@ -360,11 +360,11 @@ public
       errors << "File does not contain an iView XML document: <MediaItemList> element was not found"
     end
     # Extra checks for SetList (used to link MasterFiles to Component hierarchy)
-    if unit.bibl && unit.bibl.is_manuscript?
+    if unit.metadata && unit.metadata.is_manuscript?
       media_item_list=root.xpath('//MediaItemList//UniqueID').map(&:content)
       set_list=root.xpath('//SetList//UniqueID').map(&:content)
       if root.xpath('//SetList').empty?
-        errors << "iView Catalog #{unit.id} has no SetList, but Unit #{unit.id} has Bibl flagged as Manuscript Item"
+        errors << "iView Catalog #{unit.id} has no SetList, but Unit #{unit.id} has metadata flagged as Manuscript Item"
       elsif media_item_list.sort != set_list.sort # count might be OK, but identifiers must be all accounted for (order may differ)
         if media_item_list != ( media_item_list|set_list ) # media_item_list is missing a UniqueID
           errors << "iView Catalog #{unit.id} has images appearing in Catalog Sets which have no technical metadata in Iview XML"

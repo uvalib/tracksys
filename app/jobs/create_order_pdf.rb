@@ -1,4 +1,4 @@
-# Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its Bibl records, citation statement,
+# Create a PDF file the contains all order metadata.  Each unit of digitization is enumerate with its metadata records, citation statement,
 # Component records, EADRef references and a list of the MasterFile images with their individual metadata.
 
 class CreateOrderPdf < BaseJob

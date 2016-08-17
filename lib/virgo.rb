@@ -196,6 +196,13 @@ module Virgo
     end
   end
 
+  def self.get_marc(catalog_key)
+     xml_doc = query_metadata_server(catalog_key)
+     doc = xml_doc.xpath(xml_doc, "/response/result/doc").first
+     el = doc.xpath( "str[@name='marc_display']" ).first
+     return Nokogiri::XML(el.text).to_xml
+  end
+
 
   #-----------------------------------------------------------------------------
   # private methods
@@ -278,7 +285,7 @@ module Virgo
   #-----------------------------------------------------------------------------
 
   # Pulls values from the XML element (Nokogiri::XML::Element object) passed and plugs
-  # those values into the corresponding attributes of the Bibl object passed.
+  # those values into the corresponding attributes of the metadata object passed.
   #
   # Third parameter is a barcode value to be used for comparison against the
   # barcode from the external metadata record. For some fields, such comparison

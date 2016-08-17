@@ -35,9 +35,9 @@ class QaUnitData < BaseJob
          failure_messages << "Unit #{unit.id} must have a valid unit status."
       end
 
-      # Check if unit is assigned to bibl record
-      if not unit.bibl
-         failure_messages << "Unit #{unit.id} is not assigned to a bibl record."
+      # Check if unit is assigned to metadata record
+      if not unit.metadata
+         failure_messages << "Unit #{unit.id} is not assigned to a metadata record."
       end
 
       # Fail if unit.intended_use is blank

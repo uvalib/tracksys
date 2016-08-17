@@ -10,11 +10,11 @@ class PropogateDlAttributes < BaseJob
       source = message[:source]
       object = message[:object]
       unit = message[:unit]
-      bibl = unit.bibl
+      metadata = unit.metadata
 
       # sanity check all attributes are in place
-      if bibl.availability_policy.nil?
-         on_error "Bibl #{unit.bibl.id} for Unit #{unit.id} has no availability value.  Please fill in and restart ingestion."
+      if metadata.availability_policy.nil?
+         on_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and restart ingestion."
       end
       if unit.master_file_discoverability.nil?
          on_error "Unit #{unit.id} has no discoverability value.  Please fill in and restart ingestion."

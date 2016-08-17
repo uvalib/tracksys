@@ -109,6 +109,7 @@ class Unit < ActiveRecord::Base
 
    def ready_for_repo?
       return false if self.include_in_dl == false
+      return false if self.metadata.nil?
       return false if self.metadata.availability_policy_id.nil?
       return true if self.date_queued_for_ingest.nil? and not self.date_archived.nil?
       return false

@@ -1,15 +1,14 @@
 class Api::StyleController < ApplicationController
    def show
-      render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
-      pid = params[:pid]
-      if pid.downcase.include? "default"
+      is = IndexingScenario.find_by(id: params[:id])
+      render :text=>"Could not find indexing scenario", status: :not_found and return if is.nil?
+
+      if is.name.downcase.include? "default"
          style_xsl = File.read("#{Rails.root}/lib/xslt/defaultModsTransformation.xsl")
          render :xml=>style_xsl
-      elsif pid.downcase.include? "holsinger"
+      else
          style_xsl = File.read("#{Rails.root}/lib/xslt/holsingerTransformation.xsl")
          render :xml=>style_xsl
-      else
-         render :text=>"Could not find PID", status: :not_found
       end
    end
 end

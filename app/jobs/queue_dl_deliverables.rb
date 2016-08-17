@@ -8,8 +8,8 @@ class QueueDlDeliverables < BaseJob
       source = message[:source]
 
       # get a list of all items related to this unit
-      # Always add a unit's Bibl, master files and components (and their ancestors)
-      things = [unit.bibl]
+      # Always add a unit's metadata, master files and components (and their ancestors)
+      things = [unit.metadata]
       unit.master_files.each {|mf| things << mf }
       unit.components.each do |component|
          things << component
@@ -21,9 +21,9 @@ class QueueDlDeliverables < BaseJob
       things.flatten!
       things.uniq.each do |thing|
 
-         # LFF Don't send the top-level Daily Progress component or bibl
+         # LFF Don't send the top-level Daily Progress
          if thing.pid == "uva-lib:2137307" || thing.pid == "uva-lib:2065830"
-            logger.info "Skipping Daily Progress top-level component/bibl (pid: #{thing.pid})"
+            logger.info "Skipping Daily Progress top-level item (pid: #{thing.pid})"
             next
          end
 
