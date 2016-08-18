@@ -6,3 +6,5 @@
 //= require rainbow.min
 //= require html
 //= require ocr
+//= require codemirror
+//= require_tree ./mode/

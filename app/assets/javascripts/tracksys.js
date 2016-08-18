@@ -73,4 +73,11 @@ $(function() {
          }
       });
    });
+
+   if ( $("#xml_metadata_desc_metadata").length > 0 ) {
+      var extractor = new Xsd2Json("mods-3-3.xsd", {"schemaURI":"/schemas/mods-3-3/"});
+      $("#xml_metadata_desc_metadata").xmlEditor({
+         schema: extractor.getSchema()
+      });
+   }
 });
