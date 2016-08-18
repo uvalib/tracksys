@@ -39,13 +39,12 @@ class CheckUnitDeliveryMode < BaseJob
 
       # All units with no deliverables (either patron or DL) get sent to IIIF and the archive now
       if has_deliverables == false
-         SendUnitToArchive.exec_now({ :unit => unit, :internal_dir => true, :source_dir => IN_PROCESS_DIR }, self)
-
+         on_success "Unit #{unit.id} has no deliverables so is being sent directly to IIIF and the archive."
          unit.master_files.each do |master_file|
             file_source = File.join(source_dir, master_file.filename)
             PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
          end
-         on_success "Unit #{unit.id} has no deliverables so is being sent directly to IIIF and the archive."
+         SendUnitToArchive.exec_now({ :unit => unit, :internal_dir => true, :source_dir => IN_PROCESS_DIR }, self)
       end
    end
 end
