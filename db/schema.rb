@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160815135016) do
+ActiveRecord::Schema.define(version: 20160819154919) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -320,7 +320,6 @@ ActiveRecord::Schema.define(version: 20160815135016) do
     t.boolean  "dpla",                                 default: false
     t.string   "collection_facet",       limit: 255
     t.string   "type",                   limit: 255,   default: "SirsiMetadata"
-    t.string   "xml_schema",             limit: 255
     t.text     "external_attributes",    limit: 65535
   end
 

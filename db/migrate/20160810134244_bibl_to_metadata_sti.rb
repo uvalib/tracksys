@@ -34,10 +34,6 @@ class BiblToMetadataSti < ActiveRecord::Migration
      # Add the STI type column
      add_column :metadata, :type, :string, :default=>"SirsiMetadata"  # XML and ArchivesSpace are other options
 
-     # Add a few columns to manage differences for specific types
-     # XML Metadata
-     add_column :metadata, :xml_schema, :string
-
      # External metadata attributes. Stored as a hash.
      # USed to provide conext for finding metdata from external source
      add_column :metadata, :external_attributes, :text

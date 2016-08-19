@@ -74,10 +74,74 @@ $(function() {
       });
    });
 
+   /**
+    * XML EDITOR STUFF
+    */
+   function completeAfter(cm, pred) {
+      var cur = cm.getCursor();
+      if (!pred || pred()) setTimeout(function() {
+         if (!cm.state.completionActive) {
+            cm.showHint({completeSingle: false});
+         }
+      }, 100);
+      return CodeMirror.Pass;
+   }
+
+   function completeIfAfterLt(cm) {
+      return completeAfter(cm, function() {
+         var cur = cm.getCursor();
+         return cm.getRange(CodeMirror.Pos(cur.line, cur.ch - 1), cur) == "<";
+      });
+   }
+
+   function completeIfInTag(cm) {
+      return completeAfter(cm, function() {
+         var tok = cm.getTokenAt(cm.getCursor());
+         if (tok.type == "string" && (!/['"]/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1)) return false;
+         var inner = CodeMirror.innerMode(cm.getMode(), tok.state).state;
+         return inner.tagName;
+      });
+   }
+
    if ( $("#xml_metadata_desc_metadata").length > 0 ) {
-      var extractor = new Xsd2Json("mods-3-3.xsd", {"schemaURI":"/schemas/mods-3-3/"});
-      $("#xml_metadata_desc_metadata").xmlEditor({
-         schema: extractor.getSchema()
+      var cm = CodeMirror.fromTextArea( $("#xml_metadata_desc_metadata")[0], {
+         mode: "xml",
+         lineNumbers: true,
+         lineWrapping: true,
+         foldGutter: true,
+         autoCloseBrackets: true,
+         matchTags: true,
+         autoCloseTags: true,
+         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+         extraKeys: {
+            "'<'": completeAfter,
+            "'/'": completeIfAfterLt,
+            "' '": completeIfInTag,
+            "'='": completeIfInTag,
+            "Ctrl-Space": "autocomplete"
+         },hintOptions: {schemaInfo: {}}
+      } );
+      cm.setSize("100%", 600);
+      $("#validate-xml").on("click", function() {
+         var btn = $(this);
+         if (btn.hasClass("diabled")) return;
+         btn.addClass("disabled");
+         var id = $("#record-id").attr("id");
+         var xml = cm.doc.getValue();
+         $.ajax({
+            method: "POST",
+            url: "/admin/xml_metadata/validate",
+            data: { id: id, xml: xml},
+            complete: function(jqXHR, textStatus) {
+               btn.removeClass("disabled");
+               if ( textStatus != "success" ) {
+                  alert("Validation failed: \n\n"+jqXHR.responseText);
+               } else {
+                  alert("Validation succeeded");
+               }
+            }
+         });
+
       });
    }
 });

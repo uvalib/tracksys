@@ -8,3 +8,4 @@
 //= require ocr
 //= require codemirror
 //= require_tree ./mode/
+//= require_tree ./addon/

@@ -1,5 +1,36 @@
 body.active_admin {
 
+#tracksys_xml_editor {
+   border: 1px solid #ccc;
+   box-sizing: border-box;
+
+   pre.CodeMirror-line {
+      font-family: monospace !important;
+      font-size: 1.3em;
+   }
+   #xml-bar {
+      font-size: 0.9em;
+      padding-bottom: 5px;
+      text-align: right;
+      border-bottom: 1px solid #ccc;
+      background-color: #dfdfdf;
+      margin-bottom: 0px;
+      .xml-button {
+         display: inline-block;
+         border: 1px solid #666;
+         background-color: #999;
+         color: #eee;
+         padding: 1px 20px;
+         border-radius: 10px;
+         margin: 5px 5px 0 0;
+         cursor:pointer;
+         &:hover {
+               background-color: #aaa;
+               color: #fff;
+         }
+      }
+   }
+}
   div, p, ol, ul, td {
      font-family: "Helvetica Neue"
   }
@@ -13,7 +44,7 @@ body.active_admin {
 
 .section > h3, .panel > h3 {
    text-shadow: none;
-}
+  }
 
   /* Override colors on title_bar action_items */
   #title_bar .action_items a {

@@ -36,7 +36,6 @@
 #
 
 class XmlMetadata < Metadata
-   SCHEMAS = ['MODS', 'VRA']
 
    #------------------------------------------------------------------
    # validations

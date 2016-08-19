@@ -1,6 +1,6 @@
 <%= semantic_form_for([:admin, @xml_metadata], :url => "/admin/xml_metadata/#{@xml_metadata.id}") do |f| %>
 
-   <%= f.inputs "Digital Library Information", :class => 'two-column panel' do %>
+   <%= f.inputs "Digital Library Information", :toggle=>'show', :class => 'two-column panel' do %>
        <% if !@xml_metadata.id.blank? %>
           <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
        <% end %>
@@ -16,7 +16,7 @@
        <%= f.input :collection_facet, :as => :string %>
    <% end %>
 
-   <%= f.inputs "Administrative Information", :class => 'two-column panel' do %>
+   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel' do %>
       <%= f.input :is_approved, :as => :radio %>
       <%= f.input :is_personal_item, :as => :radio %>
       <%= f.input :is_manuscript, :as => :radio %>
@@ -26,10 +26,17 @@
    <% end %>
 
    <%= f.inputs "XML Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
+      <span id="record-id" style="display: none"><%= @xml_metadata.id %></span>
        <%= f.input :title, :as => :string %>
        <%= f.input :creator_name, :as => :string %>
-       <%= f.input :xml_schema, :as => :select, :collection => XmlMetadata::SCHEMAS, :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
-       <%= f.input :desc_metadata,  :input_html => { :rows => 15 } %>
+       <li>
+          <div id="tracksys_xml_editor">
+             <div id="xml-bar">
+               <span class="xml-button" id="validate-xml">Validate</span>
+            </div>
+             <textarea name="xml_metadata[desc_metadata]" id="xml_metadata_desc_metadata"><%= @xml_metadata.desc_metadata %></textarea>
+          </div>
+       </li>
    <% end %>
 
    <%= f.actions :class => 'columns-none' %>

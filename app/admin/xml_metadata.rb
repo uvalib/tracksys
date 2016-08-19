@@ -1,3 +1,7 @@
+require 'nokogiri'
+require 'open-uri'
+
+
 ActiveAdmin.register XmlMetadata do
    menu :parent => "Metadata"
 
@@ -184,10 +188,32 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
+   collection_action :validate, method: :post do
+      doc = Nokogiri.XML( params[:xml] )
+      errors = []
+      schema_info = doc.root.each do |schema_info|
+         schemata_by_ns = Hash[ schema_info.last.scan(/(\S+)\s+(\S+)/)]
+         schemata_by_ns.each do |ns,xsd_uri|
+            puts "validate #{ns}: #{xsd_uri}..."
+            xsd = Nokogiri::XML.Schema(open(xsd_uri))
+            xsd.validate(doc).each do |error|
+               errors << "Line #{error.line} - #{error.message}"
+            end
+         end
+      end
+      if errors.length > 0
+         render text: errors.join("\n"), status: :error
+      else
+         render text: "valid", status: :ok
+      end
+
+   end
+
    member_action :publish, :method => :put do
      xm = XmlMetadata.find(params[:id])
      xm.update_attribute(:date_dl_update, Time.now)
      logger.info "XML Metadata #{xm.id}:#{xm.pid} has been flagged for an update in the DL"
      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "XML Metadata flagged for Publication"
    end
+
 end
