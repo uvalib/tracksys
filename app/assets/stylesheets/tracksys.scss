@@ -1,5 +1,11 @@
 body.active_admin {
 
+div.workflow_button {
+   input[type=submit] {
+      width:100%;
+      margin-top:15px;
+   }
+}
 #tracksys_xml_editor {
    border: 1px solid #ccc;
    box-sizing: border-box;

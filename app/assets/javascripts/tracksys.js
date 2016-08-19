@@ -121,11 +121,19 @@ $(function() {
             "Ctrl-Space": "autocomplete"
          },hintOptions: {schemaInfo: {}}
       } );
-      cm.setSize("100%", 600);
+      cm.on("change", function(cm, change) {
+         var btn = $("#xml_metadata_submit_action input");
+         btn.prop('disabled', true);
+         if (btn.hasClass("disabled") == false ) {
+            btn.addClass("disabled");
+         }
+      });
+      cm.setSize("100%", "auto");
       $("#validate-xml").on("click", function() {
          var btn = $(this);
          if (btn.hasClass("diabled")) return;
          btn.addClass("disabled");
+         var subBtn = $("#xml_metadata_submit_action input");
          var id = $("#record-id").attr("id");
          var xml = cm.doc.getValue();
          $.ajax({
@@ -136,8 +144,14 @@ $(function() {
                btn.removeClass("disabled");
                if ( textStatus != "success" ) {
                   alert("Validation failed: \n\n"+jqXHR.responseText);
+                  subBtn.prop('disabled', true);
+                  if (subBtn.hasClass("disabled") == false ) {
+                     subBtn.addClass("disabled");
+                  }
                } else {
                   alert("Validation succeeded");
+                  subBtn.prop('disabled', false);
+                  subBtn.removeClass("disabled");
                }
             }
          });
