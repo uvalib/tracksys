@@ -122,18 +122,20 @@ $(function() {
          },hintOptions: {schemaInfo: {}}
       } );
       cm.on("change", function(cm, change) {
-         var btn = $("#xml_metadata_submit_action input");
+         var btn = $(".xml-submit input");
          btn.prop('disabled', true);
+         $("div.validate-msg").css("visibility", "visible");
          if (btn.hasClass("disabled") == false ) {
             btn.addClass("disabled");
+            $("#tracksys_xml_editor").addClass("edited");
          }
       });
       cm.setSize("100%", "auto");
-      $("#validate-xml").on("click", function() {
+      $("span.xml-button.validate").on("click", function() {
          var btn = $(this);
          if (btn.hasClass("diabled")) return;
          btn.addClass("disabled");
-         var subBtn = $("#xml_metadata_submit_action input");
+         var subBtn = $(".xml-submit input");
          var id = $("#record-id").attr("id");
          var xml = cm.doc.getValue();
          $.ajax({
@@ -152,6 +154,8 @@ $(function() {
                   alert("Validation succeeded");
                   subBtn.prop('disabled', false);
                   subBtn.removeClass("disabled");
+                  $("#tracksys_xml_editor").removeClass("edited");
+                  $("div.validate-msg").css("visibility", "hidden");
                }
             }
          });

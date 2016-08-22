@@ -6,6 +6,21 @@ div.workflow_button {
       margin-top:15px;
    }
 }
+fieldset.columns-none.xml-submit {
+   margin-top:15px;
+}
+div.validate-msg {
+   display: inline-block;
+   margin-right: 25px;
+   margin-left: 25px;
+   font-style: italic;
+   font-weight: bold;
+   color: #DB0000;
+   visibility: hidden;
+}
+#tracksys_xml_editor.edited {
+   border: 1px solid #DB0000;
+}
 #tracksys_xml_editor {
    border: 1px solid #ccc;
    box-sizing: border-box;
@@ -14,7 +29,11 @@ div.workflow_button {
       font-family: monospace !important;
       font-size: 1.3em;
    }
-   #xml-bar {
+   div.xml-bar.bottom {
+      border-top: 1px solid #ccc;
+      border-bottom: 0;
+   }
+   div.xml-bar {
       font-size: 0.9em;
       padding-bottom: 5px;
       text-align: right;

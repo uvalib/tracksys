@@ -31,14 +31,20 @@
        <%= f.input :creator_name, :as => :string %>
        <li>
           <div id="tracksys_xml_editor">
-             <div id="xml-bar">
-               <span class="xml-button" id="validate-xml">Validate</span>
+             <div class="xml-bar">
+               <div class="validate-msg">XML has changed and must be validadted before saving</div>
+               <span class="xml-button validate">Validate</span>
             </div>
              <textarea name="xml_metadata[desc_metadata]" id="xml_metadata_desc_metadata"><%= @xml_metadata.desc_metadata %></textarea>
+             <div class="xml-bar bottom">
+               <div class="validate-msg">XML has changed and must be validadted before saving</div>
+               <span class="xml-button validate bottom">Validate</span>
+            </div>
           </div>
        </li>
    <% end %>
-
-   <%= f.actions :class => 'columns-none' %>
+   <fieldset class="columns-none xml-submit">
+      <input type="submit" name="commit" value="Update Xml metadata">
+   </fieldset>
 
 <% end %>
