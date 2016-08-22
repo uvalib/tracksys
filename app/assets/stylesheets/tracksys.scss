@@ -9,6 +9,23 @@ div.workflow_button {
 fieldset.columns-none.xml-submit {
    margin-top:15px;
 }
+.xml-submit {
+   a.cancel {
+      border-radius: 200px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: bold;
+      background-color: #585e63;
+      padding: 5px 16px 5px;
+      color: white;
+      text-decoration: none;
+      border: 1px solid #484e53;
+      text-shadow: #000 0 1px 0;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0px rgba(255, 255, 255, 0.2) inset;
+      &:hover {
+         background-color: #838a90;
+      }
+   }
+}
 div.validate-msg {
    display: inline-block;
    margin-right: 25px;
@@ -31,7 +48,7 @@ div.validate-msg {
    }
    div.xml-bar.bottom {
       border-top: 1px solid #ccc;
-      border-bottom: 0; 
+      border-bottom: 0;
    }
    div.xml-bar {
       font-size: 0.9em;
@@ -42,16 +59,18 @@ div.validate-msg {
       margin-bottom: 0px;
       .xml-button {
          display: inline-block;
-         border: 1px solid #666;
-         background-color: #999;
-         color: #eee;
+         border: 1px solid #44a;
+         background-color: #66c;
+         color: white;
          padding: 1px 20px;
          border-radius: 10px;
          margin: 5px 5px 0 0;
          cursor:pointer;
+         font-weight:bold;
+         text-shadow: #000 0 1px 0;
+         box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0px rgba(255, 255, 255, 0.2) inset;
          &:hover {
-               background-color: #aaa;
-               color: #fff;
+               background-color: #88f;
          }
       }
    }

@@ -103,8 +103,8 @@ $(function() {
       });
    }
 
-   if ( $("#xml_metadata_desc_metadata").length > 0 ) {
-      var cm = CodeMirror.fromTextArea( $("#xml_metadata_desc_metadata")[0], {
+   if ( $(".desc-metadata-editor").length > 0 ) {
+      var cm = CodeMirror.fromTextArea( $(".desc-metadata-editor")[0], {
          mode: "xml",
          lineNumbers: true,
          lineWrapping: true,
@@ -131,8 +131,13 @@ $(function() {
          }
       });
       cm.setSize("100%", "auto");
+
       $("span.xml-button.validate").on("click", function() {
          var btn = $(this);
+         var itemUrl = "xml_metadata";
+         if ( btn.hasClass("master_file")) {
+            itemUrl = "master_files";
+         }
          if (btn.hasClass("diabled")) return;
          btn.addClass("disabled");
          var subBtn = $(".xml-submit input");
@@ -140,7 +145,7 @@ $(function() {
          var xml = cm.doc.getValue();
          $.ajax({
             method: "POST",
-            url: "/admin/xml_metadata/validate",
+            url: "/admin/master_files/validate",
             data: { id: id, xml: xml},
             complete: function(jqXHR, textStatus) {
                btn.removeClass("disabled");

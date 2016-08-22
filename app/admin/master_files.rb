@@ -185,51 +185,19 @@ ActiveAdmin.register MasterFile do
 
             div :id => "desc_meta_div" do
                div :id=>"master-file-desc-metadata" do "DESC METADATA" end
-               span :class => "click-advice" do
-                  "click in the code window to expand/collapse display"
-               end
-               pre :id => "desc_meta", :class => "no-whitespace code-window" do
-                  code :'data-language' => 'html' do
-                     word_wrap(master_file.desc_metadata.to_s, :line_width => 200)
+                  div :id=>"mf-metadata-wrap" do
+                     pre do
+                        master_file.desc_metadata
+                     end
                   end
-               end
             end
          end
       end
    end
 
-   form do |f|
-      f.inputs "General Information", :class => 'panel two-column ' do
-         f.input :filename
-         f.input :title
-         f.input :description, :as => :text, :input_html => { :rows => 3 }
-         f.input :creation_date, :as => :text, :input_html => { :rows => 1 }
-         f.input :primary_author, :as => :text, :input_html => { :rows => 1 }
-         f.input :creator_death_date, :as => :string, :input_html => { :rows => 1 }
-         f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
-      end
+   # EDIT page ================================================================
+   form :partial => "edit"
 
-      f.inputs "Technical Information", :class => 'two-column panel', :toggle => 'show' do
-         f.input :md5, :input_html => { :disabled => true }
-         f.input :filesize, :as => :number
-      end
-
-      f.inputs "Related Information", :class => 'panel two-column', :toggle => 'show' do
-         f.input :unit_id, :as => :number
-         # f.input :component_id, :as => :number
-      end
-
-      f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
-         f.input :pid, :input_html => { :disabled => true }
-         f.input :use_right, label: "Right Statement"
-         f.input :indexing_scenario
-         f.input :desc_metadata, :input_html => { :rows => 10}
-      end
-
-      f.inputs :class => 'columns-none' do
-         f.actions
-      end
-   end
 
    sidebar "Thumbnail", :only => [:show] do
       div :style=>"text-align:center" do
@@ -259,6 +227,26 @@ ActiveAdmin.register MasterFile do
            publish_admin_master_file_path(:datastream => 'all'), :method => :put end
       else
          "No options available.  Master File is not in DL."
+      end
+   end
+
+   collection_action :validate, method: :post do
+      doc = Nokogiri.XML( params[:xml] )
+      errors = []
+      schema_info = doc.root.each do |schema_info|
+         schemata_by_ns = Hash[ schema_info.last.scan(/(\S+)\s+(\S+)/)]
+         schemata_by_ns.each do |ns,xsd_uri|
+            puts "validate #{ns}: #{xsd_uri}..."
+            xsd = Nokogiri::XML.Schema(open(xsd_uri))
+            xsd.validate(doc).each do |error|
+               errors << "Line #{error.line} - #{error.message}"
+            end
+         end
+      end
+      if errors.length > 0
+         render text: errors.join("\n"), status: :error
+      else
+         render text: "valid", status: :ok
       end
    end
 

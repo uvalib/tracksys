@@ -3,8 +3,6 @@
 //= require chosen-jquery
 //= require tracksys
 //= require jquery.panzoom
-//= require rainbow.min
-//= require html
 //= require ocr
 //= require codemirror
 //= require_tree ./mode/
