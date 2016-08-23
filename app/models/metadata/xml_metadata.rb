@@ -35,17 +35,30 @@
 #  external_attributes    :text(65535)
 #
 
+require 'nokogiri'
+require 'open-uri'
+
 class XmlMetadata < Metadata
 
-   #------------------------------------------------------------------
-   # validations
-   #------------------------------------------------------------------
+   # Validate XML against all schemas. Returns an array of errors
+   #
+   def self.validate( xml )
+      doc = Nokogiri.XML( xml )
+      errors = []
+      # schemas are held in the root; iterate over all included
+      schema_info = doc.root.each do |schema_info|
 
-   #------------------------------------------------------------------
-   # callbacks
-   #------------------------------------------------------------------
+         # split int a has of nameapace and URI. Only care about URI
+         schemata_by_ns = Hash[ schema_info.last.scan(/(\S+)\s+(\S+)/)]
+         schemata_by_ns.each do |ns,xsd_uri|
+            # Validate against URI and track any errors that occur
+            xsd = Nokogiri::XML.Schema(open(xsd_uri))
+            xsd.validate(doc).each do |error|
+               errors << "Line #{error.line} - #{error.message}"
+            end
+         end
+      end
 
-   #------------------------------------------------------------------
-   # public instance methods
-   #------------------------------------------------------------------
+      return errors
+   end
 end

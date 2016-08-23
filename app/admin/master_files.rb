@@ -231,18 +231,7 @@ ActiveAdmin.register MasterFile do
    end
 
    collection_action :validate, method: :post do
-      doc = Nokogiri.XML( params[:xml] )
-      errors = []
-      schema_info = doc.root.each do |schema_info|
-         schemata_by_ns = Hash[ schema_info.last.scan(/(\S+)\s+(\S+)/)]
-         schemata_by_ns.each do |ns,xsd_uri|
-            puts "validate #{ns}: #{xsd_uri}..."
-            xsd = Nokogiri::XML.Schema(open(xsd_uri))
-            xsd.validate(doc).each do |error|
-               errors << "Line #{error.line} - #{error.message}"
-            end
-         end
-      end
+      errors = XmlMetadata.validate params[:xml]
       if errors.length > 0
          render text: errors.join("\n"), status: :error
       else

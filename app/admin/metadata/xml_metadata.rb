@@ -1,7 +1,3 @@
-require 'nokogiri'
-require 'open-uri'
-
-
 ActiveAdmin.register XmlMetadata do
    menu :parent => "Metadata"
 
@@ -9,7 +5,7 @@ ActiveAdmin.register XmlMetadata do
    permit_params :title, :creator_name,
        :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata, :xml_schema
+       :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata
 
    config.clear_action_items!
 
@@ -54,7 +50,6 @@ ActiveAdmin.register XmlMetadata do
       end
       column :creator_name
       column :pid, :sortable => false
-      column :xml_schema, :sortable => true
       column ("Digital Library?") do |xml_metadata|
          div do
             format_boolean_as_yes_no(xml_metadata.in_dl?)
@@ -189,24 +184,12 @@ ActiveAdmin.register XmlMetadata do
    # ACTIONS ==================================================================
    #
    collection_action :validate, method: :post do
-      doc = Nokogiri.XML( params[:xml] )
-      errors = []
-      schema_info = doc.root.each do |schema_info|
-         schemata_by_ns = Hash[ schema_info.last.scan(/(\S+)\s+(\S+)/)]
-         schemata_by_ns.each do |ns,xsd_uri|
-            puts "validate #{ns}: #{xsd_uri}..."
-            xsd = Nokogiri::XML.Schema(open(xsd_uri))
-            xsd.validate(doc).each do |error|
-               errors << "Line #{error.line} - #{error.message}"
-            end
-         end
-      end
+      errors = XmlMetadata.validate params[:xml]
       if errors.length > 0
          render text: errors.join("\n"), status: :error
       else
          render text: "valid", status: :ok
       end
-
    end
 
    member_action :publish, :method => :put do

@@ -1,6 +1,6 @@
 class Metadata < ActiveRecord::Base
 
-   TYPES = ['Sirsi', "Xml"]
+   TYPES = ['Sirsi', "Xml", "ArchivesSpace"]
 
    GENRES = [
       'abstract or summary', 'art original', 'art reproduction', 'article', 'atlas',
