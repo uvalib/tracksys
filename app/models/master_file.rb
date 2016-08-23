@@ -61,6 +61,15 @@ class MasterFile < ActiveRecord::Base
       update_attribute(:pid, "tsm:#{self.id}")
    end
 
+   after_create do
+      Customer.increment_counter('master_files_count', self.customer.id)
+      Order.increment_counter('master_files_count', self.order.id)
+   end
+   after_destroy do
+      Customer.decrement_counter('master_files_count', self.customer.id)
+      Order.decrement_counter('master_files_count', self.order.id)
+   end
+
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
