@@ -3,8 +3,31 @@ body.active_admin {
 div.workflow_button {
    input[type=submit] {
       width:100%;
-      margin-top:15px;
+      margin-top:0;
    }
+}
+
+div.workflow_button.border-bottom {
+   border-bottom: 1px solid #ccc;
+   padding-bottom: 10px;   
+}
+
+#stats-form {
+   div.year-input {
+      float: right;
+      label {
+         margin-right: 15px;
+      }
+   }
+   input[type=submit] {
+      width: auto;
+      float: right;
+      margin-top: 2px;
+   }
+}
+
+#sidebar div.panel_contents {
+   padding: 10px 20px;
 }
 fieldset.columns-none.xml-submit {
    margin-top:15px;

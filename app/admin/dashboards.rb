@@ -115,10 +115,10 @@ ActiveAdmin.register_page "Dashboard" do
     if !current_user.viewer?
        div :class => 'three-column' do
          panel "Statistics", :priority => 6, :toggle => 'show' do
-           div :class => 'workflow_button' do
+           div :class => 'workflow_button border-bottom' do
              render 'admin/stats_report'
            end
-           div :class => 'workflow_button' do
+           div :class => 'workflow_button border-bottom' do
              button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
            end
            tr do
