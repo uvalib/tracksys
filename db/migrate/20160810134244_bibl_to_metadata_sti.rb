@@ -1,19 +1,36 @@
 class BiblToMetadataSti < ActiveRecord::Migration
   def change
+     # Remove foreign key constraints if present
+     begin
+       remove_foreign_key :units, :bibl
+     rescue Exception=>e
+       puts "skipping removal of non-existant foreign key in units table"
+     end
+     begin
+       remove_foreign_key :bibls_legacy_identifiers, :bibl
+     rescue Exception=>e
+       puts "skipping removal of non-existant foreign key in bibls_legacy_identifiers table"
+     end
+     begin
+       remove_foreign_key :bibls_components, :bibl
+     rescue Exception=>e
+       puts "skipping removal of non-existant foreign key in bibls_components table"
+     end
+
+     # rename foreign keys
+     rename_column :bibls_legacy_identifiers, :bibl_id, :sirsi_metadata_id
+     rename_column :bibls_components, :bibl_id, :sirsi_metadata_id
+     rename_column :units, :bibl_id, :metadata_id
+
      # Rename BIBLS to METADATA
      rename_table :bibls, :metadata
      rename_table :bibls_components, :sirsi_metadata_components
      rename_table :bibls_legacy_identifiers, :sirsi_metadata_legacy_identifiers
-     rename_column :sirsi_metadata_legacy_identifiers, :bibl_id, :sirsi_metadata_id
-     rename_column :sirsi_metadata_components, :bibl_id, :sirsi_metadata_id
 
      # Update related table column names
      rename_column :availability_policies, :bibls_count, :metadata_count
      rename_column :indexing_scenarios, :bibls_count, :metadata_count
      rename_column :use_rights, :bibls_count, :metadata_count
-
-     # Fix unit refernce
-     rename_column :units, :bibl_id, :metadata_id
 
      # Retire columns that are pulled from metadata source on the fly
      remove_column :metadata, :description, :string
@@ -35,8 +52,7 @@ class BiblToMetadataSti < ActiveRecord::Migration
      add_column :metadata, :type, :string, :default=>"SirsiMetadata"  # XML and ArchivesSpace are other options
 
      # External metadata attributes. Stored as a hash.
-     # USed to provide conext for finding metdata from external source
+     # Used to provide conext for finding metdata from external source
      add_column :metadata, :external_attributes, :text
-
   end
 end
