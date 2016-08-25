@@ -183,15 +183,6 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
-   collection_action :validate, method: :post do
-      errors = XmlMetadata.validate params[:xml]
-      if errors.length > 0
-         render text: errors.join("\n"), status: :error
-      else
-         render text: "valid", status: :ok
-      end
-   end
-
    member_action :publish, :method => :put do
      xm = XmlMetadata.find(params[:id])
      xm.update_attribute(:date_dl_update, Time.now)

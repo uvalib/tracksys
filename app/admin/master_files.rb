@@ -230,15 +230,6 @@ ActiveAdmin.register MasterFile do
       end
    end
 
-   collection_action :validate, method: :post do
-      errors = XmlMetadata.validate params[:xml]
-      if errors.length > 0
-         render text: errors.join("\n"), status: :error
-      else
-         render text: "valid", status: :ok
-      end
-   end
-
    action_item :previous, :only => :show do
       link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
    end

@@ -71,6 +71,7 @@ div.validate-msg {
       border-bottom: 0;
    }
    div.xml-bar {
+      position: relative;
       font-size: 0.9em;
       padding-bottom: 5px;
       text-align: right;
@@ -92,6 +93,10 @@ div.validate-msg {
          &:hover {
                background-color: #88f;
          }
+      }
+      .xml-button.generate {
+         position: absolute;
+         left: 5px;
       }
    }
 }

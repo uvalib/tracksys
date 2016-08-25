@@ -132,12 +132,36 @@ $(function() {
       });
       cm.setSize("100%", "auto");
 
+      $("span.xml-button.generate").on("click", function() {
+         var btn = $(this);
+         if (btn.hasClass("diabled")) return;
+         if ( !confirm("This will replace all XML data currently present. Continue?") ) return;
+         btn.addClass("disabled");
+         var data = {
+            title: $("#xml_metadata_title").val(),
+            creator:  $("#xml_metadata_creator_name").val(),
+            genre: $("#xml_metadata_genre").val(),
+            type: $("#xml_metadata_resource_type").val()
+         };
+
+         $.ajax({
+            method: "POST",
+            url: "/api/xml/generate",
+            data: data,
+            complete: function(jqXHR, textStatus) {
+               btn.removeClass("disabled");
+               if ( textStatus != "success" ) {
+                  alert("Validation failed: \n\n"+jqXHR.responseText);
+               } else {
+                  cm.doc.setValue(jqXHR.responseText);
+               }
+            }
+         });
+      });
+
       $("span.xml-button.validate").on("click", function() {
          var btn = $(this);
          var itemUrl = "xml_metadata";
-         if ( btn.hasClass("master_file")) {
-            itemUrl = "master_files";
-         }
          if (btn.hasClass("diabled")) return;
          btn.addClass("disabled");
          var subBtn = $(".xml-submit input");
@@ -145,7 +169,7 @@ $(function() {
          var xml = cm.doc.getValue();
          $.ajax({
             method: "POST",
-            url: "/admin/master_files/validate",
+            url: "/api/xml/validate",
             data: { id: id, xml: xml},
             complete: function(jqXHR, textStatus) {
                btn.removeClass("disabled");
