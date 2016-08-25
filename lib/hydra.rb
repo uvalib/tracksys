@@ -13,6 +13,7 @@ module Hydra
       now_str = Time.now.strftime('%Y%m%d%H')
       date_received = now_str
       date_received = object.date_dl_ingest.strftime('%Y%m%d%H') if !object.date_dl_ingest.blank?
+
       payload["pid"] = "#{object.pid}"
       payload["destination"] = "#{Settings.index_destintion}"
       payload["dateReceived"] = "#{date_received}"
@@ -28,6 +29,8 @@ module Hydra
       payload["clear-stylesheet-cache"] = "yes"
 
       if object.is_a? Metadata
+         collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
+         payload[collectionFacetParam] = object.collection_facet
          payload["pageCount"] = object.master_files.count.to_s
          payload["pdfServiceUrl"] = "#{Settings.pdf_url}"
          if object.availability_policy_id == 1 || object.availability_policy_id.blank?
