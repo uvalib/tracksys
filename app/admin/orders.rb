@@ -245,25 +245,29 @@ ActiveAdmin.register Order do
   end
 
   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? }  do
-    if order.order_status == 'approved'
-      if order.email?
-        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
-        if order.date_customer_notified
-          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put, :disabled => true end
-        else
-          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
-        end
-      else
-        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put end
-        div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
-        div do "Order is not yet complete and cannot be delivered." end
-      end
-      div :class => 'workflow_button' do button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put end
+    if order.has_patron_deliverables?
+       if order.order_status == 'approved'
+         if order.email?
+           div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
+           if order.date_customer_notified
+             div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put, :disabled => true end
+           else
+             div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
+           end
+         else
+           div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put end
+           div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+           div do "Order is not yet complete and cannot be delivered." end
+         end
+         div :class => 'workflow_button' do button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put end
+       else
+         # order not approved
+         div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
+         div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+         div do "Order is not yet approved." end
+       end
     else
-      # order not approved
-      div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
-      div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
-      div do "Order is not yet approved." end
+      div do "This order has no patron deliverables" end
     end
   end
 
