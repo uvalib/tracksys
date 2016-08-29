@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '4.2.7'
+gem 'rails', '4.2.7.1'
 
 gem 'activeadmin', '~> 1.0.0.pre4'
 gem 'passenger', '5.0.28'
