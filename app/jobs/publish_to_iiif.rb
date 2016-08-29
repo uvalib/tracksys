@@ -51,6 +51,12 @@ class PublishToIiif < BaseJob
          on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
+         # If the JP2k already exists (and is not 0), don't make it again!
+         if File.exist?(jp2k_path) && File.size(jp2k_path) > 0
+            logger.info "MasterFile #{master_file.id} already has JP2k file at #{jp2k_path}; skipping creation"
+            return
+         end
+
          # Directly invoke Ruby's garbage collection to clear memory
          GC.start
 
