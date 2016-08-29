@@ -43,7 +43,7 @@ module Hydra
             payload["exemplarPid"] = "#{MasterFile.find_by(filename: object.exemplar).pid}"
          else
             # one not set; just pick the first masterfile
-            payload["exemplarPid"] = "#{object.master_files.first.pid}"
+            payload["exemplarPid"] = "#{object.master_files.first.pid}" if !object.master_files.first.nil?
          end
 
          # Create string variables that hold the total data of a metadata records' transcriptions, descriptions and titles
