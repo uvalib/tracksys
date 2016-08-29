@@ -17,7 +17,6 @@
 #  pid                    :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
-#  is_in_catalog          :boolean          default(FALSE), not null
 #  exemplar               :string(255)
 #  parent_bibl_id         :integer          default(0), not null
 #  desc_metadata          :text(65535)

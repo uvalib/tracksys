@@ -15,6 +15,11 @@ class CheckUnitDeliveryMode < BaseJob
       source_dir = File.join(IN_PROCESS_DIR, unit_dir)
       has_deliverables = false
 
+      # First, check if this unit is a candidate for Autopublish to Virgo
+      if unit.include_in_dl == false
+         CheckAutoPublish.exec_now({:unit => unit}, self)
+      end
+
       # Figure out if this unit has any deliverables, and of what type...
       if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description == "Digital Collection Building"
          has_deliverables = true

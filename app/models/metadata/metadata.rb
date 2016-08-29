@@ -58,7 +58,6 @@ class Metadata < ActiveRecord::Base
    before_save do
       self.is_approved = false if self.is_approved.nil?
       self.is_collection = false if self.is_collection.nil?
-      self.is_in_catalog = false if self.is_in_catalog.nil?
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
       self.discoverability = true if self.discoverability.nil?
@@ -67,15 +66,6 @@ class Metadata < ActiveRecord::Base
       if self.use_right.blank?
          cne = UseRight.find_by(name: "Copyright Not Evaluated")
          self.use_right = cne
-      end
-
-      if self.is_in_catalog.nil?
-         if self.is_personal_item?
-            self.is_in_catalog = false
-         else
-            # held by Library; default to assuming it's in Library catalog
-            self.is_in_catalog = true
-         end
       end
    end
 
@@ -149,7 +139,6 @@ end
 #  pid                    :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
-#  is_in_catalog          :boolean          default(FALSE), not null
 #  exemplar               :string(255)
 #  parent_bibl_id         :integer          default(0), not null
 #  desc_metadata          :text(65535)

@@ -4,8 +4,8 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :indexing_scenario_id,
-     :include_in_dl,  :exclude_from_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :indexing_scenario_id, :complete_scan,
+     :include_in_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
   scope :approved
@@ -63,13 +63,11 @@ ActiveAdmin.register Unit do
 
   batch_action :include_in_dl_units do |selection|
     Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, true) }
-    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, false) }
     flash[:notice] = "Units #{selection.join(", ")} have been marked for inclusion in the Digital Library."
     redirect_to "/admin/units"
   end
 
   batch_action :exclude_from_dl_units do |selection|
-    Unit.find(selection).each {|s| s.update_attribute(:exclude_from_dl, true) }
     Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, false) }
     flash[:notice] = "Units #{selection.join(", ")} have been marked for exclusion from the Digital Library."
     redirect_to "/admin/units"
@@ -81,6 +79,7 @@ ActiveAdmin.register Unit do
 
   filter :id
   filter :date_archived
+  filter :complete_scan
   filter :date_dl_deliverables_ready
   filter :date_queued_for_ingest
   filter :special_instructions
@@ -107,13 +106,8 @@ ActiveAdmin.register Unit do
          end
       end
     end
-    column ("DL Status") do |unit|
-      case
-        when unit.include_in_dl?
-          Unit.human_attribute_name(:include_in_dl)
-        when unit.exclude_from_dl?
-          Unit.human_attribute_name(:exclude_from_dl)
-      end
+    column ("In DL?") do |unit|
+      format_boolean_as_yes_no(unit.include_in_dl)
     end
     column :date_archived do |unit|
       format_date(unit.date_archived)
@@ -166,6 +160,7 @@ ActiveAdmin.register Unit do
           row :staff_notes do |unit|
             raw(unit.staff_notes.to_s.gsub(/\n/, '<br/>'))
           end
+          row :complete_scan
         end
       end
     end
@@ -199,13 +194,8 @@ ActiveAdmin.register Unit do
       panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for unit do
           row :indexing_scenario
-          row ("Digital Library Status") do |unit|
-            case
-              when unit.include_in_dl?
-                Unit.human_attribute_name(:include_in_dl)
-              when unit.exclude_from_dl?
-                Unit.human_attribute_name(:exclude_from_dl)
-            end
+          row ("In Digital Library?") do |unit|
+            format_boolean_as_yes_no(unit.include_in_dl)
           end
           row :master_file_discoverability do |unit|
             format_boolean_as_yes_no(unit.master_file_discoverability)
@@ -283,6 +273,7 @@ ActiveAdmin.register Unit do
       f.input :unit_extent_actual
       f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
       f.input :staff_notes, :as => :text, :input_html => { :rows => 5 }
+      f.input :complete_scan, :as => :radio
     end
 
     f.inputs "Patron Request", :class => 'panel three-column' do
@@ -307,7 +298,6 @@ ActiveAdmin.register Unit do
     f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
       f.input :indexing_scenario
       f.input :include_in_dl, :as => :radio
-      f.input :exclude_from_dl, :as => :radio
       f.input :master_file_discoverability, :as => :radio
       f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker}
       f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker}

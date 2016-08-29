@@ -65,7 +65,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    before_save do
       # boolean fields cannot be NULL at database level
-      self.exclude_from_dl = 0 if self.exclude_from_dl.nil?
       self.include_in_dl = 0 if self.include_in_dl.nil?
       self.master_file_discoverability = 0 if self.master_file_discoverability.nil?
       self.order_id = 0 if self.order_id.nil?
@@ -190,7 +189,6 @@ end
 #  created_at                     :datetime
 #  updated_at                     :datetime
 #  intended_use_id                :integer
-#  exclude_from_dl                :boolean          default(FALSE), not null
 #  staff_notes                    :text(65535)
 #  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime

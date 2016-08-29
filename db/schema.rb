@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160819154919) do
+ActiveRecord::Schema.define(version: 20160826192843) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -306,7 +306,6 @@ ActiveRecord::Schema.define(version: 20160819154919) do
     t.string   "pid",                    limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_in_catalog",                        default: false,           null: false
     t.string   "exemplar",               limit: 255
     t.integer  "parent_bibl_id",         limit: 4,     default: 0,               null: false
     t.text     "desc_metadata",          limit: 65535
@@ -418,7 +417,6 @@ ActiveRecord::Schema.define(version: 20160819154919) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "intended_use_id",                limit: 4
-    t.boolean  "exclude_from_dl",                              default: false, null: false
     t.text     "staff_notes",                    limit: 65535
     t.datetime "date_queued_for_ingest"
     t.datetime "date_archived"
@@ -430,6 +428,7 @@ ActiveRecord::Schema.define(version: 20160819154919) do
     t.integer  "indexing_scenario_id",           limit: 4
     t.boolean  "checked_out",                                  default: false
     t.integer  "master_files_count",             limit: 4,     default: 0
+    t.boolean  "complete_scan",                                default: false
   end
 
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree

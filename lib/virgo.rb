@@ -35,7 +35,7 @@ module Virgo
      end
   end
 
-  def self.get_marc_publication_info(barcode, catalog_key=nil)
+  def self.get_marc_publication_info(catalog_key, barcode)
      xml_doc = nil
      blank = {year: "", place: ""}
 
@@ -52,9 +52,10 @@ module Virgo
          xml_doc = query_metadata_server(catalog_key)
        end
      rescue Exception=>e
-        # filed request. nothing to do, blank will be returned below
+        # failed request. nothing to do, blank will be returned below
      end
      return blank if xml_doc.blank?
+     
      doc = xml_doc.xpath("/response/result/doc").first
      return blank if doc.blank?
      marc_ele = doc.xpath("str[@name='marc_display']").first
