@@ -3,7 +3,7 @@ class CheckAutoPublish < BaseJob
    def do_workflow(message)
       raise "Parameter 'unit' is required" if message[:unit].blank?
       unit = message[:unit]
-      if unit.complete == false
+      if unit.complete_scan == false
          logger.info "Unit #{unit.id} is not a complete scan and cannot be auto-published"
          return
       end
