@@ -49,6 +49,8 @@ class CheckAutoPublish < BaseJob
             mf.update(use_right_id: 2) if mf.use_right_id.blank?
          end
          logger.info "Unit #{unit.id} successfully flagged for publication"
+      else
+         logger.info "Unit #{unit.id} has no date or a date after 1923 and cannot be auto-published"
       end
    end
 end
