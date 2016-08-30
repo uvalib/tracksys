@@ -55,7 +55,7 @@ module Virgo
         # failed request. nothing to do, blank will be returned below
      end
      return blank if xml_doc.blank?
-     
+
      doc = xml_doc.xpath("/response/result/doc").first
      return blank if doc.blank?
      marc_ele = doc.xpath("str[@name='marc_display']").first
@@ -353,24 +353,15 @@ module Virgo
       end
 
       # title control number
-      #
-      # MARC 035 is repeatable; we want the Sirsi control number
-      #
-      # <datafield tag="035" ind1=" " ind2=" ">
-      #   <subfield code="a">(Sirsi) o17551904</subfield>
-      # </datafield>
-      # <datafield tag="035" ind1=" " ind2=" ">
-      #   <subfield code="a">(OCoLC)17551904</subfield>
-      # </datafield>
-      marc_record.xpath("datafield[@tag='035']/subfield[@code='a']") do |marc035a|
-        if marc035a.text
-          matchdata = marc035a.text.match(/^\(Sirsi\)/)
-          if matchdata
-            title_control = matchdata.post_match.strip
-            metadata[:title_control] = title_control unless title_control.blank?
-          end
+      # 035 a
+      marc035a = marc_record.xpath("datafield[@tag='035']/subfield[@code='a']").first
+      if marc035a and marc035a.text
+        matchdata = marc035a.text.match(/^\(Sirsi\)/)
+        if matchdata
+           title_control = matchdata.post_match.strip
+           metadata[:title_control] = title_control unless title_control.blank?
         end
-      end
+     end
 
       # year
       #
@@ -418,6 +409,7 @@ module Virgo
 
       # If barcode passed matches a barcode found in a MARC 999 field, then set
       # the call number, copy, and location associated with that barcode
+      metadata[:barcode] = compare_barcode # Default to whatever was requested
       if barcodes.has_key? compare_barcode
         metadata[:barcode] = compare_barcode
         metadata[:call_number] = barcodes[compare_barcode]['call_number']
