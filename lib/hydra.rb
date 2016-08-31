@@ -28,6 +28,12 @@ module Hydra
       payload["permanentUrl"] = "#{Settings.virgo_url}/#{object.pid}"
       payload["clear-stylesheet-cache"] = "yes"
 
+      if !object.discoverability
+         payload["shadowedItem"] = "HIDDEN"
+      else
+         payload["shadowedItem"] = "VISIBLE"
+      end
+
       if object.is_a? Metadata
          collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
          payload[collectionFacetParam] = object.collection_facet
@@ -63,12 +69,6 @@ module Hydra
          payload["totalTitles"] = "#{total_title}"
          payload["totalDescriptions"] = "#{total_description}"
          payload["totalTranscriptions"] = "#{total_transcription}"
-
-         if !object.discoverability
-            payload["shadowedItem"] = "HIDDEN"
-         else
-            payload["shadowedItem"] = "VISIBLE"
-         end
 
          return solr_transform(object, payload)
       elsif object.is_a? MasterFile
