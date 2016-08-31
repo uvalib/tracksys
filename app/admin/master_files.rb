@@ -73,9 +73,11 @@ ActiveAdmin.register MasterFile do
       end
       column :pid, :sortable => false
       column ("Metadata Record") do |mf|
-         div do
-            link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
-         end
+         if !mf.metadata.nil?
+            div do
+               link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
+            end
+         end   
       end
       column :unit
       column("Thumbnail") do |mf|
