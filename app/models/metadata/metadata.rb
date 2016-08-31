@@ -69,6 +69,13 @@ class Metadata < ActiveRecord::Base
       end
    end
 
+   before_destroy do
+      if self.components.any? || self.units.any?
+         errors[:base] << "cannot delete metadata that is associated with components or units"
+      end
+      return true
+   end
+
    after_create do
       update_attribute(:pid, "tsb:#{self.id}") if self.pid.blank?
    end
