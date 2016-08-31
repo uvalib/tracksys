@@ -2,8 +2,9 @@ ActiveAdmin.register MasterFile do
    config.sort_order = 'filename_asc'
 
    # strong paramters handling
-   permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :transcription_text, #:component_id,
+   permit_params :filename, :title, :description, :creation_date, :primary_author,
+      :creator_death_date, :date_archived, :discoverability,
+      :md5, :filesize, :unit_id, :transcription_text,
       :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6

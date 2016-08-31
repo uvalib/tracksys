@@ -22,6 +22,7 @@
       <%= f.input :pid, :input_html => { :disabled => true } %>
       <%= f.input :use_right, label: "Right Statement" %>
       <%= f.input :indexing_scenario %>
+      <%= f.input :discoverability, :as => :select %>
    <% end %>
 
    <%= f.inputs "Desc Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
