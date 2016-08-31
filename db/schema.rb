@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160826192843) do
+ActiveRecord::Schema.define(version: 20160831183525) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -444,6 +444,7 @@ ActiveRecord::Schema.define(version: 20160826192843) do
     t.datetime "updated_at"
     t.integer  "metadata_count",     limit: 4,   default: 0
     t.integer  "master_files_count", limit: 4,   default: 0
+    t.string   "uri",                limit: 255
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree

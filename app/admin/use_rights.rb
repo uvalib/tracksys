@@ -18,6 +18,7 @@ ActiveAdmin.register UseRight do
 
    index do
       column :name
+      column :uri
       column("Metadata Records") do |use_right|
         use_right.metadata.count
       end
