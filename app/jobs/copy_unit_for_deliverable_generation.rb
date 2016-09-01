@@ -22,9 +22,9 @@ class CopyUnitForDeliverableGeneration < BaseJob
          FileUtils.mkdir_p(destination_dir)
 
          # copy all of the master files for this unit to the processing directory based on MODE
+         logger.debug("Copying all master files from #{source_dir} to #{destination_dir}")
          unit.master_files.each do |master_file|
             begin
-               logger().debug("Copy from #{source_dir} to #{destination_dir}/#{master_file.filename}")
                FileUtils.cp(File.join(source_dir, master_file.filename), File.join(destination_dir, master_file.filename))
             rescue Exception => e
                on_error "Can't copy source file '#{master_file.filename}': #{e.message}"
@@ -37,6 +37,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
                on_error "Failed to copy source file '#{master_file.filename}': MD5 checksums do not match"
             end
          end
+         logger.debug("All master files copied")
 
          # If the copy was successful, start processing for this batch based on mode
          if mode == 'patron'
