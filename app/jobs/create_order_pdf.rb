@@ -16,12 +16,12 @@ class CreateOrderPdf < BaseJob
       pdf = generate_invoice_pdf(order, fee)
 
       # Write out the PDF file, ensuring that the order dir exists
-      order_dir = File.join("#{ASSEMBLE_DELIVERY_DIR}", "order_#{order.id}")
+      order_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
       Dir.mkdir(order_dir) unless File.exists?(order_dir)
       invoice_file = File.join(order_dir, "#{order.id}.pdf")
       pdf.render_file(invoice_file  )
       logger.info "PDF created for order #{order.id} created at #{invoice_file}"
 
-      CreateOrderZip.exec_now({:order => order}, self)
+      CreateOrderEmail.exec_now({:order => order}, self)
    end
 end

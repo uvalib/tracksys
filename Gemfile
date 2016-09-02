@@ -24,8 +24,6 @@ gem 'nested_form'
 gem 'net-ldap'
 gem 'country-select'
 gem 'axlsx', '~> 2.1.0.pre'
-gem 'rubyzip', '>= 1.0.0'           # will load new rubyzip version
-gem 'zip-zip'                       # will load compatibility for old rubyzip API.
 
 group :development do
   gem 'byebug'
