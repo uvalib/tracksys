@@ -19,6 +19,13 @@ class QueuePatronDeliverables < BaseJob
          location = sm.get_full_metadata[:location]
       end
 
+      # if a prior set of deliveranbles is in the assembly dir, remove them
+      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+      if Dir.exist? assemble_dir
+         logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
+         FileUtils.rm_rf(assemble_dir)
+      end
+
       unit.master_files.each do |master_file|
          file_source = File.join(source, master_file.filename)
          CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id,
@@ -37,6 +44,9 @@ class QueuePatronDeliverables < BaseJob
       logger().info("Removing patron processing directory: #{source}")
       FileUtils.rm_rf(source)
       logger().info("Files for unit #{unit.id} copied for the creation of patron deliverables have now been deleted.")
+
+      # Zip up patron deliverables one unit at a time as they are completed
+      CreateUnitZip.exec_now( { unit: unit }, self)
 
       unit.update_attribute(:date_patron_deliverables_ready, Time.now)
       logger().info("Date patron deliverables ready for unit #{unit.id} has been updated.")

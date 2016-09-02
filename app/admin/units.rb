@@ -350,13 +350,15 @@ ActiveAdmin.register Unit do
               div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
               div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
             end
-            if not unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Buidling'
-              div :class => 'workflow_button' do button_to "Begin Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
+            if not unit.intended_use == 'Digital Collection Buidling'
+              btn = "Begin Generate Deliverables"
+              btn = "Regenerate Deliverables" if unit.date_patron_deliverables_ready
+              div :class => 'workflow_button' do button_to btn, check_unit_delivery_mode_admin_unit_path, :method => :put end
+              if unit.patron_deliverables_available?
+                 div :class => 'workflow_button' do button_to "Create/Replace Deliverable Zip", create_deliverable_zip_admin_unit_path, :method => :put end
+              end
             end
 
-            if unit.date_archived and unit.date_patron_deliverables_ready and not unit.intended_use == 'Digital Collection Building'
-              div do "This unit has been archived and patron deliverables are generated.  There are no more finalization steps available." end
-            end
        else
          div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
        end
@@ -407,6 +409,11 @@ ActiveAdmin.register Unit do
   end
 
   # Member actions for workflow
+  member_action :create_deliverable_zip, :method => :put do
+     Unit.find(params[:id]).create_patron_zip
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Generating patron deliverable zip for unit."
+  end
+
   member_action :check_unit_delivery_mode, :method => :put do
     Unit.find(params[:id]).check_unit_delivery_mode
     redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."

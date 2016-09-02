@@ -16,11 +16,14 @@ library_url: http://www.library.virginia.edu
 
 # Kakadu (for j2k image conversions)
 kdu_compress: /usr/bin/kakadu/kdu_compress
-num_jp2k_threads: 2
+num_jp2k_threads: "2"
 create_missing_kp2k: "false"
 
 # Set to on to enable OCR features
 ocr: "off"
+
+# Max size of patron zip Files
+zip_max_gb: "2"
 
 # Email controls; use to prevent email from being sent
 # to customer from a dev server

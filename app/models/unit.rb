@@ -142,6 +142,17 @@ class Unit < ActiveRecord::Base
       end
    end
 
+   def patron_deliverables_available?
+      return false if self.date_patron_deliverables_ready.nil?
+      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{self.order.id}", self.id.to_s)
+      return false if !Dir.exist? assemble_dir
+      return Dir["#{assemble_dir}/*"].length >= self.master_files.count
+   end
+
+   def create_patron_zip
+      CreateUnitZip.exec({unit: self, replace: true})
+   end
+
    def check_unit_delivery_mode
       CheckUnitDeliveryMode.exec( {:unit => self} )
    end
