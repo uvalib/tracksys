@@ -1,4 +1,7 @@
 <div class="attributes_table">
+   <% if !defined?(edit) && @sirsi_meta[:invalid] == true %>
+      <div class='sirsi-error'>The catalog key and/or barcode could not be found in Sirsi</div>
+   <% end %>
    <table border="0" cellspacing="0" callpadding="0">
       <% if !defined?(edit) %>
          <tr class="row"><th>CATALOG KEY</th><td><%= raw format_td(@sirsi_meta[:catalog_key]) %></td></tr>
@@ -55,4 +58,5 @@
       <tr class="row"><th>COPY</th><td  class="sirsi-data" id="copy"><%= raw format_td(@sirsi_meta[:copy]) %></td></tr>
       <tr class="row"><th>LOCATION</th><td  class="sirsi-data" id="location"><%= raw format_td(@sirsi_meta[:location]) %></td></tr>
    </table>
+
 </div>

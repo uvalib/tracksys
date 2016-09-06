@@ -45,6 +45,8 @@ $(function() {
             $(this).html( empty );
          }
       });
+      $("#sirsi_metadata_catalog_key").val( metadata.catalog_key );
+      $("#sirsi_metadata_barcode").val( metadata.barcode );
       $("#sirsi_metadata_title").val( metadata.title );
       $("#sirsi_metadata_creator_name").val( metadata.creator_name );
       $("#sirsi_metadata_call_number").val( metadata.call_number );

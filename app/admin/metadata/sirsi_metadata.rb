@@ -57,6 +57,7 @@ ActiveAdmin.register SirsiMetadata do
 
   index :id => 'sirsi_metadata' do
     selectable_column
+    column :id
     column :title, :sortable => :title do |sirsi_metadata|
       truncate_words(sirsi_metadata.title, 25)
     end
@@ -120,6 +121,7 @@ ActiveAdmin.register SirsiMetadata do
     div :class => 'three-column' do
       panel "Administrative Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
+          row :id
           row :is_approved do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_approved)
           end
@@ -239,7 +241,11 @@ ActiveAdmin.register SirsiMetadata do
       def get_sirsi
          @sirsi_meta = {}
          if !resource.catalog_key.blank? || !resource.barcode.blank?
-            @sirsi_meta =  Virgo.external_lookup(resource.catalog_key, resource.barcode)
+            begin
+               @sirsi_meta =  Virgo.external_lookup(resource.catalog_key, resource.barcode)
+            rescue Exception=>e
+               @sirsi_meta = { invalid: true, catalog_key: resource.catalog_key, barcode: resource.barcode }
+            end
          end
       end
       before_filter :blank_sirsi, only: [:new ]

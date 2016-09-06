@@ -90,9 +90,11 @@ class Order < ActiveRecord::Base
       self.email = nil if self.email.blank?
    end
 
-   before_destroy do
-      if self.units.any? || self.invoices.any?
+   before_destroy :destroyable?
+   def destroyable?
+      if self.units.size > 0 || self.invoices.size > 0
          errors[:base] << "cannot delete order that is associated with invoices or units"
+         return false
       end
       return true
    end

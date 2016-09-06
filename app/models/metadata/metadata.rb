@@ -69,9 +69,11 @@ class Metadata < ActiveRecord::Base
       end
    end
 
-   before_destroy do
-      if self.components.any? || self.units.any?
+   before_destroy :destroyable?
+   def destroyable?
+      if self.components.size > 0 || self.units.size > 0
          errors[:base] << "cannot delete metadata that is associated with components or units"
+         return false
       end
       return true
    end

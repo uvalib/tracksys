@@ -35,6 +35,8 @@
       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
   <% end %>
 
-  <%= f.actions :class => 'columns-none' %>
-
+  <fieldset class="columns-none xml-submit">
+     <input type="submit" name="commit" value="Update Sirsi metadata">
+     <a class="cancel" href="/admin/sirsi_metadata/<%= @sirsi_metadata.id %>">Cancel</a>
+  </fieldset>
 <% end %>

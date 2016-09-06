@@ -45,6 +45,7 @@ ActiveAdmin.register XmlMetadata do
    #
    index :id => 'xml_metadata' do
       selectable_column
+      column :id
       column :title, :sortable => :title do |xml_metadata|
          truncate_words(xml_metadata.title, 25)
       end
@@ -107,6 +108,7 @@ ActiveAdmin.register XmlMetadata do
      div :class => 'two-column' do
        panel "Administrative Information" do
          attributes_table_for xml_metadata do
+           row :id
            row :is_approved do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_approved)
            end
