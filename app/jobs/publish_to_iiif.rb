@@ -65,11 +65,7 @@ class PublishToIiif < BaseJob
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
             logger().debug("Compressing #{source} to #{jp2k_path}...")
-            if filesize > 524000000
-               `#{executable} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
-            else
-               `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
-            end
+            `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
             logger().debug("...compression complete")
          else
             logger().warn("#{executable} not found, using ImageMagick instead")
