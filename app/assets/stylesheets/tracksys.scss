@@ -12,6 +12,23 @@ div.workflow_button.border-bottom {
    padding-bottom: 10px;
 }
 
+fieldset.meta-admin-info {
+   li label {
+      width: 35%;
+   }
+   fieldset.choices {
+      legend.label {
+         width: 100%;
+         label {
+            width: 40%;
+         }
+      }
+      ol.choices-group {
+         padding: 0 0 0 50%;
+      }
+   }
+}
+
 div.sirsi-error {
    text-align: center;
    margin: 0 20px;

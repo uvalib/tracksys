@@ -109,16 +109,16 @@ ActiveAdmin.register XmlMetadata do
        panel "Administrative Information" do
          attributes_table_for xml_metadata do
            row :id
-           row :is_approved do |xml_metadata|
+           row "Approved?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_approved)
            end
-           row :is_personal_item do |xml_metadata|
+           row "Personal item?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_personal_item)
            end
-           row :is_manuscript do |xml_metadata|
+           row "Manuscript or unpublished item?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_manuscript)
            end
-           row :is_collection do |xml_metadata|
+           row "Collection?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_collection)
            end
            row :resource_type do |xml_metadata|

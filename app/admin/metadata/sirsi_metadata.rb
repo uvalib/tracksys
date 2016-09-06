@@ -122,16 +122,16 @@ ActiveAdmin.register SirsiMetadata do
       panel "Administrative Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
           row :id
-          row :is_approved do |sirsi_metadata|
+          row "Approved?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_approved)
           end
-          row :is_personal_item do |sirsi_metadata|
+          row "Personal Item?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_personal_item)
           end
-          row :is_manuscript do |sirsi_metadata|
+          row "Manuscript or unpublished item?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_manuscript)
           end
-          row :is_collection do |sirsi_metadata|
+          row "Collection?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_collection)
           end
           row :resource_type do |sirsi_metadata|

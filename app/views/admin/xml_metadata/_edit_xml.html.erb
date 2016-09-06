@@ -16,11 +16,11 @@
        <%= f.input :collection_facet, :as => :string %>
    <% end %>
 
-   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel' do %>
-      <%= f.input :is_approved, :as => :radio %>
-      <%= f.input :is_personal_item, :as => :radio %>
-      <%= f.input :is_manuscript, :as => :radio %>
-      <%= f.input :is_collection, :as => :radio %>
+   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
+      <%= f.input :is_approved, :as => :radio, label: "Approved?" %>
+      <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
+      <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>
+      <%= f.input :is_collection, :as => :radio, label: "Collection?" %>
       <%= f.input :resource_type, :as => :select, :collection => Metadata::RESOURCE_TYPES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :genre, :as => :select, :collection => Metadata::GENRES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
    <% end %>
