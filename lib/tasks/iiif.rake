@@ -27,11 +27,7 @@ namespace :iiif do
                puts "Generate JP2K from #{source}"
                jp2k_dir = File.dirname(jp2k_path)
                FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
-               if !mf.filesize.blank? && mf.filesize > 524000000
-                  `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads 2`
-               else
-                  `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
-               end
+               `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
             end
          end
       end
@@ -79,12 +75,49 @@ namespace :iiif do
                end
                tiff.destroy!
 
-               if !mf.filesize.blank? && mf.filesize > 524000000
-                  `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads 2`
-               else
-                  `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
-               end
+               `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
             end
+         end
+      end
+   end
+
+   desc "Republish MF with size > 524000000 using a different set of KDU params"
+   task :republish_large  => :environment do
+      iiif_mount = ENV['iiif_mount']
+      raise "iiif_mount is required" if iiif_mount.blank?
+      archive_mount = ENV['archive_mount']
+      raise "archive_mount is required" if archive_mount.blank?
+
+      kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
+      raise "KDU_COMPRESS not found" if !File.exist?(kdu)
+
+      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
+      MasterFiles.where("filesize > 524000000").find_each do |mf|
+         if mf.pid.blank?
+            puts "ERROR: MasterFile #{mf.id} has no PID. Skipping."
+            next
+         end
+
+         jp2k_path = iiif_path(mf.pid)
+         source = File.join(Settings.archive_mount, mf.unit.id.to_s.rjust(9, "0"), mf.filename )
+         if File.exists?(source) == false
+             puts "ERROR: source not found: #{source}"
+         else
+            puts "Generate JP2K from #{source} to #{jp2k_path}"
+            jp2k_dir = File.dirname(jp2k_path)
+            FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
+
+            # only supports uncompressed...
+            tiff = Magick::Image.read(source).first
+            unless tiff.compression.to_s == "NoCompression"
+                source = "#{Rails.root}/tmp/tiffs/#{mf.filename}"
+                puts "writing uncompresed tif #{source}"
+                tiff.compression=Magick::CompressionType.new("NoCompression", 1)
+                tiff.write(source)
+            end
+            tiff.destroy!
+
+            `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
          end
       end
    end
