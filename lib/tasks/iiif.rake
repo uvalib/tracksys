@@ -3,15 +3,10 @@
 namespace :iiif do
    desc "Publish jp2 files to IIIF server"
    task :publish_all  => :environment do
-      iiif_mount = ENV['iiif_mount']
-      raise "iiif_mount is required" if iiif_mount.blank?
-      archive_mount = ENV['archive_mount']
-      raise "archive_mount is required" if archive_mount.blank?
-
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
       raise "KDU_COMPRESS not found" if !File.exist?(kdu)
 
-      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
+      puts "Use #{kdu} to generate JP2K from #{Settings.archive_mount} in #{Settings.iiif_mount}..."
       MasterFile.find_each do |mf|
          if mf.pid.blank?
             puts "ERROR: MasterFile #{mf.id} has no PID. Skipping."
@@ -35,10 +30,6 @@ namespace :iiif do
 
    desc "Publish UNIT jp2 files to IIIF server"
    task :publish_unit  => :environment do
-      iiif_mount = ENV['iiif_mount']
-      raise "iiif_mount is required" if iiif_mount.blank?
-      archive_mount = ENV['archive_mount']
-      raise "archive_mount is required" if archive_mount.blank?
       unit_id = ENV['id']
       raise "id is required" if unit_id.blank?
       unit = Unit.find(unit_id)
@@ -48,7 +39,7 @@ namespace :iiif do
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
       raise "KDU_COMPRESS not found" if !File.exist?(kdu)
 
-      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
+      puts "Use #{kdu} to generate JP2K from #{Settings.archive_mount} in #{Settings.iiif_mount}..."
       unit.master_files.each do |mf|
          if mf.pid.blank?
             puts "ERROR: MasterFile #{mf.id} has no PID. Skipping."
@@ -83,16 +74,11 @@ namespace :iiif do
 
    desc "Republish MF with size > 524000000 using a different set of KDU params"
    task :republish_large  => :environment do
-      iiif_mount = ENV['iiif_mount']
-      raise "iiif_mount is required" if iiif_mount.blank?
-      archive_mount = ENV['archive_mount']
-      raise "archive_mount is required" if archive_mount.blank?
-
       kdu = KDU_COMPRESS || %x( which kdu_compress ).strip
       raise "KDU_COMPRESS not found" if !File.exist?(kdu)
 
-      puts "Use #{kdu} to generate JP2K from #{archive_mount} in #{iiif_mount}..."
-      MasterFiles.where("filesize > 524000000").find_each do |mf|
+      puts "Use #{kdu} to generate JP2K from #{Settings.archive_mount} in #{Settings.iiif_mount}..."
+      MasterFile.where("filesize > 524000000").find_each do |mf|
          if mf.pid.blank?
             puts "ERROR: MasterFile #{mf.id} has no PID. Skipping."
             next
@@ -103,7 +89,7 @@ namespace :iiif do
          if File.exists?(source) == false
              puts "ERROR: source not found: #{source}"
          else
-            puts "Generate JP2K from #{source} to #{jp2k_path}"
+            puts "#{mf.pid}: Generate JP2K from #{source} to #{jp2k_path}"
             jp2k_dir = File.dirname(jp2k_path)
             FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
 
