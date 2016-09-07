@@ -239,7 +239,8 @@ ActiveAdmin.register SirsiMetadata do
   controller do
       before_filter :get_sirsi, only: [:edit, :show]
       def get_sirsi
-         @sirsi_meta = {}
+         @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
+            title: resource.title, creator_name: resource.creator_name, call_number: resource.call_number }
          if !resource.catalog_key.blank? || !resource.barcode.blank?
             begin
                @sirsi_meta =  Virgo.external_lookup(resource.catalog_key, resource.barcode)
