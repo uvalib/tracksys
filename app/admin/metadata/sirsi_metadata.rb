@@ -188,16 +188,16 @@ ActiveAdmin.register SirsiMetadata do
         end
       end
       row :master_files do |sirsi_metadata|
-        link_to "#{sirsi_metadata.master_files.count}", admin_master_files_path(:q => {:sirsi_metadata_id_eq => sirsi_metadata.id})
+        link_to "#{sirsi_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => sirsi_metadata.id})
       end
       row :units do |sirsi_metadata|
-        link_to "#{sirsi_metadata.units.size}", admin_units_path(:q => {:sirsi_metadata_id_eq => sirsi_metadata.id})
+        link_to "#{sirsi_metadata.units.size}", admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
       end
       row :orders do |sirsi_metadata|
-        link_to "#{sirsi_metadata.orders.count}", admin_orders_path(:q => {:sirsi_metadatas_id_eq => sirsi_metadata.id}, :scope => :uniq )
+        link_to "#{sirsi_metadata.orders.count}", admin_orders_path(:q => {:metadata_id_eq => sirsi_metadata.id}, :scope => :uniq )
       end
       row :customers do |sirsi_metadata|
-        link_to "#{sirsi_metadata.customers.count}", admin_customers_path(:q => {:sirsi_metadatas_id_eq => sirsi_metadata.id})
+        link_to "#{sirsi_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => sirsi_metadata.id})
       end
       row "Agencies Requesting Resource" do |sirsi_metadata|
         raw(sirsi_metadata.agency_links)
