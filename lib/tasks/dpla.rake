@@ -1,16 +1,16 @@
+require "#{Rails.root}/app/helpers/dpla_helper"
+include DplaHelper
+
 namespace :dpla do
    desc "Generate DPLA METS/MODS for a parent bibl ID"
    task :generate  => :environment do
       id = ENV['id']
       abort("id is required") if id.nil?
-      ws_url = ENV['ws_url']
-      abort("ws_url is required") if ws_url.nil?
-      dest = ENV['dest']
-      abort("dest is required") if dest.nil?
-      mods_dir = "#{dest}/mods"
-      FileUtils.mkdir_p mods_dir if !Dir.exist? mods_dir
-      mets_dir = "#{dest}/mets"
-      FileUtils.mkdir_p mets_dir if !Dir.exist? mets_dir
+
+      mods_dir = "#{Settings.delivery_dir}/dpla/mods"
+      abort("Mods delivery dir #{mods_dir} does not exist") if !Dir.exist? mods_dir
+      mets_dir = "#{Settings.delivery_dir}/dpla/mets"
+      abort("Mets delivery dir #{mets_dir} does not exist") if !Dir.exist? mets_dir
 
       metadata = Metadata.find_by(id: id)
       abort("ID is invalid") if metadata.nil?
@@ -20,10 +20,15 @@ namespace :dpla do
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
 
       puts "Generate DPLA MODS XML for all children of #{metadata.pid}..."
+      pid_paths = {}
       sirsi_meta.child_bibls.each do |b|
          puts "     Child PID: #{b.pid}"
          src = "#{Settings.tracksys_url}/api/metadata/#{b.pid}?type=desc_metadata"
-         out = get_mods_dir(mods_dir, b.pid)
+         relative_pid_path = relative_pid_path(b.pid)
+         pid_path = File.join(mods_dir, relative_pid_path)
+         pid_paths[b.pid] = relative_pid_path
+         FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
+         out = File.join(pid_path, "#{b.pid}.xml")
 
          params = "pid=#{b.pid}"
          if b.exemplar.blank?
@@ -40,30 +45,14 @@ namespace :dpla do
       end
 
       puts "Generate DPLA METS XML for MODS..."
-      out = "#{mets_dir}/#{metadata.pid.gsub(/:/,"_")}.xml"
+      out = "#{mets_dir}/#{metadata.pid}.xml"
       mods_xml = ApplicationController.new.render_to_string(
          :template => 'template/mets.xml',
-         :locals => { metadata: sirsi_meta, ws_url: ws_url }
+         :locals => { metadata: sirsi_meta }
       )
       outf = File.open(out, "w")
       outf << mods_xml
       outf.close
       puts "DONE"
-   end
-
-   # FIXME
-   def get_mods_dir( mods_dir, pid )
-      # out_dir = "#{mods_dir}/#{metadata.pid.gsub(/:/,"_")}"
-      # FileUtils.mkdir_p out_dir if !Dir.exist? out_dir
-      # out = "#{out_dir}/#{b.pid.gsub(/:/,"_")}.xml"
-      pid_parts = pid.split(":")
-      base = pid_parts[1]
-      parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd
-      parts << base.last if parts.length * 2 !=  base.length
-      pid_dirs = parts.join("/")
-      xml_filename = "#{pid.gsub(/:/,"_")}.xml"
-      xml_path = File.join(mods_dir, pid_parts[0], pid_dirs)
-      FileUtils.mkdir_p xml_path if !Dir.exist?(xml_path)
-      return File.join(xml_path, xml_filename)
    end
 end

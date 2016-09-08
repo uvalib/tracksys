@@ -6,7 +6,7 @@
    </mets:dmdSec>
    <% metadata.child_bibls.each do |b| %>
    <mets:dmdSec ID="<%= b.pid.gsub(/:/,'_') %>-mods">
-      <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= ws_url %>/mods/<%= b.pid %>.xml" />
+      <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= mods_url(b.pid) %>" />
    </mets:dmdSec>
    <% end %>
 
