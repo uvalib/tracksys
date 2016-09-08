@@ -249,7 +249,7 @@ ActiveAdmin.register Order do
        if order.order_status == 'approved'
          if order.email?
            if order.date_customer_notified
-             div :class => 'workflow_button' do button_to "Recreate Email", recreate_email_admin_order_path(order.id), :method => :put, :disabled => true end
+             div :class => 'workflow_button' do button_to "Recreate Email", recreate_email_admin_order_path(order.id), :method => :put end
            else
              div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
            end
