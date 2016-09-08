@@ -5,7 +5,7 @@
       <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= Settings.tracksys_url %>/api/metadata/<%= metadata.pid %>?type=desc_metadata"/>
    </mets:dmdSec>
    <% metadata.child_bibls.each do |b| %>
-   <mets:dmdSec "ID"="<%= b.pid.gsub(/:/,'_') %>-mods">
+   <mets:dmdSec ID="<%= b.pid.gsub(/:/,'_') %>-mods">
       <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= ws_url %>/mods/<%= b.pid %>.xml" />
    </mets:dmdSec>
    <% end %>
