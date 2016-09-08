@@ -1,5 +1,9 @@
 class CreateOrderEmail < BaseJob
 
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id )
+   end
+   
    def do_workflow(message)
       raise "Parameter 'order' is required" if message[:order].blank?
 

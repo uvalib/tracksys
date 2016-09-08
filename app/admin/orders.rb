@@ -248,9 +248,8 @@ ActiveAdmin.register Order do
     if order.has_patron_deliverables?
        if order.order_status == 'approved'
          if order.email?
-           div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
            if order.date_customer_notified
-             div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put, :disabled => true end
+             div :class => 'workflow_button' do button_to "Recreate Email", recreate_email_admin_order_path(order.id), :method => :put, :disabled => true end
            else
              div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
            end
@@ -328,6 +327,13 @@ ActiveAdmin.register Order do
     order.check_order_ready_for_delivery
     redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{order.id} is being checked to see if it is ready."
   end
+
+  member_action :recreate_email, :method => :put do
+     order = Order.find(params[:id])
+     CreateOrderEmail.exec_now({order: order})
+     redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
+  end
+
 
   member_action :send_order_email, :method => :put do
     order = Order.find(params[:id])
