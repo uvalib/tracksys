@@ -66,7 +66,7 @@ class CreatePatronDeliverables < BaseJob
          # Simple case; just a copy of tif at full resolution. No imagemagick needed
          if suffix == '.tif' && (desired_res.blank? or desired_res.to_s =~ /highest/i)
             FileUtils.cp(source, dest_path)
-            on_success "Deliverable image for MasterFile #{master_file_id}."
+            on_success "Deliverable image for MasterFile #{master_file_id} at #{dest_path}."
             return
          end
 
@@ -146,7 +146,7 @@ class CreatePatronDeliverables < BaseJob
          new_tiff.destroy!
          tiff.destroy!
 
-         on_success "Deliverable image for MasterFile #{master_file_id}."
+         on_success "Deliverable image for MasterFile #{master_file_id} in at #{dest_path}."
       else
          raise "Source is not a .tif file: #{source}"
       end
