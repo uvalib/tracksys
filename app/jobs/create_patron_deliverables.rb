@@ -146,7 +146,7 @@ class CreatePatronDeliverables < BaseJob
          new_tiff.destroy!
          tiff.destroy!
 
-         on_success "Deliverable image for MasterFile #{master_file_id} in at #{dest_path}."
+         on_success "Deliverable image for MasterFile #{master_file_id} at #{dest_path}."
       else
          raise "Source is not a .tif file: #{source}"
       end

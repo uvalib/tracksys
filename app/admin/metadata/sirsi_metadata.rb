@@ -159,7 +159,10 @@ ActiveAdmin.register SirsiMetadata do
           row :exemplar do |sirsi_metadata|
             link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
           end
-      row :dpla
+          row :dpla
+          if sirsi_metadata.dpla
+             row('Parent Metadata ID'){ |r| r.parent_bibl_id }
+          end
           row('Right Statement'){ |r| r.use_right.name }
           row :availability_policy
           row :indexing_scenario
@@ -207,7 +210,7 @@ ActiveAdmin.register SirsiMetadata do
           link_to "#{sirsi_metadata.parent_bibl.title}", admin_sirsi_metadata_path(sirsi_metadata.parent_bibl)
         end
       end
-      row "child bibls" do |sirsi_metadata|
+      row "child metadata records" do |sirsi_metadata|
          if sirsi_metadata.child_bibls.size > 0
    	     link_to "#{sirsi_metadata.child_bibls.size}", admin_sirsi_metadata_path(:q => {:parent_bibl_id_eq => sirsi_metadata.id } )
          end
