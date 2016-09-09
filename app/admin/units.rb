@@ -350,20 +350,17 @@ ActiveAdmin.register Unit do
               div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
               div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
             end
-            if not unit.intended_use == 'Digital Collection Buidling'
-               if unit.date_patron_deliverables_ready
-                  div :class => 'workflow_button' do button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put end
-               else
-                  div :class => 'workflow_button' do button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
-               end
-
-               # deliverables ready set and data in assemble deliverables dir?
-               if unit.patron_deliverables_available?
-                 div :class => 'workflow_button' do button_to "Create/Replace Deliverable Zip", create_deliverable_zip_admin_unit_path, :method => :put end
-               end
+            if unit.intended_use != 'Digital Collection Buidling' && !unit.date_patron_deliverables_ready
+               div :class => 'workflow_button' do button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
             end
        else
-         div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
+          if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
+             if unit.date_patron_deliverables_ready
+                div :class => 'workflow_button' do button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put end
+             end
+          else
+            div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
+          end
        end
     end
 
@@ -412,16 +409,9 @@ ActiveAdmin.register Unit do
   end
 
   # Member actions for workflow
-  member_action :create_deliverable_zip, :method => :put do
-     Unit.find(params[:id]).create_patron_zip
-     redirect_to "/admin/units/#{params[:id]}", :notice => "Generating new deliverable zip for unit."
-  end
-
   member_action :regenerate_deliverables, :method=>:put do
      unit = Unit.find(params[:id])
-     unit_dir = "%09d" % unit.id
-     source_dir = File.join(IN_PROCESS_DIR, unit_dir)
-     CopyUnitForDeliverableGeneration.exec({unit: unit, source_dir: source_dir, mode: "patron", skip_delivery_check: true})
+     RecreatePatronDeliverables.exec({unit: unit})
      redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
   end
 
