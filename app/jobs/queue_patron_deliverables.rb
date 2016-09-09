@@ -45,9 +45,6 @@ class QueuePatronDeliverables < BaseJob
       FileUtils.rm_rf(source)
       logger().info("Files for unit #{unit.id} copied for the creation of patron deliverables have now been deleted.")
 
-      # Zip up patron deliverables one unit at a time as they are completed
-      CreateUnitZip.exec_now( { unit: unit }, self)
-
       unit.update_attribute(:date_patron_deliverables_ready, Time.now)
       logger().info("Date patron deliverables ready for unit #{unit.id} has been updated.")
    end

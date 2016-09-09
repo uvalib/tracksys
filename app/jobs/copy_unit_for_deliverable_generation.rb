@@ -1,4 +1,7 @@
 class CopyUnitForDeliverableGeneration < BaseJob
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+   end
 
    def do_workflow(message)
 
@@ -44,7 +47,10 @@ class CopyUnitForDeliverableGeneration < BaseJob
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so patron deliverables can be made."
             QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
             if message[:skip_delivery_check].nil?
+               CreateUnitZip.exec_now( { unit: unit }, self)
                CheckOrderReadyForDelivery.exec_now( { :order => unit.order}, self  )
+            else
+               CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
             end
          elsif mode == 'dl'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so Digital Library deliverables can be made."

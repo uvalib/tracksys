@@ -421,7 +421,7 @@ ActiveAdmin.register Unit do
      unit = Unit.find(params[:id])
      unit_dir = "%09d" % unit.id
      source_dir = File.join(IN_PROCESS_DIR, unit_dir)
-     CopyUnitForDeliverableGeneration.exec({unit: unit, source: source_dir, mode: "patron", skip_delivery_check: true})
+     CopyUnitForDeliverableGeneration.exec({unit: unit, source_dir: source_dir, mode: "patron", skip_delivery_check: true})
      redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
   end
 
