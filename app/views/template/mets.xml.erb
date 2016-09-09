@@ -4,14 +4,14 @@
    <mets:dmdSec ID="collection-description-mods">
       <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= Settings.tracksys_url %>/api/metadata/<%= metadata.pid %>?type=desc_metadata"/>
    </mets:dmdSec>
-   <% metadata.child_bibls.each do |b| %>
+   <% metadata.children.each do |b| %>
    <mets:dmdSec ID="<%= b.pid.gsub(/:/,'_') %>-mods">
       <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= mods_url(b.pid) %>" />
    </mets:dmdSec>
    <% end %>
 
    <mets:fileSec>
-   <% metadata.child_bibls.each do |b| %>
+   <% metadata.children.each do |b| %>
       <mets:fileGrp USE="preview" ID="<%= b.pid.gsub(/:/,'_') %>-files">
          <mets:file ID="<%= b.pid.gsub(/:/,'_') %>-preview" DMDID="<%= b.pid.gsub(/:/,'_') %>-mods">
             <mets:FLocat LOCTYPE="PURL" xlink:href="<%= Settings.iiif_url %>/<%= b.pid %>/full/!125,125/0/default.jpg"/>
@@ -22,7 +22,7 @@
 
    <mets:structMap>
       <mets:div LABEL="Collection">
-         <% metadata.child_bibls.each do |b| %>
+         <% metadata.children.each do |b| %>
          <mets:fptr FILEID="<%= b.pid.gsub(/:/,'_') %>-preview" />
          <% end %>
       </mets:div>

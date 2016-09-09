@@ -206,13 +206,13 @@ ActiveAdmin.register SirsiMetadata do
         raw(sirsi_metadata.agency_links)
       end
       row("Collection Metadata Record") do |sirsi_metadata|
-        if sirsi_metadata.parent_bibl
-          link_to "#{sirsi_metadata.parent_bibl.title}", admin_sirsi_metadata_path(sirsi_metadata.parent_bibl)
+        if sirsi_metadata.parent
+          link_to "#{sirsi_metadata.parent.title}", admin_sirsi_metadata_path(sirsi_metadata.parent)
         end
       end
       row "child metadata records" do |sirsi_metadata|
-         if sirsi_metadata.child_bibls.size > 0
-   	     link_to "#{sirsi_metadata.child_bibls.size}", admin_sirsi_metadata_path(:q => {:parent_bibl_id_eq => sirsi_metadata.id } )
+         if sirsi_metadata.children.size > 0
+   	     link_to "#{sirsi_metadata.children.size}", admin_sirsi_metadata_path(:q => {:parent_bibl_id_eq => sirsi_metadata.id } )
          end
       end
     end

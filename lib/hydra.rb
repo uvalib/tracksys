@@ -166,8 +166,8 @@ module Hydra
                   xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                end
             elsif object.is_a? Metadata
-               if object.parent_bibl
-                  parent_pid = object.parent_bibl.pid
+               if object.parent
+                  parent_pid = object.parent.pid
                   xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
                end
             else
@@ -243,7 +243,7 @@ module Hydra
             if object.is_a? Metadata
                content_models.push(Fedora_content_models['fedora-generic'])
                if object.dpla
-                  if object.parent_bibl
+                  if object.parent
                      content_models.push(Fedora_content_models['dpla-item'])
                   else
                      content_models.push(Fedora_content_models['dpla-collection'])

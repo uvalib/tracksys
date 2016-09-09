@@ -171,6 +171,16 @@ ActiveAdmin.register XmlMetadata do
        row "Agencies Requesting Resource" do |xml_metadata|
          raw(xml_metadata.agency_links)
        end
+       row("Collection Metadata Record") do |xml_metadata|
+         if xml_metadata.parent
+           link_to "#{xml_metadata.parent.title}", admin_xml_metadata_path(xml_metadata.parent)
+         end
+       end
+       row "child metadata records" do |xml_metadata|
+          if xml_metadata.children.size > 0
+    	     link_to "#{xml_metadata.children.size}", admin_xml_metadata_path(:q => {:parent_bibl_id_eq => xml_metadata.id } )
+          end
+       end
      end
    end
 

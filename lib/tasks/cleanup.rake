@@ -31,8 +31,9 @@ namespace :cleanup do
                puts "** ERROR ** Skipping bibl #{b.id} with non-null desc_metadata"
                next
             end
+            puts "Create MODS XML Metadata for Bibl #{b.id}"
             mods_xml = ApplicationController.new.render_to_string(
-               :template => 'template/mods.xml',
+               :template => 'template/mods_from_bibl.xml',
                :locals => { :bibl => b }
             )
             b.desc_metadata = mods_xml
