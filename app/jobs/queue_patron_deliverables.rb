@@ -50,6 +50,5 @@ class QueuePatronDeliverables < BaseJob
 
       unit.update_attribute(:date_patron_deliverables_ready, Time.now)
       logger().info("Date patron deliverables ready for unit #{unit.id} has been updated.")
-      CheckOrderReadyForDelivery.exec_now( { :order => unit.order}, self  )
    end
 end

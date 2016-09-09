@@ -43,6 +43,9 @@ class CopyUnitForDeliverableGeneration < BaseJob
          if mode == 'patron'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so patron deliverables can be made."
             QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
+            if message[:skip_delivery_check].nil?
+               CheckOrderReadyForDelivery.exec_now( { :order => unit.order}, self  )
+            end
          elsif mode == 'dl'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so Digital Library deliverables can be made."
             UpdateUnitDateQueuedForIngest.exec_now({ :unit => unit, :source => destination_dir }, self)
