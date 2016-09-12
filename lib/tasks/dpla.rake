@@ -20,10 +20,12 @@ namespace :dpla do
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
 
       # Is this a DPLA collection record (a record that has children)?
+      child_pids = []
       if metadata.children.size > 0
          puts "Generate DPLA MODS XML for all children of #{metadata.pid}..."
          metadata.children.each do |b|
             puts "     Child PID: #{b.pid}"
+            child_pids << b.pid
             src = "#{Settings.tracksys_url}/api/metadata/#{b.pid}?type=desc_metadata"
             relative_pid_path = relative_pid_path(b.pid)
             pid_path = File.join(mods_dir, relative_pid_path)
@@ -43,18 +45,9 @@ namespace :dpla do
             puts cmd
             `#{cmd}`
          end
-
-         puts "Generate DPLA METS XML from metadata MODS..."
-         out = "#{mets_dir}/#{metadata.pid}.xml"
-         mods_xml = ApplicationController.new.render_to_string(
-            :template => 'template/mets.xml',
-            :locals => { metadata: metadata }
-         )
-         outf = File.open(out, "w")
-         outf << mods_xml
-         outf.close
       else
          # Not collection record. Assume all masterfiles have MODS desc_metadata
+         # but.. only use those that are in units that are in the DL and are discoverable
          puts "Generate DPLA MODS XML for all Masterfiles from DL units of #{metadata.pid}..."
          metadata.units.each do |u|
             next if !u.include_in_dl
@@ -76,13 +69,20 @@ namespace :dpla do
                puts "     #{cmd}"
                `#{cmd}`
                tmp.unlink
+               child_pids << mf.pid
             end
          end
-
-         puts "Generate DPLA METS XML from masterfile MODS..."
-         # metadata.unit.master_files.each do |mf|
-         # end
       end
+
+      puts "Generate DPLA METS XML from child PIDs..."
+      out = "#{mets_dir}/#{metadata.pid}.xml"
+      mods_xml = ApplicationController.new.render_to_string(
+         :template => 'template/mets.xml',
+         :locals => { parent_pid: metadata.pid, child_pids: child_pids }
+      )
+      outf = File.open(out, "w")
+      outf << mods_xml
+      outf.close
       puts "DONE"
    end
 end
