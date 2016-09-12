@@ -26,12 +26,14 @@ ActiveAdmin.register XmlMetadata do
    scope :not_approved
    scope :in_digital_library
    scope :not_in_digital_library
+   scope :dpla
 
    # Filters ==================================================================
    #
    filter :id
    filter :title
    filter :pid
+   filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
@@ -60,6 +62,9 @@ ActiveAdmin.register XmlMetadata do
                link_to "VIRGO", xml_metadata.dl_virgo_url, :target => "_blank"
             end
          end
+      end
+      column ("DPLA?") do |xml_metadata|
+        format_boolean_as_yes_no(xml_metadata.dpla)
       end
       column :units, :class => 'sortable_short', :sortable => :units_count do |xml_metadata|
          link_to xml_metadata.units.count, admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
@@ -93,6 +98,10 @@ ActiveAdmin.register XmlMetadata do
            row :date_dl_update
            row :exemplar do |xml_metadata|
              link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
+           end
+           row :dpla
+           if xml_metadata.dpla
+              row('Parent Metadata ID'){ |r| r.parent_bibl_id }
            end
            row('Right Statement'){ |r| r.use_right.name }
            row :availability_policy
