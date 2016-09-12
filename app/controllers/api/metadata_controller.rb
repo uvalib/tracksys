@@ -2,7 +2,7 @@ class Api::MetadataController < ApplicationController
    def show
       render :text=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
-      render :text=>"#{type} is not supported", status: :bad_request and return if type != "desc_metadata" && type != "rels_ext"
+      render :text=>"#{type} is not supported", status: :bad_request and return if type != "desc_metadata"
       render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
       #parse pid for item identity; format TS[B|M]:[id]
@@ -28,8 +28,6 @@ class Api::MetadataController < ApplicationController
          else
             render :xml=> object.desc_metadata
          end
-      else
-         render :xml=> Hydra.rels_ext(object)
       end
    end
 end

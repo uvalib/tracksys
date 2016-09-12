@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160831183525) do
+ActiveRecord::Schema.define(version: 20160912142434) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -271,7 +271,6 @@ ActiveRecord::Schema.define(version: 20160831183525) do
     t.integer  "use_right_id",         limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.boolean  "dpla",                               default: false
     t.string   "creator_death_date",   limit: 255
     t.string   "creation_date",        limit: 255
     t.string   "primary_author",       limit: 255
@@ -281,7 +280,6 @@ ActiveRecord::Schema.define(version: 20160831183525) do
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
   add_index "master_files", ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest", using: :btree
   add_index "master_files", ["date_dl_update"], name: "index_master_files_on_date_dl_update", using: :btree
-  add_index "master_files", ["dpla"], name: "index_master_files_on_dpla", using: :btree
   add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
   add_index "master_files", ["indexing_scenario_id"], name: "index_master_files_on_indexing_scenario_id", using: :btree
   add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree

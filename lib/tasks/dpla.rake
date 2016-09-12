@@ -24,6 +24,8 @@ namespace :dpla do
       if metadata.children.size > 0
          puts "Generate DPLA MODS XML for all children of #{metadata.pid}..."
          metadata.children.each do |b|
+            next if !b.dpla
+
             puts "     Child PID: #{b.pid}"
             child_pids << b.pid
             src = "#{Settings.tracksys_url}/api/metadata/#{b.pid}?type=desc_metadata"
@@ -46,11 +48,13 @@ namespace :dpla do
             `#{cmd}`
          end
       else
-         # Not collection record. Assume all masterfiles have MODS desc_metadata
-         # but.. only use those that are in units that are in the DL and are discoverable
+         # Not collection record. Generate MODS from master file desc_metadata
+         # Skip if masterfile does not have desc_metadata or is not discoverable.
+         # Also skip all master files for units that are not in the DL
          puts "Generate DPLA MODS XML for all Masterfiles from DL units of #{metadata.pid}..."
          metadata.units.each do |u|
             next if !u.include_in_dl
+
             puts "  Unit #{u.id} is included in DL. Finding master files..."
             u.master_files.each do |mf|
                next if mf.desc_metadata.blank? || !mf.discoverability

@@ -123,164 +123,6 @@ module Hydra
       return doc
    end
 
-   # Takes Metadata, Component or MasterFile record and returns a string
-   # containing metadata indicating external relationships (Fedora RELS-EXT
-   # datastream), in the form of an RDF XML document.
-   def self.rels_ext(object)
-      unless object.respond_to?(:pid)
-         raise ArgumentError, "Object passed must have a 'pid' attribute"
-      end
-      if object.pid.blank?
-         raise ArgumentError, "Can't export #{object.class} #{object.id}: pid is blank"
-      end
-
-      output = ''
-      xml = Builder::XmlMarkup.new(:target => output, :indent => 2)
-      xml.instruct! :xml  # Include XML declaration
-
-      xml.rdf(:RDF,
-      "xmlns:fedora-model".to_sym => Fedora_namespaces['fedora-model'],
-      "xmlns:rdf".to_sym => Fedora_namespaces['rdf'],
-      "xmlns:rdfs".to_sym => Fedora_namespaces['rdfs'],
-      "xmlns:rel".to_sym => Fedora_namespaces['rel'],
-      "xmlns:uva".to_sym => Fedora_namespaces['uva']
-      ) do
-         xml.rdf(:Description, "rdf:about".to_sym => "info:fedora/#{object.pid}") do
-
-            # Create isMemberof relationship in rels-ext
-            # For a Component or MasterFile object, indicate parent/child relationship using <rel:isMemberOf>
-            if object.is_a? Component
-               if object.parent
-                  xml.rel :isPartOf, "rdf:resource".to_sym => "info:fedora/#{object.parent.pid}"
-               end
-               if object.new_previous
-                  xml.uva :follows, "rdf:resource".to_sym => "info:fedora/#{object.new_previous.pid}"
-               end
-            elsif object.is_a? MasterFile
-               if object.component
-                  parent_pid = object.component.pid
-                  xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
-               else
-                  parent_pid = object.unit.metadata.pid
-                  xml.uva :isConstituentOf, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
-                  xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
-               end
-            elsif object.is_a? Metadata
-               if object.parent
-                  parent_pid = object.parent.pid
-                  xml.uva :hasCatalogRecordIn, "rdf:resource".to_sym => "info:fedora/#{parent_pid}"
-               end
-            else
-            end
-
-            if object.is_a? Component
-               # Assign visibility status for Components
-               if object.discoverability?
-                  xml.uva :visibility, 'VISIBLE'
-               else
-                  xml.uva :visibility, 'UNDISCOVERABLE'
-               end
-
-               # Assign MasterFile records to a Component
-               if not object.master_files.empty?
-                  object.master_files.each {|mf|
-                     xml.uva :hasDigitalRepresentation, "rdf:resource".to_sym => "info:fedora/#{mf.pid}"
-                  }
-
-                  # lookup exemplar pid or select one
-                  exemplar = nil
-                  if object.exemplar?
-                     exemplar = MasterFile.where(filename: object.exemplar).first
-                  else
-                     exemplar = object.master_files.first
-                  end
-                  warn "PID lookup for #{object.class} #{object.id} exemplar returned #{exemplar.pid.to_s}" unless exemplar.pid =~ /^uva-lib:\d+$/
-                  xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{exemplar.pid}"
-               end
-            end
-
-            # Acquire PID of image that has been selected as the exemplar image for this record.
-            # Exemplar images are used in the Blacklight display on the _index_partial/_dl_jp2k view.
-            if object.is_a? Metadata
-               if object.exemplar
-                  exemplar_master_file = MasterFile.find_by(filename: object.exemplar)
-                  if !exemplar_master_file.nil?
-                     pid = exemplar_master_file.pid
-                     xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"
-                  end
-               else
-                  # Using the mean of the files output from the method in metadata model to get only those masterfiles
-                  # associated with this metadata record that belong to units that have already been queued for ingest.
-                  #
-                  # dl_master_files might return Nil prior to ingest, so we will use the master_files method
-                  mean_of_master_files = object.master_files.length / 2
-                  pid = object.master_files[mean_of_master_files.to_i].pid
-
-                  # save master file designated as the exemplar to the metadata record
-                  object.exemplar = object.master_files[mean_of_master_files.to_i].filename
-                  object.save!
-
-                  xml.uva :hasExemplar, "rdf:resource".to_sym => "info:fedora/#{pid}"
-               end
-            end
-
-            # Create sequential relationships: hasPreceedingPage, hasFollowingPage
-            # note that previous/next are based on units; Components should be restricted to self.
-            if object.is_a? MasterFile
-               if object.previous and ( object.component.nil? or object.component == object.previous.component )
-                  xml.uva :hasPreceedingPage, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
-                  xml.uva :isFollowingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.previous.pid}"
-                  object.previous && object.component && object.component == object.previous.component
-               end
-               if object.next and ( object.component.nil? or object.component == object.next.component )
-                  xml.uva :hasFollowingPage, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
-                  xml.uva :isPreceedingPageOf, "rdf:resource".to_sym => "info:fedora/#{object.next.pid}"
-               end
-            end
-
-            # Indicate content model using <fedora-model:hasModel>
-            content_models = Array.new
-            if object.is_a? Metadata
-               content_models.push(Fedora_content_models['fedora-generic'])
-               if object.dpla
-                  if object.parent
-                     content_models.push(Fedora_content_models['dpla-item'])
-                  else
-                     content_models.push(Fedora_content_models['dpla-collection'])
-                  end
-               end
-            elsif object.is_a? Component
-               # assuming at this point that all Components are going to have descMetadata datastreams that is written
-               # in MODS 3.4.
-               content_models.push(Fedora_content_models['mods34'])
-               if object.level == 'item'
-                  content_models.push(Fedora_content_models['ead-item'])
-               elsif object.level == 'guide'
-                  content_models.push(Fedora_content_models['ead-collection'])
-               else
-                  content_models.push(Fedora_content_models['ead-component'])
-               end
-            elsif object.is_a? MasterFile
-               if object.tech_meta_type == 'image'
-                  content_models.push(Fedora_content_models['jp2k'])
-               end
-               if object.dpla
-                  content_models.push(Fedora_content_models['dpla-item'])
-               end
-            else
-               content_model = nil
-            end
-            if not content_models.empty?
-               content_models.each do |content_model|
-                  xml.__send__ "fedora-model".to_sym, :hasModel, "rdf:resource".to_sym => "info:fedora/#{content_model}"
-               end
-            end
-         end
-      end
-
-      return output
-   end
-
    #-----------------------------------------------------------------------------
 
    # Takes a Metadata Record, Component, or MasterFile record and returns a string
@@ -496,7 +338,8 @@ module Hydra
       if master_file.pid.blank?
          relatedItem_id = "#{master_file.tech_meta_type}_#{master_file.id}"
       else
-         relatedItem_id = format_pid(master_file.pid)
+         # colon not allowed in ID. Replace with underscore
+         relatedItem_id = master_file.pid.gsub(/:/, "_")
       end
 
       xml.mods :titleInfo do
@@ -603,22 +446,4 @@ module Hydra
       end
    end
    private_class_method :mods_recordInfo
-
-   #-------------------------------------------------------------------------------
-   # Utility methods
-   #-------------------------------------------------------------------------------
-
-   # Formats a PID (e.g. "uva-lib:123") for use in ID attribute values within a
-   # METS, MODS, etc. document. Replaces colon with underscore by default, or
-   # replacement string if passed.
-   #
-   # A colon in the value of an ID attribute is allowed by the XML
-   # specification, but not by the NCName (noncolonized name) datatype used in
-   # W3C XML Schema datatypes. Since the METS, MODS, etc. schema are in W3C XML
-   # Schema form, using colons in ID attributes produces documents that are
-   # well-formed but not valid. To produce valid output, replace the colon.
-   def self.format_pid(pid, replacement = '_')
-      return pid.gsub(/:/, replacement)
-   end
-   private_class_method :format_pid
 end
