@@ -44,7 +44,6 @@ production:
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "virgo"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
-   allow_unpublished_pdf: "false"
 development:
    dev_user_compute_id: lf6f
    archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
@@ -60,4 +59,3 @@ development:
    tracksys_url: http://tracksysdev.lib.virginia.edu/
    index_destintion: "localhost"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
-   allow_unpublished_pdf: "true"

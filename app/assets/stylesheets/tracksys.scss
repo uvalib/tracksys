@@ -7,6 +7,25 @@ div.workflow_button {
    }
 }
 
+#child-links {
+   margin: 5px 0;
+   width: inherit;
+   text-transform: uppercase;
+   tr, td {
+      border: none;
+      padding: 0;
+   }
+   td.child-type {
+      text-align: right;
+      padding-right: 10px;
+   }
+   .none {
+      color: #aaa;
+      letter-spacing: 0.1em;
+      font-size: 0.8em;
+   }
+}
+
 div.workflow_button.border-bottom {
    border-bottom: 1px solid #ccc;
    padding-bottom: 10px;

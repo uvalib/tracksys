@@ -5,7 +5,7 @@ ActiveAdmin.register XmlMetadata do
    permit_params :title, :creator_name,
        :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata
+       :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata, :dpla, :parent_bibl_id
 
    config.clear_action_items!
 
@@ -181,14 +181,17 @@ ActiveAdmin.register XmlMetadata do
          raw(xml_metadata.agency_links)
        end
        row("Collection Metadata Record") do |xml_metadata|
-         if xml_metadata.parent
-           link_to "#{xml_metadata.parent.title}", admin_xml_metadata_path(xml_metadata.parent)
-         end
+          if xml_metadata.parent
+            if xml_metadata.parent.type == "SirsiMetadata"
+               link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+            elsif xml_metadata.parent.type == "XmlMetadata"
+               link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
+            end
+          end
        end
        row "child metadata records" do |xml_metadata|
-          if xml_metadata.children.size > 0
-    	     link_to "#{xml_metadata.children.size}", admin_xml_metadata_path(:q => {:parent_bibl_id_eq => xml_metadata.id } )
-          end
+          map = xml_metadata.typed_children
+          render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
        end
      end
    end
@@ -210,5 +213,12 @@ ActiveAdmin.register XmlMetadata do
      logger.info "XML Metadata #{xm.id}:#{xm.pid} has been flagged for an update in the DL"
      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "XML Metadata flagged for Publication"
    end
+
+   controller do
+       before_filter :get_dpla_collection_records, only: [:edit]
+       def get_dpla_collection_records
+          @dpla_collection_records = Metadata.where("id in (#{Settings.dpla_collection_records})")
+       end
+    end
 
 end

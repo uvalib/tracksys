@@ -132,32 +132,28 @@ class Metadata < ActiveRecord::Base
    #
    def children
       begin
-         return SirsiMetadata.where(parent_bibl_id: id).to_a
+         return Metadata.where(parent_bibl_id: id)
       rescue ActiveRecord::RecordNotFound
          return Array.new
       end
    end
 
-   def parent
+   def typed_children( )
+      out = {}
       begin
-         return SirsiMetadata.find(parent_bibl_id)
+         out[:sirsi] =  SirsiMetadata.where(parent_bibl_id: id, type: "SirsiMetadata")
+         out[:xml] =  SirsiMetadata.where(parent_bibl_id: id, type: "XmlMetadata")
+         return out
       rescue ActiveRecord::RecordNotFound
-         return nil
+         return {}
       end
    end
 
-   private
-   def ancestors
-      parent_bibls = Array.new
-      if parent_bibl_id != 0
-         begin
-            bibl = self.parent
-            parent_bibls << bibl
-            parent_bibls << bibl.ancestors unless bibl.ancestors.nil?
-            return parent_bibls.flatten
-         rescue ActiveRecord::RecordNotFound
-            return parent_bibls.flatten
-         end
+   def parent
+      begin
+         return Metadata.find(parent_bibl_id)
+      rescue ActiveRecord::RecordNotFound
+         return nil
       end
    end
 end

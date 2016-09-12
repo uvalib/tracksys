@@ -207,13 +207,16 @@ ActiveAdmin.register SirsiMetadata do
       end
       row("Collection Metadata Record") do |sirsi_metadata|
         if sirsi_metadata.parent
-          link_to "#{sirsi_metadata.parent.title}", admin_sirsi_metadata_path(sirsi_metadata.parent)
+          if sirsi_metadata.parent.type == "SirsiMetadata"
+             link_to "#{sirsi_metadata.parent.title}", "/admin/sirsi_metadata/#{sirsi_metadata.parent.id}"
+          elsif sirsi_metadata.parent.type == "XmlMetadata"
+             link_to "#{sirsi_metadata.parent.title}", "/admin/xml_metadata/#{sirsi_metadata.parent.id}"
+          end
         end
       end
       row "child metadata records" do |sirsi_metadata|
-         if sirsi_metadata.children.size > 0
-   	     link_to "#{sirsi_metadata.children.size}", admin_sirsi_metadata_path(:q => {:parent_bibl_id_eq => sirsi_metadata.id } )
-         end
+         map = sirsi_metadata.typed_children
+         render partial: 'children_links', locals: {map: map, parent_id: sirsi_metadata.id}
       end
     end
   end
@@ -240,6 +243,11 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   controller do
+     before_filter :get_dpla_collection_records, only: [:edit]
+     def get_dpla_collection_records
+       @dpla_collection_records = Metadata.where("id in (#{Settings.dpla_collection_records})")
+     end
+
       before_filter :get_sirsi, only: [:edit, :show]
       def get_sirsi
          @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
