@@ -10,7 +10,7 @@ class CreateOrderEmail < BaseJob
       order = message[:order]
       delivery_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
       delivery_files = [ File.join("order_#{order.id}", "#{order.id}.pdf") ]
-      Dir.glob("#{delivery_dir}/*.zip").sort do |zf|
+      Dir.glob("#{delivery_dir}/*.zip").sort.each do |zf|
          # strip off the full path; only add: order_dir/file.zip
          delivery_files << zf.split("/patron/")[1]
       end
