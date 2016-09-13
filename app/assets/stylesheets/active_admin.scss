@@ -14,7 +14,42 @@
 @import "colorbox";
 @import "printable";
 @import "chosen";
-@import "twilight";
+@import "codemirror";
+@import "foldgutter";
+@import "show-hint";
+
+#mf-metadata-wrap {
+   border:1px solid #ccc;
+   background-color: white;
+   pre {
+      margin:0;
+      padding: 10px;
+      background-color: white;
+      color: #333;
+      font-family: monospace;
+      font-size: 1.2em;
+      white-space: pre-wrap;
+   }
+}
+
+div.attributes_table {
+   input[type="text"].sirsi-edit {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px;
+   }
+   .ocr-button {
+      margin:0;
+   }
+   pre.xml-meta {
+      background-color: white;
+      color: #333;
+      font-family: monospace;
+      border: 1px solid #ccc;
+      padding: 5px;
+      white-space: pre-wrap;
+   }
+}
 
 fieldset.inputs.columns-none {
    margin: 15px 0;
@@ -101,9 +136,16 @@ ul.header-item.tabs {
    }
    textarea {
       width: 100%;
-      box-sizing: border-box;
       outline: none;
-      font-size: 1em;
+      resize: none;
+      box-sizing: border-box;
+      border-color: #ccc;
+      margin-top: 5px;
+      padding: 15px;
+      font-size: 1.3em;
+      font-family: monospace;
+      color: #333;
+      line-height: 1.3em;
       font-family: serif;
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
@@ -124,8 +166,10 @@ textarea.transcription {
    border-color: #ccc;
    margin-top: 5px;
    padding: 15px;
-   font-size: 1em;
+   line-height: 1.3em;
+   font-size: 1.3em;
    font-family: serif;
+   color: #333;
 }
 
 div.image-panel {
@@ -147,10 +191,11 @@ div.mf-transcription {
    background-color: white;
    max-height: 300px;
    overflow: scroll;
-   font-size: 0.95em;
+   font-size: 1.15em;
    p {
       margin: 2px 0;
-      font-family: serif;
+      color:#333;
+      font-family: monospace;
    }
 }
 a.workflow_button {

@@ -3,7 +3,7 @@ ActiveAdmin.register JobStatus do
    actions :all, :except => [:edit, :new]
 
    filter :name, :label=>"Workflow"
-   filter :originator_type, :as => :select, :collection => ['Bibl', 'MasterFile', 'Order', 'Unit'], :label => "Object"
+   filter :originator_type, :as => :select, :collection => ['Metadata', 'MasterFile', 'Order', 'Unit'], :label => "Object"
    filter :originator_id, :as => :numeric, :label => "Object ID"
    filter :status, :as => :select, :collection => [ :pending, :running, :success, :failure ]
    filter :created_at, :label => "Submitted"

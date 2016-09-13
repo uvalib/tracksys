@@ -2,7 +2,7 @@ ActiveAdmin.register Customer do
   menu :priority => 2
 
   # strong paramters handling
-  permit_params :first_name, :last_name, :email, :academic_status_id,
+  permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,
      primary_address_attributes: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
      billable_address_attributes: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]
 
@@ -42,9 +42,6 @@ ActiveAdmin.register Customer do
     end
     column :units do |customer|
       link_to customer.units.to_a.size, admin_units_path(:q => {:customer_id_eq => customer.id})
-    end
-    column ("Bibliographic Records") do |customer|
-      link_to customer.bibls.to_a.size, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
     end
     column :master_files do |customer|
       link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
@@ -176,9 +173,6 @@ ActiveAdmin.register Customer do
       end
       row :units do |customer|
         link_to customer.units.count, admin_units_path(:q => {:customer_id_eq => customer.id})
-      end
-      row ("Bibliographic Records") do |customer|
-        link_to customer.bibls.count, admin_bibls_path(:q => {:customers_id_eq => customer.id}) # Bibl requires 'customers_id' since there are potentially many customers for each bibl
       end
       row :master_files do |customer|
         link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})

@@ -1,4 +1,7 @@
 class CopyUnitForDeliverableGeneration < BaseJob
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+   end
 
    def do_workflow(message)
 
@@ -22,9 +25,9 @@ class CopyUnitForDeliverableGeneration < BaseJob
          FileUtils.mkdir_p(destination_dir)
 
          # copy all of the master files for this unit to the processing directory based on MODE
+         logger.debug("Copying all master files from #{source_dir} to #{destination_dir}")
          unit.master_files.each do |master_file|
             begin
-               logger().debug("Copy from #{source_dir} to #{destination_dir}/#{master_file.filename}")
                FileUtils.cp(File.join(source_dir, master_file.filename), File.join(destination_dir, master_file.filename))
             rescue Exception => e
                on_error "Can't copy source file '#{master_file.filename}': #{e.message}"
@@ -37,11 +40,18 @@ class CopyUnitForDeliverableGeneration < BaseJob
                on_error "Failed to copy source file '#{master_file.filename}': MD5 checksums do not match"
             end
          end
+         logger.debug("All master files copied")
 
          # If the copy was successful, start processing for this batch based on mode
          if mode == 'patron'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so patron deliverables can be made."
             QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
+            if message[:skip_delivery_check].nil?
+               CreateUnitZip.exec_now( { unit: unit }, self)
+               CheckOrderReadyForDelivery.exec_now( { :order => unit.order}, self  )
+            else
+               CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
+            end
          elsif mode == 'dl'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so Digital Library deliverables can be made."
             UpdateUnitDateQueuedForIngest.exec_now({ :unit => unit, :source => destination_dir }, self)

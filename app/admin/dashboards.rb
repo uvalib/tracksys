@@ -43,23 +43,37 @@ ActiveAdmin.register_page "Dashboard" do
     if !current_user.viewer?
        div :class => 'three-column' do
          panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
-           div :class => 'workflow_button' do button_to "Finalize digiserv-production", admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get end
-           div :class => 'workflow_button' do button_to "Finalize digiserv-migration", admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get end
-           div :class => 'workflow_button' do button_to "Manual Upload digiserv-prodution", admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get end
-           div :class => 'workflow_button' do button_to "Manual Upload digiserv-migration", admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get end
-           div :class => 'workflow_button' do button_to "Manual Upload lib_content37", admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get end
+           div :class => 'workflow_button' do
+             button_to "Finalize digiserv-production : #{prod_cnt}",
+               admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get
+          end
+           div :class => 'workflow_button' do
+              button_to "Finalize digiserv-migration : #{migration_cnt}",
+               admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get
+           end
+           div :class => 'workflow_button' do
+              button_to "Manual Upload digiserv-prodution : #{manual_prod_cnt}",
+                admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get
+           end
+           div :class => 'workflow_button' do
+              button_to "Manual Upload digiserv-migration : #{manual_migration_cnt}",
+               admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get
+           end
+           div :class => 'workflow_button' do
+              button_to "Manual Upload lib_content37 : #{manual_batch_cnt}",
+               admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get
+           end
          end
        end
    end
 
     div :class => 'three-column' do
       panel "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
-        table_for Bibl.in_digital_library.limit(20) do
-          column :call_number
-          column ("Title") {|bibl| truncate(bibl.title, :length => 80)}
-          column ("Thumbnail") do |bibl|
-            if bibl.exemplar?
-               mf = MasterFile.find_by( filename: bibl.exemplar)
+        table_for Metadata.in_digital_library.limit(20) do
+          column ("Title") {|metadata| truncate(metadata.title, :length => 80)}
+          column ("Thumbnail") do |metadata|
+            if metadata.exemplar?
+               mf = MasterFile.find_by( filename: metadata.exemplar)
                if mf.nil?
                   "missing thumbnail"
                else
@@ -69,9 +83,13 @@ ActiveAdmin.register_page "Dashboard" do
                "no thumbnail"
             end
           end
-          column("Links") do |bibl|
+          column("Links") do |metadata|
             div do
-              link_to "Details", admin_bibl_path(bibl), :class => "member_link view_link"
+               if metadata.type == "XmlMetadata"
+                  link_to "Details", "/admin/xml_metadata/#{metadata.id}", :class => "member_link view_link"
+               else
+                 link_to "Details", "/admin/sirsi_metadata/#{metadata.id}", :class => "member_link view_link"
+              end
             end
           end
         end
@@ -112,11 +130,11 @@ ActiveAdmin.register_page "Dashboard" do
     if !current_user.viewer?
        div :class => 'three-column' do
          panel "Statistics", :priority => 6, :toggle => 'show' do
-           div :class => 'workflow_button' do
+           div :class => 'workflow_button border-bottom' do
              render 'admin/stats_report'
            end
-           div :class => 'workflow_button' do
-             button_to "Generate DL Manifest", create_dl_manifest_admin_bibls_path, :method => :get
+           div :class => 'workflow_button border-bottom' do
+             button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
            end
            tr do
              td do
@@ -129,6 +147,11 @@ ActiveAdmin.register_page "Dashboard" do
          end
        end
     end
+  end
+
+  page_action :create_dl_manifest do
+    CreateDlManifest.exec( {:staff_member => current_user } )
+    redirect_to "/admin/dashboard", :notice => "Digital library manifest creation started.  Check your email in a few minutes."
   end
 
   page_action :get_yearly_stats do
@@ -165,6 +188,42 @@ ActiveAdmin.register_page "Dashboard" do
     StartManualUploadToArchive.exec( {:user => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
     flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
     redirect_to "/admin/dashboard"
+  end
+
+  controller do
+      before_filter :get_counts
+      def get_counts
+         @prod_cnt = count_units( FINALIZATION_DROPOFF_DIR_PRODUCTION )
+         @migration_cnt = count_units( FINALIZATION_DROPOFF_DIR_MIGRATION )
+         @manual_prod_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION)
+         @manual_migration_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION)
+         @manual_batch_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION)
+      end
+
+      def count_manual_units(dir)
+         now = Time.now
+         day = now.strftime("%A")
+         cnt = 0
+         tgt_dir = File.join(dir, day)
+         return 0 if !File.exist?(tgt_dir)
+         contents = Dir.entries(tgt_dir).delete_if {|x| x == "." || x == ".." || x == ".AppleDouble" || x == ".DS_Store" }
+         contents.each do |content|
+            complete_path = File.join(dir, content)
+            cnt += 1 if File.directory?(complete_path)
+         end
+         return cnt
+      end
+
+      def count_units(dir)
+         cnt = 0
+         regex_unit = Regexp.new('(\d{9}$)')
+         contents = Dir.entries(dir).delete_if {|x| x == "." || x == ".." || x == ".AppleDouble" || x == ".DS_Store" }
+         contents.each do |content|
+            complete_path = File.join(dir, content)
+            cnt += 1 if (File.directory?(complete_path) && regex_unit.match(content))
+         end
+         return cnt
+      end
   end
 
 end

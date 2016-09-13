@@ -48,7 +48,7 @@ class IntendedUse < ActiveRecord::Base
   #
   # This method is public but is also called as a +before_destroy+ callback.
   def destroyable?
-    if not units.empty?
+    if self.units.size > 0
       return false
     end
     return true

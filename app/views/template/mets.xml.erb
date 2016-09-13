@@ -1,0 +1,30 @@
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="mets http://www.loc.gov/standards/mets/mets.xsd">
+   <mets:dmdSec ID="collection-description-mods">
+      <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= Settings.tracksys_url %>/api/metadata/<%= parent_pid %>?type=desc_metadata"/>
+   </mets:dmdSec>
+   <% child_pids.each do | pid | %>
+   <mets:dmdSec ID="<%= pid.gsub(/:/,'_') %>-mods">
+      <mets:mdRef LOCTYPE="PURL" MDTYPE="MODS" xlink:href="<%= mods_url(pid) %>" />
+   </mets:dmdSec>
+   <% end %>
+
+   <mets:fileSec>
+   <% child_pids.each do | pid | %>
+      <mets:fileGrp USE="preview" ID="<%= pid.gsub(/:/,'_') %>-files">
+         <mets:file ID="<%= pid.gsub(/:/,'_') %>-preview" DMDID="<%= pid.gsub(/:/,'_') %>-mods">
+            <mets:FLocat LOCTYPE="PURL" xlink:href="<%= Settings.iiif_url %>/<%= pid %>/full/!125,125/0/default.jpg"/>
+         </mets:file>
+      </mets:fileGrp>
+   <% end %>
+   </mets:fileSec>
+
+   <mets:structMap>
+      <mets:div LABEL="Collection">
+         <% child_pids.each do | pid | %>
+         <mets:fptr FILEID="<%= pid.gsub(/:/,'_') %>-preview" />
+         <% end %>
+      </mets:div>
+   </mets:structMap>
+</mets:mets>

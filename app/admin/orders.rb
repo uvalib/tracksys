@@ -35,7 +35,6 @@ ActiveAdmin.register Order do
   filter :title
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-  filter :bibls_id, :as => :numeric
   filter :date_request_submitted
   filter :date_due
   filter :date_archiving_complete
@@ -246,25 +245,29 @@ ActiveAdmin.register Order do
   end
 
   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? }  do
-    if order.order_status == 'approved'
-      if order.email?
-        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
-        if order.date_customer_notified
-          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put, :disabled => true end
-        else
-          div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
-        end
-      else
-        div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put end
-        div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
-        div do "Order is not yet complete and cannot be delivered." end
-      end
-      div :class => 'workflow_button' do button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put end
+    if order.has_patron_deliverables?
+       if order.order_status == 'approved'
+         if order.email?
+           if order.date_customer_notified
+             div :class => 'workflow_button' do button_to "Recreate Email", recreate_email_admin_order_path(order.id), :method => :put end
+             div :class => 'workflow_button' do button_to "Resend Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
+           else
+             div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put end
+           end
+         else
+           div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put end
+           div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+           div do "Order is not yet complete and cannot be delivered." end
+         end
+         div :class => 'workflow_button' do button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put end
+       else
+         # order not approved
+         div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
+         div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
+         div do "Order is not yet approved." end
+       end
     else
-      # order not approved
-      div :class => 'workflow_button' do button_to "Check Order Completeness", check_order_ready_for_delivery_admin_order_path(order.id), :method => :put, :disabled => true end
-      div :class => 'workflow_button' do button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put,  :disabled => true end
-      div do "Order is not yet approved." end
+      div do "This order has no patron deliverables" end
     end
   end
 
@@ -276,8 +279,19 @@ ActiveAdmin.register Order do
       row :master_files do |order|
         link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
       end
-      row :bibls do |order|
-        link_to "#{order.bibls.uniq.size}", admin_bibls_path(:q => {:orders_id_eq => order.id}, :scope => :uniq )
+      row :sirsi_metadata do |order|
+        if order.sirsi_metadata.uniq.size > 0
+           link_to "#{order.sirsi_metadata.uniq.size}", "/admin/sirsi_metadata?q%5borders_id%5d=#{order.id}&scope=uniq"
+        else
+           0
+        end
+      end
+      row :xml_metadata do |order|
+        if order.xml_metadata.uniq.size > 0
+           link_to "#{order.xml_metadata.uniq.size}", "/admin/xml_metadata?q%5borders_id%5d=#{order.id}&scope=uniq"
+        else
+           0
+        end
       end
       row :customer
       row :agency
@@ -314,6 +328,13 @@ ActiveAdmin.register Order do
     order.check_order_ready_for_delivery
     redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{order.id} is being checked to see if it is ready."
   end
+
+  member_action :recreate_email, :method => :put do
+     order = Order.find(params[:id])
+     CreateOrderEmail.exec_now({order: order})
+     redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
+  end
+
 
   member_action :send_order_email, :method => :put do
     order = Order.find(params[:id])

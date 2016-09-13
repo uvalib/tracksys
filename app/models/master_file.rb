@@ -9,13 +9,11 @@ class MasterFile < ActiveRecord::Base
    belongs_to :use_right, :counter_cache => true
    belongs_to :item
 
-   has_and_belongs_to_many :legacy_identifiers
-
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :image_tech_meta, :dependent => :destroy
    has_one :order, :through => :unit
-   has_one :bibl, :through => :unit
+   has_one :metadata, :through => :unit
    has_one :customer, :through => :order
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
@@ -24,8 +22,7 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
-   delegate :call_number, :title, :catalog_key, :barcode, :id, :creator_name, :year,
-      :to => :bibl, :allow_nil => true, :prefix => true
+   delegate :title, :to => :metadata, :allow_nil => true, :prefix => true
 
    delegate :include_in_dl, :exclude_in_dl, :date_archived, :date_queued_for_ingest, :date_dl_deliverables_ready,
       :to => :unit, :allow_nil => true, :prefix => true
@@ -46,27 +43,13 @@ class MasterFile < ActiveRecord::Base
    # validations
    #------------------------------------------------------------------
    validates :filename, :unit_id, :filesize, :presence => true
-   validates :component, :presence => {
-      :if => 'self.component_id',
-      :message => "association with this Component is no longer valid because it no longer exists."
-   }
-   validates :indexing_scenario, :presence => {
-      :if => 'self.indexing_scenario_id',
-      :message => "association with this IndexingScenario is no longer valid because it no longer exists."
-   }
    validates :unit, :presence => {
       :message => "association with this Unit is no longer valid because it no longer exists."
-   }
-   validates :use_right, :presence => {
-      :if => 'self.use_right_id',
-      :message => "association with this Use is no longer valid because it no longer exists."
    }
 
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
-   after_create :increment_counter_caches
-   after_destroy :decrement_counter_caches
    before_save do
       # default right statement to not Evaluated
       if self.use_right.blank?
@@ -76,6 +59,15 @@ class MasterFile < ActiveRecord::Base
    end
    after_create do
       update_attribute(:pid, "tsm:#{self.id}")
+   end
+
+   after_create do
+      Customer.increment_counter('master_files_count', self.customer.id)
+      Order.increment_counter('master_files_count', self.order.id)
+   end
+   after_destroy do
+      Customer.decrement_counter('master_files_count', self.customer.id)
+      Order.decrement_counter('master_files_count', self.order.id)
    end
 
    #------------------------------------------------------------------
@@ -141,24 +133,8 @@ class MasterFile < ActiveRecord::Base
       return iiif_url.to_s
    end
 
-   # alias_attributes as CYA for legacy migration.
-   alias_attribute :name_num, :title
-   alias_attribute :staff_notes, :description
-
    def get_from_stornext(computing_id)
       CopyArchivedFilesToProduction.exec( {:unit => self.unit, :master_file_filename => self.filename, :computing_id => computing_id })
-   end
-
-   def increment_counter_caches
-      # Conditionalize Bibl increment because it is not required.
-      # Bibl.increment_counter('master_files_count', self.bibl.id) if self.bibl
-      Customer.increment_counter('master_files_count', self.customer.id)
-   end
-
-   def decrement_counter_caches
-      # Conditionalize Bibl decrement because it is not required.
-      # Bibl.decrement_counter('master_files_count', self.bibl.id) if self.bibl
-      Customer.decrement_counter('master_files_count', self.customer.id)
    end
 
    # Within the scope of a current MasterFile's Unit, return the MasterFile object
@@ -171,43 +147,35 @@ class MasterFile < ActiveRecord::Base
          return nil
       end
    end
-
-   def legacy_identifier_links
-      return ""  if self.legacy_identifiers.empty?
-      out = ""
-      self.legacy_identifiers.each do |li|
-         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
-      end
-      return out
-   end
 end
 
 # == Schema Information
 #
 # Table name: master_files
 #
-#  id                     :integer          not null, primary key
-#  unit_id                :integer          default(0), not null
-#  component_id           :integer
-#  tech_meta_type         :string(255)
-#  filename               :string(255)
-#  filesize               :integer
-#  title                  :string(255)
-#  date_archived          :datetime
-#  description            :string(255)
-#  pid                    :string(255)
-#  created_at             :datetime
-#  updated_at             :datetime
-#  transcription_text     :text(65535)
-#  desc_metadata          :text(65535)
-#  discoverability        :boolean          default(FALSE)
-#  md5                    :string(255)
-#  indexing_scenario_id   :integer
-#  use_right_id           :integer
-#  date_dl_ingest         :datetime
-#  date_dl_update         :datetime
-#  dpla                   :boolean          default(FALSE)
-#  creator_death_date     :string(255)
-#  creation_date          :string(255)
-#  primary_author         :string(255)
+#  id                   :integer          not null, primary key
+#  unit_id              :integer          default(0), not null
+#  component_id         :integer
+#  tech_meta_type       :string(255)
+#  filename             :string(255)
+#  filesize             :integer
+#  title                :string(255)
+#  date_archived        :datetime
+#  description          :text(65535)
+#  pid                  :string(255)
+#  created_at           :datetime
+#  updated_at           :datetime
+#  transcription_text   :text(65535)
+#  desc_metadata        :text(65535)
+#  discoverability      :boolean          default(FALSE)
+#  md5                  :string(255)
+#  indexing_scenario_id :integer
+#  use_right_id         :integer
+#  date_dl_ingest       :datetime
+#  date_dl_update       :datetime
+#  dpla                 :boolean          default(FALSE)
+#  creator_death_date   :string(255)
+#  creation_date        :string(255)
+#  primary_author       :string(255)
+#  item_id              :integer
 #

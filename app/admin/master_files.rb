@@ -2,8 +2,9 @@ ActiveAdmin.register MasterFile do
    config.sort_order = 'filename_asc'
 
    # strong paramters handling
-   permit_params :filename, :title, :description, :creation_date, :primary_author, :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :transcription_text, #:component_id,
+   permit_params :filename, :title, :description, :creation_date, :primary_author,
+      :creator_death_date, :date_archived, :discoverability,
+      :md5, :filesize, :unit_id, :transcription_text,
       :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
 
    menu :priority => 6
@@ -43,13 +44,10 @@ ActiveAdmin.register MasterFile do
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :customer_id, :as => :numeric, :label => "Customer ID"
-   filter :bibl_id, :as => :numeric, :label => "Bibl ID"
+   filter :metadata_id, :as => :numeric, :label => "Metadata ID"
    filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-   filter :bibl_title, :as => :string, :label => "Bibl Title"
-   filter :bibl_creator_name, :as => :string, :label => "Author"
-   filter :bibl_call_number, :as => :string, :label => "Call Number"
-   filter :bibl_barcode, :as => :string, :label => "Barcode"
-   filter :bibl_catalog_key, :as => :string, :label => "Catalog Key"
+   filter :metadata_title, :as => :string, :label => "Title"
+   filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :indexing_scenario
@@ -74,13 +72,12 @@ ActiveAdmin.register MasterFile do
          format_date(mf.date_dl_ingest)
       end
       column :pid, :sortable => false
-      column ("Bibliographic Record") do |mf|
-         div do
-            link_to "#{mf.bibl_title}", admin_bibl_path("#{mf.bibl_id}")
-         end
-         div do
-            mf.bibl_call_number
-         end
+      column ("Metadata Record") do |mf|
+         if !mf.metadata.nil?
+            div do
+               link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
+            end
+         end   
       end
       column :unit
       column("Thumbnail") do |mf|
@@ -191,51 +188,19 @@ ActiveAdmin.register MasterFile do
 
             div :id => "desc_meta_div" do
                div :id=>"master-file-desc-metadata" do "DESC METADATA" end
-               span :class => "click-advice" do
-                  "click in the code window to expand/collapse display"
-               end
-               pre :id => "desc_meta", :class => "no-whitespace code-window" do
-                  code :'data-language' => 'html' do
-                     word_wrap(master_file.desc_metadata.to_s, :line_width => 200)
+                  div :id=>"mf-metadata-wrap" do
+                     pre do
+                        master_file.desc_metadata
+                     end
                   end
-               end
             end
          end
       end
    end
 
-   form do |f|
-      f.inputs "General Information", :class => 'panel two-column ' do
-         f.input :filename
-         f.input :title
-         f.input :description, :as => :text, :input_html => { :rows => 3 }
-         f.input :creation_date, :as => :text, :input_html => { :rows => 1 }
-         f.input :primary_author, :as => :text, :input_html => { :rows => 1 }
-         f.input :creator_death_date, :as => :string, :input_html => { :rows => 1 }
-         f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
-      end
+   # EDIT page ================================================================
+   form :partial => "edit"
 
-      f.inputs "Technical Information", :class => 'two-column panel', :toggle => 'show' do
-         f.input :md5, :input_html => { :disabled => true }
-         f.input :filesize, :as => :number
-      end
-
-      f.inputs "Related Information", :class => 'panel two-column', :toggle => 'show' do
-         f.input :unit_id, :as => :number
-         # f.input :component_id, :as => :number
-      end
-
-      f.inputs "Digital Library Information", :class => 'panel columns-none', :toggle => 'hide' do
-         f.input :pid, :input_html => { :disabled => true }
-         f.input :use_right, label: "Right Statement"
-         f.input :indexing_scenario
-         f.input :desc_metadata, :input_html => { :rows => 10}
-      end
-
-      f.inputs :class => 'columns-none' do
-         f.actions
-      end
-   end
 
    sidebar "Thumbnail", :only => [:show] do
       div :style=>"text-align:center" do
@@ -248,20 +213,14 @@ ActiveAdmin.register MasterFile do
          row :unit do |master_file|
             link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
          end
-         row :bibl
+         row "Metadata" do |unit|
+            link_to "#{master_file.metadata.title}", "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}" if !master_file.metadata.nil?
+         end
          row :order do |master_file|
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
          row :customer
-         # row :component do |master_file|
-         #    if master_file.component
-         #       link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
-         #    end
-         # end
          row :agency
-         row "Legacy Identifiers" do |master_file|
-            raw(master_file.legacy_identifier_links)
-         end
       end
    end
 

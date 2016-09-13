@@ -18,11 +18,12 @@ ActiveAdmin.register UseRight do
 
    index do
       column :name
-      column("Bibls") do |use_right|
-         link_to use_right.bibls.count, admin_bibls_path(:q => {:use_right_id_eq => use_right.id})
+      column :uri
+      column("Metadata Records") do |use_right|
+        use_right.metadata.count
       end
       column("Master Files") do |use_right|
-         link_to use_right.master_files.count, admin_master_files_path(:q => {:use_right_id_eq => use_right.id})
+         use_right.master_files.count
       end
       column("Links") do |use_right|
          if !current_user.viewer?

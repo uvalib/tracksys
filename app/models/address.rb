@@ -5,10 +5,6 @@ class Address < ActiveRecord::Base
   validates :address_1, :country, :city, :presence => {
     :message => 'is required.'
   }
-  validates :last_name, :first_name, :person_name_format => true, :allow_blank => true
-  validates :city, :city_format => true, :allow_blank => true
-  validates :phone, :phone_format => true, :allow_blank => true
-
 end
 
 # == Schema Information

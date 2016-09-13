@@ -15,7 +15,8 @@ class Order < ActiveRecord::Base
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
-   has_many :bibls, ->{uniq}, :through => :units
+   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
+   has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
@@ -24,14 +25,6 @@ class Order < ActiveRecord::Base
    has_one :department, :through => :customer
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
-
-   #------------------------------------------------------------------
-   # delegation
-   #------------------------------------------------------------------
-   delegate :full_name, :last_name, :first_name,
-   :to => :customer, :allow_nil => true, :prefix => true
-   delegate :name,
-   :to => :agency, :allow_nil => true, :prefix => true
 
    #------------------------------------------------------------------
    # scopes
@@ -47,7 +40,6 @@ class Order < ActiveRecord::Base
       order('date_request_submitted DESC').limit(limit)
    }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
-#default_scope {include('agency')}
    scope :from_fine_arts, ->{ joins(:agency).where("agencies.name" => "Fine Arts Library") }
    scope :not_from_fine_arts, ->{ where('agency_id != 37 or agency_id is null') }
    scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
@@ -90,8 +82,6 @@ class Order < ActiveRecord::Base
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
-   before_destroy :destroyable?
-   after_update :fix_updated_counters
 
    before_save do
       # boolean fields cannot be NULL at database level
@@ -100,14 +90,14 @@ class Order < ActiveRecord::Base
       self.email = nil if self.email.blank?
    end
 
-   #------------------------------------------------------------------
-   # scopes
-   #------------------------------------------------------------------
-
-   #------------------------------------------------------------------
-   # aliases
-   #------------------------------------------------------------------
-   alias_attribute :name, :id
+   before_destroy :destroyable?
+   def destroyable?
+      if self.units.size > 0 || self.invoices.size > 0
+         errors[:base] << "cannot delete order that is associated with invoices or units"
+         return false
+      end
+      return true
+   end
 
    #------------------------------------------------------------------
    # serializations
@@ -115,19 +105,6 @@ class Order < ActiveRecord::Base
    # Email sent to customers should be save to DB as a TMail object.  During order delivery approval phase, the email
    # must be revisited when staff decide to send it.
    #serialize :email, TMail::Mail
-
-   #------------------------------------------------------------------
-   # public class methods
-   #------------------------------------------------------------------
-   # Returns a string containing a brief, general description of this
-   # class/model.
-   def Order.class_description
-      return 'Order represents an order for digitization, placed by a Customer and made up of one or more Units.'
-   end
-
-   def Order.entered_by_description
-      return "ID of person who filled out the public request form on behalf of the Customer."
-   end
 
    #------------------------------------------------------------------
    # public instance methods
@@ -160,20 +137,6 @@ class Order < ActiveRecord::Base
       end
    end
 
-   # Returns a boolean value indicating whether it is safe to delete
-   # this Order from the database. Returns +false+ if this record has
-   # dependent records in other tables, namely associated Unit or
-   # Invoice records.
-   #
-   # This method is public but is also called as a +before_destroy+ callback.
-   def destroyable?
-      if units? || invoices?
-         return false
-      else
-         return true
-      end
-   end
-
    # Returns a boolean value indicating whether this Order has
    # associated Invoice records.
    def invoices?
@@ -194,12 +157,6 @@ class Order < ActiveRecord::Base
       if not units_beings_prepared.empty?
          errors[:order_status] << "cannot be set to approved because units #{units_beings_prepared.map(&:id).join(', ')} are neither approved nor canceled"
       end
-   end
-
-   # Returns a boolean value indicating whether this Order has
-   # associated Unit records.
-   def units?
-      return units.any?
    end
 
    def self.due_today()
@@ -234,17 +191,10 @@ class Order < ActiveRecord::Base
    end
 
    def title
-      if order_title
-         order_title
-      elsif units.first.respond_to?(:bibl_id?)
-         if units.first.bibl_id?
-            units.first.bibl.title
-         else
-            nil
-         end
-      else
-         nil
-      end
+      return self.order_title if !self.order_title.blank?
+      return self.sirsi_metadata.first.title if !self.sirsi_metadata.blank?
+      return self.xml_metadata.first.title if !self.xml_metadata.blank?
+      return nil
    end
 
    def approve_order
@@ -257,6 +207,17 @@ class Order < ActiveRecord::Base
       self.order_status = 'canceled'
       self.date_canceled = Time.now
       self.save!
+   end
+
+   def has_patron_deliverables?
+      self.units.each do |u|
+         # only units that are NOT for digital collection building can have patron deliverables
+         if u.intended_use.description != "Digital Collection Building"
+            return true if u.include_in_dl == false   # this has a patron deliverable
+            return true if u.include_in_dl == true &&  u.metadata.availability_policy_id? # DL and Patron deliverables
+         end
+      end
+      return false
    end
 
    def check_order_ready_for_delivery

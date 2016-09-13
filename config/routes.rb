@@ -17,7 +17,9 @@ Tracksys::Application.routes.draw do
      get "metadata/:pid" => "metadata#show"
      get "pid/:pid" => "pid#show"
      get "solr/:pid" => "solr#show"
-     get "style/:pid" => "style#show"
+     get "style/:id" => "style#show"
      get "solr" => "solr#index"
+     post "xml/validate" => "xml#validate"
+     post "xml/generate" => "xml#generate"
   end
 end

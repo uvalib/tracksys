@@ -183,8 +183,8 @@ ActiveAdmin.register Component do
                      format_date(mf.date_dl_ingest)
                   end
                   column :pid, :sortable => false
-                  column ("Bibliographic Title") do |mf|
-                     link_to "#{mf.bibl_title}", admin_bibl_path(mf.bibl.id)
+                  column ("Metadata Record") do |mf|
+                     link_to "#{mf.metadata.title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
                   end
                   column("Thumbnail") do |mf|
                      link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
@@ -236,9 +236,6 @@ ActiveAdmin.register Component do
 
    sidebar "Related Information", :only => [:show] do
       attributes_table_for component do
-         row :bibls do |component|
-            link_to "#{component.bibls.size}", admin_bibls_path(:q => {:components_id_eq => component.id})
-         end
          row :master_files do |component|
             link_to "#{component.master_files.size}", admin_master_files_path(:q => {:component_id_eq => component.id})
          end

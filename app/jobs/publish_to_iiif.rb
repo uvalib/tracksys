@@ -51,6 +51,12 @@ class PublishToIiif < BaseJob
          on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
+         # If the JP2k already exists (and is not 0), don't make it again!
+         if File.exist?(jp2k_path) && File.size(jp2k_path) > 0
+            logger.info "MasterFile #{master_file.id} already has JP2k file at #{jp2k_path}; skipping creation"
+            return
+         end
+
          # Directly invoke Ruby's garbage collection to clear memory
          GC.start
 
@@ -59,11 +65,7 @@ class PublishToIiif < BaseJob
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
             logger().debug("Compressing #{source} to #{jp2k_path}...")
-            if filesize > 524000000
-               `#{executable} -i #{source} -o #{jp2k_path} -rate 1.5 Clayers=20 Creversible=yes Clevels=8 Cprecincts="{256,256},{256,256},{128,128}" Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk="{32,32}" -num_threads #{NUM_JP2K_THREADS}`
-            else
-               `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
-            end
+            `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
             logger().debug("...compression complete")
          else
             logger().warn("#{executable} not found, using ImageMagick instead")

@@ -1,0 +1,58 @@
+<%= semantic_form_for([:admin, @xml_metadata], :url => "/admin/xml_metadata/#{@xml_metadata.id}") do |f| %>
+
+   <%= f.inputs "Digital Library Information", :toggle=>'show', :class => 'two-column panel' do %>
+       <% if !@xml_metadata.id.blank? %>
+          <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
+       <% end %>
+       <%= f.input :exemplar, :as => :select,
+         :collection => f.object.dl_master_files.map(&:filename),
+         :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+       <%= f.input :availability_policy %>
+       <%= f.input :use_right, label: "Right Statement" %>
+       <%= f.input :indexing_scenario %>
+       <%= f.input :dpla, :as => :radio %>
+       <% if @xml_metadata.dpla %>
+          <%= f.input :parent_bibl_id, :as => :select, :label=>"Parent Metadata ID",
+               :collection => @dpla_collection_records,
+               :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+       <% end %>
+       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
+       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
+       <%= f.input :collection_facet, :as => :string %>
+   <% end %>
+
+   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
+      <%= f.input :is_approved, :as => :radio, label: "Approved?" %>
+      <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
+      <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>
+      <%= f.input :is_collection, :as => :radio, label: "Collection?" %>
+      <%= f.input :resource_type, :as => :select, :collection => Metadata::RESOURCE_TYPES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :genre, :as => :select, :collection => Metadata::GENRES, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+   <% end %>
+
+   <%= f.inputs "XML Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
+      <span id="record-id" style="display: none"><%= @xml_metadata.id %></span>
+       <%= f.input :title, :as => :string %>
+       <%= f.input :creator_name, :as => :string %>
+       <li>
+          <div id="tracksys_xml_editor">
+             <div class="xml-bar">
+               <div class="validate-msg">XML has changed and must be validadted before saving</div>
+               <span class="xml-button generate">Generate Skeletal MODS Record</span>
+               <span class="xml-button validate">Validate</span>
+            </div>
+             <textarea  class="desc-metadata-editor" name="xml_metadata[desc_metadata]" id="xml_metadata_desc_metadata"><%= @xml_metadata.desc_metadata %></textarea>
+             <div class="xml-bar bottom">
+               <div class="validate-msg">XML has changed and must be validadted before saving</div>
+               <span class="xml-button validate bottom">Validate</span>
+            </div>
+          </div>
+       </li>
+   <% end %>
+
+   <fieldset class="columns-none xml-submit">
+      <input type="submit" name="commit" value="Update Xml metadata">
+      <a class="cancel" href="/admin/xml_metadata/<%= @xml_metadata.id %>">Cancel</a>
+   </fieldset>
+
+<% end %>

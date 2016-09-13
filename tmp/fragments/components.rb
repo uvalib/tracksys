@@ -10,13 +10,13 @@ class Component
     self.availability_policy_id =1
     self.component_type_id=component_type_id
     self.save!
-    self.bind_to_unit(unit) unless unit.nil? 
+    self.bind_to_unit(unit) unless unit.nil?
     if self.master_files != []
-      self.exemplar = self.master_files.first.filename  
-    end 
-    self.save! 
+      self.exemplar = self.master_files.first.filename
+    end
+    self.save!
   end
-  
+
 
   def bind_to_unit(u)
     raise ArgumentError, "#{u}.to_s is not a Unit" unless u.is_a?(Unit)
@@ -30,7 +30,7 @@ class Component
 end
 
 def component_type_map()
-  # make a map from components types mapping:  name_as_symbol : type_id 
+  # make a map from components types mapping:  name_as_symbol : type_id
   map = {}
   ComponentType.find_each { |x| map[x.name.to_sym] = x.id }
   map
@@ -50,7 +50,7 @@ end
 
 def link_siblings(parent)
   parent.children.each do |child|
-    if ! child.next.nil? 
+    if ! child.next.nil?
       child.followed_by_id=child.next.id
       child.save!
     end
@@ -76,4 +76,3 @@ def make_components(bibl)
   bibl.save!
   top
 end
-  

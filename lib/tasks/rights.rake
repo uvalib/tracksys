@@ -134,4 +134,33 @@ namespace :rights do
          { :name => 'No Copyright United States' },
          { :name => 'All CC Licenses' }])
    end
+
+   desc "UPDATE use rights to match DPLA"
+   task :update  => :environment do
+      u = UseRight.find_by(name: "All CC Licenses")
+      u.update(name: "Copyright Undetermined")
+      u = UseRight.find_by(name: "No Copyright")
+      u.update(name: "In Copyright Rights Holder Unlocatable")
+      UseRight.find_by(name: "No Copyright Contractual Restrictions").destroy
+      UseRight.find_by(name: "No Copyright Non-Commercial Use Only").destroy
+   end
+
+   desc "UPDATE use rights to match DPLA"
+   task :add_uri  => :environment do
+      data  = [
+         {name: "Copyright Not Evaluated", uri: "http://rightsstatements.org/page/CNE/1.0/"},
+         {name: "Copyright Undetermined", uri: "http://rightsstatements.org/page/UND/1.0/"},
+         {name: "In Copyright", uri: "http://rightsstatements.org/page/InC/1.0/"},
+         {name: "In Copyright Educational Use Permitted", uri: "http://rightsstatements.org/page/InC-EDU/1.0/"},
+         {name: "In Copyright Non-Commercial Use Permitted", uri: "http://rightsstatements.org/page/InC-NC/1.0/"},
+         {name: "In Copyright Rights Holder Unlocatable", uri: "http://rightsstatements.org/page/InC-RUU/1.0/"},
+         {name: "No Copyright Other Known Legal Restrictions", uri: "http://rightsstatements.org/page/NoC-OKLR/1.0/"},
+         {name: "No Copyright United States", uri: "http://rightsstatements.org/page/NoC-US/1.0/"},
+         {name: "No Known Copyright", uri: "http://rightsstatements.org/page/NKC/1.0/"}
+      ]
+      data.each do |d|
+         u = UseRight.find_by(name: d[:name])
+         u.update(uri: d[:uri])
+      end
+   end
 end

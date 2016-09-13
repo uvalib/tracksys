@@ -1,0 +1,48 @@
+<%= semantic_form_for([:admin, @master_file], :url => "/admin/master_files/#{@master_file.id}") do |f| %>
+   <%= f.inputs "General Information", :class => 'two-column panel' do %>
+      <%= f.input :filename %>
+      <%= f.input :title %>
+      <%= f.input :description, :as => :text, :input_html => { :rows => 3 } %>
+      <%= f.input :creation_date, :as => :text, :input_html => { :rows => 1 } %>
+      <%= f.input :primary_author, :as => :text, :input_html => { :rows => 1 } %>
+      <%= f.input :creator_death_date, :as => :string, :input_html => { :rows => 1 } %>
+      <%= f.input :date_archived, :as => :string, :input_html => {:class => :datepicker} %>
+   <% end %>
+
+   <%= f.inputs "Technical Information", :class => 'two-column panel' do %>
+      <%= f.input :md5, :input_html => { :disabled => true } %>
+      <%= f.input :filesize, :as => :number %>
+   <% end %>
+
+   <%= f.inputs "Related Information", :class => 'panel two-column' do %>
+      <%= f.input :unit_id, :as => :number %>
+   <% end %>
+
+   <%= f.inputs "Digital Library Information", :class => 'panel two-column' do %>
+      <%= f.input :pid, :input_html => { :disabled => true } %>
+      <%= f.input :use_right, label: "Right Statement" %>
+      <%= f.input :indexing_scenario %>
+      <%= f.input :discoverability, :as => :select %>
+   <% end %>
+
+   <%= f.inputs "Desc Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
+      <span id="record-id" style="display: none"><%= @master_file.id %></span>
+      <div id="tracksys_xml_editor">
+         <div class="xml-bar">
+            <div class="validate-msg">XML has changed and must be validadted before saving</div>
+            <span class="xml-button validate master_file">Validate</span>
+         </div>
+         <textarea class="desc-metadata-editor" name="master_file[desc_metadata]" id="master_file_desc_metadata"><%= @master_file.desc_metadata %></textarea>
+         <div class="xml-bar bottom">
+            <div class="validate-msg">XML has changed and must be validadted before saving</div>
+            <span class="xml-button validate bottom master_file">Validate</span>
+         </div>
+      </div>
+   <% end %>
+
+   <fieldset class="columns-none xml-submit">
+      <input type="submit" name="commit" value="Update Master File">
+      <a class="cancel" href="/admin/master_files/<%= @master_file.id %>">Cancel</a>
+   </fieldset>
+
+<% end %>

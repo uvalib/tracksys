@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '4.2.7'
+gem 'rails', '4.2.7.1'
 
 gem 'activeadmin', '~> 1.0.0.pre4'
 gem 'passenger', '5.0.28'
@@ -24,8 +24,6 @@ gem 'nested_form'
 gem 'net-ldap'
 gem 'country-select'
 gem 'axlsx', '~> 2.1.0.pre'
-gem 'rubyzip', '>= 1.0.0'           # will load new rubyzip version
-gem 'zip-zip'                       # will load compatibility for old rubyzip API.
 
 group :development do
   gem 'byebug'

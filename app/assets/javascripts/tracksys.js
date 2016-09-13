@@ -34,23 +34,170 @@ $(function() {
 
    $('#desc_meta_div').click( anobj );
 
-   // Begin JS for Updating Bibl Records
-   $('.bibl_update_button').click(function(e) {
-      var bibl_catalog_key = $('#bibl_catalog_key').val();
-      var bibl_barcode = $('#bibl_barcode').val();
-      var new_url = "/admin/bibls/external_lookup?catalog_key=" + bibl_catalog_key + "&barcode=" + bibl_barcode
-      $(this).attr('href', new_url );
+   // Begin JS for Updating Sirsi Records
+   var updateMetadataFields = function(metadata) {
+      var empty = "<span class='empty'>Empty</span>";
+      $(".attributes_table .sirsi-data").each( function() {
+         var id = $(this).attr("id");
+         if ( metadata[id] ) {
+            $(this).text( metadata[id] );
+         } else {
+            $(this).html( empty );
+         }
+      });
+      $("#sirsi_metadata_catalog_key").val( metadata.catalog_key );
+      $("#sirsi_metadata_barcode").val( metadata.barcode );
+      $("#sirsi_metadata_title").val( metadata.title );
+      $("#sirsi_metadata_creator_name").val( metadata.creator_name );
+      $("#sirsi_metadata_call_number").val( metadata.call_number );
+
+      // auto-set the is_manuscript flag id call number looks like MSS or RG-
+      if ( metadata.call_number.trim().indexOf("MSS") == 0 || metadata.call_number.trim().indexOf("RG-") == 0) {
+         $("#sirsi_metadata_is_manuscript_true").prop("checked", true);
+      } else {
+         $("#sirsi_metadata_is_manuscript_false").prop("checked", true);
+      }
+   };
+
+   $('#refresh-metadata').click(function(e) {
+      var btn = $(this);
+      if (btn.hasClass("disabled")) {
+         return;
+      }
+      btn.addClass("disabled");
+      var sirsi_catalog_key = $('#sirsi_metadata_catalog_key').val();
+      var sirsi_barcode = $('#sirsi_metadata_barcode').val();
+      var new_url = "/admin/sirsi_metadata/external_lookup?catalog_key=" + sirsi_catalog_key + "&barcode=" + sirsi_barcode;
+      $.ajax({
+         url: new_url,
+         method: "GET",
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            if ( textStatus != "success" ) {
+               alert("Unable to refresh metadata. Check that the catalog key and/or barcode are correct");
+            } else {
+               metadata = jqXHR.responseJSON;
+               updateMetadataFields(metadata);
+            }
+         }
+      });
    });
 
-   // when the #bibl_catalog_key field changes
-   $('#bibl_catalog_key, #bibl_barcode').change(function() {
-      // replace the content of an anchor when an input field changes
-      var bibl_catalog_key = $('#bibl_catalog_key').val();
-      var bibl_barcode = $('#bibl_barcode').val();
-      var new_url = "/admin/bibls/external_lookup?catalog_key=" + bibl_catalog_key + "&barcode=" + bibl_barcode
-      // update the href attribute with the new_url variable
-      $('.bibl_update_button').attr('href', new_url);
-      console.log("changed url to: " + new_url);
-   });
-   //end Begin JS for Updating Bibl Records
+   /**
+    * XML EDITOR STUFF
+    */
+   function completeAfter(cm, pred) {
+      var cur = cm.getCursor();
+      if (!pred || pred()) setTimeout(function() {
+         if (!cm.state.completionActive) {
+            cm.showHint({completeSingle: false});
+         }
+      }, 100);
+      return CodeMirror.Pass;
+   }
+
+   function completeIfAfterLt(cm) {
+      return completeAfter(cm, function() {
+         var cur = cm.getCursor();
+         return cm.getRange(CodeMirror.Pos(cur.line, cur.ch - 1), cur) == "<";
+      });
+   }
+
+   function completeIfInTag(cm) {
+      return completeAfter(cm, function() {
+         var tok = cm.getTokenAt(cm.getCursor());
+         if (tok.type == "string" && (!/['"]/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1)) return false;
+         var inner = CodeMirror.innerMode(cm.getMode(), tok.state).state;
+         return inner.tagName;
+      });
+   }
+
+   if ( $(".desc-metadata-editor").length > 0 ) {
+      var cm = CodeMirror.fromTextArea( $(".desc-metadata-editor")[0], {
+         mode: "xml",
+         lineNumbers: true,
+         lineWrapping: true,
+         foldGutter: true,
+         autoCloseBrackets: true,
+         matchTags: true,
+         autoCloseTags: true,
+         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+         extraKeys: {
+            "'<'": completeAfter,
+            "'/'": completeIfAfterLt,
+            "' '": completeIfInTag,
+            "'='": completeIfInTag,
+            "Ctrl-Space": "autocomplete"
+         },hintOptions: {schemaInfo: {}}
+      } );
+      cm.on("change", function(cm, change) {
+         var btn = $(".xml-submit input");
+         btn.prop('disabled', true);
+         $("div.validate-msg").css("visibility", "visible");
+         if (btn.hasClass("disabled") == false ) {
+            btn.addClass("disabled");
+            $("#tracksys_xml_editor").addClass("edited");
+         }
+      });
+      cm.setSize("100%", "auto");
+
+      $("span.xml-button.generate").on("click", function() {
+         var btn = $(this);
+         if (btn.hasClass("diabled")) return;
+         if ( !confirm("This will replace all XML data currently present. Continue?") ) return;
+         btn.addClass("disabled");
+         var data = {
+            title: $("#xml_metadata_title").val(),
+            creator:  $("#xml_metadata_creator_name").val(),
+            genre: $("#xml_metadata_genre").val(),
+            type: $("#xml_metadata_resource_type").val()
+         };
+
+         $.ajax({
+            method: "POST",
+            url: "/api/xml/generate",
+            data: data,
+            complete: function(jqXHR, textStatus) {
+               btn.removeClass("disabled");
+               if ( textStatus != "success" ) {
+                  alert("Validation failed: \n\n"+jqXHR.responseText);
+               } else {
+                  cm.doc.setValue(jqXHR.responseText);
+               }
+            }
+         });
+      });
+
+      $("span.xml-button.validate").on("click", function() {
+         var btn = $(this);
+         var itemUrl = "xml_metadata";
+         if (btn.hasClass("diabled")) return;
+         btn.addClass("disabled");
+         var subBtn = $(".xml-submit input");
+         var id = $("#record-id").attr("id");
+         var xml = cm.doc.getValue();
+         $.ajax({
+            method: "POST",
+            url: "/api/xml/validate",
+            data: { id: id, xml: xml},
+            complete: function(jqXHR, textStatus) {
+               btn.removeClass("disabled");
+               if ( textStatus != "success" ) {
+                  alert("Validation failed: \n\n"+jqXHR.responseText);
+                  subBtn.prop('disabled', true);
+                  if (subBtn.hasClass("disabled") == false ) {
+                     subBtn.addClass("disabled");
+                  }
+               } else {
+                  alert("Validation succeeded");
+                  subBtn.prop('disabled', false);
+                  subBtn.removeClass("disabled");
+                  $("#tracksys_xml_editor").removeClass("edited");
+                  $("div.validate-msg").css("visibility", "hidden");
+               }
+            }
+         });
+
+      });
+   }
 });

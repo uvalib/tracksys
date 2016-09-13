@@ -3,7 +3,7 @@ require File.expand_path('../application', __FILE__)
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '4.1.3'
+TRACKSYS_VERSION = '4.2.0'
 
 # Setup logger for all jobs processors
 #
@@ -80,17 +80,6 @@ Fedora_namespaces = {
   'rel'=>'info:fedora/fedora-system:def/relations-external#',
   'uva'=>'http://fedora.lib.virginia.edu/relationships#'
 }
-Fedora_content_models = {
-  'fedora-generic'=>'fedora-system:FedoraObject-3.0',
-  'jp2k'=>'djatoka:jp2CModel',
-  'ead-component'=>'uva-lib:eadComponentCModel',
-  'ead-collection'=>'uva-lib:eadCollectionCModel',
-  'ead-item' => 'uva-lib:eadItemCModel',
-  'placeholder' => 'uva-lib:descMetadataPlaceholderCModel',
-  'mods34'=>'uva-lib:mods3.4CModel',
-  'dpla-item' => 'uva-lib:DPLAItemCModel',
-  'dpla-collection' => 'uva-lib:DPLACollectionCModel'
-  }
 Schema_locations = {
   'mods'=>'http://www.loc.gov/standards/mods/v3/mods-3-3.xsd',
   'mix'=>'http://www.loc.gov/standards/mix/mix20/mix20.xsd',

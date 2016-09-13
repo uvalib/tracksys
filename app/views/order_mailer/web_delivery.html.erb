@@ -9,7 +9,7 @@ Your digital request is now available and may be downloaded using the links belo
 <% for delivery_file in @delivery_files -%>
 <p><%= DELIVERY_URL %><%= delivery_file %></p>
 <% end -%>
-<p>A PDF included in the above zip files contains all bibliographic and descriptive information about your digital order.</p>
+<p>The PDF included in the above list contains all metadata and descriptive information about your digital order.</p>
 
 <% if @fee %>
 <p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days.</p>
@@ -40,4 +40,3 @@ University of Virginia Library<br/>
 P.O. Box 400155<br/>
 Charlottesville, VA 22904<br/>
 <%= link_to "http://dcs.library.virginia.edu/", "http://dcs.library.virginia.edu/" %></p>
-

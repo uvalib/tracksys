@@ -11,7 +11,7 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :bibl, :counter_cache => true
+   belongs_to :metadata, :counter_cache => true
    belongs_to :intended_use, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
@@ -23,22 +23,16 @@ class Unit < ActiveRecord::Base
    has_one :agency, :through => :order
    has_one :customer, :through => :order
 
-   delegate :call_number, :title, :catalog_key, :barcode, :pid, :exemplar,
-      :to => :bibl, :allow_nil => true, :prefix => true
-   delegate :id, :full_name,
-      :to => :customer, :allow_nil => true, :prefix => true
-   delegate :date_due,
-      :to => :order, :allow_nil => true, :prefix => true
+   delegate :title, :to=>:metadata, :allow_nil => true, :prefix => true
+   delegate :date_due, :to => :order, :allow_nil => true, :prefix => true
    delegate :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit,
       :to => :intended_use, :allow_nil => true, :prefix => true
-
-   has_and_belongs_to_many :legacy_identifiers
 
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
    scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
-   scope :ready_for_repo, ->{joins(:bibl).where("bibls.availability_policy_id is not null").where(:include_in_dl => true).where(:date_queued_for_ingest => nil).where("date_archived is not null") }
+   scope :ready_for_repo, ->{joins(:metadata).where("metadata.availability_policy_id is not null").where(:include_in_dl => true).where(:date_queued_for_ingest => nil).where("date_archived is not null") }
    scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
    scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
    scope :approved, ->{where(:unit_status => 'approved') }
@@ -54,10 +48,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    validates_presence_of :order
    validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   validates :bibl, :presence => {
-      :if => 'self.bibl_id',
-      :message => "association with this Bibl is no longer valid because it no longer exists."
-   }
    validates :intended_use, :presence => {
       :message => "must be selected."
    }
@@ -75,7 +65,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    before_save do
       # boolean fields cannot be NULL at database level
-      self.exclude_from_dl = 0 if self.exclude_from_dl.nil?
       self.include_in_dl = 0 if self.include_in_dl.nil?
       self.master_file_discoverability = 0 if self.master_file_discoverability.nil?
       self.order_id = 0 if self.order_id.nil?
@@ -118,11 +107,11 @@ class Unit < ActiveRecord::Base
    end
 
    def ready_for_repo?
-      if self.include_in_dl == true and not self.bibl.availability_policy_id.nil? and self.date_queued_for_ingest.nil? and not self.date_archived.nil?
-         return true
-      else
-         return false
-      end
+      return false if self.include_in_dl == false
+      return false if self.metadata.nil?
+      return false if self.metadata.availability_policy_id.nil?
+      return true if self.date_queued_for_ingest.nil? and not self.date_archived.nil?
+      return false
    end
 
    def check_order_status
@@ -153,6 +142,17 @@ class Unit < ActiveRecord::Base
       end
    end
 
+   def patron_deliverables_available?
+      return false if self.date_patron_deliverables_ready.nil?
+      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{self.order.id}", self.id.to_s)
+      return false if !Dir.exist? assemble_dir
+      return Dir["#{assemble_dir}/*"].length >= self.master_files.count
+   end
+
+   def create_patron_zip
+      CreateUnitZip.exec({unit: self, replace: true})
+   end
+
    def check_unit_delivery_mode
       CheckUnitDeliveryMode.exec( {:unit => self} )
    end
@@ -181,15 +181,6 @@ class Unit < ActiveRecord::Base
    def start_ingest_from_archive
       StartIngestFromArchive.exec( {:unit => self })
    end
-
-   def legacy_identifier_links
-      return "" if self.legacy_identifiers.empty?
-      out = ""
-      self.legacy_identifiers.each do |li|
-         out << "<div><a href='/admin/legacy_identifiers/#{li.id}'>#{li.description} (#{li.legacy_identifier})</a></div>"
-      end
-      return out
-  end
 end
 
 # == Schema Information
@@ -198,7 +189,7 @@ end
 #
 #  id                             :integer          not null, primary key
 #  order_id                       :integer          default(0), not null
-#  bibl_id                        :integer
+#  metadata_id                    :integer
 #  unit_status                    :string(255)
 #  date_materials_received        :datetime
 #  date_materials_returned        :datetime
@@ -209,7 +200,6 @@ end
 #  created_at                     :datetime
 #  updated_at                     :datetime
 #  intended_use_id                :integer
-#  exclude_from_dl                :boolean          default(FALSE), not null
 #  staff_notes                    :text(65535)
 #  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime

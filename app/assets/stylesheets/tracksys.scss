@@ -1,5 +1,149 @@
 body.active_admin {
 
+div.workflow_button {
+   input[type=submit] {
+      width:100%;
+      margin-top:0;
+   }
+}
+
+#child-links {
+   margin: 5px 0;
+   width: inherit;
+   text-transform: uppercase;
+   tr, td {
+      border: none;
+      padding: 0;
+   }
+   td.child-type {
+      text-align: right;
+      padding-right: 10px;
+   }
+   .none {
+      color: #aaa;
+      letter-spacing: 0.1em;
+      font-size: 0.8em;
+   }
+}
+
+div.workflow_button.border-bottom {
+   border-bottom: 1px solid #ccc;
+   padding-bottom: 10px;
+}
+
+fieldset.meta-admin-info {
+   li label {
+      width: 35%;
+   }
+   fieldset.choices {
+      legend.label {
+         width: 100%;
+         label {
+            width: 40%;
+         }
+      }
+      ol.choices-group {
+         padding: 0 0 0 50%;
+      }
+   }
+}
+
+div.sirsi-error {
+   text-align: center;
+   margin: 0 20px;
+   color: #a22;
+   font-weight: bold;
+   font-style: italic;
+}
+
+#stats-form {
+   div.year-input {
+      float: right;
+      label {
+         margin-right: 15px;
+      }
+   }
+   input[type=submit] {
+      width: auto;
+      float: right;
+      margin-top: 2px;
+   }
+}
+
+fieldset.columns-none.xml-submit {
+   margin-top:15px;
+}
+.xml-submit {
+   a.cancel {
+      border-radius: 200px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: bold;
+      background-color: #585e63;
+      padding: 5px 16px 5px;
+      color: white;
+      text-decoration: none;
+      border: 1px solid #484e53;
+      text-shadow: #000 0 1px 0;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0px rgba(255, 255, 255, 0.2) inset;
+      &:hover {
+         background-color: #838a90;
+      }
+   }
+}
+div.validate-msg {
+   display: inline-block;
+   margin-right: 25px;
+   margin-left: 25px;
+   font-style: italic;
+   font-weight: bold;
+   color: #DB0000;
+   visibility: hidden;
+}
+#tracksys_xml_editor.edited {
+   border: 1px solid #DB0000;
+}
+#tracksys_xml_editor {
+   border: 1px solid #ccc;
+   box-sizing: border-box;
+
+   pre.CodeMirror-line {
+      font-family: monospace !important;
+      font-size: 1.3em;
+   }
+   div.xml-bar.bottom {
+      border-top: 1px solid #ccc;
+      border-bottom: 0;
+   }
+   div.xml-bar {
+      position: relative;
+      font-size: 0.9em;
+      padding-bottom: 5px;
+      text-align: right;
+      border-bottom: 1px solid #ccc;
+      background-color: #dfdfdf;
+      margin-bottom: 0px;
+      .xml-button {
+         display: inline-block;
+         border: 1px solid #44a;
+         background-color: #66c;
+         color: white;
+         padding: 1px 20px;
+         border-radius: 10px;
+         margin: 5px 5px 0 0;
+         cursor:pointer;
+         font-weight:bold;
+         text-shadow: #000 0 1px 0;
+         box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0px rgba(255, 255, 255, 0.2) inset;
+         &:hover {
+               background-color: #88f;
+         }
+      }
+      .xml-button.generate {
+         position: absolute;
+         left: 5px;
+      }
+   }
+}
   div, p, ol, ul, td {
      font-family: "Helvetica Neue"
   }
@@ -13,7 +157,7 @@ body.active_admin {
 
 .section > h3, .panel > h3 {
    text-shadow: none;
-}
+  }
 
   /* Override colors on title_bar action_items */
   #title_bar .action_items a {
@@ -200,7 +344,7 @@ body.active_admin {
       content: "";
       display: table;
   }
-  
+
   /* Changes to display of code after implement Rainbow.js*/
   pre, code, tt {
     font-size: 11px;

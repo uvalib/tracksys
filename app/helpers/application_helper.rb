@@ -20,6 +20,11 @@ module ApplicationHelper
     end
   end
 
+  def format_td(value)
+     return value if !value.blank?
+     return "<span class='empty'>Empty</span>"
+  end
+
   def format_boolean_as_yes_no(boolean)
     if boolean
       return 'Yes'

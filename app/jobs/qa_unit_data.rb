@@ -35,9 +35,9 @@ class QaUnitData < BaseJob
          failure_messages << "Unit #{unit.id} must have a valid unit status."
       end
 
-      # Check if unit is assigned to bibl record
-      if not unit.bibl
-         failure_messages << "Unit #{unit.id} is not assigned to a bibl record."
+      # Check if unit is assigned to metadata record
+      if not unit.metadata
+         failure_messages << "Unit #{unit.id} is not assigned to a metadata record."
       end
 
       # Fail if unit.intended_use is blank
@@ -48,7 +48,7 @@ class QaUnitData < BaseJob
       # In response to DSSR staff's inconsistent use of the date_approved field, this logic will now warn but enforce the inclusion of a date_approved value.
       if not order.date_order_approved?
          # Define and undefine @order_id within this conditional to ensure that only this message is attached to the Order.
-         on_failure "Order #{order.id} is not marked as approved.  Since this unit is undergoing finalization, the workflow has automatically updated this value and changed the order_status to approved."
+         logger.info "Order #{order.id} is not marked as approved.  Since this unit is undergoing finalization, the workflow has automatically updated this value and changed the order_status to approved."
          order.date_order_approved = Time.now
          order.order_status = 'approved'
          if !order.save
