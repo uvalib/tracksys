@@ -38,9 +38,7 @@ ActiveAdmin.register XmlMetadata do
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
    filter :availability_policy
-   filter :customers_id, :as => :numeric
    filter :orders_id, :as => :numeric
-   filter :agencies_id, :as => :numeric
    filter :collection_facet, :as => :string
 
    # INDEX page ===============================================================
@@ -106,9 +104,6 @@ ActiveAdmin.register XmlMetadata do
            row('Right Statement'){ |r| r.use_right.name }
            row :availability_policy
            row :indexing_scenario
-           row ("Discoverable?") do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.discoverability)
-           end
            row :collection_facet
          end
        end
@@ -158,13 +153,6 @@ ActiveAdmin.register XmlMetadata do
    #
    sidebar "Related Information", :only => [:show, :edit] do
      attributes_table_for xml_metadata do
-       row ("Catalog Record") do |xml_metadata|
-         if xml_metadata.in_dl?
-           div do
-             link_to "VIRGO (Digital Record)", xml_metadata.dl_virgo_url, :target => "_blank"
-           end
-         end
-       end
        row :master_files do |xml_metadata|
          link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
        end

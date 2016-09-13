@@ -4,7 +4,7 @@ namespace :migrate do
        puts "Creating XML Metadata records from metadata"
        Metadata.find_each do |metadata|
          if !metadata.desc_metadata.blank? && metadata.desc_metadata.include?("xml version")
-            metadata.update_attributes(type: "XmlMetadata")         
+            metadata.update(type: "XmlMetadata", discoverability: false)
          end
        end
    end
