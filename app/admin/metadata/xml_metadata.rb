@@ -55,11 +55,6 @@ ActiveAdmin.register XmlMetadata do
          div do
             format_boolean_as_yes_no(xml_metadata.in_dl?)
          end
-         if xml_metadata.in_dl?
-            div do
-               link_to "VIRGO", xml_metadata.dl_virgo_url, :target => "_blank"
-            end
-         end
       end
       column ("DPLA?") do |xml_metadata|
         format_boolean_as_yes_no(xml_metadata.dpla)
