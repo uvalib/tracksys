@@ -6,20 +6,21 @@ class Api::SolrController < ApplicationController
    def index
       ts = params[:timestamp]
       render :text=>"Timestamp is required", status: :bad_request and return if ts.blank?
-      dt = nil
+      date_str=""
       begin
          dt = DateTime.strptime(ts.to_s,'%s')
+         date_str = dt.strftime("%Y-%m-%d")
       rescue Exception=>e
          render :text=>"Invalid date", status: :bad_request and return
       end
 
       pids = []
-      Metadata.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", dt,dt).find_each do |o|
+      Rails.logger.info "Looking for DL updates since #{date_str}"
+      Metadata.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", date_str,date_str).find_each do |o|
          pids << o.pid
-      end
-      MasterFile.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", dt,dt).find_each do |o|
-         next if o.desc_metadata.blank?   # never report MF without metadata; they are always shadowed
-         pids << o.pid
+         o.master_files.where("desc_metadata is not null and desc_metadata <> ''").find_each do |mf|
+            pids << mf.pid
+         end
       end
       render :text=>pids.join(","), :status=>:ok
    end
