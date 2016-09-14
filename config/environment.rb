@@ -3,7 +3,7 @@ require File.expand_path('../application', __FILE__)
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '4.2.0'
+TRACKSYS_VERSION = '4.2.1'
 
 # Setup logger for all jobs processors
 #

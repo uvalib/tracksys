@@ -48,6 +48,7 @@ ActiveAdmin.register MasterFile do
    filter :customer_last_name, :as => :string, :label => "Customer Last Name"
    filter :metadata_title, :as => :string, :label => "Title"
    filter :metadata_creator_name, :as => :string, :label => "Author"
+   filter :metadata_call_number, :as => :string, :label => "Call Number"
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :indexing_scenario
@@ -77,7 +78,7 @@ ActiveAdmin.register MasterFile do
             div do
                link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
             end
-         end   
+         end
       end
       column :unit
       column("Thumbnail") do |mf|
@@ -220,6 +221,11 @@ ActiveAdmin.register MasterFile do
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
          row :customer
+         row :component do |master_file|
+            if master_file.component
+               link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
+            end
+         end
          row :agency
       end
    end
