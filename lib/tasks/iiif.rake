@@ -1,5 +1,4 @@
 #encoding: utf-8
-require 'rmagick'
 require 'tempfile'
 
 namespace :iiif do
@@ -60,15 +59,16 @@ namespace :iiif do
 
                # only supports uncompressed...
                temp_file = nil
-               tiff = Magick::Image.read(source).first
-               unless tiff.compression.to_s == "NoCompression"
-                   temp_file = Tempfile.new(mf.filename)
+               cmd = "identify -verbose #{source} -quiet | grep Compression"
+               out = `#{cmd}`
+               compression = out.split(":")[1].strip.downcase
+               unless tiff.compression.to_s == "none"
+                   temp_file = Tempfile.new([mf.filename.split(".")[0], ".tif"] )
+                   puts "writing uncompresed tif to #{temp_file.path}"
+                   cmd = "convert -quiet #{source} -compress None #{temp_file.path}"
+                   `#{cmd}`
                    source = temp_file.path
-                   puts "writing uncompresed tif #{source}"
-                   tiff.compression=Magick::CompressionType.new("NoCompression", 1)
-                   tiff.write(source)
                end
-               tiff.destroy!
 
                `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
                temp_file.unlink if !temp_file.nil?
