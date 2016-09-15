@@ -1,4 +1,6 @@
 #encoding: utf-8
+require 'rmagick'
+require 'tempfile'
 
 namespace :iiif do
    desc "Publish jp2 files to IIIF server"
@@ -57,16 +59,19 @@ namespace :iiif do
                FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
 
                # only supports uncompressed...
+               temp_file = nil
                tiff = Magick::Image.read(source).first
                unless tiff.compression.to_s == "NoCompression"
-                   source = "#{Rails.root}/tmp/tiffs/#{mf.filename}"
-                   puts "wrinting uncompresed tif #{source}"
+                   temp_file = Tempfile.new(mf.filename)
+                   source = temp_file.path
+                   puts "writing uncompresed tif #{source}"
                    tiff.compression=Magick::CompressionType.new("NoCompression", 1)
                    tiff.write(source)
                end
                tiff.destroy!
 
                `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
+               temp_file.unlink if !temp_file.nil?
             end
          end
       end
