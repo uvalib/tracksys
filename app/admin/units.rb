@@ -287,8 +287,8 @@ ActiveAdmin.register Unit do
     end
 
     f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :order, :as => :select, :collection => Order.all,
-         :input_html => {:class => 'chosen-select', :style => 'width: 260px'}
+      f.input :order, :label=> "Order #", :as => :select, :collection => Hash[Order.all.map{|o| ["#{o.id}", o.id]}],
+         :input_html => { :class => 'chosen-select',:style => 'width: 260px'}
 
       f.input :metadata, :as => :select,
          :collection => Hash[Metadata.all.map{|b| ["#{b.id}: #{truncate(b.title, :length => 50)}", b.id]}],
