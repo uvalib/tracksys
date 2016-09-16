@@ -200,7 +200,10 @@ ActiveAdmin.register XmlMetadata do
    controller do
        before_filter :get_dpla_collection_records, only: [:edit]
        def get_dpla_collection_records
-          @dpla_collection_records = Metadata.where("id in (#{Settings.dpla_collection_records})")
+          @dpla_collection_records = [{id:0, title:"None"}]
+          Metadata.where("id in (#{Settings.dpla_collection_records})").each do |r|
+             @dpla_collection_records << {id:r.id, title:r.title}
+          end
        end
     end
 
