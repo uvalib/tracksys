@@ -35,6 +35,11 @@ module Hydra
       end
 
       if object.is_a? Metadata
+         # Hack to hide jefferson papers stuff (order 2575)
+         if object.orders.where(id: 2575).count > 0
+            payload["shadowedItem"] = "HIDDEN"
+         end
+
          collectionFacetParam = object.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
          payload[collectionFacetParam] = object.collection_facet
          payload["pageCount"] = object.master_files.count.to_s
