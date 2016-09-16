@@ -101,7 +101,7 @@ module Hydra
 
    def self.solr_transform(object, payload)
       payload.each do |k,v|
-         payload[k] = v.gsub(/'/,"")
+         payload[k] = v.gsub(/'/,"") if !v.blank?
       end
       uri = URI("http://fedora-staging.lib.virginia.edu:8080/saxon/SaxonServlet")
       response = Net::HTTP.post_form(uri,payload)
@@ -140,7 +140,7 @@ module Hydra
       if object.is_a? Metadata and object.type == "SirsiMetadata"
          sirsi_metadata = object.becomes(SirsiMetadata)
          doc = Nokogiri::XML( mods_from_marc(sirsi_metadata) )
-         last_node = doc.xpath("//mods:mods/mods:location").last
+         last_node = doc.xpath("//mods:mods/mods:recordInfo").last
 
          # Add node for indexing
          index_node = Nokogiri::XML::Node.new "identifier", doc
@@ -201,10 +201,10 @@ module Hydra
       fixed = "#{xslt_str[0...i0]}#{inc}#{xslt_str[i1+1...-1]}"
       xslt = Nokogiri::XSLT(fixed)
 
-      # first try virgi as a source for marc as it has filterd out sensitive data
-      # If not found, the response will just be: <?xml version="1.0"?> with no mods: info
+      # first try virgo as a source for marc as it has filterd out sensitive data
+      # If not found, the response will just be: <?xml version="1.0"?> with no mods info
       xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
-      if xml.to_s.include?("mods:") == false
+      if xml.to_s.include?("xmlns") == false
          # Not found, try solr index. If found, data is wrapped in a collection. Fix it
          xml_string = Virgo.get_marc(object.catalog_key)
          idx = xml_string.index("<record>")
