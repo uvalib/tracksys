@@ -30,10 +30,8 @@ ActiveAdmin.register Order do
   scope :uniq
 
   filter :id
-  filter :agency, :as => :select, :input_html => {:'data-placeholder' => 'Choose an agency...'}
+  filter :order_title, :label=>"Title"
   filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-  filter :title
-  filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
   filter :date_request_submitted
   filter :date_due
@@ -44,9 +42,10 @@ ActiveAdmin.register Order do
   filter :fee_actual
   filter :staff_notes
   filter :special_instructions
-  filter :academic_status, :as => :select
   filter :invoices_count
   filter :master_files_count
+  filter :academic_status, :as => :select
+  filter :agency, :as => :select, :input_html => {:'data-placeholder' => 'Choose an agency...'}
 
   index :id => 'orders' do
     selectable_column
