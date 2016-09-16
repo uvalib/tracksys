@@ -28,7 +28,14 @@ namespace :dpla do
 
             puts "     Child PID: #{b.pid}"
             child_pids << b.pid
-            src = "#{Settings.tracksys_url}/api/metadata/#{b.pid}?type=desc_metadata"
+
+            # write desc metadata out to temp file
+            desc_xml_file = Tempfile.new([b.pid, "xml"])
+            src = desc_xml_file.path
+            desc_xml_file.write(Hydra.desc(b))
+            desc_xml_file.close
+
+            # determine where to put output file
             relative_pid_path = relative_pid_path(b.pid)
             pid_path = File.join(mods_dir, relative_pid_path)
             FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
@@ -44,8 +51,8 @@ namespace :dpla do
             params << " exemplarPid=#{emf.pid}"
 
             cmd = "     #{saxon} -s:#{src} -xsl:#{xsl} -o:#{out} #{params}"
-            puts cmd
             `#{cmd}`
+            desc_xml_file.unlink
          end
       else
          # Not collection record. Generate MODS from master file desc_metadata
