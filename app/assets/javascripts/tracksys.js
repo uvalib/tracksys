@@ -71,6 +71,13 @@ $(function() {
       } else {
          $("#sirsi_metadata_is_manuscript_false").prop("checked", true);
       }
+
+      // See if year is proipr to 1923
+      if ( metadata.year && parseInt(metadata.year, 10) < 1923 ) {
+         $("#sirsi_metadata_availability_policy_id").val("1");
+      } else {
+         $("#sirsi_metadata_availability_policy_id").val("");
+      }
    };
 
    $('#refresh-metadata').click(function(e) {
