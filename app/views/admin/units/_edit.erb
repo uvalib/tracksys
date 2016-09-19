@@ -45,7 +45,8 @@
       <%= f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
    <% end %>
 
-   <%= f.inputs :class => 'columns-none' do %>
-      <%= f.actions %>
-   <% end %>
+   <fieldset class="columns-none xml-submit">
+      <input type="submit" name="commit" value="Update">
+      <a class="cancel" href="/admin/units/<%= @unit.id %>">Cancel</a>
+   </fieldset>
 <% end %>
