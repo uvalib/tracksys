@@ -14,6 +14,9 @@ ActiveAdmin.register MasterFile do
    scope :not_in_digital_library, :show_count => true
 
    config.clear_action_items!
+   action_item :edit, only: :show do
+      link_to "Edit", edit_resource_path  if !current_user.viewer?
+   end
    action_item :pdf, :only => :show do
      raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
    end
@@ -22,9 +25,6 @@ ActiveAdmin.register MasterFile do
    end
    action_item :transcribe, only: :show do
       link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
-   end
-   action_item :edit, only: :show do
-      link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
 
    batch_action :download_from_archive do |selection|

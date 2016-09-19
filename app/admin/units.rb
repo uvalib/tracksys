@@ -24,17 +24,14 @@ ActiveAdmin.register Unit do
   end
 
   config.clear_action_items!
+  action_item :edit, only: :show do
+     link_to "Edit", edit_resource_path  if !current_user.viewer?
+  end
   action_item :pdf, :only => :show do
     raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
   end
-  action_item :new, :only => :index do
-     raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
-  end
   action_item :ocr, only: :show do
      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
-  end
-  action_item :edit, only: :show do
-     link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
 
   batch_action :approve_units do |selection|
@@ -126,11 +123,6 @@ ActiveAdmin.register Unit do
       div do
         link_to "Details", resource_path(unit), :class => "member_link view_link"
       end
-      if !unit.metadata.nil?
-         div do
-            link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
-         end
-      end
       if !current_user.viewer?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
@@ -139,6 +131,11 @@ ActiveAdmin.register Unit do
             div do
                link_to "OCR", "/admin/ocr?u=#{unit.id}"
             end
+         end
+      end
+      if !unit.metadata.nil?
+         div do
+            link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end
       end
     end
