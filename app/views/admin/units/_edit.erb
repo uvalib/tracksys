@@ -1,0 +1,51 @@
+<%= semantic_form_for([:admin, @unit], :url => "/admin/units/#{@unit.id}") do |f| %>
+   <%= f.inputs "General Information", :class => 'panel three-column ' do %>
+      <%= f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES %>
+      <%= f.input :unit_extent_estimated  %>
+      <%= f.input :unit_extent_actual %>
+      <%= f.input :special_instructions, :as => :text, :input_html => { :rows => 5 } %>
+      <%= f.input :staff_notes, :as => :text, :input_html => { :rows => 5 } %>
+      <%= f.input :complete_scan, :as => :radio %>
+   <% end %>
+
+   <%= f.inputs "Patron Request", :class => 'panel three-column' do %>
+      <%= f.input :intended_use, :as => :select, :collection => IntendedUse.all %>
+      <%= f.input :remove_watermark, :as => :radio %>
+      <%= f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :date_archived, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :date_patron_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 } %>
+   <% end %>
+
+   <%= f.inputs "Related Information", :class => 'panel three-column' do %>
+      <%= f.input :order, :label=> "Order #", :as => :select,
+         :collection => Hash[Order.all.map{|o| ["#{o.id}", o.id]}],
+         :input_html => { :class => 'chosen-select',:style => 'width: 260px'} %>
+
+      <li class="string input optional stringish">
+         <label for="metadata-type-picker" class="label">Metadata Type</label>
+         <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
+            <option>SirsiMetadata</option>
+            <option>XmlMetadata</option>
+         </select>
+      </li>
+
+      <%= f.input :metadata, :as => :select,
+         :collection => Hash[SirsiMetadata.all.map{|b| ["#{b.barcode}", b.id]}],
+         :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
+
+   <% end %>
+
+   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do %>
+      <%= f.input :indexing_scenario %>
+      <%= f.input :include_in_dl, :as => :radio %>
+      <%= f.input :master_file_discoverability, :as => :radio %>
+      <%= f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
+   <% end %>
+
+   <%= f.inputs :class => 'columns-none' do %>
+      <%= f.actions %>
+   <% end %>
+<% end %>

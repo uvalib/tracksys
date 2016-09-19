@@ -266,47 +266,8 @@ ActiveAdmin.register Unit do
     end
   end
 
-  form do |f|
-    f.inputs "General Information", :class => 'panel three-column ' do
-      f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES
-      f.input :unit_extent_estimated
-      f.input :unit_extent_actual
-      f.input :special_instructions, :as => :text, :input_html => { :rows => 5 }
-      f.input :staff_notes, :as => :text, :input_html => { :rows => 5 }
-      f.input :complete_scan, :as => :radio
-    end
-
-    f.inputs "Patron Request", :class => 'panel three-column' do
-      f.input :intended_use, :as => :select, :collection => IntendedUse.all
-      f.input :remove_watermark, :as => :radio
-      f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker}
-      f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker}
-      f.input :date_archived, :as => :string, :input_html => {:class => :datepicker}
-      f.input :date_patron_deliverables_ready, :as => :string, :input_html => {:class => :datepicker}
-      f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 }
-    end
-
-    f.inputs "Related Information", :class => 'panel three-column' do
-      f.input :order, :label=> "Order #", :as => :select, :collection => Hash[Order.all.map{|o| ["#{o.id}", o.id]}],
-         :input_html => { :class => 'chosen-select',:style => 'width: 260px'}
-
-      f.input :metadata, :as => :select,
-         :collection => Hash[Metadata.all.map{|b| ["#{b.id}: #{truncate(b.title, :length => 50)}", b.id]}],
-         :input_html => { :class => 'chosen-select', :style => 'width: 260px'}
-    end
-
-    f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do
-      f.input :indexing_scenario
-      f.input :include_in_dl, :as => :radio
-      f.input :master_file_discoverability, :as => :radio
-      f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker}
-      f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker}
-    end
-
-    f.inputs :class => 'columns-none' do
-      f.actions
-    end
-  end
+  # EDIT page ================================================================
+  form :partial => "edit"
 
   sidebar "Related Information", :only => [:show] do
     attributes_table_for unit do
@@ -391,6 +352,8 @@ ActiveAdmin.register Unit do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
 
+  collection_action :metadata_lookup
+
   member_action :print_routing_slip, :method => :put do
     @unit = Unit.find(params[:id])
     @metadata = { title: "", location: "", call_number:"" }
@@ -469,5 +432,24 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
+  end
+
+  include ActionView::Helpers::TextHelper
+  controller do
+     def metadata_lookup
+        if params[:type] == "XmlMetadata"
+           out = []
+           XmlMetadata.all.order(id: :asc).each do |m|
+             out << {id: m.id, title: "#{m.id}: #{m.title.truncate(50)}"}
+           end
+           render json: out, status: :ok
+        else
+           out = []
+           SirsiMetadata.all.order(barcode: :asc).each do |m|
+             out << {id: m.id, title: "#{m.barcode}"}
+           end
+           render json: out, status: :ok
+        end
+     end
   end
 end
