@@ -20,14 +20,13 @@ namespace :dpla do
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
 
       # Is this a DPLA collection record (a record that has children)?
-      child_pids = []
+      child_info = []
       if metadata.children.size > 0
          puts "Generate DPLA MODS XML for all children of #{metadata.pid}..."
          metadata.children.each do |b|
             next if !b.dpla
 
             puts "     Child PID: #{b.pid}"
-            child_pids << b.pid
 
             # write desc metadata out to temp file
             desc_xml_file = Tempfile.new([b.pid, "xml"])
@@ -49,6 +48,7 @@ namespace :dpla do
             end
             abort("No exemplar set for metadata record") if emf.nil?
             params << " exemplarPid=#{emf.pid}"
+            child_info << { pid: b.pid, exemplar: emf.pid }
 
             cmd = "     #{saxon} -s:#{src} -xsl:#{xsl} -o:#{out} #{params}"
             `#{cmd}`
@@ -75,12 +75,12 @@ namespace :dpla do
                out = File.join(pid_path, "#{mf.pid}.xml")
 
                params = "pid=#{mf.pid} exemplarPid=#{mf.pid}"
+               child_info << { pid: mf.pid, exemplar: mf.pid }
 
                cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl} -o:#{out} #{params}"
                puts "     #{cmd}"
                `#{cmd}`
                tmp.unlink
-               child_pids << mf.pid
             end
          end
       end
@@ -89,7 +89,7 @@ namespace :dpla do
       out = "#{mets_dir}/#{metadata.pid}.xml"
       mods_xml = ApplicationController.new.render_to_string(
          :template => 'template/mets.xml',
-         :locals => { parent_pid: metadata.pid, child_pids: child_pids }
+         :locals => { parent_pid: metadata.pid, child_info: child_info }
       )
       outf = File.open(out, "w")
       outf << mods_xml
