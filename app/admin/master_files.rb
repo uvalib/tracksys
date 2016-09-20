@@ -14,6 +14,8 @@ ActiveAdmin.register MasterFile do
    scope :not_in_digital_library, :show_count => true
 
    config.clear_action_items!
+   config.sort_order = "id_desc"
+
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
@@ -34,19 +36,17 @@ ActiveAdmin.register MasterFile do
    end
 
    filter :id
+   filter :pid
    filter :filename
    filter :title
    filter :description
-   filter :transcription_text
-   filter :desc_metadata
-   filter :pid
    filter :md5, :label => "MD5 Checksum"
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :customer_id, :as => :numeric, :label => "Customer ID"
-   filter :metadata_id, :as => :numeric, :label => "Metadata ID"
    filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-   filter :metadata_title, :as => :string, :label => "Title"
+   filter :metadata_id, :as => :numeric, :label => "Metadata ID"
+   filter :metadata_title, :as => :string, :label => "Metadata Title"
    filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :metadata_call_number, :as => :string, :label => "Call Number"
    filter :use_right, :as => :select, label: 'Right Statement'
@@ -59,6 +59,7 @@ ActiveAdmin.register MasterFile do
 
    index :id => 'master_files' do
       selectable_column
+      column :id
       column :filename, :sortable => false
       column :title do |mf|
          truncate_words(mf.title)
