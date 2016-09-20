@@ -16,6 +16,9 @@ namespace :dpla do
       abort("ID is invalid") if metadata.nil?
       abort("Not available for DPLA") if !metadata.dpla
 
+      # Only regenerate mods files if force flag
+      overwrite = (ENV['force'] == "1" || ENV['force'] == "yes" || ENV['force'] == "true")
+
       xsl = File.join(Rails.root, "lib", "xslt", "DPLA", "MODStoDPLAMODS.xsl")
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
 
@@ -28,17 +31,21 @@ namespace :dpla do
 
             puts "     Child PID: #{b.pid}"
 
-            # write desc metadata out to temp file
-            desc_xml_file = Tempfile.new([b.pid, "xml"])
-            src = desc_xml_file.path
-            desc_xml_file.write(Hydra.desc(b))
-            desc_xml_file.close
-
             # determine where to put output file
             relative_pid_path = relative_pid_path(b.pid)
             pid_path = File.join(mods_dir, relative_pid_path)
             FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
             out = File.join(pid_path, "#{b.pid}.xml")
+            if File.exist?(out) && File.size(out) > 0 && overwrite == false
+               puts "          MODS file already exists; SKIPPING"
+               next
+            end
+
+            # write desc metadata out to temp file
+            desc_xml_file = Tempfile.new([b.pid, "xml"])
+            src = desc_xml_file.path
+            desc_xml_file.write(Hydra.desc(b))
+            desc_xml_file.close
 
             params = "pid=#{b.pid}"
             if b.exemplar.blank?
