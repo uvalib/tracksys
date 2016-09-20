@@ -32,9 +32,9 @@ class Metadata < ActiveRecord::Base
    has_many :agencies, :through => :orders
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :customers, ->{ uniq }, :through => :orders
-   has_many :master_files, :through => :units
    has_many :orders, ->{ uniq }, :through => :units
    has_many :units
+   has_many :master_files
 
    #------------------------------------------------------------------
    # scopes
@@ -71,8 +71,8 @@ class Metadata < ActiveRecord::Base
 
    before_destroy :destroyable?
    def destroyable?
-      if self.components.size > 0 || self.units.size > 0
-         errors[:base] << "cannot delete metadata that is associated with components or units"
+      if self.units.size > 0
+         errors[:base] << "cannot delete metadata that is associated with units"
          return false
       end
       return true

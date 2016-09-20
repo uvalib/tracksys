@@ -134,6 +134,15 @@ class SirsiMetadata < Metadata
       end
    end
 
+   before_destroy :destroyable?
+   def destroyable?
+      if self.components.size > 0
+         errors[:base] << "cannot delete Sirsi metadata that is associated with components"
+         return false
+      end
+      return true
+   end
+
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
