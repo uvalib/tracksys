@@ -32,9 +32,9 @@ class Metadata < ActiveRecord::Base
    has_many :agencies, :through => :orders
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :customers, ->{ uniq }, :through => :orders
+   has_many :master_files, :through => :units
    has_many :orders, ->{ uniq }, :through => :units
    has_many :units
-   has_many :master_files
 
    #------------------------------------------------------------------
    # scopes
