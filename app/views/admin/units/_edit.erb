@@ -27,11 +27,11 @@
          <label for="metadata-type-picker" class="label">Metadata Type</label>
          <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
             <option>SirsiMetadata</option>
-            <option <% if @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
+            <option <% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
          </select>
       </li>
 
-      <% if @unit.metadata.type == "XmlMetadata" %>
+      <% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>
          <%= f.input :metadata, :as => :select,
             :collection => Hash[XmlMetadata.all.map{|b| ["#{b.id}: #{b.title}", b.id]}],
             :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
