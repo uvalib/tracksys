@@ -7,13 +7,13 @@ class MasterFile < ActiveRecord::Base
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :unit
    belongs_to :use_right, :counter_cache => true
+   belongs_to :metadata
    belongs_to :item
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :image_tech_meta, :dependent => :destroy
    has_one :order, :through => :unit
-   has_one :metadata, :through => :unit
    has_one :customer, :through => :order
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
