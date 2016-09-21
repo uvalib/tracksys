@@ -43,7 +43,7 @@ module ImportIviewXml
 
       # Flag if the XML contains a SetList. If so, it will be used
       # to linke to components
-      has_set_list = !root.xpath('//SetList').empty?
+      has_set_list = !(root.xpath('//SetList').empty? || root.xpath('//SetList//UniqueID').empty?)
 
       # Check for processing instruction indicating software name and version
       format_software = 'iview'
@@ -345,7 +345,7 @@ module ImportIviewXml
 
          # If SetList is empty, just carry on. This to allow manuscript units with
          # no components to be flagged properly
-         if root.xpath('//SetList').empty?
+         if root.xpath('//SetList').empty? || root.xpath('//SetList//UniqueID').empty?
             return
          end
 
