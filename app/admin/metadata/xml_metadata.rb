@@ -190,6 +190,8 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
+   collection_action :get_all
+
    member_action :publish, :method => :put do
      xm = XmlMetadata.find(params[:id])
      xm.update_attribute(:date_dl_update, Time.now)
@@ -204,6 +206,14 @@ ActiveAdmin.register XmlMetadata do
           Metadata.where("id in (#{Settings.dpla_collection_records})").each do |r|
              @dpla_collection_records << {id:r.id, title:r.title}
           end
+       end
+
+       def get_all
+         out = []
+         XmlMetadata.all.order(id: :asc).each do |m|
+           out << {id: m.id, title: "#{m.id}: #{m.title}"}
+         end
+         render json: out, status: :ok
        end
     end
 

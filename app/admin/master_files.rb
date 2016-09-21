@@ -3,9 +3,8 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-      :creator_death_date, :date_archived, :discoverability,
-      :md5, :filesize, :unit_id, :transcription_text,
-      :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
+      :creator_death_date, :date_archived,
+      :md5, :filesize, :unit_id, :transcription_text, :pid, :metadata_id
 
    menu :priority => 6
 
@@ -60,7 +59,7 @@ ActiveAdmin.register MasterFile do
    index :id => 'master_files' do
       selectable_column
       column :id
-      column :filename, :sortable => false
+      column :filename
       column :title do |mf|
          truncate_words(mf.title)
       end
@@ -73,7 +72,7 @@ ActiveAdmin.register MasterFile do
       column :date_dl_ingest do |mf|
          format_date(mf.date_dl_ingest)
       end
-      column :pid, :sortable => false
+      column :pid
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
@@ -114,12 +113,10 @@ ActiveAdmin.register MasterFile do
       div :class => 'two-column' do
          panel "General Information" do
             attributes_table_for master_file do
+               row :pid
                row :filename
                row :title
                row :description
-               row :date_archived do |master_file|
-                  format_date(master_file.date_archived)
-               end
                row :intellectual_property_notes do |master_file|
                   if master_file.creation_date or master_file.primary_author or master_file.creator_death_date
                      "Event Creation Date: #{master_file.creation_date} ; Author: #{master_file.primary_author} ; Author Death Date: #{master_file.creator_death_date}"
@@ -127,16 +124,18 @@ ActiveAdmin.register MasterFile do
                      "no data"
                   end
                end
-            end
-         end
-
-         panel "Transcription Text", :toggle => 'show' do
-            div :class=>'mf-transcription' do
-               simple_format(master_file.transcription_text)
+               row :date_archived do |master_file|
+                  format_date(master_file.date_archived)
+               end
+               row :date_dl_ingest do |master_file|
+                  format_date(master_file.date_dl_ingest )
+               end
+               row :date_dl_update do |master_file|
+                  format_date(master_file.date_dl_update)
+               end
             end
          end
       end
-
 
       div :class => 'two-column' do
          panel "Technical Information", :id => 'master_files', :toggle => 'show' do
@@ -168,33 +167,10 @@ ActiveAdmin.register MasterFile do
          end
       end
 
-      div :class => 'columns-none', :toggle => 'hide' do
-         panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
-            attributes_table_for master_file do
-               row :pid
-               row :date_dl_ingest
-               row :date_dl_update
-               row('Right Statement'){ |r| r.use_right.name }
-               row :indexing_scenario
-               row :discoverability do |mf|
-                  case mf.discoverability
-                  when false
-                     "Not uniquely discoverable"
-                  when true
-                     "Uniquely discoverable"
-                  else
-                     "Unknown"
-                  end
-               end
-            end
-
-            div :id => "desc_meta_div" do
-               div :id=>"master-file-desc-metadata" do "DESC METADATA" end
-                  div :id=>"mf-metadata-wrap" do
-                     pre do
-                        master_file.desc_metadata
-                     end
-                  end
+      div :class => 'columns-none' do
+         panel "Transcription Text", :toggle => 'show' do
+            div :class=>'mf-transcription' do
+               simple_format(master_file.transcription_text)
             end
          end
       end
@@ -202,7 +178,6 @@ ActiveAdmin.register MasterFile do
 
    # EDIT page ================================================================
    form :partial => "edit"
-
 
    sidebar "Thumbnail", :only => [:show] do
       div :style=>"text-align:center" do
@@ -221,23 +196,19 @@ ActiveAdmin.register MasterFile do
          row :order do |master_file|
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
-         row :customer
          row :component do |master_file|
             if master_file.component
                link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
             end
          end
+         row :customer
          row :agency
       end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-      if master_file.in_dl?
-         div :class => 'workflow_button' do button_to "Publish",
-           publish_admin_master_file_path(:datastream => 'all'), :method => :put end
-      else
-         "No options available.  Master File is not in DL."
-      end
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && master_file.in_dl?} do
+      div :class => 'workflow_button' do button_to "Publish",
+        publish_admin_master_file_path(:datastream => 'all'), :method => :put end
    end
 
    action_item :previous, :only => :show do

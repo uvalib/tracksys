@@ -234,6 +234,7 @@ ActiveAdmin.register SirsiMetadata do
   form :partial => "form"
 
   collection_action :external_lookup
+  collection_action :get_all
 
   member_action :publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
@@ -242,6 +243,8 @@ ActiveAdmin.register SirsiMetadata do
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"
   end
 
+
+  include ActionView::Helpers::TextHelper
   controller do
      before_filter :get_dpla_collection_records, only: [:edit]
      def get_dpla_collection_records
@@ -266,6 +269,14 @@ ActiveAdmin.register SirsiMetadata do
       before_filter :blank_sirsi, only: [:new ]
       def blank_sirsi
          @sirsi_meta = {catalog_key: '', barcode: '' }
+      end
+
+      def get_all
+        out = []
+        SirsiMetadata.all.order(barcode: :asc).each do |m|
+          out << {id: m.id, title: "#{m.barcode}"}
+        end
+        render json: out, status: :ok
       end
 
       def external_lookup

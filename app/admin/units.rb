@@ -353,8 +353,6 @@ ActiveAdmin.register Unit do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
 
-  collection_action :metadata_lookup
-
   member_action :print_routing_slip, :method => :put do
     @unit = Unit.find(params[:id])
     @metadata = { title: "", location: "", call_number:"" }
@@ -433,24 +431,5 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
-  end
-
-  include ActionView::Helpers::TextHelper
-  controller do
-     def metadata_lookup
-        if params[:type] == "XmlMetadata"
-           out = []
-           XmlMetadata.all.order(id: :asc).each do |m|
-             out << {id: m.id, title: "#{m.id}: #{m.title.truncate(50)}"}
-           end
-           render json: out, status: :ok
-        else
-           out = []
-           SirsiMetadata.all.order(barcode: :asc).each do |m|
-             out << {id: m.id, title: "#{m.barcode}"}
-           end
-           render json: out, status: :ok
-        end
-     end
   end
 end

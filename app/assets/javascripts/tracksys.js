@@ -37,8 +37,11 @@ $(function() {
    // Toggle between Sirsi/Xml metadata
    $("#metadata-type-picker").on("change", function() {
       var metadataType = $(this).val();
-      $.getJSON("/admin/units/metadata_lookup?type="+metadataType, function(json, status, xhr){
+      $.getJSON("/admin/"+metadataType+"/get_all", function(json, status, xhr){
          var sel = $("#unit_metadata_id");
+         if (sel.length == 0 ) {
+            sel = $("#master_file_metadata_id");
+         }
          sel.empty();
          $.each(json, function (idx, obj) {
             sel.append('<option value="' + obj.id + '">' + obj.title + '</option>');
