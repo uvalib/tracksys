@@ -345,7 +345,7 @@ module ImportIviewXml
 
          # If SetList is empty, just carry on. This to allow manuscript units with
          # no components to be flagged properly
-         if root.xpath('//SetList').empty?
+         if root.xpath('//SetList').empty? || root.xpath('//SetList//UniqueID').empty?
             return
          end
 
