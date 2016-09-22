@@ -53,8 +53,7 @@ class CheckAutoPublish < BaseJob
          # See if this is also eligable for DPLA (not hierarchical and public avail)
          if sirsi_meta.components.size == 0 && sirsi_meta.availability_policy_id == 1
             logger.info "Unit #{unit.id} is also acceptable for DPLA publishing"
-            unit.update(parent_bibl_id: 15784)
-            sirsi_meta.update(dpla: 1)
+            sirsi_meta.update(dpla: 1, parent_bibl_id: 15784)
          end
       else
          logger.info "Unit #{unit.id} has no date or a date after 1923 and cannot be auto-published"
