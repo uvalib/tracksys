@@ -38,7 +38,7 @@ class CheckAutoPublish < BaseJob
          end
 
          # update index and include_in_dl on unit if not set
-         unit.update(include_in_dl: true, master_file_discoverability: true)
+         unit.update(include_in_dl: true)
          if unit.indexing_scenario.nil?
             unit.update(indexing_scenario_id: 1)
          end
