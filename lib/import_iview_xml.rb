@@ -69,24 +69,30 @@ module ImportIviewXml
 
             # instantiate MasterFile object in memory
             master_file = new_master_file(item, unit_id)
-            # if a MasterFile with this filename already exists for this Unit, do
-            # not overwrite it
-            if MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
+
+            # if a MasterFile with this filename already exists for this Unit, don't overwrite it
+            existing_mf = MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
+            if !existing_mf.nil?
+               # be sure image meta was created
+               if existing_mf.image_tech_meta.nil?
+                  create_image_tech_meta(item, existing_mf.id)
+               end
                @master_file_count += 1
                Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
                next
-            end
-
-            # if MasterFile object fails validity, raise error with custom error message
-            if not master_file.valid?
-               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
             end
 
             # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
             if ImportIviewXml.get_transcription_text(master_file)
                Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
             end
-            master_file.save!
+
+            # Save and generate tech metadata
+            if !master_file.save
+               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
+            end
+            create_image_tech_meta(item, master_file.id)
+            @master_file_count += 1
 
             # Only attempt to link MasterFiles with Components if the MasterFile's metadata record is a manuscript item
             # Further, only attempt to do this if SetList data is present. If not, no worries.
@@ -104,17 +110,6 @@ module ImportIviewXml
                   link_to_component(master_file.id, pid)
                end
             end
-
-            # instantiate ImageTechMeta object in memory
-            image_tech_meta = new_image_tech_meta(item, master_file.id)
-            # if object fails validity, raise error with custom error message
-            if not image_tech_meta.valid?
-               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
-            end
-            # save ImageTechMeta to database, raising any error that occurs
-            image_tech_meta.save!
-
-            @master_file_count += 1
          end
       end
 
@@ -139,19 +134,10 @@ module ImportIviewXml
    end
    private_class_method :link_to_component
 
-   #-----------------------------------------------------------------------------
-
-   # Instantiates a new ImageTechMeta object (in memory, without saving it to
-   # the database) and populates it with data from a particular iView XML
+   # Create a new ImageTechMeta object and populates it with data from a particular iView XML
    # +MediaItem+ element.
    #
-   # In:
-   # 1. iView XML +MediaItem+ element (Nokogiri Element object)
-   # 2. MasterFile ID (integer) to assign to the master_file_id field of the
-   #    ImageTechMeta object
-   #
-   # Out: Returns the resulting ImageTechMeta object
-   def self.new_image_tech_meta(item, master_file_id)
+   def self.create_image_tech_meta(item, master_file_id)
       image_tech_meta = ImageTechMeta.new(:master_file_id => master_file_id)
 
       value = get_element_value(item.xpath('AssetProperties/MediaType').first)
@@ -177,17 +163,11 @@ module ImportIviewXml
 
       element = item.xpath('MediaProperties/Resolution').first
       image_tech_meta.resolution = get_element_value(element)
-
       image_tech_meta.color_space = get_element_value(item.xpath('MediaProperties/ColorSpace').first)
-
       image_tech_meta.color_profile = get_element_value(item.xpath('MediaProperties/ColorProfile').first)
-
       image_tech_meta.equipment = get_element_value(item.xpath('MetaDataFields/Maker').first)
-
       image_tech_meta.software = get_element_value(item.xpath('MetaDataFields/Software').first)
-
       image_tech_meta.model = get_element_value(item.xpath('MetaDataFields/Model').first)
-
       image_tech_meta.exif_version = get_element_value(item.xpath('MetaDataFields/ExifVersion').first)
 
       # Have to manipulate the contents of this element due to the native format of 2010:05:31 14:32:42
@@ -202,13 +182,9 @@ module ImportIviewXml
       image_tech_meta.capture_date = capture_date
 
       image_tech_meta.iso = get_element_value(item.xpath('MetaDataFields/ISOSpeedRating').first)
-
       image_tech_meta.exposure_bias = get_element_value(item.xpath('MetaDataFields/ExposureBias').first)
-
       image_tech_meta.exposure_time = get_element_value(item.xpath('MetaDataFields/ExposureTime').first)
-
       image_tech_meta.aperture = get_element_value(item.xpath('MetaDataFields/Aperture').first)
-
       image_tech_meta.focal_length = get_element_value(item.xpath('MetaDataFields/FocalLength').first)
 
       element = item.xpath('MediaProperties/Depth').first
@@ -239,9 +215,12 @@ module ImportIviewXml
          end
       end
 
-      return image_tech_meta
+      # save ImageTechMeta to database, raising any error that occurs
+      if !image_tech_meta.save
+         raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
+      end
    end
-   private_class_method :new_image_tech_meta
+   private_class_method :create_image_tech_meta
 
    #-----------------------------------------------------------------------------
 
