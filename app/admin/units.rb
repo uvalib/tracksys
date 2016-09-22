@@ -4,8 +4,8 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :indexing_scenario_id, :complete_scan,
-     :include_in_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
+     :include_in_dl, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
   scope :approved
@@ -91,7 +91,6 @@ ActiveAdmin.register Unit do
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :agency, :as => :select
-  filter :indexing_scenario
   filter :master_files_count, :as => :numeric
 
   index do
@@ -194,12 +193,8 @@ ActiveAdmin.register Unit do
     div :class => "columns-none" do
       panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for unit do
-          row :indexing_scenario
           row ("In Digital Library?") do |unit|
             format_boolean_as_yes_no(unit.include_in_dl)
-          end
-          row :master_file_discoverability do |unit|
-            format_boolean_as_yes_no(unit.master_file_discoverability)
           end
           row :date_queued_for_ingest do |unit|
             format_datetime(unit.date_queued_for_ingest)

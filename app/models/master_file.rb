@@ -4,9 +4,7 @@ class MasterFile < ActiveRecord::Base
    # relationships
    #------------------------------------------------------------------
    belongs_to :component, :counter_cache => true
-   belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :unit
-   belongs_to :use_right, :counter_cache => true
    belongs_to :metadata
    belongs_to :item
 
@@ -22,22 +20,13 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
-   delegate :title, :to => :metadata, :allow_nil => true, :prefix => true
-
-   delegate :include_in_dl, :exclude_in_dl, :date_archived, :date_queued_for_ingest, :date_dl_deliverables_ready,
-      :to => :unit, :allow_nil => true, :prefix => true
+   delegate :title, :use_right, :to => :metadata, :allow_nil => true, :prefix => true
 
    delegate :date_due, :date_order_approved, :date_request_submitted, :date_customer_notified, :id,
       :to => :order, :allow_nil => true, :prefix => true
 
-   delegate :full_name, :id, :last_name, :first_name,
+   delegate :id, :last_name,
       :to => :customer, :allow_nil => true, :prefix => true
-
-   delegate :name,
-      :to => :academic_status, :allow_nil => true, :prefix => true
-
-   delegate :name,
-      :to => :agency, :allow_nil => true, :prefix => true
 
    #------------------------------------------------------------------
    # validations
@@ -50,13 +39,6 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
-   before_save do
-      # default right statement to not Evaluated
-      if self.use_right.blank?
-        cne = UseRight.find_by(name: "Copyright Not Evaluated")
-        self.use_right = cne
-      end
-   end
    after_create do
       update_attribute(:pid, "tsm:#{self.id}")
    end
@@ -89,6 +71,17 @@ class MasterFile < ActiveRecord::Base
       master_files_sorted = self.sorted_set
       if master_files_sorted.find_index(self) > 0
          return master_files_sorted[master_files_sorted.find_index(self)-1]
+      else
+         return nil
+      end
+   end
+
+   # Within the scope of a current MasterFile's Unit, return the MasterFile object
+   # that follows self.  Used to create links and relationships between objects.
+   def next
+      master_files_sorted = self.sorted_set
+      if master_files_sorted.find_index(self) < master_files_sorted.length
+         return master_files_sorted[master_files_sorted.find_index(self)+1]
       else
          return nil
       end
@@ -137,15 +130,45 @@ class MasterFile < ActiveRecord::Base
       CopyArchivedFilesToProduction.exec( {:unit => self.unit, :master_file_filename => self.filename, :computing_id => computing_id })
    end
 
-   # Within the scope of a current MasterFile's Unit, return the MasterFile object
-   # that follows self.  Used to create links and relationships between objects.
-   def next
-      master_files_sorted = self.sorted_set
-      if master_files_sorted.find_index(self) < master_files_sorted.length
-         return master_files_sorted[master_files_sorted.find_index(self)+1]
-      else
-         return nil
-      end
+   # Make all attributes that will be going away in the next relase PRIVATE to
+   # ensure all of their usage has been removed before DB tables are updated
+   #
+   private
+   def discoverability
+      self[:discoverability]
+   end
+   def discoverability=(val)
+      write_attribute :discoverability, val
+   end
+   def desc_metadata
+      self[:desc_metadata]
+   end
+   def desc_metadata=(val)
+      write_attribute :desc_metadata, val
+   end
+   def indexing_scenario
+      self[:indexing_scenario]
+   end
+   def indexing_scenario=(val)
+      write_attribute :indexing_scenario, val
+   end
+   def indexing_scenario_id
+      self[:indexing_scenario_id]
+   end
+   def indexing_scenario_id=(val)
+      write_attribute :indexing_scenario_id, val
+   end
+   def use_right
+      self[:use_right]
+   end
+   def use_right=(val)
+      write_attribute :use_right, val
+   end
+   def use_right_id
+      self[:use_right_id]
+   end
+   def use_right_id=(val)
+      write_attribute :use_right_id, val
    end
 end
 

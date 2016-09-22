@@ -30,7 +30,10 @@ ActiveAdmin.register_page "Dashboard" do
         table do
           tr do
             td do "Unfinished Units of Partially Finalized Orders" end
-            td do link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}", admin_units_path( :order => 'id_desc', :page => '1', :scope => 'uncompleted_units_of_partially_completed_orders') end
+            td do
+               link_to "#{Unit.uncompleted_units_of_partially_completed_orders.count}",
+                  admin_units_path( :order => 'id_desc', :page => '1', :scope => 'uncompleted_units_of_partially_completed_orders')
+            end
           end
           tr do
             td do "Orders Ready for Delivery" end
@@ -141,7 +144,8 @@ ActiveAdmin.register_page "Dashboard" do
                "Total unpaid invoices:"
              end
              td do
-               link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}", admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+               link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
+                  admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
              end
            end
          end

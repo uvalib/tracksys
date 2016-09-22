@@ -48,7 +48,6 @@ ActiveAdmin.register MasterFile do
    filter :metadata_title, :as => :string, :label => "Metadata Title"
    filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :metadata_call_number, :as => :string, :label => "Call Number"
-   filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
    filter :indexing_scenario
    filter :date_archived
@@ -206,11 +205,6 @@ ActiveAdmin.register MasterFile do
       end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && master_file.in_dl?} do
-      div :class => 'workflow_button' do button_to "Publish",
-        publish_admin_master_file_path(:datastream => 'all'), :method => :put end
-   end
-
    action_item :previous, :only => :show do
       link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
    end
@@ -226,13 +220,6 @@ ActiveAdmin.register MasterFile do
    end
 
    member_action :transcribe, :method => :get do
-   end
-
-   member_action :publish, :method => :put do
-     mf = MasterFile.find(params[:id])
-     mf.update_attribute(:date_dl_update, Time.now)
-     logger.info "Master File #{mf.id} has been flagged for an update in the DL"
-     redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File flagged for Publication"
    end
 
    member_action :copy_from_archive, :method => :put do

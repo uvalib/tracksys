@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160920143331) do
+ActiveRecord::Schema.define(version: 20160922185722) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -189,13 +189,11 @@ ActiveRecord::Schema.define(version: 20160920143331) do
   add_index "image_tech_meta", ["master_file_id"], name: "index_image_tech_meta_on_master_file_id", using: :btree
 
   create_table "indexing_scenarios", force: :cascade do |t|
-    t.string   "name",               limit: 255
+    t.string   "name",             limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "metadata_count",     limit: 4,   default: 0
-    t.integer  "components_count",   limit: 4,   default: 0
-    t.integer  "master_files_count", limit: 4,   default: 0
-    t.integer  "units_count",        limit: 4,   default: 0
+    t.integer  "metadata_count",   limit: 4,   default: 0
+    t.integer  "components_count", limit: 4,   default: 0
   end
 
   create_table "intended_uses", force: :cascade do |t|
@@ -383,14 +381,6 @@ ActiveRecord::Schema.define(version: 20160920143331) do
   add_index "sirsi_metadata_components", ["component_id"], name: "component_id", using: :btree
   add_index "sirsi_metadata_components", ["sirsi_metadata_id"], name: "bibl_id", using: :btree
 
-  create_table "sql_reports", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.string   "description", limit: 255
-    t.text     "sql",         limit: 65535
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "staff_members", force: :cascade do |t|
     t.string   "computing_id", limit: 255
     t.string   "last_name",    limit: 255
@@ -439,12 +429,11 @@ ActiveRecord::Schema.define(version: 20160920143331) do
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
 
   create_table "use_rights", force: :cascade do |t|
-    t.string   "name",               limit: 255
+    t.string   "name",           limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "metadata_count",     limit: 4,   default: 0
-    t.integer  "master_files_count", limit: 4,   default: 0
-    t.string   "uri",                limit: 255
+    t.integer  "metadata_count", limit: 4,   default: 0
+    t.string   "uri",            limit: 255
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree

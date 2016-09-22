@@ -1,7 +1,7 @@
 class UseRight < ActiveRecord::Base
    has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
-   has_many :master_files
    validates :name, :uniqueness => true
+   has_many :master_files, :through=>:metadata
 end
 
 # == Schema Information
