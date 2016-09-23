@@ -8,25 +8,12 @@ module ImportIviewXml
    # database accordingly (one MasterFile record for each iView +MediaItem+
    # element) and links newly create MasterFiles to existing Components (if necessary).
    # Occurrence of any error halts the import process and rolls back any database changes already made.
-   #
-   # In:
-   # 1. An open File object for the XML file to be imported
-   # 2. Integer; unit_id value to assign to each new MasterFile object
-   #
-   # Out: master file count
-   def self.import_iview_xml(file, unit_id)
-      Rails.logger.info "ImportIvewXML: importing #{unit_id}"
+   def self.import_iview_xml(file, unit, job_logger)
       @master_file_count = 0
-
-      # Get Unit object
-      begin
-         unit = Unit.find(unit_id)
-      rescue ActiveRecord::RecordNotFound
-         raise ImportError, "Can't add Master File records for Unit #{unit_id} because Unit does not exist"
-      end
 
       # Read XML file
       begin
+         job_logger.info "Reading XML file..."
          doc = Nokogiri.XML(file)
       rescue Exception => e
          raise ImportError, "Can't read file as XML: #{e.message}"
@@ -36,6 +23,7 @@ module ImportIviewXml
       root = doc.root
 
       # QA the file before importing (LFF Shouldn't this have been done in prior QA steps???)
+      job_logger.info "QA XML file..."
       error_list = qa_iview_xml(doc, unit)
       if error_list != [] && error_list != nil
          raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
@@ -59,6 +47,7 @@ module ImportIviewXml
       end
 
       # Create one MasterFile record for each iView <MediaItem>
+      job_logger.info "Creating master files..."
       root.xpath('MediaItemList').each do |list|
          list.xpath('MediaItem').each do |item|
             element = item.xpath('AssetProperties/UniqueID').first
@@ -68,23 +57,23 @@ module ImportIviewXml
             end
 
             # instantiate MasterFile object in memory
-            master_file = new_master_file(item, unit_id)
+            master_file = new_master_file(item, unit)
 
             # if a MasterFile with this filename already exists for this Unit, don't overwrite it
-            existing_mf = MasterFile.find_by(unit_id: unit_id, filename: master_file.filename)
+            existing_mf = MasterFile.find_by(unit_id: unit.id, filename: master_file.filename)
             if !existing_mf.nil?
                # be sure image meta was created
                if existing_mf.image_tech_meta.nil?
                   create_image_tech_meta(item, existing_mf.id)
                end
                @master_file_count += 1
-               Rails.logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
+               job_logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
                next
             end
 
             # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
             if ImportIviewXml.get_transcription_text(master_file)
-               Rails.logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
+               job_logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
             end
 
             # Save and generate tech metadata
@@ -103,7 +92,7 @@ module ImportIviewXml
                # If the setname does not include a PID value, raise an error.
                setname = root.xpath("//SetName/following-sibling::UniqueID[normalize-space()='#{iview_id}']/preceding-sibling::SetName").last.text
                pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
-               Rails.logger.info "Link manuscript to PID #{pid}"
+               job_logger.info "Link manuscript to PID #{pid}"
                if pid.nil?
                   raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
                else
@@ -114,9 +103,7 @@ module ImportIviewXml
       end
 
       # Populate "actual unit extent" field; this is not crucial, so don't raise exceptions on save
-      unit.unit_extent_actual = @master_file_count
-      unit.save
-      unit.update_attributes(unit_extent_actual: @master_file_count, master_files_count: @master_file_count)
+      unit.update(unit_extent_actual: @master_file_count, master_files_count: @master_file_count)
       return @master_file_count
    end
 
@@ -228,14 +215,8 @@ module ImportIviewXml
    # database) and populates it with data from a particular iView XML
    # +MediaItem+ element.
    #
-   # In:
-   # 1. iView XML +MediaItem+ element (Nokogiri Element object)
-   # 2. Unit ID (integer) to assign to the unit_id field of the MasterFile
-   #    object
-   #
-   # Out: Returns the resulting MasterFile object
-   def self.new_master_file(item, unit_id)
-      master_file = MasterFile.new(:unit_id => unit_id, :tech_meta_type => 'image')
+   def self.new_master_file(item, unit)
+      master_file = MasterFile.new(:unit_id => unit.id, :metadata_id=>unit.metadata_id, :tech_meta_type => 'image')
 
       # filename
       master_file.filename = get_element_value(item.xpath('AssetProperties/Filename').first)

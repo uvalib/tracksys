@@ -39,15 +39,6 @@ class CheckAutoPublish < BaseJob
 
          # update index and include_in_dl on unit if not set
          unit.update(include_in_dl: true)
-         if unit.indexing_scenario.nil?
-            unit.update(indexing_scenario_id: 1)
-         end
-
-         # update master file index scenario, use right (if not set) and date_dl_ingest
-         unit.master_files.each do |mf|
-            mf.update(indexing_scenario_id: 1) if mf.indexing_scenario_id.blank?
-            mf.update(use_right_id: 2) if mf.use_right_id.blank?
-         end
          logger.info "Unit #{unit.id} successfully flagged for DL publication"
 
          # See if this is also eligable for DPLA (not hierarchical and public avail)

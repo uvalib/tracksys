@@ -54,7 +54,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
             end
          elsif mode == 'dl'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so Digital Library deliverables can be made."
-            UpdateUnitDateQueuedForIngest.exec_now({ :unit => unit, :source => destination_dir }, self)
+            CreateDlDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
          end
 
       end
