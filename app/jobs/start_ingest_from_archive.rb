@@ -10,6 +10,6 @@ class StartIngestFromArchive < BaseJob
       unit_dir = "%09d" % unit.id
       source = File.join(ARCHIVE_DIR, unit_dir)
       on_success "The DL ingestion workflow for Unit #{unit.id} has begun."
-      UpdateUnitDateQueuedForIngest.exec_now({ :unit => unit, :source => source}, self)
+      CreateDlDeliverables.exec_now({ :unit => unit, :source => source}, self)
    end
 end
