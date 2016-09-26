@@ -18,9 +18,6 @@ class Api::SolrController < ApplicationController
       Rails.logger.info "Looking for DL updates since #{date_str}"
       Metadata.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", date_str,date_str).find_each do |o|
          pids << o.pid
-         o.master_files.where("desc_metadata is not null and desc_metadata <> ''").find_each do |mf|
-            pids << mf.pid
-         end
       end
 
       # pids = []
