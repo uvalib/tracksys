@@ -325,12 +325,6 @@ module Hydra
 
       xml.mods :identifier, master_file.filename, :type => 'local', :displayLabel => 'Digital Production Group Archive Filename'
 
-      if not master_file.legacy_identifiers.empty?
-         master_file.legacy_identifiers.each {|li|
-            xml.mods :identifier, "#{li.legacy_identifier}", :type => 'legacy', :displayLabel => "#{li.description}"
-         }
-      end
-
       case master_file.tech_meta_type
       when 'image'
          display_label = "Image"
@@ -348,7 +342,7 @@ module Hydra
       end
 
       xml.mods :titleInfo do
-         if master_file.name_num.blank?
+         if master_file.title.blank?
             if count.nil?
                title = "[#{display_label}]"
             else
@@ -356,7 +350,7 @@ module Hydra
             end
             xml.mods :title, title
          else
-            xml.mods :title, master_file.name_num
+            xml.mods :title, master_file.title
          end
       end
       if master_file.staff_notes
