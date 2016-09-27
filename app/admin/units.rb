@@ -335,7 +335,7 @@ ActiveAdmin.register Unit do
          start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
     end
     if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Publish",
+      div :class => 'workflow_button' do button_to "Publish All",
          publish_admin_unit_path(:datastream => 'all'), :method => :put end
     end
   end
@@ -413,6 +413,9 @@ ActiveAdmin.register Unit do
     unit.metadata.update_attribute(:date_dl_update, now)
     unit.master_files.each do |mf|
       mf.update_attribute(:date_dl_update, now)
+      if mf.metadata.id != unit.metadata.id
+         mf.metadata.update_attribute(:date_dl_update, now)
+      end
     end
     logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
