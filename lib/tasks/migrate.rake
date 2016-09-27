@@ -32,7 +32,8 @@ namespace :migrate do
          creator = creator_node.text if !creator_node.nil?
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
-            desc_metadata: mf.desc_metadata, creator_name: creator, exemplar: mf.filename )
+            desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
+            creator_name: creator, exemplar: mf.filename )
          puts "Created metadata #{metadata.id} title: #{metadata.title}"
          mf.update(metadata_id: metadata.id)
       end
