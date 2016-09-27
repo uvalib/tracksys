@@ -150,12 +150,10 @@ ActiveAdmin.register SirsiMetadata do
     div :class => 'columns-none' do
       panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
+          row :pid
           row ("In Digital Library?") do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.in_dl?)
           end
-          row :pid
-          row :date_dl_ingest
-          row :date_dl_update
           row :exemplar do |sirsi_metadata|
             link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
           end
@@ -170,7 +168,8 @@ ActiveAdmin.register SirsiMetadata do
             format_boolean_as_yes_no(sirsi_metadata.discoverability)
           end
           row :collection_facet
-          row :desc_metadata
+          row :date_dl_ingest
+          row :date_dl_update
         end
       end
     end

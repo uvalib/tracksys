@@ -83,12 +83,10 @@ ActiveAdmin.register XmlMetadata do
       div :class => 'two-column' do
        panel "Digital Library Information"  do
          attributes_table_for xml_metadata do
+           row :pid
            row ("In Digital Library?") do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.in_dl?)
            end
-           row :pid
-           row :date_dl_ingest
-           row :date_dl_update
            row :exemplar do |xml_metadata|
              link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
            end
@@ -99,7 +97,12 @@ ActiveAdmin.register XmlMetadata do
            row('Right Statement'){ |r| r.use_right.name }
            row :availability_policy
            row :indexing_scenario
+           row ("Discoverable?") do |xml_metadata|
+              format_boolean_as_yes_no(xml_metadata.discoverability)
+           end
            row :collection_facet
+           row :date_dl_ingest
+           row :date_dl_update
          end
        end
      end
