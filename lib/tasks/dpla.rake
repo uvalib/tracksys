@@ -62,19 +62,26 @@ namespace :dpla do
             desc_xml_file.unlink
          end
       else
-         # Not collection record. Generate MODS from master file desc_metadata
-         # Skip if masterfile does not have desc_metadata or is not discoverable.
+         # Not collection record. Generate MODS from master file metadata
+         # Skip if masterfile is not discoverable.
          # Also skip all master files for units that are not in the DL
          puts "Generate DPLA MODS XML for all Masterfiles from DL units of #{metadata.pid}..."
          metadata.units.each do |u|
+            # Not in DL; don't care about it
             next if !u.include_in_dl
 
             puts "  Unit #{u.id} is included in DL. Finding master files..."
             u.master_files.each do |mf|
-               next if mf.desc_metadata.blank? || !mf.discoverability
+               # The MF metadata must be discoverable, and have this MF
+               # as its only child
+               next if !mf.discoverability
+               next if mf.metadata.type != "XmlMetadata"
+               next if mf.metadata.master_files.size > 1
+               next if mf.metadata.master_files.first != mf
+
                puts "     Master File PID: #{mf.pid}"
                tmp = Tempfile.new(mf.pid)
-               tmp.write(mf.desc_metadata)
+               tmp.write(mf.metadata.desc_metadata)
                tmp.close
                relative_pid_path = relative_pid_path(mf.pid)
                pid_path = File.join(mods_dir, relative_pid_path)
