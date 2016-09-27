@@ -3,7 +3,7 @@ class GenerateItems < BaseJob
    # Generate items ( sets of master files in page order )
    # A unit will always have at least one item. If a unit contains
    # components, each leaf-component (component that contains master files)
-   # will also be an item. Master files with desc_metadata will get their
+   # will also be an item. Master files with their own metadata also get their
    # own item
    #
    def do_workflow(message)
@@ -18,11 +18,12 @@ class GenerateItems < BaseJob
          next if !mf.item.nil? # if item is somehow already tied to the MF, skip
 
          # If MF has desc_metadata, it always goes in its own item
-         if !mf.desc_metadata.blank?
+         # This can be determined if the metadata record is XML, and has this masterfile as its only child
+         if mf.metadata.type == "XmlMetadata" && mf.metadata.master_files.size == 1 && mf.metadata.master_files.first == mf
             page_one_found = false
             curr_item = nil
             curr_component_id = 0
-            puts "Creating new item for MF #{mf.pid}:#{mf.title} with desc_metadata"
+            puts "Creating new item for MF #{mf.pid}:#{mf.title}"
             mf.item = Item.create(unit_id: unit.id)
             mf.save!
             next

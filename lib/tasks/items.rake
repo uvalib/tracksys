@@ -58,7 +58,7 @@ namespace :items do
             next if !mf.item.nil? # if item already set, don't create new!
 
             # If MF has desc_metadata, it always goes in its own item
-            if !mf.desc_metadata.blank?
+            if mf.metadata.type == "XmlMetadata" && mf.metadata.master_files.size == 1 && mf.metadata.master_files.first == mf
                page_one_found = false
                item = nil
                puts "Creating new item for MF #{mf.pid}:#{mf.title} with desc_metadata"

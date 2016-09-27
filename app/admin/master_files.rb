@@ -49,7 +49,6 @@ ActiveAdmin.register MasterFile do
    filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :metadata_call_number, :as => :string, :label => "Call Number"
    filter :academic_status, :as => :select
-   filter :indexing_scenario
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
