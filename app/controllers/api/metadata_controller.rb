@@ -23,11 +23,7 @@ class Api::MetadataController < ApplicationController
       end
 
       if type == "desc_metadata"
-         if object.desc_metadata.blank?
-            render :xml=> Hydra.desc(object)
-         else
-            render :xml=> object.desc_metadata
-         end
+         render :xml=> Hydra.desc(object)
       end
    end
 end
