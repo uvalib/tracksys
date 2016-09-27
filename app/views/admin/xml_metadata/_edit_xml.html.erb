@@ -7,7 +7,6 @@
        <%= f.input :exemplar, :as => :select,
          :collection => f.object.dl_master_files.map(&:filename),
          :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
-       <%= f.input :discoverability, :as => :select %>
        <%= f.input :availability_policy %>
        <%= f.input :use_right, label: "Right Statement" %>
        <%= f.input :indexing_scenario %>
