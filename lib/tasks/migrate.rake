@@ -28,6 +28,9 @@ namespace :migrate do
          ns = ""
          ns = "mods:" if mf.desc_metadata.include? "xmlns:mods"
 
+         # get original metadata availability_policy
+         availability_policy = mf.metadata.availability_policy
+
          title = mf.title
          xml = Nokogiri::XML( mf.desc_metadata )
          title_node = xml.xpath( "//#{ns}titleInfo/#{ns}title" ).first
@@ -40,7 +43,8 @@ namespace :migrate do
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
-            creator_name: creator, exemplar: mf.filename , pid: mf.pid)
+            availability_policy: availability_policy,
+            creator_name: creator, exemplar: mf.filename, pid: mf.pid)
          puts "Created metadata #{metadata.id} title: #{metadata.title} for MF #{mf.id}"
          mf.update(metadata_id: metadata.id)
       end
