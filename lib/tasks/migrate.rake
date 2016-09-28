@@ -40,9 +40,17 @@ namespace :migrate do
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
-            creator_name: creator, exemplar: mf.filename )
+            creator_name: creator, exemplar: mf.filename , pid: mf.pid)
          puts "Created metadata #{metadata.id} title: #{metadata.title} for MF #{mf.id}"
          mf.update(metadata_id: metadata.id)
+      end
+   end
+
+   task :pids  => :environment do
+      puts "fixing pids"
+      MasterFile.where("desc_metadata <> '' and desc_metadata is not null").find_each do |mf|
+         puts "Assign MF #{mf.id} pid #{mf.pid} to metadata #{mf.metadata.id}"
+         mf.metadata.update(pid: mf.pid)
       end
    end
 end

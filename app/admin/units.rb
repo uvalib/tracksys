@@ -414,7 +414,15 @@ ActiveAdmin.register Unit do
     unit.master_files.each do |mf|
       mf.update_attribute(:date_dl_update, now)
       if mf.metadata.id != unit.metadata.id
-         mf.metadata.update_attribute(:date_dl_update, now)
+         if mf.metadata.date_dl_ingest.blank?
+            if mf.metadata.date_dl_update.blank?
+               mf.metadata.update(date_dl_ingest: now)
+            else
+               mf.metadata.update(date_dl_ingest: mf.metadata.date_dl_update, date_dl_update: now)
+            end
+         else
+            mf.metadata.update(date_dl_update: now)
+         end
       end
     end
     logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
