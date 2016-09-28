@@ -133,6 +133,19 @@ $(function() {
       });
    }
 
+   if ( $(".desc-metadata-viewer").length > 0 ) {
+      var cm = CodeMirror.fromTextArea( $(".desc-metadata-viewer")[0], {
+         mode: "xml",
+         lineNumbers: true,
+         lineWrapping: true,
+         foldGutter: true,
+         matchTags: true,
+         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+         readOnly: true
+      });
+      cm.setSize("100%", "auto");
+   }
+
    if ( $(".desc-metadata-editor").length > 0 ) {
       var cm = CodeMirror.fromTextArea( $(".desc-metadata-editor")[0], {
          mode: "xml",

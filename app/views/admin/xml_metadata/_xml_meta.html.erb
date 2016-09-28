@@ -2,8 +2,9 @@
    <table border="0" cellspacing="0" callpadding="0">
       <tr class="row"><th>Title</th><td><%= @xml_metadata.title %></td></tr>
       <tr class="row"><th>CREATOR NAME</th><td><%= @xml_metadata.creator_name %></td></tr>
-      <tr class="row">
-         <td colspan="2"><pre class='xml-meta'><%= @xml_metadata.desc_metadata %></pre></td>
-      </tr>
    </table>
+
+</div>
+<div id="tracksys_xml_editor">
+<textarea class="desc-metadata-viewer"><%= @xml_metadata.desc_metadata %></textarea>
 </div>
