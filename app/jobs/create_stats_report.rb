@@ -51,6 +51,11 @@ class CreateStatsReport < BaseJob
       report_path = "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xlsx"
       logger.info("Writing stats report to: #{report_path}")
       pkg.serialize(report_path)
+      staff_member = StaffMember.find_by(id: message[:user_id] )
+      if !staff_member.nil?
+         logger.info "Sending email notification to #{staff_member.email}"
+         ReportMailer.stats_report_complete(staff_member, report_path).deliver_now
+      end
       on_success "Stats reported created."
    end
 

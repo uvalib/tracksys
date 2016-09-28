@@ -160,7 +160,7 @@ ActiveAdmin.register_page "Dashboard" do
 
   page_action :get_yearly_stats do
     CreateStatsReport.exec( {:user_id=>current_user.id, :year => params[:year]} )
-    flash[:notice] = "Stats Report Being Created.  Find at /digiserv-production/administrative/stats_reports/.  Give three minutes for production."
+    flash[:notice] = "Stats Report Being Created. You will receive an email when report is ready."
     redirect_to "/admin/dashboard"
   end
 
