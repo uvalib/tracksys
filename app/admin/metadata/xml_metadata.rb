@@ -158,7 +158,7 @@ ActiveAdmin.register XmlMetadata do
          link_to "#{xml_metadata.units.size}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
        end
        row :orders do |xml_metadata|
-         link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:metadata_id_eq => xml_metadata.id}, :scope => :uniq )
+         link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
        end
        row :customers do |xml_metadata|
          link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
