@@ -29,7 +29,6 @@ class CreateDlDeliverables < BaseJob
 
       # All ingestable objects have a date_dl_ingest attribute which can be updated at this time.
       # Also, send all masterfiles to IIIF server (this is the generation of DL deliverables)
-      unit.update(date_dl_ingest: Time.now)
       metadata.update(date_dl_ingest: Time.now)
       unit.master_files.each do |mf|
          mf.update(date_dl_ingest: Time.now)
@@ -38,7 +37,7 @@ class CreateDlDeliverables < BaseJob
       end
 
       # All deliverables generated; update timestamp and cleanup
-      unit.update_attribute(:date_dl_deliverables_ready, Time.now)
+      unit.update(date_dl_deliverables_ready: Time.now)
       logger.info "Unit #{unit.id} is ready for ingestion into the DL."
 
       if source.match("#{FINALIZATION_DIR_MIGRATION}") or source.match("#{FINALIZATION_DIR_PRODUCTION}")
