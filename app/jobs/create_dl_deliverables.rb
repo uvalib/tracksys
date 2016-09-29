@@ -1,4 +1,4 @@
-class QueueDlDeliverables < BaseJob
+class CreateDlDeliverables < BaseJob
 
    def do_workflow(message)
       raise "Parameter 'unit' is required" if message[:unit].blank?
