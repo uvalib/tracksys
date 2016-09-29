@@ -21,6 +21,7 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
+XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata_dropoff"
 FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DIR_MIGRATION = "#{MIGRATION_MOUNT}/finalization"
 

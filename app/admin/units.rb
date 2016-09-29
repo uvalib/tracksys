@@ -31,6 +31,10 @@ ActiveAdmin.register Unit do
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
+  action_item :upload_xml, only: :show do
+     link_to "Bulk upload XML", bulk_upload_xml_admin_unit_path, :method => :put
+  end
+
   action_item :pdf, :only => :show do
     raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
   end
@@ -427,6 +431,12 @@ ActiveAdmin.register Unit do
     end
     logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
+  end
+
+  member_action :bulk_upload_xml, :method => :put do
+     unit = Unit.find(params[:id])
+     BulkUploadXml.exec({unit: unit})
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
   end
 
   member_action :checkout_to_digiserv, :method => :put do
