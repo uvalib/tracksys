@@ -32,8 +32,8 @@ class CreateDlDeliverables < BaseJob
       metadata.update(date_dl_ingest: Time.now)
       unit.master_files.each do |mf|
          mf.update(date_dl_ingest: Time.now)
-         file_path = File.join(source, object.filename)
-         PublishToIiif.exec_now({ :source => file_path, :master_file_id=> object.id }, self)
+         file_path = File.join(source, mf.filename)
+         PublishToIiif.exec_now({ :source => file_path, :master_file_id=> mf.id }, self)
       end
 
       # All deliverables generated; update timestamp and cleanup
