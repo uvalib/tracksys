@@ -155,7 +155,9 @@ ActiveAdmin.register XmlMetadata do
          link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
        end
        row :units do |xml_metadata|
-         link_to "#{xml_metadata.units.size}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
+          # FIXME This link is broken for XML metadata that are attached directly to MF
+          # FIXME can date DL ingest / update go away from masterfiles???
+         link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
        end
        row :orders do |xml_metadata|
          link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
@@ -183,7 +185,9 @@ ActiveAdmin.register XmlMetadata do
    end
 
    sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-      if xml_metadata.in_dl?
+      # NOTE: need the or condition to cover the case where this metadata is directly tied to a master file
+      # as is the case with image collecations
+      if xml_metadata.in_dl? || (xml_metadata.master_files.count > 0 && xml_metadata.master_files.first.in_dl?)
          div :class => 'workflow_button' do
             button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put end
       else
@@ -197,7 +201,15 @@ ActiveAdmin.register XmlMetadata do
 
    member_action :publish, :method => :put do
      xm = XmlMetadata.find(params[:id])
-     xm.update_attribute(:date_dl_update, Time.now)
+     if xm.date_dl_ingest.blank?
+        if xm.date_dl_update.blank?
+           xm.update(date_dl_ingest: Time.now)
+        else
+           xm.update(date_dl_ingest: xm.date_dl_update, date_dl_update: Time.now)
+        end
+     else
+        xm.update(date_dl_update: Time.now)
+     end
      logger.info "XML Metadata #{xm.id}:#{xm.pid} has been flagged for an update in the DL"
      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "XML Metadata flagged for Publication"
    end
