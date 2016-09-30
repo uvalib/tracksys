@@ -44,7 +44,8 @@ namespace :migrate do
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
             availability_policy: availability_policy,
-            creator_name: creator, exemplar: mf.filename, pid: mf.pid)
+            creator_name: creator, exemplar: mf.filename, pid: mf.pid,
+            date_dl_ingest: mf.date_dl_ingest, date_dl_update: mf.date_dl_update )
          puts "Created metadata #{metadata.id} title: #{metadata.title} for MF #{mf.id}"
          mf.update(metadata_id: metadata.id)
       end
