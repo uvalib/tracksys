@@ -88,7 +88,7 @@ ActiveAdmin.register SirsiMetadata do
       format_boolean_as_yes_no(sirsi_metadata.dpla)
     end
     column :units, :class => 'sortable_short', :sortable => :units_count do |sirsi_metadata|
-      link_to sirsi_metadata.units.count, admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
+      link_to sirsi_metadata.units_count, admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
     end
     column("Master Files") do |sirsi_metadata|
       link_to sirsi_metadata.master_files.count, admin_master_files_path(:q => {:metadata_id_eq => sirsi_metadata.id})
@@ -237,7 +237,17 @@ ActiveAdmin.register SirsiMetadata do
 
   member_action :publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
-    metadata.update_attribute(:date_dl_update, Time.now)
+
+    if metadata.date_dl_ingest.blank?
+      if metadata.date_dl_update.blank?
+          metadata.update(date_dl_ingest: Time.now)
+      else
+          metadata.update(date_dl_ingest: metadata.date_dl_update, date_dl_update: Time.now)
+      end
+    else
+      metadata.update(date_dl_update: Time.now)
+    end
+
     logger.info "SirsiMetadata #{metadata.id} has been flagged for an update in the DL"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"
   end
