@@ -226,15 +226,4 @@ ActiveAdmin.register MasterFile do
       mf.get_from_stornext(current_user.computing_id)
       redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
    end
-
-   # Specified in routes.rb to return the XML partial mods.xml.erb
-   member_action :mods do
-      @master_file = MasterFile.find(params[:id])
-      @page_title = "MODS Record for MasterFile ##{@master_file.id}"
-      render template: "admin/master_files/mods.xml.erb"
-   end
-
-   member_action :solr do
-      @master_file = MasterFile.find(params[:id])
-   end
 end
