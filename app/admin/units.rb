@@ -414,9 +414,9 @@ ActiveAdmin.register Unit do
   member_action :publish, :method => :put do
     unit = Unit.find(params[:id])
     now = Time.now
-    unit.metadata.update_attribute(:date_dl_update, now)
+    unit.metadata.update(date_dl_update: now)
     unit.master_files.each do |mf|
-      mf.update_attribute(:date_dl_update, now)
+      mf.update(date_dl_update: now)
       if mf.metadata.id != unit.metadata.id
          if mf.metadata.date_dl_ingest.blank?
             if mf.metadata.date_dl_update.blank?
