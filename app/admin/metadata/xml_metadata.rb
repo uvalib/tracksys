@@ -154,32 +154,40 @@ ActiveAdmin.register XmlMetadata do
        row :master_files do |xml_metadata|
          link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
        end
-       row :units do |xml_metadata|
-          # FIXME This link is broken for XML metadata that are attached directly to MF
-          # FIXME can date DL ingest / update go away from masterfiles???
-         link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
-       end
-       row :orders do |xml_metadata|
-         link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
-       end
-       row :customers do |xml_metadata|
-         link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
-       end
-       row "Agencies Requesting Resource" do |xml_metadata|
-         raw(xml_metadata.agency_links)
-       end
-       row("Collection Metadata Record") do |xml_metadata|
-          if xml_metadata.parent
-            if xml_metadata.parent.type == "SirsiMetadata"
-               link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
-            elsif xml_metadata.parent.type == "XmlMetadata"
-               link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
-            end
+       if xml_metadata.units.count > 0
+          row :units do |xml_metadata|
+            link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
           end
-       end
-       row "child metadata records" do |xml_metadata|
-          map = xml_metadata.typed_children
-          render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+          row :orders do |xml_metadata|
+            link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
+          end
+          row :customers do |xml_metadata|
+            link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
+          end
+          row "Agencies Requesting Resource" do |xml_metadata|
+            raw(xml_metadata.agency_links)
+          end
+          row("Collection Metadata Record") do |xml_metadata|
+             if xml_metadata.parent
+               if xml_metadata.parent.type == "SirsiMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+               elsif xml_metadata.parent.type == "XmlMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
+               end
+             end
+          end
+          row "child metadata records" do |xml_metadata|
+             map = xml_metadata.typed_children
+             render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+          end
+       elsif xml_metadata.master_files.count == 1
+          unit = xml_metadata.master_files.first.unit
+          row :unit do |xml_metadata|
+             link_to "##{unit.id}", "/admin/units/#{unit.id}"
+          end
+          row :order do |xml_metadata|
+            link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
+          end
        end
      end
    end

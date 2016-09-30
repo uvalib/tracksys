@@ -30,6 +30,10 @@ zip_max_gb: "2"
 send_customer_email: "true"
 alternate_email_recipient: "lf6f@virginia.edu"
 
+# For test publishing
+test_virgo_url: http://docker1.lib.virginia.edu:8061/catalog
+test_solr_url: http://docker1.lib.virginia.edu:8060/solr
+
 production:
    archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /digiserv-production
