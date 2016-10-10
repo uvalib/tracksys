@@ -313,7 +313,7 @@ module ImportIviewXml
          set_list = root.xpath('//SetList//UniqueID').map(&:content)
 
          # A SetList is present. Make sure it is valid. Are ID counts the same?
-         if root.xpath('//MediaItem//UniqueID').count == root.xpath('//SetList//UniqueID').count
+         if media_item_list.count == set_list.count
             # count might be OK, but identifiers must be all accounted for (order may differ)
             if media_item_list.sort != set_list.sort
                if media_item_list != ( media_item_list|set_list )    # media_item_list is missing a UniqueID
@@ -326,13 +326,13 @@ module ImportIviewXml
             end
          else
             # Counts are different. Generate a differences report for the error log
-            report = []
-            if media_item_list > set_list
-               report = media_item_list - set_list
-            else
-               report = set_list - media_item_list
+            # The diff below will be blank if the count discrepancy was caused by duplicate
+            # entries in the set_list data. Ignore this type of error as it doesn't cause any
+            # problems limnking items from media items list  to component pids in set list
+            report = media_item_list - set_list
+            if report.count > 0
+               errors << "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes.  Missing IDs: #{report}"
             end
-            errors << "IView Catalog #{unit.id} has an unequal number of UniqueID's in MediaItem and SetList nodes.  Missing IDs: #{report}"
          end
       end
 
