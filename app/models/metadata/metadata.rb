@@ -143,10 +143,14 @@ class Metadata < ActiveRecord::Base
    def publish_to_test
       # ensure that required fields are set
       if !self.discoverability
-         mf.metadata.update(discoverability: 1)
+         self.update(discoverability: 1)
       end
       if self.indexing_scenario.blank?
-         mf.metadata.update(indexing_scenario_id: 1)
+         if self.type == "XmlMetadata"
+            self.update(indexing_scenario_id: 2)
+         else
+            self.update(indexing_scenario_id: 1)
+         end
       end
 
       xml = Hydra.desc( self )
