@@ -197,7 +197,11 @@ ActiveAdmin.register XmlMetadata do
       # as is the case with image collecations
       if xml_metadata.in_dl? || (xml_metadata.master_files.count > 0 && xml_metadata.master_files.first.in_dl?)
          div :class => 'workflow_button' do
-            button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put end
+            button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
+         end
+         div :class => 'workflow_button' do
+            button_to "Publish to Virgo Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
+         end
       else
          "No options available.  Object is not in DL."
       end
@@ -207,19 +211,24 @@ ActiveAdmin.register XmlMetadata do
    #
    collection_action :get_all
 
+   # Flag for publication  overnight
+   #
    member_action :publish, :method => :put do
-     xm = XmlMetadata.find(params[:id])
-     if xm.date_dl_ingest.blank?
-        if xm.date_dl_update.blank?
-           xm.update(date_dl_ingest: Time.now)
-        else
-           xm.update(date_dl_ingest: xm.date_dl_update, date_dl_update: Time.now)
-        end
-     else
-        xm.update(date_dl_update: Time.now)
-     end
-     logger.info "XML Metadata #{xm.id}:#{xm.pid} has been flagged for an update in the DL"
-     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "XML Metadata flagged for Publication"
+     metadata = XmlMetadata.find(params[:id])
+     metadata.flag_for_publication
+
+     logger.info "XmlMetadata #{metadata.id} has been flagged for an update in the DL"
+     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
+   end
+
+   # Publish immediately to test instance of Virgo
+   #
+   member_action :test_publish, :method => :put do
+     metadata = XmlMetadata.find(params[:id])
+     metadata.flag_for_publication
+     metadata.publish_to_test
+     logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
+     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
 
    controller do
