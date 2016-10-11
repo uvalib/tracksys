@@ -192,7 +192,7 @@ module Hydra
       # some desc_metadata has namespaces, some does not.
       # figure out if this one does, and set params to be used in xpath
       ns = ""
-      ns = "mods:" if doc.to_xml.include? "xmlns:mods"
+      ns = "mods:" if doc.to_xml.include? "mods:"
 
       access = doc.xpath("//#{ns}mods/#{ns}accessCondition").first
       if access.nil?
