@@ -225,6 +225,9 @@ ActiveAdmin.register SirsiMetadata do
         div :class => 'workflow_button' do
            button_to "Publish", "/admin/sirsi_metadata/#{sirsi_metadata.id}/publish", :method => :put
         end
+        div :class => 'workflow_button' do
+           button_to "Publish to Virgo Test", "/admin/sirsi_metadata/#{sirsi_metadata.id}/test_publish", :method => :put
+        end
      else
         "No options available.  Object is not in DL."
      end
@@ -235,23 +238,25 @@ ActiveAdmin.register SirsiMetadata do
   collection_action :external_lookup
   collection_action :get_all
 
+  # Flag for publication  overnight
+  #
   member_action :publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
-
-    if metadata.date_dl_ingest.blank?
-      if metadata.date_dl_update.blank?
-          metadata.update(date_dl_ingest: Time.now)
-      else
-          metadata.update(date_dl_ingest: metadata.date_dl_update, date_dl_update: Time.now)
-      end
-    else
-      metadata.update(date_dl_update: Time.now)
-    end
+    metadata.flag_for_publication
 
     logger.info "SirsiMetadata #{metadata.id} has been flagged for an update in the DL"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"
   end
 
+  # Publish immediately to test instance of Virgo
+  #
+  member_action :test_publish, :method => :put do
+    metadata = SirsiMetadata.find(params[:id])
+    metadata.flag_for_publication
+    metadata.publish_to_test
+    logger.info "SirsiMetadata #{metadata.pid} has been published to the test instance of Virgo"
+    redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
+  end
 
   include ActionView::Helpers::TextHelper
   controller do

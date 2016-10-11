@@ -128,6 +128,31 @@ class Metadata < ActiveRecord::Base
       return out
    end
 
+   def flag_for_publication
+      if self.date_dl_ingest.blank?
+        if self.date_dl_update.blank?
+            self.update(date_dl_ingest: Time.now)
+        else
+            self.update(date_dl_ingest: self.date_dl_update, date_dl_update: Time.now)
+        end
+      else
+        self.update(date_dl_update: Time.now)
+      end
+   end
+
+   def publish_to_test
+      # ensure that required fields are set
+      if !self.discoverability
+         mf.metadata.update(discoverability: 1)
+      end
+      if self.indexing_scenario.blank?
+         mf.metadata.update(indexing_scenario_id: 1)
+      end
+
+      xml = Hydra.desc( self )
+      RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
+   end
+
    # Returns the array of child metadata records
    #
    def children
