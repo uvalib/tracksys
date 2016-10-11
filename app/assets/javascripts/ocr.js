@@ -1,5 +1,7 @@
 $(function() {
-
+   $('#iiif-viewer').diva({
+      objectData: "http://tracksysdev.lib.virginia.edu:8080/tsb:18132"
+   });
    setTimeout( function() {
 
       $("#src-img").panzoom({

@@ -3,6 +3,7 @@
 //= require chosen-jquery
 //= require tracksys
 //= require jquery.panzoom
+//= require diva
 //= require ocr
 //= require codemirror
 //= require_tree ./mode/
