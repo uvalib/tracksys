@@ -23,23 +23,20 @@ namespace :migrate do
       MasterFile.where("desc_metadata <> '' and desc_metadata is not null").find_each do |mf|
          next if mf.metadata.master_files.first == mf
 
-         # some desc_metadata has namespaces, some does not.
-         # figure out if this one does, and set params to be used in xpath
-         ns = ""
-         ns = "mods:" if mf.desc_metadata.include? "xmlns:mods"
-
          # get original metadata availability_policy
          availability_policy = mf.metadata.availability_policy
 
          title = mf.title
          xml = Nokogiri::XML( mf.desc_metadata )
-         title_node = xml.xpath( "//#{ns}titleInfo/#{ns}title" ).first
+         xml.remove_namespaces!
+         title_node = xml.xpath( "//titleInfo/title" ).first
          if !title_node.nil?
             title = title_node.text.strip
          end
          creator = nil
-         creator_node = xml.xpath("//#{ns}name/#{ns}namePart").first
-         creator = creator_node.text if !creator_node.nil?
+         creator_node = xml.xpath("//name/namePart").first
+         creator = creator_node.text.strip if !creator_node.nil?
+         
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,

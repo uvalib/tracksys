@@ -196,7 +196,6 @@ module Hydra
 
       access = doc.xpath("//#{ns}mods/#{ns}accessCondition").first
       if access.nil?
-         title_node = doc.xpath("//#{ns}mods/#{ns}titleInfo").first
          rights_node = Nokogiri::XML::Node.new "accessCondition", doc
          rights_node['type'] = 'use and reproduction'
          if metadata.use_right.blank?
@@ -204,7 +203,7 @@ module Hydra
          else
             rights_node.content = "#{metadata.use_right.uri}"
          end
-         title_node.add_previous_sibling(rights_node)
+         doc.root.children.first.add_previous_sibling(rights_node)
       end
    end
 end
