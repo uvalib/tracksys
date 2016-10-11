@@ -119,18 +119,18 @@ module Hydra
          index_node['type'] = 'uri'
          index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
          index_node['invalid'] = 'yes' unless object.discoverability
-         index_node.content = "#{object.pid}"
+         index_node.content = "#{metadata.pid}"
          last_node.add_next_sibling(index_node)
 
          # Add node with Tracksys Metadata ID
          metadata_id_node = Nokogiri::XML::Node.new "identifier", doc
          metadata_id_node['type'] = 'local'
          metadata_id_node['displayLabel'] = 'Digital Production Group Tracksys Metadata ID'
-         metadata_id_node.content = "#{object.id}"
+         metadata_id_node.content = "#{metadata.id}"
          last_node.add_next_sibling(metadata_id_node)
 
          # Add nodes with Unit IDs that are included in DL
-         object.units.each do |unit|
+         metadata.units.each do |unit|
             if unit.include_in_dl == true
                unit_id_node = Nokogiri::XML::Node.new "identifier", doc
                unit_id_node['type'] = 'local'
@@ -139,13 +139,16 @@ module Hydra
                last_node.add_next_sibling(unit_id_node)
             end
          end
-
+         add_rights_to_mods(doc, metadata)
          output = doc.to_xml
       else
          # For now, the only type of metadata that exists is MODS XML. Just return it
          # TODO this will need to be updated when ASpace metadata is supported, and
          # when other flavors of XML are supported (VRA, others)
-         output = metadata.desc_metadata
+
+         doc = Nokogiri::XML(metadata.desc_metadata)
+         add_rights_to_mods(doc, metadata)
+         output = doc.to_xml
       end
       return output
    end
@@ -182,5 +185,26 @@ module Hydra
          config.default_xml.noblanks
       end
       return doc.to_xml
+   end
+
+   private
+   def self.add_rights_to_mods(doc, metadata)
+      # some desc_metadata has namespaces, some does not.
+      # figure out if this one does, and set params to be used in xpath
+      ns = ""
+      ns = "mods:" if doc.to_xml.include? "xmlns:mods"
+
+      access = doc.xpath("//#{ns}mods/#{ns}accessCondition").first
+      if access.nil?
+         title_node = doc.xpath("//#{ns}mods/#{ns}titleInfo").first
+         rights_node = Nokogiri::XML::Node.new "accessCondition", doc
+         rights_node['type'] = 'use and reproduction'
+         if metadata.use_right.blank?
+            rights_node.content = "#{UseRight.fin(1).uri}" # default to CNE
+         else
+            rights_node.content = "#{metadata.use_right.uri}"
+         end
+         title_node.add_previous_sibling(rights_node)
+      end
    end
 end
