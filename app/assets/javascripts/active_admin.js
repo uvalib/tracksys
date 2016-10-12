@@ -4,6 +4,7 @@
 //= require tracksys
 //= require jquery.panzoom
 //= require diva
+//= require utils
 //= require ocr
 //= require codemirror
 //= require_tree ./mode/
