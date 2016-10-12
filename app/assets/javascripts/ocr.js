@@ -1,25 +1,19 @@
 $(function() {
-   $('#iiif-viewer').diva({
-      objectData: "http://tracksysdev.lib.virginia.edu:8080/tsb:18132"
+
+
+   $("#src-img").panzoom({
+      minScale: 1,
+      maxScale: 20,
+
+      $zoomIn: $(".zoom-in"),
+      $zoomOut: $(".zoom-out"),
+      $zoomRange: $(".zoom-range"),
+      $reset: $(".reset"),
+      onPan: function() {
+         $(".img-box").css("background-image", "none");
+      }
    });
-   setTimeout( function() {
 
-      $("#src-img").panzoom({
-         minScale: 1,
-         maxScale: 10,
-         transition: true,
-         duration: 100,
-         increment: 0.5,
-         $zoomIn: $(".zoom-in"),
-         $zoomOut: $(".zoom-out"),
-         $zoomRange: $(".zoom-range"),
-         $reset: $(".reset"),
-         onPan: function() {
-            $(".img-box").css("background-image", "none");
-         }
-      });
-
-   }, 500);
 
    var updateUnitOcrStatus = function(statusObj) {
       $(".exclude").each( function(idx) {

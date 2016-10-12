@@ -18,11 +18,9 @@ ActiveAdmin.register_page "Transcribe" do
 
    page_action :zoom, method: :get do
       mf = MasterFile.find(params[:mf])
-      # jpg_file = Tempfile.new(["#{mf.unit_id}", '.jpg'])
-      # arch_file = File.join(ARCHIVE_DIR, "%09d" % mf.unit_id, mf.filename)
-      # cmd = "convert -resize 2000 #{arch_file} jpg:-> #{jpg_file.path}"
-      # `#{cmd}`
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{mf.metadata.pid}/full/,2000/0/default.jpg")
+      jpg_file = Tempfile.new(["#{mf.unit_id}", '.jpg'])
+      cmd = "convert -resize 2000 #{mf.iiif_path(mf.pid)} #{jpg_file.path}"
+      `#{cmd}`
       send_data IO.binread(jpg_file.path), :type => 'image/jpg',:disposition => 'inline'
    end
 end
