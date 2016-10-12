@@ -153,7 +153,7 @@ class Metadata < ActiveRecord::Base
          end
       end
 
-      xml = Hydra.desc( self )
+      xml = Hydra.solr( self )
       RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
    end
 
