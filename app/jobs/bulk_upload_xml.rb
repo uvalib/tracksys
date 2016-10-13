@@ -9,6 +9,10 @@ class BulkUploadXml < BaseJob
       unit = message[:unit]
       unit_dir = "%09d" % unit.id
       xml_dir = File.join(XML_DROPOFF_DIR, "#{unit_dir}")
+      if !Dir.exist? xml_dir
+         on_error("XML Dropoff directory #{xml_dir} does not exist")
+      end
+
       orig_metadata = unit.metadata
       logger.info "Ingesting XML files from #{xml_dir}"
       cnt = 0

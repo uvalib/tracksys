@@ -31,9 +31,6 @@ ActiveAdmin.register Unit do
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
-  action_item :upload_xml, only: :show do
-     link_to "Bulk upload XML", bulk_upload_xml_admin_unit_path, :method => :put
-  end
 
   action_item :pdf, :only => :show do
     raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
@@ -285,6 +282,16 @@ ActiveAdmin.register Unit do
     end
   end
 
+  # XML Upload / Download
+  sidebar :bulk_xml_actions, :only => :show,  if: proc{ !current_user.viewer? } do
+     div :class => 'workflow_button' do
+        button_to "Bulk Upload", bulk_upload_xml_admin_unit_path, :method => :put
+     end
+     div :class => 'workflow_button' do
+        button_to "Bulk Download", bulk_download_xml_admin_unit_path, :method => :put
+     end
+  end
+
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
 
@@ -437,6 +444,12 @@ ActiveAdmin.register Unit do
      unit = Unit.find(params[:id])
      BulkUploadXml.exec({unit: unit})
      redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
+  end
+
+  member_action :bulk_download_xml, :method => :put do
+     unit = Unit.find(params[:id])
+     BulkDownloadXml.exec({unit: unit, user: current_user} )
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Downloading XML for unit #{params[:id]}. When complete, you will receive an email."
   end
 
   member_action :checkout_to_digiserv, :method => :put do
