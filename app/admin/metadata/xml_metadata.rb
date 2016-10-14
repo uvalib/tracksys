@@ -192,10 +192,8 @@ ActiveAdmin.register XmlMetadata do
      end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-      # NOTE: need the or condition to cover the case where this metadata is directly tied to a master file
-      # as is the case with image collecations
-      if xml_metadata.in_dl? || (xml_metadata.master_files.count > 0 && xml_metadata.master_files.first.in_dl?)
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && xml_metadata.master_files.count > 0} do
+      if xml_metadata.in_dl?
          div :class => 'workflow_button' do
             button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
          end
