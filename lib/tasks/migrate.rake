@@ -36,7 +36,7 @@ namespace :migrate do
          creator = nil
          creator_node = xml.xpath("//name/namePart").first
          creator = creator_node.text.strip if !creator_node.nil?
-         
+
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
@@ -46,6 +46,50 @@ namespace :migrate do
          puts "Created metadata #{metadata.id} title: #{metadata.title} for MF #{mf.id}"
          mf.update(metadata_id: metadata.id)
       end
+   end
+
+   task :mf_fix  => :environment do
+      id = ENV['id']
+      mf = MasterFile.find(id)
+
+      title = mf.title
+      xml = Nokogiri::XML( mf.desc_metadata )
+      xml.remove_namespaces!
+      title_node = xml.xpath( "//titleInfo/title" ).first
+      if !title_node.nil?
+         title = title_node.text.strip
+      end
+      creator = nil
+      creator_node = xml.xpath("//name/namePart").first
+      creator = creator_node.text.strip if !creator_node.nil?
+      availability_policy = mf.metadata.availability_policy
+   end
+
+   task :mf_create_meta  => :environment do
+      id = ENV['id']
+      mf = MasterFile.find(id)
+
+      title = mf.title
+      xml = Nokogiri::XML( mf.desc_metadata )
+      xml.remove_namespaces!
+      title_node = xml.xpath( "//titleInfo/title" ).first
+      if !title_node.nil?
+         title = title_node.text.strip
+      end
+      creator = nil
+      creator_node = xml.xpath("//name/namePart").first
+      creator = creator_node.text.strip if !creator_node.nil?
+
+      mf.metadata.update(title: title, creator_name: creator)
+      mf.update(title: title)
+      metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
+         discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
+         desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,
+         availability_policy: availability_policy,
+         creator_name: creator, exemplar: mf.filename, pid: mf.pid,
+         date_dl_ingest: mf.date_dl_ingest, date_dl_update: mf.date_dl_update )
+      puts "Created metadata #{metadata.id} title: #{metadata.title} for MF #{mf.id}"
+      mf.update(metadata_id: metadata.id)
    end
 
    task :pids  => :environment do
