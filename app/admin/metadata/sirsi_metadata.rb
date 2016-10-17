@@ -183,7 +183,7 @@ ActiveAdmin.register SirsiMetadata do
             link_to "VIRGO (Physical Record)", sirsi_metadata.physical_virgo_url, :target => "_blank"
           end
         end
-        if sirsi_metadata.in_dl?
+        if sirsi_metadata.in_dl? && sirsi_metadata.discoverability
           div do
             link_to "VIRGO (Digital Record)", sirsi_metadata.dl_virgo_url, :target => "_blank"
           end
