@@ -220,14 +220,16 @@ ActiveAdmin.register MasterFile do
    end
 
    action_item :only => :show do
+      span :class=>"pinterest-wrapper" do
       if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
          base_url = "https://www.pinterest.com/pin/create/button"
          url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
          media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
          description = "#{master_file.title} from #{master_file.metadata.title} &#183; Albert and Shirley Small Special Collections Library, University of Virginia."
          pin_img = "<img src='//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_32.png' />"
-         raw("<a id='pinit' data-pin-description='#{description}' data-pin-media='#{media}' data-pin-url='#{url}' data-pin-do='buttonPin' data-pin-round='true' data-pin-save='false' href='#{base_url}'>#{pin_img}</a>")
+         raw("<a id='pinit' data-pin-tall='true' data-pin-description='#{description}' data-pin-media='#{media}' data-pin-url='#{url}' data-pin-do='buttonPin' data-pin-round='true' data-pin-save='false' href='#{base_url}'>#{pin_img}</a>")
       end
+   end
    end
 
    member_action :transcribe, :method => :get do
