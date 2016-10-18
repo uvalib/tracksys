@@ -126,7 +126,7 @@ module ImportIviewXml
    #
    def self.create_image_tech_meta(item, master_file_id)
       image_tech_meta = ImageTechMeta.new(:master_file_id => master_file_id)
-      update_text_meta(item, image_tech_meta)
+      update_tech_meta(item, image_tech_meta)
    end
 
    def self.update_tech_meta(item, image_tech_meta)
