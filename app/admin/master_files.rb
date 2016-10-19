@@ -3,8 +3,8 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-      :creator_death_date, :date_archived,
-      :md5, :filesize, :unit_id, :transcription_text, :pid, :metadata_id
+   :creator_death_date, :date_archived,
+   :md5, :filesize, :unit_id, :transcription_text, :pid, :metadata_id
 
    menu :priority => 6
 
@@ -12,28 +12,54 @@ ActiveAdmin.register MasterFile do
    scope :in_digital_library, :show_count => true
    scope :not_in_digital_library, :show_count => true
 
+   # Setup Action Items =======================================================
    config.clear_action_items!
    config.sort_order = "id_desc"
 
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
+
    action_item :pdf, :only => :show do
-     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
+      raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
    end
+
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
    end
+
    action_item :transcribe, only: :show do
       link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
    end
 
-   batch_action :download_from_archive do |selection|
-      MasterFile.find(selection).each {|s| s.get_from_stornext }
-      flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-      redirect_to "/admin/master_files"
+   action_item :previous, :only => :show do
+      link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
    end
 
+   action_item :next, :only => :show do
+      link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
+   end
+
+   action_item :download, :only => :show do
+      if master_file.date_archived
+         link_to "Download", download_from_archive_admin_master_file_path(master_file.id), :method => :get, target: "_blank"
+      end
+   end
+
+   action_item :only => :show do
+      span :class=>"pinterest-wrapper" do
+         if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
+            base_url = "https://www.pinterest.com/pin/create/button"
+            url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
+            media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
+            description = "#{master_file.metadata.title} : Albert and Shirley Small Special Collections Library, University of Virginia."
+            pin_img = "<img src='//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_32.png' />"
+            raw("<a id='pinit' data-pin-tall='true' data-pin-description='#{description}' data-pin-media='#{media}' data-pin-url='#{url}' data-pin-do='buttonPin' data-pin-round='true' data-pin-save='false' href='#{base_url}'>#{pin_img}</a>")
+         end
+      end
+   end
+
+   # Filters ==================================================================
    filter :id
    filter :pid
    filter :filename
@@ -54,6 +80,8 @@ ActiveAdmin.register MasterFile do
    filter :date_dl_update
    filter :agency, :as => :select
 
+   # Index ====================================================================
+   #
    index :id => 'master_files' do
       selectable_column
       column :id
@@ -101,12 +129,14 @@ ActiveAdmin.register MasterFile do
          end
          if mf.date_archived
             div do
-               link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
+               link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get, target: "_blank"
             end
          end
       end
    end
 
+   # Show =====================================================================
+   #
    show :title => proc {|mf| mf.filename } do
       render :partial=>"pinit"
       div :class => 'two-column' do
@@ -205,39 +235,10 @@ ActiveAdmin.register MasterFile do
       end
    end
 
-   action_item :previous, :only => :show do
-      link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
-   end
-
-   action_item :next, :only => :show do
-      link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
-   end
-
-   action_item :download, :only => :show do
-      if master_file.date_archived
-         link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
-      end
-   end
-
-   action_item :only => :show do
-      span :class=>"pinterest-wrapper" do
-      if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
-         base_url = "https://www.pinterest.com/pin/create/button"
-         url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
-         media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
-         description = "#{master_file.title} from #{master_file.metadata.title} &#183; Albert and Shirley Small Special Collections Library, University of Virginia."
-         pin_img = "<img src='//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_32.png' />"
-         raw("<a id='pinit' data-pin-tall='true' data-pin-description='#{description}' data-pin-media='#{media}' data-pin-url='#{url}' data-pin-do='buttonPin' data-pin-round='true' data-pin-save='false' href='#{base_url}'>#{pin_img}</a>")
-      end
-   end
-   end
-
-   member_action :transcribe, :method => :get do
-   end
-
-   member_action :copy_from_archive, :method => :put do
+   member_action :download_from_archive, :method => :get do
       mf = MasterFile.find(params[:id])
-      mf.get_from_stornext(current_user.computing_id)
-      redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
+      unit_dir = "%09d" % mf.unit.id
+      archived_file = File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+      send_file(archived_file, filename: mf.filename, disposition:'attachment')
    end
 end

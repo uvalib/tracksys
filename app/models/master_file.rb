@@ -126,10 +126,6 @@ class MasterFile < ActiveRecord::Base
       return iiif_url.to_s
    end
 
-   def get_from_stornext(computing_id)
-      CopyArchivedFilesToProduction.exec( {:unit => self.unit, :master_file_filename => self.filename, :computing_id => computing_id })
-   end
-
    # Make all attributes that will be going away in the next relase PRIVATE to
    # ensure all of their usage has been removed before DB tables are updated
    #

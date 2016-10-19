@@ -251,7 +251,7 @@ ActiveAdmin.register Unit do
               end
               if mf.date_archived
                 div do
-                  link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
+                  link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get, target: "_blank"
                 end
               end
             end
