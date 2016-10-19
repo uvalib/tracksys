@@ -46,7 +46,7 @@ ActiveAdmin.register MasterFile do
       end
    end
 
-   action_item :only => :show do
+   action_item :pinterest, :only => :show do
       span :class=>"pinterest-wrapper" do
          if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
             base_url = "https://www.pinterest.com/pin/create/button"
