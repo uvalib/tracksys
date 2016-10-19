@@ -208,54 +208,71 @@ ActiveAdmin.register Unit do
     end
 
     div :class => "columns-none" do
-      if not unit.master_files.empty?
-      then
+      if !unit.master_files.empty?
+        page_size = params[:page_size]
+        page_size = 15 if page_size.nil?
         panel "Master Files", :toggle => 'show' do
-          table_for unit.master_files do |mf|
-            column :filename, :sortable => false
-            column :title do |mf|
-              truncate_words(mf.title)
-            end
-            column :description do |mf|
-              truncate_words(mf.description)
-            end
-            column :transcription_text do |mf|
-              truncate_words(raw(mf.transcription_text))
-            end
-            column :date_archived do |mf|
-              format_date(mf.date_archived)
-            end
-            column :date_dl_ingest do |mf|
-              format_date(mf.date_dl_ingest)
-            end
-            column :pid, :sortable => false
-            column("Thumbnail") do |mf|
-              link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-            end
-            column("") do |mf|
-              div do
-                link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
-              end
-              div do
-                 link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
-              end
-              if !current_user.viewer?
+          div do
+             all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
+             raw("#{all_btn}")
+             #pdf_btn = "<span id='download-select-pdf' data-pdf-service='#{Settings.pdf_url}' class='mf-action-button'>Download Selection as PDF</span>"
+            #  if page_size.to_i < unit.master_files.count
+            #     raw("#{all_btn}#{pdf_btn}")
+            #  else
+            #     raw("#{pdf_btn}")
+            #  end
+          end
+          paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
+             table_for collection do |mf|
+               # column ('') do |mf|
+               #    raw("<input type='checkbox' class='mf-checkbox' data-pid='#{mf.pid}'/>")
+               # end
+               column :filename, :sortable => false
+               column :title do |mf|
+                 truncate_words(mf.title)
+               end
+               column :description do |mf|
+                 truncate_words(mf.description)
+               end
+               column :transcription_text do |mf|
+                 truncate_words(raw(mf.transcription_text))
+               end
+               column :date_archived do |mf|
+                 format_date(mf.date_archived)
+               end
+               column :date_dl_ingest do |mf|
+                 format_date(mf.date_dl_ingest)
+               end
+               column :pid, :sortable => false
+               column("Thumbnail") do |mf|
+                 link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+               end
+               column("") do |mf|
                  div do
-                   link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                   link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
                  end
-                 if ocr_enabled?
+                 div do
+                    link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+                 end
+                 if !current_user.viewer?
                     div do
-                       link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                      link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                    end
+                    if ocr_enabled?
+                       div do
+                          link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                       end
                     end
                  end
-              end
-              if mf.date_archived
-                div do
-                  link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get, target: "_blank"
-                end
-              end
-            end
+                 if mf.date_archived
+                   div do
+                     link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get, target: "_blank"
+                   end
+                 end
+               end
+             end
           end
+          div :style=>'clear:both' do end
         end
       else
         panel "No Master Files Directly Associated with this Component"

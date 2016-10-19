@@ -1,5 +1,21 @@
 body.active_admin {
 
+.mf-action-button {
+   font-size: 0.85em;
+    background: #888;
+    border: 1px solid #666;
+    border-radius: 10px;
+    padding: 2px 16px;
+    color: white;
+    text-shadow: 1px 1px black;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    margin-right: 5px;
+    &:hover {
+      background: #aaa;
+   }
+}
 div.workflow_button {
    input[type=submit] {
       width:100%;

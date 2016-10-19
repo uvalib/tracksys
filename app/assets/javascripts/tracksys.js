@@ -107,6 +107,16 @@ $(function() {
       });
    });
 
+   $("#download-select-pdf").on("click", function() {
+      pids = [];
+      $(".mf-checkbox").each( function(idx, val) {
+         if ( $(val).is(":checked") ) {
+            pids.push($(val).data("pid"));
+         }
+      });
+      alert(pids);
+   });
+
    /**
     * XML EDITOR STUFF
     */
