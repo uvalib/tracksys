@@ -109,7 +109,7 @@ $(function() {
 
    $(".mf-checkbox").on("change", function() {
       var url = $("#download-select-pdf").attr("href");
-      url = url.split("?pages")[0];
+      url = url.split("&pages")[0];
       if ( $("#download-select-pdf").hasClass("disabled") == false ) {
          $("#download-select-pdf").addClass("disabled");
       }
