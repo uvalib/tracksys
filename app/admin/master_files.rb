@@ -52,8 +52,8 @@ ActiveAdmin.register MasterFile do
             base_url = "https://www.pinterest.com/pin/create/button"
             url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
             media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
-            meta = master_file.metadata.get_full_metadata()
-            desc = "#{master_file.title} from #{meta[:title]} &#183; #{meta[:creator_name]} &#183; #{meta[:year]}"
+            meta = master_file.metadata
+            desc = "#{master_file.title} from #{meta.title} &#183; #{meta.creator_name}"
             desc << " &#183; Albert and Shirley Small Special Collections Library, University of Virginia."
             pin_img = "<img src='//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_32.png' />"
             pin_src_settings = "data-pin-description='#{desc}' data-pin-media='#{media}' data-pin-url='#{url}'"
