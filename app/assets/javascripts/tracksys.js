@@ -107,14 +107,23 @@ $(function() {
       });
    });
 
-   $("#download-select-pdf").on("click", function() {
-      pids = [];
+   $(".mf-checkbox").on("change", function() {
+      var url = $("#download-select-pdf").attr("href");
+      url = url.split("?pages")[0];
+      if ( $("#download-select-pdf").hasClass("disabled") == false ) {
+         $("#download-select-pdf").addClass("disabled");
+      }
+      var ids = [];
       $(".mf-checkbox").each( function(idx, val) {
          if ( $(val).is(":checked") ) {
-            pids.push($(val).data("pid"));
+            $("#download-select-pdf").removeClass("disabled");
+            ids.push($(val).data("mf-id"));
          }
       });
-      alert(pids);
+      if (ids.length > 0) {
+         url = url + "&pages="+ids.join(",");
+      }
+      $("#download-select-pdf").attr("href", url)
    });
 
    /**

@@ -16,6 +16,13 @@ body.active_admin {
       background: #aaa;
    }
 }
+
+.mf-action-button.disabled {
+   pointer-events: none;
+   cursor: default;
+   opacity: 0.5;
+}
+
 div.workflow_button {
    input[type=submit] {
       width:100%;

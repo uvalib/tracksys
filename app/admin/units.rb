@@ -214,19 +214,20 @@ ActiveAdmin.register Unit do
         panel "Master Files", :toggle => 'show' do
           div do
              all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
-             raw("#{all_btn}")
-             #pdf_btn = "<span id='download-select-pdf' data-pdf-service='#{Settings.pdf_url}' class='mf-action-button'>Download Selection as PDF</span>"
-            #  if page_size.to_i < unit.master_files.count
-            #     raw("#{all_btn}#{pdf_btn}")
-            #  else
-            #     raw("#{pdf_btn}")
-            #  end
+             token =  Time.now.to_i
+             url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
+             pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
+             if page_size.to_i < unit.master_files.count
+                raw("#{all_btn}#{pdf_btn}")
+             else
+                raw("#{pdf_btn}")
+             end
           end
           paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
              table_for collection do |mf|
-               # column ('') do |mf|
-               #    raw("<input type='checkbox' class='mf-checkbox' data-pid='#{mf.pid}'/>")
-               # end
+               column ('') do |mf|
+                  raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+               end
                column :filename, :sortable => false
                column :title do |mf|
                  truncate_words(mf.title)
