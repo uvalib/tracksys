@@ -103,9 +103,13 @@ class MasterFile < ActiveRecord::Base
       return jp2k_path
    end
 
-   def link_to_static_thumbnail(large=false)
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/!125,125/0/default.jpg")
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg") if large == true
+   def link_to_image(image_size)
+      iiif_url = nil
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/125,/0/default.jpg") if image_size == :small
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/240,/0/default.jpg") if image_size == :medium
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg") if image_size == :large
+      raise "Invalid size" if iiif_url.nil?
+
       test_path = iiif_path(self.pid)
       if File.exists?(test_path) == false
          if Settings.create_missing_kp2k == "true"

@@ -40,7 +40,9 @@ ActiveAdmin.register Component do
             if exemplar_master_file.nil?
                "Exemplar not found"
             else
-               link_to image_tag(exemplar_master_file.link_to_static_thumbnail, :height => 125), "#{exemplar_master_file.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
+               link_to image_tag(exemplar_master_file.link_to_image(:small)),
+                  "#{exemplar_master_file.link_to_image(:large)}", :rel => 'colorbox',
+                  :title => "#{exemplar_master_file.filename} (#{exemplar_master_file.title} #{exemplar_master_file.description})"
             end
          else
             "No exemplar set."
@@ -95,7 +97,8 @@ ActiveAdmin.register Component do
                      component.exemplar.to_s
                      mf = MasterFile.where(:filename => component.exemplar).first
                      if mf.kind_of?(MasterFile)
-                        link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} #{mf.title} #{mf.description}"
+                        link_to image_tag(mf.link_to_image(:small)),
+                           "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} #{mf.title} #{mf.description}"
                      end
                   else
                      nil
@@ -187,7 +190,8 @@ ActiveAdmin.register Component do
                      link_to "#{mf.metadata.title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
                   end
                   column("Thumbnail") do |mf|
-                     link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+                     link_to image_tag(mf.link_to_image(:small)),
+                        "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
                   end
                   column("") do |mf|
                      div do

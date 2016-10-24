@@ -112,7 +112,8 @@ ActiveAdmin.register MasterFile do
       end
       column :unit
       column("Thumbnail") do |mf|
-         link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+         link_to image_tag(mf.link_to_image(:small)),
+            "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
       end
       column("") do |mf|
          div do
@@ -214,7 +215,9 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Thumbnail", :only => [:show] do
       div :style=>"text-align:center" do
-         link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+         link_to image_tag(master_file.link_to_image(:medium)),
+            "#{master_file.link_to_image(:large)}",
+            :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
       end
    end
 

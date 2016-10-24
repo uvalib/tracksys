@@ -235,9 +235,6 @@ ActiveAdmin.register Unit do
                column :description do |mf|
                  truncate_words(mf.description)
                end
-               column :transcription_text do |mf|
-                 truncate_words(raw(mf.transcription_text))
-               end
                column :date_archived do |mf|
                  format_date(mf.date_archived)
                end
@@ -246,7 +243,8 @@ ActiveAdmin.register Unit do
                end
                column :pid, :sortable => false
                column("Thumbnail") do |mf|
-                 link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+                 link_to image_tag(mf.link_to_image(:small)),
+                    "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
                end
                column("") do |mf|
                  div do
