@@ -42,7 +42,7 @@ ActiveAdmin.register MasterFile do
 
    action_item :download, :only => :show do
       if master_file.date_archived
-         link_to "Download", download_from_archive_admin_master_file_path(master_file.id), :method => :get, target: "_blank"
+         link_to "Download", download_from_archive_admin_master_file_path(master_file.id), :method => :get
       end
    end
 
@@ -133,7 +133,7 @@ ActiveAdmin.register MasterFile do
          end
          if mf.date_archived
             div do
-               link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get, target: "_blank"
+               link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
             end
          end
       end
@@ -241,8 +241,8 @@ ActiveAdmin.register MasterFile do
 
    member_action :download_from_archive, :method => :get do
       mf = MasterFile.find(params[:id])
-      unit_dir = "%09d" % mf.unit.id
-      archived_file = File.join(ARCHIVE_DIR, unit_dir, mf.filename)
-      send_file(archived_file, filename: mf.filename, disposition:'attachment')
+      CopyArchivedFilesToProduction.exec_now( {:unit => mf.unit, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
+      redirect_to "/admin/master_files/#{params[:id]}",
+         :notice => "Master File downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}/#{current_user.computing_id}/#{mf.filename}."
    end
 end
