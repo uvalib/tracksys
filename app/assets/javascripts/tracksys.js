@@ -109,7 +109,7 @@ $(function() {
 
    $(".mf-checkbox").on("change", function() {
       var url = $("#download-select-pdf").attr("href");
-      url = url.split("&pages")[0];
+      url = url.split("&token")[0];
       if ( $("#download-select-pdf").hasClass("disabled") == false ) {
          $("#download-select-pdf").addClass("disabled");
       }
@@ -121,7 +121,8 @@ $(function() {
          }
       });
       if (ids.length > 0) {
-         url = url + "&pages="+ids.join(",");
+         var token = "&token="+Math.floor((new Date).getTime()/1000);
+         url = url + token+ "&pages="+ids.join(",");
       }
       $("#download-select-pdf").attr("href", url)
    });
