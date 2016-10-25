@@ -6,6 +6,8 @@ gem 'activeadmin', '~> 1.0.0.pre4'
 gem 'passenger', '5.0.28'
 gem 'figaro'
 
+gem 'turnout'
+
 gem 'validates_timeliness', '~> 4.0'
 gem 'annotate'
 gem 'mysql2'
