@@ -359,7 +359,11 @@ ActiveAdmin.register Unit do
   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library",
-         start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
+         start_ingest_from_archive_admin_unit_path(), :method => :put
+      end
+      div :class => 'workflow_button' do button_to "Put into Digital Library Test",
+         start_ingest_from_archive_admin_unit_path(:test=>true), :method => :put
+      end
     end
     if unit.in_dl?
       div :class => 'workflow_button' do button_to "Publish All",
@@ -430,7 +434,9 @@ ActiveAdmin.register Unit do
   end
 
   member_action :start_ingest_from_archive, :method => :put do
-    Unit.find(params[:id]).start_ingest_from_archive
+    unit = Unit.find(params[:id]).start_ingest_from_archive(true)
+    test_publish = (params(:test) == true)
+    StartIngestFromArchive.exec( {:unit => unit, :test_publish=>test_publish })
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
   end
 

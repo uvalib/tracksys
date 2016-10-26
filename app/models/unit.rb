@@ -172,10 +172,6 @@ class Unit < ActiveRecord::Base
       SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
    end
 
-   def start_ingest_from_archive
-      StartIngestFromArchive.exec( {:unit => self })
-   end
-
    # Make all attributes that will be going away in the next relase PRIVATE to
    # ensure all of their usage has been removed before DB tables are updated
    #
