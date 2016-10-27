@@ -83,6 +83,17 @@ $(function() {
       }
    };
 
+   $("#sirsi_metadata_barcode").change( function(event) {
+      var v = $("#sirsi_metadata_barcode").val();
+      var tv = $.trim(v) ;
+      $("#sirsi_metadata_barcode").val( tv);
+   });
+   $("#sirsi_metadata_barcode").on("keypress", function (e) {
+       if (e.keyCode == 13) {
+           return false;
+       }
+   });
+
    $('#refresh-metadata').click(function(e) {
       var btn = $(this);
       if (btn.hasClass("disabled")) {
