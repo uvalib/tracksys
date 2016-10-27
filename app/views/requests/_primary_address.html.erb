@@ -1,47 +1,35 @@
 <fieldset>
- <legend>Primary Address</legend>
- <%= c.fields_for :primary_address_attributes do |pa| %>
-    <div class="control-group">
-      <%= pa.label "Address Line1", :class => 'control-label required' %>
-      <div class="controls">
-        <%= pa.text_field :address_1, :value => @request.customer.primary_address.address_1, :required => true %>
+   <legend class="form">Primary Address</legend>
+   <%= c.fields_for :primary_address_attributes do |pa| %>
+      <div class="form-group">
+         <%= pa.label "Address Line1", :class => 'control-label required' %>
+         <%= pa.text_field :address_1, :class=>'form-control', :value => @request.customer.primary_address.address_1, :required => true %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "Address Line2", :class => 'control-label' %>
-      <div class="controls">
-        <%= pa.text_field :address_2, :value => @request.customer.primary_address.address_2 %>
+      <div class="form-group">
+         <%= pa.label "Address Line2", :class => 'control-label' %>
+         <%= pa.text_field :address_2, :class=>'form-control', :value => @request.customer.primary_address.address_2 %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "City", :class => 'control-label required' %>
-      <div class="controls">
-        <%= pa.text_field :city, :value => @request.customer.primary_address.city, :required => true %>
+      <div class="form-group">
+         <%= pa.label "City", :class => 'control-label required' %>
+         <%= pa.text_field :city, :class=>'form-control', :value => @request.customer.primary_address.city, :required => true %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "State", :class => 'control-label' %>
-      <div class="controls">
-        <%= pa.text_field :state, :value => @request.customer.primary_address.state %>
+      <div class="form-group">
+         <%= pa.label "State", :class => 'control-label' %>
+         <%= pa.text_field :state, :class=>'form-control', :value => @request.customer.primary_address.state %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "Zip Code", :class => 'control-label' %>
-      <div class="controls">
-        <%= pa.text_field :post_code, :value => @request.customer.primary_address.post_code %>
+      <div class="form-group">
+         <%= pa.label "Zip Code", :class => 'control-label' %>
+         <%= pa.text_field :post_code, :class=>'form-control', :value => @request.customer.primary_address.post_code %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "Country", :class => 'control-label required' %>
-      <div class="controls">
-        <%= pa.select :country, country_options_for_select(@request.customer.primary_address.country, ['United States', 'Canada']), :include_blank => true  %>
+      <div class="form-group">
+         <%= pa.label "Country", :class => 'control-label required' %>
+         <%= pa.select :country,
+            country_options_for_select(@request.customer.primary_address.country, ['United States', 'Canada']),
+            {:include_blank => true}, {:class=>'form-control'}  %>
       </div>
-    </div>
-    <div class="control-group">
-      <%= pa.label "Phone", :class => 'control-label' %>
-      <div class="controls">
-        <%= pa.text_field :phone, :value => @request.customer.primary_address.phone %>
+      <div class="form-group">
+         <%= pa.label "Phone", :class => 'control-label' %>
+         <%= pa.text_field :phone, :class=>'form-control', :value => @request.customer.primary_address.phone %>
       </div>
-    </div>
- <% end %>
+   <% end %>
 </fieldset>

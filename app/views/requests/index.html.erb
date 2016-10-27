@@ -1,6 +1,5 @@
 <%= raw(get_flash) %>
-
-<div class="container">
+<div class="narrow">
   <h1 class="page-title">Digital Production Group Request Form</h1>
 
   <p>Because preservation of its materials is of paramount concern, the Special Collections Department reserves the right to decline to digitize materials, or to limit the amount of material that can be safely digitized. If you have questions, please contact Digital Curation Services at <%= mail_to 'digitalservices@virginia.edu' %>.</p>
@@ -26,7 +25,7 @@
   <h2>What you need to know, before you submit your request</h2>
   <ul>
     <li class="bulleted">We normally require at least 20 working days to complete a
-      digitization request. Rush requests will be honored if possible. 
+      digitization request. Rush requests will be honored if possible.
     <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span></li>
     <li class="bulleted"><strong>Non-UVa Patrons:</strong>  We will charge a fee of $50 for first hour
       of work and $25 per hour for each additional hour thereafter.  Costs are calculated based on the length
@@ -39,7 +38,7 @@
     <div class="span8">
       <fieldset>
         <legend>Terms of Agreement</legend>
-          <div class="control-group">
+          <div class="control-group index">
             <div class="controls">
               <label class="checkbox">
                 <%= check_box_tag :agree_to_copyright %>
@@ -50,14 +49,15 @@
         </fieldset>
         <fieldset>
           <legend>UVA Status</legend>
-          <div class="control-group">
+          <div class="control-group index">
             <div class="controls">
               <label for="is_uva_yes" class="radio">
                 <%= radio_button_tag 'is_uva', 'yes', true %>
                 I am UVA faculty, staff, or student.  <span style="font-style: italic;">(You will be asked to verify your identity using <a href="http://itc.virginia.edu/netbadge/" style="text-decoration: underline;">NetBadge</a>.)</span>
               </label>
-              <label for="is_uva_no" class="radio">I am not affiliated with UVA.
+              <label for="is_uva_no" class="radio">
                 <%= radio_button_tag 'is_uva', 'no' %>
+                I am not affiliated with UVA.
               </label>
             </div>
           </div>

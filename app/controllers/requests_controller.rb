@@ -83,7 +83,8 @@ class RequestsController < ApplicationController
             if params[:is_uva] == 'yes'
                redirect_to uva_requests_url
             else
-               redirect_to public_requests_url
+               session[:computing_id] = 'Non-UVA'
+               redirect_to :action => :new
             end
          else
             redirect_to requests_path, :notice => 'You must indicate whether or not you are affiliated with U.Va. to continue.'
@@ -146,12 +147,6 @@ class RequestsController < ApplicationController
             end
          end
       end
-   end
-
-   # Reroute a non-UVA person to the new form
-   def public
-      session[:computing_id] = 'Non-UVA'
-      redirect_to :action => :new
    end
 
    # If the person has gotten to this method, then he/she has authenticated themselves as a UVA member.

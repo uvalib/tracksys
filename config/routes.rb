@@ -6,7 +6,6 @@ Tracksys::Application.routes.draw do
     collection do
       get 'agree_to_copyright'
       get 'details'
-      get 'public'
       get 'thank_you'
       get 'uva'
     end

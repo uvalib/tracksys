@@ -2,11 +2,6 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 /*
-  *= require request_form/bootstrap_forms.min
-  *= require request_form/bootstrap_layout.min
-  *= require request_form/1140.min
-  *= require request_form/style
-  *= require request_form/bootstrap-custom.min
-  *= require request_form/request_form_datepicker
-  *= require request_form/request_form
+  *= require bootstrap-datepicker3
+  *= require request_style
 */

@@ -1,126 +1,73 @@
 <!doctype html>
-<!--[if lt IE 7]> <html class="no-js ie6 oldie no-bg" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js ie7 oldie no-bg" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8 oldie no-bg" lang="en"> <![endif]-->
-<!--[if IE 9]>    <html class="no-js ie9 no-bg" lang="en"> <![endif]-->
-<!--[if gt IE 9]><!--> <html class="no-js no-bg" lang="en"> <!--<![endif]-->
+<html lang="en">
 <head>
   <title>UVA Library - Digital Production Group Request Form</title>
   <%= stylesheet_link_tag    "request" %>
   <%= javascript_include_tag "request" %>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous">
+
   <%= csrf_meta_tags %>
 </head>
 <body>
-  <div id="wrap" role="document">
-    <div class="container header-container">
-      <div class="row header-row clearfix">
-        <header id="top-banner" class="twelvecol" role="banner">
-          <div class="container">
-            <h1 class="twelvecol visuallyhidden" id="liblogo-sm"><a href="http://www.lib.virginia.edu/" data-bitly-type="bitly_hover_card"><img src="http://www.library.virginia.edu/wp-content/themes/libweb/img/liblogo.png" alt="University of Virginia Library" width="480" height="35">University of Virginia Library</a></h1>
-            <a class="fourcol clearfix" id="logo" href="<%=LIBRARY_URL%>" data-bitly-type="bitly_hover_card">
-              <img src="http://www.library.virginia.edu/wp-content/themes/libweb/img/liblogo.png" width="198" height="90" alt="University of Virginia Library">
-            </a>
-            <div class="search-bar eightcol clearfix last">
-              <h2 class="visuallyhidden">Search for Books, Journals, Articles, and Databases</h2>
-              <form role="search" id="search" method="get" action="http://search.lib.virginia.edu/catalog">
-                <div class="search-form-container">
-                  <div class="search-form" id="search_input">
-                    <label for="SI" class="visuallyhidden">Search Virgo</label>
-                    <input type="text" value="" placeholder="Search Virgo for books, articles, digital materials, and more." name="q" id="SI" class="search-home">
-                  </div>
-                  <input type="hidden" value="all" name="portal">
-                  <input type="hidden" value="all" name="catalog_select">
-                  <input type="hidden" value="date_received_facet desc" name="sort">
-                  <button type="submit" class="search-submit btn btn-info" id="main_search_submit">Search</button>
-                </div>
+   <header>
+      <a href="http://www.lib.virginia.edu/"><img src="http://www.library.virginia.edu/wp-content/themes/libweb/img/liblogo.png"/></a>
+      <form role="search" id="search" method="get" action="http://search.lib.virginia.edu/catalog">
+         <input type="text" value="" placeholder="Search Virgo for books, articles, digital materials, and more." name="q" id="SI" class="search-home">
+         <input type="hidden" value="all" name="portal">
+         <input type="hidden" value="all" name="catalog_select">
+         <input type="hidden" value="date_received_facet desc" name="sort">
+         <button type="submit" class="search-submit btn btn-info" id="main_search_submit">Search</button>
+         <div class="search-options">
+           <span class="also-try">Also try&nbsp;<span class="submenu-indicator">▼</span></span>
 
-                <div class="search-options">
-                  <span class="also-try">Also try&nbsp;<span class="submenu-indicator">▼</span></span>
+             <ul class="also-try-list">
+               <li><a href="http://search.lib.virginia.edu" data-bitly-type="bitly_hover_card"><strong>More Virgo Options</strong> »</a></li>
+               <li><a href="http://guides.lib.virginia.edu/journalfinder" data-bitly-type="bitly_hover_card">Journal Finder »</a></li>
+               <li><a href="http://guides.lib.virginia.edu/az" data-bitly-type="bitly_hover_card">Databases A-Z »</a></li>
+               <li><a href="http://libra.virginia.edu" data-bitly-type="bitly_hover_card">Libra »</a></li>
+             </ul>
+           </div>
+      </form>
+   </header>
 
-                    <ul class="also-try-list">
-                      <li><a href="http://search.lib.virginia.edu" data-bitly-type="bitly_hover_card"><strong>More Virgo Options</strong> »</a></li>
-                      <li><a href="http://guides.lib.virginia.edu/journalfinder" data-bitly-type="bitly_hover_card">Journal Finder »</a></li>
-                      <li><a href="http://guides.lib.virginia.edu/az" data-bitly-type="bitly_hover_card">Databases A-Z »</a></li>
-                      <li><a href="http://libra.virginia.edu" data-bitly-type="bitly_hover_card">Libra »</a></li>
-                      <li class="last"><a href="/site-search/" data-bitly-type="bitly_hover_card">Site Search »</a></li>
-                    </ul>
-                  </div>
-                </form>
-              </div>
-            <div id="ribbon"><a href="<%=LIBRARY_URL%>" data-bitly-type="bitly_hover_card">U.Va. Library</a></div>
-          </div>
-        </header>
-      </div>
-    </div>
-    <div class="container content-container">
-      <div class="row content-row clearfix">
-        <div id="content" class="row single-page-container">
-          <div id="main" class="twelvecol" role="main">
-            <%= yield %>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container contact-container"><div class="row row-container clearfix"><aside class="contact-info">
+   <div id="main">
+     <div id="content">
+         <%= yield %>
+     </div>
+  </div>
+
+    <div class="contact-container">
         <h2 class="contact-header">Have questions? Need help?</h2>
         <div class="vcard">
-          <address class="url fn org visuallyhidden"><a href="<%=LIBRARY_URL%>">University of Virginia Library</a></address>
-          <!-- <address class="contact phone tel">Phone: 434.924.7835</address> -->
-          <address class="contact email">Email: <a href="mailto:digitalservices@virginia.edu">lib-dser at virginia dot edu</a></address>
+          <address class="contact email">Email: <a href="mailto:digitalservices@virginia.edu">digitalservices@virginia.edu</a></address>
         </div>
-      </aside></div></div><div class="container footer-container"><div class="row row-container clearfix">
-    <footer id="content-info" class="row" role="contentinfo">
-            <div class="container">
-        <h1 class="visuallyhidden">Elsewhere at the Library</h1>
-        <nav class="fourcol footer-nav">
-          <h3 class="visuallyhidden">More About the Library</h3>
-          <ul>
-            <li><a href="<%=LIBRARY_URL%>/hours/">Hours</a></li>
-            <li><a href="<%=LIBRARY_URL%>/staff/">Staff Directory</a></li>
-            <li><a href="<%=LIBRARY_URL%>/jobs/">Jobs</a></li>
-            <li><a href="<%=LIBRARY_URL%>/press/">Press</a></li>
-            <li>
-              <script>
-              var link = '<a href="mailto:&#115;&#105;t&#101;-&#102;eedb&#97;ck&#64;vi&#114;&#103;i&#110;ia&#46;&#101;du?subject=U.Va.%20Library%20Site%20Feedback&amp;body=Thank%20you%20for%20your%20feedback!%20%20Are%20you%20having%20trouble%20finding%20information%20on%20the%20new%20Library%20site%20or%20have%20you%20encountered%20an%20error?%20Please%20let%20us%20know%20below.%0A%0APage%20you%20were%20on%3A%20' + window.location.href + '%0A%0AMy%20feedback%3A%20">Feedback</a>';
-                document.write(link);
-              </script>
-            </li>
-            <li><a class="btn btn-info btn-give" href="http://www2.lib.virginia.edu/campaign/">Give to the Library</a></li>
-          </ul>
-        </nav>
-        <nav class="twocol util-nav">
-          <h3>Using the Library</h3>
-          <ul>
-            <li><a href="<%=LIBRARY_URL%>/policies/">Library Use Policies</a></li>
-            <li><a href="<%=LIBRARY_URL%>/services/off-grounds-access/">Off-Grounds Access</a></li>
-            <li><a href="http://guides.lib.virginia.edu/accounts">Library &amp; ITS Accounts</a></li>
-            <li><a href="<%=LIBRARY_URL%>/services/accessibility-services/">Accessibility Services</a></li>
-          </ul>
-        </nav>
-        <nav class="twocol util-nav">
-          <h3>Initiatives</h3>
-          <ul>
-            <li><a href="<%=LIBRARY_URL%>/projects/hydra/">Project Hydra</a></li>
-          </ul>
-        </nav>
-        <nav class="twocol util-nav">
-          <h3>Other Sites</h3>
-          <ul>
-            <li><a href="http://collab.itc.virginia.edu">UVaCollab</a></li>
-            <li><a href="http://www.virginia.edu/sis/">SIS</a></li>
-            <li><a href="http://its.virginia.edu">ITS</a></li>
-            <li><a href="http://www.virginia.edu/cavalieradvantage/">Cavalier Advantage</a></li>
-            <li><a href="http://virginia.edu">U.Va. Home</a></li>
-          </ul>
-        </nav>
-        <div class="twocol legal last">
-          <p class="copy"><small>&copy; 2012 by the Rector and Visitors of the <a href="http://www.virginia.edu">University of Virginia</a></small></p>
-          <p class="gov"><a href="http://guides.lib.virginia.edu/findinggovinfo" id="fdlp-badge">FDLP</a> This library is a Congressionally designated depository for <a href="http://guides.lib.virginia.edu/findinggovinfo">U.S. Government documents</a>. Public access to the Government documents is guaranteed by public law.</p>
+     </div>
+
+    <footer id="content-info">
+      <div class="address">
+         <a href="http://www.library.virginia.edu/">University of Virginia Library</a><br>
+         PO Box 400113, Charlottesville, VA 22904-4113<br>
+         ph: (434) 924-3021, fax: (434) 924-1431, <a href="mailto:library@virginia.edu">library@virginia.edu</a>
+      </div>
+      <div class="external_links">
+          <a href="http://www.library.virginia.edu/staff/">Staff Directory</a> | <a href="http://www.virginia.edu/">U.Va. Home</a> | <a href="http://its.virginia.edu/">ITS</a><br>
+          <a href="mailto:site-feedback@virginia.edu?subject=U.Va.%20Library%20Site%20Feedback&amp;body=Thank%20you%20for%20your%20feedback!%20%20Are%20you%20having%20trouble%20finding%20information%20on%20the%20new%20Library%20site%20or%20have%20you%20encountered%20an%20error?%20Please%20let%20us%20know%20below.%0A%0APage%20you%20were%20on%3A%20https://tracksys.lib.virginia.edu/%0A%0AMy%20feedback%3A%20">Feedback</a>
+          | <a href="http://www.library.virginia.edu/askalibrarian/">Questions? Ask a Librarian</a>
+          <br>
+          <a href="http://www.library.virginia.edu/site-search/">Site Search</a> | <a href="http://www.library.virginia.edu/hours/">Hours</a> | <a href="http://www.library.virginia.edu/map/">Map</a> | <a href="http://www.library.virginia.edu/policies/">Policies</a> | <a href="http://www.library.virginia.edu/press/">Press</a> | <a href="http://www.library.virginia.edu/jobs/">Jobs</a><br>
+          <a href="http://www2.lib.virginia.edu/campaign/">Give to the Library</a>
+          <p class="copy">
+             © 2012 by the Rector and Visitors of the <a href="http://www.virginia.edu/">University of Virginia</a>
+          </p>
+        </div>
+        <div class="legal">
+          <p class="gov"><a class="fdlp" href="http://guides.lib.virginia.edu/findinggovinfo"><span id="fdlp-badge"></span></a> This library is a Congressionally designated depository for <a href="http://guides.lib.virginia.edu/findinggovinfo">U.S. Government documents</a>. Public access to the Government documents is guaranteed by public law.</p>
         </div>
       </div>
     </footer>
-    </div></div><!-- /.row /.container -->
-  </div><!-- /#wrap -->
 
   </div>
 </body>

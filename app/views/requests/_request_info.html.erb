@@ -1,19 +1,15 @@
 <fieldset>
-  <legend>Request Information</legend>
-  <div class="control-group">
-    <%= f.label :date_due, :class => 'control-label required' %>
-    <div class="controls">
-      <%= f.text_field :date_due, :id => 'datepicker', :required => true %>
+   <legend>Request Information</legend>
+   <div class="form-group">
+      <%= f.label :date_due, :class => 'control-label required' %>
+      <%= f.text_field :date_due, :class => 'form-control', :id => 'datepicker', :required => true %>
       <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
-        <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
+         <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
       </p>
-    </div>
-  </div>
-  <div class="control-group">
-    <%= f.label :special_instructions, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.text_area :special_instructions, :rows => 3, :class => 'input-xlarge' %>
+   </div>
+   <div class="form-group">
+      <%= f.label :special_instructions, :class => 'control-label' %>
+      <%= f.text_area :special_instructions, :rows => 3, :class => 'form-control' %>
       <p class="help-block">Include any additional information required to fulfill this request.  Please indicate if you need TIFFs for publication.</p>
-    </div>
-  </div>
+   </div>
 </fieldset>

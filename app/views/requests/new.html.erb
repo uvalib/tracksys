@@ -1,46 +1,47 @@
-<% if not @request.errors.empty? %>
-  <div class="flash flash_type_error">
-    <p>The following errors have occured:</p>
-      <ul>
-        <% @request.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-  </div>
-<% end %>
+<div class="container-fluid">
+   <% if not @request.errors.empty? %>
+      <div class="flash flash_type_error">
+         <p>The following errors have occured:</p>
+         <ul>
+            <% @request.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+            <% end %>
+         </ul>
+      </div>
+   <% end %>
 
-<%= nested_form_for @request, :html => {:class => 'form-horizontal'} do |f| %>
-  <%= f.fields_for :customer_attributes do |c| %>
-    <div class="span4">
-        <%= render :partial=>"customer_info", :locals=>{ :c=>c } %>
-    </div>
-    <div class="span4">
-        <%= render :partial=>"primary_address", :locals=>{ :c=>c } %>
-    </div>
-    <div class="span4">
-        <%= render :partial=>"billing_address", :locals=>{ :c=>c } %>
-    </div>
-  <% end %>
+   <%= nested_form_for @request, :html => {:class => 'form-horizontal'} do |f| %>
+      <%= f.fields_for :customer_attributes do |c| %>
+         <div class="row">
+            <div class="col-md-4">
+               <%= render :partial=>"customer_info", :locals=>{ :c=>c } %>
+            </div>
+            <div class="col-md-4">
+               <%= render :partial=>"primary_address", :locals=>{ :c=>c } %>
+            </div>
+            <div class="col-md-4">
+               <%= render :partial=>"billing_address", :locals=>{ :c=>c } %>
+            </div>
+         </div>
+      <% end %>
 
-  <div class="span12">
-     <%= render :partial=>"request_info", :locals=>{ :f=>f } %>
-  </div>
+      <div class="col-md-12">
+         <%= render :partial=>"request_info", :locals=>{ :f=>f } %>
+      </div>
 
-  <div class="twelvecol">
-     <fieldset id="order-items">
-        <legend>Items for Digitization</legend>
-         <%= f.fields_for :units do |unit| %>
-            <%= render :partial=>"order_item", :locals=>{ :unit=>unit } %>
-         <% end %>
-     </fiedset>
-  </div>
+      <div class="col-md-12">
+         <fieldset id="order-items">
+            <legend>Items for Digitization</legend>
+            <%= f.fields_for :units do |unit| %>
+               <%= render :partial=>"order_item", :locals=>{ :unit=>unit } %>
+            <% end %>
+         </fiedset>
+      </div>
 
-  <div class="twelvecol">
-    <div class="form-actions">
+      <div class="form-actions">
+         <%= f.link_to_add "Add an item", :units, :class => 'btn btn-success' %>
+         <button id="submit-request" class="btn btn-primary">Submit Request</button>
+      </div>
 
-      <%= f.link_to_add "Add an item", :units, :class => 'btn btn-inverse' %>
-      <button id="submit-request" class="btn btn-primary">Submit Request</button>
-    </div>
-  </div>
-
-<% end %>
+   <% end %>
+</div>

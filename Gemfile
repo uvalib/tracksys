@@ -6,7 +6,7 @@ gem 'activeadmin', '~> 1.0.0.pre4'
 gem 'passenger', '5.0.28'
 gem 'figaro'
 
-gem 'turnout'
+gem 'turnout'  # Maintence page
 
 gem 'validates_timeliness', '~> 4.0'
 gem 'annotate'
@@ -16,13 +16,16 @@ gem 'ancestry'
 gem 'delayed_job_active_record'
 gem 'daemons'
 
+# for patron request forms
+gem 'nested_form'
+gem 'bootstrap-datepicker-rails'
+
 gem 'whenever', :require => false   # to age off job status records
 gem "rmagick", :require => false
 gem 'exifr'
 gem 'rest-client'
 gem 'prawn'
 gem 'prawn-table'
-gem 'nested_form'
 gem 'net-ldap'
 gem 'country-select'
 gem 'axlsx', '~> 2.1.0.pre'
