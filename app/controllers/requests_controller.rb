@@ -139,10 +139,12 @@ class RequestsController < ApplicationController
                # Always update Academic Status
                @request.customer.academic_status_id = AcademicStatus.find_by( name: uva_status).id
 
-               # Must build a Billable Address if the existing customer doesn't have one
-               # so form pre-population doesn't break.
-               if not @request.customer.billable_address
+               # Must build addresses if the existing customer doesn't have one so form pre-population doesn't break.
+               if @request.customer.billable_address.nil?
                   @request.customer.build_billable_address
+               end
+               if @request.customer.primary_address.nil?
+                  @request.customer.primary_address
                end
             rescue Exception=>e
                # Failed trying to get UVA info; default to not affiliated with UVa
