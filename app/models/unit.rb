@@ -13,7 +13,6 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    belongs_to :metadata, :counter_cache => true
    belongs_to :intended_use, :counter_cache => true
-   belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
 
    has_many :master_files
@@ -51,10 +50,6 @@ class Unit < ActiveRecord::Base
    validates :intended_use, :presence => {
       :message => "must be selected."
    }
-   validates :indexing_scenario, :presence => {
-      :if => 'self.indexing_scenario_id',
-      :message => "association with this IndexingScenario is no longer valid because it no longer exists."
-   }
    validates :order, :presence => {
       :if => 'self.order_id',
       :message => "association with this Order is no longer valid because it no longer exists."
@@ -66,7 +61,6 @@ class Unit < ActiveRecord::Base
    before_save do
       # boolean fields cannot be NULL at database level
       self.include_in_dl = 0 if self.include_in_dl.nil?
-      self.master_file_discoverability = 0 if self.master_file_discoverability.nil?
       self.order_id = 0 if self.order_id.nil?
       self.remove_watermark = 0 if self.remove_watermark.nil?
       self.unit_status = "unapproved" if self.unit_status.nil? || self.unit_status.empty?
@@ -178,8 +172,27 @@ class Unit < ActiveRecord::Base
       SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
    end
 
-   def start_ingest_from_archive
-      StartIngestFromArchive.exec( {:unit => self })
+   # Make all attributes that will be going away in the next relase PRIVATE to
+   # ensure all of their usage has been removed before DB tables are updated
+   #
+   private
+   def indexing_scenario
+      self[:indexing_scenario]
+   end
+   def indexing_scenario=(val)
+      write_attribute :indexing_scenario, val
+   end
+   def indexing_scenario_id
+      self[:indexing_scenario_id]
+   end
+   def indexing_scenario_id=(val)
+      write_attribute :indexing_scenario_id, val
+   end
+   def master_file_discoverability
+      self[:master_file_discoverability]
+   end
+   def master_file_discoverability=(val)
+      write_attribute :master_file_discoverability, val
    end
 end
 

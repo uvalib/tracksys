@@ -4,8 +4,8 @@ ActiveAdmin.register Unit do
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
-     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :indexing_scenario_id, :complete_scan,
-     :include_in_dl, :master_file_discoverability, :date_queued_for_ingest, :date_dl_deliverables_ready
+     :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
+     :include_in_dl, :date_queued_for_ingest, :date_dl_deliverables_ready
 
   scope :all, :default => true
   scope :approved
@@ -31,6 +31,7 @@ ActiveAdmin.register Unit do
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer?
   end
+
   action_item :pdf, :only => :show do
     raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
   end
@@ -91,7 +92,6 @@ ActiveAdmin.register Unit do
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
   filter :agency, :as => :select
-  filter :indexing_scenario
   filter :master_files_count, :as => :numeric
 
   index do
@@ -194,12 +194,8 @@ ActiveAdmin.register Unit do
     div :class => "columns-none" do
       panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for unit do
-          row :indexing_scenario
           row ("In Digital Library?") do |unit|
             format_boolean_as_yes_no(unit.include_in_dl)
-          end
-          row :master_file_discoverability do |unit|
-            format_boolean_as_yes_no(unit.master_file_discoverability)
           end
           row :date_queued_for_ingest do |unit|
             format_datetime(unit.date_queued_for_ingest)
@@ -212,54 +208,70 @@ ActiveAdmin.register Unit do
     end
 
     div :class => "columns-none" do
-      if not unit.master_files.empty?
-      then
+      if !unit.master_files.empty?
+        page_size = params[:page_size]
+        page_size = 15 if page_size.nil?
         panel "Master Files", :toggle => 'show' do
-          table_for unit.master_files do |mf|
-            column :filename, :sortable => false
-            column :title do |mf|
-              truncate_words(mf.title)
-            end
-            column :description do |mf|
-              truncate_words(mf.description)
-            end
-            column :transcription_text do |mf|
-              truncate_words(raw(mf.transcription_text))
-            end
-            column :date_archived do |mf|
-              format_date(mf.date_archived)
-            end
-            column :date_dl_ingest do |mf|
-              format_date(mf.date_dl_ingest)
-            end
-            column :pid, :sortable => false
-            column("Thumbnail") do |mf|
-              link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-            end
-            column("") do |mf|
-              div do
-                link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
-              end
-              div do
-                 link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
-              end
-              if !current_user.viewer?
+          div do
+             all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
+             token =  Time.now.to_i
+             url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
+             pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
+             if page_size.to_i < unit.master_files.count
+                raw("#{all_btn}#{pdf_btn}")
+             else
+                raw("#{pdf_btn}")
+             end
+          end
+          paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
+             table_for collection do |mf|
+               column ('') do |mf|
+                  raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+               end
+               column :filename, :sortable => false
+               column :title do |mf|
+                 truncate_words(mf.title)
+               end
+               column :description do |mf|
+                 truncate_words(mf.description)
+               end
+               column :date_archived do |mf|
+                 format_date(mf.date_archived)
+               end
+               column :date_dl_ingest do |mf|
+                 format_date(mf.date_dl_ingest)
+               end
+               column :pid, :sortable => false
+               column("Thumbnail") do |mf|
+                 link_to image_tag(mf.link_to_image(:small)),
+                    "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+               end
+               column("") do |mf|
                  div do
-                   link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                   link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
                  end
-                 if ocr_enabled?
+                 div do
+                    link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+                 end
+                 if !current_user.viewer?
                     div do
-                       link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                      link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                    end
+                    if ocr_enabled?
+                       div do
+                          link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                       end
                     end
                  end
-              end
-              if mf.date_archived
-                div do
-                  link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
-                end
-              end
-            end
+                 if mf.date_archived
+                   div do
+                     link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
+                   end
+                 end
+               end
+             end
           end
+          div :style=>'clear:both' do end
         end
       else
         panel "No Master Files Directly Associated with this Component"
@@ -284,6 +296,16 @@ ActiveAdmin.register Unit do
       row :customer
       row :agency
     end
+  end
+
+  # XML Upload / Download
+  sidebar :bulk_xml_actions, :only => :show,  if: proc{ !current_user.viewer? } do
+     div :class => 'workflow_button' do
+        button_to "Bulk Upload", bulk_upload_xml_admin_unit_path, :method => :put
+     end
+     div :class => 'workflow_button' do
+        button_to "Bulk Download", bulk_download_xml_admin_unit_path, :method => :put
+     end
   end
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
@@ -337,10 +359,14 @@ ActiveAdmin.register Unit do
   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do button_to "Put into Digital Library",
-         start_ingest_from_archive_admin_unit_path(:datastream => 'all'), :method => :put end
+         start_ingest_from_archive_admin_unit_path(), :method => :put
+      end
+      div :class => 'workflow_button' do button_to "Put into Digital Library Test",
+         start_ingest_from_archive_admin_unit_path(:test=>true), :method => :put
+      end
     end
     if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Publish",
+      div :class => 'workflow_button' do button_to "Publish All",
          publish_admin_unit_path(:datastream => 'all'), :method => :put end
     end
   end
@@ -352,8 +378,6 @@ ActiveAdmin.register Unit do
   action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
-
-  collection_action :metadata_lookup
 
   member_action :print_routing_slip, :method => :put do
     @unit = Unit.find(params[:id])
@@ -410,19 +434,44 @@ ActiveAdmin.register Unit do
   end
 
   member_action :start_ingest_from_archive, :method => :put do
-    Unit.find(params[:id]).start_ingest_from_archive
+    unit = Unit.find(params[:id]).start_ingest_from_archive(true)
+    test_publish = (params(:test) == true)
+    StartIngestFromArchive.exec( {:unit => unit, :test_publish=>test_publish })
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
   end
 
   member_action :publish, :method => :put do
     unit = Unit.find(params[:id])
     now = Time.now
-    unit.metadata.update_attribute(:date_dl_update, now)
+    unit.metadata.update(date_dl_update: now)
     unit.master_files.each do |mf|
-      mf.update_attribute(:date_dl_update, now)
+      mf.update(date_dl_update: now)
+      if mf.metadata.id != unit.metadata.id
+         if mf.metadata.date_dl_ingest.blank?
+            if mf.metadata.date_dl_update.blank?
+               mf.metadata.update(date_dl_ingest: now)
+            else
+               mf.metadata.update(date_dl_ingest: mf.metadata.date_dl_update, date_dl_update: now)
+            end
+         else
+            mf.metadata.update(date_dl_update: now)
+         end
+      end
     end
     logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
+  end
+
+  member_action :bulk_upload_xml, :method => :put do
+     unit = Unit.find(params[:id])
+     BulkUploadXml.exec({unit: unit})
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
+  end
+
+  member_action :bulk_download_xml, :method => :put do
+     unit = Unit.find(params[:id])
+     BulkDownloadXml.exec({unit: unit, user: current_user} )
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Downloading XML for unit #{params[:id]}. When complete, you will receive an email."
   end
 
   member_action :checkout_to_digiserv, :method => :put do
@@ -433,24 +482,5 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
-  end
-
-  include ActionView::Helpers::TextHelper
-  controller do
-     def metadata_lookup
-        if params[:type] == "XmlMetadata"
-           out = []
-           XmlMetadata.all.order(id: :asc).each do |m|
-             out << {id: m.id, title: "#{m.id}: #{m.title.truncate(50)}"}
-           end
-           render json: out, status: :ok
-        else
-           out = []
-           SirsiMetadata.all.order(barcode: :asc).each do |m|
-             out << {id: m.id, title: "#{m.barcode}"}
-           end
-           render json: out, status: :ok
-        end
-     end
   end
 end

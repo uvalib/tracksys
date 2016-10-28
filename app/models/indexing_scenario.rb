@@ -5,13 +5,6 @@ class IndexingScenario < ActiveRecord::Base
   #------------------------------------------------------------------
   has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
   has_many :components
-  has_many :master_files
-  has_many :units
-
-  #------------------------------------------------------------------
-  # scopes
-  #------------------------------------------------------------------
-  default_scope { order('name') }
 end
 
 # == Schema Information

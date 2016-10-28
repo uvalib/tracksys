@@ -16,13 +16,7 @@ ActiveAdmin.register IndexingScenario do
    index do
       column :name
       column("Metadata Records") do |indexing_scenario|
-        indexing_scenario.metadata.count
-      end
-      column("Master Files") do |indexing_scenario|
-         indexing_scenario.master_files.count
-      end
-      column("Units") do |indexing_scenario|
-         indexing_scenario.units.count
+        indexing_scenario.metadata_count
       end
       column("Links") do |indexing_scenario|
          if !current_user.viewer?

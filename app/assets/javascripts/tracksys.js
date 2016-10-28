@@ -37,8 +37,11 @@ $(function() {
    // Toggle between Sirsi/Xml metadata
    $("#metadata-type-picker").on("change", function() {
       var metadataType = $(this).val();
-      $.getJSON("/admin/units/metadata_lookup?type="+metadataType, function(json, status, xhr){
+      $.getJSON("/admin/"+metadataType+"/get_all", function(json, status, xhr){
          var sel = $("#unit_metadata_id");
+         if (sel.length == 0 ) {
+            sel = $("#master_file_metadata_id");
+         }
          sel.empty();
          $.each(json, function (idx, obj) {
             sel.append('<option value="' + obj.id + '">' + obj.title + '</option>');
@@ -80,6 +83,17 @@ $(function() {
       }
    };
 
+   $("#sirsi_metadata_barcode").change( function(event) {
+      var v = $("#sirsi_metadata_barcode").val();
+      var tv = $.trim(v) ;
+      $("#sirsi_metadata_barcode").val( tv);
+   });
+   $("#sirsi_metadata_barcode").on("keypress", function (e) {
+       if (e.keyCode == 13) {
+           return false;
+       }
+   });
+
    $('#refresh-metadata').click(function(e) {
       var btn = $(this);
       if (btn.hasClass("disabled")) {
@@ -102,6 +116,26 @@ $(function() {
             }
          }
       });
+   });
+
+   $(".mf-checkbox").on("change", function() {
+      var url = $("#download-select-pdf").attr("href");
+      url = url.split("&token")[0];
+      if ( $("#download-select-pdf").hasClass("disabled") == false ) {
+         $("#download-select-pdf").addClass("disabled");
+      }
+      var ids = [];
+      $(".mf-checkbox").each( function(idx, val) {
+         if ( $(val).is(":checked") ) {
+            $("#download-select-pdf").removeClass("disabled");
+            ids.push($(val).data("mf-id"));
+         }
+      });
+      if (ids.length > 0) {
+         var token = "&token="+Math.floor((new Date).getTime()/1000);
+         url = url + token+ "&pages="+ids.join(",");
+      }
+      $("#download-select-pdf").attr("href", url)
    });
 
    /**

@@ -18,7 +18,7 @@ class ImportUnitIviewXML < BaseJob
       # Import XML files
       xml_file = File.open(path.to_s)
       begin
-         ImportIviewXml.import_iview_xml(xml_file, unit.id.to_s)
+         ImportIviewXml.import_iview_xml(xml_file, unit, logger)
          xml_file.close
          logger().info( "Iview XML for Unit #{unit.id} successfully imported.")
       rescue Exception=>e

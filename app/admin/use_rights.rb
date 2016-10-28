@@ -20,10 +20,10 @@ ActiveAdmin.register UseRight do
       column :name
       column :uri
       column("Metadata Records") do |use_right|
-        use_right.metadata.count
+        use_right.metadata_count
       end
       column("Master Files") do |use_right|
-         use_right.master_files.count
+         use_right.master_files.size()
       end
       column("Links") do |use_right|
          if !current_user.viewer?

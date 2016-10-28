@@ -15,7 +15,7 @@
          <td><span class="status <%= status %>" id="status-<%= mf.id  %>"</span></td>
          <td><%= mf.filename %></td>
          <td>
-            <%= link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})" %>
+            <%= link_to image_tag(mf.link_to_image(:small)), "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})" %>
          </td>
          <td>
             <%= link_to "View", "/admin/master_files/#{mf.id}", :class => "member_link view_link" %>

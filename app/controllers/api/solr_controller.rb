@@ -18,9 +18,6 @@ class Api::SolrController < ApplicationController
       Rails.logger.info "Looking for DL updates since #{date_str}"
       Metadata.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", date_str,date_str).find_each do |o|
          pids << o.pid
-         o.master_files.where("desc_metadata is not null and desc_metadata <> ''").find_each do |mf|
-            pids << mf.pid
-         end
       end
 
       # pids = []
@@ -36,23 +33,13 @@ class Api::SolrController < ApplicationController
    def show
       render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
-      #parse pid for item identity; format TS[B|M]:[id]
-      pid_bits = params[:pid].split(":")
-      id = pid_bits.last
-      resource_type = pid_bits.first[2].upcase
-      if resource_type == "B"
-         object = Metadata.find(id)
-      elsif resource_type == "M"
-         object = MasterFile.find(id)
+      # From the above index method, the only thing that will be returned and used here are
+      # METADATA records. No need to generically handle metadata, masterfile and component
+      metadata = Metadata.find_by(pid: params[:pid])
+      if metadata.nil?
+         render :text=>"PID is invalid", status: :bad_request and return if metadata.nil?
       else
-         # see if it is an old-style PID
-         object = Metadata.find_by(pid: params[:pid])
-         if object.nil?
-            object = MasterFile.find_by(pid: params[:pid])
-         end
-         render :text=>"PID is invalid", status: :bad_request and return if object.nil?
+         render :xml=> Hydra.solr(metadata)
       end
-
-      render :xml=> Hydra.solr(object)
    end
 end

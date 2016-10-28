@@ -23,7 +23,7 @@ class CheckOrderDateArchivingComplete < BaseJob
          on_success "All units in order #{order.id} are archived."
       else
          # Order incomplete.  List units incomplete units in message
-         on_failure "Order #{order.id} has some units (#{incomplete_units.join(', ')}) that have not been archived."
+         logger.info "Order #{order.id} has some units (#{incomplete_units.join(', ')}) that have not been archived."
       end
    end
 end

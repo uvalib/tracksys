@@ -83,7 +83,8 @@ class RequestsController < ApplicationController
             if params[:is_uva] == 'yes'
                redirect_to uva_requests_url
             else
-               redirect_to public_requests_url
+               session[:computing_id] = 'Non-UVA'
+               redirect_to :action => :new
             end
          else
             redirect_to requests_path, :notice => 'You must indicate whether or not you are affiliated with U.Va. to continue.'
@@ -99,6 +100,7 @@ class RequestsController < ApplicationController
       @request.customer.build_billable_address
       @request.customer.build_primary_address
 
+      Rails.logger.info "Creating new request for #{session[:computing_id]}. Agreed? #{session[:agree_to_copyright]}"
       if session[:agree_to_copyright]
          if session[:computing_id] == 'Non-UVA'
             # user is not affiliated with UVa
@@ -113,6 +115,7 @@ class RequestsController < ApplicationController
                # If a UVa Customer exist, populate @request.customer with Tracksys sourced data.
                customer_lookup = Customer.find_by(email: ldap_info.email.first)
                if customer_lookup.nil?
+                  Rails.logger.info "Couldn't find customer for #{ldap_info.email.first}; creating new"
                   uva_computing_id = ldap_info.uva_computing_id
                   department_name = ldap_info.department.first
 
@@ -129,29 +132,27 @@ class RequestsController < ApplicationController
                      }
                   }
                else
+                  Rails.logger.info "Found existing customer for #{ldap_info.email.first}"
                   @request.customer = Customer.find_by(email: ldap_info.email.first)
                end
 
                # Always update Academic Status
                @request.customer.academic_status_id = AcademicStatus.find_by( name: uva_status).id
 
-               # Must build a Billable Address if the existing customer doesn't have one
-               # so form pre-population doesn't break.
-               if not @request.customer.billable_address
+               # Must build addresses if the existing customer doesn't have one so form pre-population doesn't break.
+               if @request.customer.billable_address.nil?
                   @request.customer.build_billable_address
+               end
+               if @request.customer.primary_address.nil?
+                  @request.customer.build_primary_address
                end
             rescue Exception=>e
                # Failed trying to get UVA info; default to not affiliated with UVa
+               Rails.logger.error "Error getting UVA info: #{e}"
                @request.customer.academic_status_id = 1 # set academic_status to "Non-UVa"
             end
          end
       end
-   end
-
-   # Reroute a non-UVA person to the new form
-   def public
-      session[:computing_id] = 'Non-UVA'
-      redirect_to :action => :new
    end
 
    # If the person has gotten to this method, then he/she has authenticated themselves as a UVA member.

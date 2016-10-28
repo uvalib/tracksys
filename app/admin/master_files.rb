@@ -3,9 +3,8 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-      :creator_death_date, :date_archived, :discoverability,
-      :md5, :filesize, :unit_id, :transcription_text,
-      :pid, :indexing_scenario_id, :desc_metadata, :use_right_id
+   :creator_death_date, :date_archived,
+   :md5, :filesize, :unit_id, :transcription_text, :pid, :metadata_id
 
    menu :priority => 6
 
@@ -13,28 +12,58 @@ ActiveAdmin.register MasterFile do
    scope :in_digital_library, :show_count => true
    scope :not_in_digital_library, :show_count => true
 
+   # Setup Action Items =======================================================
    config.clear_action_items!
    config.sort_order = "id_desc"
 
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
+
    action_item :pdf, :only => :show do
-     raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
+      raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
    end
+
    action_item :ocr, only: :show do
       link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
    end
+
    action_item :transcribe, only: :show do
       link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
    end
 
-   batch_action :download_from_archive do |selection|
-      MasterFile.find(selection).each {|s| s.get_from_stornext }
-      flash[:notice] = "Master Files #{selection.join(", ")} are now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-      redirect_to "/admin/master_files"
+   action_item :previous, :only => :show do
+      link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
    end
 
+   action_item :next, :only => :show do
+      link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
+   end
+
+   action_item :download, :only => :show do
+      if master_file.date_archived
+         link_to "Download", download_from_archive_admin_master_file_path(master_file.id), :method => :get
+      end
+   end
+
+   action_item :pinterest, :only => :show do
+      span :class=>"pinterest-wrapper" do
+         if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
+            base_url = "https://www.pinterest.com/pin/create/button"
+            url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
+            media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
+            meta = master_file.metadata
+            desc = "#{master_file.title} from #{meta.title} &#183; #{meta.creator_name}"
+            desc << " &#183; Albert and Shirley Small Special Collections Library, University of Virginia."
+            pin_img = "<img src='//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_32.png' />"
+            pin_src_settings = "data-pin-description='#{desc}' data-pin-media='#{media}' data-pin-url='#{url}'"
+            pin_type_settings = "data-pin-tall='true' data-pin-do='buttonPin' data-pin-round='true' data-pin-save='false'"
+            raw("<a #{pin_src_settings} #{pin_type_settings} href='#{base_url}'>#{pin_img}</a>")
+         end
+      end
+   end
+
+   # Filters ==================================================================
    filter :id
    filter :pid
    filter :filename
@@ -49,18 +78,18 @@ ActiveAdmin.register MasterFile do
    filter :metadata_title, :as => :string, :label => "Metadata Title"
    filter :metadata_creator_name, :as => :string, :label => "Author"
    filter :metadata_call_number, :as => :string, :label => "Call Number"
-   filter :use_right, :as => :select, label: 'Right Statement'
    filter :academic_status, :as => :select
-   filter :indexing_scenario
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
    filter :agency, :as => :select
 
+   # Index ====================================================================
+   #
    index :id => 'master_files' do
       selectable_column
       column :id
-      column :filename, :sortable => false
+      column :filename
       column :title do |mf|
          truncate_words(mf.title)
       end
@@ -73,7 +102,7 @@ ActiveAdmin.register MasterFile do
       column :date_dl_ingest do |mf|
          format_date(mf.date_dl_ingest)
       end
-      column :pid, :sortable => false
+      column :pid
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
@@ -83,7 +112,8 @@ ActiveAdmin.register MasterFile do
       end
       column :unit
       column("Thumbnail") do |mf|
-         link_to image_tag(mf.link_to_static_thumbnail, :height => 125), "#{mf.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+         link_to image_tag(mf.link_to_image(:small)),
+            "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
       end
       column("") do |mf|
          div do
@@ -104,22 +134,23 @@ ActiveAdmin.register MasterFile do
          end
          if mf.date_archived
             div do
-               link_to "Download", copy_from_archive_admin_master_file_path(mf.id), :method => :put
+               link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
             end
          end
       end
    end
 
+   # Show =====================================================================
+   #
    show :title => proc {|mf| mf.filename } do
+      render :partial=>"pinit"
       div :class => 'two-column' do
          panel "General Information" do
             attributes_table_for master_file do
+               row :pid
                row :filename
                row :title
                row :description
-               row :date_archived do |master_file|
-                  format_date(master_file.date_archived)
-               end
                row :intellectual_property_notes do |master_file|
                   if master_file.creation_date or master_file.primary_author or master_file.creator_death_date
                      "Event Creation Date: #{master_file.creation_date} ; Author: #{master_file.primary_author} ; Author Death Date: #{master_file.creator_death_date}"
@@ -127,16 +158,18 @@ ActiveAdmin.register MasterFile do
                      "no data"
                   end
                end
-            end
-         end
-
-         panel "Transcription Text", :toggle => 'show' do
-            div :class=>'mf-transcription' do
-               simple_format(master_file.transcription_text)
+               row :date_archived do |master_file|
+                  format_date(master_file.date_archived)
+               end
+               row :date_dl_ingest do |master_file|
+                  format_date(master_file.date_dl_ingest )
+               end
+               row :date_dl_update do |master_file|
+                  format_date(master_file.date_dl_update)
+               end
             end
          end
       end
-
 
       div :class => 'two-column' do
          panel "Technical Information", :id => 'master_files', :toggle => 'show' do
@@ -168,33 +201,10 @@ ActiveAdmin.register MasterFile do
          end
       end
 
-      div :class => 'columns-none', :toggle => 'hide' do
-         panel "Digital Library Information", :id => 'master_files', :toggle => 'show' do
-            attributes_table_for master_file do
-               row :pid
-               row :date_dl_ingest
-               row :date_dl_update
-               row('Right Statement'){ |r| r.use_right.name }
-               row :indexing_scenario
-               row :discoverability do |mf|
-                  case mf.discoverability
-                  when false
-                     "Not uniquely discoverable"
-                  when true
-                     "Uniquely discoverable"
-                  else
-                     "Unknown"
-                  end
-               end
-            end
-
-            div :id => "desc_meta_div" do
-               div :id=>"master-file-desc-metadata" do "DESC METADATA" end
-                  div :id=>"mf-metadata-wrap" do
-                     pre do
-                        master_file.desc_metadata
-                     end
-                  end
+      div :class => 'columns-none' do
+         panel "Transcription Text", :toggle => 'show' do
+            div :class=>'mf-transcription' do
+               simple_format(master_file.transcription_text)
             end
          end
       end
@@ -203,10 +213,11 @@ ActiveAdmin.register MasterFile do
    # EDIT page ================================================================
    form :partial => "edit"
 
-
    sidebar "Thumbnail", :only => [:show] do
       div :style=>"text-align:center" do
-         link_to image_tag(master_file.link_to_static_thumbnail, :height => 250), "#{master_file.link_to_static_thumbnail(true)}", :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+         link_to image_tag(master_file.link_to_image(:medium)),
+            "#{master_file.link_to_image(:large)}",
+            :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
       end
    end
 
@@ -221,63 +232,20 @@ ActiveAdmin.register MasterFile do
          row :order do |master_file|
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
          end
-         row :customer
          row :component do |master_file|
             if master_file.component
                link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
             end
          end
+         row :customer
          row :agency
       end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
-      if master_file.in_dl?
-         div :class => 'workflow_button' do button_to "Publish",
-           publish_admin_master_file_path(:datastream => 'all'), :method => :put end
-      else
-         "No options available.  Master File is not in DL."
-      end
-   end
-
-   action_item :previous, :only => :show do
-      link_to("Previous", admin_master_file_path(master_file.previous)) unless master_file.previous.nil?
-   end
-
-   action_item :next, :only => :show do
-      link_to("Next", admin_master_file_path(master_file.next)) unless master_file.next.nil?
-   end
-
-   action_item :download, :only => :show do
-      if master_file.date_archived
-         link_to "Download", copy_from_archive_admin_master_file_path(master_file.id), :method => :put
-      end
-   end
-
-   member_action :transcribe, :method => :get do
-   end
-
-   member_action :publish, :method => :put do
-     mf = MasterFile.find(params[:id])
-     mf.update_attribute(:date_dl_update, Time.now)
-     logger.info "Master File #{mf.id} has been flagged for an update in the DL"
-     redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File flagged for Publication"
-   end
-
-   member_action :copy_from_archive, :method => :put do
+   member_action :download_from_archive, :method => :get do
       mf = MasterFile.find(params[:id])
-      mf.get_from_stornext(current_user.computing_id)
-      redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File #{mf.filename} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}."
-   end
-
-   # Specified in routes.rb to return the XML partial mods.xml.erb
-   member_action :mods do
-      @master_file = MasterFile.find(params[:id])
-      @page_title = "MODS Record for MasterFile ##{@master_file.id}"
-      render template: "admin/master_files/mods.xml.erb"
-   end
-
-   member_action :solr do
-      @master_file = MasterFile.find(params[:id])
+      CopyArchivedFilesToProduction.exec_now( {:unit => mf.unit, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
+      redirect_to "/admin/master_files/#{params[:id]}",
+         :notice => "Master File downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}/#{current_user.computing_id}/#{mf.filename}."
    end
 end

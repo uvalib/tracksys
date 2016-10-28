@@ -1,23 +1,19 @@
 $(function() {
 
-   setTimeout( function() {
 
-      $("#src-img").panzoom({
-         minScale: 1,
-         maxScale: 10,
-         transition: true,
-         duration: 100,
-         increment: 0.5,
-         $zoomIn: $(".zoom-in"),
-         $zoomOut: $(".zoom-out"),
-         $zoomRange: $(".zoom-range"),
-         $reset: $(".reset"),
-         onPan: function() {
-            $(".img-box").css("background-image", "none");
-         }
-      });
+   $("#src-img").panzoom({
+      minScale: 1,
+      maxScale: 20,
 
-   }, 500);
+      $zoomIn: $(".zoom-in"),
+      $zoomOut: $(".zoom-out"),
+      $zoomRange: $(".zoom-range"),
+      $reset: $(".reset"),
+      onPan: function() {
+         $(".img-box").css("background-image", "none");
+      }
+   });
+
 
    var updateUnitOcrStatus = function(statusObj) {
       $(".exclude").each( function(idx) {

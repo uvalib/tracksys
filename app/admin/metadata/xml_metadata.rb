@@ -154,38 +154,52 @@ ActiveAdmin.register XmlMetadata do
        row :master_files do |xml_metadata|
          link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
        end
-       row :units do |xml_metadata|
-         link_to "#{xml_metadata.units.size}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
-       end
-       row :orders do |xml_metadata|
-         link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:metadata_id_eq => xml_metadata.id}, :scope => :uniq )
-       end
-       row :customers do |xml_metadata|
-         link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
-       end
-       row "Agencies Requesting Resource" do |xml_metadata|
-         raw(xml_metadata.agency_links)
-       end
-       row("Collection Metadata Record") do |xml_metadata|
-          if xml_metadata.parent
-            if xml_metadata.parent.type == "SirsiMetadata"
-               link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
-            elsif xml_metadata.parent.type == "XmlMetadata"
-               link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
-            end
+       if xml_metadata.units.count > 0
+          row :units do |xml_metadata|
+            link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
           end
-       end
-       row "child metadata records" do |xml_metadata|
-          map = xml_metadata.typed_children
-          render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+          row :orders do |xml_metadata|
+            link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
+          end
+          row :customers do |xml_metadata|
+            link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
+          end
+          row "Agencies Requesting Resource" do |xml_metadata|
+            raw(xml_metadata.agency_links)
+          end
+          row("Collection Metadata Record") do |xml_metadata|
+             if xml_metadata.parent
+               if xml_metadata.parent.type == "SirsiMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+               elsif xml_metadata.parent.type == "XmlMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
+               end
+             end
+          end
+          row "child metadata records" do |xml_metadata|
+             map = xml_metadata.typed_children
+             render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+          end
+       elsif xml_metadata.master_files.count == 1
+          unit = xml_metadata.master_files.first.unit
+          row :unit do |xml_metadata|
+             link_to "##{unit.id}", "/admin/units/#{unit.id}"
+          end
+          row :order do |xml_metadata|
+            link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
+          end
        end
      end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && xml_metadata.master_files.count > 0} do
       if xml_metadata.in_dl?
          div :class => 'workflow_button' do
-            button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put end
+            button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
+         end
+         div :class => 'workflow_button' do
+            button_to "Publish to Virgo Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
+         end
       else
          "No options available.  Object is not in DL."
       end
@@ -193,11 +207,26 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
+   collection_action :get_all
+
+   # Flag for publication  overnight
+   #
    member_action :publish, :method => :put do
-     xm = XmlMetadata.find(params[:id])
-     xm.update_attribute(:date_dl_update, Time.now)
-     logger.info "XML Metadata #{xm.id}:#{xm.pid} has been flagged for an update in the DL"
-     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "XML Metadata flagged for Publication"
+     metadata = XmlMetadata.find(params[:id])
+     metadata.flag_for_publication
+
+     logger.info "XmlMetadata #{metadata.id} has been flagged for an update in the DL"
+     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
+   end
+
+   # Publish immediately to test instance of Virgo
+   #
+   member_action :test_publish, :method => :put do
+     metadata = XmlMetadata.find(params[:id])
+     metadata.flag_for_publication
+     metadata.publish_to_test
+     logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
+     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
 
    controller do
@@ -207,6 +236,14 @@ ActiveAdmin.register XmlMetadata do
           Metadata.where("id in (#{Settings.dpla_collection_records})").each do |r|
              @dpla_collection_records << {id:r.id, title:r.title}
           end
+       end
+
+       def get_all
+         out = []
+         XmlMetadata.all.order(id: :asc).each do |m|
+           out << {id: m.id, title: "#{m.id}: #{m.title}"}
+         end
+         render json: out, status: :ok
        end
     end
 

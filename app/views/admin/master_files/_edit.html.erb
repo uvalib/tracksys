@@ -7,37 +7,29 @@
       <%= f.input :primary_author, :as => :text, :input_html => { :rows => 1 } %>
       <%= f.input :creator_death_date, :as => :string, :input_html => { :rows => 1 } %>
       <%= f.input :date_archived, :as => :string, :input_html => {:class => :datepicker} %>
-   <% end %>
-
-   <%= f.inputs "Technical Information", :class => 'two-column panel' do %>
-      <%= f.input :md5, :input_html => { :disabled => true } %>
-      <%= f.input :filesize, :as => :number %>
+      <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => :datepicker} %>
+      <%= f.input :date_dl_update, :as => :string, :input_html => {:class => :datepicker} %>
    <% end %>
 
    <%= f.inputs "Related Information", :class => 'panel two-column' do %>
       <%= f.input :unit_id, :as => :number %>
-   <% end %>
+      <li class="string input optional stringish">
+         <label for="metadata-type-picker" class="label">Metadata Type</label>
+         <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
+            <option value="sirsi_metadata">SirsiMetadata</option>
+            <option value="xml_metadata"<% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
+         </select>
+      </li>
 
-   <%= f.inputs "Digital Library Information", :class => 'panel two-column' do %>
-      <%= f.input :pid, :input_html => { :disabled => true } %>
-      <%= f.input :use_right, label: "Right Statement" %>
-      <%= f.input :indexing_scenario %>
-      <%= f.input :discoverability, :as => :select %>
-   <% end %>
-
-   <%= f.inputs "Desc Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
-      <span id="record-id" style="display: none"><%= @master_file.id %></span>
-      <div id="tracksys_xml_editor">
-         <div class="xml-bar">
-            <div class="validate-msg">XML has changed and must be validadted before saving</div>
-            <span class="xml-button validate master_file">Validate</span>
-         </div>
-         <textarea class="desc-metadata-editor" name="master_file[desc_metadata]" id="master_file_desc_metadata"><%= @master_file.desc_metadata %></textarea>
-         <div class="xml-bar bottom">
-            <div class="validate-msg">XML has changed and must be validadted before saving</div>
-            <span class="xml-button validate bottom master_file">Validate</span>
-         </div>
-      </div>
+      <% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>
+         <%= f.input :metadata, :as => :select,
+            :collection => Hash[XmlMetadata.all.map{|b| ["#{b.id}: #{b.title}", b.id]}],
+            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
+      <% else %>
+         <%= f.input :metadata, :as => :select,
+            :collection => Hash[SirsiMetadata.all.map{|b| ["#{b.barcode}", b.id]}],
+            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
+      <% end %>
    <% end %>
 
    <fieldset class="columns-none xml-submit">

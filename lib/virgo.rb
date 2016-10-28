@@ -212,7 +212,6 @@ module Virgo
   # Reads the XML document (Nokogiri::XML::Document object) passed and gets the main XML
   # element needed for our purposes.
   def self.get_main_element(xml_doc, catalog_key)
-    # when querying solrpowr.lib, the main element is /response/result/doc
     begin
       doc = xml_doc.xpath(xml_doc, "/response/result/doc").first
       raise if doc.nil?
@@ -299,10 +298,6 @@ module Virgo
     end
     metadata = {}
 
-    # catalog ID
-    el = doc.xpath( "str[@name='id']" ).first
-    metadata[:catalog_key] = el.text unless el.nil?
-
     # title
     el = doc.xpath("arr[@name='title_display']/str").first
     metadata[:title] = el.text unless el.nil?
@@ -323,6 +318,12 @@ module Virgo
     end
 
     if marc_record
+      # catalog key
+      cf = marc_record.xpath("controlfield[@tag='001']").first
+      if !cf.blank?
+         metadata[:catalog_key] = cf.text
+      end
+
       # title
       #
       # Get subtitle in addition to main title (replacing title value from

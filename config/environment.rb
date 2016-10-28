@@ -3,7 +3,7 @@ require File.expand_path('../application', __FILE__)
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '4.2.6'
+TRACKSYS_VERSION = '4.3.0'
 
 # Setup logger for all jobs processors
 #
@@ -21,6 +21,8 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
+XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/dropoff"
+XML_PICKUP_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/pickup"
 FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DIR_MIGRATION = "#{MIGRATION_MOUNT}/finalization"
 
@@ -62,28 +64,5 @@ IVIEW_CATALOG_EXPORT_DIR = "#{PRODUCTION_MOUNT}/administrative/EAD2iViewXML"
 
 NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
-Fedora_namespaces = {
-  'xsi'=>'http://www.w3.org/2001/XMLSchema-instance',
-  'mets'=>'http://www.loc.gov/METS/',
-  'mix'=>'http://www.loc.gov/mix/v20',
-  'mods'=>'http://www.loc.gov/mods/v3',
-  'textMD'=>'info:lc/xmlns/textMD-v3',
-  'jhove'=>'http://hul.harvard.edu/ois/xml/ns/jhove',
-  'xlink'=>'http://www.w3.org/1999/xlink',
-  'xs'=>'http://www.w3.org/2001/XMLSchema',
-  'dc'=>'http://purl.org/dc/elements/1.1/',
-  'oai_dc'=>'http://www.openarchives.org/OAI/2.0/oai_dc/',
-  'foxml' => 'info:fedora/fedora-system:def/foxml#',
-  'fedora-model'=>'info:fedora/fedora-system:def/model#',
-  'rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-  'rdfs'=>'http://www.w3.org/2000/01/rdf-schema#',
-  'rel'=>'info:fedora/fedora-system:def/relations-external#',
-  'uva'=>'http://fedora.lib.virginia.edu/relationships#'
-}
-Schema_locations = {
-  'mods'=>'http://www.loc.gov/standards/mods/v3/mods-3-3.xsd',
-  'mix'=>'http://www.loc.gov/standards/mix/mix20/mix20.xsd',
-  'jhove'=>'http://hul.harvard.edu/ois/xml/xsd/jhove/jhove.xsd'
-}
 # Initialize the rails application
 Tracksys::Application.initialize!

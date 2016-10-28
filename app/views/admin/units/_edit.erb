@@ -26,8 +26,8 @@
       <li class="string input optional stringish">
          <label for="metadata-type-picker" class="label">Metadata Type</label>
          <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
-            <option>SirsiMetadata</option>
-            <option <% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
+            <option value="sirsi_metadata">SirsiMetadata</option>
+            <option value="xml_metadata"<% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
          </select>
       </li>
 
@@ -43,10 +43,8 @@
 
    <% end %>
 
-   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :toggle => 'hide' do %>
-      <%= f.input :indexing_scenario %>
+   <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
       <%= f.input :include_in_dl, :as => :radio %>
-      <%= f.input :master_file_discoverability, :as => :radio %>
       <%= f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker} %>
       <%= f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
    <% end %>

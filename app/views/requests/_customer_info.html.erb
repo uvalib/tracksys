@@ -1,27 +1,21 @@
 <fieldset>
-    <legend>Customer Information</legend>
-    <div class="control-group">
-       <%= c.label :first_name, :class => 'control-label required' %>
-       <div class="controls">
-         <%= c.text_field :first_name, :value => @request.customer.first_name, :required => true %>
-       </div>
-    </div>
-    <div class="control-group">
-       <%= c.label :last_name, :class => 'control-label required' %>
-       <div class="controls">
-         <%= c.text_field :last_name, :value => @request.customer.last_name, :required => true %>
-       </div>
-    </div>
-    <div class="control-group">
-       <%= c.label :email, :class => 'control-label required' %>
-       <div class="controls">
-         <%= c.text_field :email, :value => @request.customer.email, :required => true %>
-       </div>
-    </div>
-    <div class="control-group">
-       <%= c.label :academic_status, :class => 'control-label required' %>
-       <div class="controls">
-         <%= c.select :academic_status_id, options_for_select(AcademicStatus.all.collect {|a| [a.name, a.id] }, @request.customer.academic_status_id), {:include_blank => true} %>
-       </div>
-    </div>
+   <legend class="form">Customer Information</legend>
+   <div class="form-group">
+      <%= c.label :first_name, :class => 'control-label required' %>
+      <%= c.text_field :first_name, :class=>'form-control', :value => @request.customer.first_name, :required => true %>
+   </div>
+   <div class="form-group">
+      <%= c.label :last_name, :class => 'control-label required' %>
+      <%= c.text_field :last_name, :class=>'form-control', :value => @request.customer.last_name, :required => true %>
+   </div>
+   <div class="form-group">
+      <%= c.label :email, :class => 'control-label required' %>
+      <%= c.text_field :email, :class=>'form-control', :value => @request.customer.email, :required => true %>
+   </div>
+   <div class="form-group">
+      <%= c.label :academic_status, :class => 'control-label required' %>
+      <%= c.select :academic_status_id,
+         options_for_select(AcademicStatus.all.collect {|a| [a.name, a.id] }, @request.customer.academic_status_id),
+         {:include_blank => true}, {:class=>'form-control'} %>
+   </div>
 </fieldset>

@@ -32,9 +32,9 @@ class Metadata < ActiveRecord::Base
    has_many :agencies, :through => :orders
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :customers, ->{ uniq }, :through => :orders
-   has_many :master_files, :through => :units
    has_many :orders, ->{ uniq }, :through => :units
    has_many :units
+   has_many :master_files
 
    #------------------------------------------------------------------
    # scopes
@@ -126,6 +126,35 @@ class Metadata < ActiveRecord::Base
          out << "<div><a href='/admin/agencies/#{agency.id}'>#{agency.name}</a></div>"
       end
       return out
+   end
+
+   def flag_for_publication
+      if self.date_dl_ingest.blank?
+        if self.date_dl_update.blank?
+            self.update(date_dl_ingest: Time.now)
+        else
+            self.update(date_dl_ingest: self.date_dl_update, date_dl_update: Time.now)
+        end
+      else
+        self.update(date_dl_update: Time.now)
+      end
+   end
+
+   def publish_to_test
+      # ensure that required fields are set
+      if !self.discoverability
+         self.update(discoverability: 1)
+      end
+      if self.indexing_scenario.blank?
+         if self.type == "XmlMetadata"
+            self.update(indexing_scenario_id: 2)
+         else
+            self.update(indexing_scenario_id: 1)
+         end
+      end
+
+      xml = Hydra.solr( self )
+      RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
    end
 
    # Returns the array of child metadata records

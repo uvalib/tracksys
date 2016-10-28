@@ -25,9 +25,6 @@ class CopyArchivedFilesToProduction < BaseJob
       FileUtils.mkdir_p(destination_dir)
       FileUtils.chmod 0775, "#{destination_dir}"
 
-      # Set SGID bit to ensure that files copied into user's directory are owned by lb-ds
-      # FileUtils.chmod 'g+s', "#{destination_dir}"
-
       if message[:master_file_filename]
          master_file_filename = message[:master_file_filename]
          begin
@@ -64,14 +61,11 @@ class CopyArchivedFilesToProduction < BaseJob
          if File.exist?(File.join(source_dir, "#{unit_dir}.ivc"))
             FileUtils.cp(File.join(source_dir, "#{unit_dir}.ivc"), File.join(destination_dir, "#{unit_dir}.ivc"))
             File.chmod(0664, File.join(destination_dir, "#{unit_dir}.ivc"))
-            # FileUtils.chown(nil, 'lb-ds', File.join(destination_dir, "#{unit_dir}.ivc"))
          end
          if File.exist?(File.join(source_dir, "#{unit_dir}.mpcatalog"))
             FileUtils.cp(File.join(source_dir, "#{unit_dir}.mpcatalog"), File.join(destination_dir, "#{unit_dir}.mpcatalog"))
             File.chmod(0664, File.join(destination_dir, "#{unit_dir}.mpcatalog"))
-            # FileUtils.chown(nil, 'lb-ds', File.join(destination_dir, "#{unit_dir}.mpcatalog"))
          end
-
       end
 
       if failure_messages.empty?

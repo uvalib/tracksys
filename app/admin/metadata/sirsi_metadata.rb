@@ -88,7 +88,7 @@ ActiveAdmin.register SirsiMetadata do
       format_boolean_as_yes_no(sirsi_metadata.dpla)
     end
     column :units, :class => 'sortable_short', :sortable => :units_count do |sirsi_metadata|
-      link_to sirsi_metadata.units.count, admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
+      link_to sirsi_metadata.units_count, admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
     end
     column("Master Files") do |sirsi_metadata|
       link_to sirsi_metadata.master_files.count, admin_master_files_path(:q => {:metadata_id_eq => sirsi_metadata.id})
@@ -183,7 +183,7 @@ ActiveAdmin.register SirsiMetadata do
             link_to "VIRGO (Physical Record)", sirsi_metadata.physical_virgo_url, :target => "_blank"
           end
         end
-        if sirsi_metadata.in_dl?
+        if sirsi_metadata.in_dl? && sirsi_metadata.discoverability
           div do
             link_to "VIRGO (Digital Record)", sirsi_metadata.dl_virgo_url, :target => "_blank"
           end
@@ -196,7 +196,7 @@ ActiveAdmin.register SirsiMetadata do
         link_to "#{sirsi_metadata.units.size}", admin_units_path(:q => {:metadata_id_eq => sirsi_metadata.id})
       end
       row :orders do |sirsi_metadata|
-        link_to "#{sirsi_metadata.orders.count}", admin_orders_path(:q => {:metadata_id_eq => sirsi_metadata.id}, :scope => :uniq )
+        link_to "#{sirsi_metadata.orders.count}", admin_orders_path(:q => {:sirsi_metadata_id_eq => sirsi_metadata.id}, :scope => :uniq )
       end
       row :customers do |sirsi_metadata|
         link_to "#{sirsi_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => sirsi_metadata.id})
@@ -225,6 +225,9 @@ ActiveAdmin.register SirsiMetadata do
         div :class => 'workflow_button' do
            button_to "Publish", "/admin/sirsi_metadata/#{sirsi_metadata.id}/publish", :method => :put
         end
+        div :class => 'workflow_button' do
+           button_to "Publish to Virgo Test", "/admin/sirsi_metadata/#{sirsi_metadata.id}/test_publish", :method => :put
+        end
      else
         "No options available.  Object is not in DL."
      end
@@ -233,14 +236,29 @@ ActiveAdmin.register SirsiMetadata do
   form :partial => "form"
 
   collection_action :external_lookup
+  collection_action :get_all
 
+  # Flag for publication  overnight
+  #
   member_action :publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
-    metadata.update_attribute(:date_dl_update, Time.now)
+    metadata.flag_for_publication
+
     logger.info "SirsiMetadata #{metadata.id} has been flagged for an update in the DL"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"
   end
 
+  # Publish immediately to test instance of Virgo
+  #
+  member_action :test_publish, :method => :put do
+    metadata = SirsiMetadata.find(params[:id])
+    metadata.flag_for_publication
+    metadata.publish_to_test
+    logger.info "SirsiMetadata #{metadata.pid} has been published to the test instance of Virgo"
+    redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
+  end
+
+  include ActionView::Helpers::TextHelper
   controller do
      before_filter :get_dpla_collection_records, only: [:edit]
      def get_dpla_collection_records
@@ -265,6 +283,14 @@ ActiveAdmin.register SirsiMetadata do
       before_filter :blank_sirsi, only: [:new ]
       def blank_sirsi
          @sirsi_meta = {catalog_key: '', barcode: '' }
+      end
+
+      def get_all
+        out = []
+        SirsiMetadata.all.order(barcode: :asc).each do |m|
+          out << {id: m.id, title: "#{m.barcode}"}
+        end
+        render json: out, status: :ok
       end
 
       def external_lookup
