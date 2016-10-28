@@ -144,7 +144,7 @@ class RequestsController < ApplicationController
                   @request.customer.build_billable_address
                end
                if @request.customer.primary_address.nil?
-                  @request.customer.primary_address
+                  @request.customer.build_primary_address
                end
             rescue Exception=>e
                # Failed trying to get UVA info; default to not affiliated with UVa
