@@ -129,76 +129,31 @@ class MasterFile < ActiveRecord::Base
 
       return iiif_url.to_s
    end
-
-   # Make all attributes that will be going away in the next relase PRIVATE to
-   # ensure all of their usage has been removed before DB tables are updated
-   #
-   private
-   def discoverability
-      self[:discoverability]
-   end
-   def discoverability=(val)
-      write_attribute :discoverability, val
-   end
-   def desc_metadata
-      self[:desc_metadata]
-   end
-   def desc_metadata=(val)
-      write_attribute :desc_metadata, val
-   end
-   def indexing_scenario
-      self[:indexing_scenario]
-   end
-   def indexing_scenario=(val)
-      write_attribute :indexing_scenario, val
-   end
-   def indexing_scenario_id
-      self[:indexing_scenario_id]
-   end
-   def indexing_scenario_id=(val)
-      write_attribute :indexing_scenario_id, val
-   end
-   def use_right
-      self[:use_right]
-   end
-   def use_right=(val)
-      write_attribute :use_right, val
-   end
-   def use_right_id
-      self[:use_right_id]
-   end
-   def use_right_id=(val)
-      write_attribute :use_right_id, val
-   end
 end
 
 # == Schema Information
 #
 # Table name: master_files
 #
-#  id                   :integer          not null, primary key
-#  unit_id              :integer          default(0), not null
-#  component_id         :integer
-#  tech_meta_type       :string(255)
-#  filename             :string(255)
-#  filesize             :integer
-#  title                :string(255)
-#  date_archived        :datetime
-#  description          :text(65535)
-#  pid                  :string(255)
-#  created_at           :datetime
-#  updated_at           :datetime
-#  transcription_text   :text(65535)
-#  desc_metadata        :text(65535)
-#  discoverability      :boolean          default(FALSE)
-#  md5                  :string(255)
-#  indexing_scenario_id :integer
-#  use_right_id         :integer
-#  date_dl_ingest       :datetime
-#  date_dl_update       :datetime
-#  dpla                 :boolean          default(FALSE)
-#  creator_death_date   :string(255)
-#  creation_date        :string(255)
-#  primary_author       :string(255)
-#  item_id              :integer
+#  id                 :integer          not null, primary key
+#  unit_id            :integer          default(0), not null
+#  component_id       :integer
+#  tech_meta_type     :string(255)
+#  filename           :string(255)
+#  filesize           :integer
+#  title              :string(255)
+#  date_archived      :datetime
+#  description        :text(65535)
+#  pid                :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  transcription_text :text(65535)
+#  md5                :string(255)
+#  date_dl_ingest     :datetime
+#  date_dl_update     :datetime
+#  creator_death_date :string(255)
+#  creation_date      :string(255)
+#  primary_author     :string(255)
+#  item_id            :integer
+#  metadata_id        :integer
 #

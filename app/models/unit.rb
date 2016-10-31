@@ -171,29 +171,6 @@ class Unit < ActiveRecord::Base
    def send_unit_to_archive
       SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
    end
-
-   # Make all attributes that will be going away in the next relase PRIVATE to
-   # ensure all of their usage has been removed before DB tables are updated
-   #
-   private
-   def indexing_scenario
-      self[:indexing_scenario]
-   end
-   def indexing_scenario=(val)
-      write_attribute :indexing_scenario, val
-   end
-   def indexing_scenario_id
-      self[:indexing_scenario_id]
-   end
-   def indexing_scenario_id=(val)
-      write_attribute :indexing_scenario_id, val
-   end
-   def master_file_discoverability
-      self[:master_file_discoverability]
-   end
-   def master_file_discoverability=(val)
-      write_attribute :master_file_discoverability, val
-   end
 end
 
 # == Schema Information
@@ -220,8 +197,7 @@ end
 #  include_in_dl                  :boolean          default(FALSE)
 #  date_dl_deliverables_ready     :datetime
 #  remove_watermark               :boolean          default(FALSE)
-#  master_file_discoverability    :boolean          default(FALSE)
-#  indexing_scenario_id           :integer
 #  checked_out                    :boolean          default(FALSE)
 #  master_files_count             :integer          default(0)
+#  complete_scan                  :boolean          default(FALSE)
 #
