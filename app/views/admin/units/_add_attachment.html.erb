@@ -1,0 +1,20 @@
+<div id="dimmer">
+<div id="attachment-modal" class="modal">
+   <h1>Add Attachment</h1>
+   <form id="upload-attachment" method="post" action="/admin/units/<%= unit.id %>/attachment" enctype="multipart/form-data">
+      <div class="content">
+         <div>
+            <input type="file" name="attachment" />
+         </div>
+         <div>
+            <label>Brief Description:</label>
+            <textarea name="description" form="upload-attachment" rows="5"></textarea>
+         </div>
+         <div class="buttons">
+            <input type="button" id="cancel-attach" value="Cancel"/>
+            <input type="submit" value="Attach"/>
+         </div>
+      </div>
+   </form>
+</div>
+</div>

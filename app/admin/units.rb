@@ -94,6 +94,8 @@ ActiveAdmin.register Unit do
   filter :agency, :as => :select
   filter :master_files_count, :as => :numeric
 
+  # Indev view ================================================================
+  #
   index do
     selectable_column
     column :id
@@ -145,6 +147,8 @@ ActiveAdmin.register Unit do
     end
   end
 
+  # Show view =================================================================
+  #
   show :title => proc{|unit| "Unit ##{unit.id}"} do
     div :class => 'two-column' do
       panel "General Information" do
@@ -207,79 +211,111 @@ ActiveAdmin.register Unit do
       end
     end
 
+    # Attachments info ========================================================
+    #
     div :class => "columns-none" do
-      if !unit.master_files.empty?
-        page_size = params[:page_size]
-        page_size = 15 if page_size.nil?
-        panel "Master Files", :toggle => 'show' do
-          div do
-             all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
-             token =  Time.now.to_i
-             url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
-             pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
-             if page_size.to_i < unit.master_files.count
-                raw("#{all_btn}#{pdf_btn}")
-             else
-                raw("#{pdf_btn}")
-             end
-          end
-          paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
-             table_for collection do |mf|
-               column ('') do |mf|
-                  raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+      panel "Attachments", :toggle => 'show' do
+         div :class=>'panel-buttons' do
+            add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
+            raw("#{add_btn}")
+         end
+         if !unit.attachments.empty?
+            table_for unit.attachments do |att|
+               column :filename
+               column :description
+               column("") do |a|
+                  div do
+                    link_to "Download", "#", :class => "member_link view_link"
+                  end
+                  div do
+                    link_to "Delete", "#", :class => "member_link view_link"
+                  end
                end
-               column :filename, :sortable => false
-               column :title do |mf|
-                 truncate_words(mf.title)
+            end
+         else
+            div "No attachments are associated with this unit"
+         end
+      end
+    end
+    render :partial=>"add_attachment", :locals=>{ unit: unit}
+
+    # Master Files info =======================================================
+    #
+    div :class => "columns-none" do
+      panel "Master Files", :toggle => 'show' do
+         if unit.master_files.empty?
+            div "No master files are ssociated with this unit"
+         else
+            page_size = params[:page_size]
+            page_size = 15 if page_size.nil?
+
+            div do
+               all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
+               token =  Time.now.to_i
+               url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
+               pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
+               if page_size.to_i < unit.master_files.count
+                  raw("#{all_btn}#{pdf_btn}")
+               else
+                  raw("#{pdf_btn}")
                end
-               column :description do |mf|
-                 truncate_words(mf.description)
-               end
-               column :date_archived do |mf|
-                 format_date(mf.date_archived)
-               end
-               column :date_dl_ingest do |mf|
-                 format_date(mf.date_dl_ingest)
-               end
-               column :pid, :sortable => false
-               column("Thumbnail") do |mf|
-                 link_to image_tag(mf.link_to_image(:small)),
-                    "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-               end
-               column("") do |mf|
-                 div do
-                   link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
-                 end
-                 div do
-                    link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
-                 end
-                 if !current_user.viewer?
+            end
+            paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
+               table_for collection do |mf|
+                  column ('') do |mf|
+                     raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+                  end
+                  column :filename, :sortable => false
+                  column :title do |mf|
+                    truncate_words(mf.title)
+                  end
+                  column :description do |mf|
+                    truncate_words(mf.description)
+                  end
+                  column :date_archived do |mf|
+                    format_date(mf.date_archived)
+                  end
+                  column :date_dl_ingest do |mf|
+                    format_date(mf.date_dl_ingest)
+                  end
+                  column :pid, :sortable => false
+                  column("Thumbnail") do |mf|
+                    link_to image_tag(mf.link_to_image(:small)),
+                       "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+                  end
+                  column("") do |mf|
                     div do
-                      link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                      link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
                     end
-                    if ocr_enabled?
+                    div do
+                       link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+                    end
+                    if !current_user.viewer?
                        div do
-                          link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                         link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
+                       end
+                       if ocr_enabled?
+                          div do
+                             link_to "OCR", "/admin/ocr?mf=#{mf.id}"
+                          end
                        end
                     end
-                 end
-                 if mf.date_archived
-                   div do
-                     link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
-                   end
-                 end
+                    if mf.date_archived
+                      div do
+                        link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
+                      end
+                    end
+                  end
                end
-             end
-          end
-          div :style=>'clear:both' do end
-        end
-      else
-        panel "No Master Files Directly Associated with this Component"
+            end
+            div :style=>'clear:both' do end
+         end
       end
     end
   end
 
-  # EDIT page ================================================================
+  # EDIT page =================================================================
+  #
   form :partial => "edit"
 
   sidebar "Related Information", :only => [:show] do
@@ -377,6 +413,19 @@ ActiveAdmin.register Unit do
 
   action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
+  end
+
+  member_action :attachment, :method => :post do
+     unit = Unit.find(params[:id])
+     filename = params[:attachment].original_filename
+     upload_file = params[:attachment].tempfile.path
+     begin
+        AttachFile.exec_now({unit: unit, filename: filename, tmpfile: upload_file, description: params[:description]})
+        render nothing: true
+     rescue Exception => e
+        Rails.logger.error e.to_s
+        render text: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
+     end
   end
 
   member_action :print_routing_slip, :method => :put do

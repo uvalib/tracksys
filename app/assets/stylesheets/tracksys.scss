@@ -1,7 +1,60 @@
 body.active_admin {
 
+#dimmer {
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   z-index: 1000;
+   background: rgba(0,0,0,0.3);
+   display: none;
+
+   .modal {
+      background: #f4f4f4;
+      padding: 0;
+      border-radius: 5px;
+      border: 1px solid #666;
+      box-shadow: 1px 1px 10px #777;
+      margin: 10% auto;
+      width: 350px;
+      .content {
+         padding: 10px;
+      }
+      h1 {
+         font-size: 1.2em;
+         font-weight: normal;
+         padding: 5px 10px;
+         background: #888;
+         color: #fefefe;
+         border-radius: 5px 5px 0 0;
+         border-bottom: 1px solid #555;
+         text-shadow: 1px 1px #333;
+      }
+      div.buttons {
+         text-align: right;
+         margin: 5px 0 0 0;
+         input {
+            font-size: 0.8em;
+            padding: 4px 16px;
+            margin: 0px;
+         }
+      }
+      label {
+         margin: 15px 0 2px 0;
+         display: block;
+      }
+      textarea {
+         box-sizing: border-box;
+         width: 100%;
+         border-color: #888;
+         border-radius: 4px;
+      }
+   }
+}
+
 .mf-action-button {
-   font-size: 0.85em;
+    font-size: 0.85em;
     background: #888;
     border: 1px solid #666;
     border-radius: 10px;
@@ -12,6 +65,7 @@ body.active_admin {
     font-weight: bold;
     text-decoration: none;
     margin-right: 5px;
+    display: inline-block;
     &:hover {
       background: #aaa;
    }
@@ -21,6 +75,11 @@ body.active_admin {
    pointer-events: none;
    cursor: default;
    opacity: 0.5;
+}
+
+#add-attachment {
+   margin-bottom: 5px;
+   margin-top: 5px;
 }
 
 div.workflow_button {
