@@ -18,6 +18,7 @@ class Unit < ActiveRecord::Base
    has_many :master_files
    has_many :components, :through => :master_files#, :uniq => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
+   has_many :attachments, :dependent=>:destroy
 
    has_one :agency, :through => :order
    has_one :customer, :through => :order

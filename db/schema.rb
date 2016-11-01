@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161031153228) do
+ActiveRecord::Schema.define(version: 20161101140351) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -67,6 +67,17 @@ ActiveRecord::Schema.define(version: 20161031153228) do
 
   add_index "agencies", ["ancestry"], name: "index_agencies_on_ancestry", using: :btree
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
+
+  create_table "attachments", force: :cascade do |t|
+    t.integer  "unit_id",     limit: 4
+    t.string   "filename",    limit: 255
+    t.string   "md5",         limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "attachments", ["unit_id"], name: "index_attachments_on_unit_id", using: :btree
 
   create_table "availability_policies", force: :cascade do |t|
     t.string   "name",           limit: 255
@@ -429,6 +440,7 @@ ActiveRecord::Schema.define(version: 20161031153228) do
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
 
+  add_foreign_key "attachments", "units"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
   add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
