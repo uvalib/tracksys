@@ -37,6 +37,8 @@ namespace :migrate do
          creator_node = xml.xpath("//name/namePart").first
          creator = creator_node.text.strip if !creator_node.nil?
 
+         title = "Master File #{mf.id}" if title.blank?
+
          metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
             discoverability: mf.discoverability, indexing_scenario_id: mf.indexing_scenario_id,
             desc_metadata: mf.desc_metadata, use_right_id: mf.use_right_id,

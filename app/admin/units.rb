@@ -228,7 +228,9 @@ ActiveAdmin.register Unit do
                     link_to "Download", "#", :class => "member_link view_link"
                   end
                   div do
-                    link_to "Delete", "#", :class => "member_link view_link"
+                    msg = "Are you sure you want to delete atachment '#{a.filename}'?"
+                    link_to "Delete", "/admin/units/#{unit.id}/remove?attachment=#{a.id}",
+                        :class => "member_link view_link", :method => :delete, data: { confirm: msg }
                   end
                end
             end
@@ -413,6 +415,19 @@ ActiveAdmin.register Unit do
 
   action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
+  end
+
+  member_action :remove, :method => :delete do
+     unit = Unit.find(params[:id])
+     att = Attachment.find(params[:attachment])
+     unit_dir = "%09d" % unit.id
+     dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+     dest_file = File.join(dest_dir, att.filename)
+     if File.exist? dest_file
+        FileUtils.rm(dest_file)
+     end
+     att.destroy
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
   end
 
   member_action :attachment, :method => :post do
