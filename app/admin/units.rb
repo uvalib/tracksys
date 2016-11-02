@@ -225,7 +225,7 @@ ActiveAdmin.register Unit do
                column :description
                column("") do |a|
                   div do
-                    link_to "Download", "#", :class => "member_link view_link"
+                    link_to "Download", "/admin/units/#{unit.id}/download?attachment=#{a.id}", :class => "member_link view_link"
                   end
                   div do
                     msg = "Are you sure you want to delete atachment '#{a.filename}'?"
@@ -415,6 +415,19 @@ ActiveAdmin.register Unit do
 
   action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
+  end
+
+  member_action :download, :method => :get do
+     unit = Unit.find(params[:id])
+     att = Attachment.find(params[:attachment])
+     unit_dir = "%09d" % unit.id
+     dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+     dest_file = File.join(dest_dir, att.filename)
+     if File.exist? dest_file
+        send_file dest_file
+     else
+        redirect_to "/admin/units/#{params[:id]}", :notice => "Unable to find source file for attachment!"
+     end
   end
 
   member_action :remove, :method => :delete do
