@@ -434,7 +434,7 @@ ActiveAdmin.register Unit do
   end
 
   member_action :start_ingest_from_archive, :method => :put do
-    unit = Unit.find(params[:id]).start_ingest_from_archive(true)
+    unit = Unit.find(params[:id])
     test_publish = (params(:test) == true)
     StartIngestFromArchive.exec( {:unit => unit, :test_publish=>test_publish })
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
