@@ -101,12 +101,14 @@ tr.odd, tr.even {
          background-color: palegoldenrod;
       }
    }
+   &.running {
+      td.col {
+         background-color: #cef;
+      }
+   }
 }
 tr.even {
-   &.failed {
-      opacity: 0.7;
-   }
-   &.warn {
+   &.failed, &.warn, &.running {
       opacity: 0.7;
    }
 }

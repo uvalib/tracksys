@@ -5,6 +5,7 @@ class JobStatus < ActiveRecord::Base
       message: "%{value} is not a valid size" }
 
    def status_class
+      return "running" if self.status == "running" ||  self.status == "pending"
       return "failed" if self.status == "failure"
       return "warn" if self.failures > 0
    end

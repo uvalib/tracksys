@@ -1,12 +1,12 @@
 ActiveAdmin.register MasterFile do
-   config.sort_order = 'filename_asc'
+   menu :priority => 6
+   config.per_page = 20
+   config.sort_order = "id_desc"
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-   :creator_death_date, :date_archived,
-   :md5, :filesize, :unit_id, :transcription_text, :pid, :metadata_id
-
-   menu :priority => 6
+      :creator_death_date, :date_archived, :md5, :filesize, :unit_id,
+      :transcription_text, :pid, :metadata_id
 
    scope :all, :show_count => true, :default => true
    scope :in_digital_library, :show_count => true
@@ -14,8 +14,6 @@ ActiveAdmin.register MasterFile do
 
    # Setup Action Items =======================================================
    config.clear_action_items!
-   config.sort_order = "id_desc"
-
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer?
    end
