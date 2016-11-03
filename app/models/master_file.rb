@@ -138,7 +138,6 @@ end
 #  id                 :integer          not null, primary key
 #  unit_id            :integer          default(0), not null
 #  component_id       :integer
-#  tech_meta_type     :string(255)
 #  filename           :string(255)
 #  filesize           :integer
 #  title              :string(255)

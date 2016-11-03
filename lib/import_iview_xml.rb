@@ -219,7 +219,7 @@ module ImportIviewXml
    # +MediaItem+ element.
    #
    def self.new_master_file(item, unit)
-      master_file = MasterFile.new(:unit_id => unit.id, :metadata_id=>unit.metadata_id, :tech_meta_type => 'image')
+      master_file = MasterFile.new(:unit_id => unit.id, :metadata_id=>unit.metadata_id)
 
       # filename
       master_file.filename = get_element_value(item.xpath('AssetProperties/Filename').first)

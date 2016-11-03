@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161101140351) do
+ActiveRecord::Schema.define(version: 20161103152037) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -263,7 +263,6 @@ ActiveRecord::Schema.define(version: 20161101140351) do
   create_table "master_files", force: :cascade do |t|
     t.integer  "unit_id",            limit: 4,     default: 0, null: false
     t.integer  "component_id",       limit: 4
-    t.string   "tech_meta_type",     limit: 255
     t.string   "filename",           limit: 255
     t.integer  "filesize",           limit: 4
     t.string   "title",              limit: 255
@@ -290,7 +289,6 @@ ActiveRecord::Schema.define(version: 20161101140351) do
   add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree
   add_index "master_files", ["metadata_id"], name: "index_master_files_on_metadata_id", using: :btree
   add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
-  add_index "master_files", ["tech_meta_type"], name: "index_master_files_on_tech_meta_type", using: :btree
   add_index "master_files", ["title"], name: "index_master_files_on_title", using: :btree
   add_index "master_files", ["unit_id"], name: "index_master_files_on_unit_id", using: :btree
 
