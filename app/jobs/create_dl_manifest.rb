@@ -178,7 +178,12 @@ class CreateDlManifest < BaseJob
            if md.type == "SirsiMetadata"
              smd = md.becomes(SirsiMetadata)
              call_number = smd.call_number
-             year = smd.get_full_metadata[:year]
+             year = "ERROR"
+             begin
+                year = smd.get_full_metadata[:year]
+             rescue Exception => e
+                Rails.logger.error("Unable to get metadata for #{smd.to_json}; invalid catalog key and/or barcode")
+             end
            end
            style = row_number.odd? ? @wrap_text_even : @wrap_text_odd
            row = sheet.add_row [
