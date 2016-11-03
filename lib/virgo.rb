@@ -193,7 +193,7 @@ module Virgo
       # pull values from <doc> element and plug those values into a metadata hash
       return get_metadata_json(doc, barcode)
     rescue
-      raise "Query to #{Settings.solr_url} failed to return a valid result."
+      raise "Query to #{Settings.solr_url} with key #{catalog_key} and barcode #{barcode} failed to return a valid result."
     end
   end
 
