@@ -31,7 +31,7 @@ class JobStatus < ActiveRecord::Base
    # expired and removed from DB
    #
    def self.expire_completed_jobs
-      expired = JobStatus.where('status=? and failures=? and ended_at < ?', 'success', 0, Date.today-2.weeks)
+      expired = JobStatus.where('status=? and ended_at < ?', 'success', Date.today-2.weeks)
       if expired.count > 0
          puts "EXPIRE #{expired.count} statuses"
          expired.destroy_all
