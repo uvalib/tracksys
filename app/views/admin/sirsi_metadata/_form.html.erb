@@ -26,7 +26,7 @@
       <%= f.input :discoverability, :as => :select %>
       <%= f.input :use_right, label: "Right Statement" %>
       <%= f.input :indexing_scenario %>
-      <%= f.input :collection_facet, :as => :select, :collection => CollectionFacet.all.order(name: :asc),
+      <%= f.input :collection_facet, :as => :select, :collection => CollectionFacet.all.order(name: :asc).map(&:name),
                   :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
       <%= f.input :dpla, :as => :radio %>
       <% if @sirsi_metadata.dpla %>
