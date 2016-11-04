@@ -21,6 +21,8 @@ module Hydra
       payload["rightsWrapperServiceUrl"] = "#{Settings.rights_wrapper_url}?pid=#{metadata.pid}&pagePid="
       payload["useRightsString"] = "#{metadata.use_right.name}"
       payload["permanentUrl"] = "#{Settings.virgo_url}/#{metadata.pid}"
+      payload["transcriptionUrl"] = "#{Settings.tracksys_url}/api/fulltext/#{metadata.pid}?type=transcription"
+      payload["descriptionUrl"] = "#{Settings.tracksys_url}/api/fulltext/#{metadata.pid}?type=description"
 
       payload["shadowedItem"] = "HIDDEN"
       if metadata.discoverability
@@ -49,24 +51,14 @@ module Hydra
       end
 
       # Create string variables that hold the total data of a metadata records' transcriptions, descriptions and titles
-      total_transcription = ""
-      total_description = ""
-      total_title = ""
+      payload["totalTitles"] = ""
       mf_cnt = 0
       metadata.dl_master_files.each do |mf|
-         total_transcription << mf.transcription_text + " " unless mf.transcription_text.nil?
-         total_description << mf.description + " " unless mf.description.nil?
-         total_title << mf.title + " " unless mf.title.nil?
+         payload["totalTitles"] << mf.title + " " unless mf.title.nil?
          mf_cnt += 1
       end
       payload["pageCount"] = mf_cnt.to_s
-      total_transcription = total_transcription.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_transcription.blank?
-      total_description = total_description.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_description.blank?
-      total_title = total_title.gsub(/\r/, ' ').gsub(/\n/, ' ').gsub(/\t/, ' ').gsub(/(  )+/, ' ') unless total_title.blank?
-
-      payload["totalTitles"] = "#{total_title}"
-      payload["totalDescriptions"] = "#{total_description}"
-      payload["totalTranscriptions"] = "#{total_transcription}"
+      payload["totalTitles"] = payload["totalTitles"].gsub(/\s+/, ' ').strip
 
       if metadata.type == "SirsiMetadata"
          sirsi_metadata = metadata.becomes(SirsiMetadata)
@@ -82,7 +74,7 @@ module Hydra
       tmp.close
 
       xsl = File.join(Rails.root, "lib", "xslt", "defaultModsTransformation.xsl")
-      if metadata.indexing_scenario.id == 2
+      if !metadata.indexing_scenario.blank? && metadata.indexing_scenario.id == 2
          xsl = File.join(Rails.root, "lib", "xslt", "holsingerTransformation.xsl")
       end
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
