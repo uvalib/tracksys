@@ -1,5 +1,24 @@
 body.active_admin {
-
+#copy-existing {
+    margin-bottom: 15px;
+}
+#clone-panel {
+   label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+   }
+   div.chosen-container.chosen-container-single {
+      width: 200px !important;
+   }
+   .button-panel {
+      text-align: right;
+      margin-top: 15px;
+   }
+   #selector-panel {
+      margin-bottom: 15px;
+   }
+}
 #dimmer {
    position: fixed;
    left: 0;

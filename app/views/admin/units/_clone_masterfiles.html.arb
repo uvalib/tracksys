@@ -1,0 +1,21 @@
+div style: 'display:none', id: 'clone-panel' do
+   div class: "columns-none", id: "selector-panel" do
+      render partial: "unit_selector"
+   end
+
+   div class: 'two-column' do
+      panel "Unit Master Files" do
+         render partial: "source_masterfiles"
+      end
+   end
+
+   div class: 'two-column' do
+      panel "Clone Master Files" do
+      end
+   end
+
+   div class: "button-panel columns-none" do
+      raw("<span id='cancel-clone' class='mf-action-button'>Cancel</span><span id='clone' class='mf-action-button'>Clone Selected Master Files</span>")
+   end
+   div style: "clear: both" do end
+end

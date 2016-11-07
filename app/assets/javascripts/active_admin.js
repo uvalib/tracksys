@@ -5,6 +5,7 @@
 //= require jquery.panzoom
 //= require jquery.form.min
 //= require ocr
+//= require clone-masterfiles
 //= require codemirror
 //= require_tree ./mode/
 //= require_tree ./addon/

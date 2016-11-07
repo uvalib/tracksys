@@ -101,6 +101,14 @@ class Unit < ActiveRecord::Base
       return self.date_dl_deliverables_ready?
    end
 
+   def has_xml_masterfiles?
+      self.master_files.each do |mf|
+         next if mf.metadata == self.metadata
+         return true if mf.metadata.type == "XmlMetadata"
+      end
+      return false
+   end
+
    def ready_for_repo?
       return false if self.include_in_dl == false
       return false if self.metadata.nil?

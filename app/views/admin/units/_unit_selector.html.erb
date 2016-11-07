@@ -1,0 +1,7 @@
+<label>Source Unit:</label>
+<select id="source-unit" class="chosen-select" data-placeholder="Select a unit" >
+   <option value></option>
+   <% @dc_units.each do |id| %>
+      <option value="<%= id %>"><%= id %></option>
+   <% end %>
+</select>
