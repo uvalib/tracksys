@@ -1,2 +1,19 @@
-<table id="source-masterfile-list" data-page="1" >
-</table>
+<div class="table-scroller">
+   <table id="source-masterfile-list" data-page="1" >
+      <thead>
+         <tr><th></th><th>Filename</th><th>Title</th><th>Thumbnail</th></tr>
+      </thead>
+      <tbody>
+      </tbody>
+   </table>
+</div>
+<div class="paging-controls" style="display: none">
+   <div class="mf-count">
+      Displaying Master Files <b><span id="start-cnt"></span>&nbsp;-&nbsp;<span id="end-cnt"></span></b> of <b><span id="total-cnt"></span></b>
+   </div>
+   <nav class="page-buttons">
+      <span class="paging prev">< Prev</span>
+      <span class="page-count">Page <input id="curr-page"/> of <span id="max-page"></span></span>
+      <span class="paging next">Next ></span>
+   </nav>
+</div>

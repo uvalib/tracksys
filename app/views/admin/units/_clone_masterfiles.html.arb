@@ -4,14 +4,13 @@ div style: 'display:none', id: 'clone-panel' do
    end
 
    div class: 'two-column' do
-      panel "Unit Master Files" do
-         render partial: "source_masterfiles"
-      end
+      label "Unit Master Files"
+      render partial: "source_masterfiles"
    end
 
    div class: 'two-column' do
-      panel "Clone Master Files" do
-      end
+      label "Clone Master Files"
+      
    end
 
    div class: "button-panel columns-none" do

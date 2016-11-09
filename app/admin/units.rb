@@ -79,15 +79,19 @@ ActiveAdmin.register Unit do
   end
 
   member_action :master_files, method: :get do
-     page_size = 15
+     page_size = 10
      page_idx = 0
      page_idx = params[:page].to_i()-1 if !params[:page].blank?
      cnt = MasterFile.where(unit_id: params[:id]).count
      items = []
-     MasterFile.where(unit_id: params[:id]).limit(page_size).offset(page_idx*page_size).each do |mf|
+     start_idx = page_idx*page_size
+     end_idx = start_idx+page_size
+     end_idx = cnt if end_idx > cnt
+     maxpage = (cnt/page_size.to_f).ceil
+     MasterFile.where(unit_id: params[:id]).limit(page_size).offset( start_idx ).each do |mf|
         items << { id: mf.id, filename: mf.filename, title: mf.title, thumb: mf.link_to_image(:small) }
      end
-     out = {total: cnt, page: params[:page], masterfiles: items}
+     out = {total: cnt, page: params[:page], maxpage: maxpage, start: start_idx+1, end: end_idx, masterfiles: items}
      render json: out, status: :ok
   end
 
