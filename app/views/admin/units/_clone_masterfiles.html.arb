@@ -10,7 +10,7 @@ div style: 'display:none', id: 'clone-panel' do
 
    div class: 'two-column' do
       label "Clone Master Files"
-      
+      render partial: "clone_list"
    end
 
    div class: "button-panel columns-none" do

@@ -18,7 +18,7 @@ $(function() {
       $.getJSON("/admin/units/"+selectedUnit+"/master_files?page="+page, function ( data, textStatus, jqXHR ) {
          if (textStatus == "success" ) {
             json = jqXHR.responseJSON;
-            $("div.paging-controls").show();
+            $("div.clone-controls.paging").show();
             $("#start-cnt").text(json.start);
             $("#end-cnt").text(json.end);
             $("#total-cnt").text(json.total);
@@ -36,11 +36,12 @@ $(function() {
                $(".paging.next").addClass("disabled");
             }
             $("#source-masterfile-list tbody").empty();
-            var template = "<tr class='mf-row'><td><input class='sel-cb' type='checkbox' data-id='MF_ID'/></td>";
+            var template = "<tr class='mf-row' data-id='MF_ID'><td><input class='sel-cb' type='checkbox' data-json='MF_JSON'/></td>";
             template +=    "<td>MF_FILE</td><td>MF_TITLE</td><td><img src='MF_IMAGE'/></td></tr>";
             $.each(json.masterfiles, function(idx,val) {
                var r = template;
                r = r.replace("MF_ID", val.id);
+               r = r.replace("MF_JSON", JSON.stringify(val));
                r = r.replace("MF_FILE", val.filename);
                r = r.replace("MF_TITLE", val.title);
                r = r.replace("MF_IMAGE", val.thumb);
@@ -83,12 +84,52 @@ $(function() {
       getMasterFiles(pg);
    });
 
-   $("#source-masterfile-list").on("click", ".mf-row", function() {
+   $("#source-masterfile-list, #clone-masterfile-list").on("click", ".mf-row", function(event) {
+      if (  $(this).hasClass("cloned") ) return;
+      if ( $(event.target).hasClass("sel-cb") ) return;
+      
       var cb = $(this).find(".sel-cb");
       if ( cb.is(':checked')) {
          cb.prop('checked', false);
       } else {
          cb.prop('checked', true);
       }
+   });
+
+   var copyMasterFileToCloneList = function( mfObj ) {
+      var selectedUnit = $("#source-unit").val();
+      var r = "<tr class='mf-row'><td><input data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
+      r +=    "<td>UNIT_ID</td><td>MF_FILE</td><td>MF_TITLE</td></tr>";
+      r = r.replace("MF_ID", mfObj.id);
+      r = r.replace("MF_FILE", mfObj.filename);
+      r = r.replace("MF_TITLE", mfObj.title);
+      r = r.replace("UNIT_ID", selectedUnit);
+      $('#clone-masterfile-list tbody').append(r);
+   };
+
+   $(".clone-btn.add").on("click", function() {
+      $("#source-masterfile-list .sel-cb:checked").each( function()  {
+         var tr = $(this).closest("tr");
+         if ( tr.hasClass("cloned") == false) {
+            tr.addClass("cloned");
+            copyMasterFileToCloneList( $(this).data("json") );
+         }
+      });
+   });
+
+   $(".clone-btn.remove").on("click", function() {
+      $("#clone-masterfile-list .sel-cb:checked").each( function()  {
+         var mfId = $(this).data("id");
+         $(this).closest(".mf-row").remove();
+         var row = $("#source-masterfile-list .mf-row[data-id='"+mfId+"']");
+         row.removeClass("cloned");
+         row.find(".sel-cb").prop('checked', false)
+      });
+   });
+
+   $(".clone-btn.remove-all").on("click", function() {
+      $("#clone-masterfile-list tbody").empty();
+      $("#source-masterfile-list .cloned").removeClass("cloned");
+      $("#source-masterfile-list .sel-cb").prop('checked', false);
    });
 });
