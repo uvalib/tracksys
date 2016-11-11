@@ -48,8 +48,12 @@ div.table-scroller {
          padding: 5px;
          position: relative;
       }
+      span.title {
+         float: left;
+      }
       .sort {
          text-align: right;
+         min-width: 48px;
          .down {
             background-image: image_url("down.png");
          }
@@ -81,9 +85,7 @@ div.table-scroller {
       background-image: image_url("edit.png");
       width: 16px;
       height: 16px;
-      position: absolute;
-      right: 3px;
-      top: 4px;
+      float: right;
       border: 1px solid #fefefe;
       padding: 2px;
       background-repeat: no-repeat;
@@ -173,6 +175,7 @@ div.table-scroller {
    display: none;
 
    .modal {
+      display: none;
       background: #f4f4f4;
       padding: 0;
       border-radius: 5px;
@@ -200,6 +203,13 @@ div.table-scroller {
             font-size: 0.8em;
             padding: 4px 16px;
             margin: 0px;
+         }
+      }
+      .title-wrapper {
+         margin: 10px;
+         textarea {
+            height:80px;
+            resize: none;
          }
       }
       label {

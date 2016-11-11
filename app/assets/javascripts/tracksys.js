@@ -11,6 +11,7 @@ $(function() {
    $("#add-attachment").on("click", function() {
       $('#upload-attachment').clearForm();
       $("#dimmer").show();
+      $("#attachment-modal").show();
    });
    $("#cancel-attach").on("click", function() {
       $("#dimmer").hide();

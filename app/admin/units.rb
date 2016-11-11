@@ -255,7 +255,7 @@ ActiveAdmin.register Unit do
          end
       end
     end
-    render :partial=>"add_attachment", :locals=>{ unit: unit}
+    render :partial=>"modals", :locals=>{ unit: unit}
 
     # Master Files info =======================================================
     #

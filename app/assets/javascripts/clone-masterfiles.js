@@ -132,8 +132,22 @@ $(function() {
    $("#clone-masterfile-list").on("click", ".rename-btn", function(event) {
       event.stopPropagation();
       var title = $(this).closest("td").find('.title');
-      var t = prompt("Enter a new title for this master file", title.text());
-      title.text(t);
+      $("#new-title").val(title.text());
+      $("#dimmer").show();
+      $("#attachment-modal").hide();
+      $("#title-modal").show();
+      $("#title-modal").data("target", title);
+   });
+   $("#cancel-title").on("click", function() {
+      $("#dimmer").hide();
+      $("#title-modal").hide();
+   });
+   $("#ok-title").on("click", function() {
+      $("#dimmer").hide();
+      $("#title-modal").hide();
+      var title = $("#title-modal").data("target");
+      var txt = $("#new-title").val();
+      title.text( txt );
    });
 
    $(".clone-btn.add").on("click", function() {
