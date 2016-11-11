@@ -113,6 +113,7 @@ $(function() {
    };
 
    $("#clone-masterfile-list").on("click", ".up", function(event) {
+      event.stopPropagation();
       var thisRow = $(this).closest('tr');
       var prevRow = thisRow.prev();
       if (prevRow.length) {
@@ -120,6 +121,7 @@ $(function() {
       }
    });
    $("#clone-masterfile-list").on("click", ".down", function(event) {
+      event.stopPropagation();
       var thisRow = $(this).closest('tr');
       var nextRow = thisRow.next();
       if (nextRow.length) {
