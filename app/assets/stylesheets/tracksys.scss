@@ -38,7 +38,7 @@ div.table-scroller {
       font-size: 0.9em;
       background: #dedede;
       th {
-         padding: 2px 8px;
+         padding: 2px 5px;
          text-shadow: none;
       }
    }
@@ -46,6 +46,55 @@ div.table-scroller {
       td {
          border-bottom: 1px solid #ddd;
          padding: 5px;
+         position: relative;
+      }
+      .sort {
+         text-align: right;
+         .down {
+            background-image: image_url("down.png");
+         }
+         .up {
+            background-image: image_url("up.png");
+         }
+         .down, .up {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 5px 0 0;
+            position: relative;
+            top: 2px;
+            border: 1px solid #fefefe;
+            background-repeat: no-repeat;
+            background-position: center center;
+            border-radius: 10px;
+            opacity: 0.5;
+            &:hover {
+               opacity: 1;
+               border-color: #bcf;
+               background-color: #def;
+            }
+         }
+      }
+   }
+   .rename-btn {
+      background-image: image_url("edit.png");
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      right: 3px;
+      top: 4px;
+      border: 1px solid #fefefe;
+      padding: 2px;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-radius: 10px;
+      cursor: pointer;
+      opacity: 0.5;
+      &:hover {
+         opacity: 1;
+         border-color: #bcf;
+         background-color: #def;
       }
    }
    img {

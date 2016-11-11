@@ -36,10 +36,15 @@ $(function() {
                $(".paging.next").addClass("disabled");
             }
             $("#source-masterfile-list tbody").empty();
-            var template = "<tr class='mf-row' data-id='MF_ID'><td><input class='sel-cb' type='checkbox' data-json='MF_JSON'/></td>";
+            var template = "<tr class='CLASS' data-id='MF_ID'><td><input class='sel-cb' type='checkbox' data-json='MF_JSON'/></td>";
             template +=    "<td>MF_FILE</td><td>MF_TITLE</td><td><img src='MF_IMAGE'/></td></tr>";
             $.each(json.masterfiles, function(idx,val) {
+               var rowClass = "mf-row";
+               if ( $("#clone-masterfile-list .sel-cb[data-id='"+val.id+"']").length > 0 ) {
+                  rowClass += " cloned";
+               }
                var r = template;
+               r = r.replace("CLASS",rowClass);
                r = r.replace("MF_ID", val.id);
                r = r.replace("MF_JSON", JSON.stringify(val));
                r = r.replace("MF_FILE", val.filename);
@@ -87,7 +92,7 @@ $(function() {
    $("#source-masterfile-list, #clone-masterfile-list").on("click", ".mf-row", function(event) {
       if (  $(this).hasClass("cloned") ) return;
       if ( $(event.target).hasClass("sel-cb") ) return;
-      
+
       var cb = $(this).find(".sel-cb");
       if ( cb.is(':checked')) {
          cb.prop('checked', false);
@@ -99,13 +104,35 @@ $(function() {
    var copyMasterFileToCloneList = function( mfObj ) {
       var selectedUnit = $("#source-unit").val();
       var r = "<tr class='mf-row'><td><input data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
-      r +=    "<td>UNIT_ID</td><td>MF_FILE</td><td>MF_TITLE</td></tr>";
+      r +=    "<td>MF_FILE</td><td><span class='title'>MF_TITLE</span><span class='rename-btn'></span></td>"
+      r +=    "<td class='sort'><span class='down'></span><span class='up'></span></td></tr>";
       r = r.replace("MF_ID", mfObj.id);
       r = r.replace("MF_FILE", mfObj.filename);
       r = r.replace("MF_TITLE", mfObj.title);
-      r = r.replace("UNIT_ID", selectedUnit);
       $('#clone-masterfile-list tbody').append(r);
    };
+
+   $("#clone-masterfile-list").on("click", ".up", function(event) {
+      var thisRow = $(this).closest('tr');
+      var prevRow = thisRow.prev();
+      if (prevRow.length) {
+         prevRow.before(thisRow);
+      }
+   });
+   $("#clone-masterfile-list").on("click", ".down", function(event) {
+      var thisRow = $(this).closest('tr');
+      var nextRow = thisRow.next();
+      if (nextRow.length) {
+         nextRow.after(thisRow);
+      }
+   });
+
+   $("#clone-masterfile-list").on("click", ".rename-btn", function(event) {
+      event.stopPropagation();
+      var title = $(this).closest("td").find('.title');
+      var t = prompt("Enter a new title for this master file", title.text());
+      title.text(t);
+   });
 
    $(".clone-btn.add").on("click", function() {
       $("#source-masterfile-list .sel-cb:checked").each( function()  {
