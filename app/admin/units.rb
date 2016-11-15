@@ -78,6 +78,18 @@ ActiveAdmin.register Unit do
   batch_action :print_routing_slips do |selection|
   end
 
+  member_action :clone_master_files, method: :post do
+     unit = Unit.find(params[:id])
+     job_id = CloneMasterFiles.exec({unit: unit, list: params[:masterfiles]})
+     render :text=>job_id, status: :ok
+  end
+  member_action :clone_status, method: :get do
+     job = JobStatus.find(params[:job])
+     render :text=>"Not a clone job", status: :bad_request and return if job.name != "CloneMasterFiles"
+     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:if].to_i
+     render :text=>job.status, status: :ok
+  end
+
   member_action :master_files, method: :get do
      page_size = 10
      page_idx = 0

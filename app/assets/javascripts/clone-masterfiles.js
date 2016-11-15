@@ -175,4 +175,72 @@ $(function() {
       $("#source-masterfile-list .cloned").removeClass("cloned");
       $("#source-masterfile-list .sel-cb").prop('checked', false);
    });
+
+   var toggleCloneButtons = function( enabled ) {
+      if ( !enabled ) {
+         $("#clone").addClass("disabled");
+         $(".clone-btn").addClass("disabled");
+         $("#cancel-clone").addClass("disabled");
+         $('#source-unit').prop('disabled', true).trigger("chosen:updated");
+      } else {
+         $("#clone").removeClass("disabled");
+         $(".clone-btn").removeClass("disabled");
+         $("#cancel-clone").removeClass("disabled");
+         $('#source-unit').prop('disabled', false).trigger("chosen:updated");
+      }
+   };
+
+   var awaitCloneComplete = function(jobId) {
+      var tid = setInterval( function() {
+         $.ajax({
+            url: window.location.href+"/clone_status?job="+jobId,
+            method: "GET",
+            complete: function(jqXHR, textStatus) {
+               if (textStatus != "success") {
+                  clearInterval(tid);
+                  alert("Unable to verify clone status. Please check the job status page for more information.");
+               } else {
+                  if (jqXHR.responseText == "failure") {
+                     clearInterval(tid);
+                     alert("Clone failed. Please check the job status page for more information.")
+                  } else if (jqXHR.responseText == "success") {
+                     clearInterval(tid);
+                     window.location.reload();
+                  }
+               }
+            }
+         });
+      }, 1000);
+   };
+
+   $("#clone").on("click", function() {
+      var resp = confirm("Clone selected master files into this unit.\n\nAre you sure?");
+      if (!resp) return;
+
+      toggleCloneButtons(false);
+
+      var list = [];
+      $("#clone-masterfile-list .mf-row").each( function() {
+         var rec = {};
+         rec.id = $(this).find(".sel-cb").data("id");
+         rec.title =  $(this).find(".title").text();
+         list.push(rec);
+      });
+
+      $.ajax({
+         url: window.location.href+"/clone_master_files",
+         method: "POST",
+         dataType: 'json',
+         contentType: 'application/json',
+         data: JSON.stringify({ masterfiles: list}),
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to clone master files: "+jqXHR.responseText);
+               toggleCloneButtons(true);
+            } else {
+               awaitCloneComplete( jqXHR.responseText );
+            }
+         }
+      });
+   });
 });
