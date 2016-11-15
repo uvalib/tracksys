@@ -17,6 +17,7 @@ ActiveAdmin.register UseRight do
    menu :parent => "Miscellaneous"
 
    index do
+      column :id
       column :name
       column :uri
       column("Metadata Records") do |use_right|
