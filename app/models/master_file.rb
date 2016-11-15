@@ -8,6 +8,9 @@ class MasterFile < ActiveRecord::Base
    belongs_to :metadata
    belongs_to :item
 
+   has_many :reorders, class_name: "MasterFile", foreign_key: "original_mf_id"
+   belongs_to :original, class_name: "MasterFile", foreign_key: "original_mf_id"
+
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_one :image_tech_meta, :dependent => :destroy
@@ -65,6 +68,13 @@ class MasterFile < ActiveRecord::Base
       return self.date_dl_ingest?
    end
 
+   def is_original?
+      return self.original_mf_id.nil?
+   end
+   def is_clone?
+      return !self.original_mf_id.nil?
+   end
+
    # Within the scope of a current MasterFile's Unit, return the MasterFile object
    # that preceedes self.  Used to create links and relationships between objects.
    def previous
@@ -104,28 +114,30 @@ class MasterFile < ActiveRecord::Base
    end
 
    def link_to_image(image_size)
+      image_pid = self.pid
+      image_pid = self.original.pid if is_clone?
       iiif_url = nil
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/125,/0/default.jpg") if image_size == :small
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/240,/0/default.jpg") if image_size == :medium
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{self.pid}/full/,640/0/default.jpg") if image_size == :large
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/125,/0/default.jpg") if image_size == :small
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/240,/0/default.jpg") if image_size == :medium
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/0/default.jpg") if image_size == :large
       raise "Invalid size" if iiif_url.nil?
 
-      test_path = iiif_path(self.pid)
-      if File.exists?(test_path) == false
-         if Settings.create_missing_kp2k == "true"
-            Rails.logger.info "CREATE JP2 for #{self.pid}"
-            unit_id = self.unit.id.to_s
-            src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
-            PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
-         else
-            thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
-            unit_dir = "%09d" % self.unit_id
-            min_range = self.unit_id / 1000 * 1000    # round unit to thousands
-            max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
-            range_sub_dir = "#{min_range}-#{max_range}"
-            return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
-         end
-      end
+      # test_path = iiif_path(image_pid)
+      # if File.exists?(test_path) == false
+      #    if Settings.create_missing_kp2k == "true"
+      #       Rails.logger.info "CREATE JP2 for #{image_pid}"
+      #       unit_id = self.unit.id.to_s
+      #       src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
+      #       PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
+      #    else
+      #       thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
+      #       unit_dir = "%09d" % self.unit_id
+      #       min_range = self.unit_id / 1000 * 1000    # round unit to thousands
+      #       max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
+      #       range_sub_dir = "#{min_range}-#{max_range}"
+      #       return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
+      #    end
+      # end
 
       return iiif_url.to_s
    end

@@ -4,17 +4,20 @@ div style: 'display:none', id: 'clone-panel' do
    end
 
    div class: 'two-column' do
-      label "Unit Master Files"
+      label "Source Master Files"
       render partial: "source_masterfiles"
    end
 
    div class: 'two-column' do
-      label "Clone Master Files"
+      label "Master Files"
       render partial: "clone_list"
    end
 
    div class: "button-panel columns-none" do
-      raw("<span id='cancel-clone' class='mf-action-button'>Cancel</span><span id='clone' class='mf-action-button'>Clone Selected Master Files</span>")
+      raw("<span id='cancel-clone' class='mf-action-button'>Cancel</span><span id='clone' class='mf-action-button'>Add Master Files</span>")
    end
    div style: "clear: both" do end
+   div id: "cloning-message" do
+      span "Master File cloning in progress..."
+   end
 end

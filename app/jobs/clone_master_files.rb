@@ -15,7 +15,7 @@ class CloneMasterFiles < BaseJob
       # the RecreatePatronDeliverables job
       unit_dir = "%09d" % unit.id
       in_proc_dir = File.join(IN_PROCESS_DIR, unit_dir)
-      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      FileUtils.mkdir_p(in_proc_dir) if !Dir.exist? in_proc_dir
 
       page_num = 1
       list.each do |info|
@@ -25,17 +25,18 @@ class CloneMasterFiles < BaseJob
             next
          end
 
-         archived_mf = File.join(arvhive_dir,mf.filename)
+         archive_dir = File.join(ARCHIVE_DIR, src_mf.filename.split("_")[0])
+         archived_mf = File.join(archive_dir, src_mf.filename)
          if not File.exist? archived_mf
-            on_failure "Unable to find archived tif for master file with ID #{info[:id]}. Skipping."
+            on_failure "Unable to find archived tif #{archived_mf} for master file with ID #{info[:id]}. Skipping."
             next
          end
 
-         logger.info "Cloning master file #{mf.id}: #{mf.filename}"
+         logger.info "Cloning master file #{src_mf.id}: #{src_mf.filename}"
          padded_page = "%04d" % page_num
          new_fn = "#{unit_dir}_#{padded_page}.tif"
-         dest_file = FileUtils.join(in_proc_dir,new_fn)
-         FileUtils.cp( FileUtils.join(archive_dir, archive_dir.filename), dest_file)
+         dest_file = File.join(in_proc_dir, new_fn)
+         FileUtils.cp( archived_mf, dest_file)
          md5 = Digest::MD5.hexdigest(File.read(dest_file) )
          if md5 != src_mf.md5
             on_failure "Checksum mismatch for master file with ID #{info[:id]}. Skipping."
@@ -48,12 +49,12 @@ class CloneMasterFiles < BaseJob
             transcription_text: src_mf.transcription_text,
             md5: src_mf.md5, creator_death_date: src_mf.creator_death_date,
             creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
-            metadata_id: src_mf.metadata_id)
+            metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
 
             page_num += 1
       end
 
       logger.info "All masterfiles cloned into unit #{unit.id}. Flagging unit as cloned"
-      unit.update(cloned: true)
+      unit.update(reorder: true)
    end
 end

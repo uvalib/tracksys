@@ -85,8 +85,8 @@ ActiveAdmin.register Unit do
   end
   member_action :clone_status, method: :get do
      job = JobStatus.find(params[:job])
-     render :text=>"Not a clone job", status: :bad_request and return if job.name != "CloneMasterFiles"
-     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:if].to_i
+     render :text=>"Invalid job", status: :bad_request and return if job.name != "CloneMasterFiles"
+     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
      render :text=>job.status, status: :ok
   end
 
@@ -276,7 +276,7 @@ ActiveAdmin.register Unit do
          if unit.master_files.empty?
             if unit.intended_use.id != 110 # Digital Collection Building
                div :class=>'panel-buttons' do
-                  add_btn = "<span id='copy-existing' class='mf-action-button'>Clone Existing Masterfiles</a>"
+                  add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
                   raw("#{add_btn}")
                end
             end

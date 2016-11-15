@@ -182,11 +182,15 @@ $(function() {
          $(".clone-btn").addClass("disabled");
          $("#cancel-clone").addClass("disabled");
          $('#source-unit').prop('disabled', true).trigger("chosen:updated");
+         $("#clone-panel").addClass("working");
+         $("#cloning-message").show();
       } else {
          $("#clone").removeClass("disabled");
          $(".clone-btn").removeClass("disabled");
          $("#cancel-clone").removeClass("disabled");
          $('#source-unit').prop('disabled', false).trigger("chosen:updated");
+         $("#clone-panel").removeClass("working");
+         $("#cloning-message").hide();
       }
    };
 
@@ -198,10 +202,12 @@ $(function() {
             complete: function(jqXHR, textStatus) {
                if (textStatus != "success") {
                   clearInterval(tid);
+                  toggleCloneButtons(true);
                   alert("Unable to verify clone status. Please check the job status page for more information.");
                } else {
                   if (jqXHR.responseText == "failure") {
                      clearInterval(tid);
+                     toggleCloneButtons(true);
                      alert("Clone failed. Please check the job status page for more information.")
                   } else if (jqXHR.responseText == "success") {
                      clearInterval(tid);

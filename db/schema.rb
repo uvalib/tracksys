@@ -286,6 +286,7 @@ ActiveRecord::Schema.define(version: 20161111145600) do
     t.string   "primary_author",     limit: 255
     t.integer  "item_id",            limit: 4
     t.integer  "metadata_id",        limit: 4
+    t.integer  "original_mf_id",     limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
@@ -294,6 +295,7 @@ ActiveRecord::Schema.define(version: 20161111145600) do
   add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
   add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree
   add_index "master_files", ["metadata_id"], name: "index_master_files_on_metadata_id", using: :btree
+  add_index "master_files", ["original_mf_id"], name: "index_master_files_on_original_mf_id", using: :btree
   add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
   add_index "master_files", ["title"], name: "index_master_files_on_title", using: :btree
   add_index "master_files", ["unit_id"], name: "index_master_files_on_unit_id", using: :btree
@@ -426,7 +428,7 @@ ActiveRecord::Schema.define(version: 20161111145600) do
     t.boolean  "checked_out",                                  default: false
     t.integer  "master_files_count",             limit: 4,     default: 0
     t.boolean  "complete_scan",                                default: false
-    t.boolean  "cloned",                                       default: false
+    t.boolean  "reorder",                                      default: false
   end
 
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
