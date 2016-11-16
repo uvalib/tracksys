@@ -252,7 +252,6 @@ ActiveAdmin.register SirsiMetadata do
   #
   member_action :test_publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
-    metadata.flag_for_publication
     metadata.publish_to_test
     logger.info "SirsiMetadata #{metadata.pid} has been published to the test instance of Virgo"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"

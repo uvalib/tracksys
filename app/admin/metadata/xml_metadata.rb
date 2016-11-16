@@ -223,7 +223,6 @@ ActiveAdmin.register XmlMetadata do
    #
    member_action :test_publish, :method => :put do
      metadata = XmlMetadata.find(params[:id])
-     metadata.flag_for_publication
      metadata.publish_to_test
      logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
