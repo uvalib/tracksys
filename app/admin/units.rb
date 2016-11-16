@@ -177,7 +177,7 @@ ActiveAdmin.register Unit do
 
   # Show view =================================================================
   #
-  show :title => proc{|unit| "Unit ##{unit.id}"} do
+  show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for unit do
