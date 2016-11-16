@@ -177,7 +177,7 @@ ActiveAdmin.register Unit do
 
   # Show view =================================================================
   #
-  show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do
+  show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do |unit|
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for unit do
@@ -207,14 +207,16 @@ ActiveAdmin.register Unit do
           row :remove_watermark do |unit|
             format_boolean_as_yes_no(unit.remove_watermark)
           end
-          row("Date Delivered to DigiServ") do |unit|
-            format_date(unit.date_materials_received)
-          end
-          row("Date Returned from DigiServ") do |unit|
-            format_date(unit.date_materials_returned)
-          end
-          row :date_archived do |unit|
-            format_datetime(unit.date_archived)
+          if unit.reorder == false
+             row("Date Delivered to DigiServ") do |unit|
+               format_date(unit.date_materials_received)
+             end
+             row("Date Returned from DigiServ") do |unit|
+               format_date(unit.date_materials_returned)
+             end
+             row :date_archived do |unit|
+               format_datetime(unit.date_archived)
+             end
           end
           row :date_patron_deliverables_ready do |unit|
             format_datetime(unit.date_patron_deliverables_ready)
@@ -223,20 +225,22 @@ ActiveAdmin.register Unit do
       end
     end
 
-    div :class => "columns-none" do
-      panel "Digital Library Information", :toggle => 'show' do
-        attributes_table_for unit do
-          row ("In Digital Library?") do |unit|
-            format_boolean_as_yes_no(unit.include_in_dl)
-          end
-          row :date_queued_for_ingest do |unit|
-            format_datetime(unit.date_queued_for_ingest)
-          end
-          row :date_dl_deliverables_ready do |unit|
-            format_datetime(unit.date_dl_deliverables_ready)
-          end
-        end
-      end
+    if !unit.reorder
+       div :class => "columns-none" do
+         panel "Digital Library Information", :toggle => 'show' do
+           attributes_table_for unit do
+             row ("In Digital Library?") do |unit|
+               format_boolean_as_yes_no(unit.include_in_dl)
+             end
+             row :date_queued_for_ingest do |unit|
+               format_datetime(unit.date_queued_for_ingest)
+             end
+             row :date_dl_deliverables_ready do |unit|
+               format_datetime(unit.date_dl_deliverables_ready)
+             end
+           end
+         end
+       end
     end
 
     # Attachments info ========================================================
@@ -321,7 +325,7 @@ ActiveAdmin.register Unit do
      end
   end
 
-  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !unit.reorder } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
@@ -341,7 +345,7 @@ ActiveAdmin.register Unit do
   sidebar "Delivery Workflow", :only => [:show] do
     if !current_user.viewer?
        if File.exist?(File.join(IN_PROCESS_DIR, "%09d" % unit.id))
-            if not unit.date_archived
+            if unit.date_archived.blank? && unit.reorder == false
               div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
               div :class => 'workflow_button' do button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put end
               div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
@@ -364,8 +368,10 @@ ActiveAdmin.register Unit do
     if unit.date_archived
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
     else
-      div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put, :disabled => true end
-      div do "This unit cannot be downloaded because it is not archived." end
+      if  unit.reorder == false
+         div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put, :disabled => true end
+         div do "This unit cannot be downloaded because it is not archived." end
+      end
     end
   end
 
