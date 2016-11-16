@@ -1,0 +1,8 @@
+<%= form_tag(admin_dashboard_pid_lookup_path, :method => 'get', :id=>"stats-form") do %>
+   <%= submit_tag("Lookup") %>
+   <div class="year-input">
+      <%= label_tag(:pid, "PID:") %>
+      <%= text_field_tag(:pid) %>
+   </div>
+   <div style="clear:both"></div>
+<% end %>
