@@ -246,4 +246,20 @@ ActiveAdmin.register MasterFile do
       redirect_to "/admin/master_files/#{params[:id]}",
          :notice => "Master File downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}/#{current_user.computing_id}/#{mf.filename}."
    end
+
+   csv do
+     column :id
+     column :pid
+     column :filename
+     column :filesize
+     column :md5
+     column :description
+     column :title
+     column("Date Archived") {|master_file| format_date(master_file.date_archived)}
+     column("Date DL Ingest") {|master_file| format_date(master_file.date_dl_ingest)}
+     column("Date DL Update") {|master_file| format_date(master_file.date_dl_update)}
+     column :creator_death_date
+     column :creation_date
+     column :primary_author
+   end
 end

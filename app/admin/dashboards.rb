@@ -41,6 +41,9 @@ ActiveAdmin.register_page "Dashboard" do
           end
         end
       end
+      panel "PID Finder" do
+         render 'admin/pid_finder'
+      end
     end
 
     if !current_user.viewer?
@@ -162,6 +165,25 @@ ActiveAdmin.register_page "Dashboard" do
     CreateStatsReport.exec( {:user_id=>current_user.id, :year => params[:year]} )
     flash[:notice] = "Stats Report Being Created. You will receive an email when report is ready."
     redirect_to "/admin/dashboard"
+  end
+
+  page_action :pid_lookup do
+     object = Metadata.find_by(pid: params[:pid])
+     if !object.nil?
+        redirect_to "/admin/#{object.type.underscore}/#{object.id}" and return
+     end
+
+     object = MasterFile.find_by(pid: params[:pid])
+     if !object.nil?
+        redirect_to "/admin/master_files/#{object.id}" and return
+     end
+     object = Component.find_by(pid: params[:pid])
+     if !object.nil?
+        redirect_to "/admin/components/#{object.id}" and return
+     end
+
+     flash[:notice] = "Could not find PID #{params[:pid]}"
+     redirect_to "/admin/dashboard"
   end
 
   page_action :start_finalization_production do

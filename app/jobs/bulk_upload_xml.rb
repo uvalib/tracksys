@@ -4,6 +4,31 @@ class BulkUploadXml < BaseJob
       @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
    end
 
+   def read_settings( settings_file )
+      f = File.open(settings_file, "r")
+      settings_str = f.read()
+      settings_str.gsub!(/\r\n?/, "\n") # normalize linefeed
+      f.close
+
+      settings = {}
+      settings_str.each_line do |line|
+         parts = line.split(":")
+         if parts[0].strip.downcase == "discoverability"
+            settings[:discoverability] = parts[1].strip == "true"
+         elsif parts[0].strip.downcase == "availability"
+            if parts[1].strip.downcase == "uva"
+               settings[:availability] = AvailabilityPolicy.find(3)
+            else
+               settings[:availability] = AvailabilityPolicy.find(1)
+            end
+         elsif parts[0].strip.downcase == "rights"
+            id = parts[1].strip.to_i
+            settings[:rights] = UseRight.find(id)
+         end
+      end
+      return settings
+   end
+
    def do_workflow(message)
       raise "Parameter 'unit' is required" if message[:unit].blank?
       unit = message[:unit]
@@ -12,6 +37,14 @@ class BulkUploadXml < BaseJob
       if !Dir.exist? xml_dir
          on_error("XML Dropoff directory #{xml_dir} does not exist")
       end
+
+      # Make sure there is a settings file present. It has settings for
+      # Include in DL, availability, rights, and discoverability
+      settings_file = File.join(xml_dir, "settings.txt")
+      if not File.exist? settings_file
+         on_error("XML Dropoff directory #{xml_dir} does not contain settings.txt")
+      end
+      settings = read_settings( settings_file)
 
       orig_metadata = unit.metadata
       logger.info "Ingesting XML files from #{xml_dir}"
@@ -37,7 +70,8 @@ class BulkUploadXml < BaseJob
          else
             cnt += 1
 
-            # Extract title and creator info
+            # Extract title and creator info; default to title and creator from unit
+            # if the data is not present in the xml
             xml = Nokogiri::XML( xml_str )
             xml.remove_namespaces!
             title = orig_metadata.title
@@ -51,14 +85,16 @@ class BulkUploadXml < BaseJob
                # This Master file is still associated with the original unit metadata.
                # Create a new metadata record based on the XML and associate it with the masterfile
                metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: orig_metadata.is_approved,
-                  discoverability: orig_metadata.discoverability, indexing_scenario_id: 2,
-                  desc_metadata: xml_str, use_right_id: orig_metadata.use_right_id,
-                  availability_policy: orig_metadata.availability_policy,
+                  discoverability: settings[:discoverability], indexing_scenario_id: 2,
+                  desc_metadata: xml_str, use_right: settings[:rights],
+                  availability_policy: settings[:availability],
                   creator_name: creator, exemplar: mf.filename)
                mf.update(metadata_id: metadata.id)
             else
                # This masterfile already has its own metadata; just update content
-               mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator)
+               mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,
+                  discoverability: settings[:discoverability], use_right: settings[:rights],
+                  availability_policy: settings[:availability] )
             end
          end
       end
