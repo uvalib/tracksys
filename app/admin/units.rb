@@ -20,6 +20,8 @@ ActiveAdmin.register Unit do
     column :id
     column :metadata_title
     column("Date Archived") {|unit| format_date(unit.date_archived)}
+    column("Date Queued for Ingest") {|unit| format_date(unit.date_queued_for_ingest)}
+    column("Date DL Deliverables Ready") {|unit| format_date(unit.date_dl_deliverables_ready)}
     column :master_files_count
   end
 
