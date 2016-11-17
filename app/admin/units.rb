@@ -377,16 +377,18 @@ ActiveAdmin.register Unit do
 
   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
-      div :class => 'workflow_button' do button_to "Put into Digital Library",
-         start_ingest_from_archive_admin_unit_path(), :method => :put
-      end
-      div :class => 'workflow_button' do button_to "Put into Digital Library Test",
-         start_ingest_from_archive_admin_unit_path(:test=>true), :method => :put
+      div :class => 'workflow_button' do
+         button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(), :method => :put
       end
     end
     if unit.in_dl?
-      div :class => 'workflow_button' do button_to "Publish All",
-         publish_admin_unit_path(:datastream => 'all'), :method => :put end
+      div :class => 'workflow_button' do
+         button_to "Publish All", publish_admin_unit_path(:datastream => 'all'), :method => :put
+      end
+    else
+      div :class => 'workflow_button' do
+         button_to "Put into Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
+      end
     end
   end
 
@@ -493,9 +495,21 @@ ActiveAdmin.register Unit do
 
   member_action :start_ingest_from_archive, :method => :put do
     unit = Unit.find(params[:id])
-    test_publish = (params[:test] == true)
-    StartIngestFromArchive.exec( {:unit => unit, :test_publish=>test_publish })
+    StartIngestFromArchive.exec( {:unit => unit})
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
+  end
+
+  member_action :publish_to_test, :method => :put do
+     unit = Unit.find(params[:id])
+     if unit.metadata.discoverability
+        unit.metadata.publish_to_test
+     end
+     unit.master_files.each do |mf|
+        if unit.metadata.id != mf.metadata.id
+           mf.metadata.publish_to_test
+        end
+     end
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo TEST. #{Settings.test_virgo_url}"
   end
 
   member_action :publish, :method => :put do
