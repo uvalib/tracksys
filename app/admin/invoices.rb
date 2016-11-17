@@ -147,8 +147,8 @@ ActiveAdmin.register Invoice do
    end
 
    csv do
-      column :date_fee_paid
-      column :fee_amount_paid
+      column ("Date Fee Paid") { |invoice| format_date(invoice.date_fee_paid) }
+      column ("Fee") { |invoice| invoice.order_fee_actual }
       column :order_id
       column :notes
    end
