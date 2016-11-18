@@ -1,4 +1,23 @@
 body.active_admin {
+#update-dl-settings {
+   border-radius: 200px;
+   text-align: center;
+   display: block;
+   font-weight: bold;
+   font-size: 1.0em;
+   line-height: 12px;
+   padding: 7px 16px 6px;
+   background-image: linear-gradient(180deg, #838a90, #414549);
+   text-shadow: #000 0 1px 0;
+   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0px rgba(255, 255, 255, 0.2) inset;
+   border: solid 1px #484e53;
+   color: #efefef;
+   cursor: pointer;
+   &:hover {
+      background-color: #8b9297;
+      background-image: linear-gradient(180deg, #8b9297, #484d51);
+   }
+}
 #copy-existing {
     margin-bottom: 15px;
 }
@@ -197,6 +216,19 @@ div.table-scroller {
    background: rgba(0,0,0,0.3);
    display: none;
 
+   #settings-modal {
+      width: 430px;
+      table.settings {
+         margin: 10px;
+      }
+      td.label {
+         text-align: right;
+         color: #444;
+      }
+      .buttons {
+         margin: 20px 10px 10px 10px;
+      }
+   }
    .modal {
       display: none;
       background: #f4f4f4;
@@ -208,6 +240,9 @@ div.table-scroller {
       width: 350px;
       .content {
          padding: 10px;
+      }
+      div.setting {
+         margin-bottom: 15px;
       }
       h1 {
          font-size: 1.2em;
@@ -236,8 +271,10 @@ div.table-scroller {
          }
       }
       label {
-         margin: 15px 0 2px 0;
          display: block;
+      }
+      input[type=file] {
+         margin-bottom: 15px;
       }
       textarea {
          box-sizing: border-box;

@@ -1,24 +1,61 @@
 <div id="dimmer">
-<div id="attachment-modal" class="modal">
-   <h1>Add Attachment</h1>
-   <form id="upload-attachment" method="post" action="/admin/units/<%= unit.id %>/attachment" enctype="multipart/form-data">
-      <div class="content">
-         <div>
-            <input type="file" name="attachment" />
+   <div id="attachment-modal" class="modal">
+      <h1>Add Attachment</h1>
+      <form id="upload-attachment" method="post" action="/admin/units/<%= unit.id %>/attachment" enctype="multipart/form-data">
+         <div class="content">
+            <div>
+               <input type="file" name="attachment" />
+            </div>
+            <div>
+               <label>Brief Description:</label>
+               <textarea name="description" form="upload-attachment" rows="5"></textarea>
+            </div>
+            <div class="buttons">
+               <input type="button" id="cancel-attach" value="Cancel"/>
+               <input type="submit" value="Attach"/>
+            </div>
          </div>
-         <div>
-            <label>Brief Description:</label>
-            <textarea name="description" form="upload-attachment" rows="5"></textarea>
-         </div>
-         <div class="buttons">
-            <input type="button" id="cancel-attach" value="Cancel"/>
-            <input type="submit" value="Attach"/>
-         </div>
+      </form>
+   </div>
+
+   <div id="settings-modal" class="modal">
+      <h1>Bulk Update DL Settings</h1>
+      <table class="settings">
+         <tr>
+            <td class="label">Discoverable</td>
+            <td>
+               <select id="discoverable">
+                  <option value="yes">yes</option>
+                  <option value="no">no</option>
+               </select>
+            </td>
+         </tr>
+         <tr>
+            <td class="label">Availability</td>
+            <td>
+               <select id="availability">
+                   <% AvailabilityPolicy.all.each do |p| %>
+                       <option value="<%= p.id %>"><%= p.name %></option>
+                   <% end %>
+               </select>
+            </td>
+         </tr>
+         <tr>
+            <td class="label">Rights Statement</td>
+            <td>
+               <select id="rights">
+                   <% UseRight.all.each do |p| %>
+                       <option value="<%= p.id %>"><%= p.name %></option>
+                   <% end %>
+               </select>
+            </td>
+         </tr>
+      </table>
+      <div class="buttons">
+         <input type="button" id="cancel-settings" value="Cancel"/>
+         <input type="button" id="ok-settings" value="update"/>
       </div>
-   </form>
-</div>
-
-
+   </div>
 
    <div id="title-modal" class="modal">
       <h1>Master File Title</h1>

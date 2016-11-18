@@ -80,6 +80,16 @@ ActiveAdmin.register Unit do
   batch_action :print_routing_slips do |selection|
   end
 
+  member_action :bulk_settings_update, method: :post do
+     unit = Unit.find(params[:id])
+     discoverability = (params[:discoverable] == "yes")
+     rights = UseRight.find(params[:rights].to_i)
+     avail = AvailabilityPolicy.find(params[:availability].to_i)
+     unit.master_files.each do |mf|
+        mf.metadata.update(discoverability: discoverability, use_right: rights, availability_policy: avail)
+     end
+     render :nothing=>true
+  end
   member_action :clone_master_files, method: :post do
      unit = Unit.find(params[:id])
      job_id = CloneMasterFiles.exec({unit: unit, list: params[:masterfiles]})
@@ -318,12 +328,17 @@ ActiveAdmin.register Unit do
   end
 
   # XML Upload / Download
-  sidebar :bulk_xml_actions, :only => :show,  if: proc{ !current_user.viewer? && unit.has_xml_masterfiles? } do
+  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? } do
      div :class => 'workflow_button' do
-        button_to "Bulk Upload", bulk_upload_xml_admin_unit_path, :method => :put
+        button_to "XML Upload", bulk_upload_xml_admin_unit_path, :method => :put
      end
-     div :class => 'workflow_button' do
-        button_to "Bulk Download", bulk_download_xml_admin_unit_path, :method => :put
+     if unit.has_xml_masterfiles?
+        div :class => 'workflow_button' do
+           button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
+        end
+        div :class => 'workflow_button' do
+          raw("<span id='update-dl-settings'>Update DL Settings</span>")
+       end
      end
   end
 
