@@ -51,10 +51,11 @@ class CloneMasterFiles < BaseJob
             creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
             metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
 
-            page_num += 1
+         page_num += 1
       end
 
-      logger.info "All masterfiles cloned into unit #{unit.id}. Flagging unit as cloned"
-      unit.update(reorder: true)
+      logger.info "#{old_cnt+list.size} masterfiles cloned into unit #{unit.id}. Flagging unit as cloned"
+      old_cnt = unit.master_files_count
+      unit.update(reorder: true, master_files_count: (old_cnt+list.size) )
    end
 end
