@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161111145600) do
+ActiveRecord::Schema.define(version: 20161117194053) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -135,6 +135,7 @@ ActiveRecord::Schema.define(version: 20161111145600) do
   add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
   add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
+  add_index "components", ["pid"], name: "index_components_on_pid", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.integer  "department_id",      limit: 4
