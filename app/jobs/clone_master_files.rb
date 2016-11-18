@@ -43,13 +43,23 @@ class CloneMasterFiles < BaseJob
             next
          end
 
-         MasterFile.create(
+         mf = MasterFile.create(
             unit_id: unit.id, filename: new_fn, filesize: src_mf.filesize,
             title: info[:title], description: src_mf.description,
             transcription_text: src_mf.transcription_text,
             md5: src_mf.md5, creator_death_date: src_mf.creator_death_date,
             creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
             metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
+
+         tm = src_mf.image_tech_meta
+         ImageTechMeta.create(master_file_id: mf.id,
+            image_format: tm.image_format, width: tm.width, height: tm.height,
+            resolution: tm.resolution, color_space: tm.color_space, depth: tm.depth,
+            compression: tm.compression, color_profile: tm.color_profile,
+            equipment: tm.equipment, software: tm.software, model: tm.model,
+            exif_version: tm.exif_version, capture_date: tm.capture_date, iso: tm.iso,
+            exposure_bias: tm.exposure_bias, exposure_time: tm.exposure_time,
+            aperture: tm.aperture, focal_length: tm.focal_length  )
 
          page_num += 1
       end
