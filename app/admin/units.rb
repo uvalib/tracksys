@@ -131,6 +131,7 @@ ActiveAdmin.register Unit do
   filter :metadata_title, :as => :string, :label => "Metadata Title"
   filter :order_id, :as => :numeric, :label => "Order ID"
   filter :customer_id, :as => :numeric, :label => "Customer ID"
+  filter :department, :as => :select
   filter :agency, :as => :select
   filter :master_files_count, :as => :numeric
 

@@ -45,7 +45,8 @@ ActiveAdmin.register Order do
   filter :invoices_count
   filter :master_files_count
   filter :academic_status, :as => :select
-  filter :agency, :as => :select, :input_html => {:'data-placeholder' => 'Choose an agency...'}
+  filter :department, :as => :select
+  filter :agency, :as => :select
 
   index :id => 'orders' do
     selectable_column
