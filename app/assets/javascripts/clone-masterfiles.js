@@ -73,14 +73,14 @@ $(function() {
       getMasterFiles( 1);
    });
 
-   $(".paging.prev").on("click", function() {
+   $(".clone-btn.prev").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
       var pg = parseInt( $("#source-masterfile-list").data("page"), 10);
       pg -= 1;
       pg = Math.max(0, pg);
       getMasterFiles(pg);
    });
-   $(".paging.next").on("click", function() {
+   $(".clone-btn.next").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
       var pg = parseInt( $("#source-masterfile-list").data("page"), 10);
       var max = parseInt($("#max-page").text(),10);
