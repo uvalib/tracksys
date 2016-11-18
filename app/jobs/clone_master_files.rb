@@ -54,8 +54,8 @@ class CloneMasterFiles < BaseJob
          page_num += 1
       end
 
-      logger.info "#{old_cnt+list.size} masterfiles cloned into unit #{unit.id}. Flagging unit as cloned"
       old_cnt = unit.master_files_count
+      logger.info "#{old_cnt+list.size} masterfiles cloned into unit #{unit.id}. Flagging unit as cloned"
       unit.update(reorder: true, master_files_count: (old_cnt+list.size) )
    end
 end
