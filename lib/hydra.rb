@@ -30,8 +30,11 @@ module Hydra
       end
 
       # Hack to hide jefferson papers stuff (order 2575)
-      if metadata.orders.where(id: 2575).count > 0
-         payload["shadowedItem"] = "HIDDEN"
+      good_pids = ["uva-lib:760484", "uva-lib:710304"]
+      if not good_pids.include? metadata.pid
+         if metadata.orders.where(id: 2575).count > 0
+            payload["shadowedItem"] = "HIDDEN"
+         end
       end
 
       collectionFacetParam = metadata.collection_facet.nil? ? "NO_PARAM" : "digitalCollectionFacet"
