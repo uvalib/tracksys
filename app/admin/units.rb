@@ -35,7 +35,9 @@ ActiveAdmin.register Unit do
   end
 
   action_item :pdf, :only => :show do
-    raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
+     if !unit.metadata.nil? && !unit.date_archived.blank?
+        raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
+     end
   end
   action_item :ocr, only: :show do
      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
@@ -180,7 +182,7 @@ ActiveAdmin.register Unit do
             end
          end
       end
-      if !unit.metadata.nil?
+      if !unit.metadata.nil? && !unit.date_archived.blank?
          div do
             link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end

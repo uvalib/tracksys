@@ -6,7 +6,9 @@ div id: "masterfile-list" do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
       token =  Time.now.to_i
       url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
-      pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
+      if !unit.metadata.nil? && !unit.date_archived.blank?
+         pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
+      end
       if page_size.to_i < unit.master_files.count
          raw("#{all_btn}#{pdf_btn}")
       else
@@ -41,8 +43,10 @@ div id: "masterfile-list" do
            div do
              link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
            end
-           div do
-              link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+           if !mf.metadata.nil? && !mf.unit.date_archived.blank?
+              div do
+                 link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+              end
            end
            if !current_user.viewer?
               div do
