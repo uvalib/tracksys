@@ -126,6 +126,14 @@ class Unit < ActiveRecord::Base
       end
    end
 
+   def last_error
+      js = JobStatus.where(originator_type: 'Unit', originator_id: self.id).order(created_at: :desc).first
+      if !js.nil? && js.status == 'failure'
+         return {job: js[:id], error: js[:error] }
+      end
+      return nil
+   end
+
    # Within the scope of a Unit's order, return the Unit which follows
    # or precedes the current Unit sequentially.
    def next

@@ -1,4 +1,25 @@
 body.active_admin {
+div.columns-none.error {
+   background-color: #b44;
+   margin: -15px 0 15px 0;
+   padding: 10px 20px;
+   box-sizing: border-box;
+   border-radius: 10px;
+   color: white;
+   font-weight: bold;
+   text-shadow: 1px 1px #444;
+   font-size: 1.15em;
+   box-shadow: 1px 1px 5px #222;
+   a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9em;
+    font-weight: normal;
+      &:hover {
+         text-decoration: underline;
+      }
+   }
+}
 #update-dl-settings {
    border-radius: 200px;
    text-align: center;

@@ -193,6 +193,12 @@ ActiveAdmin.register Unit do
   # Show view =================================================================
   #
   show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do |unit|
+    err = unit.last_error
+    if !err.blank?
+      div :class => "columns-none error" do
+         raw("UNIT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
+      end
+    end
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for unit do
