@@ -18,8 +18,10 @@ div id: "masterfile-list" do
 
    paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
       table_for collection do |mf|
-         column ('') do |mf|
-            raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+         if !unit.metadata.nil? && !unit.date_archived.blank?
+            column ('') do |mf|
+               raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+            end
          end
          column :filename, :sortable => false
          column :title do |mf|
