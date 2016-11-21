@@ -98,13 +98,6 @@ class Order < ActiveRecord::Base
    end
 
    #------------------------------------------------------------------
-   # serializations
-   #------------------------------------------------------------------
-   # Email sent to customers should be save to DB as a TMail object.  During order delivery approval phase, the email
-   # must be revisited when staff decide to send it.
-   #serialize :email, TMail::Mail
-
-   #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
    # Returns a boolean value indicating whether the Order is active, which is
@@ -139,6 +132,18 @@ class Order < ActiveRecord::Base
    # associated Invoice records.
    def invoices?
       return invoices.any?
+   end
+
+   def last_error
+      js = self.job_statuses.order(created_at: :desc).first
+      if !js.nil? && js.status == 'failure'
+         return {job: js[:id], error: js[:error] }
+      end
+      self.units.each do |u|
+         err = u.last_error
+         return err if !err.nil?
+      end
+      return nil
    end
 
    # Returns units belonging to current order that are not ready to proceed with digitization and would prevent an order from being approved.

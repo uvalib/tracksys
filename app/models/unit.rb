@@ -127,7 +127,7 @@ class Unit < ActiveRecord::Base
    end
 
    def last_error
-      js = JobStatus.where(originator_type: 'Unit', originator_id: self.id).order(created_at: :desc).first
+      js = self.job_statuses.order(created_at: :desc).first
       if !js.nil? && js.status == 'failure'
          return {job: js[:id], error: js[:error] }
       end

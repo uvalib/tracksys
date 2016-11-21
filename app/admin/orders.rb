@@ -81,6 +81,12 @@ ActiveAdmin.register Order do
   end
 
   show :title => proc{|order| "Order ##{order.id}"} do
+     err = order.last_error
+     if !err.blank?
+      div :class => "columns-none error" do
+          raw("ORDER ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
+      end
+     end
     div :class => 'two-column' do
       panel "Basic Information" do
         attributes_table_for order do
