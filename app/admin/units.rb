@@ -377,8 +377,16 @@ ActiveAdmin.register Unit do
               div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
               div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
             end
-            if unit.intended_use != 'Digital Collection Buidling' && !unit.date_patron_deliverables_ready
-               div :class => 'workflow_button' do button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
+            if unit.intended_use != 'Digital Collection Buidling'
+               if !unit.date_patron_deliverables_ready
+                  div :class => 'workflow_button' do
+                     button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  end
+               else
+                   div :class => 'workflow_button' do
+                      button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+                   end
+               end
             end
        else
           if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
