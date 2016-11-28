@@ -9,7 +9,6 @@ class AttachFile < BaseJob
       raise "Parameter 'unit' is required" if message[:unit].blank?
       raise "Parameter 'filename' is required" if message[:filename].blank?
       raise "Parameter 'tmpfile' is required" if message[:tmpfile].blank?
-      raise "Parameter 'description' is required" if message[:description].blank?
 
       unit = message[:unit]
       filename = message[:filename]
