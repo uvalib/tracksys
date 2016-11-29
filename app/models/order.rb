@@ -110,6 +110,19 @@ class Order < ActiveRecord::Base
       end
    end
 
+   def reorder?
+      self.units.each do |u|
+         return true if u.reorder
+      end
+      return false
+   end
+   def all_reorders_ready?
+      self.units.each do |u|
+         return false if !u.reorder
+      end
+      return true
+   end
+
    # Returns a boolean value indicating whether the Order is approved
    # for digitization ("order") or not ("request").
    def approved?

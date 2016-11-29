@@ -370,7 +370,7 @@ ActiveAdmin.register Unit do
 
   sidebar "Delivery Workflow", :only => [:show] do
     if !current_user.viewer?
-       if File.exist?(File.join(IN_PROCESS_DIR, "%09d" % unit.id))
+       if unit.has_in_process_files?
             if unit.date_archived.blank? && unit.reorder == false
               div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
               div :class => 'workflow_button' do button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put end
@@ -381,6 +381,13 @@ ActiveAdmin.register Unit do
                if !unit.date_patron_deliverables_ready
                   div :class => 'workflow_button' do
                      button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  end
+                  if unit.reorder && unit.order.all_reorders_ready? && unit.order.units.count > 1
+                     div do hr :class=>'sidebar-sep' end
+                     div :class => 'workflow_button' do
+                        button_to "Generate All Deliverables", generate_all_deliverables_admin_unit_path, :method => :put
+                     end
+                     div do "Generate deliverables for all units in this order." end
                   end
                else
                    div :class => 'workflow_button' do
@@ -403,7 +410,6 @@ ActiveAdmin.register Unit do
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
     else
       if  unit.reorder == false
-         div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put, :disabled => true end
          div do "This unit cannot be downloaded because it is not archived." end
       end
     end
@@ -491,6 +497,12 @@ ActiveAdmin.register Unit do
   end
 
   # Member actions for workflow
+  member_action :generate_all_deliverables, :method=>:put do
+     unit = Unit.find(params[:id])
+     GenerateAllReorderDeliverables.exec({order: unit.order})
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Generating deliverables for all units in the order."
+  end
+
   member_action :regenerate_deliverables, :method=>:put do
      unit = Unit.find(params[:id])
      RecreatePatronDeliverables.exec({unit: unit})

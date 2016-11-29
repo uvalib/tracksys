@@ -82,6 +82,12 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
+   def has_in_process_files?
+      in_proc_dir = File.join(IN_PROCESS_DIR, "%09d" % self.id)
+      return false if !File.exist?(in_proc_dir)
+      return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
+   end
+
    def approved?
       if self.unit_status == "approved"
          return true
@@ -131,7 +137,10 @@ class Unit < ActiveRecord::Base
       if !js.nil? && js.status == 'failure'
          return {job: js[:id], error: js[:error] }
       end
-      return nil
+      js = self.order.job_statuses.order(created_at: :desc).first
+      if !js.nil? && js.status == 'failure'
+         return {job: js[:id], error: js[:error] }
+      end
    end
 
    # Within the scope of a Unit's order, return the Unit which follows

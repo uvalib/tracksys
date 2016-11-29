@@ -1,4 +1,9 @@
 body.active_admin {
+hr.sidebar-sep {
+   border: none;
+   border-bottom: 1px solid #ccc;
+   margin: 15px 0;
+}
 div.columns-none.error {
    background-color: #b44;
    margin: -15px 0 15px 0;
