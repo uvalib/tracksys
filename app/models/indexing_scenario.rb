@@ -11,12 +11,10 @@ end
 #
 # Table name: indexing_scenarios
 #
-#  id                 :integer          not null, primary key
-#  name               :string(255)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  metadata_count     :integer          default(0)
-#  components_count   :integer          default(0)
-#  master_files_count :integer          default(0)
-#  units_count        :integer          default(0)
+#  id               :integer          not null, primary key
+#  name             :string(255)
+#  created_at       :datetime
+#  updated_at       :datetime
+#  metadata_count   :integer          default(0)
+#  components_count :integer          default(0)
 #

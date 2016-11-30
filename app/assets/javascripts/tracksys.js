@@ -8,6 +8,28 @@ $(function() {
    // Chosen javascript library
    $('.chosen-select').chosen();
 
+   $("#add-attachment").on("click", function() {
+      $('#upload-attachment').clearForm();
+      $("#dimmer").show();
+      $("#attachment-modal").show();
+   });
+   $("#cancel-attach").on("click", function() {
+      $("#dimmer").hide();
+   });
+   $('#upload-attachment')
+   .submit(function() {
+      $(this).ajaxSubmit({
+         complete: function(jqXHR, textStatus) {
+            if (textStatus == "success" ) {
+               window.location.reload();
+            } else {
+               alert("Unable to add attachment: "+jqXHR.responseText);
+            }
+         }
+      });
+      return false;
+   });
+
    // Toggle show panels and form sections
    $('.panel[toggle] h3, fieldset[toggle] legend span').on('click', function(e) {
       var $target = $(e.target);

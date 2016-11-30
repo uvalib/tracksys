@@ -16,7 +16,7 @@ class CheckUnitDeliveryMode < BaseJob
       has_deliverables = false
 
       # First, check if this unit is a candidate for Autopublish to Virgo
-      if unit.include_in_dl == false
+      if unit.include_in_dl == false && unit.reorder == false
          CheckAutoPublish.exec_now({:unit => unit}, self)
       end
 
@@ -43,7 +43,8 @@ class CheckUnitDeliveryMode < BaseJob
       end
 
       # All units with no deliverables (either patron or DL) get sent to IIIF and the archive now
-      if has_deliverables == false
+      # ...unless the unit is a re-order. These never go to IIIF or archive
+      if has_deliverables == false && unit.reorder == false
          on_success "Unit #{unit.id} has no deliverables so is being sent directly to IIIF and the archive."
          unit.master_files.each do |master_file|
             file_source = File.join(source_dir, master_file.filename)

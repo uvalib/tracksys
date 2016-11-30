@@ -26,7 +26,8 @@
       <%= f.input :discoverability, :as => :select %>
       <%= f.input :use_right, label: "Right Statement" %>
       <%= f.input :indexing_scenario %>
-      <%= f.input :collection_facet, :as => :string %>
+      <%= f.input :collection_facet, :as => :select, :collection => CollectionFacet.all.order(name: :asc).map(&:name),
+                  :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
       <%= f.input :dpla, :as => :radio %>
       <% if @sirsi_metadata.dpla %>
          <%= f.input :parent_bibl_id, :as => :select, :label=>"Parent Metadata",

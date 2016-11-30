@@ -30,7 +30,6 @@
 #  dpla                   :boolean          default(FALSE)
 #  collection_facet       :string(255)
 #  type                   :string(255)      default("SirsiMetadata")
-#  xml_schema             :string(255)
 #  external_attributes    :text(65535)
 #
 

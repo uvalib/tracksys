@@ -19,7 +19,9 @@ ActiveAdmin.register MasterFile do
    end
 
    action_item :pdf, :only => :show do
-      raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
+      if !master_file.metadata.nil? && !master_file.unit.date_archived.blank?
+         raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
+      end
    end
 
    action_item :ocr, only: :show do
@@ -117,8 +119,10 @@ ActiveAdmin.register MasterFile do
          div do
             link_to "Details", resource_path(mf), :class => "member_link view_link"
          end
-         div do
-            link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+         if !mf.metadata.nil? && !mf.unit.date_archived.blank?
+            div do
+               link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
+            end
          end
          if !current_user.viewer?
             div do

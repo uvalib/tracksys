@@ -8,10 +8,10 @@ end
 #
 # Table name: use_rights
 #
-#  id                 :integer          not null, primary key
-#  name               :string(255)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  metadata_count     :integer          default(0)
-#  master_files_count :integer          default(0)
+#  id             :integer          not null, primary key
+#  name           :string(255)
+#  created_at     :datetime
+#  updated_at     :datetime
+#  metadata_count :integer          default(0)
+#  uri            :string(255)
 #

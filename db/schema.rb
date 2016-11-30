@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160922185722) do
+ActiveRecord::Schema.define(version: 20161117194053) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -68,12 +68,29 @@ ActiveRecord::Schema.define(version: 20160922185722) do
   add_index "agencies", ["ancestry"], name: "index_agencies_on_ancestry", using: :btree
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
 
+  create_table "attachments", force: :cascade do |t|
+    t.integer  "unit_id",     limit: 4
+    t.string   "filename",    limit: 255
+    t.string   "md5",         limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "attachments", ["unit_id"], name: "index_attachments_on_unit_id", using: :btree
+
   create_table "availability_policies", force: :cascade do |t|
     t.string   "name",           limit: 255
     t.integer  "metadata_count", limit: 4,   default: 0
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
     t.string   "pid",            limit: 255
+  end
+
+  create_table "collection_facets", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "component_types", force: :cascade do |t|
@@ -118,6 +135,7 @@ ActiveRecord::Schema.define(version: 20160922185722) do
   add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
   add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
+  add_index "components", ["pid"], name: "index_components_on_pid", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.integer  "department_id",      limit: 4
@@ -250,44 +268,38 @@ ActiveRecord::Schema.define(version: 20160922185722) do
   end
 
   create_table "master_files", force: :cascade do |t|
-    t.integer  "unit_id",              limit: 4,     default: 0,     null: false
-    t.integer  "component_id",         limit: 4
-    t.string   "tech_meta_type",       limit: 255
-    t.string   "filename",             limit: 255
-    t.integer  "filesize",             limit: 4
-    t.string   "title",                limit: 255
+    t.integer  "unit_id",            limit: 4,     default: 0, null: false
+    t.integer  "component_id",       limit: 4
+    t.string   "filename",           limit: 255
+    t.integer  "filesize",           limit: 4
+    t.string   "title",              limit: 255
     t.datetime "date_archived"
-    t.text     "description",          limit: 65535
-    t.string   "pid",                  limit: 255
+    t.text     "description",        limit: 65535
+    t.string   "pid",                limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "transcription_text",   limit: 65535
-    t.text     "desc_metadata",        limit: 65535
-    t.boolean  "discoverability",                    default: false
-    t.string   "md5",                  limit: 255
-    t.integer  "indexing_scenario_id", limit: 4
-    t.integer  "use_right_id",         limit: 4
+    t.text     "transcription_text", limit: 65535
+    t.string   "md5",                limit: 255
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.string   "creator_death_date",   limit: 255
-    t.string   "creation_date",        limit: 255
-    t.string   "primary_author",       limit: 255
-    t.integer  "item_id",              limit: 4
-    t.integer  "metadata_id",          limit: 4
+    t.string   "creator_death_date", limit: 255
+    t.string   "creation_date",      limit: 255
+    t.string   "primary_author",     limit: 255
+    t.integer  "item_id",            limit: 4
+    t.integer  "metadata_id",        limit: 4
+    t.integer  "original_mf_id",     limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
   add_index "master_files", ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest", using: :btree
   add_index "master_files", ["date_dl_update"], name: "index_master_files_on_date_dl_update", using: :btree
   add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
-  add_index "master_files", ["indexing_scenario_id"], name: "index_master_files_on_indexing_scenario_id", using: :btree
   add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree
   add_index "master_files", ["metadata_id"], name: "index_master_files_on_metadata_id", using: :btree
+  add_index "master_files", ["original_mf_id"], name: "index_master_files_on_original_mf_id", using: :btree
   add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
-  add_index "master_files", ["tech_meta_type"], name: "index_master_files_on_tech_meta_type", using: :btree
   add_index "master_files", ["title"], name: "index_master_files_on_title", using: :btree
   add_index "master_files", ["unit_id"], name: "index_master_files_on_unit_id", using: :btree
-  add_index "master_files", ["use_right_id"], name: "index_master_files_on_use_right_id", using: :btree
 
   create_table "metadata", force: :cascade do |t|
     t.boolean  "is_approved",                          default: false,           null: false
@@ -414,16 +426,14 @@ ActiveRecord::Schema.define(version: 20160922185722) do
     t.boolean  "include_in_dl",                                default: false
     t.datetime "date_dl_deliverables_ready"
     t.boolean  "remove_watermark",                             default: false
-    t.boolean  "master_file_discoverability",                  default: false
-    t.integer  "indexing_scenario_id",           limit: 4
     t.boolean  "checked_out",                                  default: false
     t.integer  "master_files_count",             limit: 4,     default: 0
     t.boolean  "complete_scan",                                default: false
+    t.boolean  "reorder",                                      default: false
   end
 
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
   add_index "units", ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready", using: :btree
-  add_index "units", ["indexing_scenario_id"], name: "index_units_on_indexing_scenario_id", using: :btree
   add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
   add_index "units", ["metadata_id"], name: "index_units_on_metadata_id", using: :btree
   add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
@@ -438,6 +448,7 @@ ActiveRecord::Schema.define(version: 20160922185722) do
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
 
+  add_foreign_key "attachments", "units"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
   add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
@@ -445,9 +456,7 @@ ActiveRecord::Schema.define(version: 20160922185722) do
   add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
   add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
   add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
-  add_foreign_key "master_files", "indexing_scenarios", name: "master_files_indexing_scenario_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
-  add_foreign_key "master_files", "use_rights", name: "master_files_use_right_id_fk"
   add_foreign_key "metadata", "availability_policies", name: "bibls_availability_policy_id_fk"
   add_foreign_key "metadata", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
   add_foreign_key "metadata", "use_rights", name: "bibls_use_right_id_fk"
@@ -455,7 +464,6 @@ ActiveRecord::Schema.define(version: 20160922185722) do
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
   add_foreign_key "sirsi_metadata_components", "components", name: "sirsi_metadata_components_ibfk_2"
   add_foreign_key "sirsi_metadata_components", "metadata", column: "sirsi_metadata_id", name: "sirsi_metadata_components_ibfk_1"
-  add_foreign_key "units", "indexing_scenarios", name: "units_indexing_scenario_id_fk"
   add_foreign_key "units", "intended_uses", name: "units_intended_use_id_fk"
   add_foreign_key "units", "metadata", column: "metadata_id", name: "units_bibl_id_fk"
   add_foreign_key "units", "orders", name: "units_order_id_fk"

@@ -18,6 +18,7 @@ class Unit < ActiveRecord::Base
    has_many :master_files
    has_many :components, :through => :master_files#, :uniq => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
+   has_many :attachments, :dependent=>:destroy
 
    has_one :agency, :through => :order
    has_one :customer, :through => :order
@@ -81,6 +82,12 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
+   def has_in_process_files?
+      in_proc_dir = File.join(IN_PROCESS_DIR, "%09d" % self.id)
+      return false if !File.exist?(in_proc_dir)
+      return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
+   end
+
    def approved?
       if self.unit_status == "approved"
          return true
@@ -101,6 +108,14 @@ class Unit < ActiveRecord::Base
       return self.date_dl_deliverables_ready?
    end
 
+   def has_xml_masterfiles?
+      self.master_files.each do |mf|
+         next if mf.metadata == self.metadata
+         return true if mf.metadata.type == "XmlMetadata"
+      end
+      return false
+   end
+
    def ready_for_repo?
       return false if self.include_in_dl == false
       return false if self.metadata.nil?
@@ -114,6 +129,17 @@ class Unit < ActiveRecord::Base
          self.order.order_status = 'approved'
          self.order.date_order_approved = Time.now
          self.order.save!
+      end
+   end
+
+   def last_error
+      js = self.job_statuses.order(created_at: :desc).first
+      if !js.nil? && js.status == 'failure'
+         return {job: js[:id], error: js[:error] }
+      end
+      js = self.order.job_statuses.order(created_at: :desc).first
+      if !js.nil? && js.status == 'failure'
+         return {job: js[:id], error: js[:error] }
       end
    end
 
@@ -172,29 +198,6 @@ class Unit < ActiveRecord::Base
    def send_unit_to_archive
       SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
    end
-
-   # Make all attributes that will be going away in the next relase PRIVATE to
-   # ensure all of their usage has been removed before DB tables are updated
-   #
-   private
-   def indexing_scenario
-      self[:indexing_scenario]
-   end
-   def indexing_scenario=(val)
-      write_attribute :indexing_scenario, val
-   end
-   def indexing_scenario_id
-      self[:indexing_scenario_id]
-   end
-   def indexing_scenario_id=(val)
-      write_attribute :indexing_scenario_id, val
-   end
-   def master_file_discoverability
-      self[:master_file_discoverability]
-   end
-   def master_file_discoverability=(val)
-      write_attribute :master_file_discoverability, val
-   end
 end
 
 # == Schema Information
@@ -221,8 +224,7 @@ end
 #  include_in_dl                  :boolean          default(FALSE)
 #  date_dl_deliverables_ready     :datetime
 #  remove_watermark               :boolean          default(FALSE)
-#  master_file_discoverability    :boolean          default(FALSE)
-#  indexing_scenario_id           :integer
 #  checked_out                    :boolean          default(FALSE)
 #  master_files_count             :integer          default(0)
+#  complete_scan                  :boolean          default(FALSE)
 #

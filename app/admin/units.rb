@@ -35,7 +35,9 @@ ActiveAdmin.register Unit do
   end
 
   action_item :pdf, :only => :show do
-    raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>") if !unit.metadata.nil?
+     if !unit.metadata.nil? && !unit.date_archived.blank?
+        raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
+     end
   end
   action_item :ocr, only: :show do
      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
@@ -78,7 +80,45 @@ ActiveAdmin.register Unit do
   end
 
   batch_action :print_routing_slips do |selection|
+  end
 
+  member_action :bulk_settings_update, method: :post do
+     unit = Unit.find(params[:id])
+     discoverability = (params[:discoverable] == "yes")
+     rights = UseRight.find(params[:rights].to_i)
+     avail = AvailabilityPolicy.find(params[:availability].to_i)
+     unit.master_files.each do |mf|
+        mf.metadata.update(discoverability: discoverability, use_right: rights, availability_policy: avail)
+     end
+     render :nothing=>true
+  end
+  member_action :clone_master_files, method: :post do
+     unit = Unit.find(params[:id])
+     job_id = CloneMasterFiles.exec({unit: unit, list: params[:masterfiles]})
+     render :text=>job_id, status: :ok
+  end
+  member_action :clone_status, method: :get do
+     job = JobStatus.find(params[:job])
+     render :text=>"Invalid job", status: :bad_request and return if job.name != "CloneMasterFiles"
+     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
+     render :text=>job.status, status: :ok
+  end
+
+  member_action :master_files, method: :get do
+     page_size = 10
+     page_idx = 0
+     page_idx = params[:page].to_i()-1 if !params[:page].blank?
+     cnt = MasterFile.where(unit_id: params[:id]).count
+     items = []
+     start_idx = page_idx*page_size
+     end_idx = start_idx+page_size
+     end_idx = cnt if end_idx > cnt
+     maxpage = (cnt/page_size.to_f).ceil
+     MasterFile.where(unit_id: params[:id]).limit(page_size).offset( start_idx ).each do |mf|
+        items << { id: mf.id, filename: mf.filename, title: mf.title, thumb: mf.link_to_image(:small) }
+     end
+     out = {total: cnt, page: params[:page], maxpage: maxpage, start: start_idx+1, end: end_idx, masterfiles: items}
+     render json: out, status: :ok
   end
 
   filter :id
@@ -97,6 +137,8 @@ ActiveAdmin.register Unit do
   filter :agency, :as => :select
   filter :master_files_count, :as => :numeric
 
+  # Indev view ================================================================
+  #
   index do
     selectable_column
     column :id
@@ -140,7 +182,7 @@ ActiveAdmin.register Unit do
             end
          end
       end
-      if !unit.metadata.nil?
+      if !unit.metadata.nil? && !unit.date_archived.blank?
          div do
             link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end
@@ -148,7 +190,15 @@ ActiveAdmin.register Unit do
     end
   end
 
-  show :title => proc{|unit| "Unit ##{unit.id}"} do
+  # Show view =================================================================
+  #
+  show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do |unit|
+    err = unit.last_error
+    if !err.blank?
+      div :class => "columns-none error" do
+         raw("UNIT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
+      end
+    end
     div :class => 'two-column' do
       panel "General Information" do
         attributes_table_for unit do
@@ -178,14 +228,16 @@ ActiveAdmin.register Unit do
           row :remove_watermark do |unit|
             format_boolean_as_yes_no(unit.remove_watermark)
           end
-          row("Date Delivered to DigiServ") do |unit|
-            format_date(unit.date_materials_received)
-          end
-          row("Date Returned from DigiServ") do |unit|
-            format_date(unit.date_materials_returned)
-          end
-          row :date_archived do |unit|
-            format_datetime(unit.date_archived)
+          if unit.reorder == false
+             row("Date Delivered to DigiServ") do |unit|
+               format_date(unit.date_materials_received)
+             end
+             row("Date Returned from DigiServ") do |unit|
+               format_date(unit.date_materials_returned)
+             end
+             row :date_archived do |unit|
+               format_datetime(unit.date_archived)
+             end
           end
           row :date_patron_deliverables_ready do |unit|
             format_datetime(unit.date_patron_deliverables_ready)
@@ -194,95 +246,78 @@ ActiveAdmin.register Unit do
       end
     end
 
-    div :class => "columns-none" do
-      panel "Digital Library Information", :toggle => 'show' do
-        attributes_table_for unit do
-          row ("In Digital Library?") do |unit|
-            format_boolean_as_yes_no(unit.include_in_dl)
-          end
-          row :date_queued_for_ingest do |unit|
-            format_datetime(unit.date_queued_for_ingest)
-          end
-          row :date_dl_deliverables_ready do |unit|
-            format_datetime(unit.date_dl_deliverables_ready)
-          end
-        end
-      end
+    if !unit.reorder
+       div :class => "columns-none" do
+         panel "Digital Library Information", :toggle => 'show' do
+           attributes_table_for unit do
+             row ("In Digital Library?") do |unit|
+               format_boolean_as_yes_no(unit.include_in_dl)
+             end
+             row :date_queued_for_ingest do |unit|
+               format_datetime(unit.date_queued_for_ingest)
+             end
+             row :date_dl_deliverables_ready do |unit|
+               format_datetime(unit.date_dl_deliverables_ready)
+             end
+           end
+         end
+       end
     end
 
+    # Attachments info ========================================================
+    #
     div :class => "columns-none" do
-      if !unit.master_files.empty?
-        page_size = params[:page_size]
-        page_size = 15 if page_size.nil?
-        panel "Master Files", :toggle => 'show' do
-          div do
-             all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
-             token =  Time.now.to_i
-             url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
-             pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
-             if page_size.to_i < unit.master_files.count
-                raw("#{all_btn}#{pdf_btn}")
-             else
-                raw("#{pdf_btn}")
-             end
-          end
-          paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
-             table_for collection do |mf|
-               column ('') do |mf|
-                  raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+      panel "Attachments", :toggle => 'show' do
+         div :class=>'panel-buttons' do
+            add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
+            raw("#{add_btn}")
+         end
+         if !unit.attachments.empty?
+            table_for unit.attachments do |att|
+               column :filename
+               column :description
+               column("") do |a|
+                  div do
+                    link_to "Download", "/admin/units/#{unit.id}/download?attachment=#{a.id}", :class => "member_link view_link"
+                  end
+                  div do
+                    msg = "Are you sure you want to delete atachment '#{a.filename}'?"
+                    link_to "Delete", "/admin/units/#{unit.id}/remove?attachment=#{a.id}",
+                        :class => "member_link view_link", :method => :delete, data: { confirm: msg }
+                  end
                end
-               column :filename, :sortable => false
-               column :title do |mf|
-                 truncate_words(mf.title)
+            end
+         else
+            div "No attachments are associated with this unit"
+         end
+      end
+    end
+    render :partial=>"modals", :locals=>{ unit: unit}
+
+    # Master Files info =======================================================
+    #
+    div :class => "columns-none" do
+      panel "Master Files", :toggle => 'show' do
+         if unit.master_files.empty?
+            if unit.intended_use.id != 110 # Digital Collection Building
+               div :class=>'panel-buttons' do
+                  add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
+                  raw("#{add_btn}")
                end
-               column :description do |mf|
-                 truncate_words(mf.description)
-               end
-               column :date_archived do |mf|
-                 format_date(mf.date_archived)
-               end
-               column :date_dl_ingest do |mf|
-                 format_date(mf.date_dl_ingest)
-               end
-               column :pid, :sortable => false
-               column("Thumbnail") do |mf|
-                 link_to image_tag(mf.link_to_image(:small)),
-                    "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-               end
-               column("") do |mf|
-                 div do
-                   link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
-                 end
-                 div do
-                    link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
-                 end
-                 if !current_user.viewer?
-                    div do
-                      link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
-                    end
-                    if ocr_enabled?
-                       div do
-                          link_to "OCR", "/admin/ocr?mf=#{mf.id}"
-                       end
-                    end
-                 end
-                 if mf.date_archived
-                   div do
-                     link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
-                   end
-                 end
-               end
-             end
-          end
-          div :style=>'clear:both' do end
-        end
-      else
-        panel "No Master Files Directly Associated with this Component"
+            end
+            div id: "masterfile-list" do
+               "No master files are ssociated with this unit"
+            end
+            render "clone_masterfiles", :context => self
+         else
+            render "unit_masterfiles", :context => self
+         end
       end
     end
   end
 
-  # EDIT page ================================================================
+  # EDIT page =================================================================
+  #
   form :partial => "edit"
 
   sidebar "Related Information", :only => [:show] do
@@ -302,16 +337,21 @@ ActiveAdmin.register Unit do
   end
 
   # XML Upload / Download
-  sidebar :bulk_xml_actions, :only => :show,  if: proc{ !current_user.viewer? } do
+  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? } do
      div :class => 'workflow_button' do
-        button_to "Bulk Upload", bulk_upload_xml_admin_unit_path, :method => :put
+        button_to "XML Upload", bulk_upload_xml_admin_unit_path, :method => :put
      end
-     div :class => 'workflow_button' do
-        button_to "Bulk Download", bulk_download_xml_admin_unit_path, :method => :put
+     if unit.has_xml_masterfiles?
+        div :class => 'workflow_button' do
+           button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
+        end
+        div :class => 'workflow_button' do
+          raw("<span id='update-dl-settings'>Update DL Settings</span>")
+       end
      end
   end
 
-  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !unit.reorder } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
@@ -330,15 +370,30 @@ ActiveAdmin.register Unit do
 
   sidebar "Delivery Workflow", :only => [:show] do
     if !current_user.viewer?
-       if File.exist?(File.join(IN_PROCESS_DIR, "%09d" % unit.id))
-            if not unit.date_archived
+       if unit.has_in_process_files?
+            if unit.date_archived.blank? && unit.reorder == false
               div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
               div :class => 'workflow_button' do button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put end
               div :class => 'workflow_button' do button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put end
               div :class => 'workflow_button' do button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put end
             end
-            if unit.intended_use != 'Digital Collection Buidling' && !unit.date_patron_deliverables_ready
-               div :class => 'workflow_button' do button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put end
+            if unit.intended_use != 'Digital Collection Buidling'
+               if !unit.date_patron_deliverables_ready
+                  div :class => 'workflow_button' do
+                     button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  end
+                  if unit.reorder && unit.order.all_reorders_ready? && unit.order.units.count > 1
+                     div do hr :class=>'sidebar-sep' end
+                     div :class => 'workflow_button' do
+                        button_to "Generate All Deliverables", generate_all_deliverables_admin_unit_path, :method => :put
+                     end
+                     div do "Generate deliverables for all units in this order." end
+                  end
+               else
+                   div :class => 'workflow_button' do
+                      button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+                   end
+               end
             end
        else
           if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
@@ -354,8 +409,9 @@ ActiveAdmin.register Unit do
     if unit.date_archived
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
     else
-      div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put, :disabled => true end
-      div do "This unit cannot be downloaded because it is not archived." end
+      if  unit.reorder == false
+         div do "This unit cannot be downloaded because it is not archived." end
+      end
     end
   end
 
@@ -384,6 +440,45 @@ ActiveAdmin.register Unit do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
   end
 
+  member_action :download, :method => :get do
+     unit = Unit.find(params[:id])
+     att = Attachment.find(params[:attachment])
+     unit_dir = "%09d" % unit.id
+     dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+     dest_file = File.join(dest_dir, att.filename)
+     if File.exist? dest_file
+        send_file dest_file
+     else
+        redirect_to "/admin/units/#{params[:id]}", :notice => "Unable to find source file for attachment!"
+     end
+  end
+
+  member_action :remove, :method => :delete do
+     unit = Unit.find(params[:id])
+     att = Attachment.find(params[:attachment])
+     unit_dir = "%09d" % unit.id
+     dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+     dest_file = File.join(dest_dir, att.filename)
+     if File.exist? dest_file
+        FileUtils.rm(dest_file)
+     end
+     att.destroy
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+  end
+
+  member_action :attachment, :method => :post do
+     unit = Unit.find(params[:id])
+     filename = params[:attachment].original_filename
+     upload_file = params[:attachment].tempfile.path
+     begin
+        AttachFile.exec_now({unit: unit, filename: filename, tmpfile: upload_file, description: params[:description]})
+        render nothing: true
+     rescue Exception => e
+        Rails.logger.error e.to_s
+        render text: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
+     end
+  end
+
   member_action :print_routing_slip, :method => :put do
     @unit = Unit.find(params[:id])
     @metadata = { title: "", location: "", call_number:"" }
@@ -402,6 +497,12 @@ ActiveAdmin.register Unit do
   end
 
   # Member actions for workflow
+  member_action :generate_all_deliverables, :method=>:put do
+     unit = Unit.find(params[:id])
+     GenerateAllReorderDeliverables.exec({order: unit.order})
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Generating deliverables for all units in the order."
+  end
+
   member_action :regenerate_deliverables, :method=>:put do
      unit = Unit.find(params[:id])
      RecreatePatronDeliverables.exec({unit: unit})
@@ -499,5 +600,16 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
+  end
+
+  controller do
+     before_filter :get_digital_collection_units, only: [:show]
+     def get_digital_collection_units
+        metadata = resource.metadata
+        @dc_units = []
+        Unit.where(metadata: metadata).where(intended_use_id: 110).each do |u|
+           @dc_units << u.id
+        end
+     end
   end
 end
