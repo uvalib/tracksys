@@ -554,7 +554,7 @@ ActiveAdmin.register Unit do
         unit.metadata.publish_to_test
      end
      unit.master_files.each do |mf|
-        if unit.metadata.id != mf.metadata.id
+        if mf.metadata.discoverability && unit.metadata.id != mf.metadata.id
            mf.metadata.publish_to_test
         end
      end

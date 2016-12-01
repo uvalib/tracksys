@@ -142,10 +142,6 @@ class Metadata < ActiveRecord::Base
    end
 
    def publish_to_test
-      # ensure that required fields are set
-      if !self.discoverability
-         self.update(discoverability: 1)
-      end
       if self.indexing_scenario.blank?
          if self.type == "XmlMetadata"
             self.update(indexing_scenario_id: 2)
