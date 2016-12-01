@@ -19,7 +19,18 @@
        <% end %>
        <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
        <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
-       <%= f.input :collection_facet, :as => :string %>
+       <li class="select input optional" id="xml_metadata_collection_facet_input">
+          <label for="xml_metadata_collection_facet" class="label">Collection Facet</label>
+          <select name="xml_metadata[collection_facet]" id="xml_metadata_collection_facet" >
+             <option value="" disabled selected>Select a facet</option>
+             <option value="">None</option>
+             <% CollectionFacet.all.order(name: :asc).each do |c| %>
+                <% selected = ""
+                   selected = "selected='selected'" if c.name == @xml_metadata.collection_facet %>
+                <option value="<%= c.name %>" <%= selected %> ><%= c.name %></option>
+             <% end %>
+          </select>
+       </li>
    <% end %>
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
