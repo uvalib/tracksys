@@ -61,7 +61,7 @@ class Metadata < ActiveRecord::Base
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
       self.discoverability = true if self.discoverability.nil?
-      self.collection_facet = nil if self.collection_facet.downcase == "none"
+      self.collection_facet = nil if !self.collection_facet.nil? && self.collection_facet.downcase == "none"
 
       # default right statement to not Evaluated
       if self.use_right.blank?
