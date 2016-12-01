@@ -196,7 +196,7 @@ ActiveAdmin.register Unit do
     err = unit.last_error
     if !err.blank?
       div :class => "columns-none error" do
-         raw("UNIT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
+         raw("RECENT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
       end
     end
     div :class => 'two-column' do
@@ -423,7 +423,10 @@ ActiveAdmin.register Unit do
     end
     if unit.in_dl?
       div :class => 'workflow_button' do
-         button_to "Publish All", publish_admin_unit_path(:datastream => 'all'), :method => :put
+         button_to "Publish All", publish_admin_unit_path(), :method => :put
+      end
+      div :class => 'workflow_button' do
+         button_to "Publish to Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
       end
     else
       div :class => 'workflow_button' do

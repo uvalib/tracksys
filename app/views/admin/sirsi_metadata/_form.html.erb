@@ -26,8 +26,19 @@
       <%= f.input :discoverability, :as => :select %>
       <%= f.input :use_right, label: "Right Statement" %>
       <%= f.input :indexing_scenario %>
-      <%= f.input :collection_facet, :as => :select, :collection => CollectionFacet.all.order(name: :asc).map(&:name),
-                  :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+      <li class="select input optional" id="sirsi_metadata_collection_facet_input">
+         <label for="sirsi_metadata_collection_facet" class="label">Collection Facet</label>
+         <select name="sirsi_metadata[collection_facet]" id="sirsi_metadata_collection_facet" >
+            <option value="" disabled selected>Select a facet</option>
+            <option value="">None</option>
+            <% CollectionFacet.all.order(name: :asc).each do |c| %>
+               <% selected = ""
+                  selected = "selected='selected'" if c.name == @sirsi_metadata.collection_facet %>
+               <option value="<%= c.name %>" <%= selected %> ><%= c.name %></option>
+            <% end %>
+         </select>
+      </li>
+
       <%= f.input :dpla, :as => :radio %>
       <% if @sirsi_metadata.dpla %>
          <%= f.input :parent_bibl_id, :as => :select, :label=>"Parent Metadata",
