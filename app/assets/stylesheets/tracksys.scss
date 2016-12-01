@@ -4,6 +4,46 @@ hr.sidebar-sep {
    border-bottom: 1px solid #ccc;
    margin: 15px 0;
 }
+span.action_item a.deaccession {
+   background-color: #a33 !important;
+   background-image: none !important;
+   &:hover {
+      background-color: #c55 !important;
+   }
+}
+span.deaccessioned {
+   padding: 5px 15px;
+   border: 1px solid #444;
+   background: #999;
+   color: #f5f5f5;
+   text-shadow: 1px 1px black;
+   font-weight: bold;
+   display: inline-block;
+   cursor: default;
+}
+#deaccession-modal {
+   #note-required {
+      color: #a00;
+      font-weight: bold;
+      font-style: italic;
+      float: right;
+   }
+   .warning {
+      margin: 15px;
+      background: #900;
+      padding: 5px;
+      color: white;
+      border: 4px double #fe9;
+      box-shadow: 1px 1px 5px #999;
+      border-radius: 8px;
+      p {
+         padding: 0;
+         margin: 5px;
+         text-shadow: 1px 1px black;
+         font-weight: bold;
+      }
+   }
+}
 div.columns-none.error {
    background-color: #b44;
    margin: -15px 0 15px 0;

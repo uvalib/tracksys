@@ -7,6 +7,7 @@ class MasterFile < ActiveRecord::Base
    belongs_to :unit
    belongs_to :metadata
    belongs_to :item
+   belongs_to :deaccessioned_by, class_name: "StaffMember", foreign_key: "deaccessioned_by_id"
 
    has_many :reorders, class_name: "MasterFile", foreign_key: "original_mf_id"
    belongs_to :original, class_name: "MasterFile", foreign_key: "original_mf_id"
@@ -64,6 +65,10 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    # public class methods
    #------------------------------------------------------------------
+   def deaccessioned?
+      return !self.deaccessioned_at.blank?
+   end
+
    def in_dl?
       return self.date_dl_ingest?
    end
@@ -101,7 +106,7 @@ class MasterFile < ActiveRecord::Base
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
-   def iiif_path(pid)
+   def self.iiif_path(pid)
       pid_parts = pid.split(":")
       base = pid_parts[1]
       parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd

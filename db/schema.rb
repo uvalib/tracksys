@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161117194053) do
+ActiveRecord::Schema.define(version: 20161130151303) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -268,26 +268,29 @@ ActiveRecord::Schema.define(version: 20161117194053) do
   end
 
   create_table "master_files", force: :cascade do |t|
-    t.integer  "unit_id",            limit: 4,     default: 0, null: false
-    t.integer  "component_id",       limit: 4
-    t.string   "filename",           limit: 255
-    t.integer  "filesize",           limit: 4
-    t.string   "title",              limit: 255
+    t.integer  "unit_id",             limit: 4,     default: 0, null: false
+    t.integer  "component_id",        limit: 4
+    t.string   "filename",            limit: 255
+    t.integer  "filesize",            limit: 4
+    t.string   "title",               limit: 255
     t.datetime "date_archived"
-    t.text     "description",        limit: 65535
-    t.string   "pid",                limit: 255
+    t.text     "description",         limit: 65535
+    t.string   "pid",                 limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "transcription_text", limit: 65535
-    t.string   "md5",                limit: 255
+    t.text     "transcription_text",  limit: 65535
+    t.string   "md5",                 limit: 255
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.string   "creator_death_date", limit: 255
-    t.string   "creation_date",      limit: 255
-    t.string   "primary_author",     limit: 255
-    t.integer  "item_id",            limit: 4
-    t.integer  "metadata_id",        limit: 4
-    t.integer  "original_mf_id",     limit: 4
+    t.string   "creator_death_date",  limit: 255
+    t.string   "creation_date",       limit: 255
+    t.string   "primary_author",      limit: 255
+    t.integer  "item_id",             limit: 4
+    t.integer  "metadata_id",         limit: 4
+    t.integer  "original_mf_id",      limit: 4
+    t.datetime "deaccessioned_at"
+    t.text     "deaccession_note",    limit: 65535
+    t.integer  "deaccessioned_by_id", limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree

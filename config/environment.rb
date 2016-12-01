@@ -64,5 +64,7 @@ IVIEW_CATALOG_EXPORT_DIR = "#{PRODUCTION_MOUNT}/administrative/EAD2iViewXML"
 
 NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
+DEACCESSION_USERS = Settings.deaccession_users.split(",")
+
 # Initialize the rails application
 Tracksys::Application.initialize!

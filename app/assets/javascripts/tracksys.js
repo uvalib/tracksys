@@ -56,6 +56,45 @@ $(function() {
 
    $('#desc_meta_div').click( anobj );
 
+   // show deaccession modal
+   $("#deaccession-btn").on("click", function(event) {
+      event.stopPropagation();
+      $("#dimmer").show();
+      $("#deaccession-modal").show();
+   });
+   $("#cancel-deaccession").on("click", function() {
+      $("#dimmer").hide();
+      $("#deaccession-modal").hide();
+   });
+   $("#submit-deaccession").on("click", function() {
+      resp = confirm("This master file will be permanently removed.\n\nAre you sure?");
+      if (!resp) {
+         return;
+      }
+      var note = $("#deaccession-note").val();
+      if (note.length == 0) {
+         $("#note-required").show();
+         $("#deaccession-note").focus();
+         return;
+      }
+      $("#note-required").hide();
+      $("#dimmer").hide();
+      $("#deaccession-modal").hide();
+      var url = "/admin/master_files/"+$("#deaccession-modal").data("id")+"/deaccession";
+      $.ajax({
+         url: url,
+         method: "POST",
+         data: {note: note},
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to deaccession master file: "+jqXHR.responseText);
+            } else {
+               window.location.reload();
+            }
+         }
+      });
+   });
+
    // Toggle between Sirsi/Xml metadata
    $("#metadata-type-picker").on("change", function() {
       var metadataType = $(this).val();

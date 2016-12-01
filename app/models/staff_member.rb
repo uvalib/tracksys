@@ -28,18 +28,6 @@ class StaffMember < ActiveRecord::Base
   validates :role, :presence=>true
 
 public
-
-  #------------------------------------------------------------------
-  # public class methods
-  #------------------------------------------------------------------
-
-  # Returns a string containing a brief, general description of this
-  # class/model.
-  def StaffMember.class_description
-    return 'Staff Member represents an internal staff member, with an Access Level into the system and Tasks to perform.'
-  end
-
-
   #------------------------------------------------------------------
   # public instance methods
   #------------------------------------------------------------------
@@ -57,6 +45,9 @@ public
   end
   def supervisor?
      return self.role.name == "Supervisor"
+  end
+  def can_deaccession?
+     return DEACCESSION_USERS.include? self.computing_id
   end
 
   # Returns a boolean value indicating whether the StaffMember is

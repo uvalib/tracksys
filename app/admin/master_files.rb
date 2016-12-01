@@ -15,21 +15,21 @@ ActiveAdmin.register MasterFile do
    # Setup Action Items =======================================================
    config.clear_action_items!
    action_item :edit, only: :show do
-      link_to "Edit", edit_resource_path  if !current_user.viewer?
+      link_to "Edit", edit_resource_path  if !current_user.viewer? && !master_file.deaccessioned?
    end
 
    action_item :pdf, :only => :show do
-      if !master_file.metadata.nil? && !master_file.unit.date_archived.blank?
+      if !master_file.metadata.nil? && !master_file.unit.date_archived.blank? && !master_file.deaccessioned?
          raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
       end
    end
 
    action_item :ocr, only: :show do
-      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled?
+      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled? && !master_file.deaccessioned?
    end
 
    action_item :transcribe, only: :show do
-      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer?
+      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer? && !master_file.deaccessioned?
    end
 
    action_item :previous, :only => :show do
@@ -41,8 +41,14 @@ ActiveAdmin.register MasterFile do
    end
 
    action_item :download, :only => :show do
-      if master_file.date_archived
+      if master_file.date_archived && !master_file.deaccessioned?
          link_to "Download", download_from_archive_admin_master_file_path(master_file.id), :method => :get
+      end
+   end
+
+   action_item :deaccession, :only => :show do
+      if master_file.is_original? && master_file.reorders.size == 0 && current_user.can_deaccession? && !master_file.deaccessioned?
+         link_to "Deaccession", "#", :class=>'deaccession', id: "deaccession-btn"
       end
    end
 
@@ -112,19 +118,23 @@ ActiveAdmin.register MasterFile do
       end
       column :unit
       column("Thumbnail") do |mf|
-         link_to image_tag(mf.link_to_image(:small)),
-            "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+         if mf.deaccessioned?
+            span class: "deaccessioned" do "Deaccessioned" end
+         else
+            link_to image_tag(mf.link_to_image(:small)),
+               "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+         end
       end
       column("") do |mf|
          div do
             link_to "Details", resource_path(mf), :class => "member_link view_link"
          end
-         if !mf.metadata.nil? && !mf.unit.date_archived.blank?
+         if !mf.metadata.nil? && !mf.unit.date_archived.blank? && !mf.deaccessioned?
             div do
                link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
             end
          end
-         if !current_user.viewer?
+         if !current_user.viewer? && !mf.deaccessioned?
             div do
                link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
             end
@@ -134,7 +144,7 @@ ActiveAdmin.register MasterFile do
                end
             end
          end
-         if mf.date_archived
+         if mf.date_archived && !mf.deaccessioned?
             div do
                link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
             end
@@ -144,9 +154,22 @@ ActiveAdmin.register MasterFile do
 
    # Show =====================================================================
    #
-   show :title => proc {|mf| mf.filename } do
+   show :title => lambda{|mf|  mf.deaccessioned? ?  "#{mf.filename} : DEACCESSIONED" : mf.filename } do
       render :partial=>"pinit"
       div :class => 'two-column' do
+         if master_file.deaccessioned?
+            panel "Deaccession Information" do
+               attributes_table_for master_file do
+                  row("Date Deaccessioned") do |master_file|
+                     format_date(master_file.deaccessioned_at)
+                  end
+                  row :deaccessioned_by
+                  row :deaccession_note do |master_file|
+                    raw(master_file.deaccession_note.gsub(/\n/, '<br/>'))
+                  end
+               end
+            end
+         end
          panel "General Information" do
             attributes_table_for master_file do
                row :pid
@@ -172,6 +195,7 @@ ActiveAdmin.register MasterFile do
             end
          end
       end
+      render :partial=>"deaccession", :locals=>{ mf: master_file}
 
       div :class => 'two-column' do
          panel "Technical Information", :id => 'master_files', :toggle => 'show' do
@@ -215,7 +239,7 @@ ActiveAdmin.register MasterFile do
    # EDIT page ================================================================
    form :partial => "edit"
 
-   sidebar "Thumbnail", :only => [:show] do
+   sidebar "Thumbnail", :only => [:show],  if: proc{ !master_file.deaccessioned? } do
       div :style=>"text-align:center" do
          link_to image_tag(master_file.link_to_image(:medium)),
             "#{master_file.link_to_image(:large)}",
@@ -241,6 +265,16 @@ ActiveAdmin.register MasterFile do
          end
          row :customer
          row :agency
+      end
+   end
+
+   member_action :deaccession, :method => :post do
+      mf = MasterFile.find(params[:id])
+      begin
+         DeaccessionMasterFile.exec_now({master_file: mf, user: current_user, note: params[:note] })
+         render :nothing=>true
+      rescue Exception=>e
+         render :text=> "Deaccession failed: #{e.message}", :status=>:error
       end
    end
 

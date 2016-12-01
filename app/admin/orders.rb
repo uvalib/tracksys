@@ -84,7 +84,7 @@ ActiveAdmin.register Order do
      err = order.last_error
      if !err.blank?
       div :class => "columns-none error" do
-          raw("ORDER ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
+          raw("RECENT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
       end
      end
     div :class => 'two-column' do

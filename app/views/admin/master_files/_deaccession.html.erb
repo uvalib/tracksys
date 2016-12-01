@@ -1,0 +1,22 @@
+<div id="dimmer">
+   <div id="deaccession-modal" data-id="<%= mf.id %>" class="modal">
+      <h1>Master File Deaccession</h1>
+      <div class="warning">
+         <p>Warning:</p>
+         <p>
+            Clicking the deaccession button will permanently remove this master file from
+            Virgo, IIIF, and the archive. It cannot be reversed.
+         </p>
+      </div>
+      <div class="content">
+         <div>
+            <label>Deaccession Note: <span id="note-required" style="display:none">Note required</span></label>
+            <textarea id="deaccession-note" rows="5"></textarea>
+         </div>
+         <div class="buttons">
+            <input type="button" id="cancel-deaccession" value="Cancel"/>
+            <input type="button" id="submit-deaccession" value="Deaccession"/>
+         </div>
+      </div>
+   </div>
+</div>
