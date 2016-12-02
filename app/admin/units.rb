@@ -35,7 +35,7 @@ ActiveAdmin.register Unit do
   end
 
   action_item :pdf, :only => :show do
-     if !unit.metadata.nil? && !unit.date_archived.blank?
+     if !unit.metadata.nil? && unit.master_files_count > 0
         raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
      end
   end
@@ -177,13 +177,13 @@ ActiveAdmin.register Unit do
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
          end
-         if ocr_enabled? && unit.master_files.count > 0
+         if ocr_enabled? && unit.master_files_count > 0
             div do
                link_to "OCR", "/admin/ocr?u=#{unit.id}"
             end
          end
       end
-      if !unit.metadata.nil? && !unit.date_archived.blank?
+      if !unit.metadata.nil? && unit.master_files_count > 0
          div do
             link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end
@@ -580,7 +580,7 @@ ActiveAdmin.register Unit do
          end
       end
     end
-    logger.info "Unit #{unit.id} and #{unit.master_files.count} master files have been flagged for an update in the DL"
+    logger.info "Unit #{unit.id} and #{unit.master_files_count} master files have been flagged for an update in the DL"
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
   end
 
