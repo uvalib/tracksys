@@ -20,7 +20,7 @@ div id: "masterfile-list" do
       table_for collection do |mf|
          if !unit.metadata.nil? && !unit.date_archived.blank?
             column ('') do |mf|
-               raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>")
+               raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>") if !mf.deaccessioned?
             end
          end
          column :filename, :sortable => false
@@ -38,19 +38,23 @@ div id: "masterfile-list" do
          end
          column :pid, :sortable => false
          column("Thumbnail") do |mf|
-           link_to image_tag(mf.link_to_image(:small)),
-              "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+            if mf.deaccessioned?
+               span class: "deaccessioned" do "Deaccessioned" end
+            else
+               link_to image_tag(mf.link_to_image(:small)), "#{mf.link_to_image(:large)}",
+                  :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
+            end
          end
          column("") do |mf|
            div do
              link_to "Details", admin_master_file_path(mf), :class => "member_link view_link"
            end
-           if !mf.metadata.nil? && !mf.unit.date_archived.blank?
+           if !mf.metadata.nil? && !mf.unit.date_archived.blank? && !mf.deaccessioned?
               div do
                  link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
               end
            end
-           if !current_user.viewer?
+           if !current_user.viewer? && !mf.deaccessioned?
               div do
                 link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
               end
@@ -60,7 +64,7 @@ div id: "masterfile-list" do
                 end
               end
            end
-           if mf.date_archived
+           if mf.date_archived && !mf.deaccessioned?
              div do
                link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
              end
