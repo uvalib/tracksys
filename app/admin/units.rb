@@ -115,6 +115,7 @@ ActiveAdmin.register Unit do
      end_idx = cnt if end_idx > cnt
      maxpage = (cnt/page_size.to_f).ceil
      MasterFile.where(unit_id: params[:id]).limit(page_size).offset( start_idx ).each do |mf|
+        next if mf.deaccessioned?
         items << { id: mf.id, filename: mf.filename, title: mf.title, thumb: mf.link_to_image(:small) }
      end
      out = {total: cnt, page: params[:page], maxpage: maxpage, start: start_idx+1, end: end_idx, masterfiles: items}
