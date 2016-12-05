@@ -8,12 +8,14 @@ class PublishToTest < BaseJob
       raise "Parameter 'unit' is required" if message[:unit].blank?
       unit = message[:unit]
       if unit.metadata.discoverability
-        unit.metadata.publish_to_test
-     end
-     unit.master_files.each do |mf|
-        if mf.metadata.discoverability && unit.metadata.id != mf.metadata.id
-           mf.metadata.publish_to_test
-        end
-     end
+         logger.info "Publish unit ID #{unit.id} to test"
+         unit.metadata.publish_to_test
+      end
+      unit.master_files.each do |mf|
+         if mf.metadata.discoverability && unit.metadata.id != mf.metadata.id
+            logger.info "Publish master file ID #{mf.id} to test"
+            mf.metadata.publish_to_test
+         end
+      end
    end
 end
