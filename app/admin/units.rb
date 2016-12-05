@@ -551,15 +551,8 @@ ActiveAdmin.register Unit do
 
   member_action :publish_to_test, :method => :put do
      unit = Unit.find(params[:id])
-     if unit.metadata.discoverability
-        unit.metadata.publish_to_test
-     end
-     unit.master_files.each do |mf|
-        if mf.metadata.discoverability && unit.metadata.id != mf.metadata.id
-           mf.metadata.publish_to_test
-        end
-     end
-     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo TEST. #{Settings.test_virgo_url}"
+     PublishToTest.exec({unit: unit})
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
   end
 
   member_action :publish, :method => :put do
