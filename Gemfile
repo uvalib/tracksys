@@ -39,7 +39,7 @@ end
 gem 'uglifier'
 gem 'sass-rails'
 gem 'jquery-rails'
-gem 'jquery-ui-rails'
+gem 'jquery-ui-rails', '5.0.5' # Stuck here because of an old dependency in activeadmin
 gem 'jquery-colorbox-rails'
 
 gem 'compass-rails'           # required by chosen rails, but not included by it directly
