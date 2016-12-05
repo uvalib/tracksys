@@ -8,6 +8,23 @@ ActiveAdmin.register Order do
      :date_customer_notified, :email
 
 
+   csv do
+      column :id
+      column :order_status
+      column :order_title
+      column :special_instructions
+      column("Date Archived") {|order| format_date(order.date_archiving_complete)}
+      column("Deliverables Complete") {|order| format_date(order.date_patron_deliverables_complete)}
+      column("Customer Notified") {|order| format_date(order.date_customer_notified)}
+      column("Date Due") {|order| format_date(order.date_due)}
+      column :units_count
+      column :master_files_count
+      column("Customer") {|order| order.customer.full_name }
+      column("Department") {|order| order.customer.department.name if !order.customer.department.blank?}
+      column("Acedemic Status") {|order| order.customer.academic_status.name}
+      column("Charged Fee") {|order| order.fee_actual}
+   end
+
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer?
