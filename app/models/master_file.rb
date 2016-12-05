@@ -152,24 +152,28 @@ end
 #
 # Table name: master_files
 #
-#  id                 :integer          not null, primary key
-#  unit_id            :integer          default(0), not null
-#  component_id       :integer
-#  filename           :string(255)
-#  filesize           :integer
-#  title              :string(255)
-#  date_archived      :datetime
-#  description        :text(65535)
-#  pid                :string(255)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  transcription_text :text(65535)
-#  md5                :string(255)
-#  date_dl_ingest     :datetime
-#  date_dl_update     :datetime
-#  creator_death_date :string(255)
-#  creation_date      :string(255)
-#  primary_author     :string(255)
-#  item_id            :integer
-#  metadata_id        :integer
+#  id                  :integer          not null, primary key
+#  unit_id             :integer          default(0), not null
+#  component_id        :integer
+#  filename            :string(255)
+#  filesize            :integer
+#  title               :string(255)
+#  date_archived       :datetime
+#  description         :text(65535)
+#  pid                 :string(255)
+#  created_at          :datetime
+#  updated_at          :datetime
+#  transcription_text  :text(65535)
+#  md5                 :string(255)
+#  date_dl_ingest      :datetime
+#  date_dl_update      :datetime
+#  creator_death_date  :string(255)
+#  creation_date       :string(255)
+#  primary_author      :string(255)
+#  item_id             :integer
+#  metadata_id         :integer
+#  original_mf_id      :integer
+#  deaccessioned_at    :datetime
+#  deaccession_note    :text(65535)
+#  deaccessioned_by_id :integer
 #

@@ -227,4 +227,5 @@ end
 #  checked_out                    :boolean          default(FALSE)
 #  master_files_count             :integer          default(0)
 #  complete_scan                  :boolean          default(FALSE)
+#  reorder                        :boolean          default(FALSE)
 #
