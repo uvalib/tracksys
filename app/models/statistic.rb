@@ -6,15 +6,22 @@ class Statistic < ActiveRecord::Base
    def self.unit_count( user_type, start_date=nil, end_date = nil)
       query = ""
       if user_type == :all
-         query = "select count(id) from units u where date_archived is not null"
-      elsif user_type == :faculty #5
-         # TODO
-      elsif user_type == :staff #4
-         # TODO
-      elsif user_type == :students #6-8
-         # TODO
+         query = "select count(u.id) from units u where u.date_archived is not null"
       else
-         raise "Invalid user type specified #{user_type}"
+         query = "select count(u.id) from units u"
+         query << " inner join orders o on o.id=u.order_id"
+         query << " inner join customers c on c.id = o.customer_id"
+         query << " inner join academic_statuses a on a.id = c.academic_status_id"
+         query << " where u.date_archived is not null"
+         if user_type == :faculty #5
+            query << " and a.id = 5"
+         elsif user_type == :staff #4
+            query << " and a.id = 4"
+         elsif user_type == :students #6-8
+            query << " and a.id > 5"
+         else
+            raise "Invalid user type specified #{user_type}"
+         end
       end
 
       if !start_date.nil?
