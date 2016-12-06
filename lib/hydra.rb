@@ -86,7 +86,11 @@ module Hydra
       payload.each do |k,v|
          next if v.blank?
          v.strip!
-         params << " #{k}='#{v}'"
+         if v.include? "'"
+            params << " #{k}=\"#{v}\""
+         else
+            params << " #{k}='#{v}'"
+         end
       end
 
       cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl} #{params}"

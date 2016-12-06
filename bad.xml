@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/mods/v3" version="3.6" xsi:schemaLocation="http://www.loc.gov/standards/mods/v3/mods-3-6.xsd">
+  <titleInfo>
+    <title>Presentation at alumni awards banquet at Boar's Head Inn</title>
+  </titleInfo>
+  <name type="personal">
+    <namePart>Skinner, David M., 1921-2009</namePart>
+    <role>
+      <roleTerm authority="marcrelator" type="text">photographer</roleTerm>
+      <roleTerm authority="marcrelator" type="code">pht</roleTerm>
+    </role>
+  </name>
+  <typeOfResource>still image</typeOfResource>
+  <genre authority="lctgm" authorityURI="http://id.loc.gov/vocabulary/graphicMaterials" valueURI="http://id.loc.gov/vocabulary/graphicMaterials/tgm007721">Photographs</genre>
+  <originInfo>
+    <place>
+      <placeTerm>Charlottesville, Va.</placeTerm>
+    </place>
+    <dateCreated encoding="edtf" keyDate="yes">1974-04-16</dateCreated>
+  </originInfo>
+  <physicalDescription>
+    <internetMediaType>image/tiff</internetMediaType>
+    <extent>1 photograph</extent>
+    <digitalOrigin>reformatted digital</digitalOrigin>
+  </physicalDescription>
+  <note displayLabel="staff">Original photographs and negatives arranged in sequence by file numbers, not the original job orders stamped on them.</note>
+  <note displayLabel="staff">From the non-portrait file of David Skinner, photographer for the University of Virginia Graphic Communications Services.</note>
+  <note displayLabel="staff">Additional non-digitized images from the collection are available by patron request in the Special Collections Reading Room.</note>
+  <subject authority="fast" authorityURI="http://id.worldcat.org/fast/">
+    <topic valueURI="http://id.worldcat.org/fast/1128924">Special Events</topic>
+  </subject>
+  <subject authority="lctgm" authorityURI="http://id.loc.gov/vocabulary/graphicMaterials/">
+    <topic valueURI="http://id.loc.gov/vocabulary/graphicMaterials/tgm000279">Alumni</topic>
+  </subject>
+  <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects">
+    <name authority="naf" authorityURI="http://id.loc.gov/authorities/names" type="corporate" valueURI="http://id.loc.gov/authorities/names/n79053979">
+      <namePart>University of Virginia</namePart>
+    </name>
+  </subject>
+  <subject authority="tgn">
+    <geographicCode authority='marcgac'>n-us-va</geographicCode>
+    <hierarchicalGeographic>
+      <country valueURI="http://vocab.getty.edu/tgn/7012149">United States</country>
+      <state valueURI="http://vocab.getty.edu/tgn/2030538">Virginia</state>
+      <city valueURI="http://vocab.getty.edu/tgn/7013585">Charlottesville</city>
+    </hierarchicalGeographic>
+  </subject>
+  <relatedItem type="series" displayLabel="Part of">
+    <titleInfo>
+      <title>University of Virginia Printing Services photograph file</title>
+    </titleInfo>
+  </relatedItem>
+  <relatedItem type="series" displayLabel="Part of">
+    <titleInfo>
+      <title>University of Virginia Visual History Collection</title>
+    </titleInfo>
+  </relatedItem>
+  <identifier displayLabel="Retrieval ID" type="legacy">740077</identifier>
+  <identifier type="accession number">RG-5/7/2.821</identifier>
+  <identifier displayLabel="UVA Library Fedora repository PID" type="pid">uva-lib:2521960</identifier>
+  <identifier displayLabel="File name" type="local">000031990_0146.tif</identifier>
+  <identifier displayLabel="Master file ID" type="local">1195114</identifier>
+  <location>
+    <physicalLocation>Special Collections, University of Virginia Library, Charlottesville, Va.</physicalLocation>
+    <shelfLocator displayLabel="Box">2</shelfLocator>
+  </location>
+  <accessCondition type="restriction on access">There are no restrictions on accessing this material</accessCondition>
+  <accessCondition type="use and reproduction">Copyright the Rectors and Visitors of the University of Virginia. You are free to use this item in any way that is permitted by the copyright and related rights legislation that applies to your use. In addition, no permission is required from the rights-holder(s) for educational uses. For other uses you need to obtain permission from the rights-holders.</accessCondition>
+  <recordInfo>
+    <recordContentSource authority="marcorg">viu</recordContentSource>
+    <recordCreationDate encoding="edtf">2016-09-16</recordCreationDate>
+    <languageOfCataloging>
+      <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+    </languageOfCataloging>
+  </recordInfo>
+</mods>
+
