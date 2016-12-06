@@ -3,6 +3,32 @@ class Statistic < ActiveRecord::Base
    validates :name, uniqueness: true
    validates :value, presence: true
 
+   def self.unit_count( user_type, start_date=nil, end_date = nil)
+      query = ""
+      if user_type == :all
+         query = "select count(id) from units u where date_archived is not null"
+      elsif user_type == :faculty #5
+         # TODO
+      elsif user_type == :staff #4
+         # TODO
+      elsif user_type == :students #6-8
+         # TODO
+      else
+         raise "Invalid user type specified #{user_type}"
+      end
+
+      if !start_date.nil?
+         start_date.to_date
+         query << " and u.created_at >= '#{start_date}'"
+         if !end_date.nil?
+         end_date.to_date
+            query << " and u.created_at <= '#{end_date}'"
+         end
+      end
+
+      return Statistic.connection.execute(query).first.first.to_i
+   end
+
    def self.image_count( location, start_date, end_date = nil)
       query = ""
       if location == :all
@@ -56,11 +82,24 @@ class Statistic < ActiveRecord::Base
          query << " and created_at <= '#{end_date}'"
       end
 
-      return Statistic.connection.execute(query).first.first.to_s
+      return Statistic.connection.execute(query).first.first.to_f
    end
 
    # Gather a set of statistics
    #
+   # Metadata:
+   #
+   # Total # of metadata records (now, on [date], added [date range])
+   # Total # of (SIRSI, XML) metadata records (now, on [date], added [date range])
+   # Total # of metadata records in DL (now, on [date], added [date range])
+   # Total # of (SIRSI, XML) metadata records in DL (now, on [date], added [date range])
+   # Total # of metadata records marked for DPLA (now, on [date], added [date range])
+   # Total # of (SIRSI, XML) metadata records marked for DPLA (now, on [date], added [date range])
+   #
+   # Units:
+   # # of units (total, archived, unarchived)
+   # # of units archived as of [date], over [date range]
+   # # of units archived for (faculty, students, staff) (now, on [date], [date range])
    def self.gather
       # Image count
       cnt =  Statistic.connection.execute("select count(id) from master_files").first.first
@@ -85,5 +124,15 @@ class Statistic < ActiveRecord::Base
       cnt =  Statistic.connection.execute("select sum(filesize)/1073741824.0 as size_gb from master_files where date_dl_ingest is not null").first.first
       stat = Statistic.find_or_create_by(name: "DL Total Image Size (GB)")
       stat.update(value: cnt)
+
+      # unit counts
+      unit_cnt =  Statistic.connection.execute("select count(id) from units").first.first.to_i
+      stat = Statistic.find_or_create_by(name: "Unit Count")
+      stat.update(value: unit_cnt)
+      cnt =  Statistic.connection.execute("select count(id) from units where date_archived is not null").first.first.to_i
+      stat = Statistic.find_or_create_by(name: "Archived Unit Count")
+      stat.update(value: cnt)
+      stat = Statistic.find_or_create_by(name: "Unarchived Unit Count")
+      stat.update(value: unit_cnt-cnt)
    end
 end
