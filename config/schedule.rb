@@ -25,5 +25,5 @@ every 1.day, :at => '12:00 am' do
 end
 
 every 1.day, :at => '3:00 am' do
-  runner "Statistic.gather"
+  runner "Statistic.snapshot"
 end

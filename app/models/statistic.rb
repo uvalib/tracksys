@@ -3,143 +3,187 @@ class Statistic < ActiveRecord::Base
    validates :name, uniqueness: true
    validates :value, presence: true
 
-   def self.unit_count( user_type, start_date=nil, end_date = nil)
-      query = ""
-      if user_type == :all
-         query = "select count(u.id) from units u where u.date_archived is not null"
-      else
-         query = "select count(u.id) from units u"
+   def self.unit_count( type=:all, user=:all, start_date=nil, end_date = nil)
+      raise "Invalid unit type #{type}" if type != :all && type != :archived && type != :unarchived
+      raise "Invalid user type #{user}" if user != :all && user != :student && user != :faculty && user != :staff && user != :nonuva
+      query = "select count(u.id) from units u"
+      if user != :all
          query << " inner join orders o on o.id=u.order_id"
          query << " inner join customers c on c.id = o.customer_id"
          query << " inner join academic_statuses a on a.id = c.academic_status_id"
-         query << " where u.date_archived is not null"
-         if user_type == :faculty #5
-            query << " and a.id = 5"
-         elsif user_type == :staff #4
-            query << " and a.id = 4"
-         elsif user_type == :students #6-8
-            query << " and a.id > 5"
-         else
-            raise "Invalid user type specified #{user_type}"
-         end
       end
+
+      conditions = []
+      conditions << "u.date_archived is not null" if type == :archived
+      conditions << "u.date_archived is null" if type == :unarchived
+
+      conditions << "a.id = 1" if user == :nonuva
+      conditions << "a.id = 4" if user == :staff
+      conditions << "a.id = 5" if user == :faculty
+      conditions << "a.id > 5" if user == :student
 
       if !start_date.nil?
          start_date.to_date
-         query << " and u.created_at >= '#{start_date}'"
+         conditions << "u.created_at >= '#{start_date}'"
          if !end_date.nil?
          end_date.to_date
-            query << " and u.created_at <= '#{end_date}'"
+            conditions << "u.created_at <= '#{end_date}'"
          end
+      end
+
+      if !conditions.empty?
+         query << " where " << conditions.join(" and ")
       end
 
       return Statistic.connection.execute(query).first.first.to_i
    end
 
-   def self.image_count( location, start_date, end_date = nil)
-      query = ""
-      if location == :all
-         query = "select count(id) from master_files i"
-      elsif location == :dl
-         query = "select count(id) from master_files i where i.date_dl_ingest is not null"
-      elsif location == :dpla
-         query = "select count(i.id) from master_files i inner join metadata m on i.metadata_id=m.id and m.dpla=1"
-      else
-         raise "Invalid location specified #{location}"
+   def self.image_count( location=:all, start_date=nil, end_date = nil)
+      raise "Invalid location #{location}" if location != :all && location != :dl && location != :dpla
+
+      query = "select count(i.id) from master_files i"
+      conditions = []
+      conditions << "i.date_dl_ingest is not null" if location == :dl
+      query << " inner join metadata m on i.metadata_id=m.id and m.dpla=1" if location == :dpla
+
+      if !start_date.nil?
+         start_date.to_date
+         conditions << "created_at >= '#{start_date}'"
+         if !end_date.nil?
+         end_date.to_date
+            conditions << "created_at <= '#{end_date}'"
+         end
       end
 
-      # this will rais an exception if the date is not valid
-      start_date.to_date
-
-      if query.include? "where"
-         query << " and "
-      else
-         query << " where "
-      end
-      query << "i.created_at >= '#{start_date}'"
-      if !end_date.nil?
-      end_date.to_date
-         query << " and i.created_at <= '#{end_date}'"
+      if !conditions.empty?
+         query << " where " << conditions.join(" and ")
       end
 
       return Statistic.connection.execute(query).first.first
    end
 
-   def self.image_size( location, start_date, end_date = nil)
-      query = ""
-      if location == :all
-         query = "select sum(filesize)/1073741824.0 as size_gb from master_files"
-      elsif location == :dl
-         query = "select sum(filesize)/1073741824.0 as size_gb from master_files where date_dl_ingest is not null"
-      else
-         raise "Invalid location specified #{location}"
+   def self.image_size( location=:all, start_date=nil, end_date = nil)
+      raise "Invalid location #{location}" if location != :all && location != :dl
+
+      query = "select sum(filesize)/1073741824.0 as size_gb from master_files"
+      conditions = []
+      conditions << "date_dl_ingest is not null" if location == :dl
+
+      if !start_date.nil?
+         start_date.to_date
+         conditions << "created_at >= '#{start_date}'"
+         if !end_date.nil?
+         end_date.to_date
+            conditions << "created_at <= '#{end_date}'"
+         end
       end
 
-      # this will rais an exception if the date is not valid
-      start_date.to_date
-
-      if query.include? "where"
-         query << " and "
-      else
-         query << " where "
+      if !conditions.empty?
+         query << " where " << conditions.join(" and ")
       end
-      query << "created_at >= '#{start_date}'"
-      if !end_date.nil?
-      end_date.to_date
-         query << " and created_at <= '#{end_date}'"
-      end
-
       return Statistic.connection.execute(query).first.first.to_f
+   end
+
+   def self.metadata_count(type=:all, location=:all, start_date=nil, end_date=nil)
+      raise "Invalid metadata type #{type}" if type != :all && type != :sirsi && type != :xml
+      raise "Invalid location #{location}" if location != :all && location != :dl && location != :dpla
+
+      query = "select count(*) from metadata"
+      conditions = []
+      conditions << "type='SirsiMetadata'" if type == :sirsi
+      conditions << "type='XmlMetadata'" if type == :xml
+
+      conditions << "date_dl_ingest is not null" if location == :dl
+      conditions << "dpla = true" if location == :dpla
+
+      if !start_date.nil?
+         start_date.to_date
+         conditions << "created_at >= '#{start_date}'"
+         if !end_date.nil?
+         end_date.to_date
+            conditions << "created_at <= '#{end_date}'"
+         end
+      end
+
+      if !conditions.empty?
+         query << " where " << conditions.join(" and ")
+      end
+      return Statistic.connection.execute(query).first.first.to_i
    end
 
    # Gather a set of statistics
    #
-   # Metadata:
-   #
-   # Total # of metadata records (now, on [date], added [date range])
-   # Total # of (SIRSI, XML) metadata records (now, on [date], added [date range])
-   # Total # of metadata records in DL (now, on [date], added [date range])
-   # Total # of (SIRSI, XML) metadata records in DL (now, on [date], added [date range])
-   # Total # of metadata records marked for DPLA (now, on [date], added [date range])
-   # Total # of (SIRSI, XML) metadata records marked for DPLA (now, on [date], added [date range])
-   #
-   # Units:
-   # # of units (total, archived, unarchived)
-   # # of units archived as of [date], over [date range]
-   # # of units archived for (faculty, students, staff) (now, on [date], [date range])
-   def self.gather
-      # Image count
-      cnt =  Statistic.connection.execute("select count(id) from master_files").first.first
+   def self.snapshot
+      # Image counts
+      cnt =  Statistic.image_count :all
       stat = Statistic.find_or_create_by(name: "Image Count")
       stat.update(value: cnt)
-
-      # DL Image count
-      cnt =  Statistic.connection.execute("select count(id) from master_files where date_dl_ingest is not null").first.first
+      cnt =  Statistic.image_count :dl
       stat = Statistic.find_or_create_by(name: "DL Image Count")
       stat.update(value: cnt)
-
-      # DPLA Image count
-      q = "select count(i.id) from master_files i inner join metadata m on i.metadata_id=m.id and m.dpla=1"
-      cnt =  Statistic.connection.execute(q).first.first
+      cnt =  Statistic.image_count :dpla
       stat = Statistic.find_or_create_by(name: "DPLA Image Count")
       stat.update(value: cnt)
 
       # Total image size
-      cnt =  Statistic.connection.execute("select sum(filesize)/1073741824.0 as size_gb from master_files").first.first
+      cnt =  Statistic.image_size :all
       stat = Statistic.find_or_create_by(name: "Total Image Size (GB)")
       stat.update(value: cnt)
-      cnt =  Statistic.connection.execute("select sum(filesize)/1073741824.0 as size_gb from master_files where date_dl_ingest is not null").first.first
+      cnt =  Statistic.image_size :dl
       stat = Statistic.find_or_create_by(name: "DL Total Image Size (GB)")
       stat.update(value: cnt)
 
       # unit counts
-      unit_cnt =  Statistic.connection.execute("select count(id) from units").first.first.to_i
+      cnt =  Statistic.unit_count :all
       stat = Statistic.find_or_create_by(name: "Unit Count")
-      stat.update(value: unit_cnt)
-      cnt =  Statistic.connection.execute("select count(id) from units where date_archived is not null").first.first.to_i
+      stat.update(value: cnt)
+      cnt =  Statistic.unit_count :archived
       stat = Statistic.find_or_create_by(name: "Archived Unit Count")
       stat.update(value: cnt)
+      cnt = Statistic.unit_count :unarchived
       stat = Statistic.find_or_create_by(name: "Unarchived Unit Count")
-      stat.update(value: unit_cnt-cnt)
+      stat.update(value: cnt)
+      cnt =  Statistic.unit_count :archived, :faculty
+      stat = Statistic.find_or_create_by(name: "Faculty Archived Unit Count")
+      stat.update(value: cnt)
+      cnt =  Statistic.unit_count :archived, :staff
+      stat = Statistic.find_or_create_by(name: "Staff Archived Unit Count")
+      stat.update(value: cnt)
+      cnt =  Statistic.unit_count :archived, :student
+      stat = Statistic.find_or_create_by(name: "Student Archived Unit Count")
+      stat.update(value: cnt)
+
+      # Metadata counts
+      cnt = Statistic.metadata_count
+      stat = Statistic.find_or_create_by(name: "Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :sirsi
+      stat = Statistic.find_or_create_by(name: "SIRSI Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :xml
+      stat = Statistic.find_or_create_by(name: "XML Metadata Count")
+      stat.update(value: cnt)
+
+      # Metadata DL counts
+      cnt = Statistic.metadata_count :all, :dl
+      stat = Statistic.find_or_create_by(name: "DL Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :sirsi, :dl
+      stat = Statistic.find_or_create_by(name: "DL SIRSI Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :xml, :dl
+      stat = Statistic.find_or_create_by(name: "DL XML Metadata Count")
+      stat.update(value: cnt)
+
+      # Metadata DPLA counts
+      cnt = Statistic.metadata_count :all, :dpla
+      stat = Statistic.find_or_create_by(name: "DPLA Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :sirsi, :dpla
+      stat = Statistic.find_or_create_by(name: "DPLA SIRSI Metadata Count")
+      stat.update(value: cnt)
+      cnt = Statistic.metadata_count :xml, :dpla
+      stat = Statistic.find_or_create_by(name: "DPLA XML Metadata Count")
+      stat.update(value: cnt)
    end
 end
