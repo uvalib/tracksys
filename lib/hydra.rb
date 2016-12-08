@@ -72,6 +72,30 @@ module Hydra
    end
 
    def self.solr_transform(metadata, payload)
+      if Settings.use_saxon_servlet == "true"
+         xml = Hydra.servlet_transform(metadata, payload)
+      else
+         xml = Hydra.local_transform(metadata, payload)
+      end
+      return xml
+   end
+
+   def self.servlet_transform(metadata, payload)
+      xform = "default"
+      if !metadata.indexing_scenario.blank? && metadata.indexing_scenario.id == 2
+         xform = "holsinger"
+      end
+      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=desc_metadata"
+      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/#{xform}"
+      payload['clear-stylesheet-cache'] = "yes"
+
+      uri = URI("http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet")
+      response = Net::HTTP.post_form(uri, payload)
+      Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
+      return response.body
+   end
+
+   def self.local_transform(metadata, payload)
       tmp = Tempfile.new([metadata.pid, ".xml"])
       tmp.write(Hydra.desc(metadata))
       tmp.close
