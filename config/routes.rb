@@ -20,5 +20,6 @@ Tracksys::Application.routes.draw do
      get "solr" => "solr#index"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
+     get "stylesheet/:id" => "stylesheet#show"
   end
 end
