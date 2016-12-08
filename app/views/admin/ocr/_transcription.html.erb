@@ -1,7 +1,7 @@
 
-<textarea class="transcription" rows=42><%= mf.transcription_text %></textarea>
+<textarea class="transcription" rows=42 readonly="readonly"><%= mf.transcription_text %></textarea>
 <a class="ocr-button done" href="/admin/master_files/<%= mf.id %>">Back to Master File <%= mf.id %></a>
-<span class="ocr-button transcription">Save OCR Results</span>
+<span class="ocr-button transcription ocr">Save OCR Results</span>
 <div id="ocr-spinner">
    <%= image_tag "spinner.gif" %>
 </div>

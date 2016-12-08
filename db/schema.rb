@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161205161500) do
+ActiveRecord::Schema.define(version: 20161207205503) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -291,6 +291,7 @@ ActiveRecord::Schema.define(version: 20161205161500) do
     t.datetime "deaccessioned_at"
     t.text     "deaccession_note",    limit: 65535
     t.integer  "deaccessioned_by_id", limit: 4
+    t.integer  "text_source",         limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree

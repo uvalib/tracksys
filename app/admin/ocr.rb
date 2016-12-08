@@ -19,7 +19,7 @@ ActiveAdmin.register_page "OCR" do
             end
          end
          div :class => 'two-column' do
-            panel "Transcription", :class=>"transcription" do
+            panel "OCR Results", :class=>"transcription" do
                render partial: 'transcription', :locals=>{:mf=>mf, :job=>ocr_job }
             end
          end
@@ -44,8 +44,18 @@ ActiveAdmin.register_page "OCR" do
    #
    page_action :save, method: :post do
       mf = MasterFile.find(params[:id])
+      prior_content = !mf.transcription_text.blank?
       mf.transcription_text = params[:transcription]
       if mf.save
+         if params[:type] == "ocr"
+            mf.ocr!
+         else
+            if prior_content
+               mf.corrected_ocr!
+            else
+               mf.transcription!
+            end
+         end
          render :text=>"ok", :status=>:ok
       else
          render :text=>mf.errors.full_messages.to_sentence, :status=>:error

@@ -84,10 +84,14 @@ $(function() {
       var url = window.location.href;
       var id = url.split("=")[1];
       var btn = $(this);
+      var textType = "transcription";
+      if (btn.hasClass("ocr")) {
+         textType = "ocr";
+      }
       btn.addClass("disabled");
       $.ajax({
          url: "/admin/ocr/save",
-         data: {id: id, transcription: $("textarea.transcription").val() },
+         data: {id: id, transcription: $("textarea.transcription").val(), type: textType },
          method: "POST",
          complete: function( jqXHR, textStatus ) {
             btn.removeClass("disabled");

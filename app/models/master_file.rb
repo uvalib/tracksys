@@ -1,4 +1,5 @@
 class MasterFile < ActiveRecord::Base
+   enum text_source: {ocr: 0, corrected_ocr: 1, transcription: 2}
 
    #------------------------------------------------------------------
    # relationships
