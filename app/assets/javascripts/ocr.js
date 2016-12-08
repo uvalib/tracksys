@@ -88,10 +88,11 @@ $(function() {
       if (btn.hasClass("ocr")) {
          textType = "ocr";
       }
+      var data = {id: id, type: textType, transcription: $("textarea.transcription").val() }
       btn.addClass("disabled");
       $.ajax({
          url: "/admin/ocr/save",
-         data: {id: id, transcription: $("textarea.transcription").val(), type: textType },
+         data: data,
          method: "POST",
          complete: function( jqXHR, textStatus ) {
             btn.removeClass("disabled");
