@@ -273,7 +273,7 @@ ActiveAdmin.register Unit do
             add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
             raw("#{add_btn}")
          end
-         if !unit.attachments.empty?
+         if !unit.attachments.count == 0
             table_for unit.attachments do |att|
                column :filename
                column :description
@@ -299,7 +299,7 @@ ActiveAdmin.register Unit do
     #
     div :class => "columns-none" do
       panel "Master Files", :toggle => 'show' do
-         if unit.master_files.empty?
+         if unit.master_files.count == 0
             if unit.intended_use.id != 110 # Digital Collection Building
                div :class=>'panel-buttons' do
                   add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
