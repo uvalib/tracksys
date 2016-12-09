@@ -33,7 +33,7 @@ class CloneMasterFiles < BaseJob
          end
 
          if src_mf.md5.blank?
-            on_failure "Archived file #{archived_mf} #{mf.pid} is missing checksum. Calculating now."
+            on_failure "Archived file #{archived_mf} #{src_mf.pid} is missing checksum. Calculating now."
             md5 = Digest::MD5.hexdigest(File.read(archived_mf) )
             src_mf.update(md5: md5)
          end
