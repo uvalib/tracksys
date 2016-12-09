@@ -32,6 +32,12 @@ class CloneMasterFiles < BaseJob
             next
          end
 
+         if src_mf.md5.blank?
+            on_failure "Archived file #{archived_mf} #{mf.pid} is missing checksum. Calculating now."
+            md5 = Digest::MD5.hexdigest(File.read(archived_mf) )
+            src_mf.update(md5: md5)
+         end
+
          logger.info "Cloning master file #{src_mf.id}: #{src_mf.filename}"
          padded_page = "%04d" % page_num
          new_fn = "#{unit_dir}_#{padded_page}.tif"
