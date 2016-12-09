@@ -1,5 +1,5 @@
 ActiveAdmin.register Unit do
-  menu :priority => 4
+  menu :priority => 5
 
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,

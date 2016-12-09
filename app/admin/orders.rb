@@ -1,5 +1,5 @@
 ActiveAdmin.register Order do
-  menu :priority => 3
+  menu :priority => 4
 
   # strong paramters handling
   permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,

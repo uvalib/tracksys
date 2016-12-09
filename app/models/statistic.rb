@@ -117,73 +117,73 @@ class Statistic < ActiveRecord::Base
       # Image counts
       cnt =  Statistic.image_count :all
       stat = Statistic.find_or_create_by(name: "Image Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "image")
       cnt =  Statistic.image_count :dl
       stat = Statistic.find_or_create_by(name: "DL Image Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "image")
       cnt =  Statistic.image_count :dpla
       stat = Statistic.find_or_create_by(name: "DPLA Image Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "image")
 
       # Total image size
       cnt =  Statistic.image_size :all
       stat = Statistic.find_or_create_by(name: "Total Image Size (GB)")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "size")
       cnt =  Statistic.image_size :dl
       stat = Statistic.find_or_create_by(name: "DL Total Image Size (GB)")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "size")
 
       # unit counts
       cnt =  Statistic.unit_count :all
       stat = Statistic.find_or_create_by(name: "Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
       cnt =  Statistic.unit_count :archived
       stat = Statistic.find_or_create_by(name: "Archived Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
       cnt = Statistic.unit_count :unarchived
       stat = Statistic.find_or_create_by(name: "Unarchived Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
       cnt =  Statistic.unit_count :archived, :faculty
       stat = Statistic.find_or_create_by(name: "Faculty Archived Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
       cnt =  Statistic.unit_count :archived, :staff
       stat = Statistic.find_or_create_by(name: "Staff Archived Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
       cnt =  Statistic.unit_count :archived, :student
       stat = Statistic.find_or_create_by(name: "Student Archived Unit Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "unit")
 
       # Metadata counts
       cnt = Statistic.metadata_count
       stat = Statistic.find_or_create_by(name: "Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :sirsi
       stat = Statistic.find_or_create_by(name: "SIRSI Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :xml
       stat = Statistic.find_or_create_by(name: "XML Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
 
       # Metadata DL counts
       cnt = Statistic.metadata_count :all, :dl
       stat = Statistic.find_or_create_by(name: "DL Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :sirsi, :dl
       stat = Statistic.find_or_create_by(name: "DL SIRSI Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :xml, :dl
       stat = Statistic.find_or_create_by(name: "DL XML Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
 
       # Metadata DPLA counts
       cnt = Statistic.metadata_count :all, :dpla
       stat = Statistic.find_or_create_by(name: "DPLA Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :sirsi, :dpla
       stat = Statistic.find_or_create_by(name: "DPLA SIRSI Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
       cnt = Statistic.metadata_count :xml, :dpla
       stat = Statistic.find_or_create_by(name: "DPLA XML Metadata Count")
-      stat.update(value: cnt)
+      stat.update(value: cnt, group: "metadata")
    end
 end
