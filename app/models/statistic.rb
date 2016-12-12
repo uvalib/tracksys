@@ -3,6 +3,17 @@ class Statistic < ActiveRecord::Base
    validates :name, uniqueness: true
    validates :value, presence: true
 
+   def self.get
+      stats = {}
+      Statistic.all.each do |stat|
+         if not stats.has_key? stat.group
+            stats[stat.group] = []
+         end
+         stats[stat.group] << {name: stat.name, value: stat.value}
+      end
+      return stats
+   end
+
    def self.unit_count( type=:all, user=:all, start_date=nil, end_date = nil)
       raise "Invalid unit type #{type}" if type != :all && type != :archived && type != :unarchived
       raise "Invalid user type #{user}" if user != :all && user != :student && user != :faculty && user != :staff && user != :nonuva
