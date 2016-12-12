@@ -302,7 +302,10 @@ namespace :daily_progress do
          end
 
          # Create metadata from the file moved above
+         # FIXME This job has changed. It no longer adds MD5 and file size. Also, it takes
+         # the master file itself as a param, rather than ID
          payload = {source: dest_file, master_file_id: mf.id, last: 0, quiet: true}
+         raise("THIS JOB HAS CHANGED")
          CreateImageTechnicalMetadata.exec_now( payload )
       end
 

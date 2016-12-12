@@ -55,11 +55,19 @@ class QaFilesystemAndIviewXml < BaseJob
          end
       end
 
-      check_content_files
-      check_xml_files
-      check_ivc_files
-      check_unknown_files
-      handle_errors
+      if @ivc_files.count == 0
+         logger.info "No iview/mpcatalog files present; doing raw import"
+         on_error("There are no .tif files in the directory.") if @content_files.empty?
+         on_error("Unknown files in the directory: #{@unknown_files.join(',')}") if not @unknown_files.empty?
+         on_error("XML file count does not match tif count") if @xml_files.count > 0 && @xml_files.count != @content_files.count
+         ImportRawImages.exec_now({ :unit => @unit, :images=>@content_files, :xml_files=>@xml_files }, self)
+      else
+         check_content_files
+         check_xml_files
+         check_ivc_files
+         check_unknown_files
+         handle_errors
+      end
    end
 
    def check_content_files
