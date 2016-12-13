@@ -15,6 +15,7 @@ ActiveAdmin.register_page "Statistics" do
       div :class => 'two-column' do
          panel "Storage Statictics", :namespace => :admin, :priority => 2 do
             render partial: 'statistics', locals: { stat_group: "size"}
+            render partial: 'size_query'
          end
          panel "Metadata Statictics", :namespace => :admin, :priority => 4 do
             render partial: 'statistics', locals: { stat_group: "metadata"}
@@ -25,6 +26,10 @@ ActiveAdmin.register_page "Statistics" do
    page_action :query, method: :get do
       if params[:type] == "image"
          resp = Statistic.image_count( params[:location].to_sym, params[:start_date], params[:end_date])
+         render text: resp, status: :ok and return
+      end
+      if params[:type] == "size"
+         resp = Statistic.image_size( params[:location].to_sym, params[:start_date], params[:end_date])
          render text: resp, status: :ok and return
       end
 
