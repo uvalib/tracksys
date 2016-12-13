@@ -1,0 +1,32 @@
+<div class="stats-query">
+   <h4>Query</h4>
+   <div class="params">
+      <div class="row">
+         <label>Location:</label>
+         <select id="size-query-loc">
+            <option value="all">TrackSys</option>
+            <option value="dl">Digital Library</option>
+         </select>
+         <label>Type:</label>
+         <select id="metadata-query-type">
+            <option value="all">All</option>
+            <option value="archived">SIRSI</option>
+            <option value="unarchived">XML</option>
+         </select>
+      </div>
+      <div class="row">
+         <label>Start Date:</label>
+         <input id="metadata-query-start-date" type="text"  class="query-datepicker">
+         <label>End Date:</label>
+         <input id="metadata-query-end-date" type="text" class="query-datepicker">
+      </div>
+      <div class="controls">
+         <label>Result:</label>
+         <span id="metadata-result"></span>
+         <div id="metadata-query" class="mf-action-button">Query</div>
+      </div>
+   </div>
+   <div class="query-dimmer">
+      <%= image_tag("loading") %>
+   </div>
+</div>

@@ -9,6 +9,7 @@ ActiveAdmin.register_page "Statistics" do
          end
          panel "Unit Statictics", :namespace => :admin, :priority => 3 do
             render partial: 'statistics', locals: { stat_group: "unit"}
+            render partial: 'unit_query'
          end
       end
 
@@ -19,6 +20,7 @@ ActiveAdmin.register_page "Statistics" do
          end
          panel "Metadata Statictics", :namespace => :admin, :priority => 4 do
             render partial: 'statistics', locals: { stat_group: "metadata"}
+            render partial: 'metadata_query'
          end
       end
    end

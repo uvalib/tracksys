@@ -26,6 +26,10 @@ div.stats-query {
       color: #444;
       border-bottom: 1px solid #ccc;
    }
+   select, input {
+      width:140px;
+      box-sizing: border-box;
+   }
    label {
       text-align: right;
       margin-right: 10px;
