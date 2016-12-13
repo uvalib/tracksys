@@ -34,6 +34,10 @@ ActiveAdmin.register_page "Statistics" do
          resp = Statistic.image_size( params[:location].to_sym, params[:start_date], params[:end_date])
          render text: resp, status: :ok and return
       end
+      if params[:type] == "unit"
+         resp = Statistic.unit_count(  params[:status].to_sym, params[:user].to_sym, params[:start_date], params[:end_date])
+         render text: resp, status: :ok and return
+      end
 
       render :text=>"Invalid query type", :status=>:error
    end

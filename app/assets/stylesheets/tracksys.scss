@@ -1,4 +1,56 @@
 body.active_admin {
+   #ui-datepicker-div.ui-datepicker {
+      margin:0;
+      padding:0;
+      box-shadow: 1px 1px 8px #333;
+      border-radius: 0;
+      border: none;
+      .ui-datepicker-header:before {
+         top: -10px;
+      }
+      div.ui-datepicker-header {
+         background-color: #6a7176;
+         border: 1px solid #44484b;
+         padding: 12px 5px 7px 4px;
+         margin: 0px;
+         width:auto;
+         border-radius: 0;
+         position: relative;
+         z-index: 2000;
+         height: 18px;
+      }
+      table.ui-datepicker-calendar {
+         box-shadow: none;
+         width: 100%;
+         top:0;
+         left:0;
+         border-radius: 0;
+         td a {
+            text-decoration: none;
+            border-radius: 0;
+         }
+      }
+      div.ui-datepicker-buttonpane {
+         border: 1px solid #44484b;
+         padding: 5px;
+         border-top: none;
+         cursor: pointer;
+         button {
+            font-weight: normal;
+            border-radius: 0;
+            color: white;
+            font-size: 0.8em;
+            margin: 0 4px;
+            padding: 4px 16px;
+            background-color: #777;
+            box-shadow: none;
+            background-image: none;
+            &:hover {
+                  background-color: #99a;
+            }
+         }
+      }
+   }
 div.stats-query {
    .query-dimmer {
       position: absolute;
