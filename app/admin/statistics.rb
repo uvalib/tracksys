@@ -5,6 +5,7 @@ ActiveAdmin.register_page "Statistics" do
       div :class => 'two-column' do
          panel "Image Statictics", :namespace => :admin, :priority => 1 do
             render partial: 'statistics', locals: { stat_group: "image"}
+            render partial: 'image_query'
          end
          panel "Unit Statictics", :namespace => :admin, :priority => 3 do
             render partial: 'statistics', locals: { stat_group: "unit"}

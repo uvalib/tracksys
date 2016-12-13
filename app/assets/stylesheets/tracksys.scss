@@ -1,4 +1,45 @@
 body.active_admin {
+div.stats-query {
+   border:1px solid #ccc;
+   h4 {
+      margin: 0;
+      padding: 2px 6px;
+      font-size: 1em;
+      font-weight: bold;
+      background: #ddd;
+      color: #444;
+      border-bottom: 1px solid #ccc;
+   }
+   label {
+      text-align: right;
+      margin-right: 10px;
+      width: 70px;
+      display: inline-block;
+   }
+   .params {
+      padding: 10px;
+      .row {
+         margin-bottom: 10px;
+      }
+      .datepicker {
+         margin-right: 15px;
+      }
+      .controls {
+         padding-top: 12px;
+         border-top: 1px solid #ddd;
+         margin-top: 12px;
+         position: relative;
+         .mf-action-button {
+            position: absolute;
+            right: 0;
+            top: 10px;
+         }
+         label {
+            font-weight: bold;
+         }
+      }
+   }
+}
 hr.sidebar-sep {
    border: none;
    border-bottom: 1px solid #ccc;
