@@ -20,7 +20,15 @@ ActiveAdmin.register_page "Statistics" do
             render partial: 'statistics', locals: { stat_group: "metadata"}
          end
       end
+   end
 
+   page_action :query, method: :get do
+      if params[:type] == "image"
+         resp = Statistic.image_count( params[:location].to_sym, params[:start_date], params[:end_date])
+         render text: resp, status: :ok and return
+      end
+
+      render :text=>"Invalid query type", :status=>:error
    end
 
    controller do

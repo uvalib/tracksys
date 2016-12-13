@@ -35,10 +35,12 @@ class Statistic < ActiveRecord::Base
 
       if !start_date.nil?
          start_date.to_date
-         conditions << "u.created_at >= '#{start_date}'"
-         if !end_date.nil?
-         end_date.to_date
-            conditions << "u.created_at <= '#{end_date}'"
+         if end_date.nil?
+            conditions << "created_at <= '#{start_date}'"
+         else
+            conditions << "created_at >= '#{start_date}'"
+            end_date.to_date
+            conditions << "created_at <= '#{end_date}'"
          end
       end
 
@@ -59,9 +61,11 @@ class Statistic < ActiveRecord::Base
 
       if !start_date.nil?
          start_date.to_date
-         conditions << "created_at >= '#{start_date}'"
-         if !end_date.nil?
-         end_date.to_date
+         if end_date.nil?
+            conditions << "created_at <= '#{start_date}'"
+         else
+            conditions << "created_at >= '#{start_date}'"
+            end_date.to_date
             conditions << "created_at <= '#{end_date}'"
          end
       end
@@ -82,9 +86,11 @@ class Statistic < ActiveRecord::Base
 
       if !start_date.nil?
          start_date.to_date
-         conditions << "created_at >= '#{start_date}'"
-         if !end_date.nil?
-         end_date.to_date
+         if end_date.nil?
+            conditions << "created_at <= '#{start_date}'"
+         else
+            conditions << "created_at >= '#{start_date}'"
+            end_date.to_date
             conditions << "created_at <= '#{end_date}'"
          end
       end
@@ -109,9 +115,11 @@ class Statistic < ActiveRecord::Base
 
       if !start_date.nil?
          start_date.to_date
-         conditions << "created_at >= '#{start_date}'"
-         if !end_date.nil?
-         end_date.to_date
+         if end_date.nil?
+            conditions << "created_at <= '#{start_date}'"
+         else
+            conditions << "created_at >= '#{start_date}'"
+            end_date.to_date
             conditions << "created_at <= '#{end_date}'"
          end
       end

@@ -5,6 +5,7 @@
 //= require jquery.panzoom
 //= require jquery.form.min
 //= require ocr
+//= require statistics
 //= require clone-masterfiles
 //= require bulk_dl_settings
 //= require codemirror

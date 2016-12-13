@@ -3,7 +3,7 @@
    <div class="params">
       <div class="row">
          <label>Location:</label>
-         <select id="query_loc">
+         <select id="image-query-loc">
             <option value="all">TrackSys</option>
             <option value="dl">Digital Library</option>
             <option value="dpla">DPLA</option>
@@ -11,14 +11,17 @@
       </div>
       <div class="row">
          <label>Start Date:</label>
-         <input id="start-date" type="text" class="datepicker"/>
+         <input id="image-query-start-date" type="text"  class="query-datepicker">
          <label>End Date:</label>
-         <input id="end-date" type="text" class="datepicker"/>
+         <input id="image-query-end-date" type="text" class="query-datepicker">
       </div>
       <div class="controls">
          <label>Result:</label>
          <span id="image-result"></span>
          <div id="image-query" class="mf-action-button">Query</div>
       </div>
+   </div>
+   <div class="query-dimmer">
+      <%= image_tag("loading") %>
    </div>
 </div>
