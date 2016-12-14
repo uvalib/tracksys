@@ -1,52 +1,71 @@
 body.active_admin {
    #ui-datepicker-div.ui-datepicker {
-      margin:0;
-      padding:0;
       box-shadow: 1px 1px 8px #333;
+      padding: 4px;
+      background: #999;
+      border: 1px solid #333;
       border-radius: 0;
-      border: none;
+
       .ui-datepicker-header:before {
-         top: -10px;
+         display:none;
       }
       div.ui-datepicker-header {
-         background-color: #6a7176;
-         border: 1px solid #44484b;
-         padding: 12px 5px 7px 4px;
-         margin: 0px;
-         width:auto;
+         background-color: white;
+         background-image: none;
+         border: 1px solid #999;
+         border-bottom: none;
+         padding: 10px 5px 10px 4px;
+         margin: 0 0 0px 0;
+         width: auto;
          border-radius: 0;
          position: relative;
          z-index: 2000;
-         height: 18px;
+         .ui-datepicker-title {
+            color: #444;
+            text-shadow: none;
+         }
+         .ui-datepicker-prev {
+            margin-top: 2px;
+            border-right: 5px solid #444;
+         }
+         .ui-datepicker-next {
+            margin-top: 2px;
+            border-left: 5px solid #444;
+         }
       }
       table.ui-datepicker-calendar {
          box-shadow: none;
+         border: 1px solid #999;
          width: 100%;
          top:0;
          left:0;
-         border-radius: 0;
+         padding:1px;
+         background: white;
+         border-collapse: collapse;
+         td {
+            vertical-align: middle;
+            height: 23px;
+         }
+         .ui-state-highlight {
+            background-color: #ccddff;
+         }
+         .ui-state-active {
+            background-color: #15c;
+         }
+         thead th {
+            border-bottom: 1px solid #999;
+            background-color: #ddd;
+            padding: 2px;
+            color: #555;
+         }
          td a {
             text-decoration: none;
             border-radius: 0;
-         }
-      }
-      div.ui-datepicker-buttonpane {
-         border: 1px solid #44484b;
-         padding: 5px;
-         border-top: none;
-         cursor: pointer;
-         button {
-            font-weight: normal;
-            border-radius: 0;
-            color: white;
-            font-size: 0.8em;
-            margin: 0 4px;
-            padding: 4px 16px;
-            background-color: #777;
-            box-shadow: none;
-            background-image: none;
+            width:22px;
+            text-align: center;
+            display: table-cell;
             &:hover {
-                  background-color: #99a;
+               background-color: #cfc;
             }
          }
       }

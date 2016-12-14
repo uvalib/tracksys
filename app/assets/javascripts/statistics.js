@@ -2,8 +2,7 @@ $(function() {
    $('.query-datepicker').datepicker({
       changeMonth: true,
       changeYear: true,
-      dateFormat: 'yy-mm-dd',
-      showButtonPanel: true
+      dateFormat: 'yy-mm-dd'
    });
 
    var issueStatsQuery = function(type, params, dimmer) {
@@ -62,5 +61,23 @@ $(function() {
          params.push("end_date="+date);
       }
       issueStatsQuery("unit", params, dimmer);
+   });
+
+   $("#metadata-query").on("click", function() {
+      var query = $(this).closest(".stats-query");
+      var dimmer = query.find(".query-dimmer");
+      dimmer.show();
+      var params = ["type=metadata"];
+      params.push("location="+$("#metadata-query-loc").val());
+      params.push("metadata="+$("#metadata-query-type").val());
+      var date = $("#metadata-query-start-date").val();
+      if ( date.length > 0) {
+         params.push("start_date="+date);
+      }
+      date = $("#metadata-query-end-date").val();
+      if ( date.length > 0) {
+         params.push("end_date="+date);
+      }
+      issueStatsQuery("metadata", params, dimmer);
    });
 });
