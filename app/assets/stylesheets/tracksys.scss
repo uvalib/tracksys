@@ -1,4 +1,16 @@
 body.active_admin {
+   div.autocomplete-suggestions {
+      background: white;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      border-top: 0;
+      cursor: pointer;
+   }
+
+   .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+   .autocomplete-selected { background: #dedede; }
+   .autocomplete-suggestions strong { font-weight: bold; color: #88f; }
+
    #ui-datepicker-div.ui-datepicker {
       box-shadow: 1px 1px 8px #333;
       padding: 4px;

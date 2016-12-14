@@ -4,6 +4,8 @@
 //= require tracksys
 //= require jquery.panzoom
 //= require jquery.form.min
+//= require jquery.autocomplete
+//= require autocomplete
 //= require ocr
 //= require statistics
 //= require clone-masterfiles

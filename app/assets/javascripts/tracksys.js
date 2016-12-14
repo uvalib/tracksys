@@ -95,23 +95,6 @@ $(function() {
       });
    });
 
-   // Toggle between Sirsi/Xml metadata
-   $("#metadata-type-picker").on("change", function() {
-      var metadataType = $(this).val();
-      $.getJSON("/admin/"+metadataType+"/get_all", function(json, status, xhr){
-         var sel = $("#unit_metadata_id");
-         if (sel.length == 0 ) {
-            sel = $("#master_file_metadata_id");
-         }
-         sel.empty();
-         $.each(json, function (idx, obj) {
-            sel.append('<option value="' + obj.id + '">' + obj.title + '</option>');
-         });
-         sel.val("");
-         sel.trigger('chosen:updated');
-      });
-   });
-
    // Begin JS for Updating Sirsi Records
    var updateMetadataFields = function(metadata) {
       var empty = "<span class='empty'>Empty</span>";

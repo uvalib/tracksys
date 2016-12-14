@@ -209,6 +209,16 @@ ActiveAdmin.register XmlMetadata do
    #
    collection_action :get_all
 
+   collection_action :autocomplete, method: :get do
+      suggestions = []
+      like_keyword = "#{params[:query]}%"
+      Metadata.where("type=? and id like ?", "XmlMetadata", like_keyword).each do |o|
+         suggestions << "#{o.id}: #{o.title}"
+      end
+      resp = {query: "Unit", suggestions: suggestions}
+      render json: resp, status: :ok
+   end
+
    # Flag for publication  overnight
    #
    member_action :publish, :method => :put do

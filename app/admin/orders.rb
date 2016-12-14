@@ -7,6 +7,15 @@ ActiveAdmin.register Order do
      :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
      :date_customer_notified, :email
 
+  collection_action :autocomplete, method: :get do
+     suggestions = []
+     like_keyword = "#{params[:query]}%"
+     Order.where("id like ?", like_keyword).each do |o|
+        suggestions << "#{o.id}"
+     end
+     resp = {query: "Unit", suggestions: suggestions}
+     render json: resp, status: :ok
+  end
 
    csv do
       column :id

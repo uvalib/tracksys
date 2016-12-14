@@ -235,6 +235,16 @@ ActiveAdmin.register SirsiMetadata do
 
   form :partial => "form"
 
+  collection_action :autocomplete, method: :get do
+     suggestions = []
+     like_keyword = "#{params[:query]}%"
+     Metadata.where("type=? and barcode like ?", "SirsiMetadata", like_keyword).each do |o|
+        suggestions << "#{o.barcode}"
+     end
+     resp = {query: "Unit", suggestions: suggestions}
+     render json: resp, status: :ok
+  end
+
   collection_action :external_lookup
   collection_action :get_all
 
