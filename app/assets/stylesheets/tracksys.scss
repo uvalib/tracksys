@@ -5,9 +5,10 @@ body.active_admin {
       box-sizing: border-box;
       border-top: 0;
       cursor: pointer;
+      overflow: scroll;
    }
 
-   .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+   .autocomplete-suggestion { padding: 2px 5px; border-bottom: 1px solid #ddd; }
    .autocomplete-selected { background: #dedede; }
    .autocomplete-suggestions strong { font-weight: bold; color: #88f; }
 
