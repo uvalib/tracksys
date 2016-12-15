@@ -19,9 +19,6 @@ class CreateDlDeliverables < BaseJob
       if metadata.discoverability.nil?
          on_error "Metadata #{metadata.id} for Unit #{unit.id} has no discoverability value.  Please fill in and restart ingestion."
       end
-      if metadata.discoverability == false
-         on_error "Metadata #{metadata.id} for Unit #{unit.id} has is set to not discoverable!"
-      end
       if metadata.indexing_scenario.nil?
          metadata.update(indexing_scenario: IndexingScenario.find(1) )
          logger.info "Metadata #{metadata.id} for Unit #{unit.id} has no indexing scenario selected so it is assumed to use the default scenario."
