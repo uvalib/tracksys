@@ -1,4 +1,6 @@
 $(function() {
+   $("#q_desc_metadata_input select").attr("disabled", "disabled");
+   
    // Colorbox
    $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
 
