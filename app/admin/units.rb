@@ -5,7 +5,7 @@ ActiveAdmin.register Unit do
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
      :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
-     :include_in_dl, :date_queued_for_ingest, :date_dl_deliverables_ready
+     :include_in_dl, :date_dl_deliverables_ready
 
   scope :all, :default => true
   scope :approved
@@ -20,7 +20,6 @@ ActiveAdmin.register Unit do
     column :id
     column :metadata_title
     column("Date Archived") {|unit| format_date(unit.date_archived)}
-    column("Date Queued for Ingest") {|unit| format_date(unit.date_queued_for_ingest)}
     column("Date DL Deliverables Ready") {|unit| format_date(unit.date_dl_deliverables_ready)}
     column :master_files_count
   end
@@ -126,7 +125,6 @@ ActiveAdmin.register Unit do
   filter :date_archived
   filter :complete_scan
   filter :date_dl_deliverables_ready
-  filter :date_queued_for_ingest
   filter :special_instructions
   filter :staff_notes
   filter :include_in_dl, :as => :select
@@ -158,9 +156,6 @@ ActiveAdmin.register Unit do
     end
     column :date_archived do |unit|
       format_date(unit.date_archived)
-    end
-    column :date_queued_for_ingest do |unit|
-      format_date(unit.date_queued_for_ingest)
     end
     column :date_dl_deliverables_ready do |unit|
       format_date(unit.date_dl_deliverables_ready)
@@ -253,9 +248,6 @@ ActiveAdmin.register Unit do
            attributes_table_for unit do
              row ("In Digital Library?") do |unit|
                format_boolean_as_yes_no(unit.include_in_dl)
-             end
-             row :date_queued_for_ingest do |unit|
-               format_datetime(unit.date_queued_for_ingest)
              end
              row :date_dl_deliverables_ready do |unit|
                format_datetime(unit.date_dl_deliverables_ready)

@@ -33,7 +33,7 @@ class Unit < ActiveRecord::Base
    # scopes
    #------------------------------------------------------------------
    scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
-   scope :ready_for_repo, ->{joins(:metadata).where("metadata.availability_policy_id is not null").where(:include_in_dl => true).where(:date_queued_for_ingest => nil).where("date_archived is not null") }
+   scope :ready_for_repo, ->{joins(:metadata).where("metadata.availability_policy_id is not null").where(:include_in_dl => true).where(:date_dl_deliverables_ready => nil).where("date_archived is not null") }
    scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
    scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
    scope :approved, ->{where(:unit_status => 'approved') }
@@ -121,7 +121,7 @@ class Unit < ActiveRecord::Base
       return false if self.include_in_dl == false
       return false if self.metadata.nil?
       return false if self.metadata.availability_policy_id.nil?
-      return true if self.date_queued_for_ingest.nil? and not self.date_archived.nil?
+      return true if self.date_dl_deliverables_ready.nil? and not self.date_archived.nil?
       return false
    end
 
@@ -219,7 +219,6 @@ end
 #  updated_at                     :datetime
 #  intended_use_id                :integer
 #  staff_notes                    :text(65535)
-#  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime
 #  date_patron_deliverables_ready :datetime
 #  include_in_dl                  :boolean          default(FALSE)

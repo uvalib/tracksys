@@ -8,10 +8,6 @@ class CreateDlDeliverables < BaseJob
       source = message[:source]
       metadata = unit.metadata
 
-      # First, update the date the unit was queued for ingest...
-      unit.update_attribute(:date_queued_for_ingest, Time.now)
-      logger.info "Date queued for ingest for Unit #{unit.id} has been updated."
-
       # Sanity checks:
       if metadata.availability_policy.nil?
          on_error "Metadata #{metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and restart ingestion."

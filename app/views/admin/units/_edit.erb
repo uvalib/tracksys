@@ -54,7 +54,6 @@
    <% if !@unit.reorder %>
       <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
          <%= f.input :include_in_dl, :as => :radio %>
-         <%= f.input :date_queued_for_ingest, :as => :string, :input_html => {:class => :datepicker} %>
          <%= f.input :date_dl_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
       <% end %>
    <% end %>
