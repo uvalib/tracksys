@@ -113,8 +113,8 @@ ActiveAdmin.register Invoice do
       f.inputs "Date Information", :class => 'panel three-column ' do
          f.input :order_date_order_approved, :input_html => {:disabled => true}
          f.input :order_date_customer_notified, :input_html => {:disabled => true}
-         f.input :date_invoice, :as => :datepicker
-         f.input :date_fee_paid, :as => :datepicker
+         f.input :date_invoice, :as => :datepicker, datepicker_options: {changeYear: true, changeMonth: true}
+         f.input :date_fee_paid, :as => :date_picker
       end
 
       f.inputs "Billing Information", :class => 'three-column panel' do

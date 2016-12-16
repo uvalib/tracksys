@@ -1,0 +1,14 @@
+<table>
+   <% row_class = "odd" %>
+   <% @stats[stat_group].each do |stat| %>
+      <tr class="<%= row_class %>">
+         <td><%= stat[:name] %></td>
+         <td><%= stat[:value] %></td>
+      </tr>
+      <% if row_class=="even"
+            row_class="odd"
+         else
+            row_class="even"
+         end %>
+   <% end %>
+</table>

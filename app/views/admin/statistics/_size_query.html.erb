@@ -1,0 +1,26 @@
+<div class="stats-query">
+   <h4>Query</h4>
+   <div class="params">
+      <div class="row">
+         <label>Location:</label>
+         <select id="size-query-loc">
+            <option value="all">TrackSys</option>
+            <option value="dl">Digital Library</option>
+         </select>
+      </div>
+      <div class="row">
+         <label>Start Date:</label>
+         <input id="size-query-start-date" type="text"  class="query-datepicker">
+         <label>End Date:</label>
+         <input id="size-query-end-date" type="text" class="query-datepicker">
+      </div>
+      <div class="controls">
+         <label>Result:</label>
+         <span id="size-result"></span>
+         <div id="size-query" class="mf-action-button">Query</div>
+      </div>
+   </div>
+   <div class="query-dimmer">
+      <%= image_tag("loading") %>
+   </div>
+</div>

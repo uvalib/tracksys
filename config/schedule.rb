@@ -23,3 +23,7 @@ set :output, "log/cron.log"
 every 1.day, :at => '12:00 am' do
   runner "JobStatus.expire_completed_jobs"
 end
+
+every 1.day, :at => '3:00 am' do
+  runner "Statistic.snapshot"
+end

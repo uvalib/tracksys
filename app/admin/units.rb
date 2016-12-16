@@ -1,5 +1,5 @@
 ActiveAdmin.register Unit do
-  menu :priority => 4
+  menu :priority => 5
 
   # strong paramters handling
   permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
@@ -597,6 +597,16 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
+  end
+
+  collection_action :autocomplete, method: :get do
+     suggestions = []
+     like_keyword = "#{params[:query]}%"
+     Unit.where("id like ?", like_keyword).each do |o|
+        suggestions << "#{o.id}"
+     end
+     resp = {query: "Unit", suggestions: suggestions}
+     render json: resp, status: :ok
   end
 
   controller do

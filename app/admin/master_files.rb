@@ -229,10 +229,15 @@ ActiveAdmin.register MasterFile do
          end
       end
 
-      div :class => 'columns-none' do
-         panel "Transcription Text", :toggle => 'show' do
-            div :class=>'mf-transcription' do
-               simple_format(master_file.transcription_text)
+      if !master_file.transcription_text.blank?
+         div :class => 'columns-none' do
+            panel "Transcription Text", :toggle => 'show' do
+               attributes_table_for master_file do
+                  row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}"}
+               end
+               div :class=>'mf-transcription' do
+                  simple_format(master_file.transcription_text)
+               end
             end
          end
       end

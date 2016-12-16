@@ -32,6 +32,7 @@ ActiveAdmin.register XmlMetadata do
    #
    filter :id
    filter :title
+   filter :desc_metadata, :as => :string, :label => "XML Metadata"
    filter :pid
    filter :dpla, :as => :select
    filter :is_manuscript
@@ -208,6 +209,16 @@ ActiveAdmin.register XmlMetadata do
    # ACTIONS ==================================================================
    #
    collection_action :get_all
+
+   collection_action :autocomplete, method: :get do
+      suggestions = []
+      like_keyword = "#{params[:query]}%"
+      Metadata.where("type=? and id like ?", "XmlMetadata", like_keyword).each do |o|
+         suggestions << {value: "#{o.id}: #{o.title}", data: o.id}
+      end
+      resp = {query: "Unit", suggestions: suggestions}
+      render json: resp, status: :ok
+   end
 
    # Flag for publication  overnight
    #

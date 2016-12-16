@@ -48,6 +48,7 @@ class Ocr < BaseJob
       mf.transcription_text = file.read
       file.close
       mf.save!
+      mf.ocr!  # flag the text type as OCR
 
       logger().info("Cleaning up #{trans_file} and #{dest}")
       File.delete(trans_file)

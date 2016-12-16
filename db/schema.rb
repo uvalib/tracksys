@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161130151303) do
+ActiveRecord::Schema.define(version: 20161209194136) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -291,6 +291,7 @@ ActiveRecord::Schema.define(version: 20161130151303) do
     t.datetime "deaccessioned_at"
     t.text     "deaccession_note",    limit: 65535
     t.integer  "deaccessioned_by_id", limit: 4
+    t.integer  "text_source",         limit: 4
   end
 
   add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
@@ -408,6 +409,14 @@ ActiveRecord::Schema.define(version: 20161130151303) do
   end
 
   add_index "staff_members", ["computing_id"], name: "index_staff_members_on_computing_id", unique: true, using: :btree
+
+  create_table "statistics", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.string   "value",      limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.string   "group",      limit: 255
+  end
 
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false

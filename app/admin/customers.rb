@@ -1,5 +1,5 @@
 ActiveAdmin.register Customer do
-  menu :priority => 2
+  menu :priority => 3
 
   # strong paramters handling
   permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,

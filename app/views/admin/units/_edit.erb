@@ -21,28 +21,34 @@
    <% end %>
 
    <%= f.inputs "Related Information", :class => 'panel three-column' do %>
-      <%= f.input :order, :label=> "Order #", :as => :select,
-         :collection => Hash[Order.all.map{|o| ["#{o.id}", o.id]}],
-         :input_html => { :class => 'chosen-select',:style => 'width: 260px'} %>
+      <li class="string input required stringish">
+         <label for="unit_order_id" class="label">Order #</label>
+         <input  name="unit[order_id]" id="unit_order_id" type="text" value="<%= @unit.order_id %>"/>
+      </li>
 
-      <li class="string input optional stringish">
+      <li class="string input required stringish">
          <label for="metadata-type-picker" class="label">Metadata Type</label>
-         <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
+         <select id="metadata-type-picker" style="width: 260px">
             <option value="sirsi_metadata">SirsiMetadata</option>
             <option value="xml_metadata"<% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
          </select>
       </li>
 
-      <% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>
-         <%= f.input :metadata, :as => :select,
-            :collection => Hash[XmlMetadata.all.map{|b| ["#{b.id}: #{b.title}", b.id]}],
-            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
-      <% else %>
-         <%= f.input :metadata, :as => :select,
-            :collection => Hash[SirsiMetadata.all.map{|b| ["#{b.barcode}", b.id]}],
-            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
-      <% end %>
-
+      <li class="string input required stringish">
+         <label for="unit_metadata_id" class="label">Metadata</label>
+         <% curr = ""
+            uri = "sirsi_metadata"
+            if !@unit.metadata.nil?
+               if @unit.metadata.type == "SirsiMetadata"
+                  curr = @unit.metadata.barcode
+               else
+                  uri = "xml_metadata"
+                  curr = "#{@unit.metadata.id}: #{@unit.metadata.title}"
+               end
+            end %>
+         <input name="unit[metadata_id]" id="unit_metadata_id" value="<%= @unit.metadata_id %>" style="display:none"/>
+         <input data-queryuri="<%= uri %>" id="unit_metadata_selector" type="text" value="<%= curr %>"/>
+      </li>
    <% end %>
 
    <% if !@unit.reorder %>

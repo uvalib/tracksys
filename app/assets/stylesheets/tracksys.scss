@@ -1,4 +1,149 @@
 body.active_admin {
+   div.autocomplete-suggestions {
+      background: white;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      border-top: 0;
+      cursor: pointer;
+      overflow: scroll;
+   }
+
+   .autocomplete-suggestion { padding: 2px 5px; border-bottom: 1px solid #ddd; }
+   .autocomplete-selected { background: #dedede; }
+   .autocomplete-suggestions strong { font-weight: bold; color: #88f; }
+
+   #ui-datepicker-div.ui-datepicker {
+      box-shadow: 1px 1px 8px #333;
+      padding: 4px;
+      background: #999;
+      border: 1px solid #333;
+      border-radius: 0;
+
+      .ui-datepicker-header:before {
+         display:none;
+      }
+      div.ui-datepicker-header {
+         background-color: white;
+         background-image: none;
+         border: 1px solid #999;
+         border-bottom: none;
+         padding: 10px 5px 10px 4px;
+         margin: 0 0 0px 0;
+         width: auto;
+         border-radius: 0;
+         position: relative;
+         z-index: 2000;
+         .ui-datepicker-title {
+            color: #444;
+            text-shadow: none;
+         }
+         .ui-datepicker-prev {
+            margin-top: 2px;
+            border-right: 5px solid #444;
+         }
+         .ui-datepicker-next {
+            margin-top: 2px;
+            border-left: 5px solid #444;
+         }
+      }
+      table.ui-datepicker-calendar {
+         box-shadow: none;
+         border: 1px solid #999;
+         width: 100%;
+         top:0;
+         left:0;
+         padding:1px;
+         background: white;
+         border-collapse: collapse;
+         td {
+            vertical-align: middle;
+            height: 23px;
+         }
+         .ui-state-highlight {
+            background-color: #ccddff;
+         }
+         .ui-state-active {
+            background-color: #15c;
+         }
+         thead th {
+            border-bottom: 1px solid #999;
+            background-color: #ddd;
+            padding: 2px;
+            color: #555;
+         }
+         td a {
+            text-decoration: none;
+            border-radius: 0;
+            width:22px;
+            text-align: center;
+            display: table-cell;
+            &:hover {
+               background-color: #cfc;
+            }
+         }
+      }
+   }
+div.stats-query {
+   .query-dimmer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      background: rgba(240,240,240, 0.6);
+      display: none;
+      img {
+         display: block;
+         margin: 8% auto;
+         width: 40px;
+      }
+   }
+   position: relative;
+   border:1px solid #ccc;
+   h4 {
+      margin: 0;
+      padding: 2px 6px;
+      font-size: 1em;
+      font-weight: bold;
+      background: #ddd;
+      color: #444;
+      border-bottom: 1px solid #ccc;
+   }
+   select, input {
+      width:140px;
+      box-sizing: border-box;
+   }
+   label {
+      text-align: right;
+      margin-right: 10px;
+      width: 70px;
+      display: inline-block;
+   }
+   .params {
+      padding: 10px;
+      .row {
+         margin-bottom: 10px;
+      }
+      .datepicker {
+         margin-right: 15px;
+      }
+      .controls {
+         padding-top: 12px;
+         border-top: 1px solid #ddd;
+         margin-top: 12px;
+         position: relative;
+         .mf-action-button {
+            position: absolute;
+            right: 0;
+            top: 10px;
+         }
+         label {
+            font-weight: bold;
+         }
+      }
+   }
+}
 hr.sidebar-sep {
    border: none;
    border-bottom: 1px solid #ccc;
