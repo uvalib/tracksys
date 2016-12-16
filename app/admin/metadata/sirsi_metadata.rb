@@ -239,10 +239,10 @@ ActiveAdmin.register SirsiMetadata do
      suggestions = []
      like_keyword = "#{params[:query]}%"
      Metadata.where("type=? and barcode like ?", "SirsiMetadata", like_keyword).each do |o|
-        suggestions << "#{o.barcode}"
+        suggestions << {value: o.barcode, data: o.id}
      end
      resp = {query: "Unit", suggestions: suggestions}
-     render json: resp, status: :ok
+     render json: resp.to_json, status: :ok
   end
 
   collection_action :external_lookup

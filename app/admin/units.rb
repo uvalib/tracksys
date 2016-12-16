@@ -599,6 +599,16 @@ ActiveAdmin.register Unit do
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
   end
 
+  collection_action :autocomplete, method: :get do
+     suggestions = []
+     like_keyword = "#{params[:query]}%"
+     Unit.where("id like ?", like_keyword).each do |o|
+        suggestions << "#{o.id}"
+     end
+     resp = {query: "Unit", suggestions: suggestions}
+     render json: resp, status: :ok
+  end
+
   controller do
      before_filter :get_digital_collection_units, only: [:show]
      def get_digital_collection_units

@@ -46,7 +46,8 @@
                   curr = "#{@unit.metadata.id}: #{@unit.metadata.title}"
                end
             end %>
-         <input data-queryuri="<%= uri %>" name="unit[metadata_id]" id="unit_metadata_id" type="text" value="<%= curr %>"/>
+         <input name="unit[metadata_id]" id="unit_metadata_id" value="<%= @unit.metadata_id %>" style="display:none"/>
+         <input data-queryuri="<%= uri %>" id="unit_metadata_selector" type="text" value="<%= curr %>"/>
       </li>
    <% end %>
 

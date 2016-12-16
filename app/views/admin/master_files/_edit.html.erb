@@ -12,24 +12,34 @@
    <% end %>
 
    <%= f.inputs "Related Information", :class => 'panel two-column' do %>
-      <%= f.input :unit_id, :as => :number %>
-      <li class="string input optional stringish">
-         <label for="metadata-type-picker" class="label">Metadata Type</label>
-         <select id="metadata-type-picker" class="chosen-select" style="width: 260px">
+      <li class="string input required stringish">
+         <label for="master_file_unit_id" class="label">Unit ID</label>
+         <input  name="master_file[unit_id]" id="master_file_unit_id" type="text" value="<%= @master_file.unit_id %>"/>
+      </li>
+
+      <li class="string input required stringish">
+         <label for="mf-metadata-type-picker" class="label">Metadata Type</label>
+         <select id="mf-metadata-type-picker" class="chosen-select" style="width: 260px">
             <option value="sirsi_metadata">SirsiMetadata</option>
             <option value="xml_metadata"<% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
          </select>
       </li>
 
-      <% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>
-         <%= f.input :metadata, :as => :select,
-            :collection => Hash[XmlMetadata.all.map{|b| ["#{b.id}: #{b.title}", b.id]}],
-            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
-      <% else %>
-         <%= f.input :metadata, :as => :select,
-            :collection => Hash[SirsiMetadata.all.map{|b| ["#{b.barcode}", b.id]}],
-            :input_html => { :class => 'chosen-select', :style => 'width: 260px'} %>
-      <% end %>
+      <li class="string input required stringish" id="master_file_metadata_input">
+         <label class="label">Metadata</label>
+         <% curr = ""
+            uri = "sirsi_metadata"
+            if !@master_file.metadata.nil?
+               if @master_file.metadata.type == "SirsiMetadata"
+                  curr = @master_file.metadata.barcode
+               else
+                  uri = "xml_metadata"
+                  curr = "#{@master_file.metadata.id}: #{@master_file.metadata.title}"
+               end
+            end %>
+          <input name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>" style="display:none"/>
+          <input data-queryuri="<%= uri %>" id="mf_metadata_selector" type="text" value="<%= curr %>"/>
+      </li>
    <% end %>
 
    <fieldset class="columns-none xml-submit">

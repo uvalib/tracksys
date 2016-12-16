@@ -213,7 +213,7 @@ ActiveAdmin.register XmlMetadata do
       suggestions = []
       like_keyword = "#{params[:query]}%"
       Metadata.where("type=? and id like ?", "XmlMetadata", like_keyword).each do |o|
-         suggestions << "#{o.id}: #{o.title}"
+         suggestions << {value: "#{o.id}: #{o.title}", data: o.id} 
       end
       resp = {query: "Unit", suggestions: suggestions}
       render json: resp, status: :ok
