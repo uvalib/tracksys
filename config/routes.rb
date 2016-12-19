@@ -13,6 +13,7 @@ Tracksys::Application.routes.draw do
   ActiveAdmin.routes(self)
 
   namespace :api do
+     get "sirsi/:id" => "sirsi#show"
      get "metadata/:pid" => "metadata#show"
      get "fulltext/:pid" => "fulltext#show"
      get "pid/:pid" => "pid#show"
