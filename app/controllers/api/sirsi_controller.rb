@@ -8,7 +8,7 @@ class Api::SirsiController < ApplicationController
          if sm.exemplar.blank?
             thumb_pid = sm.master_files.first.pid if sm.master_files.count > 0
          else
-            thumb_pid = MasterFiles.find_by("filename = ?", sm.exemplar).pid
+            thumb_pid = MasterFile.find_by("filename = ?", sm.exemplar).pid
          end
 
          rights = ""
