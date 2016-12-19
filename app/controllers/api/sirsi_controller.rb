@@ -1,8 +1,10 @@
 class Api::SirsiController < ApplicationController
    def show
       resp = { sirsiId: params[:id], pdfServiceRoot: Settings.pdf_url, items: [] }
+      found = false
       Metadata.where("date_dl_ingest is not null and type=? and catalog_key=?", "SirsiMetadata", params[:id]).each do |sm|
          resp[:collection] = sm.collection_facet if !sm.collection_facet.blank?
+         found = true
 
          thumb_pid = ""
          if sm.exemplar.blank?
@@ -36,7 +38,12 @@ class Api::SirsiController < ApplicationController
 
          resp[:items] << item
       end
-      render json: resp
+
+      if found
+         render json: resp
+      else
+         render text: "Not Found", status: :not_found
+      end
    end
 end
 
