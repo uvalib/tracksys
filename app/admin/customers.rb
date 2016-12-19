@@ -1,5 +1,6 @@
 ActiveAdmin.register Customer do
   menu :priority => 3
+  config.batch_actions = false
 
   # strong paramters handling
   permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,

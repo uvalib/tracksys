@@ -1,5 +1,6 @@
 ActiveAdmin.register XmlMetadata do
    menu :parent => "Metadata"
+   config.batch_actions = false
 
    # strong paramters handling
    permit_params :title, :creator_name,

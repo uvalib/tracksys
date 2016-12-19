@@ -1,5 +1,6 @@
 ActiveAdmin.register SirsiMetadata do
   menu :parent => "Metadata"
+  config.batch_actions = false
 
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,

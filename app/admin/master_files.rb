@@ -1,7 +1,8 @@
 ActiveAdmin.register MasterFile do
    menu :priority => 6
-   config.per_page = 20
+   config.per_page = 15
    config.sort_order = "id_desc"
+   config.batch_actions = false
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,

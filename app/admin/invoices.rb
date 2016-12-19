@@ -1,5 +1,6 @@
 ActiveAdmin.register Invoice do
    menu :parent => "Miscellaneous"
+   config.batch_actions = false
 
    # strong paramters handling
    permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes

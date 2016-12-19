@@ -1,5 +1,6 @@
 ActiveAdmin.register Agency do
   menu :parent => "Miscellaneous"
+  config.batch_actions = false
 
   # strong paramters handling
   permit_params :name, :description, :parent_id

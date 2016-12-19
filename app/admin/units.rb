@@ -24,6 +24,7 @@ ActiveAdmin.register Unit do
     column :master_files_count
   end
 
+  actions :all, :except => [:destroy]
   config.clear_action_items!
 
   action_item :new, :only => :index do

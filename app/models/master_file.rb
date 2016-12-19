@@ -62,6 +62,7 @@ class MasterFile < ActiveRecord::Base
    #------------------------------------------------------------------
    scope :in_digital_library, ->{ where("master_files.date_dl_ingest is not null").order("master_files.date_dl_ingest ASC") }
    scope :not_in_digital_library, ->{ where("master_files.date_dl_ingest is null") }
+   default_scope { order(filename: :asc) }
 
    #------------------------------------------------------------------
    # public class methods
