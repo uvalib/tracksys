@@ -8,6 +8,7 @@
 //= require autocomplete
 //= require ocr
 //= require statistics
+//= require insert_pages
 //= require clone-masterfiles
 //= require bulk_dl_settings
 //= require codemirror

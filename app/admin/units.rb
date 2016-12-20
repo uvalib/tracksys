@@ -592,6 +592,12 @@ ActiveAdmin.register Unit do
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
   end
 
+  member_action :insert, :method => :post do
+    unit = Unit.find(params[:id])
+    job_id = InsertMasterFiles.exec({unit: unit})
+    render :text=>job_id, status: :ok
+  end
+
   collection_action :autocomplete, method: :get do
      suggestions = []
      like_keyword = "#{params[:query]}%"

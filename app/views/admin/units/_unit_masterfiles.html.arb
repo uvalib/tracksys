@@ -5,14 +5,15 @@ div id: "masterfile-list" do
    div do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
       token =  Time.now.to_i
+      insert_btn = "<span id='insert-pages' class='mf-action-button'>Insert Page(s)</span>"
       if !unit.metadata.nil? && !unit.date_archived.blank?
          url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
          pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
       end
       if page_size.to_i < unit.master_files.count
-         raw("#{all_btn}#{pdf_btn}")
+         raw("#{all_btn}#{pdf_btn}#{insert_btn}")
       else
-         raw("#{pdf_btn}")
+         raw("#{pdf_btn}#{insert_btn}")
       end
    end
 
