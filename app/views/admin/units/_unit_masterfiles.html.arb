@@ -2,7 +2,12 @@ div id: "masterfile-list" do
    page_size = params[:page_size]
    page_size = 15 if page_size.nil?
 
-   div do
+   div id: "working-message" do
+      span "Master file update in progress..."
+      div id: "work-spinner" do end
+   end
+
+   div class: "unit-mf-action-panel" do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
       all_btn = "" if page_size.to_i >= unit.master_files.count
       replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
@@ -14,6 +19,12 @@ div id: "masterfile-list" do
       end
 
       raw("#{all_btn}#{pdf_btn}#{replace_btn}#{add_btn}")
+   end
+   div class: "update-confirm" do
+      span id: "confirm-msg" do "replace master fiiles?" end
+      div class: "button-bar" do
+         raw("<span id='cancel-update' class='mf-action-button'>Cancel</span><span id='confirm-update' class='mf-action-button'>OK</span>")
+      end
    end
 
    paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do

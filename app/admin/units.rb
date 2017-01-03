@@ -597,11 +597,16 @@ ActiveAdmin.register Unit do
     job_id = AddMasterFiles.exec({unit: unit})
     render :text=>job_id, status: :ok
   end
-
   member_action :replace, :method => :post do
     unit = Unit.find(params[:id])
     job_id = ReplaceMasterFiles.exec({unit: unit})
     render :text=>job_id, status: :ok
+  end
+  member_action :update_status, method: :get do
+     job = JobStatus.find(params[:job])
+     render :text=>"Invalid job", status: :bad_request and return if job.name != "ReplaceMasterFiles" && job.name != "AddMasterFiles"
+     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
+     render :text=>job.status, status: :ok
   end
 
   collection_action :autocomplete, method: :get do
