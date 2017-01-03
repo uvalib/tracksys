@@ -203,7 +203,9 @@ ActiveAdmin.register XmlMetadata do
             button_to "Publish to Virgo Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
          end
       else
-         "No options available.  Object is not in DL."
+        div :class => 'workflow_button' do
+           button_to "Publish to Digital Library Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
+        end
       end
    end
 
