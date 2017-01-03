@@ -598,6 +598,12 @@ ActiveAdmin.register Unit do
     render :text=>job_id, status: :ok
   end
 
+  member_action :replace, :method => :post do
+    unit = Unit.find(params[:id])
+    job_id = ReplaceMasterFiles.exec({unit: unit})
+    render :text=>job_id, status: :ok
+  end
+
   collection_action :autocomplete, method: :get do
      suggestions = []
      like_keyword = "#{params[:query]}%"

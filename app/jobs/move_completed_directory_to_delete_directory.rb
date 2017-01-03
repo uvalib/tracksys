@@ -17,12 +17,18 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
          FileUtils.mv File.join(source_dir, unit_dir), File.join(DELETE_DIR_FROM_STORNEXT, unit_dir)
          on_success "All files associated with #{unit_dir} has been moved to #{DELETE_DIR_FROM_STORNEXT}."
 
-         # If source_dir matches a stornext manual upload dir from the batch migration mount (i.e. /lib_content37), move to BATCH_MIGRATION_DELETE_DIR_FROM_STORNEX
+      # If source_dir matches a stornext manual upload dir from the batch migration mount (i.e. /lib_content37), move to BATCH_MIGRATION_DELETE_DIR_FROM_STORNEX
       elsif /#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/ =~ source_dir
          FileUtils.mv File.join(source_dir, unit_dir), File.join(BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT, unit_dir)
          on_success "All files associated with #{unit_dir} has been moved to #{BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT}."
 
-         # If source_dir matches the finalization in process dir, move to DELETE_DIR_FROM_FINALIZATION and look for items in /digiserv-production/scan
+      # Unit update?
+      elsif /unit_update/ =~ source_dir
+         del_dir = File.join(DELETE_DIR, "from_update", unit_id.to_s)
+         FileUtils.mv source_dir, del_dir
+         on_success "All update files for unit #{unit_id} have been moved to #{del_dir}."
+
+      # If source_dir matches the finalization in process dir, move to DELETE_DIR_FROM_FINALIZATION and look for items in /digiserv-production/scan
       elsif /#{IN_PROCESS_DIR}/ =~ source_dir
          FileUtils.mv File.join(source_dir, unit_dir), File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
          on_success "All files associated with #{unit_dir} has been moved to #{DELETE_DIR_FROM_FINALIZATION}."

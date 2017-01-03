@@ -141,5 +141,7 @@ class AddMasterFiles < BaseJob
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )
          on_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
       end
+
+      MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
    end
 end

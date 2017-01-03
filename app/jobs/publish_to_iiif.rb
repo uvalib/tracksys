@@ -10,6 +10,7 @@ class PublishToIiif < BaseJob
 
       source = message[:source]
       master_file = MasterFile.find(message[:master_file_id])
+      overwrite = message[:overwrite] == true
 
       # Given the new requirment of recording md5 for MasterFile objects and the prohibition on downloading everything from
       # tape to record those md5's, we will take the opportunity here to record them as we pull them down from Stornext.
@@ -52,7 +53,7 @@ class PublishToIiif < BaseJob
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
          # If the JP2k already exists (and is not 0), don't make it again!
-         if File.exist?(jp2k_path) && File.size(jp2k_path) > 0
+         if overwrite == false && File.exist?(jp2k_path) && File.size(jp2k_path) > 0
             logger.info "MasterFile #{master_file.id} already has JP2k file at #{jp2k_path}; skipping creation"
             return
          end
