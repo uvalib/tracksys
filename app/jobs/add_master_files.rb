@@ -68,11 +68,11 @@ class AddMasterFiles < BaseJob
 
             # figure out new filename and rename/re-title
             orig_fn = mf.filename
-            pg_num = mf.filename.split("_").last.split(".").first.to_i
-            pg_num += gap_size
+            orig_page_num = mf.filename.split("_").last.split(".").first.to_i
+            pg_num = orig_page_num + gap_size
             new_fn = "#{mf.filename.split('_').first}_#{'%04d' % pg_num}.tif"
             new_title = mf.title
-            if new_title.to_i.to_s == new_title
+            if new_title.to_i.to_s == new_title && new_title.to_i == orig_page_num
                new_title = "#{new_title.to_i + gap_size}"
             end
             logger.info "Rename #{mf.filename} to #{new_fn}. Title #{new_title}"

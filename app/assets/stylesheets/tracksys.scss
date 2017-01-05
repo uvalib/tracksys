@@ -285,32 +285,45 @@ div.table-scroller {
 }
 div.update-confirm {
    padding: 10px;
-   border: 1px solid #444;
+   border: 2px solid #66b;
    margin: 10px;
-   border-radius: 4px;
-   background: #fefefe;
+   background-color: #eaf5ff;
    display: none;
    div.button-bar {
       text-align: right;
+      .mf-action-button {
+         background: #66b;
+         border: none;
+         &:hover {
+            background: #88d;
+         }
+      }
    }
 }
 #masterfile-list {
    position: relative;
+   div.unit-mf-action-panel {
+      #updates {
+         position: absolute;
+         right: 0;
+      }
+   }
    #confirm-msg {
       font-size: 1.25em;
-color: #444;
+      color: #338;
    }
    #working-message {
       display: none;
       position: absolute;
-      top:0;
-      left:0;
-      bottom: 0;
-      right: 0;
+      top:-10px;
+      left:-15px;
+      bottom: -15px;
+      right: -15px;
       text-align: center;
-      padding-top: 20%;
+      padding-top: 65px;
       font-size: 2.0em;
-      background: rgba(220,220,220,0.7);
+      background: rgba(240, 240, 240, 0.8);
+      z-index: 100;
       span {
          text-shadow: 1px 1px #fff;
          font-weight: bold;

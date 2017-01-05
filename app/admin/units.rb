@@ -602,9 +602,17 @@ ActiveAdmin.register Unit do
     job_id = ReplaceMasterFiles.exec({unit: unit})
     render :text=>job_id, status: :ok
   end
-  member_action :update_status, method: :get do
+  member_action :delete, :method => :post do
+    unit = Unit.find(params[:id])
+    filenames = params[:filenames]
+    job_id = DeleteMasterFiles.exec({unit: unit, filenames: filenames})
+    render :text=>job_id, status: :ok
+  end
+  member_action :status, method: :get do
      job = JobStatus.find(params[:job])
-     render :text=>"Invalid job", status: :bad_request and return if job.name != "ReplaceMasterFiles" && job.name != "AddMasterFiles"
+     job_type = params[:type]
+     type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles"}
+     render :text=>"Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
      render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
      render :text=>job.status, status: :ok
   end

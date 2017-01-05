@@ -57,6 +57,9 @@ class BaseJob
    #
    def create_logger(job_id)
       log_file_path = File.join(JOB_LOG_DIR, "job_#{job_id}.log")
+      if File.exists? log_file_path
+         FileUtils.rm(log_file_path)
+      end
       logger = Logger.new(log_file_path)
       logger.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
