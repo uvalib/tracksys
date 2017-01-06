@@ -36,7 +36,7 @@ class DeleteMasterFiles < BaseJob
                   FileUtils.rm(iiif_path)
                   iiif_dir = File.dirname(iiif_path)
                   if Dir.glob("#{iiif_dir}/*").empty?
-                     FileUtils.rmdir(iiif_path, :force => true)
+                     FileUtils.rm_rf(iiif_dir)
                   end
                else
                   on_failure "No IIIF file found for #{del_fn}"
@@ -58,8 +58,18 @@ class DeleteMasterFiles < BaseJob
 
       # next rename to fill gaps in page number
       logger.info "Updating remaining master files to correct page number gaps"
+      prev_page = -1
       curr_page = 1
+      sequential_titles = true
       unit.master_files.each do |mf|
+         # if page titles are not a number, can't consider them to be sequential
+         if mf.title.to_i.to_s != mf.title
+            sequential_titles = false
+         end
+         if prev_page > -1 && prev_page+1 != curr_page
+            sequential_titles = false
+         end
+
          mf_pg = page_from_filename(mf.filename)
          if mf_pg > curr_page
             md5 = master_file_md5(mf)
@@ -69,7 +79,12 @@ class DeleteMasterFiles < BaseJob
             logger.info "Update MF filename from #{mf.filename} to #{new_fn}"
             mf.update(filename: new_fn)
 
-            # TODO rename titles if they are numbers?
+            # see if the title is a number and that it is the different
+            # from the new page number portion. If so, update it
+            new_pg_num = page_from_filename(new_fn)
+            if mf.title.to_i.to_s == mf.title && mf.title.to_i != new_pg_num && sequential_titles
+               mf.update(title: curr_page.to_s)
+            end
 
             archive_file = File.join(archive_dir, orig_fn)
             new_archive = File.join(archive_dir, new_fn)
@@ -79,6 +94,7 @@ class DeleteMasterFiles < BaseJob
             on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
          end
 
+         prev_page = curr_page
          curr_page += 1
       end
    end
