@@ -10,12 +10,18 @@ div id: "masterfile-list" do
    div class: "unit-mf-action-panel" do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
       all_btn = "" if page_size.to_i >= unit.master_files.count
-      replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
-      token =  Time.now.to_i
-      del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>"
-      del_btn = "" if unit.in_dl?
-      add_btn = "<span id='add-pages' class='mf-action-button'>Add</span>"
+
+      replace_btn = ""
+      add_btn = ""
+      del_btn = ""
+      if !unit.reorder
+         replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
+         del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>" if !unit.in_dl?
+         add_btn = "<span id='add-pages' class='mf-action-button'>Add</span>"
+      end
+
       if !unit.metadata.nil? && !unit.date_archived.blank?
+         token =  Time.now.to_i
          url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
          pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
       end
