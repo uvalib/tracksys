@@ -16,7 +16,6 @@ class BaseJob
       job = self.new()
 
       # setup status and logging using context if available, then perform the job
-      @params_logged = false
       job.prepare(message, workflow_context)
       job.perform(message)
 
@@ -48,7 +47,6 @@ class BaseJob
          # not sure why, but if it is created prior and saved as member variable
          # the job does not run, and produces no errors nor logs
          create_logger(@status.id).info "Schedule #{self.class.name} with params: #{message.to_json}"
-         @params_logged = true
       end
       return @status.id
    end
@@ -84,11 +82,7 @@ class BaseJob
       end
 
       # Flag job started running
-      if @params_logged
-         @logger.info "Start #{self.class.name}"
-      else
-         @logger.info "Start #{self.class.name} with params: #{message.to_json}"
-      end
+      @logger.info "Start #{self.class.name} with params: #{message.to_json}"
       @status.started
 
       begin

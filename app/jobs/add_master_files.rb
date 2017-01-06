@@ -136,6 +136,7 @@ class AddMasterFiles < BaseJob
 
          # archive file and validate checksum
          new_archive = File.join(archive_dir, fn)
+         logger.info "Archiving new master file #{mf_path} to #{new_archive}"
          FileUtils.copy(mf_path, new_archive)
          FileUtils.chmod(0664, new_archive)
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )

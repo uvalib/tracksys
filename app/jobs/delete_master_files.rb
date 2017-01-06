@@ -9,7 +9,7 @@ class DeleteMasterFiles < BaseJob
       raise "Parameter 'filenames' is required" if message[:filenames].blank?
 
       unit = message[:unit]
-      filenames = massage[:filenames].sort
+      filenames = message[:filenames].sort
 
       on_error("Cannot delete from units that have been published") if unit.in_dl?
 
@@ -22,18 +22,22 @@ class DeleteMasterFiles < BaseJob
       unit.master_files.each do |mf|
          if mf.filename == del_fn
             if !mf.is_clone?
-               logger.info "Removing from archive"
                archive_file = File.join(archive_dir, del_fn)
+               logger.info "Removing from archive: #{archive_file}"
                if File.exists? archive_file
                   FileUtils.rm(archive_file)
                else
                   on_failure "No archive found for #{del_fn}"
                end
 
-               logger.info "Removing file published to IIIF"
                iiif_path = MasterFile.iiif_path(mf.pid)
+               logger.info "Removing file published to IIIF: #{iiif_path}"
                if File.exists? iiif_path
                   FileUtils.rm(iiif_path)
+                  iiif_dir = File.dirname(iiif_path)
+                  if Dir.glob("#{iiif_dir}/*").empty?
+                     FileUtils.rmdir(iiif_path, :force => true)
+                  end
                else
                   on_failure "No IIIF file found for #{del_fn}"
                end
@@ -48,18 +52,26 @@ class DeleteMasterFiles < BaseJob
          end
       end
 
+      # Refresh the associated master files list to reflect the deletions above
+      # without it, the loop below does nothing
+      unit.master_files.reload
+
       # next rename to fill gaps in page number
       logger.info "Updating remaining master files to correct page number gaps"
       curr_page = 1
       unit.master_files.each do |mf|
          mf_pg = page_from_filename(mf.filename)
-         if mf_pg > curr
+         if mf_pg > curr_page
             md5 = master_file_md5(mf)
             orig_fn = mf.filename
             pg_str = "%04d" % curr_page
             new_fn = "#{unit_dir}_#{pg_str}.tif"
+            logger.info "Update MF filename from #{mf.filename} to #{new_fn}"
             mf.update(filename: new_fn)
 
+            # TODO rename titles if they are numbers?
+
+            archive_file = File.join(archive_dir, orig_fn)
             new_archive = File.join(archive_dir, new_fn)
             logger.info "Rename archived file #{archive_file} -> #{new_fn}"
             File.rename(archive_file, new_archive)
