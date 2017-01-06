@@ -16,6 +16,8 @@ class JobStatus < ActiveRecord::Base
    def failed(err)
       # only handle this if the status is transitiong from running to failed
       return if self.status != 'running'
+      db_err = err
+      db_err = err.truncate(255, separator: /\s/) if err.length > 255
       self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err)
    end
 
