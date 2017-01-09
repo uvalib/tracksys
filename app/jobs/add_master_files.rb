@@ -134,13 +134,15 @@ class AddMasterFiles < BaseJob
          # send to IIIF
          PublishToIiif.exec_now({source: mf_path, master_file_id: master_file.id}, self)
 
-         # archive file and validate checksum
+         # archive file, validate checksum and set archived date
          new_archive = File.join(archive_dir, fn)
          logger.info "Archiving new master file #{mf_path} to #{new_archive}"
          FileUtils.copy(mf_path, new_archive)
          FileUtils.chmod(0664, new_archive)
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )
          on_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
+         master_file.update(:date_archived, Time.now)
+
       end
 
       MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
