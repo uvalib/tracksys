@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161209194136) do
+ActiveRecord::Schema.define(version: 20170109185546) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -245,14 +245,15 @@ ActiveRecord::Schema.define(version: 20161209194136) do
   add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree
 
   create_table "items", force: :cascade do |t|
-    t.string   "pid",          limit: 255
-    t.string   "external_uri", limit: 255
-    t.integer  "unit_id",      limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.string   "pid",             limit: 255
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "external_system", limit: 255
+    t.string   "external_id",     limit: 255
+    t.integer  "metadata_id",     limit: 4
   end
 
-  add_index "items", ["unit_id"], name: "index_items_on_unit_id", using: :btree
+  add_index "items", ["metadata_id"], name: "index_items_on_metadata_id", using: :btree
 
   create_table "job_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255,                     null: false
