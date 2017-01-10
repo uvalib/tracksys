@@ -123,8 +123,8 @@ class MasterFile < ActiveRecord::Base
       image_pid = self.pid
       image_pid = self.original.pid if is_clone?
       iiif_url = nil
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/125,/0/default.jpg") if image_size == :small
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/240,/0/default.jpg") if image_size == :medium
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/0/default.jpg") if image_size == :small
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/0/default.jpg") if image_size == :medium
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/0/default.jpg") if image_size == :large
       raise "Invalid size" if iiif_url.nil?
 
