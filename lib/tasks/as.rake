@@ -1,4 +1,50 @@
 namespace :as do
+   AS_ROOT = "http://archives-test.lib.virginia.edu:8089"
+   def get_auth_hdr(u,pw)
+      as_root = "http://archives-test.lib.virginia.edu:8089"
+      url = "#{AS_ROOT}/users/#{u}/login"
+      resp = RestClient.post url, {password: pw}
+      json = JSON.parse(resp.body)
+      session = json['session']
+
+      # Make the rest header with session info to be used for all other requests
+      hdr = {:content_type => :json, :accept => :json, :'X-ArchivesSpace-Session'=>session}
+      return hdr
+   end
+
+   desc "hs"
+   task :hs  => :environment do
+      u = ENV["u"]
+      pw = ENV["p"]
+      id = ENV['metadata']
+      metadata = Metadata.find(id)
+      puts "Source Metadata: #{metadata.title}"
+
+      hdr = get_auth_hdr(u,pw)
+      # 7 = health sciences, 210 = eduardo photos. List all stuff under it and find childrem
+      out = RestClient.get "#{AS_ROOT}/repositories/7/resources/210/tree", hdr
+      json = JSON.parse(out.body)
+
+      metadata.units.each do |u|
+         u.master_files.each do |mf|
+            puts "Looking for AS match for #{mf.title}"
+            # in this case, the title contains the original filename. Format: montesbradley000NN.tif
+            # where NN is the image number. Pull this out as it will be used to match archival_object
+            # indicator_1 below
+            tgt_id = mf.title.gsub(/\D/,'').to_i
+
+            json['children'].each do |c|
+               next if c['node_type'] != 'archival_object'
+               uri = c['record_uri']
+               id = c['containers'][0]['indicator_1'].to_i
+               if id == tgt_id
+                  puts "MATCH: #{c['title']}, #{uri} ID=#{id}"
+               end
+            end
+         end
+      end
+   end
+
    desc "test"
    task :test  => :environment do
       u = ENV["u"]
@@ -94,3 +140,7 @@ namespace :as do
       # end
    end
 end
+# {"title":"Fern Campbell, 2012","id":45171,"record_uri":"/repositories/7/archival_objects/45171","publish":false,"suppressed":false,"node_type":"archival_object","level":"item","instance_types":["Graphic Materials","digital_object"],
+#    "containers":[{"type_1":"object","indicator_1":"1","type_2":null,"indicator_2":null,"type_3":null,"indicator_3":null}],"has_children":false,"children":[]}
+# {"title":"Stuart S. Howards, 2012","id":45177,"record_uri":"/repositories/7/archival_objects/45177","publish":false,"suppressed":false,"node_type":"archival_object","level":"item","instance_types":["graphic_materials","digital_object"],"containers":[{"type_1":"object","indicator_1":"6","type_2":null,"indicator_2":null,"type_3":null,"indicator_3":null}],"has_children":false,"children":[]}
+# {"title":"Stuart S. Howards, 2013","id":45187,"record_uri":"/repositories/7/archival_objects/45187","publish":false,"suppressed":false,"node_type":"archival_object","level":"item","instance_types":["graphic_materials","digital_object"],"containers":[{"type_1":"object","indicator_1":"8","type_2":null,"indicator_2":null,"type_3":null,"indicator_3":null}],"has_children":false,"children":[]}

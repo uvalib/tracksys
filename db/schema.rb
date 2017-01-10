@@ -323,8 +323,8 @@ ActiveRecord::Schema.define(version: 20170110151438) do
     t.string   "type",                   limit: 255,   default: "SirsiMetadata"
     t.string   "external_system",        limit: 255
     t.string   "external_uri",           limit: 255
-    t.string   "supplimentary_system",   limit: 255
-    t.string   "supplimentary_uri",      limit: 255
+    t.string   "supplemental_system",    limit: 255
+    t.string   "supplemental_uri",       limit: 255
   end
 
   add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
