@@ -98,7 +98,7 @@ class AddMasterFiles < BaseJob
          fn = File.basename(mf_path)
          pg_num = fn.split("_").last.split(".").first.to_i
          master_file  = MasterFile.create(filename: fn, title: pg_num.to_s, filesize: fs, md5: md5,
-            unit_id: unit.id, component_id: component_id)
+            unit_id: unit.id, component_id: component_id, metadata_id: unit.metadata_id)
          logger.info "Created master file #{mf_path}"
          CreateImageTechnicalMetadata.exec_now({master_file: master_file, source: mf_path}, self)
 
