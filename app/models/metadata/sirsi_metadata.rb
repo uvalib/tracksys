@@ -30,7 +30,10 @@
 #  dpla                   :boolean          default(FALSE)
 #  collection_facet       :string(255)
 #  type                   :string(255)      default("SirsiMetadata")
-#  external_attributes    :text(65535)
+#  external_system        :string(255)
+#  external_uri           :string(255)
+#  supplimentary_system   :string(255)
+#  supplimentary_uri      :string(255)
 #
 
 class SirsiMetadata < Metadata
@@ -118,8 +121,9 @@ class SirsiMetadata < Metadata
    #------------------------------------------------------------------
    # validations
    #------------------------------------------------------------------
-   validates :xml_schema, :presence=>false
    validates :desc_metadata, :presence=>false
+   validates :external_system, :presence=>false
+   validates :external_uri, :presence=>false
 
    #------------------------------------------------------------------
    # callbacks
