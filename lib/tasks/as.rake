@@ -34,11 +34,17 @@ namespace :as do
             tgt_id = mf.title.gsub(/\D/,'').to_i
 
             json['children'].each do |c|
-               next if c['node_type'] != 'archival_object'
-               uri = c['record_uri']
-               id = c['containers'][0]['indicator_1'].to_i
-               if id == tgt_id
-                  puts "MATCH: #{c['title']}, #{uri} ID=#{id}"
+               if c['node_type'] != 'archival_object'
+                  uri = c['record_uri']
+                  id = c['containers'][0]['indicator_1'].to_i
+                  if id == tgt_id
+                     puts c
+                     puts "===============MATCH: #{c['title']}, #{uri} ID=#{id}"
+                     ao_detail = RestClient.get "#{AS_ROOT}/#{uri}", hdr
+                     puts ao_detail
+                  end
+               else
+                  puts c
                end
             end
          end

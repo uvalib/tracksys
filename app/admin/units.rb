@@ -266,7 +266,7 @@ ActiveAdmin.register Unit do
             add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
             raw("#{add_btn}")
          end
-         if !unit.attachments.count == 0
+         if unit.attachments.count > 0
             table_for unit.attachments do |att|
                column :filename
                column :description
@@ -317,7 +317,10 @@ ActiveAdmin.register Unit do
   sidebar "Related Information", :only => [:show] do
     attributes_table_for unit do
       row "Metadata" do |unit|
-         link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}" if !unit.metadata.nil?
+         if !unit.metadata.nil?
+            disp = "<a href='/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}'><span>#{unit.metadata.pid}<br/>#{unit.metadata.title}</span></a>"
+            raw( disp)
+         end
       end
       row :order do |unit|
         link_to "##{unit.order.id}", admin_order_path(unit.order.id)
