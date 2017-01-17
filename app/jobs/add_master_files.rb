@@ -19,6 +19,7 @@ class AddMasterFiles < BaseJob
             prev_page = new_page
          else
             on_error("Gap in sequence number of new master files") if page_num > prev_page+1
+            prev_page = page_num
          end
       end
 
@@ -141,7 +142,7 @@ class AddMasterFiles < BaseJob
          FileUtils.chmod(0664, new_archive)
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )
          on_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
-         master_file.update(:date_archived, Time.now)
+         master_file.update(date_archived: Time.now)
 
       end
 
