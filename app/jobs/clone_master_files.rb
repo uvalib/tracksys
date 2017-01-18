@@ -51,6 +51,7 @@ class CloneMasterFiles < BaseJob
 
          mf = MasterFile.create(
             unit_id: unit.id, filename: new_fn, filesize: src_mf.filesize,
+            component_id: src_mf.component_id,
             title: info[:title], description: src_mf.description,
             transcription_text: src_mf.transcription_text,
             md5: src_mf.md5, creator_death_date: src_mf.creator_death_date,
