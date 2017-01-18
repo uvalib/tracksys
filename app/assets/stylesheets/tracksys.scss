@@ -1,4 +1,7 @@
 body.active_admin {
+   #search-status-_sidebar_section {
+      display: none;
+   }
    div.autocomplete-suggestions {
       background: white;
       border: 1px solid #ccc;
@@ -311,7 +314,7 @@ div.update-confirm {
 #masterfile-list {
    position: relative;
    div.unit-mf-action-panel {
-      min-height: 22px; 
+      min-height: 22px;
       #updates {
          position: absolute;
          right: 0;
