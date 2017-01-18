@@ -44,6 +44,9 @@ $(function() {
                if ( $("#clone-masterfile-list .sel-cb[data-id='"+val.id+"']").length > 0 ) {
                   rowClass += " cloned";
                }
+               if ( $("#clone-masterfile-list .sel-cb[data-unit-id='"+selectedUnit+"']").length > 0 ) {
+                  rowClass += " cloned";
+               }
                var r = template;
                r = r.replace("CLASS",rowClass);
                r = r.replace(/MF_ID/g, val.id);
@@ -150,6 +153,20 @@ $(function() {
       title.text( txt );
    });
 
+   $(".clone-btn.add-all").on("click", function() {
+      $("#source-masterfile-list tbody tr").each( function()  {
+         if ( $(this).hasClass("cloned") === false) {
+            $(this).addClass("cloned");
+         }
+      });
+
+      var uid = $("#source-unit").val();
+      var allRow = "<tr class='mf-row'>";
+      allRow += "<td><input  data-unit-id='"+uid+"' data-id='0' class='sel-cb' type='checkbox'/></td>";
+      allRow += "<td colspan='3' class='clone-all'>All master files from unit "+uid+" will be cloned</td></tr>";
+      $('#clone-masterfile-list tbody').append(allRow);
+   });
+
    $(".clone-btn.add").on("click", function() {
       $("#source-masterfile-list .sel-cb:checked").each( function()  {
          var tr = $(this).closest("tr");
@@ -163,10 +180,17 @@ $(function() {
    $(".clone-btn.remove").on("click", function() {
       $("#clone-masterfile-list .sel-cb:checked").each( function()  {
          var mfId = $(this).data("id");
+         var uId = $(this).data("unit-id");
+         var selUnit = $("#source-unit").val();
          $(this).closest(".mf-row").remove();
-         var row = $("#source-masterfile-list .mf-row[data-id='"+mfId+"']");
-         row.removeClass("cloned");
-         row.find(".sel-cb").prop('checked', false);
+         if ( mfId === 0 && uId == selUnit) {
+            $("#source-masterfile-list .cloned").removeClass("cloned");
+            $("#source-masterfile-list .sel-cb").prop('checked', false);
+         } else {
+            var row = $("#source-masterfile-list .mf-row[data-id='"+mfId+"']");
+            row.removeClass("cloned");
+            row.find(".sel-cb").prop('checked', false);
+         }
       });
    });
 
@@ -227,10 +251,16 @@ $(function() {
 
       var list = [];
       $("#clone-masterfile-list .mf-row").each( function() {
-         var rec = {};
-         rec.id = $(this).find(".sel-cb").data("id");
-         rec.title =  $(this).find(".title").text();
-         list.push(rec);
+         var cb = $(this).find(".sel-cb");
+         var id =  cb.data("id");
+         if ( id === 0) {
+            list.push({unit: cb.data("unit-id")});
+         } else {
+            var rec = {};
+            rec.id = $(this).find(".sel-cb").data("id");
+            rec.title =  $(this).find(".title").text();
+            list.push(rec);
+         }
       });
 
       $.ajax({

@@ -35,12 +35,12 @@ ActiveAdmin.register Unit do
   end
 
   action_item :pdf, :only => :show do
-     if !unit.metadata.nil? && unit.master_files_count > 0
+     if !unit.metadata.nil? && unit.master_files_count > 0 && !unit.reorder
         raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
      end
   end
   action_item :ocr, only: :show do
-     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
+     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled? && !unit.reorder && unit.master_files_count > 0
   end
 
   batch_action :approve_units do |selection|
@@ -105,7 +105,7 @@ ActiveAdmin.register Unit do
   end
 
   member_action :master_files, method: :get do
-     page_size = 10
+     page_size = 15
      page_idx = 0
      page_idx = params[:page].to_i()-1 if !params[:page].blank?
      cnt = MasterFile.where(unit_id: params[:id]).count
@@ -128,6 +128,7 @@ ActiveAdmin.register Unit do
   filter :date_dl_deliverables_ready
   filter :special_instructions
   filter :staff_notes
+  filter :reorder, :as => :select
   filter :include_in_dl, :as => :select
   filter :intended_use, :as => :select
   filter :metadata_title, :as => :string, :label => "Metadata Title"
@@ -152,6 +153,9 @@ ActiveAdmin.register Unit do
          end
       end
     end
+    column ("Reorder?") do |unit|
+      format_boolean_as_yes_no(unit.reorder)
+    end
     column ("In DL?") do |unit|
       format_boolean_as_yes_no(unit.include_in_dl)
     end
@@ -173,13 +177,13 @@ ActiveAdmin.register Unit do
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
          end
-         if ocr_enabled? && unit.master_files_count > 0
+         if ocr_enabled? && unit.master_files_count > 0 && unit.reorder == false
             div do
                link_to "OCR", "/admin/ocr?u=#{unit.id}"
             end
          end
       end
-      if !unit.metadata.nil? && unit.master_files_count > 0
+      if !unit.metadata.nil? && unit.master_files_count > 0 && unit.reorder == false
          div do
             link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end

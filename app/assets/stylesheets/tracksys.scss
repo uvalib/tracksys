@@ -257,8 +257,8 @@ div.columns-none.error {
 
    label {
       font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
+      margin-right: 10px;
    }
    div.chosen-container.chosen-container-single {
       width: 200px !important;
@@ -270,9 +270,17 @@ div.columns-none.error {
    #selector-panel {
       margin-bottom: 15px;
    }
-   .clone-btn.add {
+   .clone-btn.add, .clone-btn.add-all {
       position: absolute;
       left: 0;
+      width: 100px;
+      text-align: center;
+   }
+   .clone-btn.add-all {
+      top: 32px;
+   }
+   td.clone-all {
+      text-align: center;
    }
 }
 
@@ -303,6 +311,7 @@ div.update-confirm {
 #masterfile-list {
    position: relative;
    div.unit-mf-action-panel {
+      min-height: 22px; 
       #updates {
          position: absolute;
          right: 0;
