@@ -1,0 +1,46 @@
+
+.log-panel {
+   #log-panel {
+      box-sizing: border-box;
+      background: #333;
+      padding: 8px 24px;
+      border-radius: 3px;
+      color: #ccc;
+      word-wrap: break-word;
+      ol {
+         font-family: "Courier New", Courier, monospace;
+         font-size: 1.1em;
+      }
+      .comment {
+         font-weight: bolder;
+         color: #4a4;
+      }
+      .error {
+         font-weight: bold;
+         color: #cb9b43;
+      }
+      .fatal {
+         font-weight: bold;
+         color: #d44;
+      }
+      .info {
+         font-weight: bold;
+         color: #629bff;
+      }
+      .debug {
+         color: #cae;
+      }
+      b {
+         font-weight: bolder;
+         color: whitesmoke;
+      }
+   }
+}
+
+#job-error-info {
+   margin-bottom: 5px;
+   label {
+      font-weight: bolder;
+      margin-right: 10px;
+   }
+}

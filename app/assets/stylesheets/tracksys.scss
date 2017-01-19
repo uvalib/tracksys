@@ -3,6 +3,12 @@ body.active_admin {
       display: none;
    }
 
+   input[readonly] {
+      border: 0;
+      background: transparent;
+      padding: 0;
+   }
+
    div.autocomplete-suggestions {
       background: white;
       border: 1px solid #ccc;
@@ -104,79 +110,6 @@ body.active_admin {
 
             &:hover {
                background-color: #cfc;
-            }
-         }
-      }
-   }
-
-   div.stats-query {
-      .query-dimmer {
-         position: absolute;
-         left: 0;
-         top: 0;
-         width: 100%;
-         height: 100%;
-         z-index: 1000;
-         background: rgba(240,240,240, 0.6);
-         display: none;
-
-         img {
-            display: block;
-            margin: 8% auto;
-            width: 40px;
-         }
-      }
-      position: relative;
-      border: 1px solid #ccc;
-
-      h4 {
-         margin: 0;
-         padding: 2px 6px;
-         font-size: 1em;
-         font-weight: bold;
-         background: #ddd;
-         color: #444;
-         border-bottom: 1px solid #ccc;
-      }
-
-      input,
-      select {
-         width: 140px;
-         box-sizing: border-box;
-      }
-
-      label {
-         text-align: right;
-         margin-right: 10px;
-         width: 70px;
-         display: inline-block;
-      }
-
-      .params {
-         padding: 10px;
-
-         .row {
-            margin-bottom: 10px;
-         }
-
-         .datepicker {
-            margin-right: 15px;
-         }
-
-         .controls {
-            padding-top: 12px;
-            border-top: 1px solid #ddd;
-            margin-top: 12px;
-            position: relative;
-
-            .mf-action-button {
-               position: absolute;
-               right: 0;
-               top: 10px;
-            }
-
-            label {
-               font-weight: bold;
             }
          }
       }
@@ -782,10 +715,6 @@ body.active_admin {
       }
    }
 
-   fieldset.columns-none.xml-submit {
-      margin-top: 15px;
-   }
-
    .xml-submit {
       a.cancel {
          border-radius: 200px;
@@ -844,19 +773,17 @@ body.active_admin {
 
          .xml-button {
             display: inline-block;
-            border: 1px solid #44a;
-            background-color: #66c;
+            border: none;
+            background-color: steelblue;
             color: white;
-            padding: 1px 20px;
-            border-radius: 10px;
+            padding: 3px 30px 1px 30px;
+            border-radius: 2px;
             margin: 5px 5px 0 0;
             cursor: pointer;
-            font-weight: bold;
             text-shadow: #000 0 1px 0;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.2) inset;
 
             &:hover {
-               background-color: #88f;
+               background-color: cornflowerblue;
             }
          }
 
@@ -867,13 +794,6 @@ body.active_admin {
       }
    }
 
-   div,
-   ol,
-   p,
-   td,
-   ul {
-      font-family: "Helvetica Neue";
-   }
    /* add different statuses to status_tag styling in active_admin/components/_status_tag.scss*/
    .status_tag {
       &.approved {
@@ -926,7 +846,7 @@ body.active_admin {
    }
 
    li.required > label {
-      color: #DB0000;
+      color: #a00;
    }
 
    .workflow_button {
@@ -935,6 +855,10 @@ body.active_admin {
 
    form fieldset ol > li label {
       width: 30%;
+   }
+
+   form fieldset > ol > li fieldset ol {
+      padding: 0 0 0 30%;
    }
 
    form input[type="email"],
