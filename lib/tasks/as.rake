@@ -1,10 +1,9 @@
 namespace :as do
-   AS_ROOT = Settings.archives_space_url
    IIIF_USE_STATEMENT = "image-service-manifest"
 
    def get_auth_hdr(u,pw)
       as_root = "http://archives-test.lib.virginia.edu:8089"
-      url = "#{AS_ROOT}/users/#{u}/login"
+      url = "#{Settings.archives_space_url}/users/#{u}/login"
       resp = RestClient.post url, {password: pw}
       json = JSON.parse(resp.body)
       session = json['session']
@@ -16,12 +15,12 @@ namespace :as do
 
    def get_ao_detail(ao_uri, hdr, pid)
       existing_do = nil
-      ao_detail = RestClient.get "#{AS_ROOT}/#{ao_uri}", hdr
+      ao_detail = RestClient.get "#{Settings.archives_space_url}/#{ao_uri}", hdr
       ao_json = JSON.parse(ao_detail.body)
       ao_json['instances'].each do |instance|
          next if instance['instance_type'] != 'digital_object'
          do_uri = instance['digital_object']['ref']
-         do_tree = RestClient.get "#{AS_ROOT}/#{do_uri}", hdr
+         do_tree = RestClient.get "#{Settings.archives_space_url}/#{do_uri}", hdr
          do_json = JSON.parse(do_tree.body)
          return {ao_json: ao_json, do_exist: true} if do_json['digital_object_id'] == pid
       end
@@ -45,7 +44,7 @@ namespace :as do
 
       digital_obj_id = -1
       begin
-         resp = RestClient.post "#{AS_ROOT}#{repo_uri}/digital_objects", "#{payload.to_json}", hdr
+         resp = RestClient.post "#{Settings.archives_space_url}#{repo_uri}/digital_objects", "#{payload.to_json}", hdr
          if resp.code.to_i == 200
             json = JSON.parse(resp)
             digital_obj_id = json['id']
@@ -73,7 +72,7 @@ namespace :as do
       end
 
       begin
-         resp = RestClient.post "#{AS_ROOT}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
+         resp = RestClient.post "#{Settings.archives_space_url}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
          if resp.code.to_i == 200
             puts "Archival object updated"
          else
@@ -93,7 +92,7 @@ namespace :as do
       u = ENV["u"]
       pw = ENV["p"]
       hdr = get_auth_hdr(u,pw)
-      out = RestClient.get "#{AS_ROOT}/config/enumerations", hdr
+      out = RestClient.get "#{Settings.archives_space_url}/config/enumerations", hdr
       found = false
       tgt_enum = nil
       JSON.parse(out.body).each do |rec|
@@ -115,7 +114,7 @@ namespace :as do
          tgt_enum['enumeration_values'] << v
          tgt_enum['values'] << IIIF_USE_STATEMENT
          begin
-            resp = RestClient.post "#{AS_ROOT}/config/enumerations/#{enum_id}", "#{tgt_enum.to_json}", hdr
+            resp = RestClient.post "#{Settings.archives_space_url}/config/enumerations/#{enum_id}", "#{tgt_enum.to_json}", hdr
             if resp.code.to_i == 200
                puts "#{IIIF_USE_STATEMENT} ADDED"
             else
@@ -141,7 +140,7 @@ namespace :as do
 
       # 7 = health sciences, 210 = eduardo photos. List all stuff under it and find children
       repo_uri = "/repositories/7"
-      repo_url = "#{AS_ROOT}#{repo_uri}"
+      repo_url = "#{Settings.archives_space_url}#{repo_uri}"
       out = RestClient.get "#{repo_url}/resources/210/tree", hdr
       json = JSON.parse(out.body)
 
