@@ -270,19 +270,23 @@ table.ocr-master-files {
    color: firebrick;
 }
 
-.ocr-button {
+.ocr-button, a.view-supplemental {
    margin: 0 10px;
    background: steelblue;
-   padding: 3px 30px;
-   color: white;
+   padding: 3px 36px;
    border-radius: 4px;
-   border: 1px solid #249;
-   font-size: 0.8em;
+   color: white;
+   border: none;
    text-shadow: 1px 1px #000;
    cursor: pointer;
+   text-align: center;
+   text-decoration: none;
    &:hover {
       background: cornflowerblue;
    }
+}
+a.view-supplemental {
+   display: block;
 }
 
 .two-column.img-column {
@@ -333,16 +337,13 @@ a.ocr-button.done {
 
 .ocr-src-panel {
    text-align: center;
-
-
    p {
       color: #666;
       font-weight: bold;
       margin: 0 0 15px 0;
    }
    .ocr-controls {
-      font-size: 1.3em;
-      margin: 15px 0;
+      margin: 5px 0 15px 0;
    }
 }
 
