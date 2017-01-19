@@ -1,5 +1,5 @@
 namespace :as do
-   AS_ROOT = "http://archives-test.lib.virginia.edu:8089"
+   AS_ROOT = Settings.archives_space_url
    IIIF_USE_STATEMENT = "image-service-manifest"
 
    def get_auth_hdr(u,pw)
