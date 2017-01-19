@@ -68,7 +68,7 @@ a.agency-ancestry {
    text-decoration: none;
    &:hover {
       text-decoration: underline;
-       box-shadow: 1px 1px 2px #ddd;
+      box-shadow: 1px 1px 2px #ddd;
    }
 }
 
@@ -190,12 +190,12 @@ div.mf-transcription {
 }
 a.workflow_button {
    border: 1px solid #6A7176;
-    padding: 5px 25px;
-    text-decoration: initial;
-    border-radius: 15px;
-    background: #6A7176;
-    color: white;
-    &:hover {
+   padding: 5px 25px;
+   text-decoration: initial;
+   border-radius: 15px;
+   background: #6A7176;
+   color: white;
+   &:hover {
       background: #ddd;
       color: #666;
    }
@@ -402,33 +402,6 @@ body.active_admin {
 body.active_admin {
    font-size: 0.8em;
    ul.header-item.tabs {
-          font-size: inherit;
+      font-size: inherit;
    }
-   div.workflow_note {
-      padding: 10px 0px 10px 0px;
-      font-family: sans-serif;
-      font-weight: 600;
-      color: orange;
-   }
-}
-body.active_admin {
-   .admin-information {
-      background-color: rgba(100,150,90,0.5);
-      padding: 1em;
-   }
-   .admin-information h2, h3 { color:black;}
-}
-
-th.date_patron_deliverables_complete a, body.active_admin table.index_table th.date_patron_deliverables_complete a:visited,
-body.active_admin table.index_table th.date_patron_deliverables_complete a:link {
-   white-space:normal;
-}
-table.index_table th a, body.active_admin table.index_table th a:link, body.active_admin table.index_table th a:visited {
-   color: #5e6469;
-   text-decoration: none;
-   display: block;
-   white-space: normal;
-   max-height: 39px;
-   overflow: normal;
-   -webkit-font-smoothing: antialiased;
 }
