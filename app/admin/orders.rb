@@ -37,10 +37,10 @@ ActiveAdmin.register Order do
 
   config.clear_action_items!
   action_item :new, :only => :index do
-     raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
   action_item :edit, only: :show do
-     link_to "Edit", edit_resource_path  if !current_user.viewer?
+     link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
   end
 
   scope :all, :default => true
@@ -99,7 +99,7 @@ ActiveAdmin.register Order do
       div do
         link_to "Details", resource_path(order), :class => "member_link view_link"
       end
-      if !current_user.viewer?
+      if !current_user.viewer? && !current_user.student?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(order), :class => "member_link edit_link"
          end
@@ -214,7 +214,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? } do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
     if order.order_status == 'requested'
       if order.customer.external?
         if order.fee_estimated.nil?
@@ -277,7 +277,7 @@ ActiveAdmin.register Order do
     end
   end
 
-  sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? }  do
+  sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? }  do
     if order.has_patron_deliverables?
        if order.order_status == 'approved'
          if order.email?

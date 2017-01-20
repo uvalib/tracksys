@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170110151438) do
+ActiveRecord::Schema.define(version: 20170120154014) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -376,10 +376,6 @@ ActiveRecord::Schema.define(version: 20170110151438) do
   add_index "orders", ["date_request_submitted"], name: "index_orders_on_date_request_submitted", using: :btree
   add_index "orders", ["order_status"], name: "index_orders_on_order_status", using: :btree
 
-  create_table "roles", force: :cascade do |t|
-    t.string "name", limit: 255, null: false
-  end
-
   create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
     t.integer "sirsi_metadata_id", limit: 4
     t.integer "component_id",      limit: 4
@@ -396,7 +392,7 @@ ActiveRecord::Schema.define(version: 20170110151438) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "email",        limit: 255
-    t.integer  "role_id",      limit: 4,   default: 1
+    t.integer  "role",         limit: 4,   default: 0
   end
 
   add_index "staff_members", ["computing_id"], name: "index_staff_members_on_computing_id", unique: true, using: :btree

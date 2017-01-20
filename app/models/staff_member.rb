@@ -14,109 +14,83 @@
 #
 
 class StaffMember < ActiveRecord::Base
+   enum role: [:admin, :supervisor, :editor, :student, :viewer]
+   
+   has_many :job_statuses, :as => :originator, :dependent => :destroy
+   validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
-  #------------------------------------------------------------------
-  # relationships
-  #------------------------------------------------------------------
-  has_many :job_statuses, :as => :originator, :dependent => :destroy
-  belongs_to :role
+   public
+   def can_deaccession?
+      return DEACCESSION_USERS.include? self.computing_id
+   end
 
-  #------------------------------------------------------------------
-  # validation
-  #------------------------------------------------------------------
-  validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
-  validates :role, :presence=>true
-
-public
-  #------------------------------------------------------------------
-  # public instance methods
-  #------------------------------------------------------------------
-  def admin?
-     return self.role.name == "Administrator"
-  end
-  def editor?
-     return self.role.name == "Editor"
-  end
-  def viewer?
-     return self.role.name == "Viewer" || role.name == "Student" || role.name == "Supervisor"
-  end
-  def student?
-     return self.role.name == "Student"
-  end
-  def supervisor?
-     return self.role.name == "Supervisor"
-  end
-  def can_deaccession?
-     return DEACCESSION_USERS.include? self.computing_id
-  end
-
-  # Returns a boolean value indicating whether the StaffMember is
-  # active.
-  def active?
-    if is_active
-      return true
-    else
-      return false
-    end
-  end
-
-  def full_name
-    [first_name, last_name].join(' ')
-  end
-
-  # Returns a string containing the label that identifies this
-  # particular object -- the UVA computing ID of this StaffMember.
-  def label
-    return computing_id
-  end
-
-  # Returns a string containing the StaffMember name to be displayed
-  # in "list" views, drop-down menus, etc.: the first name and last
-  # name as formatted by the +name+ method, followed by the UVA
-  # computing ID in parentheses.
-  def list_name(alpha = false)
-    out = name(alpha)
-    if out.blank?
-      out = computing_id.to_s
-    else
-      if not computing_id.blank?
-        out += ' (' + computing_id + ')'
+   # Returns a boolean value indicating whether the StaffMember is
+   # active.
+   def active?
+      if is_active
+         return true
+      else
+         return false
       end
-    end
-    return out
-  end
+   end
 
-  # Same as +list_name+ but formats StaffMember name for alphabetic
-  # sorting as "last-name, first-name".
-  #
-  # Useful with +collection_select+ where you can't call
-  # <tt>list_name(true)</tt>. Example:
-  #   collection_select :task, :staff_member_id, @staff_members, :id, :list_name_alpha
-  def list_name_alpha
-    return list_name(true)
-  end
+   def full_name
+      [first_name, last_name].join(' ')
+   end
 
-  # Returns a string: the first name, if available; otherwise the
-  # UVA computing ID (which is required and thus always available).
-  def salutation
-    if not first_name.blank?
-      return first_name
-    else
+   # Returns a string containing the label that identifies this
+   # particular object -- the UVA computing ID of this StaffMember.
+   def label
       return computing_id
-    end
-  end
+   end
 
-  #------------------------------------------------------------------
-  # callbacks
-  #------------------------------------------------------------------
+   # Returns a string containing the StaffMember name to be displayed
+   # in "list" views, drop-down menus, etc.: the first name and last
+   # name as formatted by the +name+ method, followed by the UVA
+   # computing ID in parentheses.
+   def list_name(alpha = false)
+      out = name(alpha)
+      if out.blank?
+         out = computing_id.to_s
+      else
+         if not computing_id.blank?
+            out += ' (' + computing_id + ')'
+         end
+      end
+      return out
+   end
 
-  # Active Record callback; gets called before saving record to database
-  def before_save
-    # boolean fields cannot be NULL at database level
-    self.is_active = 0 if self.is_active.nil?
-  end
+   # Same as +list_name+ but formats StaffMember name for alphabetic
+   # sorting as "last-name, first-name".
+   #
+   # Useful with +collection_select+ where you can't call
+   # <tt>list_name(true)</tt>. Example:
+   #   collection_select :task, :staff_member_id, @staff_members, :id, :list_name_alpha
+   def list_name_alpha
+      return list_name(true)
+   end
 
-  alias_attribute :name, :full_name
+   # Returns a string: the first name, if available; otherwise the
+   # UVA computing ID (which is required and thus always available).
+   def salutation
+      if not first_name.blank?
+         return first_name
+      else
+         return computing_id
+      end
+   end
+
+   #------------------------------------------------------------------
+   # callbacks
+   #------------------------------------------------------------------
+
+   # Active Record callback; gets called before saving record to database
+   def before_save
+      # boolean fields cannot be NULL at database level
+      self.is_active = 0 if self.is_active.nil?
+   end
+
+   alias_attribute :name, :full_name
 
 end# == Schema Information
 #

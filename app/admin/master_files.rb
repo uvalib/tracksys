@@ -16,7 +16,7 @@ ActiveAdmin.register MasterFile do
    # Setup Action Items =======================================================
    config.clear_action_items!
    action_item :edit, only: :show do
-      link_to "Edit", edit_resource_path  if !current_user.viewer? && !master_file.deaccessioned?
+      link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
    end
 
    action_item :pdf, :only => :show do
@@ -26,11 +26,11 @@ ActiveAdmin.register MasterFile do
    end
 
    action_item :ocr, only: :show do
-      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && ocr_enabled? && !master_file.deaccessioned?
+      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
    end
 
    action_item :transcribe, only: :show do
-      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer? && !master_file.deaccessioned?
+      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
    end
 
    action_item :previous, :only => :show do
@@ -137,14 +137,12 @@ ActiveAdmin.register MasterFile do
                link_to "PDF", "#{Settings.pdf_url}/#{mf.pid}", target: "_blank"
             end
          end
-         if !current_user.viewer? && !mf.deaccessioned?
+         if !current_user.viewer? && !current_user.student? && !mf.deaccessioned?
             div do
                link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
             end
-            if ocr_enabled?
-               div do
-                  link_to "OCR", "/admin/ocr?mf=#{mf.id}"
-               end
+            div do
+               link_to "OCR", "/admin/ocr?mf=#{mf.id}"
             end
          end
          if mf.date_archived && !mf.deaccessioned?

@@ -28,10 +28,10 @@ ActiveAdmin.register Unit do
   config.clear_action_items!
 
   action_item :new, :only => :index do
-     raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/units/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
   action_item :edit, only: :show do
-     link_to "Edit", edit_resource_path  if !current_user.viewer?
+     link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
   end
 
   action_item :pdf, :only => :show do
@@ -40,7 +40,7 @@ ActiveAdmin.register Unit do
      end
   end
   action_item :ocr, only: :show do
-     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled? && !unit.reorder && unit.master_files_count > 0
+     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
   end
 
   batch_action :approve_units do |selection|
@@ -173,11 +173,11 @@ ActiveAdmin.register Unit do
       div do
         link_to "Details", resource_path(unit), :class => "member_link view_link"
       end
-      if !current_user.viewer?
+      if !current_user.viewer? && !current_user.student?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
          end
-         if ocr_enabled? && unit.master_files_count > 0 && unit.reorder == false
+         if unit.master_files_count > 0 && unit.reorder == false
             div do
                link_to "OCR", "/admin/ocr?u=#{unit.id}"
             end
@@ -338,7 +338,7 @@ ActiveAdmin.register Unit do
   end
 
   # XML Upload / Download
-  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? } do
+  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
      div :class => 'workflow_button' do
         button_to "XML Upload", bulk_upload_xml_admin_unit_path, :method => :put
      end
@@ -352,7 +352,7 @@ ActiveAdmin.register Unit do
      end
   end
 
-  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !unit.reorder } do
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
     div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
@@ -370,7 +370,7 @@ ActiveAdmin.register Unit do
   end
 
   sidebar "Delivery Workflow", :only => [:show] do
-    if !current_user.viewer?
+    if !current_user.viewer? && !current_user.student?
        if unit.has_in_process_files?
             if unit.date_archived.blank? && unit.reorder == false
               div :class => 'workflow_button' do button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put end
@@ -416,7 +416,7 @@ ActiveAdmin.register Unit do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && (unit.ready_for_repo? || unit.in_dl?) } do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl?) } do
     if unit.ready_for_repo?
       div :class => 'workflow_button' do
          button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(), :method => :put

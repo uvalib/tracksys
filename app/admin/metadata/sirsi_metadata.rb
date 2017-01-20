@@ -11,11 +11,11 @@ ActiveAdmin.register SirsiMetadata do
   config.clear_action_items!
 
   action_item :new, :only => :index do
-     raw("<a href='/admin/sirsi_metadata/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/sirsi_metadata/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
 
   action_item :edit, only: :show do
-     link_to "Edit", edit_resource_path  if !current_user.viewer?
+     link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
   end
   action_item :delete, only: :show do
      link_to "Delete", resource_path,
@@ -98,7 +98,7 @@ ActiveAdmin.register SirsiMetadata do
       div do
         link_to "Details", resource_path(sirsi_metadata), :class => "member_link view_link"
       end
-      if !current_user.viewer?
+      if !current_user.viewer? && !current_user.student?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(sirsi_metadata), :class => "member_link edit_link"
          end
@@ -221,7 +221,7 @@ ActiveAdmin.register SirsiMetadata do
     end
   end
 
-  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? } do
+  sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? } do
      if sirsi_metadata.in_dl?
         div :class => 'workflow_button' do
            button_to "Publish", "/admin/sirsi_metadata/#{sirsi_metadata.id}/publish", :method => :put

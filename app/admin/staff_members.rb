@@ -8,10 +8,10 @@ ActiveAdmin.register StaffMember do
 
   config.clear_action_items!
   action_item :new, :only => :index do
-     raw("<a href='/admin/staff_members/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/staff_members/new'>New</a>") if current_user.admin?
   end
   action_item :edit, only: :show do
-     link_to "Edit", edit_resource_path  if !current_user.viewer?
+     link_to "Edit", edit_resource_path  if current_user.admin?
   end
 
   filter :id
@@ -34,7 +34,7 @@ ActiveAdmin.register StaffMember do
       div do
         link_to "Details", resource_path(archive), :class => "member_link view_link"
       end
-      if !current_user.viewer?
+      if current_user.admin?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(archive), :class => "member_link edit_link"
          end

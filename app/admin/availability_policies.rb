@@ -7,7 +7,7 @@ ActiveAdmin.register AvailabilityPolicy do
 
   config.clear_action_items!
   action_item :new, :only => :index do
-     raw("<a href='/admin/availability_policies/new'>New</a>") if !current_user.viewer?
+     raw("<a href='/admin/availability_policies/new'>New</a>") if current_user.admin?
   end
 
   config.batch_actions = false
@@ -20,7 +20,7 @@ ActiveAdmin.register AvailabilityPolicy do
       availability_policy.metadata.count
     end
     column("") do |availability_policy|
-      if !current_user.viewer?
+      if current_user.admin?
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(availability_policy), :class => "member_link edit_link"
          end

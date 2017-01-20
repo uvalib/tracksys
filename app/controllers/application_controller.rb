@@ -1,11 +1,7 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery
 
-   helper_method :current_user, :ocr_enabled?
-
-   def ocr_enabled?
-      return Settings.ocr == "on"
-   end
+   helper_method :current_user
 
    def current_user
       computing_id = request.env['HTTP_REMOTE_USER'].to_s

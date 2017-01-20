@@ -46,7 +46,7 @@ ActiveAdmin.register_page "Dashboard" do
       end
     end
 
-    if !current_user.viewer?
+    if !current_user.viewer? && !current_user.student?
        div :class => 'three-column' do
          panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
            div :class => 'workflow_button' do
@@ -133,7 +133,7 @@ ActiveAdmin.register_page "Dashboard" do
       end
     end
 
-    if !current_user.viewer?
+    if !current_user.viewer? && !current_user.student?
        div :class => 'three-column' do
          panel "Statistics", :priority => 6, :toggle => 'show' do
            div :class => 'workflow_button border-bottom' do

@@ -53,7 +53,7 @@
 #          # div do
 #          #    link_to "Details", resource_path(xml_metadata), :class => "member_link view_link"
 #          # end
-#          # if !current_user.viewer?
+#          # if !current_user.viewer? && !current_user.student?
 #          #    div do
 #          #       link_to I18n.t('active_admin.edit'), edit_resource_path(xml_metadata), :class => "member_link edit_link"
 #          #    end
