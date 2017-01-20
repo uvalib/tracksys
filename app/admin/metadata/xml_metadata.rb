@@ -194,6 +194,16 @@ ActiveAdmin.register XmlMetadata do
      end
    end
 
+   sidebar "Supplemental Metadata", :only => [:show],  if: proc{ !xml_metadata.supplemental_system.nil?} do
+      attributes_table_for xml_metadata do
+         row ("System") { |xml_metadata| xml_metadata.supplemental_system }
+         row ("URI") { |xml_metadata| xml_metadata.supplemental_uri}
+      end
+      div :class => 'workflow_button' do
+         raw("<a class='view-supplemental' href='#{Settings.archives_space_url}/#{xml_metadata.supplemental_uri}' target='_blank'>View</a>")
+      end
+   end
+
    sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && xml_metadata.master_files.count > 0} do
       if xml_metadata.in_dl?
          div :class => 'workflow_button' do

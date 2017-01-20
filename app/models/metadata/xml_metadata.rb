@@ -30,13 +30,23 @@
 #  dpla                   :boolean          default(FALSE)
 #  collection_facet       :string(255)
 #  type                   :string(255)      default("SirsiMetadata")
-#  external_attributes    :text(65535)
+#  external_system        :string(255)
+#  external_uri           :string(255)
+#  supplimentary_system   :string(255)
+#  supplimentary_uri      :string(255)
 #
 
 require 'nokogiri'
 require 'open-uri'
 
 class XmlMetadata < Metadata
+
+   # Prevent setting data valid for other classes in the STI model
+   validates :catalog_key, :presence=>false
+   validates :barcode, :presence=>false
+   validates :call_number, :presence=>false
+   validates :external_system, :presence=>false
+   validates :external_uri, :presence=>false
 
    # Validate XML against all schemas. Returns an array of errors
    #

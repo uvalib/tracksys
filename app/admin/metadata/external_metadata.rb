@@ -1,5 +1,5 @@
-# ActiveAdmin.register ArchivesSpaceMetadata do
-#    menu :parent => "Metadata", label: 'ArchivesSpace Metadata'
+# ActiveAdmin.register ExternalMetadata do
+#    menu :parent => "Metadata", label: 'External Metadata'
 #
 #    config.clear_action_items!
 #    actions :index

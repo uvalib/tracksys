@@ -17,6 +17,7 @@ ActiveAdmin.register StaffMember do
   filter :id
   filter :last_name
   filter :first_name
+  filter :role, :as => :select
 
   config.batch_actions = false
 

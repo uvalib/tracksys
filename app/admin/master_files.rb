@@ -257,11 +257,15 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Related Information", :only => [:show] do
       attributes_table_for master_file do
+         row "Metadata" do |unit|
+            if !master_file.metadata.nil?
+               url = "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}"
+               disp = "<a href='#{url}'><span>#{master_file.metadata.pid}<br/>#{master_file.metadata.title}</span></a>"
+               raw( disp)
+            end
+         end
          row :unit do |master_file|
             link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
-         end
-         row "Metadata" do |unit|
-            link_to "#{master_file.metadata.title}", "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}" if !master_file.metadata.nil?
          end
          row :order do |master_file|
             link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)

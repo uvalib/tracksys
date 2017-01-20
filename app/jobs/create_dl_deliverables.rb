@@ -24,6 +24,9 @@ class CreateDlDeliverables < BaseJob
       # Also, send all masterfiles to IIIF server (this is the generation of DL deliverables)
       metadata.update(date_dl_ingest: Time.now)
       unit.master_files.each do |mf|
+         if mf.metadata.id != unit.metadata.id
+            mf.metadata.update(date_dl_ingest: Time.now)
+         end
          mf.update(date_dl_ingest: Time.now)
          file_path = File.join(source, mf.filename)
          PublishToIiif.exec_now({ :source => file_path, :master_file_id=> mf.id }, self)

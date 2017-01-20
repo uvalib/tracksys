@@ -36,19 +36,22 @@ $(function() {
                $(".paging.next").addClass("disabled");
             }
             $("#source-masterfile-list tbody").empty();
-            var template = "<tr class='CLASS' data-id='MF_ID'><td><input class='sel-cb' type='checkbox' data-json='MF_JSON'/></td>";
-            template +=    "<td>MF_FILE</td><td>MF_TITLE</td><td><img src='MF_IMAGE'/></td></tr>";
+            var template = "<tr class='CLASS' data-id='MF_ID'>";
+            template += "<td><input class='sel-cb' type='checkbox'/></td>";
+            template += "<td class='mf-file'>MF_FILE</td><td class='mf-title'>MF_TITLE</td><td><img src='MF_IMAGE'/></td></tr>";
             $.each(json.masterfiles, function(idx,val) {
                var rowClass = "mf-row";
                if ( $("#clone-masterfile-list .sel-cb[data-id='"+val.id+"']").length > 0 ) {
                   rowClass += " cloned";
                }
+               if ( $("#clone-masterfile-list .sel-cb[data-unit-id='"+selectedUnit+"']").length > 0 ) {
+                  rowClass += " cloned";
+               }
                var r = template;
                r = r.replace("CLASS",rowClass);
-               r = r.replace("MF_ID", val.id);
-               r = r.replace("MF_JSON", JSON.stringify(val));
-               r = r.replace("MF_FILE", val.filename);
-               r = r.replace("MF_TITLE", val.title);
+               r = r.replace(/MF_ID/g, val.id);
+               r = r.replace(/MF_FILE/g, val.filename);
+               r = r.replace(/MF_TITLE/g, val.title);
                r = r.replace("MF_IMAGE", val.thumb);
                $('#source-masterfile-list tbody').append(r);
             });
@@ -56,7 +59,7 @@ $(function() {
             alert("Unable to retrieve unit master files: "+jqXHR.responseText);
          }
       });
-   }
+   };
 
    $("#curr-page").on("keypress", function(event) {
       if (event.which == 13) {
@@ -101,14 +104,14 @@ $(function() {
       }
    });
 
-   var copyMasterFileToCloneList = function( mfObj ) {
+   var copyMasterFileToCloneList = function( mfRow ) {
       var selectedUnit = $("#source-unit").val();
       var r = "<tr class='mf-row'><td><input data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
-      r +=    "<td>MF_FILE</td><td><span class='title'>MF_TITLE</span><span class='rename-btn'></span></td>"
+      r +=    "<td>MF_FILE</td><td><span class='title'>MF_TITLE</span><span class='rename-btn'></span></td>";
       r +=    "<td class='sort'><span class='down'></span><span class='up'></span></td></tr>";
-      r = r.replace("MF_ID", mfObj.id);
-      r = r.replace("MF_FILE", mfObj.filename);
-      r = r.replace("MF_TITLE", mfObj.title);
+      r = r.replace("MF_ID", mfRow.data("id"));
+      r = r.replace("MF_FILE", mfRow.find(".mf-file").text() );
+      r = r.replace("MF_TITLE",  mfRow.find(".mf-title").text() );
       $('#clone-masterfile-list tbody').append(r);
    };
 
@@ -150,12 +153,26 @@ $(function() {
       title.text( txt );
    });
 
+   $(".clone-btn.add-all").on("click", function() {
+      $("#source-masterfile-list tbody tr").each( function()  {
+         if ( $(this).hasClass("cloned") === false) {
+            $(this).addClass("cloned");
+         }
+      });
+
+      var uid = $("#source-unit").val();
+      var allRow = "<tr class='mf-row'>";
+      allRow += "<td><input  data-unit-id='"+uid+"' data-id='0' class='sel-cb' type='checkbox'/></td>";
+      allRow += "<td colspan='3' class='clone-all'>All master files from unit "+uid+" will be cloned</td></tr>";
+      $('#clone-masterfile-list tbody').append(allRow);
+   });
+
    $(".clone-btn.add").on("click", function() {
       $("#source-masterfile-list .sel-cb:checked").each( function()  {
          var tr = $(this).closest("tr");
-         if ( tr.hasClass("cloned") == false) {
+         if ( tr.hasClass("cloned") === false) {
             tr.addClass("cloned");
-            copyMasterFileToCloneList( $(this).data("json") );
+            copyMasterFileToCloneList( tr );
          }
       });
    });
@@ -163,10 +180,17 @@ $(function() {
    $(".clone-btn.remove").on("click", function() {
       $("#clone-masterfile-list .sel-cb:checked").each( function()  {
          var mfId = $(this).data("id");
+         var uId = $(this).data("unit-id");
+         var selUnit = $("#source-unit").val();
          $(this).closest(".mf-row").remove();
-         var row = $("#source-masterfile-list .mf-row[data-id='"+mfId+"']");
-         row.removeClass("cloned");
-         row.find(".sel-cb").prop('checked', false)
+         if ( mfId === 0 && uId == selUnit) {
+            $("#source-masterfile-list .cloned").removeClass("cloned");
+            $("#source-masterfile-list .sel-cb").prop('checked', false);
+         } else {
+            var row = $("#source-masterfile-list .mf-row[data-id='"+mfId+"']");
+            row.removeClass("cloned");
+            row.find(".sel-cb").prop('checked', false);
+         }
       });
    });
 
@@ -208,7 +232,7 @@ $(function() {
                   if (jqXHR.responseText == "failure") {
                      clearInterval(tid);
                      toggleCloneButtons(true);
-                     alert("Clone failed. Please check the job status page for more information.")
+                     alert("Clone failed. Please check the job status page for more information.");
                   } else if (jqXHR.responseText == "success") {
                      clearInterval(tid);
                      window.location.reload();
@@ -227,10 +251,16 @@ $(function() {
 
       var list = [];
       $("#clone-masterfile-list .mf-row").each( function() {
-         var rec = {};
-         rec.id = $(this).find(".sel-cb").data("id");
-         rec.title =  $(this).find(".title").text();
-         list.push(rec);
+         var cb = $(this).find(".sel-cb");
+         var id =  cb.data("id");
+         if ( id === 0) {
+            list.push({unit: cb.data("unit-id")});
+         } else {
+            var rec = {};
+            rec.id = $(this).find(".sel-cb").data("id");
+            rec.title =  $(this).find(".title").text();
+            list.push(rec);
+         }
       });
 
       $.ajax({

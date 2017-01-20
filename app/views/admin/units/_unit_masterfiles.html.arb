@@ -2,17 +2,36 @@ div id: "masterfile-list" do
    page_size = params[:page_size]
    page_size = 15 if page_size.nil?
 
-   div do
+   div id: "working-message" do
+      span "Master file update in progress..."
+      div id: "work-spinner" do end
+   end
+
+   div class: "unit-mf-action-panel" do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
-      token =  Time.now.to_i
+      all_btn = "" if page_size.to_i >= unit.master_files.count
+
+      replace_btn = ""
+      add_btn = ""
+      del_btn = ""
+      if !unit.reorder
+         replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
+         del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>" if !unit.in_dl?
+         add_btn = "<span id='add-pages' class='mf-action-button'>Add</span>"
+      end
+
       if !unit.metadata.nil? && !unit.date_archived.blank?
+         token =  Time.now.to_i
          url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
          pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
       end
-      if page_size.to_i < unit.master_files.count
-         raw("#{all_btn}#{pdf_btn}")
-      else
-         raw("#{pdf_btn}")
+
+      raw("#{all_btn}#{pdf_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}</span>")
+   end
+   div class: "update-confirm" do
+      span id: "confirm-msg" do "replace master fiiles?" end
+      div class: "button-bar" do
+         raw("<span id='cancel-update' class='mf-action-button'>Cancel</span><span id='confirm-update' class='mf-action-button'>OK</span>")
       end
    end
 
@@ -58,7 +77,7 @@ div id: "masterfile-list" do
               div do
                 link_to I18n.t('active_admin.edit'), edit_admin_master_file_path(mf), :class => "member_link edit_link"
               end
-              if ocr_enabled?
+              if ocr_enabled? && unit.reorder == false && !mf.unit.date_archived.blank?
                 div do
                     link_to "OCR", "/admin/ocr?mf=#{mf.id}"
                 end

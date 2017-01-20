@@ -1,11 +1,11 @@
 $(function() {
    $("#q_desc_metadata_input select").attr("disabled", "disabled");
-   
+
    // Colorbox
    $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
 
    // Inline HTML via colorbox
-   $('.inline').colorbox({inline:true, width:"50%"})
+   $('.inline').colorbox({inline:true, width:"50%"});
 
    // Chosen javascript library
    $('.chosen-select').chosen();
@@ -54,7 +54,7 @@ $(function() {
          $('#desc_meta').animate({height: 100}, "fast", "swing");
       }
       return false;
-   }
+   };
 
    $('#desc_meta_div').click( anobj );
 
@@ -74,7 +74,7 @@ $(function() {
          return;
       }
       var note = $("#deaccession-note").val();
-      if (note.length == 0) {
+      if (note.length === 0) {
          $("#note-required").show();
          $("#deaccession-note").focus();
          return;
@@ -115,7 +115,7 @@ $(function() {
       $("#sirsi_metadata_call_number").val( metadata.call_number );
 
       // auto-set the is_manuscript flag id call number looks like MSS or RG-
-      if ( metadata.call_number.trim().indexOf("MSS") == 0 || metadata.call_number.trim().indexOf("RG-") == 0) {
+      if ( metadata.call_number.trim().indexOf("MSS") === 0 || metadata.call_number.trim().indexOf("RG-") === 0) {
          $("#sirsi_metadata_is_manuscript_true").prop("checked", true);
       } else {
          $("#sirsi_metadata_is_manuscript_false").prop("checked", true);
@@ -164,26 +164,6 @@ $(function() {
       });
    });
 
-   $(".mf-checkbox").on("change", function() {
-      var url = $("#download-select-pdf").attr("href");
-      url = url.split("&token")[0];
-      if ( $("#download-select-pdf").hasClass("disabled") == false ) {
-         $("#download-select-pdf").addClass("disabled");
-      }
-      var ids = [];
-      $(".mf-checkbox").each( function(idx, val) {
-         if ( $(val).is(":checked") ) {
-            $("#download-select-pdf").removeClass("disabled");
-            ids.push($(val).data("mf-id"));
-         }
-      });
-      if (ids.length > 0) {
-         var token = "&token="+Math.floor((new Date).getTime()/1000);
-         url = url + token+ "&pages="+ids.join(",");
-      }
-      $("#download-select-pdf").attr("href", url)
-   });
-
    /**
     * XML EDITOR STUFF
     */
@@ -214,7 +194,7 @@ $(function() {
    }
 
    if ( $(".desc-metadata-viewer").length > 0 ) {
-      var cm = CodeMirror.fromTextArea( $(".desc-metadata-viewer")[0], {
+      var cmv = CodeMirror.fromTextArea( $(".desc-metadata-viewer")[0], {
          mode: "xml",
          lineNumbers: true,
          lineWrapping: true,
@@ -223,7 +203,7 @@ $(function() {
          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
          readOnly: true
       });
-      cm.setSize("100%", "auto");
+      cmv.setSize("100%", "auto");
    }
 
    if ( $(".desc-metadata-editor").length > 0 ) {
@@ -248,7 +228,7 @@ $(function() {
          var btn = $(".xml-submit input");
          btn.prop('disabled', true);
          $("div.validate-msg").css("visibility", "visible");
-         if (btn.hasClass("disabled") == false ) {
+         if (btn.hasClass("disabled") === false ) {
             btn.addClass("disabled");
             $("#tracksys_xml_editor").addClass("edited");
          }
@@ -299,7 +279,7 @@ $(function() {
                if ( textStatus != "success" ) {
                   alert("Validation failed: \n\n"+jqXHR.responseText);
                   subBtn.prop('disabled', true);
-                  if (subBtn.hasClass("disabled") == false ) {
+                  if (subBtn.hasClass("disabled") === false ) {
                      subBtn.addClass("disabled");
                   }
                } else {

@@ -7,7 +7,6 @@ class MasterFile < ActiveRecord::Base
    belongs_to :component, :counter_cache => true
    belongs_to :unit
    belongs_to :metadata
-   belongs_to :item
    belongs_to :deaccessioned_by, class_name: "StaffMember", foreign_key: "deaccessioned_by_id"
 
    has_many :reorders, class_name: "MasterFile", foreign_key: "original_mf_id"
@@ -124,8 +123,8 @@ class MasterFile < ActiveRecord::Base
       image_pid = self.pid
       image_pid = self.original.pid if is_clone?
       iiif_url = nil
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/125,/0/default.jpg") if image_size == :small
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/240,/0/default.jpg") if image_size == :medium
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/0/default.jpg") if image_size == :small
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/0/default.jpg") if image_size == :medium
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/0/default.jpg") if image_size == :large
       raise "Invalid size" if iiif_url.nil?
 
@@ -172,10 +171,10 @@ end
 #  creator_death_date  :string(255)
 #  creation_date       :string(255)
 #  primary_author      :string(255)
-#  item_id             :integer
 #  metadata_id         :integer
 #  original_mf_id      :integer
 #  deaccessioned_at    :datetime
 #  deaccession_note    :text(65535)
 #  deaccessioned_by_id :integer
+#  text_source         :integer
 #

@@ -51,7 +51,7 @@ ActiveAdmin.register SirsiMetadata do
     column :title
     column :creator_name
     column :call_number
-    column :location
+    #column :location  # Removed. This value needs to be looked up in solr for each record, causing large reports to fail (throttle or timeout)
     column("# of Images") {|sirsi_metadata| sirsi_metadata.master_files.count}
     column("In digital library?") {|sirsi_metadata| format_boolean_as_yes_no(sirsi_metadata.in_dl?)}
   end

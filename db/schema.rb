@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161209194136) do
+ActiveRecord::Schema.define(version: 20170110151438) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -244,16 +244,6 @@ ActiveRecord::Schema.define(version: 20161209194136) do
 
   add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree
 
-  create_table "items", force: :cascade do |t|
-    t.string   "pid",          limit: 255
-    t.string   "external_uri", limit: 255
-    t.integer  "unit_id",      limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-  end
-
-  add_index "items", ["unit_id"], name: "index_items_on_unit_id", using: :btree
-
   create_table "job_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255,                     null: false
     t.string   "status",          limit: 255, default: "pending", null: false
@@ -285,7 +275,6 @@ ActiveRecord::Schema.define(version: 20161209194136) do
     t.string   "creator_death_date",  limit: 255
     t.string   "creation_date",       limit: 255
     t.string   "primary_author",      limit: 255
-    t.integer  "item_id",             limit: 4
     t.integer  "metadata_id",         limit: 4
     t.integer  "original_mf_id",      limit: 4
     t.datetime "deaccessioned_at"
@@ -298,7 +287,6 @@ ActiveRecord::Schema.define(version: 20161209194136) do
   add_index "master_files", ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest", using: :btree
   add_index "master_files", ["date_dl_update"], name: "index_master_files_on_date_dl_update", using: :btree
   add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
-  add_index "master_files", ["item_id"], name: "index_master_files_on_item_id", using: :btree
   add_index "master_files", ["metadata_id"], name: "index_master_files_on_metadata_id", using: :btree
   add_index "master_files", ["original_mf_id"], name: "index_master_files_on_original_mf_id", using: :btree
   add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
@@ -333,7 +321,10 @@ ActiveRecord::Schema.define(version: 20161209194136) do
     t.boolean  "dpla",                                 default: false
     t.string   "collection_facet",       limit: 255
     t.string   "type",                   limit: 255,   default: "SirsiMetadata"
-    t.text     "external_attributes",    limit: 65535
+    t.string   "external_system",        limit: 255
+    t.string   "external_uri",           limit: 255
+    t.string   "supplemental_system",    limit: 255
+    t.string   "supplemental_uri",       limit: 255
   end
 
   add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree

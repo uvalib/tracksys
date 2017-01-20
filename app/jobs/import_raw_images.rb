@@ -19,7 +19,7 @@ class ImportRawImages < BaseJob
          if master_file.nil?
             fs = File.size(src_file)
             md5 = Digest::MD5.hexdigest(File.read(src_file) )
-            master_file  = MasterFile.create(filename: mf_filename, title: image, filesize: fs, md5: md5, unit_id: unit.id)
+            master_file  = MasterFile.create(filename: mf_filename, title: image, filesize: fs, md5: md5, unit_id: unit.id, metadata_id: unit.metadata_id)
             logger.debug "Created master file #{mf_filename}"
          else
             logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"

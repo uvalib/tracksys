@@ -66,6 +66,10 @@ class CopyArchivedFilesToProduction < BaseJob
             FileUtils.cp(File.join(source_dir, "#{unit_dir}.mpcatalog"), File.join(destination_dir, "#{unit_dir}.mpcatalog"))
             File.chmod(0664, File.join(destination_dir, "#{unit_dir}.mpcatalog"))
          end
+         if File.exist?(File.join(source_dir, "#{unit_dir}.xml"))
+            FileUtils.cp(File.join(source_dir, "#{unit_dir}.xml"), File.join(destination_dir, "#{unit_dir}.xml"))
+            File.chmod(0664, File.join(destination_dir, "#{unit_dir}.xml"))
+         end
       end
 
       if failure_messages.empty?

@@ -35,12 +35,12 @@ ActiveAdmin.register Unit do
   end
 
   action_item :pdf, :only => :show do
-     if !unit.metadata.nil? && unit.master_files_count > 0
+     if !unit.metadata.nil? && unit.master_files_count > 0 && !unit.reorder
         raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
      end
   end
   action_item :ocr, only: :show do
-     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled?
+     link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && ocr_enabled? && !unit.reorder && unit.master_files_count > 0
   end
 
   batch_action :approve_units do |selection|
@@ -105,7 +105,7 @@ ActiveAdmin.register Unit do
   end
 
   member_action :master_files, method: :get do
-     page_size = 10
+     page_size = 15
      page_idx = 0
      page_idx = params[:page].to_i()-1 if !params[:page].blank?
      cnt = MasterFile.where(unit_id: params[:id]).count
@@ -128,6 +128,7 @@ ActiveAdmin.register Unit do
   filter :date_dl_deliverables_ready
   filter :special_instructions
   filter :staff_notes
+  filter :reorder, :as => :select
   filter :include_in_dl, :as => :select
   filter :intended_use, :as => :select
   filter :metadata_title, :as => :string, :label => "Metadata Title"
@@ -152,6 +153,9 @@ ActiveAdmin.register Unit do
          end
       end
     end
+    column ("Reorder?") do |unit|
+      format_boolean_as_yes_no(unit.reorder)
+    end
     column ("In DL?") do |unit|
       format_boolean_as_yes_no(unit.include_in_dl)
     end
@@ -173,13 +177,13 @@ ActiveAdmin.register Unit do
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
          end
-         if ocr_enabled? && unit.master_files_count > 0
+         if ocr_enabled? && unit.master_files_count > 0 && unit.reorder == false
             div do
                link_to "OCR", "/admin/ocr?u=#{unit.id}"
             end
          end
       end
-      if !unit.metadata.nil? && unit.master_files_count > 0
+      if !unit.metadata.nil? && unit.master_files_count > 0 && unit.reorder == false
          div do
             link_to "PDF", "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}", target: "_blank"
          end
@@ -266,7 +270,7 @@ ActiveAdmin.register Unit do
             add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
             raw("#{add_btn}")
          end
-         if !unit.attachments.count == 0
+         if unit.attachments.count > 0
             table_for unit.attachments do |att|
                column :filename
                column :description
@@ -317,7 +321,10 @@ ActiveAdmin.register Unit do
   sidebar "Related Information", :only => [:show] do
     attributes_table_for unit do
       row "Metadata" do |unit|
-         link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}" if !unit.metadata.nil?
+         if !unit.metadata.nil?
+            disp = "<a href='/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}'><span>#{unit.metadata.pid}<br/>#{unit.metadata.title}</span></a>"
+            raw( disp)
+         end
       end
       row :order do |unit|
         link_to "##{unit.order.id}", admin_order_path(unit.order.id)
@@ -590,6 +597,31 @@ ActiveAdmin.register Unit do
   member_action :checkin_from_digiserv, :method => :put do
     Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
     redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
+  end
+
+  member_action :add, :method => :post do
+    unit = Unit.find(params[:id])
+    job_id = AddMasterFiles.exec({unit: unit})
+    render :text=>job_id, status: :ok
+  end
+  member_action :replace, :method => :post do
+    unit = Unit.find(params[:id])
+    job_id = ReplaceMasterFiles.exec({unit: unit})
+    render :text=>job_id, status: :ok
+  end
+  member_action :delete, :method => :post do
+    unit = Unit.find(params[:id])
+    filenames = params[:filenames]
+    job_id = DeleteMasterFiles.exec({unit: unit, filenames: filenames})
+    render :text=>job_id, status: :ok
+  end
+  member_action :status, method: :get do
+     job = JobStatus.find(params[:job])
+     job_type = params[:type]
+     type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles"}
+     render :text=>"Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
+     render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
+     render :text=>job.status, status: :ok
   end
 
   collection_action :autocomplete, method: :get do
