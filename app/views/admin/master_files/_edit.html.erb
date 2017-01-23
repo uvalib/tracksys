@@ -19,7 +19,7 @@
 
       <li class="string input required stringish">
          <label for="mf-metadata-type-picker" class="label">Metadata Type</label>
-         <select id="mf-metadata-type-picker" class="chosen-select" style="width: 260px">
+         <select id="mf-metadata-type-picker" style="width: 260px">
             <option value="sirsi_metadata">SirsiMetadata</option>
             <option value="xml_metadata"<% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
          </select>
