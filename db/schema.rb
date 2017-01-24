@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170120154014) do
+ActiveRecord::Schema.define(version: 20170123160949) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -405,6 +405,19 @@ ActiveRecord::Schema.define(version: 20170120154014) do
     t.string   "group",      limit: 255
   end
 
+  create_table "steps", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.integer  "sequence",    limit: 4
+    t.string   "start_dir",   limit: 255
+    t.string   "finish_dir",  limit: 255
+    t.integer  "workflow_id", limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
+
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false
     t.integer  "metadata_id",                    limit: 4
@@ -446,6 +459,13 @@ ActiveRecord::Schema.define(version: 20170120154014) do
   end
 
   add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
+
+  create_table "workflows", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
 
   add_foreign_key "attachments", "units"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"

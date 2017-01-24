@@ -1,0 +1,17 @@
+<table>
+   <tr><th>Step</th><th>Title</th><th>Description</th><th>Master File Location</th></tr>
+   <% workflow.steps.each do |step| %>
+      <tr>
+         <td><%= step.sequence %></td>
+         <td><%= step.name %></td>
+         <td><%= step.description %></td>
+         <td>
+            <% if step.start_dir == step.finish_dir %>
+               <%= step.start_dir %>
+            <% else %>
+               Start in <%= step.start_dir %>, move to <%= step.finish_dir %>
+            <% end %>
+         </td>
+      </tr>
+   <% end %>
+</table>

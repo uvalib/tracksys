@@ -1,0 +1,66 @@
+.workflow-panel {
+   margin-left:0;
+   width: 64%;
+   float: left;
+   position: relative;
+
+   .add {
+      position: absolute;
+      right: 7px;
+      top: 7px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      display: inline-block;
+      border-radius: 10px;
+      background-image: image_url("add.png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.5;
+
+      &:hover {
+         opacity: 1;
+         background-color: #def;
+      }
+   }
+
+   .workflow-step {
+      background: white;
+      margin: 5px 0 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 0 0 7px 7px;
+      box-shadow:  1px 1px 2px #ccc;
+   }
+   .step-toolbar {
+      text-align: right;
+      border-bottom: 1px solid #abe;
+      background: #e0f0fa;
+      position: relative;
+      padding: 2px;
+      .step-num {
+         position: absolute;
+         left: 10px;
+         top: 3px;
+         font-weight: bolder;
+      }
+   }
+   .step-content {
+      padding: 5px 10px 10px 10px;
+      p.desc {
+         margin-bottom: 10px;
+         color: #666;
+      }
+      b {
+         width: 120px;
+         display: inline-block;
+         text-align: right;
+         margin-right: 10px;
+      }
+   }
+}
+
+.workflow-submit {
+   margin-bottom: 0;
+   padding: 0;
+   text-align: right;
+}

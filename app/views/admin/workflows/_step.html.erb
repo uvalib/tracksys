@@ -1,0 +1,11 @@
+<div class="workflow-step">
+   <div class="step-toolbar">
+      <span class="step-num"><%= step.sequence %> : <%= step.name %></span>
+      <span class='down'></span><span class='up'></span><span class='edit'></span><span class='trash'></span>
+   </div>
+   <div class="step-content">
+      <p class="desc"><%= step.description %></p>
+      <p><b>Start Directory:</b><%= step.start_dir %></p>
+      <p><b>Finish Directory:</b><%= step.finish_dir %></p>
+   </div>
+</div>
