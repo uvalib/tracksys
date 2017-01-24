@@ -18,6 +18,7 @@ class DeleteMasterFiles < BaseJob
 
       # first remove all of the masterfiles from & tech metadata
       # the list from the unit, archive and IIIF server
+      del_cnt = filenames.size
       del_fn = filenames.shift
       unit.master_files.each do |mf|
          if mf.filename == del_fn
@@ -55,6 +56,10 @@ class DeleteMasterFiles < BaseJob
       # Refresh the associated master files list to reflect the deletions above
       # without it, the loop below does nothing
       unit.master_files.reload
+
+      cnt = unit.master_files_count
+      logger.info "Updating unit master files count from #{cnt} to #{cnt-del_cnt}"
+      unit.update(master_files_count: cnt-del_cnt)
 
       # next rename to fill gaps in page number
       logger.info "Updating remaining master files to correct page number gaps"

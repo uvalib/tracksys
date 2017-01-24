@@ -146,6 +146,10 @@ class AddMasterFiles < BaseJob
 
       end
 
+      cnt = unit.master_files_count
+      logger.info "Updating unit master files count from #{cnt} to #{cnt+tif_files.size}"
+      unit.update(master_files_count: cnt+tif_files.size)
+
       MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
    end
 end
