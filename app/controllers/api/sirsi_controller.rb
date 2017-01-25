@@ -2,7 +2,8 @@ class Api::SirsiController < ApplicationController
    def show
       resp = { sirsiId: params[:id], pdfServiceRoot: Settings.pdf_url, items: [] }
       found = false
-      Metadata.where("date_dl_ingest is not null and type=? and catalog_key=?", "SirsiMetadata", params[:id]).each do |sm|
+      Metadata.where("catalog_key=?", params[:id]).each do |sm|
+         next if sm.date_dl_ingest.nil?
          resp[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
 
