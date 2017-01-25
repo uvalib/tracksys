@@ -79,9 +79,6 @@ ActiveAdmin.register Unit do
     redirect_to "/admin/units"
   end
 
-  batch_action :print_routing_slips do |selection|
-  end
-
   member_action :bulk_settings_update, method: :post do
      unit = Unit.find(params[:id])
      discoverability = (params[:discoverable] == "yes")
@@ -267,8 +264,12 @@ ActiveAdmin.register Unit do
     div :class => "columns-none" do
       panel "Attachments", :toggle => 'show' do
          div :class=>'panel-buttons' do
-            add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
-            raw("#{add_btn}")
+            if unit.unit_status != "approved"
+              div do "Attachments cannot be aded to unapproved units." end
+            else
+              add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
+              raw("#{add_btn}")
+           end
          end
          if unit.attachments.count > 0
             table_for unit.attachments do |att|
@@ -286,7 +287,7 @@ ActiveAdmin.register Unit do
                end
             end
          else
-            div "No attachments are associated with this unit"
+            div "No attachments are associated with this unit." 
          end
       end
     end
@@ -297,14 +298,18 @@ ActiveAdmin.register Unit do
     div :class => "columns-none" do
       panel "Master Files", :toggle => 'show' do
          if unit.master_files.count == 0
+            div id: "masterfile-list" do
+               "No master files are ssociated with this unit."
+            end
             if unit.intended_use.id != 110 # Digital Collection Building
                div :class=>'panel-buttons' do
-                  add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
-                  raw("#{add_btn}")
+                  if unit.unit_status != "approved"
+                    div do "Master files cannot be aded to unapproved units." end
+                  else
+                     add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
+                     raw("#{add_btn}")
+                  end
                end
-            end
-            div id: "masterfile-list" do
-               "No master files are ssociated with this unit"
             end
             render "clone_masterfiles", :context => self
          else
@@ -339,21 +344,28 @@ ActiveAdmin.register Unit do
 
   # XML Upload / Download
   sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
-     div :class => 'workflow_button' do
-        button_to "XML Upload", bulk_upload_xml_admin_unit_path, :method => :put
-     end
-     if unit.has_xml_masterfiles?
+     if unit.unit_status != "approved"
+        div do "Unit has not been approved. No bulk actions can be taken." end
+     else
         div :class => 'workflow_button' do
-           button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
+           button_to "XML Upload", bulk_upload_xml_admin_unit_path, :method => :put
         end
-        div :class => 'workflow_button' do
-          raw("<span id='update-dl-settings'>Update DL Settings</span>")
-       end
+        if unit.has_xml_masterfiles?
+           div :class => 'workflow_button' do
+              button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
+           end
+           div :class => 'workflow_button' do
+             raw("<span id='update-dl-settings'>Update DL Settings</span>")
+          end
+        end
      end
   end
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
-    div :class => 'workflow_button' do button_to "Print Routing Slip", print_routing_slip_admin_unit_path, :method => :put end
+
+    if unit.unit_status == "approved"
+      div :class => 'workflow_button' do button_to "Create Digitization Task", create_task_admin_unit_path, :method => :put end
+    end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group
       div :class => 'workflow_button' do button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put end
@@ -483,21 +495,8 @@ ActiveAdmin.register Unit do
      end
   end
 
-  member_action :print_routing_slip, :method => :put do
-    @unit = Unit.find(params[:id])
-    @metadata = { title: "", location: "", call_number:"" }
-    if !@unit.metadata.nil?
-       @metadata[:title] = @unit.metadata.title
-       if @unit.metadata.type == "SirsiMetadata"
-         sm = @unit.metadata.becomes(@unit.metadata.type.constantize)
-         vm =  Virgo.external_lookup(sm.catalog_key, sm.barcode)
-         @metadata[:call_number] = sm.call_number
-         @metadata[:location] = vm[:location]
-       end
-    end
-    @order = @unit.order
-    @customer = @order.customer
-    render :layout => 'printable'
+  member_action :create_task, :method => :put do
+     redirect_to "/admin/units/#{params[:id]}", :notice => "Not yet implemented"
   end
 
   # Member actions for workflow
