@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170123160949) do
+ActiveRecord::Schema.define(version: 20170125200814) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -406,17 +406,36 @@ ActiveRecord::Schema.define(version: 20170123160949) do
   end
 
   create_table "steps", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.text     "description", limit: 65535
-    t.integer  "sequence",    limit: 4
-    t.string   "start_dir",   limit: 255
-    t.string   "finish_dir",  limit: 255
-    t.integer  "workflow_id", limit: 4
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.integer  "step_type",    limit: 4
+    t.string   "name",         limit: 255
+    t.text     "description",  limit: 65535
+    t.string   "start_dir",    limit: 255
+    t.string   "finish_dir",   limit: 255
+    t.integer  "workflow_id",  limit: 4
+    t.integer  "next_step_id", limit: 4
+    t.integer  "fail_step_id", limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
+  add_index "steps", ["fail_step_id"], name: "index_steps_on_fail_step_id", using: :btree
+  add_index "steps", ["next_step_id"], name: "index_steps_on_next_step_id", using: :btree
   add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
+
+  create_table "tasks", force: :cascade do |t|
+    t.integer  "workflow_id", limit: 4
+    t.integer  "unit_id",     limit: 4
+    t.integer  "priority",    limit: 4, default: 0
+    t.date     "added_on"
+    t.date     "due_on"
+    t.integer  "condition",   limit: 4
+    t.integer  "category",    limit: 4
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
+  add_index "tasks", ["unit_id"], name: "index_tasks_on_unit_id", using: :btree
+  add_index "tasks", ["workflow_id"], name: "index_tasks_on_workflow_id", using: :btree
 
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false
