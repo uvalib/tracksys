@@ -228,7 +228,7 @@ class Order < ActiveRecord::Base
    def has_patron_deliverables?
       self.units.each do |u|
          # only units that are NOT for digital collection building can have patron deliverables
-         if u.intended_use.description != "Digital Collection Building"
+         if !u.intended_use.nil? && u.intended_use.description != "Digital Collection Building"
             return true if u.include_in_dl == false   # this has a patron deliverable
             return true if u.include_in_dl == true &&  u.metadata.availability_policy_id? # DL and Patron deliverables
          end
