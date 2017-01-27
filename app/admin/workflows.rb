@@ -15,7 +15,7 @@ ActiveAdmin.register Workflow do
       column :name
       column :description
       column("Number of Steps") do |workflow|
-        workflow.steps.count
+        workflow.num_steps
       end
       column("") do |workflow|
          div do
