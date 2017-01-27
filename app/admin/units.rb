@@ -287,7 +287,7 @@ ActiveAdmin.register Unit do
                end
             end
          else
-            div "No attachments are associated with this unit." 
+            div "No attachments are associated with this unit."
          end
       end
     end
@@ -355,7 +355,7 @@ ActiveAdmin.register Unit do
               button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
            end
            div :class => 'workflow_button' do
-             raw("<span id='update-dl-settings'>Update DL Settings</span>")
+             raw("<span class='admin-button' id='update-dl-settings'>Update DL Settings</span>")
           end
         end
      end
@@ -364,7 +364,9 @@ ActiveAdmin.register Unit do
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
 
     if unit.unit_status == "approved"
-      div :class => 'workflow_button' do button_to "Create Digitization Task", create_task_admin_unit_path, :method => :put end
+       div :class => 'workflow_button' do
+         raw("<span  class='admin-button' id='show-create-digitization-task'>Create Digitization Task</span>")
+       end
     end
 
     if unit.date_materials_received.nil? # i.e. Material has yet to be checked out to Digital Production Group

@@ -406,7 +406,7 @@ ActiveRecord::Schema.define(version: 20170125200814) do
   end
 
   create_table "steps", force: :cascade do |t|
-    t.integer  "step_type",    limit: 4
+    t.integer  "step_type",    limit: 4,     default: 3
     t.string   "name",         limit: 255
     t.text     "description",  limit: 65535
     t.string   "start_dir",    limit: 255
@@ -414,8 +414,8 @@ ActiveRecord::Schema.define(version: 20170125200814) do
     t.integer  "workflow_id",  limit: 4
     t.integer  "next_step_id", limit: 4
     t.integer  "fail_step_id", limit: 4
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
   end
 
   add_index "steps", ["fail_step_id"], name: "index_steps_on_fail_step_id", using: :btree
@@ -426,7 +426,6 @@ ActiveRecord::Schema.define(version: 20170125200814) do
     t.integer  "workflow_id", limit: 4
     t.integer  "unit_id",     limit: 4
     t.integer  "priority",    limit: 4, default: 0
-    t.date     "added_on"
     t.date     "due_on"
     t.integer  "condition",   limit: 4
     t.integer  "category",    limit: 4

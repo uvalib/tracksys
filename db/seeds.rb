@@ -24,23 +24,19 @@ metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Crea
 
 qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; student A 100% check",
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
-fail_qa1 = Step.create( workflow: wf, name: "Fail QA 1", description: "Rescan after failing QA 1",
-   step_type: :fail, start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
+fail_qa1 = Step.create( workflow: wf, name: "Fail QA 1", description: "Rescan after failing QA 1", step_type: :fail)
 
 qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check",
    start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
-fail_qa2 = Step.create( workflow: wf, name: "Fail QA 2", description: "Rescan after failing QA 2",
-   step_type: :fail, start_dir: "scan/10_raw", finish_dir: "scan/70_second_qa")
+fail_qa2 = Step.create( workflow: wf, name: "Fail QA 2", description: "Rescan after failing QA 2", step_type: :fail)
 
 final_qa = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass (student C 30% check)",
    start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
-fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA",
-   step_type: :fail, start_dir: "scan/10_raw", finish_dir: "scan/80_final_qa")
+fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", step_type: :fail)
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
    step_type: :finish, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff")
-fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA",
-   step_type: :fail, start_dir: "scan/10_raw", finish_dir: "scan/80_final_qa")
+fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA", step_type: :fail)
 
 scan.update(next_step: process)
 process.update(next_step: catalog)

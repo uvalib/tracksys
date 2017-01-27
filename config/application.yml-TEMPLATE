@@ -49,7 +49,8 @@ production:
    index_destintion: "virgo"
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
    rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
-   archives_space_url: https://archives-test.lib.virginia.edu
+   archives_space_url: https://archivesspace01.lib.virginia.edu
+   as_api_url: https://archivesspace01.lib.virginia.edu:8089
 development:
    dev_user_compute_id: lf6f
    archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
@@ -67,3 +68,4 @@ development:
    pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
    rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
    archives_space_url: https://archives-test.lib.virginia.edu
+   as_api_url: https://archives-test.lib.virginia.edu:8089

@@ -11,6 +11,7 @@
 //= require update-unit
 //= require clone-masterfiles
 //= require bulk_dl_settings
+//= require workflows
 //= require codemirror
 //= require_tree ./mode/
 //= require_tree ./addon/
