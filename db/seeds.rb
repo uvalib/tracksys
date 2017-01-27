@@ -39,6 +39,8 @@ fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Resca
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
    step_type: :finish, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff")
+fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA",
+   step_type: :fail, start_dir: "scan/10_raw", finish_dir: "scan/80_final_qa")
 
 scan.update(next_step: process)
 process.update(next_step: catalog)
@@ -47,3 +49,4 @@ metdata.update(next_step: qa1)
 qa1.update(next_step: qa2, fail_step: fail_qa1)
 qa2.update(next_step: final_qa, fail_step: fail_qa2)
 final_qa.update(next_step: finalize, fail_step: fail_qa3)
+finalize.update(fail_step: fail_qa4)

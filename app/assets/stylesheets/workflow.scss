@@ -1,3 +1,12 @@
+.one-third {
+   width: 32%;
+   margin-right: 25px;
+   float: left;
+}
+.two-thirds {
+   width: 66%;
+   float: left;
+}
 .workflow-panel {
    margin-left:0;
    width: 64%;
@@ -23,39 +32,117 @@
          background-color: #def;
       }
    }
+}
 
-   .workflow-step {
-      background: white;
-      margin: 5px 0 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 0 0 7px 7px;
-      box-shadow:  1px 1px 2px #ccc;
-   }
+.workflow-step {
+   background: white;
+   margin: 0;
+   border: 1px solid #ccc;
+   border-radius: 7px;
+   display: inline-block;
+   width: 300px;
+   vertical-align: middle;
+}
+.workflow-step.error {
+   position: relative;
+   left: -8px;
    .step-toolbar {
-      text-align: right;
-      border-bottom: 1px solid #abe;
-      background: #e0f0fa;
-      position: relative;
-      padding: 2px;
-      .step-num {
-         position: absolute;
-         left: 10px;
-         top: 3px;
-         font-weight: bolder;
-      }
+      background: #900;
+      color: white;
    }
-   .step-content {
-      padding: 5px 10px 10px 10px;
-      p.desc {
-         margin-bottom: 10px;
-         color: #666;
-      }
-      b {
-         width: 120px;
-         display: inline-block;
-         text-align: right;
-         margin-right: 10px;
-      }
+}
+.retry-arrow {
+   left: 0;
+   .left-arrow {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 10px solid #88c;
+      position: relative;
+      top: 7px;
+   }
+   .horiz-line.blue {
+      border: 2px solid #88c;
+   }
+}
+.fail-arrow {
+   left: -3px;
+}
+.fail-arrow, .retry-arrow {
+   width: 60px;
+   display: inline-block;
+   position: relative;
+   .horiz-line {
+      border: 2px solid #a55;
+      height: 0px;
+      width: 45px;
+      display: inline-block;
+   }
+   .right-arrow {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 10px solid #a55;
+      position: relative;
+      top: 7px;
+   }
+}
+.next-arrow {
+   width: 300px;
+   padding-left: 145px;
+   .vert-line {
+      border: 2px solid #88c;
+      width: 0px;
+      margin: 0 8px;
+      height: 25px;
+   }
+   .down-arrow {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid #88c;
+   }
+}
+.step-toolbar {
+   border-radius: 7px 7px 0 0 ;
+   text-align: right;
+   border-bottom: 1px solid #abe;
+   background: #e0f0fa;
+   position: relative;
+   padding: 2px;
+   height: 20px;
+   text-align: center;
+   .step-name {
+      position: absolute;
+      left: 10px;
+      top: 3px;
+      font-weight: bold;
+   }
+   .step-name.centered {
+      position: inherit;
+   }
+}
+.step-content {
+   padding: 5px 10px 10px 10px;
+   text-align: center;
+   color: #666;
+   p.desc {
+      margin: 5px 0 10px 0;
+      font-size: 1.0em;
+   }
+   p {
+      margin: 0;
+      font-size: 0.9em;
+   }
+   b {
+      display: inline-block;
+      text-align: right;
+      margin-right: 5px;
    }
 }
 

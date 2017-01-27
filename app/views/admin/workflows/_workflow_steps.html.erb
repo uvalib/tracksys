@@ -1,16 +1,18 @@
-<table>
-   <tr><th>Title</th><th>Description</th><th>Master File Location</th></tr>
-   <% workflow.steps.each do |step| %>
-      <tr>
-         <td><%= step.name %></td>
-         <td><%= step.description %></td>
-         <td>
-            <% if step.start_dir == step.finish_dir %>
-               <%= step.start_dir %>
-            <% else %>
-               Start in <%= step.start_dir %>, move to <%= step.finish_dir %>
-            <% end %>
-         </td>
-      </tr>
+<% step = workflow.first_step %>
+<% while !step.nil? do %>
+   <div class="workflow-row">
+      <%= render partial: "step", locals: {step: step, error: false, readonly: true} %>
+      <% if !step.fail_step.nil? %>
+         <div class="fail-arrow">
+            <div class="horiz-line"></div><div class="right-arrow"></div>
+            <div class="retry-arrow"><div class="left-arrow"></div><div class="horiz-line blue"></div></div>
+         </div>
+
+         <%= render partial: "step", locals: {step: step.fail_step, error: true, readonly: true} %>
+      <% end %>
+   </div>
+   <% step = step.next_step %>
+   <% if !step.nil? %>
+      <div class="next-arrow"><div class="vert-line"></div><div class="down-arrow"></div></div>
    <% end %>
-</table>
+<% end %>

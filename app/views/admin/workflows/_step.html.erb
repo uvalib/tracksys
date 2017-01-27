@@ -1,7 +1,11 @@
-<div class="workflow-step">
+<div class="workflow-step<% if error %> error<% end %>">
    <div class="step-toolbar">
-      <span class="step-num"><%= step.sequence %> : <%= step.name %></span>
-      <span class='down'></span><span class='up'></span><span class='edit'></span><span class='trash'></span>
+      <% if !readonly %>
+         <span class="step-name"><%= step.name %></span>
+         <span class='down'></span><span class='up'></span><span class='edit'></span><span class='trash'></span>
+      <% else %>
+         <span class="step-name centered"><%= step.name %></span>
+      <% end %>
    </div>
    <div class="step-content">
       <p class="desc"><%= step.description %></p>
