@@ -517,12 +517,19 @@ body.active_admin {
       background: rgba(0,0,0,0.3);
       display: none;
 
+      table.settings {
+         margin: 10px;
+         select {
+            width: 100%;
+         }
+         input[type=text] {
+            width: 100%;
+            box-sizing: border-box;
+         }
+      }
+
       #settings-modal {
          width: 430px;
-
-         table.settings {
-            margin: 10px;
-         }
 
          td.label {
             text-align: right;

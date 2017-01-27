@@ -71,6 +71,45 @@
    <div id="task-modal" class="modal">
       <h1>Create Digitization Task</h1>
       <div class="title-wrapper">
+         <table class="settings">
+            <tr>
+               <td class="label">Workflow</td>
+               <td>
+                  <select id="workflow">
+                      <% Workflow.all.each do |p| %>
+                          <option value="<%= p.id %>"><%= p.name %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Category</td>
+               <td>
+                  <select id="category">
+                      <% Task.categories.to_a.each do |p| %>
+                          <option value="<%= p[1] %>"><%= p[0] %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Priority</td>
+               <td>
+                  <% priorities = [{id:1, name:"Normal"}, {id:2, name:"High"}, {id:3, name:"Highest"}] %>
+                  <select id="priority">
+                      <% priorities.each do |p| %>
+                          <option value="<%= p[:id] %>"><%= p[:name] %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Due On</td>
+               <td>
+                  <input type="text" class="datepicker" id="due_on" value="<%= unit.order.date_due %>"/>
+               </td>
+            </tr>
+         </table>
          <div class="buttons">
             <input type="button" id="cancel-task-create" value="Cancel"/>
             <input type="button" id="ok-task-create" value="Create Task"/>
