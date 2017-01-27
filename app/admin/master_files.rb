@@ -232,7 +232,7 @@ ActiveAdmin.register MasterFile do
          div :class => 'columns-none' do
             panel "Transcription Text", :toggle => 'show' do
                attributes_table_for master_file do
-                  row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}"}
+                  row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}" if !mf.text_source.nil? }
                end
                div :class=>'mf-transcription' do
                   simple_format(master_file.transcription_text)
