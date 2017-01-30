@@ -23,6 +23,7 @@ class Unit < ActiveRecord::Base
    has_one :agency, :through => :order
    has_one :customer, :through => :order
    has_one :department, :through => :order
+   has_one :task
 
    delegate :title, :to=>:metadata, :allow_nil => true, :prefix => true
    delegate :date_due, :to => :order, :allow_nil => true, :prefix => true

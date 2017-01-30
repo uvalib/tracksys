@@ -363,7 +363,7 @@ ActiveAdmin.register Unit do
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
 
-    if unit.unit_status == "approved"
+    if unit.unit_status == "approved" && unit.task.nil?
        div :class => 'workflow_button' do
          raw("<span  class='admin-button' id='show-create-digitization-task'>Create Digitization Task</span>")
        end
@@ -497,8 +497,15 @@ ActiveAdmin.register Unit do
      end
   end
 
-  member_action :create_task, :method => :put do
-     redirect_to "/admin/units/#{params[:id]}", :notice => "Not yet implemented"
+  member_action :task, :method => :post do
+     w = Workflow.find(params[:workflow])
+     u = Unit.find(params[:id])
+     t = Task.new(workflow: w, unit: u, priority: params[:priority], category: params[:category].to_i, due_on: params[:due])
+     if t.save
+        render text: t.id, status: :ok
+     else
+        render text: t.errors.full_messages.to_sentence, status: :error
+     end
   end
 
   # Member actions for workflow

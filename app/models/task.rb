@@ -4,9 +4,8 @@ class Task < ActiveRecord::Base
 
    belongs_to :workflow
    belongs_to :unit
-   
+
    validates :workflow,  :presence => true
    validates :unit,  :presence => true
-   validates :added_on,  :presence => true
    validates :due_on,  :presence => true
 end
