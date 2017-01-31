@@ -2,6 +2,7 @@ ActiveAdmin.register Task do
    menu :priority => 2
 
    config.batch_actions = false
+   config.clear_action_items!
 
    scope :all, :default => true
    scope :unassigned
@@ -16,7 +17,7 @@ ActiveAdmin.register Task do
 
    # INDEX page ===============================================================
    #
-   index do
+   index :download_links => false do
       column :id
       column ("Project"), :sortable => :project_name do |task|
          raw("<a href='/admin/orders/#{task.order.id}'>#{task.project_name}</a>")
@@ -52,6 +53,29 @@ ActiveAdmin.register Task do
             div do
               raw("<p class='assign-link'>Assign</p>")
             end
+         end
+      end
+   end
+
+   # DETAILS page ===============================================================
+   #
+   show :title => proc {|invoice| "Task ##{invoice.id}"} do
+      render "details", :context => self
+   end
+
+   sidebar "Related Information", :only => [:show] do
+      attributes_table_for task do
+         row "Metadata" do |task|
+            if !task.unit.metadata.nil?
+               disp = "<a href='/admin/#{task.unit.metadata.url_fragment}/#{task.unit.metadata.id}'><span>#{task.unit.metadata.pid}<br/>#{task.unit.metadata.title}</span></a>"
+               raw( disp)
+            end
+         end
+         row :unit do |task|
+            link_to "##{task.unit.id}", admin_unit_path(task.unit.id)
+         end
+         row :order do |task|
+            link_to "##{task.order.id}", admin_order_path(task.order.id)
          end
       end
    end

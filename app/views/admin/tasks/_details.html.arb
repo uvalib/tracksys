@@ -1,0 +1,78 @@
+div :class => 'columns-none' do
+   div :class => 'two-column' do
+      panel "Item Information" do
+         attributes_table_for task do
+            row("Call Number") do |task|
+               task.unit.metadata.call_number
+            end
+            row("Catalog Key") do |task|
+               task.unit.metadata.catalog_key
+            end
+            row("Location") do |task|
+               task.unit.metadata.location
+            end
+            row("Title") do |task|
+               task.unit.metadata.title
+            end
+            row :condition
+         end
+      end
+   end
+   div :class => 'two-column' do
+      panel "Special Instructions" do
+         si = ""
+         si << "<p>#{task.order.special_instructions}</p>" if task.order.special_instructions.blank?
+         si << "<p>#{task.unit.special_instructions}</p>" if task.order.special_instructions.blank?
+         si = "None" if si.length == 0
+         raw("#{si}")
+      end
+   end
+end
+
+div :class => 'columns-none' do
+   div :class => 'three-column' do
+      panel "Order Information" do
+         attributes_table_for task do
+            row :project_name
+            row :customer
+            row ("Customer Status") do |task|
+               task.customer.academic_status.name
+            end
+            row :due_on do |task|
+              format_date(task.due_on)
+            end
+         end
+      end
+   end
+
+   div :class => 'three-column' do
+      panel "Deliverables" do
+         attributes_table_for task do
+            row ("Intended Use") do |task|
+               task.unit.intended_use.name
+            end
+            row ("Resolution") do |task|
+               task.unit.intended_use.deliverable_resolution
+            end
+            row ("Format") do |task|
+               task.unit.intended_use.deliverable_format
+            end
+         end
+      end
+   end
+   div :class => 'three-column' do
+      panel "Equipment" do
+      end
+   end
+end
+
+div :class => 'columns-none' do
+   div :class => 'two-column' do
+      panel "History" do
+      end
+   end
+   div :class => 'two-column' do
+      panel "Notes" do
+      end
+   end
+end
