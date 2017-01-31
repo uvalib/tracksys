@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "Statistics" do
-   menu :priority => 2
+   menu :parent => "Miscellaneous"
 
    content do
       div :class => 'two-column' do

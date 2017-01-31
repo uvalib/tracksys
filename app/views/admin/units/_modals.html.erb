@@ -95,10 +95,9 @@
             <tr>
                <td class="label">Priority</td>
                <td>
-                  <% priorities = [{id:1, name:"Normal"}, {id:2, name:"High"}, {id:3, name:"Highest"}] %>
                   <select id="priority">
-                      <% priorities.each do |p| %>
-                          <option value="<%= p[:id] %>"><%= p[:name] %></option>
+                      <% Task.priorities.to_a.each do |p| %>
+                          <option value="<%= p[1] %>"><%= p[0] %></option>
                       <% end %>
                   </select>
                </td>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125200814) do
+ActiveRecord::Schema.define(version: 20170131143731) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -67,6 +67,19 @@ ActiveRecord::Schema.define(version: 20170125200814) do
 
   add_index "agencies", ["ancestry"], name: "index_agencies_on_ancestry", using: :btree
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
+
+  create_table "assignments", force: :cascade do |t|
+    t.integer  "task_id",         limit: 4
+    t.integer  "step_id",         limit: 4
+    t.integer  "staff_member_id", limit: 4
+    t.datetime "assigned_at"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+  end
+
+  add_index "assignments", ["staff_member_id"], name: "index_assignments_on_staff_member_id", using: :btree
+  add_index "assignments", ["step_id"], name: "index_assignments_on_step_id", using: :btree
+  add_index "assignments", ["task_id"], name: "index_assignments_on_task_id", using: :btree
 
   create_table "attachments", force: :cascade do |t|
     t.integer  "unit_id",     limit: 4
@@ -425,12 +438,14 @@ ActiveRecord::Schema.define(version: 20170125200814) do
   create_table "tasks", force: :cascade do |t|
     t.integer  "workflow_id", limit: 4
     t.integer  "unit_id",     limit: 4
+    t.integer  "owner_id",    limit: 4
     t.integer  "priority",    limit: 4, default: 0
     t.date     "due_on"
     t.integer  "condition",   limit: 4
     t.integer  "category",    limit: 4
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.datetime "added_at"
+    t.datetime "started_at"
+    t.datetime "finished_at"
   end
 
   add_index "tasks", ["unit_id"], name: "index_tasks_on_unit_id", using: :btree

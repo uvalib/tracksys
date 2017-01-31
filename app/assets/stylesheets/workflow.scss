@@ -34,6 +34,46 @@
    }
 }
 
+p.assign-link {
+   color: #38678b;
+   text-decoration: underline;
+   margin:0;
+   cursor:pointer;
+   &:hover {
+         text-decoration: none;
+   }
+}
+
+.col.status-col {
+   width: 150px;
+   .step-status {
+      font-size: 0.9em;
+      color: #999;
+      margin: 0;
+      font-style: italic;
+      position: relative;
+      top: 2px;
+   }
+   .workflow-status {
+      width: 150px;
+      height: 18px;
+      margin: 0;
+      border: 1px solid #999;
+      border-radius: 3px;
+      box-sizing: border-box;
+      position:relative;
+      background: white;
+   }
+   .percentage {
+      display: block;
+      height: 100%;
+      background: #6b4;
+   }
+   .percentage.error {
+      background: #b44;
+   }
+}
+
 .done-step {
    width: 100px;
    margin-left: 100px;
