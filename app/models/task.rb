@@ -1,7 +1,7 @@
 class Task < ActiveRecord::Base
-   enum condition: [:good, :bad]
    enum priority: [:normal, :high, :critical]
-   enum category: [:book, :manuscript, :slide, :cruse_scan]
+   enum item_type: [:bound, :flat, :slide, :negative, :oversize]
+   enum item_condition: [:good, :bad]
 
    belongs_to :workflow
    belongs_to :unit

@@ -16,6 +16,47 @@ $(function() {
 
    });
 
+   // Edit Camera
+   $("#edit-camera").on("click", function() {
+      $("#edit-camera").addClass("hidden");
+      $("#cancel-camera").removeClass("hidden");
+      $("#save-camera").removeClass("hidden");
+      $("input.camera").removeClass("hidden");
+      $("span.camera").addClass("hidden");
+   });
+   $("#cancel-camera").on("click", function() {
+      $("#edit-camera").removeClass("hidden");
+      $("#cancel-camera").addClass("hidden");
+      $("#save-camera").addClass("hidden");
+      $("input.camera").addClass("hidden");
+      $("span.camera").removeClass("hidden");
+   });
+   $("#save-camera").on("click", function() {
+      $("#cancel-camera").addClass("hidden");
+      $("#save-camera").addClass("hidden");
+
+      var c = $("#camera-edit").val();
+      var l = $("#lens-edit").val();
+      var r = $("#resolution-edit").val();
+      $.ajax({
+         url: window.location.href+"/settings",
+         method: "PUT",
+         data: { camera: c, lens: l, resolution: r },
+         complete: function(jqXHR, textStatus) {
+            $("#edit-camera").removeClass("hidden");
+            $("input.camera").addClass("hidden");
+            $("span.camera").removeClass("hidden");
+            if ( textStatus != "success" ) {
+               alert("Unable to update equipment: "+jqXHR.responseText);
+            } else {
+               $("#camera").text(c);
+               $("#lens").text(l);
+               $("#resolution").text(r);
+            }
+         }
+      });
+   });
+
    // Create tasks
    $("#show-create-digitization-task").on("click", function() {
       $("#dimmer").show();

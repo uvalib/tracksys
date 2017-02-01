@@ -85,8 +85,8 @@
             <tr>
                <td class="label">Category</td>
                <td>
-                  <select id="category">
-                      <% Task.categories.to_a.each do |p| %>
+                  <select id="item_type">
+                      <% Task.item_types.to_a.each do |p| %>
                           <option value="<%= p[1] %>"><%= p[0] %></option>
                       <% end %>
                   </select>

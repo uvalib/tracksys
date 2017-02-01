@@ -436,13 +436,16 @@ ActiveRecord::Schema.define(version: 20170131143731) do
   add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
 
   create_table "tasks", force: :cascade do |t|
-    t.integer  "workflow_id", limit: 4
-    t.integer  "unit_id",     limit: 4
-    t.integer  "owner_id",    limit: 4
-    t.integer  "priority",    limit: 4, default: 0
+    t.integer  "workflow_id",    limit: 4
+    t.integer  "unit_id",        limit: 4
+    t.integer  "owner_id",       limit: 4
+    t.integer  "priority",       limit: 4,   default: 0
     t.date     "due_on"
-    t.integer  "condition",   limit: 4
-    t.integer  "category",    limit: 4
+    t.string   "camera",         limit: 255
+    t.string   "lens",           limit: 255
+    t.string   "resolution",     limit: 255
+    t.integer  "item_condition", limit: 4
+    t.integer  "item_type",      limit: 4
     t.datetime "added_at"
     t.datetime "started_at"
     t.datetime "finished_at"

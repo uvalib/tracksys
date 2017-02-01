@@ -9,7 +9,7 @@ ActiveAdmin.register Task do
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Owner", :collection => StaffMember.all
-   filter :category, :as => :select, :collection => Task.categories
+   filter :item_type, :as => :select, :collection => Task.item_types
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :due_on
    filter :added_at
@@ -80,8 +80,36 @@ ActiveAdmin.register Task do
       end
    end
 
+   sidebar "Workflow", :only => [:show],if: proc{ current_user == task.owner}  do
+      div :class => 'workflow_button' do
+         options = {:method => :put}
+         options[:disabled] = true if task.started?
+         button_to "Start Work", start_work_admin_task_path(),options
+      end
+   end
+
    # MEMBER ACTIONS  ==========================================================
    #
+   member_action :start_work, :method => :put do
+      # unit = Unit.find(params[:id])
+      # PublishToTest.exec({unit: unit})
+      # redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
+   end
+
+   member_action :settings, :method => :put do
+      task = Task.find(params[:id])
+      if params[:camera]
+         ok = task.update(camera: params[:camera], lens: params[:lens], resolution: params[:resolution])
+      else
+         ok = task.update(item_condition: params[:condition].to_i)
+      end
+      if ok
+         render nothing:true
+      else
+         render text: task.errors.full_messages.to_sentence, status: :error
+      end
+   end
+
    member_action :claim, :method => :put do
       task = Task.find(params[:id])
       assignment = Assignment.new(task: task, staff_member: current_user, step: task.next_step)

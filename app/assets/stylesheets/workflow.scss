@@ -7,6 +7,12 @@
    width: 66%;
    float: left;
 }
+.hidden {
+   display: none !important;
+}
+div.mini-button-bar {
+   text-align: right;
+}
 .workflow-panel {
    margin-left:0;
    width: 64%;

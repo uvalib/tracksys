@@ -6,8 +6,11 @@ class CreateTasks < ActiveRecord::Migration
       t.references :owner, references: :staff_member
       t.integer :priority, default: 0
       t.date :due_on
-      t.integer :condition          # enum condition: [:good, :bad]
-      t.integer :category           # enum category: [:book, :manuscript, :slide, :cruse_scan]
+      t.string :camera
+      t.string :lens
+      t.string :resolution
+      t.integer :item_condition      # enum item_condition: [:good, :bad]
+      t.integer :item_type           # enum item_type: [:book, :manuscript, :slide, :cruse_scan]
       t.datetime :added_at
       t.datetime :started_at
       t.datetime :finished_at

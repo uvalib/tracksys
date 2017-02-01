@@ -500,7 +500,7 @@ ActiveAdmin.register Unit do
   member_action :task, :method => :post do
      w = Workflow.find(params[:workflow])
      u = Unit.find(params[:id])
-     t = Task.new(workflow: w, unit: u, priority: params[:priority].to_i, category: params[:category].to_i, due_on: params[:due])
+     t = Task.new(workflow: w, unit: u, priority: params[:priority].to_i, item_type: params[:item_type].to_i, due_on: params[:due])
      if t.save
         render text: t.id, status: :ok
      else
