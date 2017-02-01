@@ -23,7 +23,9 @@
    <%= f.inputs "Related Information", :class => 'panel three-column' do %>
       <li class="string input required stringish">
          <label for="unit_order_id" class="label">Order #</label>
-         <input  name="unit[order_id]" id="unit_order_id" type="text" value="<%= @unit.order_id %>"/>
+         <% oid = @unit.order_id
+            oid = nil if oid == 0 %>
+         <input  name="unit[order_id]" id="unit_order_id" type="text" value="<%= oid %>"/>
       </li>
 
       <li class="string input required stringish">
