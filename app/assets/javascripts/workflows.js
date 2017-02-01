@@ -16,42 +16,63 @@ $(function() {
 
    });
 
-   // Edit Camera
-   $("#edit-camera").on("click", function() {
-      $("#edit-camera").addClass("hidden");
-      $("#cancel-camera").removeClass("hidden");
-      $("#save-camera").removeClass("hidden");
-      $("input.camera").removeClass("hidden");
-      $("span.camera").addClass("hidden");
+   // Edit Camera / condition
+   // NOTES: there are two sets of edit / readonly controls.
+   //        all have same classes with the exception of one that
+   //        differentiates camera vs condition
+   $(".task.edit-btn").on("click", function() {
+      var tgtClass = "camera";
+      if ( $(this).hasClass("condition")) {
+         tgtClass= "condition";
+      }
+      $(".task.edit-btn."+tgtClass).addClass("hidden");
+      $(".task.cancel-btn."+tgtClass).removeClass("hidden");
+      $(".task.save-btn."+tgtClass).removeClass("hidden");
+      $(".edit-"+tgtClass).removeClass("hidden");
+      $(".disp-"+tgtClass).addClass("hidden");
    });
-   $("#cancel-camera").on("click", function() {
-      $("#edit-camera").removeClass("hidden");
-      $("#cancel-camera").addClass("hidden");
-      $("#save-camera").addClass("hidden");
-      $("input.camera").addClass("hidden");
-      $("span.camera").removeClass("hidden");
-   });
-   $("#save-camera").on("click", function() {
-      $("#cancel-camera").addClass("hidden");
-      $("#save-camera").addClass("hidden");
 
-      var c = $("#camera-edit").val();
-      var l = $("#lens-edit").val();
-      var r = $("#resolution-edit").val();
+   $(".task.cancel-btn").on("click", function() {
+      var tgtClass = "camera";
+      if ( $(this).hasClass("condition")) {
+         tgtClass= "condition";
+      }
+      $(".task.edit-btn."+tgtClass).removeClass("hidden");
+      $(".task.cancel-btn."+tgtClass).addClass("hidden");
+      $(".task.save-btn."+tgtClass).addClass("hidden");
+      $(".edit-"+tgtClass).addClass("hidden");
+      $(".disp-"+tgtClass).removeClass("hidden");
+   });
+
+   $(".task.save-btn").on("click", function() {
+      var tgtClass = "camera";
+      if ( $(this).hasClass("condition")) {
+         tgtClass = "condition";
+         data = {condition: $("#condition-edit").val() };
+      } else {
+         data =  { camera: $("#camera-edit").val(), lens: $("#lens-edit").val(), resolution: $("#resolution-edit").val() };
+      }
+      $(".task.cancel-btn."+tgtClass).addClass("hidden");
+      $(".task.save-btn."+tgtClass).addClass("hidden");
+
       $.ajax({
          url: window.location.href+"/settings",
          method: "PUT",
-         data: { camera: c, lens: l, resolution: r },
+         data: data,
          complete: function(jqXHR, textStatus) {
-            $("#edit-camera").removeClass("hidden");
-            $("input.camera").addClass("hidden");
-            $("span.camera").removeClass("hidden");
+            $(".task.edit-btn."+tgtClass).removeClass("hidden");
+            $(".edit-"+tgtClass).addClass("hidden");
+            $(".disp-"+tgtClass).removeClass("hidden");
             if ( textStatus != "success" ) {
-               alert("Unable to update equipment: "+jqXHR.responseText);
+               alert("Update "+tgtClass+" failed: "+jqXHR.responseText);
             } else {
-               $("#camera").text(c);
-               $("#lens").text(l);
-               $("#resolution").text(r);
+               if (tgtClass === "camera") {
+                  $("#camera").text( data.camera );
+                  $("#lens").text( data.lens );
+                  $("#resolution").text( data.resolution );
+               } else {
+                  $("#condition").text( $("#condition-edit option:selected").text() );
+               }
             }
          }
       });

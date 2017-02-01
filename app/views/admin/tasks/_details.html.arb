@@ -15,17 +15,19 @@ div :class => 'columns-none' do
                task.unit.metadata.title
             end
             row :item_condition do |task|
-               sel = "<select id='condition-edit' class='hidden'>"
+               sel = "<select id='condition-edit' class='hidden edit-condition'>"
                Task.item_conditions.to_a.each do |c|
                   sel << "<option value='#{c[1]}'>#{c[0]}</option>"
                end
-               raw("<span class='condition' id='condition'>#{task.item_condition}</span>#{sel}")
+               raw("<span class='disp-condition' id='condition'>#{task.item_condition}</span>#{sel}")
             end
          end
-         div class: "mini-button-bar" do
-            span class: "mf-action-button", id: "edit-task" do "Edit" end
-            span class: "mf-action-button hidden", id: "save-task"  do "Save" end
-            span class: "mf-action-button hidden", id: "cancel-task"  do "Cancel" end
+         if current_user == task.owner
+            div class: "mini-button-bar" do
+               span class: "task mf-action-button condition edit-btn" do "Edit" end
+               span class: "task mf-action-button hidden condition save-btn"  do "Save" end
+               span class: "task mf-action-button hidden condition cancel-btn" do "Cancel" end
+            end
          end
       end
    end
@@ -75,19 +77,21 @@ div :class => 'columns-none' do
       panel "Equipment" do
          attributes_table_for task do
             row ("Camera") do |task|
-               raw("<span class='camera' id='camera'>#{task.camera}</span><input type='text' class='hidden camera' id='camera-edit' value='#{task.camera}'/>")
+               raw("<span class='disp-camera' id='camera'>#{task.camera}</span><input type='text' class='hidden edit-camera' id='camera-edit' value='#{task.camera}'/>")
             end
             row ("Lens") do |task|
-               raw("<span class='camera' id='lens'>#{task.lens}</span><input type='text' class='hidden camera' id='lens-edit' value='#{task.lens}'/>")
+               raw("<span class='disp-camera' id='lens'>#{task.lens}</span><input type='text' class='hidden edit-camera' id='lens-edit' value='#{task.lens}'/>")
             end
             row ("Resolution") do |task|
-               raw("<span class='camera' id='resolution'>#{task.resolution}</span><input type='text' class='hidden camera' id='resolution-edit' value='#{task.resolution}'/>")
+               raw("<span class='disp-camera' id='resolution'>#{task.resolution}</span><input type='text' class='hidden edit-camera' id='resolution-edit' value='#{task.resolution}'/>")
             end
          end
-         div class: "mini-button-bar" do
-            span class: "mf-action-button", id: "edit-camera" do "Edit" end
-            span class: "mf-action-button hidden", id: "save-camera"  do "Save" end
-            span class: "mf-action-button hidden", id: "cancel-camera"  do "Cancel" end
+         if current_user == task.owner
+            div class: "mini-button-bar" do
+               span class: "task mf-action-button camera edit-btn" do "Edit" end
+               span class: "task mf-action-button hidden camera save-btn"  do "Save" end
+               span class: "task mf-action-button hidden camera cancel-btn" do "Cancel" end
+            end
          end
       end
    end
