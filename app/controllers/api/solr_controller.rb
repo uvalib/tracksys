@@ -1,5 +1,20 @@
 class Api::SolrController < ApplicationController
 
+   # get a list of all published catalog keys
+   #
+   def published
+      file = Tempfile.new('published')
+      first = true
+      SirsiMetadata.where("date_dl_ingest is not null").find_each do |m|
+         file.write(",") if !first
+         first = false
+         file.write(m.catalog_key)
+      end
+      file.rewind
+      file.close
+      send_file(file.path, disposition: :inline)
+   end
+
    # get a csv list of pids for all changed items
    # (metadata and master file) since the date specified in the params
    #

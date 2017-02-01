@@ -19,6 +19,7 @@ Tracksys::Application.routes.draw do
      get "pid/:pid" => "pid#show"
      get "solr/:pid" => "solr#show"
      get "solr" => "solr#index"
+     get "published" => "solr#published"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
      get "stylesheet/:id" => "stylesheet#show"
