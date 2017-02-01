@@ -46,7 +46,12 @@ class Task < ActiveRecord::Base
       return (curr_step.to_f/num_steps.to_f*100).to_i
    end
 
-   def curr_step_info
+   def current_step
+      return self.woflow.first_step if self.assignments.last.nil?
+      return self.assignments.last.step
+   end
+
+   def status_text
       if assignments.count == 0
          s = self.workflow.first_step
          return "No progress"

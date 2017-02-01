@@ -86,11 +86,25 @@ ActiveAdmin.register Task do
          options[:disabled] = true if task.started?
          button_to "Start Work", start_work_admin_task_path(),options
       end
+      if task.current_step.fail_step.nil?
+         div :class => 'workflow_button' do
+            options = {:method => :put}
+            options[:disabled] = true if !task.started?
+            button_to "Finish Work", finish_work_admin_task_path(),options
+         end
+      else
+
+      end
    end
 
    # MEMBER ACTIONS  ==========================================================
    #
    member_action :start_work, :method => :put do
+      # unit = Unit.find(params[:id])
+      # PublishToTest.exec({unit: unit})
+      # redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
+   end
+   member_action :finish_work, :method => :put do
       # unit = Unit.find(params[:id])
       # PublishToTest.exec({unit: unit})
       # redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
