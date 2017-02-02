@@ -36,7 +36,7 @@ class Api::SolrController < ApplicationController
 
       pids = []
       Rails.logger.info "Looking for DL updates since #{date_str}"
-      Metadata.where("date_dl_ingest is not null and (date_dl_ingest >= ? or date_dl_update >= ?)", date_str,date_str).find_each do |o|
+      Metadata.where("date_dl_ingest is not null and type<>? and (date_dl_ingest >= ? or date_dl_update >= ?)", "SirsiMetadata", date_str,date_str).find_each do |o|
          pids << o.pid
       end
 
