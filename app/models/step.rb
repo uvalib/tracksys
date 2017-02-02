@@ -1,5 +1,5 @@
 class Step < ActiveRecord::Base
-   enum step_type: [:start, :finish, :fail, :normal]
+   enum step_type: [:initial, :final, :failure, :normal]
 
    validates :name, :presence => true
 

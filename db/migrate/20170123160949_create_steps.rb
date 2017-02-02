@@ -6,6 +6,7 @@ class CreateSteps < ActiveRecord::Migration
       t.text :description
       t.string :start_dir
       t.string :finish_dir
+      t.boolean :propagate_owner, default: false
       t.references :workflow, index: true
       t.integer :next_step_id, index: true
       t.integer :fail_step_id, index: true

@@ -11,4 +11,8 @@ class Assignment < ActiveRecord::Base
    before_create do
       self.assigned_at = Time.now
    end
+
+   def started?
+      return !self.started_at.nil?
+   end
 end

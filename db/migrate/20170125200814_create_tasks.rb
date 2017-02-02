@@ -4,6 +4,7 @@ class CreateTasks < ActiveRecord::Migration
       t.references :workflow, index: true
       t.references :unit, index: true
       t.references :owner, references: :staff_member
+      t.references :current_step, references: :step
       t.integer :priority, default: 0
       t.date :due_on
       t.string :camera

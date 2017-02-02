@@ -10,13 +10,13 @@ Step.connection.execute("truncate steps")
 Workflow.connection.execute("truncate workflows")
 wf = Workflow.create(name: 'Standard', description: "Standard TrackSys workflow")
 
-scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials",
+scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials", propagate_owner: true,
    step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans",
+process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", propagate_owner: true,
    start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images",
+catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", propagate_owner: true,
    start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
 metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Create image metadata",
