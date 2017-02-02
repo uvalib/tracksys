@@ -5,10 +5,15 @@ class Api::SolrController < ApplicationController
    def published
       file = Tempfile.new('published')
       first = true
+      pid = !params[:pid].nil?
       SirsiMetadata.where("date_dl_ingest is not null").find_each do |m|
          file.write(",") if !first
          first = false
-         file.write(m.catalog_key)
+         if pid
+            file.write(m.pid)
+         else
+            file.write(m.catalog_key)
+         end
       end
       file.rewind
       file.close
