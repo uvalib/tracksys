@@ -1,0 +1,36 @@
+<div class="panel">
+   <h3>History</h3>
+   <div class="panel_contents">
+      <table class="task-history">
+         <tr><th>Date</th><th>Step</th><th>Activity</th><th>Owner</th></tr>
+         <% row=1 %>
+         <% task.assignments.order(assigned_at: :asc).each do |a| %>
+            <tr <% if row.even? %>class="odd"<% end %> >
+               <td><%= a.assigned_at.strftime("%F %r") %></td>
+               <td><%= a.step.name %></td>
+               <td>Assigned</td>
+               <td><%= a.staff_member.full_name %></td>
+            </tr>
+            <% row+=1 %>
+            <% if !a.started_at.nil? %>
+               <tr <% if row.even? %>class="odd"<% end %> >
+                  <td><%= a.started_at.strftime("%F %r") %></td>
+                  <td><%= a.step.name %></td>
+                  <td>Started</td>
+                  <td><%= a.staff_member.full_name %></td>
+               </tr>
+               <% row+=1 %>
+            <% end %>
+            <% if !a.finished_at.nil? %>
+               <tr <% if row.even? %>class="odd"<% end %> >
+                  <td><%= a.finished_at.strftime("%F %r") %></td>
+                  <td><%= a.step.name %></td>
+                  <td>Finished</td>
+                  <td><%= a.staff_member.full_name %></td>
+               </tr>
+               <% row+=1 %>
+            <% end %>
+         <% end %>
+      </table>
+   </div>
+</div>

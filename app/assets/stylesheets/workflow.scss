@@ -13,6 +13,19 @@
 div.mini-button-bar {
    text-align: right;
 }
+.panel_contents table.task-history {
+   font-size: 0.85em;
+   background-color: #fcfcfc;
+   border: 1px solid #aad;
+   tr.odd td{
+      background: #ecedfa;
+   }
+   th {
+      background-color: #dde;
+      border-bottom: 1px solid #66a;
+      text-shadow: none;
+   }
+}
 .workflow-panel {
    margin-left:0;
    width: 64%;

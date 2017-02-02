@@ -99,8 +99,7 @@ end
 
 div :class => 'columns-none' do
    div :class => 'two-column' do
-      panel "History" do
-      end
+      render partial: "history", locals: {task: task}
    end
    div :class => 'two-column' do
       panel "Notes" do
