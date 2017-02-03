@@ -3,7 +3,8 @@ $(function() {
 
 
    $("input").not($(":button")).keypress(function (evt) {
-      if (evt.keyCode == 13) {
+      var filterForm = $(this).closest(".filter_form");
+      if (evt.keyCode === 13 && filterForm.length === 0) {
          iname = $(this).val();
          if (iname !== 'Submit') {
             var fields = $(this).parents('form:eq(0),body').find('button, input, textarea, select');
