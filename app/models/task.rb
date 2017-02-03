@@ -79,9 +79,9 @@ class Task < ActiveRecord::Base
          s = self.workflow.first_step
          return "No progress"
       else
-         s = self.assignments.last.step
+         s = self.current_step
          msg = "Not started"
-         msg = "In progress" if !assignments.last.started_at.nil?
+         msg = "In progress" if assignments.last == s && !assignments.last.started_at.nil?
          return "#{s.name}: #{msg}"
       end
    end

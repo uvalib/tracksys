@@ -1,3 +1,19 @@
+.button_to .reject {
+   background-color: #c44;
+   background-image: none;
+   border-color: #a00;
+   width: 100%;
+   &:hover {
+      background-color: #e66;
+      background-image: none;
+   }
+}
+form input[disabled="disabled"].reject {
+   &:hover {
+      background-color: #c44;
+      background-image: none;
+   }
+}
 .one-third {
    width: 32%;
    margin-right: 25px;

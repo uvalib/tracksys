@@ -815,10 +815,6 @@ body.active_admin {
       }
    }
 
-   form input[disabled="disabled"] {
-      color: #B5B5B5;
-   }
-
    .two-column {
       width: 48%;
       margin-right: 1%;
@@ -838,17 +834,8 @@ body.active_admin {
    }
 
    form input[disabled="disabled"] {
-      color: #777777;
       cursor: default;
-      opacity: 0.6;
-   }
-
-   form input[disabled="disabled"]:hover {
-      color: #777777;
-   }
-
-   form input[disable="disabled"]:active {
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px white inset;
+      opacity: 0.4;
    }
 
    li.required > label {

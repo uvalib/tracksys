@@ -106,16 +106,17 @@ ActiveAdmin.register Task do
       div :class => 'workflow_button' do
          options = {:method => :put}
          options[:disabled] = true if task.active_assignment.started?
-         button_to "Start Assignment", start_work_admin_task_path(),options
+         button_to "Start", start_work_admin_task_path(),options
       end
-      if task.current_step.fail_step.nil?
-         div :class => 'workflow_button' do
-            options = {:method => :put}
-            options[:disabled] = true if !task.active_assignment.started?
-            button_to "Finish Assignment", finish_work_admin_task_path(),options
-         end
-      else
-
+      div :class => 'workflow_button' do
+         options = {:method => :put}
+         options[:disabled] = true if !task.active_assignment.started?
+         button_to "Finish", finish_work_admin_task_path(),options
+      end
+      if !task.current_step.fail_step.nil?
+         options = {:method => :put, :class=>"reject"}
+         options[:disabled] = true if !task.active_assignment.started?
+         button_to "Reject", reject_work_admin_task_path(),options
       end
    end
 
@@ -127,6 +128,9 @@ ActiveAdmin.register Task do
       task.active_assignment.update(started_at: Time.now)
       logger.info("User #{current_user.computing_id} starting workflow [#{task.workflow.name}] step [#{task.current_step.name}]")
       redirect_to "/admin/tasks/#{params[:id]}", :notice => "Workflow step #{task.current_step.name} has been started"
+   end
+
+   member_action :reject_work, :method => :put do
    end
 
    member_action :finish_work, :method => :put do
@@ -161,11 +165,12 @@ ActiveAdmin.register Task do
 
    member_action :claim, :method => :put do
       task = Task.find(params[:id])
-      assignment = Assignment.new(task: task, staff_member: current_user, step: task.next_step)
+      assignment = Assignment.new(task: task, staff_member: current_user, step: task.current_step)
       if assignment.save
          task.update(owner: current_user)
          redirect_to "/admin/tasks", :notice => "You have claimed task #{task.id}"
       else
+         logger.error("Claim task failed: #{assignment.errors.full_messages.to_sentence}")
          redirect_to "/admin/tasks", :notice => "Unable to claim task #{task.id}"
       end
    end
