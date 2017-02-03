@@ -33,8 +33,14 @@ div.mini-button-bar {
    font-size: 0.85em;
    background-color: #fcfcfc;
    border: 1px solid #aad;
-   tr.odd td{
-      background: #ecedfa;
+   tr.create td{
+      background: #e5e5fa;
+   }
+   tr.success td{
+      background: #cff3cf;
+   }
+   tr.fail td{
+      background: #f3cfcf;
    }
    th {
       background-color: #dde;

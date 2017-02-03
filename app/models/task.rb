@@ -33,9 +33,14 @@ class Task < ActiveRecord::Base
       return !self.finished_at.nil?
    end
 
+   def reject
+      self.active_assignment.update(finished_at: Time.now, status: :rejected )
+      self.update(current_step: self.current_step.fail_step, owner: nil)
+   end
+
    def finish_assignment
-      self.active_assignment.update(finished_at: Time.now)
-      if self.current_step.final?
+      self.active_assignment.update(finished_at: Time.now, status: :finished )
+      if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
          return self.update(finished_at: Time.now, owner: nil, current_step: nil)
       end
@@ -60,7 +65,7 @@ class Task < ActiveRecord::Base
       num_steps = self.workflow.num_steps*3 # each step has 3 parts, assigned, in-process and done
       curr_step = 0
       self.assignments.each do |a|
-         if !a.step.failure?
+         if !a.step.error?
             curr_step +=1
             curr_step +=1 if !a.started_at.nil?
             curr_step +=1 if !a.finished_at.nil?
@@ -86,8 +91,10 @@ class Task < ActiveRecord::Base
       end
    end
 
-   def next_step
-      return self.workflow.first_step if self.assignments.count == 0
-      # TODO
+   def start_work
+      return if self.active_assignment.nil?
+      return if !self.active_assignment.started_at.nil?
+      self.update(started_at: Time.now)
+      self.active_assignment.update(started_at: Time.now, status: :started)
    end
 end

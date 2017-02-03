@@ -7,6 +7,7 @@ class CreateAssignments < ActiveRecord::Migration
       t.datetime  :assigned_at
       t.datetime  :started_at
       t.datetime  :finished_at
+      t.integer :status, default: 0 # enum status: [:pending, :started, :finished, :rejected]
     end
   end
 end

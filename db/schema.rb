@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 20170131143731) do
     t.datetime "assigned_at"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.integer  "status",          limit: 4, default: 0
   end
 
   add_index "assignments", ["staff_member_id"], name: "index_assignments_on_staff_member_id", using: :btree

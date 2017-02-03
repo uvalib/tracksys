@@ -1,4 +1,6 @@
 class Assignment < ActiveRecord::Base
+   enum status: [:pending, :started, :finished, :rejected]
+
    belongs_to :task
    belongs_to :step
    belongs_to :staff_member
@@ -10,9 +12,5 @@ class Assignment < ActiveRecord::Base
 
    before_create do
       self.assigned_at = Time.now
-   end
-
-   def started?
-      return !self.started_at.nil?
    end
 end

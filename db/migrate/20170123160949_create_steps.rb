@@ -8,8 +8,8 @@ class CreateSteps < ActiveRecord::Migration
       t.string :finish_dir
       t.boolean :propagate_owner, default: false
       t.references :workflow, index: true
-      t.integer :next_step_id, index: true
-      t.integer :fail_step_id, index: true
+      t.references :next_step, references: :step, index: true
+      t.references :fail_step, references: :step, index: true
       t.timestamps null: false
     end
   end

@@ -1,9 +1,9 @@
 class Step < ActiveRecord::Base
-   enum step_type: [:initial, :final, :failure, :normal]
+   enum step_type: [:start, :end, :error, :normal]
 
    validates :name, :presence => true
 
    belongs_to :workflow
-   has_one :next_step, class_name: "Step", foreign_key: :next_step_id
-   has_one :fail_step, class_name: "Step", foreign_key: :fail_step_id
+   belongs_to :next_step, class_name: "Step"
+   belongs_to :fail_step, class_name: "Step"
 end

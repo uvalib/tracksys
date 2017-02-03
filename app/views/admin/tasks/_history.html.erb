@@ -3,34 +3,46 @@
    <div class="panel_contents">
       <table class="task-history">
          <tr><th>Date</th><th>Step</th><th>Activity</th><th>Owner</th></tr>
-         <% row=1 %>
-         <% task.assignments.order(assigned_at: :asc).each do |a| %>
-            <tr <% if row.even? %>class="odd"<% end %> >
-               <td><%= a.assigned_at.strftime("%F %r") %></td>
-               <td><%= a.step.name %></td>
-               <td>Assigned</td>
-               <td><%= a.staff_member.full_name %></td>
-            </tr>
-            <% row+=1 %>
+         <% task.assignments.order(assigned_at: :desc).each do |a| %>
+
+            <% if !a.finished_at.nil? %>
+               <% c="success"
+                  t = "Finished"
+                  if a.rejected?
+                     c="fail"
+                     t="Rejected"
+                  end
+                  %>
+               <tr class="<%= c %>">
+                  <td><%= a.finished_at.strftime("%F %r") %></td>
+                  <td><%= a.step.name %></td>
+                  <td><%= t %></td>
+                  <td><%= a.staff_member.full_name %></td>
+               </tr>
+            <% end %>
+
             <% if !a.started_at.nil? %>
-               <tr <% if row.even? %>class="odd"<% end %> >
+               <tr >
                   <td><%= a.started_at.strftime("%F %r") %></td>
                   <td><%= a.step.name %></td>
                   <td>Started</td>
                   <td><%= a.staff_member.full_name %></td>
                </tr>
-               <% row+=1 %>
             <% end %>
-            <% if !a.finished_at.nil? %>
-               <tr <% if row.even? %>class="odd"<% end %> >
-                  <td><%= a.finished_at.strftime("%F %r") %></td>
-                  <td><%= a.step.name %></td>
-                  <td>Finished</td>
-                  <td><%= a.staff_member.full_name %></td>
-               </tr>
-               <% row+=1 %>
-            <% end %>
+
+            <tr >
+               <td><%= a.assigned_at.strftime("%F %r") %></td>
+               <td><%= a.step.name %></td>
+               <td>Assigned</td>
+               <td><%= a.staff_member.full_name %></td>
+            </tr>
          <% end %>
+         <tr class="create">
+            <td><%= task.added_at.strftime("%F %r") %></td>
+            <td>Task #<%= task.id %></td>
+            <td>Created</td>
+            <td></td>
+         </tr>
       </table>
    </div>
 </div>

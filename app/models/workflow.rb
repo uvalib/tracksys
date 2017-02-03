@@ -3,10 +3,10 @@ class Workflow < ActiveRecord::Base
    has_many :steps
 
    def first_step
-      return steps.find_by(step_type: "initial")
+      return steps.find_by(step_type: "start")
    end
 
    def num_steps
-      return steps.where("step_type <> ?", Step.step_types[:failure]).count
+      return steps.where("step_type <> ?", Step.step_types[:error]).count
    end
 end
