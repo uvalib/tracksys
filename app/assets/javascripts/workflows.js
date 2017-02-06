@@ -16,6 +16,38 @@ $(function() {
 
    });
 
+   // Task Note creation
+   $("#add-note").on("click", function() {
+      $("#dimmer").show();
+      $("#note-modal").show();
+   });
+   $("#cancel-note").on("click", function() {
+      $("#dimmer").hide();
+      $("#note-modal").hide();
+   });
+   $('#create-note').submit(function() {
+      $(this).ajaxSubmit({
+         complete: function(jqXHR, textStatus) {
+            if (textStatus == "success" ) {
+               $("#dimmer").hide();
+               $("#note-modal").hide();
+               // TODO
+            } else {
+               alert("Unable to create note: "+jqXHR.responseText);
+            }
+         }
+      });
+      return false;
+   });
+   $("#type-select").on("change", function() {
+      var sel = $("#type-select option:selected").text();
+      $("#problem-select").removeClass("invisible");
+      if (sel !== "problem") {
+         $("#problem-select").addClass("invisible");
+      }
+   });
+
+
    // Edit Camera / condition
    // NOTES: there are two sets of edit / readonly controls.
    //        all have same classes with the exception of one that

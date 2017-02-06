@@ -12,6 +12,7 @@ class Task < ActiveRecord::Base
    has_one :customer, :through => :order
 
    has_many :assignments
+   has_many :notes
 
    validates :workflow,  :presence => true
    validates :unit,  :presence => true

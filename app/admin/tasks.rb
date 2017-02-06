@@ -148,6 +148,27 @@ ActiveAdmin.register Task do
       redirect_to "/admin/tasks/#{params[:id]}", :notice => "Workflow step #{task.current_step.name} has been finished"
    end
 
+   member_action :note, :method => :post do
+      task = Task.find(params[:id])
+      type = params[:note_type].to_i
+      prob_id = params[:problem]
+      prob = nil
+      if Note.note_types[:problem] == type
+         prob = Problem.find(prob_id)
+      end
+      begin
+        note = Note.create!(staff_member: current_user, task: task, note_type: type, note: params[:note], problem: prob )
+        json = {
+           note: note.note, staff: note.staff_member.full_name,
+           problem_id: prob_id,
+           type: note.note_type, date: note.created_at.strftime("%F %r") }
+        render json: json
+     rescue Exception => e
+        Rails.logger.error e.to_s
+        render text: "Create note FAILED: #{e.to_s}", status:  :error
+     end
+   end
+
    member_action :settings, :method => :put do
       task = Task.find(params[:id])
       if params[:camera]

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170131143731) do
+ActiveRecord::Schema.define(version: 20170206144533) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -351,6 +351,20 @@ ActiveRecord::Schema.define(version: 20170131143731) do
   add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
   add_index "metadata", ["use_right_id"], name: "index_metadata_on_use_right_id", using: :btree
 
+  create_table "notes", force: :cascade do |t|
+    t.integer  "staff_member_id", limit: 4
+    t.integer  "task_id",         limit: 4
+    t.integer  "problem_id",      limit: 4
+    t.text     "note",            limit: 65535
+    t.integer  "note_type",       limit: 4
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "notes", ["problem_id"], name: "index_notes_on_problem_id", using: :btree
+  add_index "notes", ["staff_member_id"], name: "index_notes_on_staff_member_id", using: :btree
+  add_index "notes", ["task_id"], name: "index_notes_on_task_id", using: :btree
+
   create_table "orders", force: :cascade do |t|
     t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
     t.integer  "agency_id",                          limit: 4
@@ -389,6 +403,10 @@ ActiveRecord::Schema.define(version: 20170131143731) do
   add_index "orders", ["date_order_approved"], name: "index_orders_on_date_order_approved", using: :btree
   add_index "orders", ["date_request_submitted"], name: "index_orders_on_date_request_submitted", using: :btree
   add_index "orders", ["order_status"], name: "index_orders_on_order_status", using: :btree
+
+  create_table "problems", force: :cascade do |t|
+    t.string "name", limit: 255
+  end
 
   create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
     t.integer "sirsi_metadata_id", limit: 4

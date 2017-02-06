@@ -6,7 +6,17 @@
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Emanuel', :city => cities.first)
 
+Assignment.connection.execute("truncate assignments")
+Task.connection.execute("truncate tasks")
+Problem.connection.execute("truncate problems")
 Step.connection.execute("truncate steps")
+
+# Common problems
+Problem.create([
+   { name: 'Incorrect ICC Profile' }, { name: 'Duplicate Image' }, { name: 'Soft Focus' },
+   { name: 'Incorrect Metadata' }, { name: 'Other' }])
+
+# Workflow and steps
 Workflow.connection.execute("truncate workflows")
 wf = Workflow.create(name: 'Standard', description: "Standard TrackSys workflow")
 

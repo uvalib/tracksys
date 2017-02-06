@@ -29,6 +29,61 @@ form input[disabled="disabled"].reject {
 div.mini-button-bar {
    text-align: right;
 }
+div.note-card.problem {
+   background-color: #f3cfcf;
+   border: 1px solid #a55;
+    color: #700;
+   .note-info {
+      border-color: #eaa;
+   }
+}
+div.note-card {
+   font-size: 0.85em;
+   background-color: #fcfcfc;
+   border: 1px solid #ccc;
+   border-radius: 10px;
+   margin: 5px 0 5px 0;
+   padding: 8px;
+   .note-info {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+      p {
+         margin: 0;
+      }
+      .left-info {
+         float:left;
+      }
+      .right-info {
+         float: right;
+      }
+   }
+   .note-text {
+      p {
+         margin: 0;
+         padding: 0 0 5px 0;
+         font-weight: bold;
+      }
+   }
+}
+// table.notes {
+//    font-size: 0.85em;
+//    background-color: #fcfcfc;
+//    border: 1px solid #ccc;
+//    td.narrow {
+//       width: 65px;
+//    }
+//    td.note {
+//       font-weight: normal;
+//       p {
+//          margin: 0 0 6px 0;
+//          font-weight: bold;
+//          border-bottom: 1px solid #444;
+//       }
+//    }
+// }
 .panel_contents table.task-history {
    font-size: 0.85em;
    background-color: #fcfcfc;
@@ -53,25 +108,32 @@ div.mini-button-bar {
    width: 64%;
    float: left;
    position: relative;
+}
 
-   .add {
-      position: absolute;
-      right: 7px;
-      top: 7px;
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      display: inline-block;
-      border-radius: 10px;
-      background-image: image_url("add.png");
-      background-repeat: no-repeat;
-      background-position: center center;
-      opacity: 0.5;
+#note-modal .content {
+   div {
+      margin-bottom:10px;
+   }
+   .invisible {
+      visibility: hidden;
+   }
+}
 
-      &:hover {
-         opacity: 1;
-         background-color: #def;
-      }
+.add-icon {
+   float:right;
+   width: 16px;
+   height: 16px;
+   cursor: pointer;
+   display: inline-block;
+   border-radius: 10px;
+   background-image: image_url("add.png");
+   background-repeat: no-repeat;
+   background-position: center center;
+   opacity: 0.5;
+
+   &:hover {
+      opacity: 1;
+      background-color: #def;
    }
 }
 
