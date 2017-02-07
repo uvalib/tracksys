@@ -8,10 +8,10 @@
       background-image: none !important;
    }
 }
-form input[disabled="disabled"].reject {
+.workflow_button .reject.disabled {
    &:hover {
-      background-color: #c44;
-      background-image: none;
+      background-color: #c44 !important;
+      background-image: none !important;
    }
 }
 .one-third {

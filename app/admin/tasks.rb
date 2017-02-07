@@ -99,24 +99,40 @@ ActiveAdmin.register Task do
          row ("Started") do |task|
             format_datetime(task.active_assignment.started_at) if !task.owner.nil?
          end
+         row ("Working Directory") do |task|
+            task.current_step.start_dir
+         end
       end
    end
 
-   sidebar "Assignment Workflow", :only => [:show],if: proc{ current_user == task.owner}  do
-      div :class => 'workflow_button' do
-         options = {:method => :put}
-         options[:disabled] = true if task.active_assignment.started?
-         button_to "Start", start_assignment_admin_task_path(),options
-      end
-      div :class => 'workflow_button' do
-         options = {:method => :put}
-         options[:disabled] = true if !task.active_assignment.started?
-         button_to "Finish", finish_assignment_admin_task_path(),options
-      end
-      if !task.current_step.fail_step.nil?
-         options = {:method => :put, :class=>"reject", :form => { :id => "reject"} }
-         options[:disabled] = true if !task.active_assignment.started?
-         raw("<div class='workflow_button' id='reject-button'><input type='submit' class='reject' value='Reject'/></div>")
+   sidebar "Assignment Workflow", :only => [:show] do
+      if current_user == task.owner
+         div :class => 'workflow_button' do
+            options = {:method => :put}
+            options[:disabled] = true if task.active_assignment.started?
+            button_to "Start", start_assignment_admin_task_path(),options
+         end
+         div :class => 'workflow_button' do
+            options = {:method => :put}
+            options[:disabled] = true if !task.active_assignment.started?
+            button_to "Finish", finish_assignment_admin_task_path(),options
+         end
+         if !task.current_step.fail_step.nil?
+            c = "reject"
+            c << " disabled" if !task.active_assignment.started?
+            raw("<div class='workflow_button' id='reject-button'><input type='submit' class='#{c}' value='Reject'/></div>")
+         end
+      else
+         div :class => 'workflow_button' do
+            options = {:method => :put}
+            button_to "Claim Task", "/admin/tasks/#{task.id}/claim?details=1", options
+         end
+         if current_user.admin? || current_user.supervisor?
+            div class: 'workflow_button' do
+               options = {method: :put, disabled: true}
+               button_to "Assign Task", "", options
+            end
+         end
       end
    end
 
@@ -176,14 +192,16 @@ ActiveAdmin.register Task do
    end
 
    member_action :claim, :method => :put do
+      url = "/admin/tasks"
+      url = "/admin/tasks/#{params[:id]}" if !params[:details].nil?
       task = Task.find(params[:id])
       assignment = Assignment.new(task: task, staff_member: current_user, step: task.current_step)
       if assignment.save
          task.update(owner: current_user)
-         redirect_to "/admin/tasks", :notice => "You have claimed task #{task.id}"
+         redirect_to url, :notice => "You have claimed task #{task.id}"
       else
          logger.error("Claim task failed: #{assignment.errors.full_messages.to_sentence}")
-         redirect_to "/admin/tasks", :notice => "Unable to claim task #{task.id}"
+         redirect_to url, :notice => "Unable to claim task #{task.id}"
       end
    end
 end

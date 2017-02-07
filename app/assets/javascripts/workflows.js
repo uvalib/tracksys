@@ -31,12 +31,13 @@ $(function() {
       });
    };
    $('#reject-button').on("click", function() {
-         $("#note-modal .reject-instruct").show();
-         $("#note-modal").data("rejection", true);
-         $("#dimmer").show();
-         $("#note-modal").show();
-         $("#note-modal textarea").val("");
-         $("#type-select").val(2);
+      if ( $(this).find(".reject").hasClass("disabled") ) return;
+      $("#note-modal .reject-instruct").show();
+      $("#note-modal").data("rejection", true);
+      $("#dimmer").show();
+      $("#note-modal").show();
+      $("#note-modal textarea").val("");
+      $("#type-select").val(2);
    });
 
    // Task Note creation

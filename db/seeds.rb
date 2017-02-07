@@ -5,7 +5,7 @@
 #
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Emanuel', :city => cities.first)
-
+Note.connection.execute("truncate notes")
 Assignment.connection.execute("truncate assignments")
 Task.connection.execute("truncate tasks")
 Problem.connection.execute("truncate problems")

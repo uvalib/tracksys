@@ -41,7 +41,16 @@ class Task < ActiveRecord::Base
 
    def finish_assignment
       # First, move any files to thier destination if needed
-      # TODO move and handle any MD5 checksum errors. Don't finish if fail?
+      begin
+         if self.current_step.move_files?
+            self.current_step.move_files(self.unit)
+         end
+      rescue Exception => e
+         prob = Problem.find_by(name: "Other")
+         note = "An error occurred moving files after step completion. Not all files have been moved. "
+         note << "Please check and manually move each file. Error details: #{e.to_s}"
+         Note.create(staff_member: self.owner, task: self, note_type: :problem, note: note, problem: prob )
+      end
 
       self.active_assignment.update(finished_at: Time.now, status: :finished )
       if self.current_step.end?
