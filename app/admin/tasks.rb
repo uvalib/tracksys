@@ -21,6 +21,7 @@ ActiveAdmin.register Task do
    #
    index :download_links => false do
       column :id
+      column :workflow
       column ("Project"), :sortable => :project_name do |task|
          raw("<a href='/admin/orders/#{task.order.id}'>#{task.project_name}</a>")
       end
