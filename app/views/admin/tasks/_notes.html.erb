@@ -16,11 +16,14 @@
       <h1>Note</h1>
       <form id="create-note" method="post" action="/admin/tasks/<%= task.id %>/note">
          <div class="content">
+            <div class="reject-instruct">
+               Rejection requires the addition of a problem note that details the reason why it occurred
+            </div>
             <div class="two-column">
                <label>Note Type:</label>
                <select name="note_type" id="type-select">
                   <% Note.note_types.to_a.each do |nt| %>
-                  <option value="<%= nt[1] %>"><%= nt[0] %></option>
+                  <option value="<%= nt[1] %>"><%= nt[0].gsub(/_/,' ').capitalize %></option>
                   <% end %>
                </select>
             </div>

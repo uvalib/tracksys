@@ -114,9 +114,9 @@ ActiveAdmin.register Task do
          button_to "Finish", finish_assignment_admin_task_path(),options
       end
       if !task.current_step.fail_step.nil?
-         options = {:method => :put, :class=>"reject"}
+         options = {:method => :put, :class=>"reject", :form => { :id => "reject"} }
          options[:disabled] = true if !task.active_assignment.started?
-         button_to "Reject", reject_assignment_admin_task_path(),options
+         raw("<div class='workflow_button' id='reject-button'><input type='submit' class='reject' value='Reject'/></div>")
       end
    end
 
@@ -126,26 +126,21 @@ ActiveAdmin.register Task do
       task = Task.find(params[:id])
       task.start_work
       logger.info("User #{current_user.computing_id} starting workflow [#{task.workflow.name}] step [#{task.current_step.name}]")
-      redirect_to "/admin/tasks/#{params[:id]}", :notice => "Workflow step #{task.current_step.name} has been started"
+      redirect_to "/admin/tasks/#{params[:id]}"
    end
 
    member_action :reject_assignment, :method => :put do
       task = Task.find(params[:id])
       logger.info("User #{current_user.computing_id} REJECTS workflow [#{task.workflow.name}] step [#{task.current_step.name}]")
       task.reject
-      redirect_to "/admin/tasks/#{params[:id]}", :notice => "Workflow step #{task.current_step.name} has been rejected"
+      render text: "ok"
    end
 
    member_action :finish_assignment, :method => :put do
       task = Task.find(params[:id])
       logger.info("User #{current_user.computing_id} finished workflow [#{task.workflow.name}] step [#{task.current_step.name}]")
-
-      # First, move any files to thier destination if needed
-      # TODO move and handle any MD5 checksum errors. Don't finish if fail?
-
-      # Mark assignment/task complete
       task.finish_assignment
-      redirect_to "/admin/tasks/#{params[:id]}", :notice => "Workflow step #{task.current_step.name} has been finished"
+      redirect_to "/admin/tasks/#{params[:id]}"
    end
 
    member_action :note, :method => :post do

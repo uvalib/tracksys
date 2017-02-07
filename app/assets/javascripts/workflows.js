@@ -16,10 +16,36 @@ $(function() {
 
    });
 
+   // Reject submit; first require the creation of a problem note-card
+   var submitRejection = function() {
+      $.ajax({
+         url: window.location.href+"/reject_assignment",
+         method: "PUT",
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus == "success" ) {
+               window.location.reload();
+            } else {
+               alert("Unable to reject assignment. Please try again later.");
+            }
+         }
+      });
+   };
+   $('#reject-button').on("click", function() {
+         $("#note-modal .reject-instruct").show();
+         $("#note-modal").data("rejection", true);
+         $("#dimmer").show();
+         $("#note-modal").show();
+         $("#note-modal textarea").val("");
+         $("#type-select").val(2);
+   });
+
    // Task Note creation
    $("#add-note").on("click", function() {
       $("#dimmer").show();
       $("#note-modal").show();
+      $("#note-modal textarea").val("");
+      $("#note-modal .reject-instruct").hide();
+      $("#note-modal").data("rejection", false);
    });
    $("#cancel-note").on("click", function() {
       $("#dimmer").hide();
@@ -32,6 +58,9 @@ $(function() {
                $("#dimmer").hide();
                $("#note-modal").hide();
                $("div.panel.notes .panel_contents").prepend( $(jqXHR.responseJSON.html) );
+               if ( $("#note-modal").data("rejection") === true ) {
+                  submitRejection();
+               }
             } else {
                alert("Unable to create note: "+jqXHR.responseText);
             }
@@ -42,11 +71,10 @@ $(function() {
    $("#type-select").on("change", function() {
       var sel = $("#type-select option:selected").text();
       $("#problem-select").removeClass("invisible");
-      if (sel !== "problem") {
+      if (sel.toLowerCase() !== "problem") {
          $("#problem-select").addClass("invisible");
       }
    });
-
 
    // Edit Camera / condition
    // NOTES: there are two sets of edit / readonly controls.

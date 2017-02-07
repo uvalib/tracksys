@@ -4,7 +4,7 @@
          <p class="note-date"><%= note.created_at.strftime('%F %r') %></p>
          <p class="note-by"><%= note.staff_member.full_name  %></p>
       </div>
-      <div class="right-info"><%= note.note_type %></div>
+      <div class="right-info"><b><%= note.note_type.gsub(/_/,' ').upcase %></b></div>
    </div>
    <div class="note-text">
       <% if note.problem? %>

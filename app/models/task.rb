@@ -40,6 +40,9 @@ class Task < ActiveRecord::Base
    end
 
    def finish_assignment
+      # First, move any files to thier destination if needed
+      # TODO move and handle any MD5 checksum errors. Don't finish if fail?
+
       self.active_assignment.update(finished_at: Time.now, status: :finished )
       if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
@@ -53,8 +56,22 @@ class Task < ActiveRecord::Base
          self.update(current_step: new_step)
          Assignment.create(task: self, staff_member: self.owner, step: new_step)
       else
-         Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
-         self.update(current_step: new_step, owner: nil)
+         if self.current_step.error?
+            # if this step is a failure, completion returns it to the prior, non-error
+            # step. Also restore the user who rejected it
+            prior_assign = self.assignments.where(step: new_step).order(assigned_at: :desc).first
+            if !prior_assign.nil?
+               Rails.logger.info("Workflow [#{self.workflow.name}] reassigning failed step [#{new_step.name}] back to original owner")
+               self.update(current_step: new_step, owner: prior_assign.staff_member)
+               Assignment.create(task: self, staff_member: prior_assign.staff_member, step: new_step)
+            else
+               Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
+               self.update(current_step: new_step, owner: nil)
+            end
+         else
+            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
+            self.update(current_step: new_step, owner: nil)
+         end
       end
    end
 

@@ -1,11 +1,11 @@
-.button_to .reject {
+.workflow_button .reject {
    background-color: #c44;
    background-image: none;
    border-color: #a00;
    width: 100%;
    &:hover {
-      background-color: #e66;
-      background-image: none;
+      background-color: #e66 !important;
+      background-image: none !important;
    }
 }
 form input[disabled="disabled"].reject {
@@ -134,6 +134,16 @@ div.panel.notes, div.panel.history {
 }
 
 #note-modal .content {
+   div.reject-instruct {
+      border: 2px solid #800;
+      padding: 6px;
+      background: #b44;
+      border-radius: 4px;
+      color: #fee;
+      font-weight: bold;
+      text-align: center;
+      display: none;
+   }
    div {
       margin-bottom:10px;
    }
