@@ -158,11 +158,8 @@ ActiveAdmin.register Task do
       end
       begin
         note = Note.create!(staff_member: current_user, task: task, note_type: type, note: params[:note], problem: prob )
-        json = {
-           note: note.note, staff: note.staff_member.full_name,
-           problem_id: prob_id,
-           type: note.note_type, date: note.created_at.strftime("%F %r") }
-        render json: json
+        html = render_to_string partial: "note", locals: {note: note}
+        render json: {html: html}
      rescue Exception => e
         Rails.logger.error e.to_s
         render text: "Create note FAILED: #{e.to_s}", status:  :error

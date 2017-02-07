@@ -31,7 +31,7 @@ $(function() {
             if (textStatus == "success" ) {
                $("#dimmer").hide();
                $("#note-modal").hide();
-               // TODO
+               $("div.panel.notes .panel_contents").prepend( $(jqXHR.responseJSON.html) );
             } else {
                alert("Unable to create note: "+jqXHR.responseText);
             }

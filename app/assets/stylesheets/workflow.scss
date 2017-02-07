@@ -29,65 +29,88 @@ form input[disabled="disabled"].reject {
 div.mini-button-bar {
    text-align: right;
 }
-div.note-card.problem {
-   background-color: #f3cfcf;
-   border: 1px solid #a55;
-    color: #700;
-   .note-info {
-      border-color: #eaa;
-   }
-}
-div.note-card {
-   font-size: 0.85em;
-   background-color: #fcfcfc;
+
+div.panel.notes, div.panel.history {
+   background: white;
    border: 1px solid #ccc;
-   border-radius: 10px;
-   margin: 5px 0 5px 0;
-   padding: 8px;
-   .note-info {
-      position: relative;
-      overflow: hidden;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ccc;
-      margin-bottom: 10px;
-      p {
-         margin: 0;
-      }
-      .left-info {
-         float:left;
-      }
-      .right-info {
-         float: right;
+   border-top: none;
+   box-shadow: none;
+   border-radius: 0;
+   h3 {
+      border-radius: 0;
+      border: 1px solid #ccc;
+      border-right: none;
+      border-left: none;
+      box-shadow: none;
+   }
+   .panel_contents {
+       padding: 10px 15px 15px 15px;
+       max-height: 800px;
+       overflow: scroll;
+   }
+
+   div.note-card.comment {
+      background-color: #ffe;
+      border: 1px solid #cc9;
+      color: #660;
+      .note-info {
+         border-color: #cc9;
       }
    }
-   .note-text {
-      p {
-         margin: 0;
-         padding: 0 0 5px 0;
-         font-weight: bold;
+   div.note-card.problem {
+      background-color: #fee;
+      border: 1px solid #daa;
+       color: #700;
+      .note-info {
+         border-color: #daa;
+      }
+   }
+   div.note-card.suggestion {
+      background-color: #eef;
+      border: 1px solid #aad;
+       color: #007;
+      .note-info {
+         border-color: #aad;
+      }
+   }
+   div.note-card {
+      font-size: 0.85em;
+      background-color: #fcfcfc;
+      border: 1px solid #ccc;
+      border-radius: 0;
+      margin: 5px 0 15px 0;
+      padding: 8px;
+      .note-info {
+         position: relative;
+         overflow: hidden;
+         padding-bottom: 10px;
+         border-bottom: 1px solid #ccc;
+         margin-bottom: 10px;
+         p {
+            margin: 0;
+         }
+         .left-info {
+            float:left;
+         }
+         .right-info {
+            float: right;
+         }
+      }
+      .note-text {
+         p {
+            margin: 0;
+            padding: 0 0 5px 0;
+            font-weight: bold;
+         }
       }
    }
 }
-// table.notes {
-//    font-size: 0.85em;
-//    background-color: #fcfcfc;
-//    border: 1px solid #ccc;
-//    td.narrow {
-//       width: 65px;
-//    }
-//    td.note {
-//       font-weight: normal;
-//       p {
-//          margin: 0 0 6px 0;
-//          font-weight: bold;
-//          border-bottom: 1px solid #444;
-//       }
-//    }
-// }
+
 .panel_contents table.task-history {
    font-size: 0.85em;
    background-color: #fcfcfc;
    border: 1px solid #aad;
+   margin: 0;
    tr.create td{
       background: #e5e5fa;
    }
