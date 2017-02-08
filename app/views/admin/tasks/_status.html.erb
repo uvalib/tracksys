@@ -1,6 +1,9 @@
-<div class="workflow-status">
-   <div class="percentage" style="width: <%= task.percentage_complete %>%"></div>
-</div>
-<div class="step-status">
-   <%= task.status_text %>
+<div class="statusbar">
+   <div class="step-status">
+      <%= task.status_text %>
+   </div>
+   <div class="workflow-status">
+      <div class="percentage" style="width: <%= task.percentage_complete %>%"></div>
+   </div>
+
 </div>

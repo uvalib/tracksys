@@ -182,13 +182,11 @@ p.assign-link {
 
 .col.status-col {
    width: 150px;
+   vertical-align: text-top;
    .step-status {
       font-size: 0.9em;
       color: #999;
-      margin: 0;
-      font-style: italic;
-      position: relative;
-      top: 2px;
+      margin: 0 0 4px 0;
    }
    .workflow-status {
       width: 150px;
@@ -196,8 +194,6 @@ p.assign-link {
       margin: 0;
       border: 1px solid #999;
       border-radius: 3px;
-      box-sizing: border-box;
-      position:relative;
       background: white;
    }
    .percentage {

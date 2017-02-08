@@ -1,5 +1,6 @@
 ActiveAdmin.register Task do
    menu :priority => 2
+   config.per_page = 10
 
    config.batch_actions = false
    config.clear_action_items!
@@ -15,11 +16,13 @@ ActiveAdmin.register Task do
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :due_on
    filter :added_at
-   filter :finished_at
 
    # INDEX page ===============================================================
    #
-   index :download_links => false do
+   index  as: :grid, :download_links => false, columns: 2 do |task|
+      render partial: 'card', :locals=>{:task=>task }
+   end
+   index do
       column :id
       column :workflow
       column ("Project"), :sortable => :project_name do |task|

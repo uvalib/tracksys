@@ -16,6 +16,21 @@ $(function() {
 
    });
 
+   $(".owner").on("mouseover", function() {
+      var dd = $(this).closest(".task-body").find(".owner-dd");
+      dd.show();
+   });
+   $(".owner-dd").on("mouseover", function() {
+      $(this).show();
+   });
+   $(".owner-dd").on("mouseout", function() {
+      $(this).hide();
+   });
+   $(".owner").on("mouseout", function() {
+      var dd = $(this).closest(".task-body").find(".owner-dd");
+      dd.hide();
+   });
+
    // Reject submit; first require the creation of a problem note-card
    var submitRejection = function() {
       $.ajax({

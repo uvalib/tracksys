@@ -20,6 +20,7 @@ class Task < ActiveRecord::Base
 
    scope :unassigned, ->{where(owner: nil) }
    scope :overdue, ->{where("due_on < ?", Date.today.to_s) }
+   default_scope { order(added_at: :desc) }
 
    before_create do
       self.added_at = Time.now

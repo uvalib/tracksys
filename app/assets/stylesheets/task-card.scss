@@ -1,0 +1,107 @@
+#main_content table.index_grid td {
+   padding: 0 10px 10px 0;
+}
+div.task-card {
+   border: 1px solid #bbb;
+   font-size: 0.9em;
+   min-width: 450px;
+   background: #f5f5f5;
+   h3 {
+      a {
+         color: #444;
+         &:hover {
+            color: #008;
+            text-decoration: underline !important;
+         }
+      }
+      font-size: 1.1em;
+      margin: 0px;
+      padding: 2px;
+      line-height: initial;
+      background: #dedede;
+      border-bottom: 1px solid #bbb;
+      overflow: hidden;
+      img {
+         float: left;
+         margin: 3px;
+      }
+      .project {
+         float: left;
+         margin: 6px 0 0 5px;
+      }
+      .priority {
+         float:right;
+         margin: 6px 10px 0 0;
+         font-weight: bold;
+      }
+   }
+   .task-body {
+      position: relative;
+      padding: 10px;
+      .right { width: 55%; }
+      .left { width: 45%; }
+      table {
+         margin-bottom: 5px;
+         td { cursor: default; padding: 3px !important;}
+         td.label {
+            font-weight: bold;
+            text-align: right;
+         }
+      }
+      .owner-dd {
+         cursor: default;
+         display: none;
+         position: absolute;
+         background: white;
+         border: 1px solid #666;
+         bottom: -32px;
+         left: 13px;
+         .owner-act {
+            cursor: pointer;
+            padding: 1px 15px 4px 15px;
+            a { text-decoration: none; color: #444;}
+            &:hover {
+               background: #bbf;
+            }
+         }
+      }
+   }
+   .progress-info {
+      clear: both;;
+      overflow: hidden;
+      position: relative;
+      .statusbar {
+         float:right;
+      }
+      .owner {
+         cursor:default;
+         position: absolute;
+         top: 10px;
+         .owner-name {
+            position: relative;
+            top: -6px;
+         }
+      }
+   }
+}
+
+.step-status {
+   font-size: 0.9em;
+   margin: 0 0 2px 0;
+}
+.workflow-status {
+   width: 200px;
+   height: 18px;
+   margin: 0;
+   border: 1px solid #444;
+   box-sizing: border-box;
+   background: white;
+}
+.percentage {
+   display: block;
+   height: 100%;
+   background: #6b4;
+}
+.percentage.error {
+   background: #b44;
+}
