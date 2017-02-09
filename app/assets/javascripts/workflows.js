@@ -16,6 +16,25 @@ $(function() {
 
    });
 
+   $("#assign-to").chosen({
+       no_results_text: "Sorry, no matches found",
+       width: "100%"
+   });
+   $(".assign-menu").on("click", function() {
+      $("#assign-staff").data("task", $(this).data("task"));
+      $("#assign-staff").show();
+      var pos = $(this).offset();
+      $("#assign-staff").css({top: pos.top, left: pos.left});
+      $(".owner-dd").hide();
+   });
+   $("#cancel-assign").on("click", function() {
+      $("#assign-staff").hide();
+   });
+   $("#ok-assign").on("click", function() {
+      alert($("#assign-staff").data("task"));
+      $("#assign-staff").hide();
+   });
+
    $(".owner").on("mouseover", function() {
       var dd = $(this).closest(".task-body").find(".owner-dd");
       dd.show();

@@ -1,6 +1,33 @@
 #main_content table.index_grid td {
    padding: 0 10px 10px 0;
 }
+#assign-staff {
+   background: #f0f0ff;
+   padding: 10px;
+   border: 1px solid #66c;
+   position: absolute;
+   border-radius: 4px;
+   z-index: 1000;
+   box-shadow: 1px 1px 4px #999;
+   display: none;
+   .chosen-container.chosen-container-single{ margin-top: 5px;}
+   .buttons {
+      margin-top: 20px;
+      text-align: right;
+      span.btn {
+         cursor: pointer;
+         padding: 4px 10px;
+         text-decoration: none;
+         border-radius: 4px;
+         background: #47a;
+         color: white;
+         font-size: 0.95em;
+         &:hover {
+            background: #69c;
+         }
+      }
+   }
+}
 div.task-card {
    border: 1px solid #bbb;
    font-size: 0.9em;
@@ -56,6 +83,13 @@ div.task-card {
          border: 1px solid #666;
          bottom: -32px;
          left: 13px;
+         .owner-act.disabled {
+            cursor: default;
+            opacity: 0.4;
+            &:hover {
+               background: white;
+            }
+         }
          .owner-act {
             cursor: pointer;
             padding: 1px 15px 4px 15px;

@@ -20,8 +20,11 @@ ActiveAdmin.register Task do
    # INDEX page ===============================================================
    #
    index  as: :grid, :download_links => false, columns: 2 do |task|
-      render partial: 'card', :locals=>{:task=>task }
+      @first = true if @first.nil?
+      render partial: 'card', locals: {task: task, first: @first }
+      @first = false
    end
+
    index do
       column :id
       column :workflow

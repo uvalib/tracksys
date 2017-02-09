@@ -1,0 +1,13 @@
+<div id="assign-staff">
+   <label>Assign To:</label>
+   <select id="assign-to">
+      <option value="">Select Staff Member</option>
+      <% StaffMember.all.order(last_name: :asc).each  do |sm| %>
+         <option value="<%= sm.id %>"><%= sm.full_name %></option>
+      <% end %>
+   </select>
+   <div class="buttons">
+      <span id="ok-assign" class="btn">Assign</span>
+      <span id="cancel-assign" class="btn">Cancel</span>
+   </div>
+</div>

@@ -59,8 +59,13 @@
       <div class="owner-dd">
          <% if task.owner.nil? %>
             <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/tasks/<%=task.id%>/claim">Claim</a></div>
+         <% else %>
+            <div class="owner-act disabled">Claim</div>
          <% end %>
-         <div class="owner-act">Assign</div>
+         <div class="owner-act assign-menu" data-task="<%= task.id %>">Assign</div>
       </div>
    </div>
 </div>
+<% if first %>
+   <%= render partial: "assign_staff", locals: {task: task} %>
+<% end %>
