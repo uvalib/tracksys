@@ -19,8 +19,8 @@ class Task < ActiveRecord::Base
    validates :due_on,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
-   scope :unassigned, ->{where(owner: nil) }
-   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s) }
+   scope :unassigned, ->{where(owner: nil).order(due_on: :asc) }
+   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
    default_scope { order(added_at: :desc) }
 
    before_create do

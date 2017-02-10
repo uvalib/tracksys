@@ -1,6 +1,7 @@
 ActiveAdmin.register Task do
    menu :priority => 2
    config.per_page = 10
+   config.sort_order = "due_on_asc"
 
    config.batch_actions = false
    config.clear_action_items!
@@ -14,6 +15,7 @@ ActiveAdmin.register Task do
    filter :owner_computing_id, :as => :select, :label => "Owner", :collection => StaffMember.all
    filter :item_type, :as => :select, :collection => Task.item_types, label:"Category"
    filter :priority, :as => :select, :collection => Task.priorities
+   filter :order_id, :as => :numeric, :label => "Order ID"
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :due_on
    filter :added_at
