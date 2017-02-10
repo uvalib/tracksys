@@ -29,6 +29,9 @@
    }
 }
 
+div.task-card.overdue {
+   box-shadow: 0px 0px 2px 1px #f00
+}
 div.task-card.green {
    background: #f0faf0;
    border-color: #6a6;
@@ -70,6 +73,16 @@ div.task-card {
    background: #f5f5f5;
    h3 {
       position: relative;
+      span.overdue {
+         margin-left: 5px;
+         color: white;
+         background: #d00;
+         padding: 3px 10px;
+         border-radius: 10px;
+         text-shadow: 1px 1px #444;
+         position: relative;
+         left: 6px;
+      }
       a {
          color: #444;
          &:hover {

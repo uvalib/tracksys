@@ -6,14 +6,15 @@
       tc << " slide"
    elsif task.unit.intended_use.id == 110 #digital collection building
       tc << " green"
-   end %>
+   end
+   tc << " overdue" if task.overdue? %>
 <div class="<%= tc %>">
    <h3>
       <a href="/admin/tasks/<%=task.id%>">
-         <%= image_tag "info.png" %>
+         <%= image_tag "info2.png" %>
          <span class="project"><%= task.project_name %></span>
       </a>
-      <span class="priority"><%= task.priority.capitalize %> Priority</span>
+      <span class="priority"><%= task.priority.capitalize %> Priority<% if task.overdue? %><span class="overdue">OVERDUE</span><% end %></span>
    </h3>
    <div class="task-body">
       <div class="left">

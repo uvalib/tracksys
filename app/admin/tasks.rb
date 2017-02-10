@@ -5,17 +5,19 @@ ActiveAdmin.register Task do
    config.batch_actions = false
    config.clear_action_items!
 
-   scope :all, :default => true
+   scope :active, :default => true
    scope :unassigned
    scope :overdue
+   scope :all
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Owner", :collection => StaffMember.all
-   filter :item_type, :as => :select, :collection => Task.item_types
+   filter :item_type, :as => :select, :collection => Task.item_types, label:"Category"
    filter :priority, :as => :select, :collection => Task.priorities
    filter :unit_id, :as => :numeric, :label => "Unit ID"
    filter :due_on
    filter :added_at
+
 
    # INDEX page ===============================================================
    #

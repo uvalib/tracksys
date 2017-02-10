@@ -18,8 +18,9 @@ class Task < ActiveRecord::Base
    validates :unit,  :presence => true
    validates :due_on,  :presence => true
 
+   scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
    scope :unassigned, ->{where(owner: nil) }
-   scope :overdue, ->{where("due_on < ?", Date.today.to_s) }
+   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s) }
    default_scope { order(added_at: :desc) }
 
    before_create do
@@ -33,6 +34,10 @@ class Task < ActiveRecord::Base
 
    def finished?
       return !self.finished_at.nil?
+   end
+
+   def overdue?
+      return self.due_on <= Date.today
    end
 
    def reject
