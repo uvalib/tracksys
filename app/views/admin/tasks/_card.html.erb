@@ -16,10 +16,10 @@
                <td class="label">Unit:</td><td><a href="/admin/units/<%=task.unit.id%>"><%= task.unit.id %></a></td>
             </tr>
             <tr>
-               <td class="label">Customer:</td><td><a href="/admin/customers/<%=task.customer.id%>"><%= task.customer.name %></a></td>
+               <td class="label">Workflow:</td><td><a href="/admin/workflows/<%=task.workflow.id%>"><%= task.workflow.name %></a></td>
             </tr>
             <tr>
-               <td class="label">Intended Use:</td><td><%= task.unit.intended_use.description %></td>
+               <td class="label">Category:</td><td><%= task.item_type.capitalize %></td>
             </tr>
             <tr>
                <td class="label">Due:</td><td><%= task.due_on %></td>
@@ -28,6 +28,9 @@
       </div>
       <div class="right">
          <table>
+            <tr>
+               <td class="label">Customer:</td><td><a href="/admin/customers/<%=task.customer.id%>"><%= task.customer.name %></a></td>
+            </tr>
             <tr>
                <% url = "sirsi_metadata"
                   url = "xml_metadata" if task.unit.metadata.type=="XmlMetadata" %>
@@ -40,27 +43,32 @@
             <tr>
                <td class="label">Location:</td><td><%= task.unit.metadata.location %></td>
             </tr>
+            <tr>
+               <td class="label">Intended Use:</td><td><%= task.unit.intended_use.description %></td>
+            </tr>
          </table>
       </div>
+   </div>
+   <div class="task-footer">
       <div class="progress-info">
          <div class="owner">
-            <%= image_tag "owner.png" %>
-            <span class="owner-name">
+           <%= image_tag "owner.png" %>
+           <span class="owner-name">
                <% if task.owner.nil? %>
                   Unassigned
                <% else %>
                   <% owner = task.owner %>
                   <a href='/admin/staff_members/#{owner.id}'><%= owner.full_name %> (<%= owner.computing_id%>)</a>
                <% end %>
-            </span>
+           </span>
          </div>
          <%= render :partial=>"status", :locals=>{ task: task} %>
       </div>
       <div class="owner-dd">
          <% if task.owner.nil? %>
-            <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/tasks/<%=task.id%>/claim">Claim</a></div>
+           <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/tasks/<%=task.id%>/claim">Claim</a></div>
          <% else %>
-            <div class="owner-act disabled">Claim</div>
+           <div class="owner-act disabled">Claim</div>
          <% end %>
          <div class="owner-act assign-menu" data-task="<%= task.id %>">Assign</div>
       </div>

@@ -1,6 +1,6 @@
 class Task < ActiveRecord::Base
    enum priority: [:normal, :high, :critical]
-   enum item_type: [:bound, :flat, :slide, :negative, :oversize]
+   enum item_type: [:bound, :flat, :film, :oversize, :special]
    enum item_condition: [:good, :bad]
 
    belongs_to :workflow
@@ -110,7 +110,7 @@ class Task < ActiveRecord::Base
    def status_text
       if assignments.count == 0
          s = self.workflow.first_step
-         return "No progress"
+         return "#{s.name}: Not assigned"
       else
          s = self.current_step
          msg = "Not started"

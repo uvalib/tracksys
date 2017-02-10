@@ -64,7 +64,8 @@ div.task-card {
    }
    .task-body {
       position: relative;
-      padding: 10px;
+      padding: 10px 10px 5px 10px;
+      overflow: hidden;
       .right { width: 55%; }
       .left { width: 45%; }
       table {
@@ -75,46 +76,54 @@ div.task-card {
             text-align: right;
          }
       }
-      .owner-dd {
+   }
+}
+
+.task-footer {
+   position: relative;
+   padding: 10px;
+   border-top: 1px solid #ccc;
+   clear:both;
+   .owner-dd {
+      cursor: default;
+      display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #666;
+      bottom: -32px;
+      left: 13px;
+      .owner-act.disabled {
          cursor: default;
-         display: none;
-         position: absolute;
-         background: white;
-         border: 1px solid #666;
-         bottom: -32px;
-         left: 13px;
-         .owner-act.disabled {
-            cursor: default;
-            opacity: 0.4;
-            &:hover {
-               background: white;
-            }
+         opacity: 0.4;
+         &:hover {
+            background: white;
          }
-         .owner-act {
-            cursor: pointer;
-            padding: 1px 15px 4px 15px;
-            a { text-decoration: none; color: #444;}
-            &:hover {
-               background: #bbf;
-            }
+      }
+      .owner-act {
+         cursor: pointer;
+         padding: 1px 15px 4px 15px;
+         a { text-decoration: none; color: #444;}
+         &:hover {
+            background: #bbf;
          }
       }
    }
-   .progress-info {
-      clear: both;;
-      overflow: hidden;
-      position: relative;
-      .statusbar {
-         float:right;
-      }
-      .owner {
-         cursor:default;
-         position: absolute;
-         top: 10px;
-         .owner-name {
-            position: relative;
-            top: -6px;
-         }
+}
+.progress-info {
+   clear: both;;
+   overflow: hidden;
+   position: relative;
+   .statusbar {
+      float:right;
+   }
+   .owner {
+      cursor:default;
+      position: absolute;
+      top: 10px;
+      .owner-name {
+         position: relative;
+         top: -7px;
+         left: 4px;
       }
    }
 }

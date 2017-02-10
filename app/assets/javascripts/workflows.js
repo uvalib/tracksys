@@ -36,7 +36,7 @@ $(function() {
    });
 
    $(".owner").on("mouseover", function() {
-      var dd = $(this).closest(".task-body").find(".owner-dd");
+      var dd = $(this).closest(".task-footer").find(".owner-dd");
       dd.show();
    });
    $(".owner-dd").on("mouseover", function() {
@@ -46,7 +46,7 @@ $(function() {
       $(this).hide();
    });
    $(".owner").on("mouseout", function() {
-      var dd = $(this).closest(".task-body").find(".owner-dd");
+      var dd = $(this).closest(".task-footer").find(".owner-dd");
       dd.hide();
    });
 
