@@ -77,12 +77,12 @@ ActiveAdmin.register Task do
 
    sidebar "Assignment Workflow", :only => [:show] do
       if current_user == task.owner
-         div :class => 'workflow_button' do
+         div :class => 'workflow_button task' do
             options = {:method => :put}
             options[:disabled] = true if task.active_assignment.started?
             button_to "Start", start_assignment_admin_task_path(),options
          end
-         div :class => 'workflow_button' do
+         div :class => 'workflow_button task' do
             options = {:method => :put}
             options[:disabled] = true if !task.active_assignment.started?
             button_to "Finish", finish_assignment_admin_task_path(),options
@@ -90,15 +90,15 @@ ActiveAdmin.register Task do
          if !task.current_step.fail_step.nil?
             c = "reject"
             c << " disabled" if !task.active_assignment.started?
-            raw("<div class='workflow_button' id='reject-button'><input type='submit' class='#{c}' value='Reject'/></div>")
+            raw("<div class='workflow_button task' id='reject-button'><input type='submit' class='#{c}' value='Reject'/></div>")
          end
       else
-         div :class => 'workflow_button' do
+         div :class => 'workflow_button task' do
             options = {:method => :put}
             button_to "Claim Task", "/admin/tasks/#{task.id}/claim?details=1", options
          end
          if current_user.admin? || current_user.supervisor?
-            div class: 'workflow_button' do
+            div class: 'workflow_button task' do
                options = {method: :put, disabled: true}
                button_to "Assign Task", "", options
             end

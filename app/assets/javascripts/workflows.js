@@ -16,6 +16,14 @@ $(function() {
 
    });
 
+   $(".workflow_button.task").on("click", function() {
+      var btn = $(this).find(':submit');
+      setTimeout(function() {
+         btn.attr("disabled", true);
+         btn.addClass("disabled");
+      }, 50);
+   });
+
    $("#assign-to").chosen({
        no_results_text: "Sorry, no matches found",
        width: "100%"
@@ -85,6 +93,9 @@ $(function() {
    $("#cancel-note").on("click", function() {
       $("#dimmer").hide();
       $("#note-modal").hide();
+      var btn = $("#reject-button").find(":submit");
+      btn.attr("disabled", false);
+      btn.removeClass("disabled");
    });
    $('#create-note').submit(function() {
       $(this).ajaxSubmit({
