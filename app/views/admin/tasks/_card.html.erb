@@ -1,4 +1,13 @@
-<div class="task-card">
+<% # default no class = patron rquest. white
+   tc = "task-card"
+   if task.special?
+      tc << " special"
+   elsif task.film?
+      tc << " slide"
+   elsif task.unit.intended_use.id == 110 #digital collection building
+      tc << " green"
+   end %>
+<div class="<%= tc %>">
    <h3>
       <a href="/admin/tasks/<%=task.id%>">
          <%= image_tag "info.png" %>

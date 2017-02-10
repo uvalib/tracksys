@@ -28,12 +28,48 @@
       }
    }
 }
+
+div.task-card.green {
+   background: #f0faf0;
+   border-color: #6a6;
+   h3 {
+      background: #a5e5a5;
+      border-color: #6a6;
+   }
+   .task-footer {
+      border-color: #cec;
+   }
+}
+div.task-card.slide {
+   background: #ffe;
+   border-color: #aa6;
+   color: #660;
+   h3 {
+      background: #ededaf;
+      border-color: #aa6;
+   }
+   .task-footer {
+      border-color: #ddc;
+   }
+}
+div.task-card.special {
+   background: #f0f0fa;
+   border-color: #66a;
+   h3 {
+      background: #d0d0f5;
+      border-color: #66a;
+   }
+   .task-footer {
+      border-color: #cce;
+   }
+}
 div.task-card {
    border: 1px solid #bbb;
    font-size: 0.9em;
    min-width: 450px;
    background: #f5f5f5;
    h3 {
+      position: relative;
       a {
          color: #444;
          &:hover {
