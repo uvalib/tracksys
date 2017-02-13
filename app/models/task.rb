@@ -42,7 +42,11 @@ class Task < ActiveRecord::Base
 
    def reject
       self.active_assignment.update(finished_at: Time.now, status: :rejected )
-      self.update(current_step: self.current_step.fail_step, owner: nil)
+
+      #find owner of first step and return the task to them
+      step_1_owner = self.assignments.order(assigned_at: :asc).first.staff_member
+      Assignment.create(task: self, staff_member: step_1_owner, step: self.current_step.fail_step)
+      self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
    def finish_assignment
