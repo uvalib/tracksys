@@ -1,5 +1,5 @@
 class Assignment < ActiveRecord::Base
-   enum status: [:pending, :started, :finished, :rejected]
+   enum status: [:pending, :started, :finished, :rejected, :error]
 
    belongs_to :task
    belongs_to :step

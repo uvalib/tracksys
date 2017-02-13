@@ -79,12 +79,12 @@ ActiveAdmin.register Task do
       if current_user == task.owner
          div :class => 'workflow_button task' do
             options = {:method => :put}
-            options[:disabled] = true if task.active_assignment.started?
+            options[:disabled] = true if task.active_assignment.started? || task.active_assignment.error?
             button_to "Start", start_assignment_admin_task_path(),options
          end
          div :class => 'workflow_button task' do
             options = {:method => :put}
-            options[:disabled] = true if !task.active_assignment.started?
+            options[:disabled] = true if !task.active_assignment.started? && !task.active_assignment.error?
             button_to "Finish", finish_assignment_admin_task_path(),options
          end
          if !task.current_step.fail_step.nil?

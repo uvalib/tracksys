@@ -58,8 +58,11 @@ class Task < ActiveRecord::Base
       rescue Exception => e
          prob = Problem.find_by(name: "Other")
          note = "An error occurred moving files after step completion. Not all files have been moved. "
-         note << "Please check and manually move each file. Error details: #{e.to_s}"
+         note << "Please check and manually move each file. When the problem has been resolved, click finish again."
+         note << "Error details: #{e.to_s}"
          Note.create(staff_member: self.owner, task: self, note_type: :problem, note: note, problem: prob )
+         self.active_assignment.update(status: :error )
+         return
       end
 
       self.active_assignment.update(finished_at: Time.now, status: :finished )

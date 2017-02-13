@@ -10,6 +10,6 @@
       <% if note.problem? %>
          <p><%= note.problem.name %></p>
       <% end %>
-      <%= note.note %>
+      <%= raw(note.note) %>
    </div>
 </div>
