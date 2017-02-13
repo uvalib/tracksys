@@ -17,7 +17,7 @@ class Step < ActiveRecord::Base
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
-      if !Dir.exists?(src_dir) && if !Dir.exists?(dest_dir)
+      if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
          raise "Neither source nor destination directory exists!"
       end
 
