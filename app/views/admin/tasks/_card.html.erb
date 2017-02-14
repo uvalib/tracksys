@@ -1,6 +1,6 @@
 <% # default no class = patron rquest. white
    tc = "task-card"
-   if task.special?
+   if task.unit.metadata.collection_facet == "McGregor Grant Collection"
       tc << " special"
    elsif task.film?
       tc << " slide"
