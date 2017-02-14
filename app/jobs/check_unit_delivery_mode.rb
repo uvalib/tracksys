@@ -21,7 +21,7 @@ class CheckUnitDeliveryMode < BaseJob
       end
 
       # Make sure an exemplar is picked if flagged for DL
-      if if unit.include_in_dl == true && unit.metadata.type == "SirsiMetadata" && unit.metadata.exemplar.blank?
+      if unit.include_in_dl == true && unit.metadata.type == "SirsiMetadata" && unit.metadata.exemplar.blank?
          logger.info "Exemplar is blank; looking for a default"
          exemplar = nil
          unit.master_files.each do |mf|
