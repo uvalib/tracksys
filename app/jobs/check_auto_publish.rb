@@ -37,22 +37,6 @@ class CheckAutoPublish < BaseJob
             sirsi_meta.update(availability_policy_id: 1)
          end
 
-         # Make sure an exemplar is picked
-         if sirsi_meta.exemplar.blank?
-            logger.info "Exemplar is blank; looking for a default"
-            exemplar = nil
-            sirsi_meta.master_files.each do |mf|
-               exemplar = mf.filename if exemplar.nil?
-               if !mf.title.blank? && mf.title.strip == "1"
-                  exemplar = mf.filename
-               end
-            end
-            if !exemplar.blank?
-               logger.info "Defaulting exemplar to #{exemplar}"
-               sirsi_meta.update(exemplar: exemplar)
-            end
-         end
-
          # update index and include_in_dl on unit if not set
          unit.update(include_in_dl: true)
          logger.info "Unit #{unit.id} successfully flagged for DL publication"
