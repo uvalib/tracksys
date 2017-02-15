@@ -13,7 +13,7 @@ ActiveAdmin.register Task do
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Owner", :collection => StaffMember.all
-   filter :item_type, :as => :select, :collection => Task.item_types, label:"Category"
+   filter :category, :as => :select, :collection => Category.all
    filter :priority, :as => :select, :collection => Task.priorities
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :unit_id, :as => :numeric, :label => "Unit ID"

@@ -5,13 +5,24 @@
 #
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Emanuel', :city => cities.first)
+
+Equipment.connection.execute("truncate equipment")
 Note.connection.execute("truncate notes")
 Assignment.connection.execute("truncate assignments")
 Task.connection.execute("truncate tasks")
 Problem.connection.execute("truncate problems")
 Step.connection.execute("truncate steps")
+Category.connection.execute("truncate categories")
 
-# Common problems
+# Format: type,name,serial
+csv_text = File.read(Rails.root.join('data', 'equipment.csv'))
+CSV.parse(csv_text, headers: false).each do |row|
+   Equipment.create(type: row[0], name: row[1], serial_number: row[2])
+end
+
+# Common problems and categories
+Category.create([
+   { name: 'Bound' }, { name: 'Flat' }, { name: 'Film' },{name: 'Oversize'}, {name: 'Special'}])
 Problem.create([
    { name: 'Incorrect ICC Profile' }, { name: 'Duplicate Image' }, { name: 'Soft Focus' },
    { name: 'Incorrect Metadata' }, { name: 'Other' }])

@@ -1,21 +1,8 @@
-# == Schema Information
-#
-# Table name: staff_members
-#
-#  id           :integer          not null, primary key
-#  computing_id :string(255)
-#  last_name    :string(255)
-#  first_name   :string(255)
-#  is_active    :boolean          default(FALSE), not null
-#  created_at   :datetime
-#  updated_at   :datetime
-#  email        :string(255)
-#  role_id      :integer          default(1)
-#
-
 class StaffMember < ActiveRecord::Base
    enum role: [:admin, :supervisor, :editor, :student, :viewer]
-   
+
+   has_and_belongs_to_many :skills, :join_table=>:staff_skills, :class_name=>"Category"
+
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
@@ -92,17 +79,4 @@ class StaffMember < ActiveRecord::Base
 
    alias_attribute :name, :full_name
 
-end# == Schema Information
-#
-# Table name: staff_members
-#
-#  id                        :integer(4)      not null, primary key
-#  access_level_id           :integer(4)      default(0), not null
-#  computing_id              :string(255)
-#  last_name                 :string(255)
-#  first_name                :string(255)
-#  is_active                 :boolean(1)      default(FALSE), not null
-#  created_at                :datetime
-#  updated_at                :datetime
-#  email                     :string(255)
-#
+end

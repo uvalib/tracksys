@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170206144533) do
+ActiveRecord::Schema.define(version: 20170215164049) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -99,6 +99,11 @@ ActiveRecord::Schema.define(version: 20170206144533) do
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
     t.string   "pid",            limit: 255
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string  "name",        limit: 255
+    t.integer "tasks_count", limit: 4,   default: 0
   end
 
   create_table "collection_facets", force: :cascade do |t|
@@ -193,6 +198,14 @@ ActiveRecord::Schema.define(version: 20170206144533) do
   end
 
   add_index "departments", ["name"], name: "index_departments_on_name", unique: true, using: :btree
+
+  create_table "equipment", force: :cascade do |t|
+    t.string   "type",          limit: 255
+    t.string   "name",          limit: 255
+    t.string   "serial_number", limit: 255
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
 
   create_table "image_tech_meta", force: :cascade do |t|
     t.integer  "master_file_id", limit: 4,                  default: 0, null: false
@@ -429,6 +442,16 @@ ActiveRecord::Schema.define(version: 20170206144533) do
 
   add_index "staff_members", ["computing_id"], name: "index_staff_members_on_computing_id", unique: true, using: :btree
 
+  create_table "staff_skills", force: :cascade do |t|
+    t.integer  "staff_member_id", limit: 4
+    t.integer  "category_id",     limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "staff_skills", ["category_id"], name: "index_staff_skills_on_category_id", using: :btree
+  add_index "staff_skills", ["staff_member_id"], name: "index_staff_skills_on_staff_member_id", using: :btree
+
   create_table "statistics", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.string   "value",      limit: 255
@@ -455,23 +478,35 @@ ActiveRecord::Schema.define(version: 20170206144533) do
   add_index "steps", ["next_step_id"], name: "index_steps_on_next_step_id", using: :btree
   add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
 
+  create_table "task_equipment", force: :cascade do |t|
+    t.integer  "task_id",      limit: 4
+    t.integer  "equipment_id", limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "task_equipment", ["equipment_id"], name: "index_task_equipment_on_equipment_id", using: :btree
+  add_index "task_equipment", ["task_id"], name: "index_task_equipment_on_task_id", using: :btree
+
   create_table "tasks", force: :cascade do |t|
-    t.integer  "workflow_id",     limit: 4
-    t.integer  "unit_id",         limit: 4
-    t.integer  "owner_id",        limit: 4
-    t.integer  "current_step_id", limit: 4
-    t.integer  "priority",        limit: 4,   default: 0
+    t.integer  "workflow_id",        limit: 4
+    t.integer  "unit_id",            limit: 4
+    t.integer  "owner_id",           limit: 4
+    t.integer  "current_step_id",    limit: 4
+    t.integer  "priority",           limit: 4,   default: 0
     t.date     "due_on"
-    t.string   "camera",          limit: 255
-    t.string   "lens",            limit: 255
-    t.string   "resolution",      limit: 255
-    t.integer  "item_condition",  limit: 4
-    t.integer  "item_type",       limit: 4
+    t.integer  "item_condition",     limit: 4
     t.datetime "added_at"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.integer  "category_id",        limit: 4
+    t.string   "viu_number",         limit: 255
+    t.integer  "capture_resolution", limit: 4
+    t.integer  "resized_resolution", limit: 4
+    t.string   "resolution_note",    limit: 255
   end
 
+  add_index "tasks", ["category_id"], name: "index_tasks_on_category_id", using: :btree
   add_index "tasks", ["unit_id"], name: "index_tasks_on_unit_id", using: :btree
   add_index "tasks", ["workflow_id"], name: "index_tasks_on_workflow_id", using: :btree
 
@@ -522,6 +557,22 @@ ActiveRecord::Schema.define(version: 20170206144533) do
     t.text     "description", limit: 65535
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+  end
+
+  create_table "workstation_equipment", force: :cascade do |t|
+    t.integer  "workstation_id", limit: 4
+    t.integer  "equipment_id",   limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "workstation_equipment", ["equipment_id"], name: "index_workstation_equipment_on_equipment_id", using: :btree
+  add_index "workstation_equipment", ["workstation_id"], name: "index_workstation_equipment_on_workstation_id", using: :btree
+
+  create_table "workstations", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   add_foreign_key "attachments", "units"

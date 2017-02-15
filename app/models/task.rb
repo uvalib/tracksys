@@ -1,19 +1,22 @@
 class Task < ActiveRecord::Base
    enum priority: [:normal, :high, :critical]
-   enum item_type: [:bound, :flat, :film, :oversize, :special]
    enum item_condition: [:good, :bad]
 
    belongs_to :workflow
    belongs_to :unit
    belongs_to :owner, :class_name=>"StaffMember"
    belongs_to :current_step, :class_name=>"Step"
+   belongs_to :category, counter_cache: true
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
 
+   has_and_belongs_to_many :equipment, :join_table=>:task_equipment
+
    has_many :assignments
    has_many :notes
 
+   validates :capture_resolution,  :presence => true
    validates :workflow,  :presence => true
    validates :unit,  :presence => true
    validates :due_on,  :presence => true
@@ -26,6 +29,22 @@ class Task < ActiveRecord::Base
    before_create do
       self.added_at = Time.now
       self.current_step = self.workflow.first_step
+   end
+
+   def bound?
+      return self.category.name == "Bound"
+   end
+   def flat?
+      return self.category.name == "Flat"
+   end
+   def film?
+      return self.category.name == "Film"
+   end
+   def oversize?
+      return self.category.name == "Oversize"
+   end
+   def special?
+      return self.category.name == "Special"
    end
 
    def started?
