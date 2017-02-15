@@ -2,7 +2,7 @@ class Api::SirsiController < ApplicationController
    def show
       resp = { sirsiId: params[:id], pdfServiceRoot: Settings.pdf_url, items: [] }
       found = false
-      Metadata.where("catalog_key=?", params[:id]).each do |sm|
+      Metadata.where("catalog_key=?", params[:id]).order(call_number: :asc).each do |sm|
          next if sm.date_dl_ingest.nil? || !sm.discoverability
          resp[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
