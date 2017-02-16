@@ -8,21 +8,21 @@ ActiveAdmin.register_page "Equipment" do
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Camera Bodies", equipment: bodies}
+            render partial: "equipment_list", locals: {title:"Camera Bodies", equipment: bodies, clazz: 'bodies'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Lenses", equipment: lenses}
+            render partial: "equipment_list", locals: {title:"Lenses", equipment: lenses, clazz: 'lenses'}
          end
       end
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Digital Backs", equipment: backs}
+            render partial: "equipment_list", locals: {title:"Digital Backs", equipment: backs, clazz: 'backs'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners}
+            render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners, clazz: 'scanners'}
          end
       end
    end
