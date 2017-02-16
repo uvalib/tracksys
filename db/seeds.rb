@@ -13,6 +13,10 @@ Task.connection.execute("truncate tasks")
 Problem.connection.execute("truncate problems")
 Step.connection.execute("truncate steps")
 Category.connection.execute("truncate categories")
+Workstation.connection.execute("truncate workstations")
+
+Workstation.create([{name: 'Jefferson'}, {name: 'Washington'}, {name: 'Lincoln'},
+   {name: 'Roosevelt'}, {name: 'Cruse'}, {name: 'Flatbed Scanner'}, {name: 'Multispectral Scanner'}])
 
 # Format: type,name,serial
 csv_text = File.read(Rails.root.join('data', 'equipment.csv'))

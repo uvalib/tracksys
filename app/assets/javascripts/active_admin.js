@@ -12,6 +12,7 @@
 //= require clone-masterfiles
 //= require bulk_dl_settings
 //= require workflows
+//= require equipment
 //= require codemirror
 //= require_tree ./mode/
 //= require_tree ./addon/

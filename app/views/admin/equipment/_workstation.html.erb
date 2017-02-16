@@ -1,0 +1,32 @@
+<div class="panel workstation">
+   <h3>Workstations</h3>
+   <div class="content">
+      <% cnt = 0 %>
+      <% workstations.each do |ws| %>
+         <% if cnt == 0 %>
+            <div class="ws-row">
+         <% elsif cnt % 3 == 0 %>
+            </div>
+            <div class="ws-row">
+         <% end %>
+         <div class="ws-card">
+            <h4><%= ws.name %></h4>
+            <table class="setup">
+               <% ws.equipment.each do |e| %>
+               <tr>
+                  <td><%= e.type %></td>
+                  <td><%= e.name %></td>
+                  <td><%= e.serial_number %></td>
+               </tr>
+               <% end %>
+               <tr>
+            </table>
+            <div class="btn-container">
+               <span class="assign-equipment btn">Assign Selected Equipment</span>
+            </div>
+         </div>
+         <% cnt += 1 %>
+      <% end %>
+      </div>
+   </div>
+</div>

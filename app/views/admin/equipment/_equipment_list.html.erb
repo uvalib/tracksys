@@ -1,0 +1,20 @@
+<div class="panel equipment">
+   <h3><%= title %></h3>
+   <table>
+      <tr><th></th><th>Name</th><th>Serial Number</th><th></th></tr>
+      <% odd="" %>
+      <% equipment.each do |e| %>
+         <tr class="<%=odd%>">
+            <td class="sel"><input type="checkbox" data-id="<%= e.id %>"/></td>
+            <td><%= e.name %></td>
+            <td><%= e.serial_number %></td>
+            <td></td>
+         </tr>
+         <%  if odd.blank?
+               odd = "odd"
+             else
+               odd = ""
+             end %>
+      <% end %>
+   </table>
+</div>
