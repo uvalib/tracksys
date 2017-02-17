@@ -12,17 +12,10 @@
          <div class="ws-card">
             <h4><%= ws.name %></h4>
             <table class="setup">
-               <% ws.equipment.each do |e| %>
-               <tr>
-                  <td><%= e.type %></td>
-                  <td><%= e.name %></td>
-                  <td><%= e.serial_number %></td>
-               </tr>
-               <% end %>
-               <tr>
+               <%= render partial: "setup", locals: { equipment: ws.equipment} %>
             </table>
             <div class="btn-container">
-               <span class="assign-equipment btn">Assign Selected Equipment</span>
+               <span data-workstation="<%= ws.id %>" class="assign-equipment btn">Assign Selected Equipment</span>
             </div>
          </div>
          <% cnt += 1 %>

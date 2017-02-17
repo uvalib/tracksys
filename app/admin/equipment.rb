@@ -27,6 +27,24 @@ ActiveAdmin.register_page "Equipment" do
       end
    end
 
+   page_action :assign, method: :post do
+      ws = Workstation.find(params['workstation'])
+      params['equipment'].each do |id|
+         e = Equipment.find(id)
+         if e.type == "Scanner"
+            ws.equipment.clear
+         else
+            s = ws.equipment.find_by(type: "Scanner")
+            s.destroy if !s.nil?
+            s = ws.equipment.find_by(type: e.type)
+            s.destroy if !s.nil?
+         end
+         ws.equipment << e
+      end
+      html = render_to_string partial: "setup", locals: {equipment: ws.equipment}
+      render json: {html: html}
+   end
+
    controller do
        before_filter :get_equipment
        def get_equipment
