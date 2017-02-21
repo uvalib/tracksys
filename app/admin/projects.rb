@@ -169,7 +169,7 @@ ActiveAdmin.register Project do
             render json: {html: html}, status: :ok
          end
       else
-         if project.update(item_condition: params[:condition].to_i)
+         if project.update(item_condition: params[:condition].to_i, viu_number: params[:viu_number])
             render nothing:true
          else
             render text: project.errors.full_messages.to_sentence, status: :error

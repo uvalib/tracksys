@@ -14,7 +14,7 @@ Problem.connection.execute("truncate problems")
 Step.connection.execute("truncate steps")
 Category.connection.execute("truncate categories")
 Workstation.connection.execute("truncate workstations")
-WorkstationEquipment.connection.execute("truncate workstation_equipment")
+Workstation.connection.execute("truncate workstation_equipment")
 
 Workstation.create([{name: 'Jefferson'}, {name: 'Washington'}, {name: 'Lincoln'},
    {name: 'Roosevelt'}, {name: 'Cruse'}, {name: 'Flatbed Scanner'}, {name: 'Multispectral Scanner'}])

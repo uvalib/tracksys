@@ -5,8 +5,11 @@ div :class => 'columns-none' do
             row("Call Number") do |project|
                project.unit.metadata.call_number
             end
-            row("Catalog Key") do |project|
-               project.unit.metadata.catalog_key
+            row :viu_number do |project|
+               v = project.viu_number
+               v = "<span class='empty'>Empty</span>" if v.blank?
+               disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
+               raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
             end
             row("Location") do |project|
                project.unit.metadata.location
@@ -15,18 +18,12 @@ div :class => 'columns-none' do
                project.unit.metadata.title
             end
             row :item_condition do |project|
-               sel = "<select id='condition-edit' class='hidden edit-condition'>"
+               sel = "<select id='condition-edit' class='hidden edit-item'>"
                Project.item_conditions.to_a.each do |c|
                   sel << "<option value='#{c[1]}'>#{c[0]}</option>"
                end
                sel << "</select>"
-               btns = ""
-               if current_user == project.owner
-                  c = "<span class='project mf-action-button condition hidden cancel-btn'>Cancel</span>"
-                  s = "<span class='project mf-action-button condition hidden save-btn'>Save</span>"
-                  btns = "<span class='project mf-action-button condition edit-btn'>Edit</span>#{s}#{c}"
-               end
-               raw("<span class='disp-condition' id='condition'>#{project.item_condition}</span>#{sel}#{btns}")
+               raw("<span class='disp-item' id='condition'>#{project.item_condition}</span>#{sel}")
             end
             row ("Special Instructions") do |project|
                si = []
@@ -34,6 +31,13 @@ div :class => 'columns-none' do
                si << "#{project.unit.special_instructions}" if !project.unit.special_instructions.blank?
                si << "None" if si.length == 0
                raw("#{si.join('<br/>')}")
+            end
+         end
+         if current_user == project.owner
+            div class: "mini-button-bar" do
+               span class: "project mf-action-button item edit-btn" do "Edit" end
+               span class: "project mf-action-button hidden item save-btn"  do "Save" end
+               span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
             end
          end
       end

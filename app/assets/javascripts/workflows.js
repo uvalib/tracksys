@@ -122,14 +122,14 @@ $(function() {
       }
    });
 
-   // Edit Camera / condition
+   // Edit Camera / item
    // NOTES: there are two sets of edit / readonly controls.
    //        all have same classes with the exception of one that
-   //        differentiates camera vs condition
+   //        differentiates camera vs item
    $(".project.edit-btn").on("click", function() {
       var tgtClass = "camera";
-      if ( $(this).hasClass("condition")) {
-         tgtClass= "condition";
+      if ( $(this).hasClass("item")) {
+         tgtClass= "item";
       } else {
          $("table.project-equipment-setup").hide();
       }
@@ -142,8 +142,8 @@ $(function() {
 
    $(".project.cancel-btn").on("click", function() {
       var tgtClass = "camera";
-      if ( $(this).hasClass("condition")) {
-         tgtClass= "condition";
+      if ( $(this).hasClass("item")) {
+         tgtClass= "item";
       } else {
          $("table.project-equipment-setup").show();
       }
@@ -156,9 +156,9 @@ $(function() {
 
    $(".project.save-btn").on("click", function() {
       var tgtClass = "camera";
-      if ( $(this).hasClass("condition")) {
-         tgtClass = "condition";
-         data = {condition: $("#condition-edit").val() };
+      if ( $(this).hasClass("item")) {
+         tgtClass = "item";
+         data = {condition: $("#condition-edit").val(), viu_number: $("#viu_number-edit").val() };
       } else {
          data =  { camera: true,
             workstation: $("#workstation-edit").val(), capture_resolution: $("#capture_resolution-edit").val(),
@@ -187,6 +187,7 @@ $(function() {
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
                } else {
+                  $("#viu_number").text( data.viu_number );
                   $("#condition").text( $("#condition-edit option:selected").text() );
                }
             }
