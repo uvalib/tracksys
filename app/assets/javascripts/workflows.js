@@ -16,7 +16,7 @@ $(function() {
 
    });
 
-   $(".workflow_button.task").on("click", function() {
+   $(".workflow_button.project").on("click", function() {
       var btn = $(this).find(':submit');
       setTimeout(function() {
          btn.attr("disabled", true);
@@ -29,7 +29,7 @@ $(function() {
        width: "100%"
    });
    $(".assign-menu").on("click", function() {
-      $("#assign-staff").data("task", $(this).data("task"));
+      $("#assign-staff").data("project", $(this).data("project"));
       $("#assign-staff").show();
       var pos = $(this).offset();
       $("#assign-staff").css({top: pos.top, left: pos.left});
@@ -39,12 +39,12 @@ $(function() {
       $("#assign-staff").hide();
    });
    $("#ok-assign").on("click", function() {
-      alert($("#assign-staff").data("task"));
+      alert($("#assign-staff").data("project"));
       $("#assign-staff").hide();
    });
 
    $(".owner").on("mouseover", function() {
-      var dd = $(this).closest(".task-footer").find(".owner-dd");
+      var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.show();
    });
    $(".owner-dd").on("mouseover", function() {
@@ -54,7 +54,7 @@ $(function() {
       $(this).hide();
    });
    $(".owner").on("mouseout", function() {
-      var dd = $(this).closest(".task-footer").find(".owner-dd");
+      var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.hide();
    });
 
@@ -126,56 +126,66 @@ $(function() {
    // NOTES: there are two sets of edit / readonly controls.
    //        all have same classes with the exception of one that
    //        differentiates camera vs condition
-   $(".task.edit-btn").on("click", function() {
+   $(".project.edit-btn").on("click", function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("condition")) {
          tgtClass= "condition";
+      } else {
+         $("table.project-equipment-setup").hide();
       }
-      $(".task.edit-btn."+tgtClass).addClass("hidden");
-      $(".task.cancel-btn."+tgtClass).removeClass("hidden");
-      $(".task.save-btn."+tgtClass).removeClass("hidden");
+      $(".project.edit-btn."+tgtClass).addClass("hidden");
+      $(".project.cancel-btn."+tgtClass).removeClass("hidden");
+      $(".project.save-btn."+tgtClass).removeClass("hidden");
       $(".edit-"+tgtClass).removeClass("hidden");
       $(".disp-"+tgtClass).addClass("hidden");
    });
 
-   $(".task.cancel-btn").on("click", function() {
+   $(".project.cancel-btn").on("click", function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("condition")) {
          tgtClass= "condition";
+      } else {
+         $("table.project-equipment-setup").show();
       }
-      $(".task.edit-btn."+tgtClass).removeClass("hidden");
-      $(".task.cancel-btn."+tgtClass).addClass("hidden");
-      $(".task.save-btn."+tgtClass).addClass("hidden");
+      $(".project.edit-btn."+tgtClass).removeClass("hidden");
+      $(".project.cancel-btn."+tgtClass).addClass("hidden");
+      $(".project.save-btn."+tgtClass).addClass("hidden");
       $(".edit-"+tgtClass).addClass("hidden");
       $(".disp-"+tgtClass).removeClass("hidden");
    });
 
-   $(".task.save-btn").on("click", function() {
+   $(".project.save-btn").on("click", function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("condition")) {
          tgtClass = "condition";
          data = {condition: $("#condition-edit").val() };
       } else {
-         data =  { camera: $("#camera-edit").val(), lens: $("#lens-edit").val(), resolution: $("#resolution-edit").val() };
+         data =  { camera: true,
+            workstation: $("#workstation-edit").val(), capture_resolution: $("#capture_resolution-edit").val(),
+            resized_resolution: $("#resized_resolution-edit").val(), resolution_note: $("#resolution_note-edit").val()
+         };
       }
-      $(".task.cancel-btn."+tgtClass).addClass("hidden");
-      $(".task.save-btn."+tgtClass).addClass("hidden");
+      $(".project.cancel-btn."+tgtClass).addClass("hidden");
+      $(".project.save-btn."+tgtClass).addClass("hidden");
 
       $.ajax({
          url: window.location.href+"/settings",
          method: "PUT",
          data: data,
          complete: function(jqXHR, textStatus) {
-            $(".task.edit-btn."+tgtClass).removeClass("hidden");
+            $("table.project-equipment-setup").show();
+            $(".project.edit-btn."+tgtClass).removeClass("hidden");
             $(".edit-"+tgtClass).addClass("hidden");
             $(".disp-"+tgtClass).removeClass("hidden");
             if ( textStatus != "success" ) {
                alert("Update "+tgtClass+" failed: "+jqXHR.responseText);
             } else {
                if (tgtClass === "camera") {
-                  $("#camera").text( data.camera );
-                  $("#lens").text( data.lens );
-                  $("#resolution").text( data.resolution );
+                  $("tr.row.row-setup td").html(jqXHR.responseJSON.html );
+                  $("#workstation").text( $("#workstation-edit option:selected").text() );
+                  $("#capture_resolution").text( data.capture_resolution );
+                  $("#resized_resolution").text( data.resized_resolution );
+                  $("#resolution_note").text( data.resolution_note );
                } else {
                   $("#condition").text( $("#condition-edit option:selected").text() );
                }
@@ -184,21 +194,21 @@ $(function() {
       });
    });
 
-   // Create tasks
-   $("#show-create-digitization-task").on("click", function() {
+   // Create projects
+   $("#show-create-digitization-project").on("click", function() {
       $("#dimmer").show();
-      $("#task-modal").show();
+      $("#project-modal").show();
    });
-   $("#cancel-task-create").on("click", function() {
+   $("#cancel-project-create").on("click", function() {
       $("#dimmer").hide();
-      $("#task-modal").hide();
+      $("#project-modal").hide();
    });
-   $("#ok-task-create").on("click", function() {
-      if ( $("#ok-task-create").hasClass("disabled")) return;
-      $("#ok-task-create").addClass("disabled");
-      $("#cancel-task-create").addClass("disabled");
+   $("#ok-project-create").on("click", function() {
+      if ( $("#ok-project-create").hasClass("disabled")) return;
+      $("#ok-project-create").addClass("disabled");
+      $("#cancel-project-create").addClass("disabled");
       $.ajax({
-         url: window.location.href+"/task",
+         url: window.location.href+"/project",
          method: "POST",
          data: { workflow: $("#workflow").val(),
                  category: $("#category").val(),
@@ -206,15 +216,15 @@ $(function() {
                  due: $("#due_on").val()
          },
          complete: function(jqXHR, textStatus) {
-            $("#ok-task-create").removeClass("disabled");
-            $("#cancel-task-create").removeClass("disabled");
+            $("#ok-project-create").removeClass("disabled");
+            $("#cancel-project-create").removeClass("disabled");
             if ( textStatus != "success" ) {
-               alert("Unable to create task failed: "+jqXHR.responseText);
+               alert("Unable to create project failed: "+jqXHR.responseText);
             } else {
-               alert("A new task has been created");
+               alert("A new project has been created");
                $("#dimmer").hide();
-               $("#task-modal").hide();
-               $("#show-create-digitization-task").hide();
+               $("#project-modal").hide();
+               $("#show-create-digitization-project").hide();
             }
          }
       });

@@ -324,7 +324,7 @@ ActiveAdmin.register Unit do
             raw("<p>There are no notes associated with this unit</p>")
          else
             unit.notes.order(created_at: :desc).each do |n|
-               render partial: "/admin/tasks/note", locals: {note: n}
+               render partial: "/admin/projects/note", locals: {note: n}
             end
          end
       end
@@ -375,9 +375,9 @@ ActiveAdmin.register Unit do
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
 
-    if unit.unit_status == "approved" && unit.task.nil?
+    if unit.unit_status == "approved" && unit.project.nil?
        div :class => 'workflow_button' do
-         raw("<span  class='admin-button' id='show-create-digitization-task'>Create Digitization Task</span>")
+         raw("<span  class='admin-button' id='show-create-digitization-project'>Create Digitization Project</span>")
        end
     end
 
@@ -509,10 +509,11 @@ ActiveAdmin.register Unit do
      end
   end
 
-  member_action :task, :method => :post do
+  member_action :project, :method => :post do
      w = Workflow.find(params[:workflow])
      u = Unit.find(params[:id])
-     t = Task.new(workflow: w, unit: u, priority: params[:priority].to_i, item_type: params[:item_type].to_i, due_on: params[:due])
+     c = Category.find(params[:category])
+     t = Project.new(workflow: w, unit: u, priority: params[:priority].to_i, category: c, due_on: params[:due])
      if t.save
         render text: t.id, status: :ok
      else

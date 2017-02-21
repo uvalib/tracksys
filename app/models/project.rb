@@ -1,4 +1,4 @@
-class Task < ActiveRecord::Base
+class Project < ActiveRecord::Base
    enum priority: [:normal, :high, :critical]
    enum item_condition: [:good, :bad]
 
@@ -7,21 +7,26 @@ class Task < ActiveRecord::Base
    belongs_to :owner, :class_name=>"StaffMember"
    belongs_to :current_step, :class_name=>"Step"
    belongs_to :category, counter_cache: true
+   belongs_to :workstation
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
 
-   has_and_belongs_to_many :equipment, :join_table=>:task_equipment
+   has_and_belongs_to_many :equipment, :join_table=>:project_equipment
 
    has_many :assignments
    has_many :notes
 
-   validates :capture_resolution,  :presence => true
    validates :workflow,  :presence => true
    validates :unit,  :presence => true
    validates :due_on,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
+   scope :bound, ->{where(category_id: 1).order(due_on: :asc) }
+   scope :flat, ->{where(category_id: 2).order(due_on: :asc) }
+   scope :film, ->{where(category_id: 3).order(due_on: :asc) }
+   scope :oversize, ->{where(category_id: 4).order(due_on: :asc) }
+   scope :special, ->{where(category_id: 5).order(due_on: :asc) }
    scope :unassigned, ->{where(owner: nil).order(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
    default_scope { order(added_at: :desc) }
@@ -62,9 +67,9 @@ class Task < ActiveRecord::Base
    def reject
       self.active_assignment.update(finished_at: Time.now, status: :rejected )
 
-      #find owner of first step and return the task to them
+      #find owner of first step and return the project to them
       step_1_owner = self.assignments.order(assigned_at: :asc).first.staff_member
-      Assignment.create(task: self, staff_member: step_1_owner, step: self.current_step.fail_step)
+      Assignment.create(project: self, staff_member: step_1_owner, step: self.current_step.fail_step)
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
@@ -79,7 +84,7 @@ class Task < ActiveRecord::Base
          note = "An error occurred moving files after step completion. Not all files have been moved. "
          note << "Please check and manually move each file. When the problem has been resolved, click finish again."
          note << "Error details: #{e.to_s}"
-         Note.create(staff_member: self.owner, task: self, note_type: :problem, note: note, problem: prob )
+         Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
          self.active_assignment.update(status: :error )
          return
       end
@@ -95,7 +100,7 @@ class Task < ActiveRecord::Base
       if self.current_step.propagate_owner
          Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}], owner perserved")
          self.update(current_step: new_step)
-         Assignment.create(task: self, staff_member: self.owner, step: new_step)
+         Assignment.create(project: self, staff_member: self.owner, step: new_step)
       else
          if self.current_step.error?
             # if this step is a failure, completion returns it to the prior, non-error
@@ -104,7 +109,7 @@ class Task < ActiveRecord::Base
             if !prior_assign.nil?
                Rails.logger.info("Workflow [#{self.workflow.name}] reassigning failed step [#{new_step.name}] back to original owner")
                self.update(current_step: new_step, owner: prior_assign.staff_member)
-               Assignment.create(task: self, staff_member: prior_assign.staff_member, step: new_step)
+               Assignment.create(project: self, staff_member: prior_assign.staff_member, step: new_step)
             else
                Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
                self.update(current_step: new_step, owner: nil)

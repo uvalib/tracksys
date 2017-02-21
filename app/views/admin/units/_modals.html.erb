@@ -68,8 +68,8 @@
       </div>
    </div>
 
-   <div id="task-modal" class="modal">
-      <h1>Create Digitization Task</h1>
+   <div id="project-modal" class="modal">
+      <h1>Create Digitization Project</h1>
       <div class="title-wrapper">
          <table class="settings">
             <tr>
@@ -85,9 +85,9 @@
             <tr>
                <td class="label">Category</td>
                <td>
-                  <select id="item_type">
-                      <% Task.item_types.to_a.each do |p| %>
-                          <option value="<%= p[1] %>"><%= p[0] %></option>
+                  <select id="category">
+                      <% Category.all.each do |p| %>
+                          <option value="<%= p.id %>"><%= p.name %></option>
                       <% end %>
                   </select>
                </td>
@@ -96,7 +96,7 @@
                <td class="label">Priority</td>
                <td>
                   <select id="priority">
-                      <% Task.priorities.to_a.each do |p| %>
+                      <% Project.priorities.to_a.each do |p| %>
                           <option value="<%= p[1] %>"><%= p[0] %></option>
                       <% end %>
                   </select>
@@ -110,8 +110,8 @@
             </tr>
          </table>
          <div class="buttons">
-            <input type="button" id="cancel-task-create" value="Cancel"/>
-            <input type="button" id="ok-task-create" value="Create Task"/>
+            <input type="button" id="cancel-project-create" value="Cancel"/>
+            <input type="button" id="ok-project-create" value="Create Project"/>
          </div>
       </div>
    </div>

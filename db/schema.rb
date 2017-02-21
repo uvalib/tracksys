@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170215164049) do
+ActiveRecord::Schema.define(version: 20170221161352) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 20170215164049) do
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
 
   create_table "assignments", force: :cascade do |t|
-    t.integer  "task_id",         limit: 4
+    t.integer  "project_id",      limit: 4
     t.integer  "step_id",         limit: 4
     t.integer  "staff_member_id", limit: 4
     t.datetime "assigned_at"
@@ -78,9 +78,9 @@ ActiveRecord::Schema.define(version: 20170215164049) do
     t.integer  "status",          limit: 4, default: 0
   end
 
+  add_index "assignments", ["project_id"], name: "index_assignments_on_project_id", using: :btree
   add_index "assignments", ["staff_member_id"], name: "index_assignments_on_staff_member_id", using: :btree
   add_index "assignments", ["step_id"], name: "index_assignments_on_step_id", using: :btree
-  add_index "assignments", ["task_id"], name: "index_assignments_on_task_id", using: :btree
 
   create_table "attachments", force: :cascade do |t|
     t.integer  "unit_id",     limit: 4
@@ -102,8 +102,8 @@ ActiveRecord::Schema.define(version: 20170215164049) do
   end
 
   create_table "categories", force: :cascade do |t|
-    t.string  "name",        limit: 255
-    t.integer "tasks_count", limit: 4,   default: 0
+    t.string  "name",           limit: 255
+    t.integer "projects_count", limit: 4,   default: 0
   end
 
   create_table "collection_facets", force: :cascade do |t|
@@ -366,7 +366,7 @@ ActiveRecord::Schema.define(version: 20170215164049) do
 
   create_table "notes", force: :cascade do |t|
     t.integer  "staff_member_id", limit: 4
-    t.integer  "task_id",         limit: 4
+    t.integer  "project_id",      limit: 4
     t.integer  "problem_id",      limit: 4
     t.text     "note",            limit: 65535
     t.integer  "note_type",       limit: 4
@@ -375,8 +375,8 @@ ActiveRecord::Schema.define(version: 20170215164049) do
   end
 
   add_index "notes", ["problem_id"], name: "index_notes_on_problem_id", using: :btree
+  add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
   add_index "notes", ["staff_member_id"], name: "index_notes_on_staff_member_id", using: :btree
-  add_index "notes", ["task_id"], name: "index_notes_on_task_id", using: :btree
 
   create_table "orders", force: :cascade do |t|
     t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
@@ -420,6 +420,40 @@ ActiveRecord::Schema.define(version: 20170215164049) do
   create_table "problems", force: :cascade do |t|
     t.string "name", limit: 255
   end
+
+  create_table "project_equipment", force: :cascade do |t|
+    t.integer  "project_id",   limit: 4
+    t.integer  "equipment_id", limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "project_equipment", ["equipment_id"], name: "index_project_equipment_on_equipment_id", using: :btree
+  add_index "project_equipment", ["project_id"], name: "index_project_equipment_on_project_id", using: :btree
+
+  create_table "projects", force: :cascade do |t|
+    t.integer  "workflow_id",        limit: 4
+    t.integer  "unit_id",            limit: 4
+    t.integer  "owner_id",           limit: 4
+    t.integer  "current_step_id",    limit: 4
+    t.integer  "priority",           limit: 4,   default: 0
+    t.date     "due_on"
+    t.integer  "item_condition",     limit: 4
+    t.datetime "added_at"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.integer  "category_id",        limit: 4
+    t.string   "viu_number",         limit: 255
+    t.integer  "capture_resolution", limit: 4
+    t.integer  "resized_resolution", limit: 4
+    t.string   "resolution_note",    limit: 255
+    t.integer  "workstation_id",     limit: 4
+  end
+
+  add_index "projects", ["category_id"], name: "index_projects_on_category_id", using: :btree
+  add_index "projects", ["unit_id"], name: "index_projects_on_unit_id", using: :btree
+  add_index "projects", ["workflow_id"], name: "index_projects_on_workflow_id", using: :btree
+  add_index "projects", ["workstation_id"], name: "index_projects_on_workstation_id", using: :btree
 
   create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
     t.integer "sirsi_metadata_id", limit: 4
@@ -477,38 +511,6 @@ ActiveRecord::Schema.define(version: 20170215164049) do
   add_index "steps", ["fail_step_id"], name: "index_steps_on_fail_step_id", using: :btree
   add_index "steps", ["next_step_id"], name: "index_steps_on_next_step_id", using: :btree
   add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
-
-  create_table "task_equipment", force: :cascade do |t|
-    t.integer  "task_id",      limit: 4
-    t.integer  "equipment_id", limit: 4
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "task_equipment", ["equipment_id"], name: "index_task_equipment_on_equipment_id", using: :btree
-  add_index "task_equipment", ["task_id"], name: "index_task_equipment_on_task_id", using: :btree
-
-  create_table "tasks", force: :cascade do |t|
-    t.integer  "workflow_id",        limit: 4
-    t.integer  "unit_id",            limit: 4
-    t.integer  "owner_id",           limit: 4
-    t.integer  "current_step_id",    limit: 4
-    t.integer  "priority",           limit: 4,   default: 0
-    t.date     "due_on"
-    t.integer  "item_condition",     limit: 4
-    t.datetime "added_at"
-    t.datetime "started_at"
-    t.datetime "finished_at"
-    t.integer  "category_id",        limit: 4
-    t.string   "viu_number",         limit: 255
-    t.integer  "capture_resolution", limit: 4
-    t.integer  "resized_resolution", limit: 4
-    t.string   "resolution_note",    limit: 255
-  end
-
-  add_index "tasks", ["category_id"], name: "index_tasks_on_category_id", using: :btree
-  add_index "tasks", ["unit_id"], name: "index_tasks_on_unit_id", using: :btree
-  add_index "tasks", ["workflow_id"], name: "index_tasks_on_workflow_id", using: :btree
 
   create_table "units", force: :cascade do |t|
     t.integer  "order_id",                       limit: 4,     default: 0,     null: false

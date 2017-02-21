@@ -1,9 +1,9 @@
 <div class="panel history">
    <h3>History</h3>
    <div class="panel_contents">
-      <table class="task-history">
+      <table class="project-history">
          <tr><th>Date</th><th>Step</th><th>Activity</th><th>Owner</th></tr>
-         <% task.assignments.order(assigned_at: :desc).each do |a| %>
+         <% project.assignments.order(assigned_at: :desc).each do |a| %>
 
             <% if !a.finished_at.nil? %>
                <% c="success"
@@ -44,8 +44,8 @@
             </tr>
          <% end %>
          <tr class="create">
-            <td><%= task.added_at.strftime("%F %r") %></td>
-            <td>Task #<%= task.id %></td>
+            <td><%= project.added_at.strftime("%F %r") %></td>
+            <td>Project #<%= project.id %></td>
             <td>Created</td>
             <td></td>
          </tr>

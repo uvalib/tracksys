@@ -1,12 +1,12 @@
 class Assignment < ActiveRecord::Base
    enum status: [:pending, :started, :finished, :rejected, :error]
 
-   belongs_to :task
+   belongs_to :project
    belongs_to :step
    belongs_to :staff_member
    has_one :workflow, :through=>:task
 
-   validates :task,  :presence => true
+   validates :project,  :presence => true
    validates :step,  :presence => true
    validates :staff_member,  :presence => true
 

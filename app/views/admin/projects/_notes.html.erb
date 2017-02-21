@@ -1,10 +1,10 @@
 <div class="panel notes">
    <h3><span>Notes</span><span id="add-note" class="add-icon"></span></h3>
    <div class="panel_contents">
-      <% if task.notes.count == 0 %>
-         <p>There are no notes associated with this task</p>
+      <% if project.notes.count == 0 %>
+         <p>There are no notes associated with this project</p>
       <% else %>
-         <% task.notes.order(created_at: :desc).each do |n| %>
+         <% project.notes.order(created_at: :desc).each do |n| %>
             <%= render partial: "note", locals: {note: n} %>
          <% end %>
       <% end %>
@@ -14,7 +14,7 @@
 <div id="dimmer">
    <div id="note-modal" class="modal">
       <h1>Note</h1>
-      <form id="create-note" method="post" action="/admin/tasks/<%= task.id %>/note">
+      <form id="create-note" method="post" action="/admin/projects/<%= project.id %>/note">
          <div class="content">
             <div class="reject-instruct">
                Rejection requires the addition of a problem note that details the reason why it occurred

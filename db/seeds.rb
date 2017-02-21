@@ -9,11 +9,12 @@
 Equipment.connection.execute("truncate equipment")
 Note.connection.execute("truncate notes")
 Assignment.connection.execute("truncate assignments")
-Task.connection.execute("truncate tasks")
+Project.connection.execute("truncate projects")
 Problem.connection.execute("truncate problems")
 Step.connection.execute("truncate steps")
 Category.connection.execute("truncate categories")
 Workstation.connection.execute("truncate workstations")
+WorkstationEquipment.connection.execute("truncate workstation_equipment")
 
 Workstation.create([{name: 'Jefferson'}, {name: 'Washington'}, {name: 'Lincoln'},
    {name: 'Roosevelt'}, {name: 'Cruse'}, {name: 'Flatbed Scanner'}, {name: 'Multispectral Scanner'}])

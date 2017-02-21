@@ -28,22 +28,44 @@
       }
    }
 }
+table.project-equipment-setup td {
+   padding: 2px;
+   border-bottom: none;
+   font-size: 0.85em;
+}
+input[type=text].edit-camera {
+   width: 100%
+}
+textarea.edit-camera{
+   width: 100%;
+   box-sizing: content-box;
+   border-color: #ccc;
+   outline: none;
+}
+span.mf-action-button.condition {
+   float: right;
+   margin-right: 0px;
+   margin-left: 2px;
+   padding: 0px 10px;
+   font-size: 0.8em;
+   font-weight: normal;
+}
 
-div.task-card.overdue {
+div.project-card.overdue {
    box-shadow: 0px 0px 2px 1px #f00
 }
-div.task-card.green {
+div.project-card.green {
    background: #f0faf0;
    border-color: #6a6;
    h3 {
       background: #a5e5a5;
       border-color: #6a6;
    }
-   .task-footer {
+   .project-footer {
       border-color: #cec;
    }
 }
-div.task-card.slide {
+div.project-card.slide {
    background: #ffe;
    border-color: #aa6;
    color: #660;
@@ -51,22 +73,22 @@ div.task-card.slide {
       background: #ededaf;
       border-color: #aa6;
    }
-   .task-footer {
+   .project-footer {
       border-color: #ddc;
    }
 }
-div.task-card.special {
+div.project-card.special {
    background: #f0f0fa;
    border-color: #66a;
    h3 {
       background: #d0d0f5;
       border-color: #66a;
    }
-   .task-footer {
+   .project-footer {
       border-color: #cce;
    }
 }
-div.task-card {
+div.project-card {
    border: 1px solid #bbb;
    font-size: 0.9em;
    min-width: 450px;
@@ -111,7 +133,7 @@ div.task-card {
          font-weight: bold;
       }
    }
-   .task-body {
+   .project-body {
       position: relative;
       padding: 10px 10px 5px 10px;
       overflow: hidden;
@@ -128,7 +150,7 @@ div.task-card {
    }
 }
 
-.task-footer {
+.project-footer {
    position: relative;
    padding: 10px;
    border-top: 1px solid #ccc;

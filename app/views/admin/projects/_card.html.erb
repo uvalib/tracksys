@@ -1,0 +1,89 @@
+<% # default no class = patron rquest. white
+   tc = "project-card"
+   if project.unit.metadata.collection_facet == "McGregor Grant Collection"
+      tc << " special"
+   elsif project.film?
+      tc << " slide"
+   elsif project.unit.intended_use.id == 110 #digital collection building
+      tc << " green"
+   end
+   tc << " overdue" if project.overdue? %>
+<div class="<%= tc %>">
+   <h3>
+      <a href="/admin/projects/<%=project.id%>">
+         <%= image_tag "info2.png" %>
+         <span class="project"><%= project.project_name %></span>
+      </a>
+      <span class="priority"><%= project.priority.capitalize %> Priority<% if project.overdue? %><span class="overdue">OVERDUE</span><% end %></span>
+   </h3>
+   <div class="project-body">
+      <div class="left">
+         <table>
+            <tr>
+               <td class="label">Order:</td><td><a href="/admin/orders/<%=project.unit.order.id%>"><%= project.unit.order.id %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Unit:</td><td><a href="/admin/units/<%=project.unit.id%>"><%= project.unit.id %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Workflow:</td><td><a href="/admin/workflows/<%=project.workflow.id%>"><%= project.workflow.name %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Category:</td><td><%= project.category %></td>
+            </tr>
+            <tr>
+               <td class="label">Due:</td><td><%= project.due_on %></td>
+            </tr>
+         </table>
+      </div>
+      <div class="right">
+         <table>
+            <tr>
+               <td class="label">Customer:</td><td><a href="/admin/customers/<%=project.customer.id%>"><%= project.customer.name %></a></td>
+            </tr>
+            <tr>
+               <% url = "sirsi_metadata"
+                  url = "xml_metadata" if project.unit.metadata.type=="XmlMetadata" %>
+               <td class="label">Title:</td>
+               <td><a href="/admin/<%= url %>/<%=project.customer.id%>"><%= project.unit.metadata.title.truncate(50, separator: ' ') %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Call #:</td><td><%= project.unit.metadata.call_number %></td>
+            </tr>
+            <tr>
+               <td class="label">Location:</td><td><%= project.unit.metadata.location %></td>
+            </tr>
+            <tr>
+               <td class="label">Intended Use:</td><td><%= project.unit.intended_use.description %></td>
+            </tr>
+         </table>
+      </div>
+   </div>
+   <div class="project-footer">
+      <div class="progress-info">
+         <div class="owner">
+           <%= image_tag "owner.png" %>
+           <span class="owner-name">
+               <% if project.owner.nil? %>
+                  Unassigned
+               <% else %>
+                  <% owner = project.owner %>
+                  <a href='/admin/staff_members/#{owner.id}'><%= owner.full_name %> (<%= owner.computing_id%>)</a>
+               <% end %>
+           </span>
+         </div>
+         <%= render :partial=>"status", :locals=>{ project: project} %>
+      </div>
+      <div class="owner-dd">
+         <% if project.owner.nil? %>
+           <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/projects/<%=project.id%>/claim">Claim</a></div>
+         <% else %>
+           <div class="owner-act disabled">Claim</div>
+         <% end %>
+         <div class="owner-act assign-menu" data-project="<%= project.id %>">Assign</div>
+      </div>
+   </div>
+</div>
+<% if first %>
+   <%= render partial: "assign_staff", locals: {project: project} %>
+<% end %>
