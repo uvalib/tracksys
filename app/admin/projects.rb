@@ -87,10 +87,9 @@ ActiveAdmin.register Project do
             button_to "Start", start_assignment_admin_project_path(),options
          end
          div :class => 'workflow_button project' do
-            options = {:method => :put, :id=>"finish-assignment"}
-            options[:disabled] = true if !project.active_assignment.started? && !project.active_assignment.error?
-            options[:disabled] = true if project.workstation.nil?
-            button_to "Finish", finish_assignment_admin_project_path(),options
+            clazz = "admin-button"
+            clazz << " disabled" if !project.active_assignment.started? && !project.active_assignment.error? || project.workstation.nil?
+            raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
          if project.workstation.nil?
             div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
@@ -130,11 +129,11 @@ ActiveAdmin.register Project do
       render text: "ok"
    end
 
-   member_action :finish_assignment, :method => :put do
+   member_action :finish_assignment, :method => :post do
       project = Project.find(params[:id])
       logger.info("User #{current_user.computing_id} finished workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
-      project.finish_assignment
-      redirect_to "/admin/projects/#{params[:id]}"
+      project.finish_assignment(params[:duration])
+      render nothing: true
    end
 
    member_action :note, :method => :post do

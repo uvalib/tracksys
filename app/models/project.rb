@@ -73,7 +73,7 @@ class Project < ActiveRecord::Base
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
-   def finish_assignment
+   def finish_assignment(duration)
       # First, move any files to thier destination if needed
       begin
          if self.current_step.move_files?
@@ -89,7 +89,7 @@ class Project < ActiveRecord::Base
          return
       end
 
-      self.active_assignment.update(finished_at: Time.now, status: :finished )
+      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: duration )
       if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
          return self.update(finished_at: Time.now, owner: nil, current_step: nil)

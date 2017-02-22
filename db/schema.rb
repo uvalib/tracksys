@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170221161352) do
+ActiveRecord::Schema.define(version: 20170222153053) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -69,13 +69,14 @@ ActiveRecord::Schema.define(version: 20170221161352) do
   add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
 
   create_table "assignments", force: :cascade do |t|
-    t.integer  "project_id",      limit: 4
-    t.integer  "step_id",         limit: 4
-    t.integer  "staff_member_id", limit: 4
+    t.integer  "project_id",       limit: 4
+    t.integer  "step_id",          limit: 4
+    t.integer  "staff_member_id",  limit: 4
     t.datetime "assigned_at"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.integer  "status",          limit: 4, default: 0
+    t.integer  "status",           limit: 4, default: 0
+    t.integer  "duration_minutes", limit: 4
   end
 
   add_index "assignments", ["project_id"], name: "index_assignments_on_project_id", using: :btree

@@ -232,4 +232,23 @@ $(function() {
          }
       });
    });
+
+   // Finish assignment and collect time spent
+   $("#finish-assignment-btn").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
+      var mins = prompt("Approximately how many minutes did you spend on this assignment?");
+      if ( !mins ) return;
+      $.ajax({
+         url: window.location.href+"/finish_assignment",
+         method: "POST",
+         data: { duration: mins },
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to mark assignment as completed:"+jqXHR.responseText);
+            } else {
+               window.location.reload();
+            }
+         }
+      });
+   });
 });
