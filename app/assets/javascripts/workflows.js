@@ -186,6 +186,8 @@ $(function() {
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
+                  $("#finish-assignment").removeAttr("disabled");
+                  $("div.equipment-note").hide();
                } else {
                   $("#viu_number").text( data.viu_number );
                   $("#condition").text( $("#condition-edit option:selected").text() );

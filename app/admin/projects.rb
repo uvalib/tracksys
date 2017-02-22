@@ -87,9 +87,13 @@ ActiveAdmin.register Project do
             button_to "Start", start_assignment_admin_project_path(),options
          end
          div :class => 'workflow_button project' do
-            options = {:method => :put}
+            options = {:method => :put, :id=>"finish-assignment"}
             options[:disabled] = true if !project.active_assignment.started? && !project.active_assignment.error?
+            options[:disabled] = true if project.workstation.nil?
             button_to "Finish", finish_assignment_admin_project_path(),options
+         end
+         if project.workstation.nil?
+            div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
          end
          if !project.current_step.fail_step.nil?
             c = "reject"
