@@ -16,7 +16,7 @@
                <tr class="<%= c %>">
                   <td><%= a.finished_at.strftime("%F %r") %></td>
                   <td><%= a.step.name %></td>
-                  <td><%= t %></td>
+                  <td><span><%= t %><br/><%= a.duration_minutes %> mins</span></td>
                   <td><%= a.staff_member.full_name %></td>
                </tr>
             <% end %>
