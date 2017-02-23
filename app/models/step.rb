@@ -1,5 +1,6 @@
 class Step < ActiveRecord::Base
    enum step_type: [:start, :end, :error, :normal]
+   enum owner_type: [:any_owner, :prior_owner, :unique_owner, :original_owner, :supervisor_owner]
 
    validates :name, :presence => true
 
@@ -17,15 +18,19 @@ class Step < ActiveRecord::Base
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
+      # Neither directory exists; nothing can be done. Raise an exception
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         raise "Neither source nor destination directory exists!"
+         raise "Neither source nor destination directory exist!"
       end
 
+      # Source is gone, but dest exists and has files. Assume the owner
+      # manualy moved the files and bail early
       if !Dir.exists?(src_dir) && Dir.exists?(dest_dir) && Dir[File.join(dest_dir, '**', '*.tif')].count { |file| File.file?(file) } > 0
          Rails.logger.info("Destiation directory #{src_dir} exists, and is populated. Assuming move done manually.")
          return
       end
 
+      # create dest if it doesn't exist, and move each file over. Check MD5.
       Dir.mkdir(dest_dir) if !Dir.exists?(dest_dir)
 
       src_files = Dir["#{src_dir}/*.{tif,xml,mpcatalog}"]
@@ -39,6 +44,7 @@ class Step < ActiveRecord::Base
          end
       end
 
+      # Src is now empty. Remove it.
       FileUtils.rm_r src_dir
    end
 end

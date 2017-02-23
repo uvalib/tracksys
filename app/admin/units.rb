@@ -351,6 +351,7 @@ ActiveAdmin.register Unit do
       end
       row :customer
       row :agency
+      row :project
     end
   end
 

@@ -64,8 +64,8 @@ class Project < ActiveRecord::Base
       return self.due_on <= Date.today
    end
 
-   def reject
-      self.active_assignment.update(finished_at: Time.now, status: :rejected )
+   def reject(duration)
+      self.active_assignment.update(finished_at: Time.now, status: :rejected, duration_minutes: duration )
 
       #find owner of first step and return the project to them
       step_1_owner = self.assignments.order(assigned_at: :asc).first.staff_member
@@ -80,42 +80,54 @@ class Project < ActiveRecord::Base
             self.current_step.move_files(self.unit)
          end
       rescue Exception => e
+         # Any problems moving files around will set the assignment as ERROR and leave it
+         # uncompleted. A note detailing the error will be generated. At this point, the current
+         # user can try again, or manually fix the directories and finsih the step again.
          prob = Problem.find_by(name: "Other")
-         note = "An error occurred moving files after step completion. Not all files have been moved. "
-         note << "Please check and manually move each file. When the problem has been resolved, click finish again."
-         note << "Error details: #{e.to_s}"
+         note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
+         note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
+         note << "<p><b>Error details:</b> #{e.to_s}</p>"
          Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
          self.active_assignment.update(status: :error )
          return
       end
 
+      # Flag current assignment as finished and not estimated time spent. Bail if this is last step
       self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: duration )
       if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
          return self.update(finished_at: Time.now, owner: nil, current_step: nil)
       end
 
-      # Advance to next step, and preserve owner if flagged
+      # Advance to next step, enforcing owner type
       new_step = self.current_step.next_step
-      if self.current_step.propagate_owner
-         Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}], owner perserved")
-         self.update(current_step: new_step)
-         Assignment.create(project: self, staff_member: self.owner, step: new_step)
+      if self.current_step.error?
+         # Completion of an error step is a special case:
+         # Ownership is returned to the QA user that rejected it originally. This assignment is
+         # the last assigned, non-error step
+         orig = self.assignments.joins(:step).where('steps.step_type <> ?', "error").order(assigned_at: :desc).first
+         qa_user = orig.staff_member
+         Rails.logger.info("Workflow [#{self.workflow.name}] returned to [#{new_step.name}] with original QA user [#{qa_user.computing_id}]")
+         self.update(current_step: new_step, owner: qa_user)
+         Assignment.create(project: self, staff_member: qa_user, step: new_step)
       else
-         if self.current_step.error?
-            # if this step is a failure, completion returns it to the prior, non-error
-            # step. Also restore the user who rejected it
-            prior_assign = self.assignments.where(step: new_step).order(assigned_at: :desc).first
-            if !prior_assign.nil?
-               Rails.logger.info("Workflow [#{self.workflow.name}] reassigning failed step [#{new_step.name}] back to original owner")
-               self.update(current_step: new_step, owner: prior_assign.staff_member)
-               Assignment.create(project: self, staff_member: prior_assign.staff_member, step: new_step)
-            else
-               Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
-               self.update(current_step: new_step, owner: nil)
-            end
+         if new_step.prior_owner?
+            # Create a new assignment with staff_member set to current owner. Leave project owner as is.
+            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}], owner perserved")
+            self.update(current_step: new_step)
+            Assignment.create(project: self, staff_member: self.owner, step: new_step)
+         elsif new_step.original_owner?
+            # Send back to the first person assigned this project
+            # Note: no need to check for nil; we are finishing an assignment, so one will always exist
+            first_assign = self.assignments.all.order(assigned_at: :desc).first
+            first_owner = first_assign.staff_member
+            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}] with original owner [#{first_owner.computing_id}]")
+            self.update(current_step: new_step, owner: first_owner)
+            Assignment.create(project: self, staff_member: first_owner, step: new_step)
          else
-            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to next step [#{new_step.name}]")
+            # any, unique or supervisor for this step. Someone must claim it, so set owner nil
+            # user type will be enforced in the CLAIM for these
+            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}]. No owner set.")
             self.update(current_step: new_step, owner: nil)
          end
       end

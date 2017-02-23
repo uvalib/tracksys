@@ -59,10 +59,11 @@ $(function() {
    });
 
    // Reject submit; first require the creation of a problem note-card
-   var submitRejection = function() {
+   var submitRejection = function( mins ) {
       $.ajax({
          url: window.location.href+"/reject_assignment",
          method: "PUT",
+         data: {duration: mins},
          complete: function(jqXHR, textStatus) {
             if ( textStatus == "success" ) {
                window.location.reload();
@@ -74,8 +75,13 @@ $(function() {
    };
    $('#reject-button').on("click", function() {
       if ( $(this).find(".reject").hasClass("disabled") ) return;
+
+      var mins = prompt("Approximately how many minutes did you spend on this assignment?");
+      if ( !mins ) return;
+
       $("#note-modal .reject-instruct").show();
       $("#note-modal").data("rejection", true);
+      $("#note-modal").data("duration", mins);
       $("#dimmer").show();
       $("#note-modal").show();
       $("#note-modal textarea").val("");
@@ -105,7 +111,7 @@ $(function() {
                $("#note-modal").hide();
                $("div.panel.notes .panel_contents").prepend( $(jqXHR.responseJSON.html) );
                if ( $("#note-modal").data("rejection") === true ) {
-                  submitRejection();
+                  submitRejection( $("#note-modal").data("duration") );
                }
             } else {
                alert("Unable to create note: "+jqXHR.responseText);
@@ -186,7 +192,7 @@ $(function() {
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
-                  $("#finish-assignment").removeAttr("disabled");
+                  $("#finish-assignment-btn").removeClass("disabled");
                   $("div.equipment-note").hide();
                } else {
                   $("#viu_number").text( data.viu_number );

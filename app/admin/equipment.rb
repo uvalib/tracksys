@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "Equipment" do
-   menu :parent => "Miscellaneous"
+   menu :parent => "Digitization Workflow"
 
    content do
       div :class => 'workstation-container' do

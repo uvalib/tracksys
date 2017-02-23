@@ -97,10 +97,15 @@ div.panel.notes, div.panel.history {
          }
       }
       .note-text {
-         p {
+         h4 {
+            font-size: 1.1em;
+            color: #700;
             margin: 0;
             padding: 0 0 5px 0;
             font-weight: bold;
+         }
+         p {
+            margin-bottom: 5px;
          }
       }
    }
@@ -222,7 +227,7 @@ p.assign-link {
    border: 1px solid #ccc;
    border-radius: 7px;
    display: inline-block;
-   width: 300px;
+   width: 275px;
    vertical-align: middle;
 }
 .workflow-step.error {

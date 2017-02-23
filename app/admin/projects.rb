@@ -1,5 +1,5 @@
 ActiveAdmin.register Project do
-   menu :priority => 2
+   menu :parent => "Digitization Workflow", :priority => 1
    config.per_page = 10
    config.sort_order = "due_on_asc"
 
@@ -7,6 +7,7 @@ ActiveAdmin.register Project do
    config.clear_action_items!
 
    scope :active, :default => true
+   scope("Assigned to me") { |project| Project.active.where(owner: current_user) }
    scope :bound
    scope :flat
    scope :film
@@ -123,10 +124,11 @@ ActiveAdmin.register Project do
    end
 
    member_action :reject_assignment, :method => :put do
-      project = Project.find(params[:id])
-      logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
-      project.reject
-      render text: "ok"
+      raise(params[:duration])
+      # project = Project.find(params[:id])
+      # logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
+      # project.reject(params[:duration])
+      # render text: "ok"
    end
 
    member_action :finish_assignment, :method => :post do

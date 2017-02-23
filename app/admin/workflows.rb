@@ -1,5 +1,5 @@
 ActiveAdmin.register Workflow do
-   menu :parent => "Miscellaneous"
+   menu :parent => "Digitization Workflow", :priority => 2
 
    # strong paramters handling
    permit_params :name, :description
