@@ -124,11 +124,10 @@ ActiveAdmin.register Project do
    end
 
    member_action :reject_assignment, :method => :put do
-      raise(params[:duration])
-      # project = Project.find(params[:id])
-      # logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
-      # project.reject(params[:duration])
-      # render text: "ok"
+      project = Project.find(params[:id])
+      logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
+      project.reject(params[:duration])
+      render text: "ok"
    end
 
    member_action :finish_assignment, :method => :post do
