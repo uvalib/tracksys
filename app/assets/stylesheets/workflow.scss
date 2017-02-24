@@ -1,8 +1,7 @@
-.workflow_button .reject {
+.workflow_button .admin-button.reject {
    background-color: #c44;
    background-image: none;
    border-color: #a00;
-   width: 100%;
    &:hover {
       background-color: #e66 !important;
       background-image: none !important;

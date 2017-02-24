@@ -1,29 +1,4 @@
 $(function() {
-   /* EDIT WORKFLOWS */
-   $(".step-toolbar.up").on("click", function() {
-
-   });
-
-   $(".step-toolbar.down").on("click", function() {
-
-   });
-
-   $(".step-toolbar.edit").on("click", function() {
-
-   });
-
-   $(".step-toolbar.trash").on("click", function() {
-
-   });
-
-   $(".workflow_button.project").on("click", function() {
-      var btn = $(this).find(':submit');
-      setTimeout(function() {
-         btn.attr("disabled", true);
-         btn.addClass("disabled");
-      }, 50);
-   });
-
    $("#assign-to").chosen({
        no_results_text: "Sorry, no matches found",
        width: "100%"
@@ -58,6 +33,20 @@ $(function() {
       dd.hide();
    });
 
+   var toggleWorkflowButtons = function(enabled) {
+      $(".workflow_button.project .admin-button").each( function() {
+         if ( enabled ) {
+            if ( $(this).hasClass("locked") === false ) {
+               $(this).removeClass("disabled");
+            }
+         } else {
+            if ( $(this).hasClass("disabled") === false ) {
+               $(this).addClass("disabled");
+            }
+         }
+      });
+   };
+
    // Reject submit; first require the creation of a problem note-card
    var submitRejection = function( mins ) {
       $.ajax({
@@ -69,17 +58,66 @@ $(function() {
                window.location.reload();
             } else {
                alert("Unable to reject assignment. Please try again later.");
+               toggleWorkflowButtons(true);
             }
          }
       });
    };
+
+   $("#start-assignment-btn").on("click", function() {
+      var btn = $(this);
+      if ( btn.hasClass("disabled") ) return;
+      toggleWorkflowButtons(false);
+      $.ajax({
+         url: window.location.href+"/start_assignment",
+         method: "PUT",
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus == "success" ) {
+               window.location.reload();
+            } else {
+               alert("Unable to start assignment. Please try again later.");
+               toggleWorkflowButtons(true);
+            }
+         }
+      });
+   });
+
+   $("#finish-assignment-btn").on("click", function() {
+      var btn = $(this);
+      if ( btn.hasClass("disabled") ) return;
+
+      var rawMins = prompt("Approximately how many minutes did you spend on this assignment?");
+      if ( !rawMins ) return;
+      var mins = parseInt(rawMins, 10);
+      if ( !mins ) return;
+
+      toggleWorkflowButtons(false);
+      $.ajax({
+         url: window.location.href+"/finish_assignment",
+         method: "POST",
+         data: { duration: mins },
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to mark assignment as completed:"+jqXHR.responseText);
+               toggleWorkflowButtons(true);
+            } else {
+               window.location.reload();
+            }
+         }
+      });
+   });
+
    $('#reject-button').on("click", function() {
       if ( $(this).find(".reject").hasClass("disabled") ) return;
 
-      var mins = prompt("Approximately how many minutes did you spend on this assignment?");
+      var rawMins = prompt("Approximately how many minutes did you spend on this assignment?");
+      if ( !rawMins ) return;
+      var mins = parseInt(rawMins, 10);
       if ( !mins ) return;
 
+      toggleWorkflowButtons(false);
       $("#note-modal .reject-instruct").show();
+      $("#problem-select").removeClass("invisible");
       $("#note-modal").data("rejection", true);
       $("#note-modal").data("duration", mins);
       $("#dimmer").show();
@@ -99,9 +137,7 @@ $(function() {
    $("#cancel-note").on("click", function() {
       $("#dimmer").hide();
       $("#note-modal").hide();
-      var btn = $("#reject-button").find(":submit");
-      btn.attr("disabled", false);
-      btn.removeClass("disabled");
+      toggleWorkflowButtons(true);
    });
    $('#create-note').submit(function() {
       $(this).ajaxSubmit({
@@ -112,9 +148,12 @@ $(function() {
                $("div.panel.notes .panel_contents").prepend( $(jqXHR.responseJSON.html) );
                if ( $("#note-modal").data("rejection") === true ) {
                   submitRejection( $("#note-modal").data("duration") );
+               } else {
+                  toggleWorkflowButtons(true);
                }
             } else {
                alert("Unable to create note: "+jqXHR.responseText);
+               toggleWorkflowButtons(true);
             }
          }
       });
@@ -234,25 +273,6 @@ $(function() {
                $("#dimmer").hide();
                $("#project-modal").hide();
                $("#show-create-digitization-project").hide();
-            }
-         }
-      });
-   });
-
-   // Finish assignment and collect time spent
-   $("#finish-assignment-btn").on("click", function() {
-      if ( $(this).hasClass("disabled") ) return;
-      var mins = prompt("Approximately how many minutes did you spend on this assignment?");
-      if ( !mins ) return;
-      $.ajax({
-         url: window.location.href+"/finish_assignment",
-         method: "POST",
-         data: { duration: mins },
-         complete: function(jqXHR, textStatus) {
-            if ( textStatus != "success" ) {
-               alert("Unable to mark assignment as completed:"+jqXHR.responseText);
-            } else {
-               window.location.reload();
             }
          }
       });

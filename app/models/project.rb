@@ -64,6 +64,31 @@ class Project < ActiveRecord::Base
       return self.due_on <= Date.today
    end
 
+   def claimable_by? (user)
+      return true if (user.admin? || user.supervisor?)   # admin/supervisor can take anyting
+      return true if self.current_step.any_owner?        # anyone can take an any assignment
+      return false if self.current_step.supervisor_owner? && (user.admin? || user.supervisor?)
+
+      if self.current_step.unique_owner?
+         self.assignments.each do |a|
+            return false if a.staff_member.id == user.id
+         end
+         return true
+      end
+
+      if self.current_step.prior_owner?
+         prior = self.assignments.joins(:step).where('steps.step_type <> ?', "error").order(assigned_at: :desc).first
+         return prior.id == user.id
+      end
+
+      if self.current_step.original_owner?
+         orig = self.assignments.all.order(assigned_at: :asc).first
+         return orig.id == user.id
+      end
+
+      return false
+   end
+
    def reject(duration)
       self.active_assignment.update(finished_at: Time.now, status: :rejected, duration_minutes: duration )
 
@@ -140,8 +165,10 @@ class Project < ActiveRecord::Base
    def percentage_complete
       num_steps = self.workflow.num_steps*3 # each step has 3 parts, assigned, in-process and done
       curr_step = 0
-      self.assignments.each do |a|
-         if !a.step.error?
+      step_ids = []
+      self.assignments.joins(:step).each do |a|
+         if !a.step.error? && !step_ids.include?(a.step.id)
+            step_ids << a.step.id
             curr_step +=1
             curr_step +=1 if !a.started_at.nil?
             curr_step +=1 if !a.finished_at.nil?
@@ -152,18 +179,24 @@ class Project < ActiveRecord::Base
 
    def active_assignment
       return nil if self.assignments.count == 0
-      return self.assignments.last
+      return self.assignments.order(assigned_at: :asc).last
    end
 
    def status_text
+      return "Finished at #{self.finished_at.strftime('%F %r')}" if finished?
       if assignments.count == 0
          s = self.workflow.first_step
          return "#{s.name}: Not assigned"
       else
          s = self.current_step
-         msg = "Not started"
-         msg = "In progress" if assignments.last == s && !assignments.last.started_at.nil?
-         return "#{s.name}: #{msg}"
+         a = self.active_assignment
+         if s == a.step
+            msg = "Not started"
+            msg = "In progress" if assignments.order(assigned_at: :asc).last.started?
+            return "#{s.name}: #{msg}"
+         else
+            return "#{s.name}: Not assigned"
+         end
       end
    end
 

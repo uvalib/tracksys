@@ -67,42 +67,47 @@ ActiveAdmin.register Project do
                project.current_step.name
             end
          end
-         row :owner
-         row ("Assigned") do |project|
-            format_datetime(project.active_assignment.assigned_at) if !project.owner.nil?
-         end
-         row ("Started") do |project|
-            format_datetime(project.active_assignment.started_at) if !project.owner.nil?
-         end
-         row ("Working Directory") do |project|
-            project.current_step.start_dir
+         if !project.finished?
+            row :owner
+            row ("Assigned") do |project|
+               format_datetime(project.active_assignment.assigned_at) if !project.owner.nil?
+            end
+            row ("Started") do |project|
+               format_datetime(project.active_assignment.started_at) if !project.owner.nil?
+            end
+            row ("Working Directory") do |project|
+               project.current_step.start_dir
+            end
          end
       end
    end
 
-   sidebar "Assignment Workflow", :only => [:show] do
+   sidebar "Assignment Workflow", :only => [:show], if: proc{ !project.finished? } do
       if current_user == project.owner
          div :class => 'workflow_button project' do
-            options = {:method => :put}
-            options[:disabled] = true if project.active_assignment.started? || project.active_assignment.error?
-            button_to "Start", start_assignment_admin_project_path(),options
+            clazz = "admin-button"
+            clazz << " disabled locked" if project.active_assignment.started? || project.active_assignment.error?
+            raw("<span class='#{clazz}' id='start-assignment-btn'>Start</span>")
          end
          div :class => 'workflow_button project' do
             clazz = "admin-button"
-            clazz << " disabled" if !project.active_assignment.started? && !project.active_assignment.error? || project.workstation.nil?
+            clazz << " disabled locked" if !project.active_assignment.started? && !project.active_assignment.error? || project.workstation.nil?
             raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
          if project.workstation.nil?
             div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
          end
          if !project.current_step.fail_step.nil?
-            c = "reject"
-            c << " disabled" if !project.active_assignment.started?
-            raw("<div class='workflow_button project' id='reject-button'><input type='submit' class='#{c}' value='Reject'/></div>")
+            div :class => 'workflow_button project' do
+               c = "admin-button reject"
+               c << " disabled locked" if !project.active_assignment.started?
+               raw("<span id='reject-button' class='#{c}'>Reject</span>")
+            end
          end
       else
          div :class => 'workflow_button project' do
             options = {:method => :put}
+            options[:disabled] = true if !project.claimable_by? current_user
             button_to "Claim", "/admin/projects/#{project.id}/claim?details=1", options
          end
          if current_user.admin? || current_user.supervisor?
@@ -120,14 +125,14 @@ ActiveAdmin.register Project do
       project = Project.find(params[:id])
       project.start_work
       logger.info("User #{current_user.computing_id} starting workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
-      redirect_to "/admin/projects/#{params[:id]}"
+      render nothing: true
    end
 
    member_action :reject_assignment, :method => :put do
       project = Project.find(params[:id])
       logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
       project.reject(params[:duration])
-      render text: "ok"
+      render nothing: true
    end
 
    member_action :finish_assignment, :method => :post do
