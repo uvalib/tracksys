@@ -52,11 +52,11 @@ qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100%
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
 fail_qa1 = Step.create( workflow: wf, name: "Fail QA 1", description: "Rescan after failing QA 1", owner_type: :original_owner, step_type: :error)
 
-qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique,
+qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique_owner,
    start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
 fail_qa2 = Step.create( workflow: wf, name: "Fail QA 2", description: "Rescan after failing QA 2", owner_type: :original_owner, step_type: :error)
 
-qa3 = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass (student C 30% check)", owner_type: :unique,
+qa3 = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass (student C 30% check)", owner_type: :unique_owner,
    start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
 fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", owner_type: :original_owner, step_type: :error)
 
