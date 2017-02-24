@@ -89,6 +89,25 @@ class Project < ActiveRecord::Base
       return false
    end
 
+   def total_work_time
+      mins = self.assignments.sum(:duration_minutes)
+      h = mins/60
+      mins -= (h*60)
+      return "#{'%02d' % h}:#{'%02d' % mins}"
+   end
+   def total_wall_time
+      ordered = assignments.order(assigned_at: :asc)
+      return 0 if ordered.count == 0
+      t0 = ordered.first.started_at
+      last_a = ordered.last
+      t1 = DateTime.now
+      t1 = last_a.finished_at if last_a.finished_at.blank?
+      del_mins = (t1.to_i-t0.to_i)/60
+      h = del_mins/60
+      del_mins -= (h*60)
+      return "#{'%02d' % h}:#{'%02d' % del_mins}"
+   end
+
    def reject(duration)
       self.active_assignment.update(finished_at: Time.now, status: :rejected, duration_minutes: duration )
 

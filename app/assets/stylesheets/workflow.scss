@@ -29,6 +29,9 @@ div.mini-button-bar {
    text-align: right;
 }
 
+div.panel.history .panel_contents {
+   padding-top: 0px !important;
+}
 div.panel.notes, div.panel.history {
    background: white;
    border: 1px solid #ccc;
@@ -46,6 +49,18 @@ div.panel.notes, div.panel.history {
        padding: 10px 15px 15px 15px;
        max-height: 800px;
        overflow: scroll;
+   }
+
+   div.time-summary {
+      margin-bottom: 5px;
+      color: #444;
+      span.real {
+         float: right;
+      }
+      label {
+         font-weight: bold;
+         margin-right: 5px;
+      }
    }
 
    div.note-card.comment {

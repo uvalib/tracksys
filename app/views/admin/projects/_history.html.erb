@@ -1,6 +1,14 @@
 <div class="panel history">
    <h3>History</h3>
    <div class="panel_contents">
+      <div class="time-summary">
+         <span class="wall">
+            <label>Total Wall Time:</label><span><%= project.total_wall_time %></span>
+         </span>
+         <span class="real">
+            <label>Total Work Time:</label><span><%= project.total_work_time %></span>
+         </span>
+      </div>
       <table class="project-history">
          <tr><th>Date</th><th>Step</th><th>Activity</th><th>Owner</th></tr>
          <% project.assignments.order(assigned_at: :desc).each do |a| %>
