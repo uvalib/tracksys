@@ -39,30 +39,30 @@ wf = Workflow.create(name: 'Standard', description: "Standard TrackSys workflow"
 scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials",
    step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior,
+process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior_owner,
    start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", owner_type: :prior,
+catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", owner_type: :prior_owner,
    start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Create image metadata", owner_type: :prior,
+metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Create image metadata", owner_type: :prior_owner,
    start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
-qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100% check", owner_type: :prior,
+qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100% check", owner_type: :prior_owner,
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
-fail_qa1 = Step.create( workflow: wf, name: "Fail QA 1", description: "Rescan after failing QA 1", owner_type: :original, step_type: :error)
+fail_qa1 = Step.create( workflow: wf, name: "Fail QA 1", description: "Rescan after failing QA 1", owner_type: :original_owner, step_type: :error)
 
 qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique,
    start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
-fail_qa2 = Step.create( workflow: wf, name: "Fail QA 2", description: "Rescan after failing QA 2", owner_type: :original, step_type: :error)
+fail_qa2 = Step.create( workflow: wf, name: "Fail QA 2", description: "Rescan after failing QA 2", owner_type: :original_owner, step_type: :error)
 
 qa3 = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass (student C 30% check)", owner_type: :unique,
    start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
-fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", owner_type: :original, step_type: :error)
+fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", owner_type: :original_owner, step_type: :error)
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
-   owner_type: :supervisor, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff")
-fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA", owner_type: :original, step_type: :error)
+   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff")
+fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA", owner_type: :original_owner, step_type: :error)
 
 scan.update(next_step_id: process.id)
 process.update(next_step_id: catalog.id)
