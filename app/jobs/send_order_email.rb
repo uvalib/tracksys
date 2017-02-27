@@ -18,6 +18,10 @@ class SendOrderEmail < BaseJob
       order.update_attribute(:date_customer_notified, Time.now)
       on_success("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
-      CreateInvoice.exec_now({:order => order}, self)
+      if order.invoices.count == 0
+         CreateInvoice.exec_now({:order => order}, self)
+      else
+         logger.info "An invoice already exists for order #{order.id}; not creating another."
+      end
    end
 end
