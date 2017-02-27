@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170222182855) do
+ActiveRecord::Schema.define(version: 20170227154158) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -419,7 +419,8 @@ ActiveRecord::Schema.define(version: 20170222182855) do
   add_index "orders", ["order_status"], name: "index_orders_on_order_status", using: :btree
 
   create_table "problems", force: :cascade do |t|
-    t.string "name", limit: 255
+    t.string  "name",        limit: 255
+    t.integer "notes_count", limit: 4,   default: 0
   end
 
   create_table "project_equipment", force: :cascade do |t|
