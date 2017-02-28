@@ -13,4 +13,16 @@ ActiveAdmin.register_page "Staff Skills" do
       end
       render json: out
    end
+
+   page_action :add, :method => :post do
+      c = Category.find(params[:category])
+      params[:ids].each do |id|
+         u = StaffMember.find(id)
+         u.skills << c
+      end
+      render nothing: true
+   end
+
+   page_action :remove, :method => :post do
+   end
 end

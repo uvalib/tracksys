@@ -3,6 +3,7 @@ $(function() {
       var id = $(this).val();
       $("div.staff-skills").empty();
       $("p.staff").show();
+      $("p.staff").removeClass("selected");
       $.getJSON("/admin/staff_skills/staff?skill="+id, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             var template = "<p data-id='ID' class='skilled'>NAME</p>";
@@ -34,6 +35,30 @@ $(function() {
          alert("Please select staff members to assign to the current category.");
          return;
       }
+
+      var ids=[];
+      $("p.staff.selected").each( function() {
+         ids.push( $(this).data("id"));
+      });
+      $.ajax({
+         url: "/admin/staff_skills/add",
+         method: "POST",
+         data: {ids: ids, category: $("#category").val() },
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to assign staff to a category. Please try again later.");
+            } else {
+               var template = "<p data-id='ID' class='skilled'>NAME</p>";
+               $("p.staff.selected").each( function() {
+                  var ele = $(this);
+                  var row = template.replace("ID", ele.data("id")).replace("NAME", ele.text());
+                  $("div.staff-skills").append( $(row) );
+               });
+               $("p.staff.selected").hide();
+               $("p.staff.selected").removeClass("seleted");
+            }
+         }
+      });
    });
 
    $("#unassign-skill").on("click", function() {
