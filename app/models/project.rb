@@ -27,7 +27,7 @@ class Project < ActiveRecord::Base
    scope :film, ->{where(category_id: 3).order(due_on: :asc) }
    scope :oversize, ->{where(category_id: 4).order(due_on: :asc) }
    scope :special, ->{where(category_id: 5).order(due_on: :asc) }
-   scope :unassigned, ->{where(owner: nil).order(due_on: :asc) }
+   scope :unassigned, ->{where(owner: nil).where(finished_at: nil).order(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
    default_scope { order(added_at: :desc) }
 

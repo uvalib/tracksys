@@ -8,11 +8,11 @@ ActiveAdmin.register Project do
 
    scope :active, :default => true
    scope("Assigned to me") { |project| Project.active.where(owner: current_user) }
-   scope :bound
-   scope :flat
-   scope :film
-   scope :oversize
-   scope :special
+   scope :bound, if: proc { current_user.skills.include? Category.find(1) }
+   scope :flat, if: proc { current_user.skills.include? Category.find(2) }
+   scope :film, if: proc { current_user.skills.include? Category.find(3) }
+   scope :oversize, if: proc { current_user.skills.include? Category.find(4) }
+   scope :special, if: proc { current_user.skills.include? Category.find(5) }
    scope :unassigned
    scope :overdue
    scope :all
@@ -199,4 +199,14 @@ ActiveAdmin.register Project do
          redirect_to url, :notice => "Unable to claim project #{project.id}"
       end
    end
+
+   controller do
+      def scoped_collection
+         ids = []
+         current_user.skills.each do |s|
+            ids << s.id
+         end
+         end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
+      end
+  end
 end
