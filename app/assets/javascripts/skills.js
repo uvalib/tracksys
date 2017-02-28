@@ -70,6 +70,26 @@ $(function() {
          alert("Please select staff members to un-assign from the current category.");
          return;
       }
+      var ids=[];
+      $("p.skilled.selected").each( function() {
+         ids.push( $(this).data("id"));
+      });
+      $.ajax({
+         url: "/admin/staff_skills/remove",
+         method: "POST",
+         data: {ids: ids, category: $("#category").val() },
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to un-assign staff. Please try again later.");
+            } else {
+               $("p.skilled.selected").each( function() {
+                  var id = $(this).data("id");
+                  $(this).remove();
+                  $("p.staff[data-id='"+id+"']").show();
+               });
+            }
+         }
+      });
    });
 
 });

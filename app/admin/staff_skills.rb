@@ -24,5 +24,11 @@ ActiveAdmin.register_page "Staff Skills" do
    end
 
    page_action :remove, :method => :post do
+      cid = params[:category].to_i
+      params[:ids].each do |sid|
+         q = "delete from staff_skills where category_id=#{cid} and staff_member_id=#{sid.to_i}"
+         Category.connection.execute(q);
+      end
+      render nothing: true
    end
 end
