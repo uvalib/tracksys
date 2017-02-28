@@ -26,6 +26,7 @@ div.skills-matrix {
       height: 24px;
       select {
          width: 100%;
+         outline: none;
       }
    }
 
@@ -61,18 +62,24 @@ div.skills-matrix {
       }
    }
 
+   p.staff, p.skilled {
+      margin: 0;
+      padding: 4px 10px;
+      cursor: pointer;
+      &:hover {
+         background: #ddf;
+      }
+   }
+   p.staff.selected, p.skilled.selected {
+      background: #bfc;
+      &:hover {
+         background: #bfc;
+      }
+   }
+
    div.staff-panel {
       display: inline-block;
       margin-left: 20px;
       float:left;
-
-      p.staff {
-         margin: 0;
-         padding: 4px 10px;
-         cursor: pointer;
-         &:hover {
-            background: #ddf;
-         }
-      }
    }
 }
