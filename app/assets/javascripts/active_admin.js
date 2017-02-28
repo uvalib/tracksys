@@ -13,6 +13,7 @@
 //= require bulk_dl_settings
 //= require workflows
 //= require equipment
+//= require skills
 //= require codemirror
 //= require_tree ./mode/
 //= require_tree ./addon/

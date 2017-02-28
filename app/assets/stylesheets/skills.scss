@@ -1,0 +1,78 @@
+div.skills-matrix-wrapper {
+   text-align: center;
+}
+div.skills-matrix {
+   display: inline-block;
+   overflow: hidden;
+   clear: both;
+   position: relative;
+   background: #f0f0f0;
+   border: 1px solid #ccc;
+   padding: 20px;
+
+   label.header {
+      font-weight: bold;
+      background: #dcdcdc;
+      display: block;
+      padding: 2px 0;
+      border: 1px solid #ccc;
+   }
+
+   .category-selector {
+      background: white;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      padding: 4px 4px 0 4px;
+      height: 24px;
+      select {
+         width: 100%;
+      }
+   }
+
+   div.skills-panel {
+      display: inline-block;
+      margin-right: 20px;
+      float:left;
+      div.scroller {
+         height: 424px;
+      }
+   }
+
+   div.scroller {
+      border: 1px solid #ccc;
+      width: 250px;
+      height: 450px;
+      margin: 0;
+      overflow: scroll;
+      text-align: left;
+      padding: 0;
+      background: white;
+   }
+
+   div.skill-buttons-panel {
+      display: inline-block;
+      padding: 0;
+      width: 90px;
+      margin: 15% 0;
+      float:left;
+      span.mf-action-button {
+         display: block;
+         margin-bottom: 10px;
+      }
+   }
+
+   div.staff-panel {
+      display: inline-block;
+      margin-left: 20px;
+      float:left;
+
+      p.staff {
+         margin: 0;
+         padding: 4px 10px;
+         cursor: pointer;
+         &:hover {
+            background: #ddf;
+         }
+      }
+   }
+}
