@@ -13,7 +13,9 @@
    <h3>
       <a href="/admin/projects/<%=project.id%>">
          <%= image_tag "info2.png" %>
-         <span class="project"><%= truncate(project.project_name, length: 17, separator: ' ') %></span>
+         <span class="project" title="<%= project.project_name %>">
+            <%= truncate(project.project_name, length: 50, separator: ' ') %>
+         </span>
       </a>
       <span class="priority">
          <% if project.finished? %>
