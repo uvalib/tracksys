@@ -1,5 +1,5 @@
 ActiveAdmin.register JobStatus do
-   menu :priority => 8
+   menu :priority => 8, if: proc{ !current_user.viewer? }
    actions :all, :except => [:edit, :new]
 
    filter :name, :label=>"Workflow"

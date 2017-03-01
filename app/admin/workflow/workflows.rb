@@ -1,5 +1,5 @@
 ActiveAdmin.register Workflow do
-   menu :parent => "Digitization Workflow", :priority => 2
+   menu :parent => "Digitization Workflow", :priority => 2, if: proc{ !current_user.viewer? }
 
    # strong paramters handling
    permit_params :name, :description
