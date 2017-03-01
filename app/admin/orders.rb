@@ -36,6 +36,11 @@ ActiveAdmin.register Order do
    end
 
   config.clear_action_items!
+  action_item :unpaid, :only => :index do
+     if current_user.admin? || current_user.supervisor?
+        raw("<a href='/admin/orders/overdue' target='_blank'>Unpaid Customers</a>")
+     end
+  end
   action_item :new, :only => :index do
      raw("<a href='/admin/orders/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
@@ -318,6 +323,11 @@ ActiveAdmin.register Order do
         link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
       end
     end
+  end
+
+  collection_action :overdue, :method=>:get do
+     report = Order.upaid_customer_report
+     send_file(report.path)
   end
 
   member_action :approve_order, :method => :put do

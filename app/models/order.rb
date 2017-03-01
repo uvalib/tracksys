@@ -1,3 +1,6 @@
+require 'prawn'
+require 'prawn/table'
+
 class Order < ActiveRecord::Base
 
    ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed']
@@ -250,6 +253,59 @@ class Order < ActiveRecord::Base
 
    def generate_notice
        generate_invoice_pdf(self, self.fee_actual)
+   end
+
+   def self.upaid_customer_report
+      p = Axlsx::Package.new
+      p.use_shared_strings = true
+      cids = []
+      p.workbook do |wb|
+         wb.add_worksheet(:name => "Customers with unpaid orders") do |sheet|
+            row_number = 2 # Since title row is 1, we start at 2.
+            sheet.add_row ['Name', 'Email', 'Primary Phone', 'Primary Address', 'Billable Phone', 'Billable Address']
+            self.unpaid.each do |unpaid|
+               c = unpaid.customer
+               next if cids.include? c.id
+               cids << c.id
+               row = []
+               row << c.full_name
+               row << c.email
+               pa = c.primary_address
+               if pa.nil?
+                  row << "N/A"
+                  row << "N/A"
+               else
+                  row << pa.phone if !pa.phone.blank?
+                  row << "N/A" if pa.phone.blank?
+                  if pa.address_1.nil?
+                     row << "N/A"
+                  else
+                     row << pa.short_format
+                  end
+               end
+               ba = c.billable_address
+               if ba.nil?
+                  row << "N/A"
+                  row << "N/A"
+               else
+                  row << ba.phone if !ba.phone.blank?
+                  row << "N/A" if ba.phone.blank?
+                  if ba.address_1.nil?
+                     row << "N/A"
+                  else
+                     row << ba.short_format
+                  end
+               end
+               row = sheet.add_row row
+            end
+         end
+      end
+      p.use_autowidth = true
+      file = Tempfile.new( ['unpaid', '.xlsx'] )
+      file.write(p.to_stream.read)
+      file.rewind
+      file.close
+      return file
    end
 end
 
