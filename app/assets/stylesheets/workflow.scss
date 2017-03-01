@@ -238,7 +238,7 @@ p.assign-link {
 .workflow-step {
    background: white;
    margin: 0;
-   border: 1px solid #ccc;
+   border: 1px solid dodgerblue;
    border-radius: 7px;
    display: inline-block;
    width: 275px;
@@ -247,9 +247,11 @@ p.assign-link {
 .workflow-step.error {
    position: relative;
    left: -8px;
+   border-color: firebrick;
    .step-toolbar {
-      background: #d45;
+      background: indianred;
       color: white;
+      border-color: firebrick;
    }
 }
 .retry-arrow {
@@ -260,23 +262,23 @@ p.assign-link {
       height: 0;
       border-top: 10px solid transparent;
       border-bottom: 10px solid transparent;
-      border-right: 10px solid #88c;
+      border-right: 10px solid dodgerblue;
       position: relative;
       top: 7px;
    }
    .horiz-line.blue {
-      border: 2px solid #88c;
+      border: 2px solid dodgerblue;
    }
 }
 .fail-arrow {
-   left: -3px;
+   left: -4px;
 }
 .fail-arrow, .retry-arrow {
    width: 60px;
    display: inline-block;
    position: relative;
    .horiz-line {
-      border: 2px solid #a55;
+      border: 2px solid firebrick;
       height: 0px;
       width: 45px;
       display: inline-block;
@@ -287,7 +289,7 @@ p.assign-link {
       height: 0;
       border-top: 10px solid transparent;
       border-bottom: 10px solid transparent;
-      border-left: 10px solid #a55;
+      border-left: 10px solid firebrick;
       position: relative;
       top: 7px;
    }
@@ -296,7 +298,7 @@ p.assign-link {
    width: 300px;
    padding-left: 145px;
    .vert-line {
-      border: 2px solid #88c;
+      border: 2px solid dodgerblue;
       width: 0px;
       margin: 0 8px;
       height: 25px;
@@ -306,14 +308,14 @@ p.assign-link {
       height: 0;
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-top: 10px solid #88c;
+      border-top: 10px solid dodgerblue;
    }
 }
 .step-toolbar {
    border-radius: 7px 7px 0 0 ;
    text-align: right;
-   border-bottom: 1px solid #abe;
-   background: #e0f0fa;
+   border-bottom: 1px solid dodgerblue;
+   background: lightskyblue;
    position: relative;
    padding: 2px;
    height: 20px;
