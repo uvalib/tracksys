@@ -1,5 +1,5 @@
 ActiveAdmin.register Invoice do
-   menu :parent => "Miscellaneous"
+   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
    config.batch_actions = false
 
    # strong paramters handling

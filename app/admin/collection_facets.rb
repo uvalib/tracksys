@@ -1,4 +1,6 @@
 ActiveAdmin.register CollectionFacet do
+   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
+   
    # strong paramters handling
    permit_params :name
 
@@ -13,8 +15,6 @@ ActiveAdmin.register CollectionFacet do
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if current_user.admin?
    end
-
-   menu :parent => "Miscellaneous"
 
    index do
       column :name

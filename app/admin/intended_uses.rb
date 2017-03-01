@@ -1,5 +1,5 @@
 ActiveAdmin.register IntendedUse do
-   menu :parent => "Miscellaneous"
+   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
 
    # strong paramters handling
    permit_params :description, :is_internal_use_only, :is_approved, :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit

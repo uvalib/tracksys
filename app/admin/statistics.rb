@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "Statistics" do
-   menu :parent => "Miscellaneous"
+   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
 
    content do
       div :class => 'two-column' do

@@ -1,5 +1,5 @@
 ActiveAdmin.register Department do
-  menu :parent => "Miscellaneous"
+  menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
 
   # strong paramters handling
   permit_params :name

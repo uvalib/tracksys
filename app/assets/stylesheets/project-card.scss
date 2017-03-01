@@ -51,6 +51,9 @@ span.mf-action-button.condition {
    font-weight: normal;
 }
 
+div.project-card.finished {
+   opacity: 0.6;
+}
 div.project-card.overdue {
    box-shadow: 0px 0px 2px 1px #f00
 }

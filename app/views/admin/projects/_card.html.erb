@@ -1,20 +1,27 @@
 <% # default no class = patron rquest. white
    tc = "project-card"
-   if project.unit.metadata.collection_facet == "McGregor Grant Collection"
+   if project.unit.metadata.collection_facet == "McGregor Grant Collection" || project.special?
       tc << " special"
    elsif project.film?
       tc << " slide"
    elsif project.unit.intended_use.id == 110 #digital collection building
       tc << " green"
    end
-   tc << " overdue" if project.overdue? %>
+   tc << " overdue" if project.overdue?
+   tc << " finished" if project.finished? %>
 <div class="<%= tc %>">
    <h3>
       <a href="/admin/projects/<%=project.id%>">
          <%= image_tag "info2.png" %>
          <span class="project"><%= project.project_name %></span>
       </a>
-      <span class="priority"><%= project.priority.capitalize %> Priority<% if project.overdue? %><span class="overdue">OVERDUE</span><% end %></span>
+      <span class="priority">
+         <% if project.finished? %>
+            FINISHED
+         <% else %>
+            <%= project.priority.capitalize %> Priority<% if project.overdue? %><span class="overdue">OVERDUE</span><% end %>
+         <% end %>
+      </span>
    </h3>
    <div class="project-body">
       <div class="left">

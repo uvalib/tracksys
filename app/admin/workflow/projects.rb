@@ -202,11 +202,17 @@ ActiveAdmin.register Project do
 
    controller do
       def scoped_collection
-         ids = []
-         current_user.skills.each do |s|
-            ids << s.id
+         if !current_user.admin? && !current_user.supervisor?
+            ids = []
+            current_user.skills.each do |s|
+               ids << s.id
+            end
+            # Students/editors only see projects that match their skills
+            end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
+         else
+            # Admin and supervisor see all projects
+            end_of_association_chain = Project.all.order(due_on: :asc)
          end
-         end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
       end
   end
 end

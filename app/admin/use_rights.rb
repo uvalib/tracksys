@@ -14,7 +14,7 @@ ActiveAdmin.register UseRight do
       link_to "Edit", edit_resource_path  if current_user.admin?
    end
 
-   menu :parent => "Miscellaneous"
+   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
 
    index do
       column :id
