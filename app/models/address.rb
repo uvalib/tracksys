@@ -5,6 +5,12 @@ class Address < ActiveRecord::Base
   validates :address_1, :country, :city, :presence => {
     :message => 'is required.'
   }
+
+  def short_format
+     addr = self.address_1
+     addr << " #{self.address_2}" if !self.address_2.blank?
+     addr << "\n#{self.city}, #{self.state} #{self.post_code}"
+  end
 end
 
 # == Schema Information
