@@ -61,7 +61,7 @@ class Project < ActiveRecord::Base
    end
 
    def overdue?
-      return self.due_on <= Date.today
+      return !finished? && self.due_on <= Date.today
    end
 
    def claimable_by? (user)
