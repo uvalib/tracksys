@@ -18,8 +18,10 @@
       <span class="priority">
          <% if project.finished? %>
             FINISHED
+         <% elsif project.overdue? %>
+            <span class="overdue">OVERDUE</span>
          <% else %>
-            <%= project.priority.capitalize %> Priority<% if project.overdue? %><span class="overdue">OVERDUE</span><% end %>
+            <%= project.priority.capitalize %> Priority
          <% end %>
       </span>
    </h3>
