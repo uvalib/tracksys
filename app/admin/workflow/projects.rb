@@ -8,11 +8,11 @@ ActiveAdmin.register Project do
 
    scope :active, :default => true
    scope("Assigned to me") { |project| Project.active.where(owner: current_user) }
-   scope :bound, if: proc { current_user.skills.include? Category.find(1) }
-   scope :flat, if: proc { current_user.skills.include? Category.find(2) }
-   scope :film, if: proc { current_user.skills.include? Category.find(3) }
-   scope :oversize, if: proc { current_user.skills.include? Category.find(4) }
-   scope :special, if: proc { current_user.skills.include? Category.find(5) }
+   scope :bound, if: proc { current_user.can_process? Category.find(1)}
+   scope :flat, if: proc { current_user.can_process? Category.find(2) }
+   scope :film, if: proc { current_user.can_process? Category.find(3) }
+   scope :oversize, if: proc { current_user.can_process? Category.find(4) }
+   scope :special, if: proc { current_user.can_process? Category.find(5) }
    scope :unassigned
    scope :overdue
    scope :all

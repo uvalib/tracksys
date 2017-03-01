@@ -11,6 +11,10 @@ class StaffMember < ActiveRecord::Base
       return DEACCESSION_USERS.include? self.computing_id
    end
 
+   def can_process? ( category)
+      return self.skills.include?(category) || self.admin? || self.supervisor? 
+   end
+
    # Returns a boolean value indicating whether the StaffMember is
    # active.
    def active?
