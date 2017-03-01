@@ -221,7 +221,7 @@ p.assign-link {
       background: #6b4;
    }
    .percentage.error {
-      background: #b44;
+      background: #b45;
    }
 }
 
@@ -248,7 +248,7 @@ p.assign-link {
    position: relative;
    left: -8px;
    .step-toolbar {
-      background: #900;
+      background: #d45;
       color: white;
    }
 }
@@ -326,6 +326,16 @@ p.assign-link {
    }
    .step-name.centered {
       position: inherit;
+   }
+   .user-info {
+      font-size: 0.8em;
+      position: absolute;
+      right:0px;
+      .owner {
+         position: absolute;
+         top: 4px;
+         right: 25px;
+      }
    }
 }
 .step-content {
