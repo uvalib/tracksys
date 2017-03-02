@@ -11,6 +11,7 @@
    tc << " finished" if project.finished? %>
 <div class="<%= tc %>">
    <h3>
+      <div class="project-info">
       <a href="/admin/projects/<%=project.id%>">
          <%= image_tag "info2.png" %>
          <span class="project" title="<%= project.project_name %>">
@@ -26,6 +27,8 @@
             <%= project.priority.capitalize %> Priority
          <% end %>
       </span>
+      </div>
+      <div class="due-date"><span class="label">Due:</span><span><%= project.due_on %></span></div>
    </h3>
    <div class="project-body">
       <div class="left">
@@ -43,8 +46,11 @@
                <td class="label">Category:</td><td><%= project.category.name %></td>
             </tr>
             <tr>
-               <td class="label">Due:</td><td><%= project.due_on %></td>
+               <td class="label">Intended Use:</td><td><%= project.unit.intended_use.description %></td>
             </tr>
+            <!-- <tr>
+               <td class="label">Due:</td><td><%= project.due_on %></td>
+            </tr> -->
          </table>
       </div>
       <div class="right">
@@ -62,11 +68,12 @@
                <td class="label">Call #:</td><td><%= project.unit.metadata.call_number %></td>
             </tr>
             <tr>
-               <td class="label">Location:</td><td><%= project.unit.metadata.location %></td>
+               <td class="label">ViU #:</td><td><%= project.viu_number %></td>
             </tr>
             <tr>
-               <td class="label">Intended Use:</td><td><%= project.unit.intended_use.description %></td>
+               <td class="label">Location:</td><td><%= project.unit.metadata.location %></td>
             </tr>
+
          </table>
       </div>
    </div>

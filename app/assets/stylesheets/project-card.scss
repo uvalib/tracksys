@@ -98,6 +98,13 @@ div.project-card {
    background: #f5f5f5;
    h3 {
       position: relative;
+      .due-date {
+         clear: both;
+         text-align: center;
+         padding: 5px 5px 2px 0;
+         .label { font-weight: bold; margin-right: 10px;}
+      }
+      .project-info { overflow: hidden; }
       span.overdue {
          margin-left: 5px;
          color: white;
