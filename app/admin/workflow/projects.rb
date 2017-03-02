@@ -18,7 +18,7 @@ ActiveAdmin.register Project do
    scope :all
 
    filter :workflow, :as => :select, :collection => Workflow.all
-   filter :owner_computing_id, :as => :select, :label => "Owner", :collection => StaffMember.all
+   filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.all
    filter :priority, :as => :select, :collection => Project.priorities
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :unit_id, :as => :numeric, :label => "Unit ID"
