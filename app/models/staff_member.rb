@@ -1,5 +1,5 @@
 class StaffMember < ActiveRecord::Base
-   enum role: [:admin, :supervisor, :editor, :student, :viewer]
+   enum role: [:admin, :supervisor, :student, :viewer]
 
    has_and_belongs_to_many :skills, :join_table=>:staff_skills, :class_name=>"Category"
 
@@ -12,7 +12,7 @@ class StaffMember < ActiveRecord::Base
    end
 
    def can_process? ( category)
-      return self.skills.include?(category) || self.admin? || self.supervisor? 
+      return self.skills.include?(category) || self.admin? || self.supervisor?
    end
 
    # Returns a boolean value indicating whether the StaffMember is

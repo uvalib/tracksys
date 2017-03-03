@@ -207,7 +207,7 @@ ActiveAdmin.register Project do
             current_user.skills.each do |s|
                ids << s.id
             end
-            # Students/editors only see projects that match their skills
+            # Students only see projects that match their skills
             end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
          else
             # Admin and supervisor see all projects
