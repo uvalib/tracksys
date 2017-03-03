@@ -10,9 +10,9 @@ CameraBody,XF,XF2
 CameraBody,RCam,RC1421409.20
 CameraBody,RCam,RC13885315
 CameraBody,RCam,RC13885307
-Lens,0mm f4 AF Lenses,PR001725
-Lens,0mm f4 AF Lenses,PR001595
-Lens,0mm f4 AF Lenses,PR001128
+Lens,120mm f4 AF Lenses,PR001725
+Lens,120mm f4 AF Lenses,PR001595
+Lens,120mm f4 AF Lenses,PR001128
 Lens,80mm f2.8 AF Lenses,PB002305
 Lens,80mm f2.8 AF Lenses,PB002339
 Lens,80mm f2.8 AF Lenses,PB002470
@@ -24,3 +24,5 @@ Lens,RCam 120mm,120B
 Scanner,Epson Expression 11000XL,E1
 Scanner,Epson Perfection 4870 Photo,P1
 Scanner,Cruse,C1
+Scanner,Flatbed,F1
+Scanner,Multispectral,M1
