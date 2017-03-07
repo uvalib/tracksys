@@ -21,10 +21,28 @@ $(function() {
    };
 
    $(".workstation.add").on("click", function() {
-      // TODO
+      var name = prompt("Enter a name for the new workstation");
+      if ( name.length === 0) return;
+
+      $.ajax({
+         url: "/admin/equipment/workstation",
+         method: "POST",
+         data: {name: name},
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to create new workstation. Please try again later");
+            } else {
+               $( jqXHR.responseJSON.html ).prependTo( $("table.workstations") );
+               $("tr.workstation").removeClass("selected");
+               $("tr.workstation[data-id='"+jqXHR.responseJSON.id+"']").addClass("selected");
+               displayNewConfiguration([]);
+               $(".assign-equipment").removeClass("disabled");
+            }
+         }
+      });
    });
 
-   $("tr.workstation").on("click", function() {
+   $("table.workstations").on("click", "tr.workstation",  function() {
       $("tr.workstation").removeClass("selected");
       $(this).addClass("selected");
       var equipList = $(this).data("setup");

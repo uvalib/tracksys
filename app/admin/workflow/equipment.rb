@@ -39,6 +39,12 @@ ActiveAdmin.register_page "Equipment" do
       render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
    end
 
+   page_action :workstation, method: :post do
+      ws = Workstation.create(name: params[:name])
+      html = render_to_string partial: "workstation_row", locals: {ws: ws}
+      render json: { html: html, id: ws.id }
+   end
+
    controller do
        before_filter :get_equipment
        def get_equipment

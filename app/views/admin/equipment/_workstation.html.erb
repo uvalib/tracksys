@@ -6,10 +6,7 @@
          <div class="scroller">
             <table class="workstations">
                <% workstations.each do |ws| %>
-               <tr class="workstation" data-id="<%=ws.id%>" data-setup="<%= ws.equipment.to_json(only: [:id, :name, :type, :serial_number]) %>">
-                  <td><%= ws.name %></td>
-                  <td ><span class="trash ts-icon"></span></td>
-               </tr>
+                  <%= render partial: "workstation_row", locals: {ws: ws} %>
                <% end %>
             </table>
          </div>
