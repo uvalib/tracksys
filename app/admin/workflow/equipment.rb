@@ -40,9 +40,17 @@ ActiveAdmin.register_page "Equipment" do
    end
 
    page_action :workstation, method: :post do
-      ws = Workstation.create(name: params[:name])
-      html = render_to_string partial: "workstation_row", locals: {ws: ws}
-      render json: { html: html, id: ws.id }
+      if ( params[:act] == "create")
+         ws = Workstation.create(name: params[:name])
+         html = render_to_string partial: "workstation_row", locals: {ws: ws}
+         render json: { html: html, id: ws.id }
+      elsif params[:act] == "retire"
+         ws = Workstation.find(params[:id])
+         ws.update(status: 2)
+         render nothing: true
+      else
+         render text: "Unsupported action", status: :bad_request
+      end
    end
 
    controller do

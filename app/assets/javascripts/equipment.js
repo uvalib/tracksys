@@ -27,7 +27,7 @@ $(function() {
       $.ajax({
          url: "/admin/equipment/workstation",
          method: "POST",
-         data: {name: name},
+         data: {act: "create", name: name},
          complete: function(jqXHR, textStatus) {
             if (textStatus != "success") {
                alert("Unable to create new workstation. Please try again later");
@@ -37,6 +37,30 @@ $(function() {
                $("tr.workstation[data-id='"+jqXHR.responseJSON.id+"']").addClass("selected");
                displayNewConfiguration([]);
                $(".assign-equipment").removeClass("disabled");
+            }
+         }
+      });
+   });
+
+   $("table.workstations").on("click", ".trash.ts-icon",  function(e) {
+      var resp = confirm("Are you sure you want to delete this workstation?");
+      if ( !resp ) return;
+      e.stopPropagation();
+      e.preventDefault();
+
+      var tr = $(this).closest("tr");
+      $.ajax({
+         url: "/admin/equipment/workstation",
+         method: "POST",
+         data: {act: "retire", id: tr.data("id")},
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to retire workstation. Please try again later");
+            } else {
+               tr.remove();
+               displayNewConfiguration([]);
+               $(".assign-equipment").removeClass("disabled");
+               $(".assign-equipment").addClass("disabled");
             }
          }
       });
