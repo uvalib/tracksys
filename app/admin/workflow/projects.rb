@@ -8,21 +8,24 @@ ActiveAdmin.register Project do
 
    scope :active, :default => true
    scope("Assigned to me") { |project| Project.active.where(owner: current_user) }
+   scope :unassigned
+   scope :overdue
    scope :bound, if: proc { current_user.can_process? Category.find(1)}
    scope :flat, if: proc { current_user.can_process? Category.find(2) }
    scope :film, if: proc { current_user.can_process? Category.find(3) }
    scope :oversize, if: proc { current_user.can_process? Category.find(4) }
    scope :special, if: proc { current_user.can_process? Category.find(5) }
+   scope :patron
+   scope :digital_collection_building
    scope :grant
-   scope :unassigned
-   scope :overdue
-   scope :all
+   scope :finished
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.all
    filter :priority, :as => :select, :collection => Project.priorities
    filter :order_id, :as => :numeric, :label => "Order ID"
    filter :unit_id, :as => :numeric, :label => "Unit ID"
+   filter :workstation, :as => :select
    filter :due_on
    filter :added_at
 

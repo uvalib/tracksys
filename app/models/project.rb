@@ -23,15 +23,18 @@ class Project < ActiveRecord::Base
    validates :due_on,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
-   scope :bound, ->{where(category_id: 1).order(due_on: :asc) }
-   scope :flat, ->{where(category_id: 2).order(due_on: :asc) }
-   scope :film, ->{where(category_id: 3).order(due_on: :asc) }
-   scope :oversize, ->{where(category_id: 4).order(due_on: :asc) }
-   scope :special, ->{where(category_id: 5).order(due_on: :asc) }
-   scope :unassigned, ->{where(owner: nil).where(finished_at: nil).order(due_on: :asc) }
+   scope :finished, ->{where.not(finished_at: nil).order(due_on: :asc) }
+   scope :bound, ->{active.where(category_id: 1).order(due_on: :asc) }
+   scope :flat, ->{active.where(category_id: 2).order(due_on: :asc) }
+   scope :film, ->{active.where(category_id: 3).order(due_on: :asc) }
+   scope :oversize, ->{active.where(category_id: 4).order(due_on: :asc) }
+   scope :special, ->{active.where(category_id: 5).order(due_on: :asc) }
+   scope :unassigned, ->{active.where(owner: nil).order(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
-   scope :grant, ->{
-      joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
+   scope :patron, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id <> 110")}
+   scope :digital_collection_building, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id = 110")}
+   scope :grant, ->{active
+      .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant" ')}
    default_scope { order(added_at: :desc) }
 
