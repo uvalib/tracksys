@@ -11,6 +11,7 @@ class Project < ActiveRecord::Base
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
+   has_one :order, :through => :unit
 
    has_and_belongs_to_many :equipment, :join_table=>:project_equipment
 
@@ -29,6 +30,9 @@ class Project < ActiveRecord::Base
    scope :special, ->{where(category_id: 5).order(due_on: :asc) }
    scope :unassigned, ->{where(owner: nil).where(finished_at: nil).order(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
+   scope :grant, ->{
+      joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
+      .where('a.name like "% grant" ')}
    default_scope { order(added_at: :desc) }
 
    before_create do

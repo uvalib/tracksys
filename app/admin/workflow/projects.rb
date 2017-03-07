@@ -13,6 +13,7 @@ ActiveAdmin.register Project do
    scope :film, if: proc { current_user.can_process? Category.find(3) }
    scope :oversize, if: proc { current_user.can_process? Category.find(4) }
    scope :special, if: proc { current_user.can_process? Category.find(5) }
+   scope :grant
    scope :unassigned
    scope :overdue
    scope :all
