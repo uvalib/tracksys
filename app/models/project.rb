@@ -52,6 +52,11 @@ class Project < ActiveRecord::Base
       return self.category.name == "Special"
    end
 
+   def grant_funded?
+      return false if self.unit.agency.blank?
+      return self.unit.agency.name.downcase.include? " grant"
+   end
+
    def started?
       return !self.started_at.nil?
    end
