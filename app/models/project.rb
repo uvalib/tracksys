@@ -21,6 +21,7 @@ class Project < ActiveRecord::Base
    validates :workflow,  :presence => true
    validates :unit,  :presence => true
    validates :due_on,  :presence => true
+   validates :item_condition,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
    scope :finished, ->{where.not(finished_at: nil).order(due_on: :asc) }

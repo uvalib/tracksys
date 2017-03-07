@@ -514,7 +514,11 @@ ActiveAdmin.register Unit do
      w = Workflow.find(params[:workflow])
      u = Unit.find(params[:id])
      c = Category.find(params[:category])
-     t = Project.new(workflow: w, unit: u, priority: params[:priority].to_i, category: c, due_on: params[:due])
+     ic = params[:condition]
+     note = params[:notes]
+     t = Project.new(workflow: w, unit: u, priority: params[:priority].to_i,
+        item_condition: ic.to_i, condition_note: note,
+        category: c, due_on: params[:due])
      if t.save
         render text: t.id, status: :ok
      else

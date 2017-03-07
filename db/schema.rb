@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170303194944) do
+ActiveRecord::Schema.define(version: 20170307204744) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -438,7 +438,7 @@ ActiveRecord::Schema.define(version: 20170303194944) do
     t.integer  "unit_id",            limit: 4
     t.integer  "owner_id",           limit: 4
     t.integer  "current_step_id",    limit: 4
-    t.integer  "priority",           limit: 4,   default: 0
+    t.integer  "priority",           limit: 4,     default: 0
     t.date     "due_on"
     t.integer  "item_condition",     limit: 4
     t.datetime "added_at"
@@ -450,6 +450,7 @@ ActiveRecord::Schema.define(version: 20170303194944) do
     t.integer  "resized_resolution", limit: 4
     t.string   "resolution_note",    limit: 255
     t.integer  "workstation_id",     limit: 4
+    t.text     "condition_note",     limit: 65535
   end
 
   add_index "projects", ["category_id"], name: "index_projects_on_category_id", using: :btree

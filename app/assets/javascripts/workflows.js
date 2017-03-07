@@ -261,6 +261,8 @@ $(function() {
          data: { workflow: $("#workflow").val(),
                  category: $("#category").val(),
                  priority: $("#priority").val(),
+                 condition: $("#condition").val(),
+                 notes: $("#condition_notes").val(),
                  due: $("#due_on").val()
          },
          complete: function(jqXHR, textStatus) {

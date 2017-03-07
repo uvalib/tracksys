@@ -108,6 +108,22 @@
                   <input type="text" class="datepicker" id="due_on" value="<%= unit.order.date_due %>"/>
                </td>
             </tr>
+            <tr>
+               <td class="label">Condition</td>
+            </tr>
+               <td colspan="2">
+                  <select id="item_condition">
+                      <% Project.item_conditions.to_a.each do |p| %>
+                          <option value="<%= p[1] %>"><%= p[0] %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="2">
+                  <textarea id="condition_notes"></textarea>
+               </td>
+            </tr>
          </table>
          <div class="buttons">
             <input type="button" id="cancel-project-create" value="Cancel"/>
