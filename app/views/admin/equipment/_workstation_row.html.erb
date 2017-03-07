@@ -1,4 +1,5 @@
 <tr class="workstation" data-id="<%=ws.id%>" data-setup="<%= ws.equipment.to_json(only: [:id, :name, :type, :serial_number]) %>">
+   <td ><span class="ws-status <%= ws.status %>"></span></td>
    <td><%= ws.name %></td>
    <td ><span class="trash ts-icon"></span></td>
 </tr>

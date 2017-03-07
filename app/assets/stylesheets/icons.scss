@@ -7,7 +7,7 @@
    background-repeat: no-repeat;
    background-position: center center;
    opacity: 0.4;
-
+   position: relative;
    &:hover {
       opacity: 1;
       background-color: transparent;
@@ -20,6 +20,7 @@
 }
 .ts-icon.trash {
    background-image: image_url("trash.png");
+   top: 1px;
 }
 .ts-icon.edit {
    background-image: image_url("edit2.png");
@@ -33,4 +34,26 @@
 .ts-icon.up {
    background-image: image_url("up.png");
    margin: 0 5px;
+}
+
+.ws-status {
+   display: inline-block;
+   width: 14px;
+   height: 14px;
+   cursor: pointer;
+   border-radius: 10px;
+   position: relative;
+   top: 2px;
+}
+.ws-status.active {
+   background-color: #0c0;
+   &:hover {
+      background-color: #090;
+   }
+}
+.ws-status.inactive {
+   background-color: #ccc;
+   &:hover {
+      background-color: #aaa;
+   }
 }

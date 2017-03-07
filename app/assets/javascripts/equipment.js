@@ -42,6 +42,34 @@ $(function() {
       });
    });
 
+
+   $("table.workstations").on("click", ".ws-status",  function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      var statusIcon = $(this);
+      var active = statusIcon.hasClass("active");
+      var tr = $(this).closest("tr");
+      $.ajax({
+         url: "/admin/equipment/workstation",
+         method: "POST",
+         data: {act: "status", active: !active, id: tr.data("id") },
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to deactivate workstation. Please try again later");
+            } else {
+               if ( active ) {
+                  statusIcon.removeClass("active");
+                  statusIcon.addClass("inactive");
+               } else {
+                  statusIcon.addClass("active");
+                  statusIcon.removeClass("inactive");
+               }
+            }
+         }
+      });
+   });
+
    $("table.workstations").on("click", ".trash.ts-icon",  function(e) {
       var resp = confirm("Are you sure you want to delete this workstation?");
       if ( !resp ) return;

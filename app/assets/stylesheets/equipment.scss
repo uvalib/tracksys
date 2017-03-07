@@ -20,12 +20,13 @@ div.panel.workstation {
       position: relative;
    }
    div.scroller {
-      width: 200px;
+      width: 225px;
       height: 120px;
       overflow: scroll;
       display: inline-block;
       background: white;
       border: 1px solid #ccc;
+      table.workstations {padding: 4px;}
       td {padding: 2px 6px;}
       .workstation {
          padding: 2px 10px;
@@ -36,9 +37,9 @@ div.panel.workstation {
          }
       }
       .workstation.selected {
-         background: #bfc;
+         background: #c0fad0;
          &:hover {
-            background: #bfc;
+            background: #c0fad0;
          }
       }
    }

@@ -48,6 +48,14 @@ ActiveAdmin.register_page "Equipment" do
          ws = Workstation.find(params[:id])
          ws.update(status: 2)
          render nothing: true
+      elsif params[:act] == "status"
+         ws = Workstation.find(params[:id])
+         if (params[:active] == "true")
+            ws.update(status: 0)
+         else
+            ws.update(status: 1)
+         end
+         render nothing: true
       else
          render text: "Unsupported action", status: :bad_request
       end
