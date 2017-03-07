@@ -1,4 +1,41 @@
 $(function() {
+
+   $(".sel-cb").on("click", function() {
+      var checked = $(this).is(":checked");
+      var cn = "."+$(this).attr('class').replace(/\s/, ".");
+      $(cn).prop('checked', false);
+      $(this).prop('checked', checked);
+   });
+
+   var displayNewConfiguration = function(equipList) {
+      $("table.setup").empty();
+      var rows = "";
+      $.each(equipList, function(idx,val) {
+         rows += "<tr>";
+         rows += "<td>"+val.type+"</td>";
+         rows += "<td>"+val.name+"</td>";
+         rows += "<td>"+val.serial_number+"</td>";
+         rows += "</tr>";
+      });
+      $( rows ).prependTo( $("table.setup") );
+   };
+
+   $(".workstation.add").on("click", function() {
+      // TODO
+   });
+
+   $("tr.workstation").on("click", function() {
+      $("tr.workstation").removeClass("selected");
+      $(this).addClass("selected");
+      var equipList = $(this).data("setup");
+      displayNewConfiguration(equipList);
+      $(".sel-cb").prop('checked', false);
+      $.each(equipList, function(idx,val) {
+         $(".sel-cb[data-id='"+val.id+"']").prop('checked', true);
+      });
+      $(".assign-equipment").removeClass("disabled");
+   });
+
    $(".assign-equipment").on("click", function(){
       if ( $(this).hasClass("disabled") ) return;
       var picks = {bodies: null, backs: null, lenses: null, scanners: null};
@@ -30,11 +67,16 @@ $(function() {
       if ( failed ) {
          return;
       }
+      if ( camera && ids.length != 3) {
+         alert("Incomplete camera assembly specified");
+         return false;
+      }
 
-      var data = {workstation: $(this).data("workstation"), equipment: ids, camera: camera};
+      var wsId = $("tr.workstation.selected").data("id");
+      var data = {workstation: wsId, equipment: ids, camera: camera};
       var btn = $(this);
       btn.addClass("disabled");
-      var setup = btn.closest(".ws-card").find(".setup");
+      var setup = $("table.setup");
       $.ajax({
          url: "/admin/equipment/assign",
          method: "POST",
@@ -44,8 +86,8 @@ $(function() {
             if (textStatus != "success") {
                alert("Unable to assign equipment. Please try again later");
             } else {
-               setup.empty();
-               $( jqXHR.responseJSON.html ).prependTo(setup);
+               displayNewConfiguration(jqXHR.responseJSON);
+               $("tr.workstation.selected").data("setup", jqXHR.responseJSON);
             }
          }
       });

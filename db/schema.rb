@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170227154158) do
+ActiveRecord::Schema.define(version: 20170303194944) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -575,8 +575,9 @@ ActiveRecord::Schema.define(version: 20170227154158) do
 
   create_table "workstations", force: :cascade do |t|
     t.string   "name",       limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",     limit: 4,   default: 0
   end
 
   add_foreign_key "attachments", "units"

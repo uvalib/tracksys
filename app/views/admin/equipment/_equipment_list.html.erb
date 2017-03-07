@@ -1,14 +1,14 @@
 <div class="panel equipment">
-   <h3><%= title %></h3>
+   <h3><span><%= title %></span><span id="add-note" class="add ts-icon"></span></h3>
    <table class="<%= clazz %>">
       <tr><th></th><th>Name</th><th>Serial Number</th><th></th></tr>
       <% odd="" %>
       <% equipment.each do |e| %>
          <tr class="<%=odd%>">
-            <td class="sel"><input class="sel-cb" type="checkbox" data-id="<%= e.id %>"/></td>
+            <td class="sel"><input class="sel-cb <%= clazz %>" type="checkbox" data-id="<%= e.id %>"/></td>
             <td><%= e.name %></td>
             <td><%= e.serial_number %></td>
-            <td></td>
+            <td><span id="add-note" class="trash ts-icon"></span></td>
          </tr>
          <%  if odd.blank?
                odd = "odd"

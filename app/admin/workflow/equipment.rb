@@ -3,7 +3,9 @@ ActiveAdmin.register_page "Equipment" do
 
    content do
       div :class => 'workstation-container' do
-         render partial: "workstation", locals: { workstations: workstations}
+         div :class => 'block' do
+            render partial: "workstation", locals: { workstations: workstations}
+         end
       end
 
       div :class => 'columns-none' do
@@ -29,20 +31,12 @@ ActiveAdmin.register_page "Equipment" do
 
    page_action :assign, method: :post do
       ws = Workstation.find(params['workstation'])
+      ws.equipment.clear
       params['equipment'].each do |id|
          e = Equipment.find(id)
-         if e.type == "Scanner"
-            ws.equipment.clear
-         else
-            s = ws.equipment.find_by(type: "Scanner")
-            s.destroy if !s.nil?
-            s = ws.equipment.find_by(type: e.type)
-            s.destroy if !s.nil?
-         end
          ws.equipment << e
       end
-      html = render_to_string partial: "setup", locals: {equipment: ws.equipment}
-      render json: {html: html}
+      render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
    end
 
    controller do

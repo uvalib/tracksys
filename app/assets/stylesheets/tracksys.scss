@@ -1,35 +1,4 @@
 body.active_admin {
-   .down {
-      background-image: image_url("down.png");
-   }
-
-   .up {
-      background-image: image_url("up.png");
-   }
-   .trash {
-      background-image: image_url("trash.png");
-   }
-   .edit {
-      background-image: image_url("edit2.png");
-   }
-
-   .down, .up, .trash, .edit {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      display: inline-block;
-      margin: 0 5px 0 0;
-      position: relative;
-      top: 2px;
-      background-repeat: no-repeat;
-      background-position: center center;
-      opacity: 0.5;
-
-      &:hover {
-         opacity: 1;
-         background-color: #def;
-      }
-   }
 
    #search-status-_sidebar_section {
       display: none;

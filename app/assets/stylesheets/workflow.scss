@@ -171,24 +171,6 @@ div.panel.notes, div.panel.history {
    }
 }
 
-.add-icon {
-   float:right;
-   width: 16px;
-   height: 16px;
-   cursor: pointer;
-   display: inline-block;
-   border-radius: 10px;
-   background-image: image_url("add.png");
-   background-repeat: no-repeat;
-   background-position: center center;
-   opacity: 0.5;
-
-   &:hover {
-      opacity: 1;
-      background-color: #def;
-   }
-}
-
 p.assign-link {
    color: #38678b;
    text-decoration: underline;

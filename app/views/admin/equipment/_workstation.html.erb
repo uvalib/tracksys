@@ -1,25 +1,26 @@
 <div class="panel workstation">
-   <h3>Workstations</h3>
+   <h3><span>Workstations</span><span id="add-note" class="workstation add ts-icon"></span></h3>
    <div class="content">
-      <% cnt = 0 %>
-      <% workstations.each do |ws| %>
-         <% if cnt == 0 %>
-            <div class="ws-row">
-         <% elsif cnt % 3 == 0 %>
-            </div>
-            <div class="ws-row">
-         <% end %>
-         <div class="ws-card">
-            <h4><%= ws.name %></h4>
-            <table class="setup">
-               <%= render partial: "setup", locals: { equipment: ws.equipment} %>
+      <div class="workstation-list">
+         <h4>Workstation</h4>
+         <div class="scroller">
+            <table class="workstations">
+               <% workstations.each do |ws| %>
+               <tr class="workstation" data-id="<%=ws.id%>" data-setup="<%= ws.equipment.to_json(only: [:id, :name, :type, :serial_number]) %>">
+                  <td><%= ws.name %></td>
+                  <td ><span class="trash ts-icon"></span></td>
+               </tr>
+               <% end %>
             </table>
-            <div class="btn-container">
-               <span data-workstation="<%= ws.id %>" class="assign-equipment btn">Assign Selected Equipment</span>
-            </div>
          </div>
-         <% cnt += 1 %>
-      <% end %>
+      </div>
+      <div class="workstation-setup">
+         <h4>Setup</h4>
+         <table class="setup">
+         </table>
+         <div class="btn-container">
+            <span class="assign-equipment btn disabled">Assign Selected Equipment</span>
+         </div>
       </div>
    </div>
 </div>
