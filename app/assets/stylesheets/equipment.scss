@@ -108,6 +108,13 @@ div.panel.equipment {
          background-color: #efefef;
          opacity: 0.7;
       }
+      span.assigned-ws {
+         font-size: 0.9em;
+         color: #666;
+         float:right;
+         position: relative;
+         top: 2px;
+      }
       th {
          background: #e0e5fc;
          color: #446;
