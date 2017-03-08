@@ -17,20 +17,18 @@ div :class => 'columns-none' do
             row("Title") do |project|
                project.unit.metadata.title
             end
-            row :item_condition do |project|
-               sel = "<select id='condition-edit' class='hidden edit-item'>"
-               Project.item_conditions.to_a.each do |c|
-                  sel << "<option value='#{c[1]}'>#{c[0]}</option>"
-               end
-               sel << "</select>"
-               raw("<span class='disp-item' id='condition'>#{project.item_condition}</span>#{sel}")
-            end
             row ("Special Instructions") do |project|
                si = []
                si << "#{project.order.special_instructions}" if !project.order.special_instructions.blank?
                si << "#{project.unit.special_instructions}" if !project.unit.special_instructions.blank?
                si << "None" if si.length == 0
                raw("#{si.join('<br/>')}")
+            end
+            row :item_condition do |project|
+               project.item_condition
+            end
+            row ("Condition Notes") do |project|
+               project.condition_note
             end
          end
          if current_user == project.owner
