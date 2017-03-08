@@ -25,9 +25,9 @@ $(function() {
       if ( name.length === 0) return;
 
       $.ajax({
-         url: "/admin/equipment/workstation",
+         url: "/admin/workstations",
          method: "POST",
-         data: {act: "create", name: name},
+         data: {name: name},
          complete: function(jqXHR, textStatus) {
             if (textStatus != "success") {
                alert("Unable to create new workstation. Please try again later");
@@ -42,8 +42,7 @@ $(function() {
       });
    });
 
-
-   $("table.workstations").on("click", ".ws-status",  function(e) {
+   $("table.workstations").on("click", ".equipment-status",  function(e) {
       e.stopPropagation();
       e.preventDefault();
 
@@ -51,12 +50,12 @@ $(function() {
       var active = statusIcon.hasClass("active");
       var tr = $(this).closest("tr");
       $.ajax({
-         url: "/admin/equipment/workstation",
-         method: "POST",
-         data: {act: "status", active: !active, id: tr.data("id") },
+         url: "/admin/workstations/"+tr.data("id"),
+         method: "PUT",
+         data: {active: !active},
          complete: function(jqXHR, textStatus) {
             if (textStatus != "success") {
-               alert("Unable to deactivate workstation. Please try again later");
+               alert("Unable to change workstation activation status:\n\n"+jqXHR.responseText);
             } else {
                if ( active ) {
                   statusIcon.removeClass("active");
@@ -71,24 +70,40 @@ $(function() {
    });
 
    $("table.workstations").on("click", ".trash.ts-icon",  function(e) {
-      var resp = confirm("Are you sure you want to delete this workstation?");
+      var resp = confirm("Are you sure you want to retire this workstation?");
       if ( !resp ) return;
       e.stopPropagation();
       e.preventDefault();
 
       var tr = $(this).closest("tr");
       $.ajax({
-         url: "/admin/equipment/workstation",
-         method: "POST",
-         data: {act: "retire", id: tr.data("id")},
+         url: "/admin/workstations/"+tr.data("id"),
+         method: "DELETE",
          complete: function(jqXHR, textStatus) {
             if (textStatus != "success") {
-               alert("Unable to retire workstation. Please try again later");
+               alert("Unable to retire workstation:\n\n"+jqXHR.responseText);
             } else {
                tr.remove();
                displayNewConfiguration([]);
                $(".assign-equipment").removeClass("disabled");
                $(".assign-equipment").addClass("disabled");
+            }
+         }
+      });
+   });
+
+   $("table.equipment").on("click", ".trash.ts-icon",  function() {
+      var resp = confirm("Are you sure you want to retire this equipment?");
+      if ( !resp ) return;
+      var tr = $(this).closest("tr");
+      $.ajax({
+         url: "/admin/equipment/"+tr.data("id"),
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to retire equipment:\n\n"+jqXHR.responseText);
+            } else {
+               tr.remove();
             }
          }
       });

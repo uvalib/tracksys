@@ -48,8 +48,8 @@ div :class => 'columns-none' do
                v = project.workstation.name if !project.workstation.blank?
                disp = "<span class='disp-camera' id='workstation'>#{v}</span>"
                sel = "<select id='workstation-edit' class='hidden edit-camera'>"
-               sel << "<option value=''></option>"
-               Workstation.all.each do |w|
+               sel << "<option value=''>Choose a workstation</option>"
+               Workstation.available.each do |w|
                   sel << "<option value='#{w.id}'>#{w.name}</option>"
                end
                sel << "</select>"

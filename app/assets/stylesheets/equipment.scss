@@ -20,7 +20,7 @@ div.panel.workstation {
       position: relative;
    }
    div.scroller {
-      width: 225px;
+      width: 300px;
       height: 120px;
       overflow: scroll;
       display: inline-block;
@@ -28,6 +28,13 @@ div.panel.workstation {
       border: 1px solid #ccc;
       table.workstations {padding: 4px;}
       td {padding: 2px 6px;}
+      .project-cnt {
+         font-size: 0.8em;
+         color: #999;
+         float:right;
+         position: relative;
+         top: 2px;
+      }
       .workstation {
          padding: 2px 10px;
          margin: 0;
@@ -97,6 +104,10 @@ div.panel.equipment {
       tr.odd {
          background-color: #eff5ff;
       }
+      tr.assigned {
+         background-color: #efefef;
+         opacity: 0.7;
+      }
       th {
          background: #e0e5fc;
          color: #446;
@@ -105,6 +116,10 @@ div.panel.equipment {
       }
       td.sel {
          width: 10px;
+      }
+      td.status {
+         width: 24px;
+         text-align: center;
       }
    }
 }

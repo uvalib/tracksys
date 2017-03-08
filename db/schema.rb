@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170307204744) do
+ActiveRecord::Schema.define(version: 20170308153921) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -204,8 +204,9 @@ ActiveRecord::Schema.define(version: 20170307204744) do
     t.string   "type",          limit: 255
     t.string   "name",          limit: 255
     t.string   "serial_number", limit: 255
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.integer  "status",        limit: 4,   default: 0
   end
 
   create_table "image_tech_meta", force: :cascade do |t|

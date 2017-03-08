@@ -1,5 +1,12 @@
 <tr class="workstation" data-id="<%=ws.id%>" data-setup="<%= ws.equipment.to_json(only: [:id, :name, :type, :serial_number]) %>">
-   <td ><span class="ws-status <%= ws.status %>"></span></td>
-   <td><%= ws.name %></td>
+   <td >
+      <% cn = "inactive"
+         cn = "active" if ws.available? %>
+      <span class="equipment-status <%= cn %>"></span>
+   </td>
+   <td>
+      <span class="name"><%= ws.name %></span>
+      <span class="project-cnt">Projects: <%= ws.active_project_count %></span>
+   </td>
    <td ><span class="trash ts-icon"></span></td>
 </tr>

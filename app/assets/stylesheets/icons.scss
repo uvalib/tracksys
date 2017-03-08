@@ -36,7 +36,7 @@
    margin: 0 5px;
 }
 
-.ws-status {
+.equipment-status {
    display: inline-block;
    width: 14px;
    height: 14px;
@@ -45,13 +45,13 @@
    position: relative;
    top: 2px;
 }
-.ws-status.active {
+.equipment-status.active {
    background-color: #0c0;
    &:hover {
       background-color: #090;
    }
 }
-.ws-status.inactive {
+.equipment-status.inactive {
    background-color: #ccc;
    &:hover {
       background-color: #aaa;

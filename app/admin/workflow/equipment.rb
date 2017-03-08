@@ -39,28 +39,6 @@ ActiveAdmin.register_page "Equipment" do
       render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
    end
 
-   page_action :workstation, method: :post do
-      if ( params[:act] == "create")
-         ws = Workstation.create(name: params[:name])
-         html = render_to_string partial: "workstation_row", locals: {ws: ws}
-         render json: { html: html, id: ws.id }
-      elsif params[:act] == "retire"
-         ws = Workstation.find(params[:id])
-         ws.update(status: 2)
-         render nothing: true
-      elsif params[:act] == "status"
-         ws = Workstation.find(params[:id])
-         if (params[:active] == "true")
-            ws.update(status: 0)
-         else
-            ws.update(status: 1)
-         end
-         render nothing: true
-      else
-         render text: "Unsupported action", status: :bad_request
-      end
-   end
-
    controller do
        before_filter :get_equipment
        def get_equipment
@@ -69,6 +47,16 @@ ActiveAdmin.register_page "Equipment" do
           @lenses = Lens.all.order(name: :asc)
           @scanners = Scanner.all.order(name: :asc)
           @workstations = Workstation.all.order(name: :asc)
+       end
+
+       def destroy
+          e = Equipment.find(params[:id])
+          if e.workstation.nil?
+             e.update(status: 2)
+             render nothing: true
+          else
+             render text: "#{e.name} is assigned to workstation #{e.workstation.name}", status: :error and return
+          end
        end
     end
 end
