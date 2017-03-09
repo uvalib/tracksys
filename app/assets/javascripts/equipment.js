@@ -212,4 +212,37 @@ $(function() {
          }
       });
    });
+
+   $("div.panel.equipment").on("click", ".equipment-status",  function(e) {
+      var statusIcon = $(this);
+      var active = !statusIcon.hasClass("active");
+      var tr = $(this).closest("tr");
+      var workstation = tr.data("workstation");
+      $.ajax({
+         url: "/admin/equipment/"+tr.data("id"),
+         method: "PUT",
+         data: {active: active},
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to update equipment:\n\n"+jqXHR.responseText);
+            } else {
+               if ( active ) {
+                  statusIcon.addClass("active");
+                  statusIcon.removeClass("inactive");
+               } else {
+                  statusIcon.removeClass("active");
+                  statusIcon.addClass("inactive");
+                  if ( workstation ) {
+                     var wsRow = $("tr.workstation[data-id='"+workstation+"']");
+                     var st = wsRow.find(".equipment-status");
+                     if (st.hasClass("inactive") === false ) {
+                        st.removeClass("active");
+                        st.addClass("inactive");
+                     }
+                  }
+               }
+            }
+         }
+      });
+   });
 });

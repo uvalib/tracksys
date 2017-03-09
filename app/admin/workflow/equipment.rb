@@ -60,16 +60,16 @@ ActiveAdmin.register_page "Equipment" do
        end
 
        def update
-         #  ws = Workstation.find(params[:id])
-         #  if (params[:active] == "true")
-         #     if ws.equipment_ready?
-         #        ws.update(status: 0)
-         #     else
-         #        render text: "Equipment is not ready", status: :error and return
-         #     end
-         #  else
-         #     ws.update(status: 1)
-         #  end
+          e = Equipment.find(params[:id])
+          if (params[:active] == "true")
+             e.update(status: 0)
+          else
+             e.update(status: 1)
+             ws = e.workstation
+             if !ws.nil?
+                ws.update(status: 1)
+             end
+          end
           render nothing: true
        end
 
