@@ -92,23 +92,6 @@ $(function() {
       });
    });
 
-   $("table.equipment").on("click", ".trash.ts-icon",  function() {
-      var resp = confirm("Are you sure you want to retire this equipment?");
-      if ( !resp ) return;
-      var tr = $(this).closest("tr");
-      $.ajax({
-         url: "/admin/equipment/"+tr.data("id"),
-         method: "DELETE",
-         complete: function(jqXHR, textStatus) {
-            if (textStatus != "success") {
-               alert("Unable to retire equipment:\n\n"+jqXHR.responseText);
-            } else {
-               tr.remove();
-            }
-         }
-      });
-   });
-
    $("table.workstations").on("click", "tr.workstation",  function() {
       $("tr.workstation").removeClass("selected");
       $(this).addClass("selected");
@@ -173,6 +156,58 @@ $(function() {
             } else {
                displayNewConfiguration(jqXHR.responseJSON);
                $("tr.workstation.selected").data("setup", jqXHR.responseJSON);
+            }
+         }
+      });
+   });
+
+   $("div.panel.equipment").on("click", ".trash.ts-icon",  function() {
+      var resp = confirm("Are you sure you want to retire this equipment?");
+      if ( !resp ) return;
+      var tr = $(this).closest("tr");
+      $.ajax({
+         url: "/admin/equipment/"+tr.data("id"),
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to retire equipment:\n\n"+jqXHR.responseText);
+            } else {
+               tr.remove();
+            }
+         }
+      });
+   });
+
+   $(".equipment.add").on("click", function() {
+      $("div.add-equipment").hide();
+      var addPanel = $(this).closest(".panel.equipment").find("div.add-equipment");
+      addPanel.find("input").val("");
+      addPanel.show();
+      addPanel.find("input.name").focus();
+   });
+
+   $(".equipment.cancel").on("click", function() {
+      $(this).closest("div.add-equipment").hide();
+   });
+
+   $(".equipment.save").on("click", function() {
+      var addPanel =$(this).closest("div.add-equipment");
+      var equipTable = addPanel.closest(".panel.equipment").find("table.equipment");
+      var data = {
+         type: addPanel.data("type"),
+         name: addPanel.find("input.name").val(),
+         serial: addPanel.find("input.serial").val()};
+      $.ajax({
+         url: "/admin/equipment",
+         method: "POST",
+         data: data,
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Unable to create new equipment:\n\n"+jqXHR.responseText);
+            } else {
+               equipTable.remove();
+               addPanel.after( $(jqXHR.responseJSON.html) );
+               addPanel.hide();
             }
          }
       });

@@ -25,7 +25,7 @@ Tracksys::Application.routes.draw do
      # Weird. The file /admin/equipment is made with register_page so it
      # has none of the basic CRUD actions defined automatically. Add them
      # here manually
-     resources :equipment, only: [:destroy]
+     resources :equipment, only: [:destroy, :create, :update]
   end
 
   namespace :api do

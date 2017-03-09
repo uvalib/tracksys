@@ -10,21 +10,21 @@ ActiveAdmin.register_page "Equipment" do
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Camera Bodies", equipment: bodies, clazz: 'bodies'}
+            render partial: "equipment_list", locals: {title:"Camera Bodies", equipment: bodies, type: 'CameraBody'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Lenses", equipment: lenses, clazz: 'lenses'}
+            render partial: "equipment_list", locals: {title:"Lenses", equipment: lenses, type: 'Lens'}
          end
       end
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Digital Backs", equipment: backs, clazz: 'backs'}
+            render partial: "equipment_list", locals: {title:"Digital Backs", equipment: backs, type: 'DigitalBack'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners, clazz: 'scanners'}
+            render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners, type: 'Scanner'}
          end
       end
    end
@@ -47,6 +47,30 @@ ActiveAdmin.register_page "Equipment" do
           @lenses = Lens.all.order(name: :asc)
           @scanners = Scanner.all.order(name: :asc)
           @workstations = Workstation.all.order(name: :asc)
+       end
+
+       def create
+          e = Equipment.create(type: params[:type], name: params[:name], serial_number: params[:serial])
+          if e.valid?
+             html = render_to_string partial: "/admin/equipment/equipment_table", locals: {equipment: Equipment.where(type: params[:type])}
+             render json: { html: html, id: e.id }
+          else
+             render text: e.errors.full_messages.to_sentence, status: :error
+          end
+       end
+
+       def update
+         #  ws = Workstation.find(params[:id])
+         #  if (params[:active] == "true")
+         #     if ws.equipment_ready?
+         #        ws.update(status: 0)
+         #     else
+         #        render text: "Equipment is not ready", status: :error and return
+         #     end
+         #  else
+         #     ws.update(status: 1)
+         #  end
+          render nothing: true
        end
 
        def destroy

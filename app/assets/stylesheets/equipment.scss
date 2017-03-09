@@ -85,6 +85,31 @@ div.panel.workstation {
    }
 }
 
+div.add-equipment {
+   padding: 10px 20px;
+   min-width: 485px;
+   display: none;
+   p { margin: 5px; }
+   label {
+      margin-right: 10px;
+      width: 110px;
+      text-align: right;
+      display: inline-block;
+   }
+   input {
+      margin-right: 20px;
+      width: 200px;
+   }
+   .mf-action-button.equipment {
+      float:right;
+      width: 50px;
+      text-align: center;
+      font-size: 0.9em;
+      padding: 1px 16px;
+      margin-right: 0;
+   }
+}
+
 div.panel.equipment {
    h3 {
       margin: 0;
@@ -105,7 +130,7 @@ div.panel.equipment {
          background-color: #eff5ff;
       }
       tr.assigned {
-         background-color: #efefef;
+         background-color: #e0e0e0;
          opacity: 0.7;
       }
       span.assigned-ws {

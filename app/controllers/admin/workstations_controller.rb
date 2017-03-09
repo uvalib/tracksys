@@ -1,8 +1,12 @@
 class Admin::WorkstationsController < ApplicationController
    def create
       ws = Workstation.create(name: params[:name])
-      html = render_to_string partial: "/admin/equipment/workstation_row", locals: {ws: ws}
-      render json: { html: html, id: ws.id }
+      if ws.valid?
+         html = render_to_string partial: "/admin/equipment/workstation_row", locals: {ws: ws}
+         render json: { html: html, id: ws.id }
+      else
+         render text: ws.errors.full_messages.to_sentence, status: :error
+      end
    end
 
    def destroy
