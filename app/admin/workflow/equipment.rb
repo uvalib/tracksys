@@ -27,6 +27,7 @@ ActiveAdmin.register_page "Equipment" do
             render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners, type: 'Scanner'}
          end
       end
+      render partial: "modal"
    end
 
    page_action :assign, method: :post do
@@ -65,13 +66,17 @@ ActiveAdmin.register_page "Equipment" do
 
        def update
           e = Equipment.find(params[:id])
-          if (params[:active] == "true")
-             e.update(status: 0)
+          if params[:active].blank?
+             e.update(name: params[:name], serial_number: params[:serial])
           else
-             e.update(status: 1)
-             ws = e.workstation
-             if !ws.nil?
-                ws.update(status: 1)
+             if (params[:active] == "true")
+                e.update(status: 0)
+             else
+                e.update(status: 1)
+                ws = e.workstation
+                if !ws.nil?
+                   ws.update(status: 1)
+                end
              end
           end
           render nothing: true

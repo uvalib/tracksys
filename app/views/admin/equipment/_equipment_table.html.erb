@@ -1,5 +1,5 @@
 <table class="equipment">
-   <tr><th></th><th></th><th>Name</th><th>Serial Number</th><th></th></tr>
+   <tr><th></th><th></th><th>Name</th><th>Serial Number</th><th></th><th></th></tr>
    <% odd="" %>
    <% equipment.each do |e| %>
       <% if e.workstation.nil? %>
@@ -15,8 +15,9 @@
                <span class="assigned-ws"><%= e.workstation.name %></span>
             <% end %>
          </td>
-         <td><%= e.serial_number %></td>
+         <td><span class="serial"><%= e.serial_number %></span></td>
 
+         <td class="sel"><span class="edit ts-icon"></span></td>
          <td class="sel"><span class="trash ts-icon"></span></td>
       </tr>
       <%  if odd.blank?

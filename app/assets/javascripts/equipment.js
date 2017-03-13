@@ -205,6 +205,32 @@ $(function() {
       });
    });
 
+   var showEquipmentModal = function(button, mode) {
+      $("#dimmer").show();
+      var modal = $("#equipment-edit");
+      var equipType = button.closest("div.panel.equipment").data("type");
+      modal.show();
+      modal.data("mode", mode);
+      modal.data("type", equipType );
+      if ( mode === "add" ) {
+         modal.find("h1").text("Add Equipment");
+         modal.find("input").val("");
+         modal.removeData("id");
+      } else {
+         modal.find("h1").text("Edit Equipment");
+         var row = button.closest("tr");
+         modal.find("input.name").val( row.find("span.name").text() );
+         modal.find("input.serial").val( row.find("span.serial").text()  );
+         modal.data("id", row.data("id"));
+      }
+      modal.show();
+      modal.find("input.name").focus();
+   };
+
+   $("div.panel.equipment").on("click", ".edit.ts-icon",  function() {
+      showEquipmentModal( $(this), "update");
+   });
+
    $("div.panel.equipment").on("click", ".trash.ts-icon",  function() {
       var resp = confirm("Are you sure you want to retire this equipment?");
       if ( !resp ) return;
@@ -223,37 +249,45 @@ $(function() {
    });
 
    $(".equipment.add").on("click", function() {
-      $("div.add-equipment").hide();
-      var addPanel = $(this).closest(".panel.equipment").find("div.add-equipment");
-      addPanel.find("input").val("");
-      addPanel.show();
-      addPanel.find("input.name").focus();
+      showEquipmentModal( $(this), "add");
    });
 
    $(".equipment.cancel").on("click", function() {
-      $(this).closest("div.add-equipment").hide();
+      $("#dimmer").hide();
+      $("#equipment-edit").hide();
    });
 
    $(".equipment.save").on("click", function() {
-      var addPanel = $(this).closest("div.add-equipment");
-      var equipPanel = addPanel.closest(".panel.equipment");
-      var type = equipPanel.data("type");
-      var equipTable = equipPanel.find("table.equipment");
+      var modal = $("#equipment-edit");
+      var type = modal.data("type");
       var data = {
          type: type,
-         name: addPanel.find("input.name").val(),
-         serial: addPanel.find("input.serial").val()};
+         name: modal.find("input.name").val(),
+         serial: modal.find("input.serial").val()};
+      var url =  "/admin/equipment";
+      var method = "POST";
+      if ( modal.data("mode") === "update") {
+         url =  "/admin/equipment/"+modal.data("id");
+         method = "PUT";
+      }
+
       $.ajax({
-         url: "/admin/equipment",
-         method: "POST",
+         url: url,
+         method: method,
          data: data,
          complete: function(jqXHR, textStatus) {
             if (textStatus != "success") {
                alert("Unable to create new equipment:\n\n"+jqXHR.responseText);
             } else {
-               equipTable.remove();
-               addPanel.after( $(jqXHR.responseJSON.html) );
-               addPanel.hide();
+               if ( modal.data("mode") === "update") {
+                  var equipRow = $("tr[data-id='"+modal.data("id")+"']");
+                  equipRow.find("span.name").text( modal.find(".name").val() );
+                  equipRow.find("span.serial").text( modal.find(".serial").val() );
+               } else {
+                  $(".panel.equipment[data-type='"+type+"'] table.equipment").replaceWith( $(jqXHR.responseJSON.html) );
+               }
+               $("#dimmer").hide();
+               $("#equipment-edit").hide();
             }
          }
       });

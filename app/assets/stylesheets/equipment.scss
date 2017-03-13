@@ -85,27 +85,17 @@ div.panel.workstation {
 }
 
 div.add-equipment {
-   padding: 10px 20px;
-   min-width: 485px;
-   display: none;
-   p { margin: 5px; }
-   label {
-      margin-right: 10px;
-      width: 110px;
-      text-align: right;
-      display: inline-block;
-   }
+   padding: 0 10px;
    input {
-      margin-right: 20px;
-      width: 200px;
+      width: 100%;
+      box-sizing: border-box;
+      outline: none; 
    }
-   .mf-action-button.equipment {
-      float:right;
-      width: 50px;
-      text-align: center;
-      font-size: 0.9em;
-      padding: 1px 16px;
-      margin-right: 0;
+   p {
+      margin: 10px 5px;
+   }
+   div.buttons {
+      margin: 20px 5px 10px 0 !important
    }
 }
 
