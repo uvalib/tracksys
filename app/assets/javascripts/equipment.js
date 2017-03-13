@@ -119,9 +119,14 @@ $(function() {
       // first, find any other equipment that was previously assigned
       // to this workstation and remove styling
       var prior = $("table.equipment tr[data-workstation='"+wsId+"']");
-      prior.removeClass("assigned");
-      prior.removeData("workstation");
-      prior.find(".assigned-ws").remove();
+      $("table.equipment tr").each(function() {
+         currWsId = $(this).data("workstation");
+         if (currWsId == wsId ) {
+            $(this).removeClass("assigned");
+            $(this).removeData("workstation");
+            $(this).find(".assigned-ws").remove();
+         }
+      });
 
       $(".panel.equipment .sel-cb:checked").each( function() {
          var tr = $(this).closest("tr");
