@@ -44,6 +44,7 @@ $(function() {
                $("tr.workstation[data-id='"+jqXHR.responseJSON.id+"']").addClass("selected");
                displayNewConfiguration([]);
                $(".assign-equipment").removeClass("disabled");
+               $(".clear-equipment").removeClass("disabled");
             }
          }
       });
@@ -94,6 +95,8 @@ $(function() {
                displayNewConfiguration([]);
                $(".assign-equipment").removeClass("disabled");
                $(".assign-equipment").addClass("disabled");
+               $(".clear-equipment").removeClass("disabled");
+               $(".clear-equipment").addClass("disabled");
             }
          }
       });
@@ -109,6 +112,7 @@ $(function() {
          $(".sel-cb[data-id='"+val.id+"']").prop('checked', true);
       });
       $(".assign-equipment").removeClass("disabled");
+      $(".clear-equipment").removeClass("disabled");
    });
 
    var styleUsedEquipment = function(wsId) {
@@ -128,6 +132,32 @@ $(function() {
          tr.find(".name").after( $(html) );
       });
    };
+
+   $(".clear-equipment").on("click", function(){
+      if ( $(this).hasClass("disabled") ) return;
+      var wsId = $("tr.workstation.selected").data("id");
+      var btn = $(this);
+      btn.addClass("disabled");
+      var setup = $("table.setup");
+      $.ajax({
+         url: "/admin/workstations/"+wsId+"/equipment",
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            if (textStatus != "success") {
+               alert("Unable to clear setup:\n\n"+jqXHR.responseText);
+            } else {
+               $("table.setup").empty();
+               var prior = $("table.equipment tr[data-workstation='"+wsId+"']");
+               prior.removeClass("assigned");
+               prior.removeData("workstation");
+               prior.find(".assigned-ws").remove();
+               $("tr.workstation.selected .equipment-status").removeClass("active").removeClass("inactive").addClass("inactive");
+               $("tr.workstation.selected").data("setup", []);
+            }
+         }
+      });
+   });
 
    $(".assign-equipment").on("click", function(){
       if ( $(this).hasClass("disabled") ) return;
@@ -160,7 +190,7 @@ $(function() {
          complete: function(jqXHR, textStatus) {
             btn.removeClass("disabled");
             if (textStatus != "success") {
-               alert("Unable to assign equipment. Please try again later");
+               alert("Unable to assign equipment:\n\n"+jqXHR.responseText);
             } else {
                displayNewConfiguration(jqXHR.responseJSON);
                styleUsedEquipment(wsId);

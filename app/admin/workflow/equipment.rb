@@ -31,12 +31,16 @@ ActiveAdmin.register_page "Equipment" do
 
    page_action :assign, method: :post do
       ws = Workstation.find(params['workstation'])
-      ws.equipment.clear
-      params['equipment'].each do |id|
-         e = Equipment.find(id)
-         ws.equipment << e
+      if ws.active_project_count == 0
+         ws.equipment.clear
+         params['equipment'].each do |id|
+            e = Equipment.find(id)
+            ws.equipment << e
+         end
+         render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
+      else
+         render text: "There are active projects assigned", status: :error
       end
-      render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
    end
 
    controller do
