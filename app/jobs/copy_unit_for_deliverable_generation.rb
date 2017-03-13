@@ -64,6 +64,9 @@ class CopyUnitForDeliverableGeneration < BaseJob
       if unit.date_archived.blank? && unit.reorder == false
          logger.info "Because this unit has not already been archived, it is being sent to the archive."
          SendUnitToArchive.exec_now({ :unit => unit, :internal_dir =>true, :source_dir => IN_PROCESS_DIR }, self)
+      elsif unit.reorder == true
+         logger.info "Cleaning up in_process files for completed re-order"
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
       end
    end
 end
