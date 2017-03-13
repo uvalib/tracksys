@@ -1,9 +1,16 @@
 $(function() {
 
    $(".sel-cb").on("click", function() {
+      var tr = $(this).closest("tr");
+      if (tr.hasClass("assigned")) {
+         $(this).prop('checked', false);
+         return;
+      }
+      // grab current checke statof CB checked, then clear
+      // all other CB in this table. Finally, set this CB.
+      // This is to ensure only 1 of each equipment type can be checked
       var checked = $(this).is(":checked");
-      var cn = "."+$(this).attr('class').replace(/\s/, ".");
-      $(cn).prop('checked', false);
+      $(this).closest("table").find(".sel-cb").prop('checked', false);
       $(this).prop('checked', checked);
    });
 
@@ -104,44 +111,45 @@ $(function() {
       $(".assign-equipment").removeClass("disabled");
    });
 
+   var styleUsedEquipment = function(wsId) {
+      // first, find any other equipment that was previously assigned
+      // to this workstation and remove styling
+      var prior = $("table.equipment tr[data-workstation='"+wsId+"']");
+      prior.removeClass("assigned");
+      prior.removeData("workstation");
+      prior.find(".assigned-ws").remove();
+
+      $(".panel.equipment .sel-cb:checked").each( function() {
+         var tr = $(this).closest("tr");
+         tr.addClass("assigned");
+         tr.data("workstation", wsId);
+         var wsName=$("tr.workstation[data-id='"+wsId+"'] .name").text();
+         var html = "<span class='assigned-ws'>"+wsName+"</span>";
+         tr.find(".name").after( $(html) );
+      });
+   };
+
    $(".assign-equipment").on("click", function(){
       if ( $(this).hasClass("disabled") ) return;
-      var picks = {bodies: null, backs: null, lenses: null, scanners: null};
+
+      var scanner = false;
       var ids = [];
-      var failed = false;
-      var camera = false;
-      for (var className in picks) {
-         if ( !picks.hasOwnProperty(className)) continue;
-         $("table."+className+" .sel-cb:checked").each( function(idx, ele) {
-            if ( picks[className] ) {
-               alert("Only one of each type of equipment may be assigned to a workstation");
-               failed = true;
-               return false;
-            } else {
-               picks[className] = $(this).data("id");
-               ids.push($(this).data("id"));
-               if ( className != "scanners") {
-                  camera = true;
-               } else {
-                  if (camera) {
-                     alert("A workstation can only have a camera assembly or a scanner, not both");
-                     failed = true;
-                     return false;
-                  }
-               }
-            }
-         });
-      }
-      if ( failed ) {
+      $(".panel.equipment .sel-cb:checked").each( function() {
+         var type = $(this).closest(".panel.equipment").data("type");
+         scanner = (type === "Scanner");
+         ids.push( $(this).data("id") );
+      });
+      if (scanner && ids.length > 1) {
+         alert("A workstation can only have a camera assembly or a scanner, not both");
          return;
       }
-      if ( camera && ids.length != 3) {
+      if (scanner === false && ids.length != 3) {
          alert("Incomplete camera assembly specified");
-         return false;
+         return;
       }
 
       var wsId = $("tr.workstation.selected").data("id");
-      var data = {workstation: wsId, equipment: ids, camera: camera};
+      var data = {workstation: wsId, equipment: ids, camera: !scanner};
       var btn = $(this);
       btn.addClass("disabled");
       var setup = $("table.setup");
@@ -155,6 +163,7 @@ $(function() {
                alert("Unable to assign equipment. Please try again later");
             } else {
                displayNewConfiguration(jqXHR.responseJSON);
+               styleUsedEquipment(wsId);
                $("tr.workstation.selected").data("setup", jqXHR.responseJSON);
             }
          }
@@ -191,10 +200,12 @@ $(function() {
    });
 
    $(".equipment.save").on("click", function() {
-      var addPanel =$(this).closest("div.add-equipment");
-      var equipTable = addPanel.closest(".panel.equipment").find("table.equipment");
+      var addPanel = $(this).closest("div.add-equipment");
+      var equipPanel = addPanel.closest(".panel.equipment");
+      var type = equipPanel.data("type");
+      var equipTable = equipPanel.find("table.equipment");
       var data = {
-         type: addPanel.data("type"),
+         type: type,
          name: addPanel.find("input.name").val(),
          serial: addPanel.find("input.serial").val()};
       $.ajax({

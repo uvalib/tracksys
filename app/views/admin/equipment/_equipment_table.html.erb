@@ -7,7 +7,7 @@
       <% else %>
       <tr class="assigned <%=odd%>" data-id="<%= e.id %>" data-workstation="<%= e.workstation.id %>">
       <% end %>
-         <td class="sel"><input <% if !e.workstation.nil? %>disabled="disabled"<% end %> class="sel-cb" type="checkbox" data-id="<%= e.id %>"/></td>
+         <td class="sel"><input class="sel-cb" type="checkbox" data-id="<%= e.id %>"/></td>
          <td class="status"><span class="equipment-status <%= e.status %>"></span></td>
          <td>
             <span class="name"><%= e.name %></span>
