@@ -6,6 +6,11 @@ $(function() {
          $(this).prop('checked', false);
          return;
       }
+      if (tr.find(".inactive").length > 0) {
+         $(this).prop('checked', false);
+         return;
+      }
+
       // grab current checke statof CB checked, then clear
       // all other CB in this table. Finally, set this CB.
       // This is to ensure only 1 of each equipment type can be checked
