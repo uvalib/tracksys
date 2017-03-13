@@ -604,14 +604,12 @@ ActiveAdmin.register Unit do
   end
 
   member_action :bulk_upload_xml, :method => :put do
-     unit = Unit.find(params[:id])
-     BulkUploadXml.exec({unit: unit})
+     BulkUploadXml.exec({unit_id: params[:id]})
      redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
   end
 
   member_action :bulk_download_xml, :method => :put do
-     unit = Unit.find(params[:id])
-     BulkDownloadXml.exec({unit: unit, user: current_user} )
+     BulkDownloadXml.exec({unit_id: params[:id], user: current_user} )
      redirect_to "/admin/units/#{params[:id]}", :notice => "Downloading XML for unit #{params[:id]}. When complete, you will receive an email."
   end
 

@@ -1,7 +1,7 @@
 class BulkUploadXml < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def read_settings( settings_file )
@@ -30,8 +30,8 @@ class BulkUploadXml < BaseJob
    end
 
    def do_workflow(message)
-      raise "Parameter 'unit' is required" if message[:unit].blank?
-      unit = message[:unit]
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
+      unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       xml_dir = File.join(XML_DROPOFF_DIR, "#{unit_dir}")
       if !Dir.exist? xml_dir
