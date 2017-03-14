@@ -190,6 +190,24 @@ ActiveAdmin.register Project do
       end
    end
 
+   member_action :assign, :method => :post do
+      project = Project.find(params[:id])
+      user = StaffMember.find(params[:user])
+      if !project.claimable_by? user
+         render text: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
+         return
+      end
+
+      assignment = Assignment.new(project: project, staff_member: current_user, step: project.current_step)
+      if assignment.save
+         project.update!(owner: user)
+         render json: {id: user.id, name: "#{user.full_name} (#{user.computing_id})"}, status: :ok
+      else
+         logger.error("Assign project failed: #{assignment.errors.full_messages.to_sentence}")
+         render text: "Assign project failed: #{assignment.errors.full_messages.to_sentence}", status: :error
+      end
+   end
+
    member_action :claim, :method => :put do
       url = "/admin/projects"
       url = "/admin/projects/#{params[:id]}" if !params[:details].nil?
@@ -202,6 +220,15 @@ ActiveAdmin.register Project do
          logger.error("Claim project failed: #{assignment.errors.full_messages.to_sentence}")
          redirect_to url, :notice => "Unable to claim project #{project.id}"
       end
+   end
+
+   member_action :assignable, :method => :get do
+      project = Project.find(params[:id])
+      out = []
+      StaffMember.candidates_for(project.category).each do |sm|
+         out << {id: sm.id, name: "#{sm.full_name} - #{sm.role.capitalize}"}
+      end
+      render json: out
    end
 
    controller do

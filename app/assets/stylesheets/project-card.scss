@@ -2,15 +2,40 @@
    padding: 0 10px 10px 0;
 }
 #assign-staff {
-   background: #f0f0ff;
-   padding: 10px;
-   border: 1px solid #66c;
-   position: absolute;
-   border-radius: 4px;
-   z-index: 1000;
-   box-shadow: 1px 1px 4px #999;
-   display: none;
-   .chosen-container.chosen-container-single{ margin-top: 5px;}
+    border: 2px solid #666;
+   //  position: absolute;
+    border-radius: 2px;
+    margin: 15% auto;
+    z-index: 1000;
+    box-shadow: 1px 1px 10px #777;
+   //  display: none;
+    background: #f0f0f0;
+    width: 275px;
+
+    h1 {
+      font-size: 1.1em;
+      padding: 5px;
+      background: #ccc;
+      border-bottom: 1px solid #666;
+      text-align: center;
+      font-weight: bold;
+   }
+
+   .content {
+      padding: 10px 15px 15px 15px;
+   }
+   .chosen-container-single .chosen-drop {
+      box-sizing: border-box;
+      input {
+         box-sizing: border-box;
+      }
+   }
+   .chosen-single {
+      border-radius: 0;
+      outline: none;
+      border: 1px solid #999;
+   }
+
    .buttons {
       margin-top: 20px;
       text-align: right;
@@ -173,6 +198,7 @@ div.project-card {
       border: 1px solid #666;
       bottom: -32px;
       left: 13px;
+      z-index: 1000;
       .owner-act.disabled {
          cursor: default;
          opacity: 0.4;

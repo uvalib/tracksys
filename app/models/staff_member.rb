@@ -15,6 +15,13 @@ class StaffMember < ActiveRecord::Base
       return self.skills.include?(category) || self.admin? || self.supervisor?
    end
 
+   def self.candidates_for ( category )
+      join = "inner join staff_skills s on s.staff_member_id=staff_members.id"
+      return StaffMember.joins(join)
+         .where("role <= 1 or s.category_id=? and role=2", category.id)
+         .distinct.order(last_name: :asc)
+   end
+
    # Returns a boolean value indicating whether the StaffMember is
    # active.
    def active?

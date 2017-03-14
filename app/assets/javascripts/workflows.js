@@ -4,21 +4,54 @@ $(function() {
        width: "100%"
    });
    $(".assign-menu").on("click", function() {
-      $("#assign-staff").data("project", $(this).data("project"));
-      $("#assign-staff").show();
+      var projectId = $(this).data("project");
+      $("#assign-staff").data("project", projectId);
       var pos = $(this).offset();
-      $("#assign-staff").css({top: pos.top, left: pos.left});
+      $.ajax({
+         url: "/admin/projects/"+projectId+"/assignable",
+         method: "GET",
+         complete: function(jqXHR, textStatus) {
+            var sel = $("#assign-to");
+            sel.empty();
+            if ( textStatus === "success" ) {
+               sel.append( $("<option value=''>Select Staff Member</option>") );
+               $.each(jqXHR.responseJSON, function(idx, val) {
+                  sel.append( $("<option value='"+val.id+"'>"+val.name+"</option>") );
+               });
+               sel.trigger("chosen:updated");
+            }
+            $("#dimmer").show();
+         }
+      });
+
       $(".owner-dd").hide();
    });
    $("#cancel-assign").on("click", function() {
-      $("#assign-staff").hide();
+      $("#dimmer").hide();
    });
    $("#ok-assign").on("click", function() {
-      alert($("#assign-staff").data("project"));
-      $("#assign-staff").hide();
+      var userId = $("#assign-to").val();
+      var projectId = $("#assign-staff").data("project");
+      $.ajax({
+         url: "/admin/projects/"+projectId+"/assign",
+         method: "POST",
+         data: { user: userId },
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to assign project:"+jqXHR.responseText);
+            } else {
+               var json = jqXHR.responseJSON;
+               var html = "<a href='/admin/staff_members/"+json.id+"'>"+json.name+"</a>";
+               var ownerEle = $("span.owner-name[data-project='"+projectId+"']");
+               ownerEle.empty();
+               ownerEle.append( $(html) );
+               $("#dimmer").hide();
+            }
+         }
+      });
    });
 
-   $(".owner").on("mouseover", function() {
+   $(".owner img").on("mouseover", function() {
       var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.show();
    });
@@ -28,7 +61,7 @@ $(function() {
    $(".owner-dd").on("mouseout", function() {
       $(this).hide();
    });
-   $(".owner").on("mouseout", function() {
+   $(".owner img").on("mouseout", function() {
       var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.hide();
    });
