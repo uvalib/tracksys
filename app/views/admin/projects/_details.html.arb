@@ -129,3 +129,5 @@ div :class => 'columns-none' do
       render partial: "notes", locals: {project: project}
    end
 end
+
+render partial: "assign_staff", locals: {project: project}

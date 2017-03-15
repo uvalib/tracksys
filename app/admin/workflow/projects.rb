@@ -112,12 +112,13 @@ ActiveAdmin.register Project do
          div :class => 'workflow_button project' do
             options = {:method => :put}
             options[:disabled] = true if !project.claimable_by? current_user
+            options[:disabled] = true if !project.owner.blank? && (current_user.student? || current_user.viewer?)
             button_to "Claim", "/admin/projects/#{project.id}/claim?details=1", options
          end
          if current_user.admin? || current_user.supervisor?
             div class: 'workflow_button project' do
-               options = {method: :put, disabled: true}
-               button_to "Assign", "", options
+               c = "admin-button assign"
+               raw("<span data-project='#{project.id}' id='assign-button' class='#{c}'>Assign</span>")
             end
          end
       end
@@ -233,16 +234,20 @@ ActiveAdmin.register Project do
 
    controller do
       def scoped_collection
-         if !current_user.admin? && !current_user.supervisor?
-            ids = []
-            current_user.skills.each do |s|
-               ids << s.id
+         if params[:action] == 'index'
+            if !current_user.admin? && !current_user.supervisor?
+               ids = []
+               current_user.skills.each do |s|
+                  ids << s.id
+               end
+               # Students only see projects that match their skills
+               end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
+            else
+               # Admin and supervisor see all projects
+               end_of_association_chain = Project.all.order(due_on: :asc)
             end
-            # Students only see projects that match their skills
-            end_of_association_chain = Project.where("category_id in (#{ids.join(',')})")
          else
-            # Admin and supervisor see all projects
-            end_of_association_chain = Project.all.order(due_on: :asc)
+            end_of_association_chain = Project.where(id: params[:id])
          end
       end
   end

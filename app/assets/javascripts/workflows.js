@@ -3,10 +3,10 @@ $(function() {
        no_results_text: "Sorry, no matches found",
        width: "100%"
    });
-   $(".assign-menu").on("click", function() {
+   $(".assign-menu, #assign-button").on("click", function() {
       var projectId = $(this).data("project");
       $("#assign-staff").data("project", projectId);
-      var pos = $(this).offset();
+      $("#assign-staff").data("reload", $(this).attr("id") === "assign-button");
       $.ajax({
          url: "/admin/projects/"+projectId+"/assignable",
          method: "GET",
@@ -20,14 +20,14 @@ $(function() {
                });
                sel.trigger("chosen:updated");
             }
-            $("#dimmer").show();
+            $("#assign-dimmer").show();
          }
       });
 
       $(".owner-dd").hide();
    });
    $("#cancel-assign").on("click", function() {
-      $("#dimmer").hide();
+      $("#assign-dimmer").hide();
    });
    $("#ok-assign").on("click", function() {
       var userId = $("#assign-to").val();
@@ -40,12 +40,16 @@ $(function() {
             if ( textStatus != "success" ) {
                alert("Unable to assign project:"+jqXHR.responseText);
             } else {
-               var json = jqXHR.responseJSON;
-               var html = "<a href='/admin/staff_members/"+json.id+"'>"+json.name+"</a>";
-               var ownerEle = $("span.owner-name[data-project='"+projectId+"']");
-               ownerEle.empty();
-               ownerEle.append( $(html) );
-               $("#dimmer").hide();
+               if ( $("#assign-staff").data("reload") ) {
+                  window.location.reload();
+               } else {
+                  var json = jqXHR.responseJSON;
+                  var html = "<a href='/admin/staff_members/"+json.id+"'>"+json.name+"</a>";
+                  var ownerEle = $("span.owner-name[data-project='"+projectId+"']");
+                  ownerEle.empty();
+                  ownerEle.append( $(html) );
+                  $("#assign-dimmer").hide();
+               }
             }
          }
       });
