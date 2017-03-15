@@ -90,12 +90,14 @@
          <%= render :partial=>"status", :locals=>{ project: project} %>
       </div>
       <div class="owner-dd">
-         <% if project.owner.nil? %>
+         <% if project.owner.nil? || (!project.owner.nil?  && current_user.admin? || current_user.supervisor?) %>
            <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/projects/<%=project.id%>/claim">Claim</a></div>
          <% else %>
            <div class="owner-act disabled">Claim</div>
          <% end %>
-         <div class="owner-act assign-menu" data-project="<%= project.id %>">Assign</div>
+         <% if current_user.admin? || current_user.supervisor? %>
+            <div class="owner-act assign-menu" data-project="<%= project.id %>">Assign</div>
+         <% end %>
       </div>
    </div>
 </div>

@@ -1,5 +1,5 @@
 class Assignment < ActiveRecord::Base
-   enum status: [:pending, :started, :finished, :rejected, :error]
+   enum status: [:pending, :started, :finished, :rejected, :error, :reassigned]
 
    belongs_to :project
    belongs_to :step
@@ -12,5 +12,9 @@ class Assignment < ActiveRecord::Base
 
    before_create do
       self.assigned_at = Time.now
+   end
+
+   def in_progress?
+      return pending? || started?
    end
 end

@@ -58,6 +58,7 @@ ActiveAdmin.register Project do
          row :order do |project|
             link_to "##{project.order.id}", admin_order_path(project.order.id)
          end
+         row :category
       end
    end
 
@@ -199,13 +200,13 @@ ActiveAdmin.register Project do
          return
       end
 
-      assignment = Assignment.new(project: project, staff_member: current_user, step: project.current_step)
-      if assignment.save
-         project.update!(owner: user)
+      begin
+         project.assign_to(user)
+         logger.info("Project[#{project.id}] assigned to staff_member[#{user.id}]: #{user.computing_id} ")
          render json: {id: user.id, name: "#{user.full_name} (#{user.computing_id})"}, status: :ok
-      else
-         logger.error("Assign project failed: #{assignment.errors.full_messages.to_sentence}")
-         render text: "Assign project failed: #{assignment.errors.full_messages.to_sentence}", status: :error
+      rescue Exception=>e
+         logger.error("Assign project FAILED: #{e.class.name} - #{e.message}}")
+         render text: "#{e.class.name}: #{e.message}}", status: :error
       end
    end
 
@@ -213,12 +214,16 @@ ActiveAdmin.register Project do
       url = "/admin/projects"
       url = "/admin/projects/#{params[:id]}" if !params[:details].nil?
       project = Project.find(params[:id])
-      assignment = Assignment.new(project: project, staff_member: current_user, step: project.current_step)
-      if assignment.save
-         project.update(owner: current_user)
+      if !project.claimable_by? current_user
+         redirect_to url, :notice => "You don't have the required skills to claim this project"
+         return
+      end
+      begin
+         project.assign_to(current_user)
+         logger.info("Project[#{project.id}] claimed by staff_member[#{current_user.id}]: #{current_user.computing_id} ")
          redirect_to url, :notice => "You have claimed project #{project.id}"
-      else
-         logger.error("Claim project failed: #{assignment.errors.full_messages.to_sentence}")
+      rescue Exception=>e
+         logger.error("Claim project FAILED: #{e.class.name} - #{e.message}}")
          redirect_to url, :notice => "Unable to claim project #{project.id}"
       end
    end

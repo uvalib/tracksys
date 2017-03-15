@@ -139,6 +139,9 @@ div.panel.notes, div.panel.history {
    tr.fail td{
       background: #f3cfcf;
    }
+   tr.reassign td {
+      background: lightgoldenrodyellow;
+   }
    th {
       background-color: #dde;
       border-bottom: 1px solid #66a;

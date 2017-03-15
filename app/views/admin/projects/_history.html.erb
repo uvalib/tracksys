@@ -19,12 +19,19 @@
                   if a.rejected?
                      c="fail"
                      t="Rejected"
+                  elsif a.reassigned?
+                     c="reassign"
+                     t="Reassigned"
                   end
                   %>
                <tr class="<%= c %>">
                   <td><%= a.finished_at.strftime("%F %r") %></td>
                   <td><%= a.step.name %></td>
-                  <td><span><%= t %><br/><%= a.duration_minutes %> mins</span></td>
+                  <td>
+                     <span><%= t %>
+                     <% if !a.reassigned? %><br/><%= a.duration_minutes %> mins<% end %>
+                     </span>
+                  </td>
                   <td><%= a.staff_member.full_name %></td>
                </tr>
             <% end %>

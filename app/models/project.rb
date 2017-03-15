@@ -77,6 +77,11 @@ class Project < ActiveRecord::Base
       return !finished? && self.due_on <= Date.today
    end
 
+   def assignment_in_progress?
+      return false if self.owner.nil?
+      return active_assignment.in_progress?
+   end
+
    def claimable_by? (user)
       return true if (user.admin? || user.supervisor?)   # admin/supervisor can take anyting
       return true if self.current_step.any_owner?        # anyone can take an any assignment
@@ -119,6 +124,14 @@ class Project < ActiveRecord::Base
       h = del_mins/60
       del_mins -= (h*60)
       return "#{'%02d' % h}:#{'%02d' % del_mins}"
+   end
+
+   def assign_to(user)
+      if assignment_in_progress?
+         active_assignment.update!(status: :reassigned, finished_at: Time.now)
+      end
+      assignment = Assignment.create!(project: self, staff_member: user, step: self.current_step)
+      update!(owner: user)
    end
 
    def reject(duration)
@@ -203,7 +216,7 @@ class Project < ActiveRecord::Base
             step_ids << a.step.id
             curr_step +=1
             curr_step +=1 if !a.started_at.nil?
-            curr_step +=1 if !a.finished_at.nil?
+            curr_step +=1 if !a.finished_at.nil? && !a.reassigned?
          end
       end
       return (curr_step.to_f/num_steps.to_f*100).to_i
