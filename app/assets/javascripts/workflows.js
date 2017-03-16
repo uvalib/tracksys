@@ -55,19 +55,34 @@ $(function() {
       });
    });
 
-   $(".owner img").on("mouseover", function() {
+   var menuHideTimerId=-1;
+   var killHideTimeout = function() {
+      if (menuHideTimerId == -1) return;
+      clearTimeout(menuHideTimerId);
+      menuHideTimerId = -1;
+   };
+   $(".owner").on("mouseover", function() {
+      if ( $(this).hasClass("disabled") ) return;
+      $(".owner-dd").hide();
       var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.show();
+      killHideTimeout();
    });
    $(".owner-dd").on("mouseover", function() {
       $(this).show();
+      killHideTimeout();
    });
    $(".owner-dd").on("mouseout", function() {
-      $(this).hide();
+      var dd = $(this);
+      menuHideTimerId = setTimeout(function() {
+         dd.fadeOut();
+      }, 250);
    });
-   $(".owner img").on("mouseout", function() {
+   $(".owner").on("mouseout", function() {
       var dd = $(this).closest(".project-footer").find(".owner-dd");
-      dd.hide();
+      menuHideTimerId = setTimeout(function() {
+         dd.fadeOut();
+      }, 500);
    });
 
    var toggleWorkflowButtons = function(enabled) {

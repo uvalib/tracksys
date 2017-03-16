@@ -76,7 +76,7 @@
    </div>
    <div class="project-footer">
       <div class="progress-info">
-         <div class="owner">
+         <div class="owner<% if (current_user.student? || current_user.viewer?) && !project.owner.nil? %> disabled<% end %>">
            <%= image_tag "owner.png" %>
            <span class="owner-name" data-project="<%= project.id %>" >
                <% if project.owner.nil? %>

@@ -190,15 +190,23 @@ div.project-card {
    padding: 10px;
    border-top: 1px solid #ccc;
    clear:both;
+
+   img {
+      cursor: pointer;
+   }
+
    .owner-dd {
       cursor: default;
       display: none;
       position: absolute;
       background: white;
       border: 1px solid #666;
-      bottom: -32px;
-      left: 13px;
+      left: -1px;
+      top: 56px;
       z-index: 1000;
+      border-top: none;
+      z-index: 1000;
+
       .owner-act.disabled {
          cursor: default;
          opacity: 0.4;
@@ -208,7 +216,7 @@ div.project-card {
       }
       .owner-act {
          cursor: pointer;
-         padding: 1px 15px 4px 15px;
+         padding: 5px 20px;
          a { text-decoration: none; color: #444;}
          &:hover {
             background: #bbf;
