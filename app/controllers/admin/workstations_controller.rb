@@ -35,7 +35,7 @@ class Admin::WorkstationsController < ApplicationController
          if ws.equipment_ready?
             ws.update(status: 0)
          else
-            render text: "Equipment is not ready", status: :error
+            render text: "Equipment is not ready", status: :error and return
          end
       else
          ws.update(status: 1)

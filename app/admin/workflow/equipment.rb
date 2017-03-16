@@ -33,12 +33,37 @@ ActiveAdmin.register_page "Equipment" do
    page_action :assign, method: :post do
       ws = Workstation.find(params['workstation'])
       if ws.active_project_count == 0
-         ws.equipment.clear
+
+         equipment = []
+         scanner = false;
+         body_cnt = lens_cnt = back_cnt = 0
          params['equipment'].each do |id|
             e = Equipment.find(id)
-            ws.equipment << e
+            scanner = true if e.type.downcase == "scanner"
+            body_cnt += 1  if e.type.downcase == "camerabody"
+            lens_cnt += 1 if e.type.downcase == "lens"
+            back_cnt += 1 if e.type.downcase == "digitalback"
+            equipment << e
          end
-         render json: ws.equipment.to_json(only: [:id, :name, :type, :serial_number])
+         if scanner
+            if quipment.length > 1
+               render text: "A workstation can only have a camera assembly or a scanner, not both", status: :error and return
+            end
+         else
+            if equipment.length < 3
+               render text: "Incomplete camera assembly", status: :error and return
+            end
+            if body_cnt != 1 || back_cnt != 1
+               render text: "Camera assembly must have 1 back and 1 body", status: :error and return
+            end
+            if lens_cnt > 2
+               render text: "A maximum of 2 lenses can be selected", status: :error and return
+            end
+         end
+         ws.equipment.clear
+         ws.equipment = equipment
+
+         render json: ws.equipment.order(type: :asc).to_json(only: [:id, :name, :type, :serial_number])
       else
          render text: "There are active projects assigned", status: :error
       end

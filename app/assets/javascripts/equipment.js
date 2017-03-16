@@ -1,22 +1,29 @@
 $(function() {
 
    $(".sel-cb").on("click", function() {
+      // dont all select of equipment that has already been assigned
       var tr = $(this).closest("tr");
       if (tr.hasClass("assigned")) {
          $(this).prop('checked', false);
          return;
       }
+
+      // If a piece of equipment is not active, don't allow it to be selected
       if (tr.find(".inactive").length > 0) {
          $(this).prop('checked', false);
          return;
       }
 
-      // grab current checke statof CB checked, then clear
-      // all other CB in this table. Finally, set this CB.
-      // This is to ensure only 1 of each equipment type can be checked
-      var checked = $(this).is(":checked");
-      $(this).closest("table").find(".sel-cb").prop('checked', false);
-      $(this).prop('checked', checked);
+      // Allow multiple selects on lenses
+      var equipType = $(this).closest("div.panel.equipment").data("type");
+      if (equipType != "Lens") {
+         // grab current checke state of CB checked, then clear
+         // all other CB in this table. Finally, set this CB.
+         // This is to ensure only 1 of each equipment type can be checked
+         var checked = $(this).is(":checked");
+         $(this).closest("table").find(".sel-cb").prop('checked', false);
+         $(this).prop('checked', checked);
+      }
    });
 
    var displayNewConfiguration = function(equipList) {
@@ -176,14 +183,16 @@ $(function() {
       var ids = [];
       $(".panel.equipment .sel-cb:checked").each( function() {
          var type = $(this).closest(".panel.equipment").data("type");
-         scanner = (type === "Scanner");
+         if (type === "Scanner") {
+            scanner = true;
+         }
          ids.push( $(this).data("id") );
       });
       if (scanner && ids.length > 1) {
          alert("A workstation can only have a camera assembly or a scanner, not both");
          return;
       }
-      if (scanner === false && ids.length != 3) {
+      if (scanner === false && ids.length < 3) {
          alert("Incomplete camera assembly specified");
          return;
       }
