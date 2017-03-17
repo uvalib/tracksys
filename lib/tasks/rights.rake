@@ -88,7 +88,7 @@ namespace :rights do
       # Corks and Curls, Walter Reed Yellow Fever Collection, Dr. Henry Thomas Skinner Papers
       # NOTE: these PIDs are COMPONENT PID for the top-level component in the hierarchy
       skip = ["uva-lib:2137307", "uva-lib:2253857", "uva-lib:2528441", "uva-lib:2250968", "uva-lib:2513789", "uva-lib:1330419"]
-
+      #        DP                 our MW, DL BAD     our MW DL, BAD     C&C in DL          invalid            no DL
       progress_logfile = "log/rights.log"
       progress_log = Logger.new(progress_logfile)
       progress_log.formatter = proc do |severity, datetime, progname, msg|
