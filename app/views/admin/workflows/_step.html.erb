@@ -11,6 +11,9 @@
       <% if !error %>
          <p><b>Start Directory:</b><%= step.start_dir %></p>
          <p><b>Finish Directory:</b><%= step.finish_dir %></p>
+         <% if step.manual %>
+            <p class='note'>Manual move to finish directory</p>
+         <% end %>
       <% end %>
    </div>
 </div>

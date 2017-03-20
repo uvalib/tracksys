@@ -8,6 +8,29 @@ class Step < ActiveRecord::Base
    belongs_to :next_step, class_name: "Step"
    belongs_to :fail_step, class_name: "Step"
 
+   def validate_files(unit)
+      unit_dir = "%09d" % unit.id
+      dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
+      Rails.logger.info("Validate files present in #{dest_dir}")
+
+      # First possible problem; dest dir is not present
+      if !Dir.exists?(dest_dir)
+         raise "Destination directory #{dest_dir} does not exist!"
+      end
+
+      if Dir[File.join(dest_dir, '**', '*.mpcatalog')].count { |file| File.file?(file) } == 0
+         raise "Missing .mpcatalog file"
+      end
+
+      if Dir[File.join(dest_dir, '**', '*.xml')].count { |file| File.file?(file) } == 0
+         raise "Missing .xml metadata file"
+      end
+
+      if Dir[File.join(dest_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
+         raise "Missing image files"
+      end
+   end
+
    def move_files?
       return self.start_dir != self.finish_dir
    end

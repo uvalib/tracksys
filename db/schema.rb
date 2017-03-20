@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170308153921) do
+ActiveRecord::Schema.define(version: 20170320130533) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -507,9 +507,10 @@ ActiveRecord::Schema.define(version: 20170308153921) do
     t.integer  "workflow_id",  limit: 4
     t.integer  "next_step_id", limit: 4
     t.integer  "fail_step_id", limit: 4
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
     t.integer  "owner_type",   limit: 4,     default: 0
+    t.boolean  "manual",                     default: false
   end
 
   add_index "steps", ["fail_step_id"], name: "index_steps_on_fail_step_id", using: :btree

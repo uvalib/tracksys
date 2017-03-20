@@ -61,7 +61,7 @@ qa3 = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass (
 fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", owner_type: :original_owner, step_type: :error)
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
-   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff")
+   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff", manual: true)
 fail_qa4 = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA", owner_type: :original_owner, step_type: :error)
 
 scan.update(next_step_id: process.id)

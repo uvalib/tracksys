@@ -228,6 +228,11 @@ p.assign-link {
    display: inline-block;
    width: 275px;
    vertical-align: middle;
+   .note {
+      margin: 5px 0 0 0;
+      color: #999;
+      font-style: italic;
+   }
 }
 .workflow-step.error {
    position: relative;

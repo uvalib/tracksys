@@ -144,27 +144,59 @@ class Project < ActiveRecord::Base
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
-   def finish_assignment(duration)
-      # First, move any files to thier destination if needed
-      begin
-         if self.current_step.move_files?
-            self.current_step.move_files(self.unit)
+   private
+   def move_files
+      # determine if files should automatically be moved
+      if self.current_step.manual
+         # This is a manual step. Ensure that files are in the destination location
+         begin
+            self.current_step.validate_files(unit)
+         rescue Exception => e
+            prob = Problem.find_by(name: "Other")
+            note = "<p>Unable to validate files in the destination directory. "
+            note << "Please ensure that all files are in the destination directory. When the problem has been resolved, click finish again.</p>"
+            note << "<p><b>Error details:</b> #{e.to_s}</p>"
+            Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
+            self.active_assignment.update(status: :error )
+            return false
          end
-      rescue Exception => e
-         # Any problems moving files around will set the assignment as ERROR and leave it
-         # uncompleted. A note detailing the error will be generated. At this point, the current
-         # user can try again, or manually fix the directories and finsih the step again.
-         prob = Problem.find_by(name: "Other")
-         note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
-         note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
-         note << "<p><b>Error details:</b> #{e.to_s}</p>"
-         Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
-         self.active_assignment.update(status: :error )
-         return
+      else
+         # First step is to move files to new work directory for the next step
+         begin
+            if self.current_step.move_files?
+               self.current_step.move_files(self.unit)
+            end
+         rescue Exception => e
+            # Any problems moving files around will set the assignment as ERROR and leave it
+            # uncompleted. A note detailing the error will be generated. At this point, the current
+            # user can try again, or manually fix the directories and finsih the step again.
+            prob = Problem.find_by(name: "Other")
+            note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
+            note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
+            note << "<p><b>Error details:</b> #{e.to_s}</p>"
+            Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
+            self.active_assignment.update(status: :error )
+            return false
+         end
       end
+      return true
+   end
 
-      # Flag current assignment as finished and not estimated time spent. Bail if this is last step
-      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: duration )
+   public
+   def finish_assignment(duration)
+      # Grab any pre-existing durations, add them up and update
+      # the current duration. This to preserve total duration if a step ends in an error
+      # and is subsequently corrrected
+      prior_duration = self.active_assignment.duration_minutes
+      prior_duration = 0 if prior_duration.nil?
+      total_duration = prior_duration + duration.to_i
+      self.active_assignment.update(duration_minutes: total_duration )
+
+      # First, move files from start to finish directory if necessary
+      return if !move_files
+
+      # Flag current assignment as finished. Bail if this is last step.
+      self.active_assignment.update(finished_at: Time.now, status: :finished)
       if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
          return self.update(finished_at: Time.now, owner: nil, current_step: nil)
