@@ -8,7 +8,7 @@ class Step < ActiveRecord::Base
    belongs_to :next_step, class_name: "Step"
    belongs_to :fail_step, class_name: "Step"
 
-   def validate_files(unit)
+   def validate_manually_moved_files(unit)
       unit_dir = "%09d" % unit.id
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Validate files present in #{dest_dir}")

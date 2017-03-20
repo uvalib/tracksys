@@ -150,7 +150,7 @@ class Project < ActiveRecord::Base
       if self.current_step.manual
          # This is a manual step. Ensure that files are in the destination location
          begin
-            self.current_step.validate_files(unit)
+            self.current_step.validate_manually_moved_files(unit)
          rescue Exception => e
             prob = Problem.find_by(name: "Other")
             note = "<p>Unable to validate files in the destination directory. "
@@ -182,6 +182,25 @@ class Project < ActiveRecord::Base
       return true
    end
 
+   private
+   def validate_start_files
+      # Fail if any file named *.mpcatalog_* is present
+      if Dir[File.join(self.current_step.start_dir, '**', '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
+         prob = Problem.find_by(name: "Other")
+         note = "<p>Found *.mpcatalog_N files in #{self.current_step.start_dir}. "
+         note << "Please ensure that you have no unsaved changes, and delete these files. </p>"
+         Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
+         self.active_assignment.update(status: :error )
+         return false
+      end
+      return true
+   end
+
+   # TODO
+   # 10_raw to 40_first_QA
+	#      If there is an output folder present, move it to 40_ and rename it to the unit number.
+   #      Otherwise the prior behavior (move it all)
+
    public
    def finish_assignment(duration)
       # Grab any pre-existing durations, add them up and update
@@ -192,7 +211,8 @@ class Project < ActiveRecord::Base
       total_duration = prior_duration + duration.to_i
       self.active_assignment.update(duration_minutes: total_duration )
 
-      # First, move files from start to finish directory if necessary
+      # validate and move starting files to finish location
+      return if !validate_start_files
       return if !move_files
 
       # Flag current assignment as finished. Bail if this is last step.
