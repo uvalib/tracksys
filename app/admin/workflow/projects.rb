@@ -83,6 +83,9 @@ ActiveAdmin.register Project do
             row ("Working Directory") do |project|
                project.current_step.start_dir
             end
+            row ("Finish Directory") do |project|
+               project.current_step.finish_dir
+            end
          end
       end
    end

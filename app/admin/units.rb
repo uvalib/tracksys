@@ -318,16 +318,18 @@ ActiveAdmin.register Unit do
       end
     end
 
-    div :class => "columns-none" do
-      panel "Digitization Workflow Notes", :class=>"notes", :toggle => 'hide' do
-         if unit.notes.count == 0
-            raw("<p>There are no notes associated with this unit</p>")
-         else
-            unit.notes.order(created_at: :desc).each do |n|
-               render partial: "/admin/projects/note", locals: {note: n}
+    if !current_user.viewer?
+       div :class => "columns-none" do
+         panel "Digitization Workflow Notes", :class=>"notes", :toggle => 'hide' do
+            if unit.notes.count == 0
+               raw("<p>There are no notes associated with this unit</p>")
+            else
+               unit.notes.order(created_at: :desc).each do |n|
+                  render partial: "/admin/projects/note", locals: {note: n}
+               end
             end
          end
-      end
+       end
     end
   end
 
