@@ -46,7 +46,7 @@ ActiveAdmin.register_page "Equipment" do
             equipment << e
          end
          if scanner
-            if quipment.length > 1
+            if equipment.length > 1
                render text: "A workstation can only have a camera assembly or a scanner, not both", status: :error and return
             end
          else

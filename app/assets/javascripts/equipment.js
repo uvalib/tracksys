@@ -1,6 +1,6 @@
 $(function() {
 
-   $(".sel-cb").on("click", function() {
+   $("table.equipment").on("click", ".sel-cb", function() {
       // dont all select of equipment that has already been assigned
       var tr = $(this).closest("tr");
       if (tr.hasClass("assigned")) {

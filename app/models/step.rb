@@ -18,7 +18,7 @@ class Step < ActiveRecord::Base
             validate_manually_moved_files( project )
             return true
          rescue Exception => e
-            prob = Problem.find_by(name: "Other")
+            prob = Problem.find_by(name: "Filesystem")
             note = "<p>Files are missing from the finish directory. "
             note << "When the problem has been resolved, click finish again.</p>"
             note << "<p><b>Error details:</b> #{e.to_s}</p>"
@@ -40,7 +40,7 @@ class Step < ActiveRecord::Base
          # Any problems moving files around will set the assignment as ERROR and leave it
          # uncompleted. A note detailing the error will be generated. At this point, the current
          # user can try again, or manually fix the directories and finish the step again.
-         prob = Problem.find_by(name: "Other")
+         prob = Problem.find_by(name: "Filesystem")
          note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
          note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
          note << "<p><b>Error details:</b> #{e.to_s}</p>"
@@ -60,7 +60,7 @@ class Step < ActiveRecord::Base
       unit_dir = "%09d" % project.unit.id
       start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, unit_dir)
       if !Dir.exists?(start_dir)
-         prob = Problem.find_by(name: "Other")
+         prob = Problem.find_by(name: "Filesystem")
          note = "<p>Starting directory #{start_dir} does not exist.</p>"
          Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
          project.active_assignment.update(status: :error )
@@ -68,7 +68,7 @@ class Step < ActiveRecord::Base
       end
 
       if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
-         prob = Problem.find_by(name: "Other")
+         prob = Problem.find_by(name: "Filesystem")
          note = "<p>No image files found in starting directory #{start_dir}.</p>"
          Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
          project.active_assignment.update(status: :error )
@@ -78,7 +78,7 @@ class Step < ActiveRecord::Base
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
       if Dir[File.join(start_dir, '**', '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
-         prob = Problem.find_by(name: "Other")
+         prob = Problem.find_by(name: "Filesystem")
          note = "<p>Found *.mpcatalog_* files in #{start_dir}. "
          note << "Please ensure that you have no unsaved changes and delete these files.</p>"
          Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )

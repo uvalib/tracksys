@@ -80,11 +80,15 @@ ActiveAdmin.register Project do
             row ("Started") do |project|
                format_datetime(project.active_assignment.started_at) if !project.owner.nil?
             end
-            row ("Working Directory") do |project|
-               project.current_step.start_dir
+            if !project.current_step.start_dir.blank?
+               row ("Working Directory") do |project|
+                  project.current_step.start_dir
+               end
             end
-            row ("Finish Directory") do |project|
-               project.current_step.finish_dir
+            if project.current_step.start_dir != project.current_step.finish_dir
+               row ("Finish Directory") do |project|
+                  project.current_step.finish_dir
+               end
             end
          end
       end

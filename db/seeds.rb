@@ -31,7 +31,7 @@ Category.create([
    { name: 'Bound' }, { name: 'Flat' }, { name: 'Film' },{name: 'Oversize'}, {name: 'Special'}])
 Problem.create([
    { name: 'Incorrect ICC Profile' }, { name: 'Duplicate Image' }, { name: 'Soft Focus' },
-   { name: 'Incorrect Metadata' }, { name: 'Other' }])
+   { name: 'Incorrect Metadata' }, { name: 'Filesystem' }, { name: 'Other' }])
 
 # Workflow and steps
 Workflow.connection.execute("truncate workflows")

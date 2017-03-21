@@ -115,6 +115,14 @@ div.panel.equipment {
       font-size: 0.9em;
       background-color: white;
       border: 1px solid #ccd;
+      tr.equipment {
+         cursor: default;
+      }
+      .sel-cb {
+         width: 14px;
+         height: 14px;
+         cursor:pointer;
+      }
       tr.odd {
          background-color: #eff5ff;
       }
