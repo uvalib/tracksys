@@ -97,6 +97,11 @@ $(function() {
             }
          }
       });
+      if ( enabled ) {
+         $(".time-entry.mf-action-button").removeClass("disabled");
+      } else {
+         $(".time-entry.mf-action-button").addClass("disabled");
+      }
    };
 
    // Reject submit; first require the creation of a problem note-card
@@ -134,15 +139,17 @@ $(function() {
       });
    });
 
-   $("#finish-assignment-btn").on("click", function() {
-      var btn = $(this);
-      if ( btn.hasClass("disabled") ) return;
-
-      var rawMins = prompt("Approximately how many minutes did you spend on this assignment?");
-      if ( !rawMins ) return;
-      var mins = parseInt(rawMins, 10);
-      if ( !mins ) return;
-
+   $(".cancel.time-entry").on("click", function() {
+      $("#finish-assignment-btn").show();
+      $("div.workflow.time-entry").hide();
+   });
+   $(".submit.time-entry").on("click", function() {
+      $("p.error").hide();
+      var mins = parseInt($("#duration-minutes").val(), 10);
+      if ( !mins ) {
+         $("p.error").show();
+         return;
+      }
       toggleWorkflowButtons(false);
       $.ajax({
          url: window.location.href+"/finish_assignment",
@@ -152,11 +159,20 @@ $(function() {
             if ( textStatus != "success" ) {
                alert("Unable to mark assignment as completed:"+jqXHR.responseText);
                toggleWorkflowButtons(true);
+               $("#finish-assignment-btn").show();
+               $("div.workflow.time-entry").hide();
             } else {
                window.location.reload();
             }
          }
       });
+   });
+   $("#finish-assignment-btn").on("click", function() {
+      $(this).hide();
+      $("div.workflow.time-entry").show();
+      $("p.error").hide();
+      $("#duration-minutes").val("");
+      $("#duration-minutes").focus();
    });
 
    $('#reject-button').on("click", function() {

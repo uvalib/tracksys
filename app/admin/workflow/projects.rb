@@ -106,6 +106,7 @@ ActiveAdmin.register Project do
             clazz << " disabled locked" if !project.active_assignment.started? && !project.active_assignment.error? || project.workstation.nil?
             raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
+         render partial: 'time_entry', locals: {project: project}
          if project.workstation.nil?
             div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
          end

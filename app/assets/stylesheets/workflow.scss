@@ -1,3 +1,25 @@
+.workflow.time-entry {
+   text-align: center;
+   border-top: 1px solid #aaa;
+   padding-top: 5px;
+   margin-top: 15px;
+   display: none;
+   p.error {
+      display: none;
+      color: firebrick;
+      font-style: italic;
+      position: relative;
+      top: -10px;
+      margin: 0;
+   }
+   p {
+      font-size: 0.9em;
+      margin: 5px;
+   }
+   input {
+      margin: 5px 5px 15px 5px;
+   }
+}
 .workflow_button .admin-button.reject {
    background-color: #c44;
    background-image: none;
