@@ -28,6 +28,7 @@ class Agency < ActiveRecord::Base
   # scopes
   #------------------------------------------------------------------
   scope :no_parent, ->{ where(:ancestry => nil) }
+  default_scope { order(name: :asc) }
 
   #------------------------------------------------------------------
   # public instance methods

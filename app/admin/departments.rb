@@ -4,7 +4,6 @@ ActiveAdmin.register Department do
   # strong paramters handling
   permit_params :name
 
-  filter :id
   filter :name
 
   config.clear_action_items!

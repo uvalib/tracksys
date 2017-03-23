@@ -14,9 +14,8 @@ ActiveAdmin.register StaffMember do
      link_to "Edit", edit_resource_path  if current_user.admin?
   end
 
-  filter :id
-  filter :last_name
-  filter :first_name
+  filter :last_name_cont, label: "last name"
+  filter :computing_id_cont, label: "computing Id"
   filter :role, :as => :select, :collection => StaffMember.roles
 
   config.batch_actions = false

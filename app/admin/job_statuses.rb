@@ -2,7 +2,7 @@ ActiveAdmin.register JobStatus do
    menu :priority => 8, if: proc{ !current_user.viewer? }
    actions :all, :except => [:edit, :new]
 
-   filter :name, :label=>"Workflow"
+   filter :name_cont, :label=>"Job Type"
    filter :originator_type, :as => :select, :collection => ['Metadata', 'MasterFile', 'Order', 'Unit'], :label => "Object"
    filter :originator_id, :as => :numeric, :label => "Object ID"
    filter :status, :as => :select, :collection => [ :pending, :running, :success, :failure ]
@@ -10,14 +10,14 @@ ActiveAdmin.register JobStatus do
    filter :started_at, :label => "Started"
    filter :ended_at, :label => "Finished"
 
-   # Workflow Status Index
+   # Job Status Index
    #
    index :title=>"Recent Job Statuses", :row_class => -> record { record.status_class } do
       selectable_column
       column ("Job ID"), sortable: :id do |job_status|
          job_status.id
       end
-      column :workflow, sortable: :name do |job_status|
+      column ("Job Type"), sortable: :name do |job_status|
          job_status.name
       end
       column ("Associated Object") do |job_status|

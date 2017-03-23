@@ -61,7 +61,6 @@ ActiveAdmin.register Order do
   scope :unpaid
   scope :uniq
 
-  filter :id
   filter :order_title, :label=>"Title"
   filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
   filter :customer_last_name, :as => :string, :label => "Customer Last Name"

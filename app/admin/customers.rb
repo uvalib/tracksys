@@ -18,17 +18,11 @@ ActiveAdmin.register Customer do
   scope :all, :default => true
   scope :has_unpaid_invoices
 
-  filter :id
-  filter :first_name
-  filter :last_name
-  filter :email
-  filter :primary_address_organization, :as => :string, :label => "Primary Organization"
-  filter :billable_address_organization, :as => :string, :label => "Billable Organization"
+  filter :last_name_cont, label: "Last Name"
+  filter :email_cont, label: "Email"
   filter :academic_status, :as => :select
   filter :department, :as => :select
-  filter :orders_count
-  filter :master_files_count
-  filter :agencies_id, :as => :numeric
+  filter :agencies, :as => :select
 
   index :as => :table do
     selectable_column

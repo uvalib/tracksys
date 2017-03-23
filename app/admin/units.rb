@@ -119,7 +119,6 @@ ActiveAdmin.register Unit do
      render json: out, status: :ok
   end
 
-  filter :id
   filter :date_archived
   filter :complete_scan
   filter :date_dl_deliverables_ready

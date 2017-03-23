@@ -73,7 +73,6 @@ ActiveAdmin.register MasterFile do
    end
 
    # Filters ==================================================================
-   filter :id
    filter :pid
    filter :filename
    filter :title

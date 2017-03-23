@@ -823,13 +823,22 @@ body.active_admin {
       padding: 0 0 0 30%;
    }
 
+   form fieldset input[type="email"],
+   form fieldset input[type="number"],
+   form fieldset input[type="password"],
+   form fieldset input[type="tel"],
+   form fieldset input[type="text"],
+   form fieldset input[type="url"],
+   form fieldset textarea {
+      width: 60%;
+   }
+
    form input[type="email"],
    form input[type="number"],
    form input[type="password"],
    form input[type="tel"],
    form input[type="text"],
-   form input[type="url"],
-   form textarea {
-      width: 60%;
+   form input[type="url"] {
+      padding: 5px;
    }
 }

@@ -7,9 +7,6 @@ ActiveAdmin.register Agency do
 
   config.sort_order = 'name_asc'
 
-  scope :all, :default => true
-  scope :no_parent
-
   config.clear_action_items!
   action_item :new, :only => :index do
      raw("<a href='/admin/agencies/new'>New</a>") if current_user.admin?
@@ -18,8 +15,7 @@ ActiveAdmin.register Agency do
      link_to "Edit", edit_resource_path  if current_user.admin?
   end
 
-  filter :id
-  filter :name
+  filter :name_cont, label: "Name"
 
   index :id => 'agencies' do
     selectable_column
