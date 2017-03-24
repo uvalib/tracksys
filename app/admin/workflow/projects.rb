@@ -23,8 +23,8 @@ ActiveAdmin.register Project do
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.all
    filter :priority, :as => :select, :collection => Project.priorities
-   filter :order_id, :as => :numeric, :label => "Order ID"
-   filter :unit_id, :as => :numeric, :label => "Unit ID"
+   filter :order_id_equals, :label => "Order ID"
+   filter :unit_id_equals, :label => "Unit ID"
    filter :workstation, :as => :select
    filter :due_on
    filter :added_at
