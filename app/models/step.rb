@@ -137,12 +137,29 @@ class Step < ActiveRecord::Base
          output_exists = true
       end
 
+      # NOTES ON Output Folder and file moves:
+      # The contents of the Output folder need to be moved to a new folder in
+      # 40_first_QA/(unit subfolder). The processing of images and generating of
+      # .tifs will also create a subfolder entitled CaptureOne in the Output folder.
+      # This folder and its contents need to be deleted. If the entire Output folder is renamed
+      # to its associated unit number and moved to 40_first_QA, then the system needs to create another
+      # Output folder in 10_raw/(unit subfolder). That way if the student needs to reprocess images on
+      # the server, the default location is still available to process and save the .tifs. All other
+      # contents of the unit subfolder in 10_raw/(unit subfolder) should remain where they are in 10_raw.
+
       # Output found; treat it as source directory. Its contents
       # will be moved into dest dir and then it will be removed, leaving
       # the root source folder intact
       if output_exists
          Rails.logger.info("Output directory found. Moving it to final directory.")
          src_dir = output_dir
+
+         # remove CaptureOne if it exists
+         cap_dir =  File.join(src_dir, "CaptureOne")
+         if Dir.exists? cap_dir
+            Rails.logger.info("Removing CaptureOne directory from Output")
+            FileUtils.rm_r cap_dir
+         end
       end
 
       # Move all files over and remove src dir
@@ -159,5 +176,11 @@ class Step < ActiveRecord::Base
 
       # Src is now empty. Remove it.
       FileUtils.rm_r src_dir
+
+      if output_exists
+         # put back the original src/ouput folder
+         # in case student needs to recreate scans later
+         FileUtils.mkdir src_dir
+      end
    end
 end
