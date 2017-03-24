@@ -128,8 +128,6 @@ ActiveAdmin.register Unit do
   filter :special_instructions
   filter :date_archived
   filter :date_dl_deliverables_ready
-  filter :include_in_dl, :as => :select
-  filter :intended_use, :as => :select
 
   # Indev view ================================================================
   #
