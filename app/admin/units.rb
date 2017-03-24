@@ -119,20 +119,17 @@ ActiveAdmin.register Unit do
      render json: out, status: :ok
   end
 
-  filter :date_archived
-  filter :complete_scan
-  filter :date_dl_deliverables_ready
-  filter :special_instructions
+  filter :id_eq, :label=>"ID"
+  filter :order_id_eq, :label => "Order ID"
+  filter :metadata_call_number_contains, :as => :string, :label => "Call Number"
+  filter :metadata_title_contains, :as => :string, :label => "Metadata Title"
+  filter :agency, :as => :select
   filter :staff_notes
-  filter :reorder, :as => :select
+  filter :special_instructions
+  filter :date_archived
+  filter :date_dl_deliverables_ready
   filter :include_in_dl, :as => :select
   filter :intended_use, :as => :select
-  filter :metadata_title, :as => :string, :label => "Metadata Title"
-  filter :order_id, :as => :numeric, :label => "Order ID"
-  filter :customer_id, :as => :numeric, :label => "Customer ID"
-  filter :department, :as => :select
-  filter :agency, :as => :select
-  filter :master_files_count, :as => :numeric
 
   # Indev view ================================================================
   #
