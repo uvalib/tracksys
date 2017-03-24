@@ -18,6 +18,7 @@ class Step < ActiveRecord::Base
             validate_manually_moved_files( project )
             return true
          rescue Exception => e
+            Rails.logger.error("validate manually moved files FAILED #{e.to_string}")
             prob = Problem.find_by(name: "Filesystem")
             note = "<p>Files are missing from the finish directory. "
             note << "When the problem has been resolved, click finish again.</p>"
@@ -37,6 +38,7 @@ class Step < ActiveRecord::Base
             move_files( project )
          end
       rescue Exception => e
+         Rails.logger.error("Move files FAILED #{e.to_string}")
          # Any problems moving files around will set the assignment as ERROR and leave it
          # uncompleted. A note detailing the error will be generated. At this point, the current
          # user can try again, or manually fix the directories and finish the step again.
@@ -44,7 +46,7 @@ class Step < ActiveRecord::Base
          note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
          note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
          note << "<p><b>Error details:</b> #{e.to_s}</p>"
-         Note.create(staff_member: self.owner, project: self, note_type: :problem, note: note, problem: prob )
+         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
          self.active_assignment.update(status: :error )
          return false
       end
