@@ -168,6 +168,7 @@ $(function() {
       });
    });
    $("#finish-assignment-btn").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
       $(this).hide();
       $("div.workflow.time-entry").show();
       $("p.error").hide();
