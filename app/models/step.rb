@@ -47,7 +47,7 @@ class Step < ActiveRecord::Base
          note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
          note << "<p><b>Error details:</b> #{e.to_s}</p>"
          Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         self.active_assignment.update(status: :error )
+         project.active_assignment.update(status: :error )
          return false
       end
       return true
