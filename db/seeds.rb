@@ -42,13 +42,13 @@ scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials
    step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
 process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
 catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
 metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Create image metadata", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
+   start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
 qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100% check", owner_type: :prior_owner,
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
@@ -103,13 +103,13 @@ scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials
    step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
 process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
 catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
 metdata = Step.create( workflow: wf, name: "Create Metadata", description: "Create image metadata", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
+   start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
 qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100% check", owner_type: :prior_owner,
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
@@ -155,10 +155,10 @@ scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials
    step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
 process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
 catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from processed images", owner_type: :prior_owner,
-   start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+   start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
 qa1 = Step.create( workflow: wf, name: "First QA", description: "Inital QA; 100% check", owner_type: :prior_owner,
    start_dir: "scan/40_first_QA", finish_dir: "scan/70_second_qa")
