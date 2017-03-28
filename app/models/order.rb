@@ -44,6 +44,7 @@ class Order < ActiveRecord::Base
    }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
    scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
+   scope :canceled, ->{ where("date_canceled is not NULL")}
 
    #------------------------------------------------------------------
    # validations
@@ -189,17 +190,23 @@ class Order < ActiveRecord::Base
          logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead"
          timespan = 1.week.from_now
       end
+      q = nil
       if Time.now.to_date == timespan.to_date
-         where("date_due = ?", Date.today)
+         where("date_due = ?", Date.today).active
       elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan)
+         where("date_due < ?", Date.today).where("date_due > ?", timespan).active
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan)
+         where("date_due > ?", Date.today).where("date_due < ?", timespan).active
       end
    end
    def self.overdue
       date=0.days.ago
-      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'").where("date_patron_deliverables_complete is NULL").where("order_status != 'deferred'").where("order_status != 'completed'")
+      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
+   end
+   def self.active
+      where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'")
+         .where("date_patron_deliverables_complete is NULL").where("order_status != 'requested'")
+         .where("order_status != 'deferred'").where("order_status != 'completed'")
    end
 
 
