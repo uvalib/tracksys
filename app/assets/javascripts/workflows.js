@@ -139,60 +139,76 @@ $(function() {
       });
    });
 
+   // Duration entry
+   //
    $(".cancel.time-entry").on("click", function() {
       $("#finish-assignment-btn").show();
+      $("#reject-button").show();
       $("div.workflow.time-entry").hide();
    });
+
    $(".submit.time-entry").on("click", function() {
       $("p.error").hide();
       var mins = parseInt($("#duration-minutes").val(), 10);
-      if ( !mins ) {
+      if ( !mins && mins !== "0" ) {
          $("p.error").show();
          return;
       }
       toggleWorkflowButtons(false);
-      $.ajax({
-         url: window.location.href+"/finish_assignment",
-         method: "POST",
-         data: { duration: mins },
-         complete: function(jqXHR, textStatus) {
-            if ( textStatus != "success" ) {
-               alert("Unable to mark assignment as completed:"+jqXHR.responseText);
-               toggleWorkflowButtons(true);
-               $("#finish-assignment-btn").show();
-               $("div.workflow.time-entry").hide();
-            } else {
-               window.location.reload();
+
+      if ( $("div.workflow.time-entry").data("rejection") === true ) {
+         $("#note-modal .reject-instruct").show();
+         $("#problem-select").removeClass("invisible");
+         $("#note-modal").data("rejection", true);
+         $("#note-modal").data("duration", mins);
+         $("#dimmer").show();
+         $("#note-modal").show();
+         $("#note-modal textarea").val("");
+         $("#type-select").val(2);
+         $("div.workflow.time-entry").hide();
+         $("#finish-assignment-btn").show();
+         $("#reject-button").show();
+      } else {
+         // Just submit the duration and step finish
+         $.ajax({
+            url: window.location.href+"/finish_assignment",
+            method: "POST",
+            data: { duration: mins },
+            complete: function(jqXHR, textStatus) {
+               if ( textStatus != "success" ) {
+                  alert("Unable to mark assignment as completed:"+jqXHR.responseText);
+                  toggleWorkflowButtons(true);
+                  $("#finish-assignment-btn").show();
+                  $("#reject-button").show();
+                  $("div.workflow.time-entry").hide();
+               } else {
+                  window.location.reload();
+               }
             }
-         }
-      });
+         });
+      }
    });
-   $("#finish-assignment-btn").on("click", function() {
-      if ( $(this).hasClass("disabled") ) return;
-      $(this).hide();
+
+   // Assigmnent completion button handling
+   //
+   var showDurationEntry = function() {
+      $("#finish-assignment-btn").hide();
+      $("#reject-button").hide();
       $("div.workflow.time-entry").show();
       $("p.error").hide();
       $("#duration-minutes").val("");
       $("#duration-minutes").focus();
+   };
+   $("#finish-assignment-btn").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
+      showDurationEntry();
+      $("div.workflow.time-entry").data("rejection", false);
    });
 
    $('#reject-button').on("click", function() {
-      if ( $(this).find(".reject").hasClass("disabled") ) return;
-
-      var rawMins = prompt("Approximately how many minutes did you spend on this assignment?");
-      if ( !rawMins ) return;
-      var mins = parseInt(rawMins, 10);
-      if ( !mins ) return;
-
-      toggleWorkflowButtons(false);
-      $("#note-modal .reject-instruct").show();
-      $("#problem-select").removeClass("invisible");
-      $("#note-modal").data("rejection", true);
-      $("#note-modal").data("duration", mins);
-      $("#dimmer").show();
-      $("#note-modal").show();
-      $("#note-modal textarea").val("");
-      $("#type-select").val(2);
+      if ( $(this).hasClass("disabled") ) return;
+      showDurationEntry();
+      $("div.workflow.time-entry").data("rejection", true);
    });
 
    // Task Note creation
