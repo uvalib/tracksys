@@ -30,6 +30,7 @@ class Step < ActiveRecord::Base
       end
 
       # make sure no illegal files are present in the starting directory
+      Rails.logger.info "Validate start files for project #{project.id}, step #{project.current_step.id}"
       return false if !validate_start_files(project)
 
       begin
@@ -116,7 +117,7 @@ class Step < ActiveRecord::Base
       # Source is gone, but dest exists and has files. Assume the owner
       # manualy moved the files and bail early
       if !Dir.exists?(src_dir) && Dir.exists?(dest_dir) && Dir[File.join(dest_dir, '**', '*.tif')].count { |file| File.file?(file) } > 0
-         Rails.logger.info("Destiation directory #{src_dir} exists, and is populated. Assuming move done manually.")
+         Rails.logger.info("Destination directory #{src_dir} exists, and is populated. Assuming move done manually.")
          return
       end
 

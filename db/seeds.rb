@@ -56,24 +56,24 @@ fail_qa1 = Step.create( workflow: wf, name: "Fail First QA", description: "Resca
    step_type: :error, manual: true, finish_dir: "scan/40_first_QA")
 
 qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique_owner,
-   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_QA")
 fail_qa2 = Step.create( workflow: wf, name: "Fail Second QA", description: "Rescan after failing Second QA", owner_type: :original_owner,
    step_type: :error, manual: true, finish_dir: "scan/70_second_qa")
 
 qa3 = Step.create( workflow: wf, name: "Final QA 1", description: "Final QA 1; student C 10% check", owner_type: :unique_owner,
-   start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/80_final_QA", finish_dir: "scan/80_final_QA")
 fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA 1", description: "Rescan after failing final QA 1", owner_type: :original_owner,
-   step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 qa4 = Step.create( workflow: wf, name: "Final QA 2", description: "Final QA 2; student D 10% check", owner_type: :unique_owner,
-   start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/80_final_QA", finish_dir: "scan/80_final_QA")
 fail_qa4 = Step.create( workflow: wf, name: "Fail Final QA 2", description: "Rescan after failing final QA 2", owner_type: :original_owner,
-   step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
-   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff", manual: true)
+   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_QA", finish_dir: "finalization/10_dropoff", manual: true)
 fail_finalize = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA",
-   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 scan.update(next_step_id: process.id)
 process.update(next_step_id: catalog.id)
@@ -117,19 +117,19 @@ fail_qa1 = Step.create( workflow: wf, name: "Fail First QA", description: "Resca
    step_type: :error, manual: true, finish_dir: "scan/40_first_QA")
 
 qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique_owner,
-   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_QA")
 fail_qa2 = Step.create( workflow: wf, name: "Fail Second QA", description: "Rescan after failing Second QA", owner_type: :original_owner,
    step_type: :error, manual: true, finish_dir: "scan/70_second_qa")
 
 qa3 = Step.create( workflow: wf, name: "Final QA", description: "Final QA pass; student C 30% check", owner_type: :unique_owner,
-   start_dir: "scan/80_final_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/80_final_QA", finish_dir: "scan/80_final_QA")
 fail_qa3 = Step.create( workflow: wf, name: "Fail Final QA", description: "Rescan after failing final QA", owner_type: :original_owner,
-   step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
-   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff", manual: true)
+   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_QA", finish_dir: "finalization/10_dropoff", manual: true)
 fail_finalize = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA",
-   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 scan.update(next_step_id: process.id)
 process.update(next_step_id: catalog.id)
@@ -166,14 +166,14 @@ fail_qa1 = Step.create( workflow: wf, name: "Fail First QA", description: "Resca
    step_type: :error, manual: true, finish_dir: "scan/40_first_QA")
 
 qa2 = Step.create( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique_owner,
-   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_qa")
+   start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_QA")
 fail_qa2 = Step.create( workflow: wf, name: "Fail Second QA", description: "Rescan after failing Second QA", owner_type: :original_owner,
    step_type: :error, manual: true, finish_dir: "scan/70_second_qa")
 
 finalize = Step.create( workflow: wf, name: "Finalize", description: "Supervisor QA, generate XML, send to finalization directory",
-   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_qa", finish_dir: "finalization/10_dropoff", manual: true)
+   owner_type: :supervisor_owner, step_type: :end, start_dir: "scan/80_final_QA", finish_dir: "finalization/10_dropoff", manual: true)
 fail_finalize = Step.create( workflow: wf, name: "Fail Supervisor QA", description: "Rescan after failing supervisor QA",
-   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_qa")
+   owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
 scan.update(next_step_id: process.id)
 process.update(next_step_id: catalog.id)
