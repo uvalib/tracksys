@@ -1,8 +1,12 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery
 
-   helper_method :current_user
+   helper_method :current_user, :acting_as_user?
 
+   def acting_as_user?
+      return !session[:act_as].nil?
+   end
+   
    def current_user
       computing_id = request.env['HTTP_REMOTE_USER'].to_s
       if computing_id.blank? && Rails.env != "production"
@@ -10,6 +14,10 @@ class ApplicationController < ActionController::Base
       end
       if @curr_user.nil?
          @curr_user = StaffMember.find_by(computing_id: computing_id)
+      end
+      Rails.logger.info "ACT AS [#{session[:act_as]}]"
+      if @curr_user.admin? && !session[:act_as].nil?
+         @curr_user = StaffMember.find_by(computing_id: session[:act_as])
       end
       return @curr_user
    end

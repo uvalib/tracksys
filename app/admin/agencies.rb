@@ -15,7 +15,7 @@ ActiveAdmin.register Agency do
      link_to "Edit", edit_resource_path  if current_user.admin?
   end
 
-  filter :name_cont, label: "Name"
+  filter :name_starts_with, label: "Name"
 
   index :id => 'agencies' do
     selectable_column

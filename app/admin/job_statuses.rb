@@ -2,7 +2,7 @@ ActiveAdmin.register JobStatus do
    menu :priority => 8, if: proc{ !current_user.viewer? }
    actions :all, :except => [:edit, :new]
 
-   filter :name_cont, :label=>"Job Type"
+   filter :name_starts_with, :label=>"Job Type"
    filter :originator_type, :as => :select, :collection => ['Metadata', 'MasterFile', 'Order', 'Unit'], :label => "Object"
    filter :originator_id, :as => :numeric, :label => "Object ID"
    filter :status, :as => :select, :collection => [ :pending, :running, :success, :failure ]

@@ -25,6 +25,32 @@
 @import "skills";
 @import "icons";
 
+#login-info.acting-as {
+   right: 5px;
+   top: -6px;
+}
+#login-info {
+   display: table-cell;
+   white-space: nowrap;
+   text-align: right;
+   position: absolute;
+   right: 15px;
+   top: 2px;
+   div {
+      color: #cdcdcd;
+   }
+   .act_as {
+      font-weight: bold;
+      margin-right: 5px;
+   }
+   a {
+      text-decoration: none;
+      &:hover {
+         color: #fff;
+      }
+   }
+}
+
 #mf-metadata-wrap {
    border:1px solid #ccc;
    background-color: white;

@@ -18,8 +18,8 @@ ActiveAdmin.register Customer do
   scope :all, :default => true
   scope :has_unpaid_invoices
 
-  filter :last_name_cont, label: "Last Name"
-  filter :email_cont, label: "Email"
+  filter :last_name_starts_with, label: "Last Name"
+  filter :email_starts_with, label: "Email"
   filter :academic_status, :as => :select
   filter :department, :as => :select
   filter :agencies, :as => :select
