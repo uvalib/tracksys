@@ -61,13 +61,9 @@ class Step < ActiveRecord::Base
 
       unit_dir = "%09d" % project.unit.id
       start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, unit_dir)
-      if !Dir.exists?(start_dir)
-         prob = Problem.find_by(name: "Filesystem")
-         note = "<p>Starting directory #{start_dir} does not exist.</p>"
-         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         project.active_assignment.update(status: :error )
-         return false
-      end
+
+      # if start dir doesnt exist, assume it has been manually moved.
+      return true if !Dir.exists?(start_dir)
 
       if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
          prob = Problem.find_by(name: "Filesystem")
