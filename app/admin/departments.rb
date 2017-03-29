@@ -4,7 +4,7 @@ ActiveAdmin.register Department do
   # strong paramters handling
   permit_params :name
 
-  filter :name
+  filter :name_starts_with, label: "Name"
 
   config.clear_action_items!
   action_item :new, :only => :index do

@@ -62,7 +62,7 @@ ActiveAdmin.register Order do
   scope :uniq
 
   filter :id_equals, :label=>"ID"
-  filter :order_title_starts_with, :label=>"Title"
+  filter :order_title_contains, :label=>"Title"
   filter :customer_last_name_starts_with, :label => "Customer Last Name"
   filter :date_request_submitted
   filter :date_due

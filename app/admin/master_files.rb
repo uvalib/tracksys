@@ -13,6 +13,22 @@ ActiveAdmin.register MasterFile do
    scope :in_digital_library, :show_count => true
    scope :not_in_digital_library, :show_count => true
 
+
+   filter :filename_starts_with, label: "filename"
+   filter :title_contains, label: "Title"
+   filter :description_contains, label: "Description"
+   filter :metadata_call_number_starts_with, :label => "Call Number"
+   filter :pid_starts_with, label: "PID"
+   filter :agency, :as => :select, collection: Agency.pluck(:name, :id) 
+   filter :unit_id_equals, :label => "Unit ID"
+   filter :order_id_equals, :label => "Order ID"
+   filter :customer_id_equals, :label => "Customer ID"
+   filter :customer_last_name_starts_with, :label => "Customer Last Name"
+   filter :metadata_title_starts_with, :label => "Metadata Title"
+   filter :date_archived
+   filter :date_dl_ingest
+   filter :date_dl_update
+
    # Setup Action Items =======================================================
    config.clear_action_items!
    action_item :edit, only: :show do
@@ -71,26 +87,6 @@ ActiveAdmin.register MasterFile do
          end
       end
    end
-
-   # Filters ==================================================================
-   filter :pid
-   filter :filename
-   filter :title
-   filter :description
-   filter :md5, :label => "MD5 Checksum"
-   filter :unit_id, :as => :numeric, :label => "Unit ID"
-   filter :order_id, :as => :numeric, :label => "Order ID"
-   filter :customer_id, :as => :numeric, :label => "Customer ID"
-   filter :customer_last_name, :as => :string, :label => "Customer Last Name"
-   filter :metadata_id, :as => :numeric, :label => "Metadata ID"
-   filter :metadata_title, :as => :string, :label => "Metadata Title"
-   filter :metadata_creator_name, :as => :string, :label => "Author"
-   filter :metadata_call_number, :as => :string, :label => "Call Number"
-   filter :academic_status, :as => :select
-   filter :date_archived
-   filter :date_dl_ingest
-   filter :date_dl_update
-   filter :agency, :as => :select
 
    # Index ====================================================================
    #

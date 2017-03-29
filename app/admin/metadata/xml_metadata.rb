@@ -31,17 +31,14 @@ ActiveAdmin.register XmlMetadata do
 
    # Filters ==================================================================
    #
-   filter :id
-   filter :title
-   filter :desc_metadata, :as => :string, :label => "XML Metadata"
-   filter :pid
+   filter :title_contains, label: "Title"
+   filter :pid_starts_with, label: "PID"
    filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
    filter :availability_policy
-   filter :orders_id, :as => :numeric
-   filter :collection_facet, :as => :string
+   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
 
    # INDEX page ===============================================================
    #

@@ -10,10 +10,10 @@ ActiveAdmin.register Invoice do
    scope :notified_past_due
    scope :permanent_nonpayment
 
-   filter :order_id, :as => :numeric
-   filter :fee_amount_paid
-   filter :notes
-   filter :transmittal_number
+   filter :order_id_equals, label: "Order ID"
+   filter :fee_amount_paid_equals, label: "Fee Amount Paid"
+   filter :notes_contains, label: "Notes"
+   filter :transmittal_number_starts_with, label: "Transmittal Number"
    filter :date_invoice, :label => "Date Invoice Sent"
    filter :date_fee_paid
    filter :permanent_nonpayment

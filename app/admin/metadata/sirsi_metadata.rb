@@ -29,22 +29,18 @@ ActiveAdmin.register SirsiMetadata do
   scope :not_in_digital_library
   scope :dpla
 
-  filter :id
-  filter :title
-  filter :call_number
-  filter :creator_name
-  filter :catalog_key
-  filter :barcode
-  filter :pid
+  filter :barcode_starts_with, label: "Barcode"
+  filter :call_number_starts_with, label: "Call Number"
+  filter :title_contains, label: "Title"
+  filter :creator_name_starts_with, label: "Creator name"
+  filter :catalog_key_starts_with, label: "Catalog key"
+  filter :pid_starts_with, label: "PID"
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'
   filter :resource_type, :as => :select, :collection => Metadata::RESOURCE_TYPES
   filter :availability_policy
-  filter :customers_id, :as => :numeric
-  filter :orders_id, :as => :numeric
-  filter :agencies_id, :as => :numeric
-  filter :collection_facet, :as => :string
+  filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
 
   csv do
     column :id

@@ -19,8 +19,8 @@ ActiveAdmin.register Unit do
   filter :id_eq, :label=>"ID"
   filter :order_id_eq, :label => "Order ID"
   filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
-  filter :metadata_title_starts_with, :as => :string, :label => "Metadata Title"
-  filter :agency, :as => :select
+  filter :metadata_title_contains, :as => :string, :label => "Metadata Title"
+  filter :agency, :as => :select, collection: Agency.pluck(:name, :id) 
   filter :staff_notes
   filter :special_instructions
   filter :date_archived
