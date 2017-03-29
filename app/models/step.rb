@@ -123,6 +123,7 @@ class Step < ActiveRecord::Base
 
       # create dest if it doesn't exist
       Dir.mkdir(dest_dir) if !Dir.exists?(dest_dir)
+      File.chmod(0755, dest_dir)
 
       # See if there is an 'Output' or 'output' folder present in the source directory
       output_dir =  File.join(src_dir, "Output")
@@ -162,13 +163,14 @@ class Step < ActiveRecord::Base
       # Move all files over and remove src dir
       src_files = Dir["#{src_dir}/*.{tif,xml,mpcatalog}"]
       src_files.each do |src_file|
-         src_md5 = Digest::MD5.hexdigest(File.read(src_file) )
+         # src_md5 = Digest::MD5.hexdigest(File.read(src_file) )
          dest_file = File.join("#{dest_dir}", File.basename(src_file) )
          FileUtils.mv( src_file, dest_file)
-         dest_md5 = Digest::MD5.hexdigest(File.read(dest_file) )
-         if dest_md5 != src_md5
-            raise "MD5 hash failed for #{dest_file}"
-         end
+         File.chmod(0664, dest_file)
+         # dest_md5 = Digest::MD5.hexdigest(File.read(dest_file) )
+         # if dest_md5 != src_md5
+         #    raise "MD5 hash failed for #{dest_file}"
+         # end
       end
 
       # Src is now empty. Remove it.
