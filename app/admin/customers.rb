@@ -20,9 +20,9 @@ ActiveAdmin.register Customer do
 
   filter :last_name_starts_with, label: "Last Name"
   filter :email_starts_with, label: "Email"
-  filter :academic_status, :as => :select
-  filter :department, :as => :select
   filter :agencies, :as => :select
+  filter :department, :as => :select
+  filter :academic_status, :as => :select
 
   index :as => :table do
     selectable_column

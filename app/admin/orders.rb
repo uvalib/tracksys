@@ -61,21 +61,17 @@ ActiveAdmin.register Order do
   scope :unpaid
   scope :uniq
 
-  filter :order_title, :label=>"Title"
-  filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-  filter :customer_last_name, :as => :string, :label => "Customer Last Name"
+  filter :id_equals, :label=>"ID"
+  filter :order_title_starts_with, :label=>"Title"
+  filter :customer_last_name_starts_with, :label => "Customer Last Name"
   filter :date_request_submitted
   filter :date_due
+  filter :order_status, :as => :select, :collection => Order::ORDER_STATUSES
   filter :date_archiving_complete
   filter :date_patron_deliverables_complete
   filter :date_customer_notified
-  filter :fee_estimated
-  filter :fee_actual
-  filter :staff_notes
-  filter :special_instructions
-  filter :invoices_count
-  filter :master_files_count
-  filter :academic_status, :as => :select
+  filter :staff_notes_contains, :label=>"Staff Notes"
+  filter :special_instructions_contains, :label=>"Special Instructions"
   filter :department, :as => :select
   filter :agency, :as => :select
 

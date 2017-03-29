@@ -16,6 +16,16 @@ ActiveAdmin.register Unit do
   scope :uncompleted_units_of_partially_completed_orders
   scope :ready_for_repo
 
+  filter :id_eq, :label=>"ID"
+  filter :order_id_eq, :label => "Order ID"
+  filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
+  filter :metadata_title_starts_with, :as => :string, :label => "Metadata Title"
+  filter :agency, :as => :select
+  filter :staff_notes
+  filter :special_instructions
+  filter :date_archived
+  filter :date_dl_deliverables_ready
+
   csv do
     column :id
     column :metadata_title
@@ -118,16 +128,6 @@ ActiveAdmin.register Unit do
      out = {total: cnt, page: params[:page], maxpage: maxpage, start: start_idx+1, end: end_idx, masterfiles: items}
      render json: out, status: :ok
   end
-
-  filter :id_eq, :label=>"ID"
-  filter :order_id_eq, :label => "Order ID"
-  filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
-  filter :metadata_title_starts_with, :as => :string, :label => "Metadata Title"
-  filter :agency, :as => :select
-  filter :staff_notes
-  filter :special_instructions
-  filter :date_archived
-  filter :date_dl_deliverables_ready
 
   # Indev view ================================================================
   #
