@@ -149,8 +149,9 @@ $(function() {
 
    $(".submit.time-entry").on("click", function() {
       $("p.error").hide();
-      var mins = parseInt($("#duration-minutes").val(), 10);
-      if ( !mins && mins !== "0" ) {
+      var rawMins = $("#duration-minutes").val();
+      var mins = parseInt(rawMins, 10);
+      if ( !mins && rawMins !== "0" ) {
          $("p.error").show();
          return;
       }
