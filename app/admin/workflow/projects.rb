@@ -6,8 +6,8 @@ ActiveAdmin.register Project do
    config.batch_actions = false
    config.clear_action_items!
 
-   scope :active, :default => true
-   scope("Assigned to me") { |project| Project.active.where(owner: current_user) }
+   scope :active, :default => lambda{ !current_user.student? }
+   scope "Assigned to me", :default => lambda{ current_user.student? } { |project| Project.active.where(owner: current_user) }
    scope :unassigned
    scope :overdue
    scope :bound, if: proc { current_user.can_process? Category.find(1)}
@@ -18,7 +18,7 @@ ActiveAdmin.register Project do
    scope :patron
    scope :digital_collection_building
    scope :grant
-   scope :finished
+   scope :finished, if: proc { !current_user.student?}
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.all
