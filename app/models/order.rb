@@ -38,11 +38,9 @@ class Order < ActiveRecord::Base
    scope :awaiting_approval, ->{where("order_status = 'requested'") }
    scope :approved,->{ where("order_status = 'approved'") }
    scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
-   scope :recent,
-   lambda {|limit=5|
-      order('date_request_submitted DESC').limit(limit)
-   }
+   scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
+   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
    # validations
@@ -190,11 +188,11 @@ class Order < ActiveRecord::Base
       end
       q = nil
       if Time.now.to_date == timespan.to_date
-         where("date_due = ?", Date.today).active
+         where("date_due = ?", Date.today).active.patron_requests
       elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan).active
+         where("date_due < ?", Date.today).where("date_due > ?", timespan).active.patron_requests
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan).active
+         where("date_due > ?", Date.today).where("date_due < ?", timespan).active.patron_requests
       end
    end
    def self.overdue
