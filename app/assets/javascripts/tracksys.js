@@ -1,6 +1,19 @@
 $(function() {
    $("#q_desc_metadata_input select").attr("disabled", "disabled");
 
+   $(".recent-error.trash.ts-icon").on("click", function() {
+      var resp = confirm('Delete recent error?');
+      if (!resp) return;
+      
+      var box = $(this).closest("div.error");
+      $.ajax({
+         url: "/admin/job_statuses/"+box.data("job-id"),
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            box.hide();
+         }
+      });
+   });
 
    $("input").not($(":button")).keypress(function (evt) {
       var filterForm = $(this).closest(".filter_form");

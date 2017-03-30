@@ -18,11 +18,12 @@ ActiveAdmin.register Customer do
   scope :all, :default => true
   scope :has_unpaid_invoices
 
-  filter :last_name_starts_with, label: "Last Name"
+  filter :last_name_or_first_name_starts_with, label: "Name"
   filter :email_starts_with, label: "Email"
   filter :agencies, :as => :select, collection: Agency.pluck(:name, :id)
   filter :department, :as => :select, collection: Department.pluck(:name, :id)
-  filter :academic_status, :as => :select, collection: AcademicStatus.pluck(:name, :id) 
+  filter :primary_address_organization_or_billable_address_organization_starts_with, :label => "Organization"
+  filter :academic_status, :as => :select, collection: AcademicStatus.pluck(:name, :id)
 
   index :as => :table do
     selectable_column

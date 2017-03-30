@@ -38,6 +38,7 @@ ActiveAdmin.register XmlMetadata do
    filter :use_right, :as => :select, label: 'Right Statement'
    filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
    filter :availability_policy
+   filter :desc_metadata_contains, label: "XML Metadata"
    filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
 
    # INDEX page ===============================================================

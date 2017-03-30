@@ -15,16 +15,17 @@ ActiveAdmin.register MasterFile do
 
 
    filter :filename_starts_with, label: "filename"
-   filter :title_contains, label: "Title"
+   filter :title_or_description_contains, label: "Title / Description"
    filter :description_contains, label: "Description"
    filter :metadata_call_number_starts_with, :label => "Call Number"
    filter :pid_starts_with, label: "PID"
-   filter :agency, :as => :select, collection: Agency.pluck(:name, :id) 
+   filter :agency, :as => :select, collection: Agency.pluck(:name, :id)
    filter :unit_id_equals, :label => "Unit ID"
    filter :order_id_equals, :label => "Order ID"
    filter :customer_id_equals, :label => "Customer ID"
    filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :metadata_title_starts_with, :label => "Metadata Title"
+   filter :metadata_creator_name_starts_with, :label => "Author"
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update

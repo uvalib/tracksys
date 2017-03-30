@@ -20,11 +20,15 @@ ActiveAdmin.register Unit do
   filter :order_id_eq, :label => "Order ID"
   filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
   filter :metadata_title_contains, :as => :string, :label => "Metadata Title"
-  filter :agency, :as => :select, collection: Agency.pluck(:name, :id) 
+  filter :agency, :as => :select, collection: Agency.pluck(:name, :id)
   filter :staff_notes
   filter :special_instructions
   filter :date_archived
   filter :date_dl_deliverables_ready
+  filter :department, :as => :select
+  filter :reorder, :as => :select
+  filter :complete_scan, :as => :select
+
 
   csv do
     column :id
@@ -187,9 +191,7 @@ ActiveAdmin.register Unit do
   show :title => lambda{|unit|  unit.reorder ? "Unit ##{unit.id} : RE-ORDER" : "Unit ##{unit.id}"} do |unit|
     err = unit.last_error
     if !err.blank?
-      div :class => "columns-none error" do
-         raw("RECENT ERROR: <a href='/admin/job_statuses/#{err[:job]}'>#{err[:error]}</a>")
-      end
+      render partial: "recent_error", locals: {job_id: err[:job] , error: err[:error]}
     end
     div :class => 'two-column' do
       panel "General Information" do

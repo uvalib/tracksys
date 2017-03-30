@@ -4,7 +4,7 @@ ActiveAdmin.register JobStatus do
 
    filter :name_starts_with, :label=>"Job Type"
    filter :originator_type, :as => :select, :collection => ['Metadata', 'MasterFile', 'Order', 'Unit'], :label => "Object"
-   filter :originator_id, :as => :numeric, :label => "Object ID"
+   filter :originator_id_eq, :label => "Object ID"
    filter :status, :as => :select, :collection => [ :pending, :running, :success, :failure ]
    filter :created_at, :label => "Submitted"
    filter :started_at, :label => "Started"
