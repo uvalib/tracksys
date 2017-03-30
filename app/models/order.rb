@@ -43,8 +43,6 @@ class Order < ActiveRecord::Base
       order('date_request_submitted DESC').limit(limit)
    }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
-   scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
-   scope :canceled, ->{ where("date_canceled is not NULL")}
 
    #------------------------------------------------------------------
    # validations
@@ -204,9 +202,11 @@ class Order < ActiveRecord::Base
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
    end
    def self.active
-      where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'")
-         .where("date_patron_deliverables_complete is NULL").where("order_status != 'requested'")
-         .where("order_status != 'deferred'").where("order_status != 'completed'")
+      # ['requested', 'deferred', 'canceled', 'approved', 'completed']
+      where("order_status = 'approved' and date_customer_notified is null")
+      # where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'")
+      #    .where("date_patron_deliverables_complete is NULL").where("order_status != 'requested'")
+      #    .where("order_status != 'deferred'").where("order_status != 'completed'")
    end
 
 
