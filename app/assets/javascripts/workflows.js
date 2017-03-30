@@ -63,6 +63,7 @@ $(function() {
    };
    $(".owner").on("mouseover", function() {
       if ( $(this).hasClass("disabled") ) return;
+      if ( $(this).closest(".project-card").hasClass("finished") ) return;
       $(".owner-dd").hide();
       var dd = $(this).closest(".project-footer").find(".owner-dd");
       dd.show();
@@ -79,6 +80,8 @@ $(function() {
       }, 250);
    });
    $(".owner").on("mouseout", function() {
+      if ( $(this).hasClass("disabled") ) return;
+      if ( $(this).closest(".project-card").hasClass("finished") ) return;
       var dd = $(this).closest(".project-footer").find(".owner-dd");
       menuHideTimerId = setTimeout(function() {
          dd.fadeOut();
