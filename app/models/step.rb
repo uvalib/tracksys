@@ -69,6 +69,32 @@ class Step < ActiveRecord::Base
       # nothing to validate; no images. Assume manual move
       return true if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
 
+      # Tif files are present. Make sure the names match the unit. also
+      # make sure highest number is the same as the count
+      highest = -1
+      cnt = 0
+      Dir[File.join(start_dir, '**', '*.tif')].each do |f|
+         name = File.basename f,".tif" # get name minus extention
+         num = name.split("_")[1].to_i
+         cnt += 1
+         highest = num if num > highest
+         if name.split("_")[0] != unit_dir
+            prob = Problem.find_by(name: "Filesystem")
+            note = "<p>Found incorrectly named image file #{f}. "
+            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
+            project.active_assignment.update(status: :error )
+            return false
+         end
+      end
+
+      if highest != cnt
+         prob = Problem.find_by(name: "Filesystem")
+         note = "<p>Number of image files does not match highest image sequence number #{highest}. "
+         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
+         project.active_assignment.update(status: :error )
+         return false
+      end
+
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
       if Dir[File.join(start_dir, '**', '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
@@ -125,10 +151,6 @@ class Step < ActiveRecord::Base
          return
       end
 
-      # create dest if it doesn't exist
-      Dir.mkdir(dest_dir) if !Dir.exists?(dest_dir)
-      File.chmod(0775, dest_dir)
-
       # See if there is an 'Output' or 'output' folder present in the source directory
       output_dir =  File.join(src_dir, "Output")
       output_exists = false
@@ -154,16 +176,8 @@ class Step < ActiveRecord::Base
          end
       end
 
-      # Move all files over and remove src dir
-      src_files = Dir["#{src_dir}/*.{tif,xml,mpcatalog}"]
-      src_files.each do |src_file|
-         dest_file = File.join("#{dest_dir}", File.basename(src_file) )
-         FileUtils.mv( src_file, dest_file)
-         # File.chmod(0664, dest_file)
-      end
-
-      # Src is now empty. Remove it.
-      FileUtils.rm_r src_dir
+      # Move the source directly to destination directory
+      FileUtils.mv(src_dir,dest_dir)
 
       if output_exists
          # put back the original src/ouput folder
