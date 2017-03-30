@@ -210,11 +210,11 @@ class Project < ActiveRecord::Base
       curr_step = 0
       step_ids = []
       self.assignments.joins(:step).each do |a|
-         if !a.step.error? && !step_ids.include?(a.step.id)
+         if !a.step.error? && !step_ids.include?(a.step.id) && !a.reassigned? && !a.error? && !a.rejected?
             step_ids << a.step.id
-            curr_step +=1
-            curr_step +=1 if !a.started_at.nil?
-            curr_step +=1 if !a.finished_at.nil? && !a.reassigned?
+            curr_step +=1  # if an assignment is here, that is the first count: Assigned
+            curr_step +=1 if !a.started_at.nil?    # Started
+            curr_step +=1 if !a.finished_at.nil?   # Finished
          end
       end
       return (curr_step.to_f/num_steps.to_f*100).to_i

@@ -202,6 +202,7 @@ class Order < ActiveRecord::Base
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
    end
    def self.active
+      # FIXME NEED TO EXCLUDE DIGITAL COLLECTION BUILDING ORDERS
       # ['requested', 'deferred', 'canceled', 'approved', 'completed']
       where("order_status = 'approved' and date_customer_notified is null")
       # where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'")

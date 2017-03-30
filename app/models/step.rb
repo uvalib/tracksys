@@ -66,13 +66,8 @@ class Step < ActiveRecord::Base
       # if start dir doesnt exist, assume it has been manually moved.
       return true if !Dir.exists?(start_dir)
 
-      if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
-         prob = Problem.find_by(name: "Filesystem")
-         note = "<p>No image files found in starting directory #{start_dir}.</p>"
-         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         project.active_assignment.update(status: :error )
-         return false
-      end
+      # nothing to validate; no images. Assume manual move
+      return true if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
 
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
@@ -164,7 +159,7 @@ class Step < ActiveRecord::Base
       src_files.each do |src_file|
          dest_file = File.join("#{dest_dir}", File.basename(src_file) )
          FileUtils.mv( src_file, dest_file)
-         File.chmod(0664, dest_file)
+         # File.chmod(0664, dest_file)
       end
 
       # Src is now empty. Remove it.
