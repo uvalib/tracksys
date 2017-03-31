@@ -95,6 +95,27 @@ class Step < ActiveRecord::Base
          return false
       end
 
+      cnt = 0
+      Dir[File.join(start_dir, '**', '*.mpcatalog')].each do |f|
+         cnt += 1
+         if cnt > 1
+            prob = Problem.find_by(name: "Filesystem")
+            note = "<p>Found more than one .mpcatalog file."
+            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
+            project.active_assignment.update(status: :error )
+            return false
+         end
+
+         name = File.basename f,".mpcatalog"
+         if name != unit_dir
+            prob = Problem.find_by(name: "Filesystem")
+            note = "<p>Found incorrectly named .mpcatalog file #{f}. "
+            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
+            project.active_assignment.update(status: :error )
+            return false
+         end
+      end
+
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
       if Dir[File.join(start_dir, '**', '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
