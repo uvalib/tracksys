@@ -25,6 +25,22 @@
 @import "skills";
 @import "icons";
 
+body.active_admin.admin_sirsi_metadata, body.active_admin.admin_xml_metadata {
+   #title_bar {
+      background-color: #d4e0f5;
+   }
+}
+body.active_admin.admin_units {
+   #title_bar {
+      background-color: #e0cafa;
+   }
+}
+body.active_admin.admin_orders {
+   #title_bar {
+      background-color: #bff5bf;
+   }
+}
+
 span.blank_slate {
    display:none !important;
 }

@@ -1,5 +1,32 @@
 body.active_admin {
-
+   #header {
+      background-color: #405056;
+      background-image: none;
+      box-shadow: none;
+      text-shadow: none;
+      border-bottom: none;
+   }
+   #title_bar {
+      box-shadow: none;
+      text-shadow: none;
+      border-bottom: none;
+      background-image: none;
+      background-color: #eaeaea;
+      border-top: none;
+      border-left: none;
+      a, .breadcrumb_sep {
+         color: #444;
+      }
+      .action_item a {
+         background-image: none;
+         background-color: #f0f0f0;
+         color: #444;
+         text-shadow: none;
+         box-shadow: none;
+         border-radius: 5px;
+         border-color: #bbb;
+      }
+   }
    #search-status-_sidebar_section {
       display: none;
    }
