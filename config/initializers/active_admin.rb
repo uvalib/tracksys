@@ -1,37 +1,9 @@
-class CustomUtilityNav < ActiveAdmin::Component
-
-  def build(index_classes, stuff)
-     if acting_as_user?
-        div id: "login-info", class: "acting-as" do
-           div  do
-             span :class=>"act_as" do
-                "Acting as:"
-             end
-             span do
-                link_to "#{current_user.full_name}", "/admin/staff_members/#{current_user.id}"
-             end
-           end
-           div  do
-             link_to "Exit", "/admin/staff_members/#{current_user.id}/exit", method: "POST"
-           end
-        end
-     else
-        div id: "login-info" do
-           link_to "#{current_user.full_name}", "/admin/staff_members/#{current_user.id}"
-        end
-     end
-
-  end
-  def default_class_name
-    "header-item tabs"
-  end
-end
 ActiveAdmin.setup do |config|
    ActiveAdmin.setup do |config|
 
      # View a list of all the elements you can override
      # https://github.com/gregbell/active_admin/blob/master/lib/active_admin/view_factory.rb
-     config.view_factory.utility_navigation = CustomUtilityNav
+     config.view_factory.utility_navigation = HeaderUserInfo
 
    end
   # == Site Title

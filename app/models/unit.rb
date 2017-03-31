@@ -107,6 +107,10 @@ class Unit < ActiveRecord::Base
       end
    end
 
+   def ingested?
+      return !date_dl_deliverables_ready.nil? || !date_patron_deliverables_ready.nil? || !date_archived.nil?
+   end
+
    def in_dl?
       return self.date_dl_deliverables_ready?
    end

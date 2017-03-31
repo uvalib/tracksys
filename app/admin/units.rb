@@ -372,8 +372,7 @@ ActiveAdmin.register Unit do
      end
   end
 
-  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
-
+  sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder && !unit.ingested? } do
     if unit.project.nil?
        approved = unit.unit_status == 'approved' && unit.order.order_status == 'approved'
        div :class => 'workflow_button' do
@@ -440,6 +439,9 @@ ActiveAdmin.register Unit do
 
     if unit.date_archived
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
+      div :class => 'workflow_button' do
+         raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML Archive</a>")
+      end
     else
       if  unit.reorder == false
          div do "This unit cannot be downloaded because it is not archived." end
@@ -546,6 +548,17 @@ ActiveAdmin.register Unit do
   member_action :check_unit_delivery_mode, :method => :put do
     Unit.find(params[:id]).check_unit_delivery_mode
     redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
+  end
+
+  member_action :download_unit_xml, :method => :get do
+     unit = Unit.find(params[:id])
+     unit_dir = "%09d" % unit.id
+     source_fn = File.join(ARCHIVE_DIR, unit_dir, "#{unit_dir}.xml")
+     if File.exists? source_fn
+        send_file(source_fn)
+     else
+        render text: "Unit XML does not exist in the archive."
+     end
   end
 
   member_action :copy_from_archive, :method => :put do
