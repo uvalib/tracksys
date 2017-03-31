@@ -6,8 +6,11 @@ ActiveAdmin.register Project do
    config.batch_actions = false
    config.clear_action_items!
 
-   scope :active, :default =>true
-   scope ("Assigned to me") { |project| Project.active.where(owner: current_user) }
+   # scope :active, :default =>true
+   # scope ("Assigned to me") { |project| Project.active.where(owner: current_user) }
+   scope :active, :default => lambda{ !current_user.student? }
+   scope "Assigned to me", :default => lambda{ current_user.student? } { |project| Project.active.where(owner: current_user) }
+   
    scope :unassigned
    scope :overdue
    scope :bound, if: proc { current_user.can_process? Category.find(1)}

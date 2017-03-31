@@ -333,6 +333,7 @@ $(function() {
 
    // Create projects
    $("#show-create-digitization-project").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
       $("#dimmer").show();
       $("#project-modal").show();
    });

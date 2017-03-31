@@ -317,6 +317,9 @@ ActiveAdmin.register Order do
       row :invoices do |order|
         link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
       end
+      row :projects do |order|
+        link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
+      end
     end
   end
 

@@ -23,6 +23,7 @@ class Order < ActiveRecord::Base
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
+   has_many :projects, :through=> :units
 
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
@@ -86,6 +87,12 @@ class Order < ActiveRecord::Base
       self.is_approved = 0 if self.is_approved.nil?
       self.is_approved = 1 if self.order_status == 'approved'
       self.email = nil if self.email.blank?
+      if self.projects.count > 0
+         self.projects.update_all(due_on: self.date_due)
+      end
+      if self.order_status == 'canceled' && self.units.count > 0
+         self.units.update_all(unit_status: 'canceled')
+      end
    end
 
    before_destroy :destroyable?

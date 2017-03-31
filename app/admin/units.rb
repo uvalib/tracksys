@@ -374,9 +374,15 @@ ActiveAdmin.register Unit do
 
   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder } do
 
-    if unit.unit_status == "approved" && unit.project.nil?
+    if unit.project.nil?
+       approved = unit.unit_status == 'approved' && unit.order.order_status == 'approved'
        div :class => 'workflow_button' do
-         raw("<span  class='admin-button' id='show-create-digitization-project'>Create Digitization Project</span>")
+         cn = "admin-button"
+         cn << " disabled" if !approved
+         raw("<span class='#{cn}' id='show-create-digitization-project'>Create Digitization Project</span>")
+       end
+       if !approved
+          div class: "admin-button-note" do "Cannot create project, unit has not been approved." end
        end
     end
 
