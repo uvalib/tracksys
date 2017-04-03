@@ -440,7 +440,7 @@ ActiveAdmin.register Unit do
     if unit.date_archived
       div :class => 'workflow_button' do button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put end
       div :class => 'workflow_button' do
-         raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML Archive</a>")
+         raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
       end
     else
       if  unit.reorder == false
