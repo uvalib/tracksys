@@ -1,4 +1,28 @@
 body.active_admin {
+   h3  {
+      background-image: none;
+      box-shadow: none;
+      background-color: #dedede;
+      text-shadow: none;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      font-weight: 500;
+   }
+   table.index_table th {
+      background-color: #efefef;
+      background-image: none;
+      text-shadow: none;
+      box-shadow: none;
+      border-color: #ddd;
+   }
+   table.index_table th.sorted-desc, table.index_table th.sorted-asc {
+      background-color: #ddd;
+   }
+   div.section, div.panel {
+      box-shadow: none;
+      border-radius: 0;
+      border: 1px solid #e0e0e0;
+   }
    #header {
       background-color: #405056;
       background-image: none;
@@ -29,6 +53,14 @@ body.active_admin {
    }
    #search-status-_sidebar_section {
       display: none;
+   }
+   div.flashes div.flash.flash_notice {
+      background-image: none;
+      border-bottom: none;
+      text-shadow: none;
+      border-top: 1px solid #080;
+      border-bottom: 1px solid #080;
+      font-weight: normal;
    }
 
    input[readonly] {
