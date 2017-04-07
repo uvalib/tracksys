@@ -53,6 +53,11 @@
       }
    }
 }
+.viu-button-bar {
+   position: relative;
+   text-align: right;
+   left: 10px;
+}
 table.project-equipment-setup td {
    padding: 2px;
    border-bottom: none;
@@ -60,6 +65,9 @@ table.project-equipment-setup td {
 }
 input[type=text].edit-camera, input[type=text].edit-item  {
    width: 100%
+}
+input[type=text].edit-item {
+   margin-bottom: 5px;
 }
 textarea.edit-camera{
    width: 100%;
@@ -74,10 +82,6 @@ span.mf-action-button.condition {
    padding: 0px 10px;
    font-size: 0.8em;
    font-weight: normal;
-}
-
-div.project-card.finished {
-   opacity: 0.6;
 }
 div.project-card.overdue {
    box-shadow: 0px 0px 2px 1px #f00

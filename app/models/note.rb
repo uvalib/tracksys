@@ -3,6 +3,7 @@ class Note < ActiveRecord::Base
    belongs_to :staff_member
    belongs_to :problem, :counter_cache => true
    belongs_to :project
+   belongs_to :step
 
    validates :project, presence: true
    validates :staff_member, presence: true

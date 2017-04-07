@@ -5,11 +5,20 @@ div :class => 'columns-none' do
             row("Call Number") do |project|
                project.unit.metadata.call_number
             end
-            row :viu_number do |project|
-               v = project.viu_number
-               v = "<span class='empty'>Empty</span>" if v.blank?
-               disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
-               raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
+            row :viu_number, class: "viu_row" do |project|
+               div do
+                  v = project.viu_number
+                  v = "<span class='empty'>Empty</span>" if v.blank?
+                  disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
+                  raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
+               end
+               if current_user == project.owner
+                  div class: "viu-button-bar" do
+                     span class: "project mf-action-button item edit-btn" do "Edit" end
+                     span class: "project mf-action-button hidden item save-btn"  do "Save" end
+                     span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
+                  end
+               end
             end
             row("Location") do |project|
                project.unit.metadata.location
@@ -31,13 +40,6 @@ div :class => 'columns-none' do
                project.condition_note
             end
          end
-         if current_user == project.owner
-            div class: "mini-button-bar" do
-               span class: "project mf-action-button item edit-btn" do "Edit" end
-               span class: "project mf-action-button hidden item save-btn"  do "Save" end
-               span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
-            end
-         end
       end
    end
    div :class => 'two-column' do
@@ -46,11 +48,15 @@ div :class => 'columns-none' do
             row :workstation do |project|
                v = "<span class='empty'>Empty</span>"
                v = project.workstation.name if !project.workstation.blank?
-               disp = "<span class='disp-camera' id='workstation'>#{v}</span>"
+               disp = "<span data-id='#{project.workstation.id}' class='disp-camera' id='workstation'>#{v}</span>"
                sel = "<select id='workstation-edit' class='hidden edit-camera'>"
                sel << "<option value=''>Choose a workstation</option>"
                Workstation.available.each do |w|
-                  sel << "<option value='#{w.id}'>#{w.name}</option>"
+                  if project.workstation == w
+                     sel << "<option value='#{w.id}' selected>#{w.name}</option>"
+                  else
+                     sel << "<option value='#{w.id}'>#{w.name}</option>"
+                  end
                end
                sel << "</select>"
                raw("#{disp}#{sel}")

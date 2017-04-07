@@ -119,6 +119,13 @@ div.panel.notes, div.panel.history {
       border-radius: 0;
       margin: 5px 0 15px 0;
       padding: 8px;
+      .note-type {
+         font-weight: bold;
+         text-align: right;
+      }
+      .note-step {
+         text-align: right;
+      }
       .note-info {
          position: relative;
          overflow: hidden;

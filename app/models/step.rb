@@ -7,57 +7,30 @@ class Step < ActiveRecord::Base
    belongs_to :workflow
    belongs_to :next_step, class_name: "Step"
    belongs_to :fail_step, class_name: "Step"
+   has_many :notes
 
    # Perform end of step validation and automation
    #
    def finish( project )
-      # determine if files should automatically be moved
+      # For manual steps, just validate the destingation directory
       if self.manual
-         begin
-            # ensure presence of finish dir and files
-            validate_manually_moved_files( project )
-            return true
-         rescue Exception => e
-            Rails.logger.error("validate manually moved files FAILED #{e.to_s}")
-            prob = Problem.find_by(name: "Filesystem")
-            note = "<p>Files are missing from the finish directory. "
-            note << "When the problem has been resolved, click finish again.</p>"
-            note << "<p><b>Error details:</b> #{e.to_s}</p>"
-            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-            project.active_assignment.update(status: :error )
-            return false
-         end
+         return validate_finish_dir( project )
       end
 
-      # make sure no illegal files are present in the starting directory
+      # Make sure no illegal/stopper files are present in the starting directory
+      # NOTE: The validation will be skipped if no start directory is found. This
+      # is needed to handle error recovery when a automatic move failed and the
+      # user manually moved files to finsh dir befor finish clicked
       Rails.logger.info "Validate start files for project #{project.id}, step #{project.current_step.id}"
       return false if !validate_start_files(project)
 
-      begin
-         # If a different finish dir is specified, move the files there
-         if self.start_dir != self.finish_dir
-            move_files( project )
-         end
-      rescue Exception => e
-         Rails.logger.error("Move files FAILED #{e.to_s}")
-         # Any problems moving files around will set the assignment as ERROR and leave it
-         # uncompleted. A note detailing the error will be generated. At this point, the current
-         # user can try again, or manually fix the directories and finish the step again.
-         prob = Problem.find_by(name: "Filesystem")
-         note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
-         note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
-         note << "<p><b>Error details:</b> #{e.to_s}</p>"
-         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         project.active_assignment.update(status: :error )
-         return false
-      end
-      return true
+      # Automatically move files to destination directory
+      return move_files( project )
    end
 
    private
    def validate_start_files(project)
-      # Error steps are all manual and cannot be generically validated
-      # Just return true if this is an error step
+      # Error steps are all manual so start dir cannot be validated (it wont exist)
       return true if self.error?
 
       unit_dir = "%09d" % project.unit.id
@@ -66,82 +39,117 @@ class Step < ActiveRecord::Base
       # if start dir doesnt exist, assume it has been manually moved.
       return true if !Dir.exists?(start_dir)
 
-      # nothing to validate; no images. Assume manual move
-      return true if Dir[File.join(start_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
+      # Directory is present and has images; make sure content is all OK
+      return validate_directory_content(project, start_dir)
+   end
 
-      # Tif files are present. Make sure the names match the unit. also
-      # make sure highest number is the same as the count
+   private
+   def step_failed(project, msg)
+      prob = Problem.find_by(name: "Filesystem")
+      Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, problem: prob, step: project.current_step )
+      project.active_assignment.update(status: :error )
+   end
+
+   private
+   def validate_directory_content(project, dir)
+      # Make sure the names match the unit & highest number is the same as the count
       highest = -1
       cnt = 0
-      Dir[File.join(start_dir, '**', '*.tif')].each do |f|
+      unit_dir = "%09d" % project.unit.id
+      Dir[File.join(dir, '*.tif')].each do |f|
          name = File.basename f,".tif" # get name minus extention
          num = name.split("_")[1].to_i
          cnt += 1
          highest = num if num > highest
          if name.split("_")[0] != unit_dir
-            prob = Problem.find_by(name: "Filesystem")
-            note = "<p>Found incorrectly named image file #{f}. "
-            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-            project.active_assignment.update(status: :error )
+            step_failed(project, "<p>Found incorrectly named image file #{f}.</p>")
             return false
          end
       end
-
+      if cnt == 0
+         step_failed(project, "<p>No image files found in #{dir}</p>")
+         return false
+      end
       if highest != cnt
-         prob = Problem.find_by(name: "Filesystem")
-         note = "<p>Number of image files does not match highest image sequence number #{highest}. "
-         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         project.active_assignment.update(status: :error )
+         step_failed(project, "<p>Number of image files does not match highest image sequence number #{highest}.</p>")
          return false
       end
 
+      # Make sure there is at most 1 mpcatalog file
       cnt = 0
-      Dir[File.join(start_dir, '**', '*.mpcatalog')].each do |f|
+      Dir[File.join(dir, '*.mpcatalog')].each do |f|
          cnt += 1
          if cnt > 1
-            prob = Problem.find_by(name: "Filesystem")
-            note = "<p>Found more than one .mpcatalog file."
-            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-            project.active_assignment.update(status: :error )
+            step_failed(project, "<p>Found more than one .mpcatalog file.</p>")
             return false
          end
 
          name = File.basename f,".mpcatalog"
          if name != unit_dir
-            prob = Problem.find_by(name: "Filesystem")
-            note = "<p>Found incorrectly named .mpcatalog file #{f}. "
-            Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-            project.active_assignment.update(status: :error )
+            step_failed(project, "<p>Found incorrectly named .mpcatalog file #{f}.</p>")
             return false
          end
       end
 
+      # once NEXT step has a failure path (meaning it is a QA step),
+      # fail current step if there is no mpcatalog
+      next_step = project.current_step.next_step
+      if cnt == 0 && !next_step.nil? && !next_step.fail_step.blank?
+         step_failed(project, "<p>Missing #{unit_dir}.mpcatalog file</p>")
+         return false
+      end
+
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
-      if Dir[File.join(start_dir, '**', '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
+      if Dir[File.join(dir, '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
          prob = Problem.find_by(name: "Filesystem")
-         note = "<p>Found *.mpcatalog_* files in #{start_dir}. "
-         note << "Please ensure that you have no unsaved changes and delete these files.</p>"
-         Note.create(staff_member: project.owner, project: project, note_type: :problem, note: note, problem: prob )
-         project.active_assignment.update(status: :error )
+         step_failed(project, "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
          return false
+      end
+
+      # On the final step, be sure there is an XML file present that
+      # has a name matching the unit directory
+      if self.end?
+         Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
+         if !File.exists? File.join(dir, "#{unit_dir}.xml")
+            step_failed(project, "<p>Missing #{unit_dir}.xml</p>")
+            return false
+         end
+
+         # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
+         Dir[File.join(dir, '*')].each do |f|
+            ext = File.extname f
+            ext.downcase!
+            if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
+               step_failed(project, "<p>Unexpected file or directory #{f} found</p>")
+               return false
+            end
+         end
       end
 
       return true
    end
 
    private
-   def validate_manually_moved_files(project)
+   def validate_finish_dir(project)
       unit_dir = "%09d" % project.unit.id
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Validate files present in #{dest_dir}")
 
       if !Dir.exists?(dest_dir)
-         raise "Finish directory #{dest_dir} does not exist."
+         Rails.logger.error("Finish firectory #{dest_dir} does not exist")
+         step_failed(project, "<p>Finish directory #{dest_dir} does not exist</p>")
+         return false
       end
-      if Dir[File.join(dest_dir, '**', '*.tif')].count { |file| File.file?(file) } == 0
-         raise "Missing image files."
+
+      if Dir[File.join(dest_dir, '*.tif')].count { |file| File.file?(file) } == 0
+         Rails.logger.error("Finish directory #{dest_dir} has no images")
+         step_failed(project, "<p>Finish directory #{dest_dir} does not contain any image files</p>")
+         return false
       end
+
+      # Directory is present and has images; make sure content is all OK
+      return validate_directory_content(project, dest_dir)
    end
 
    private
@@ -155,56 +163,70 @@ class Step < ActiveRecord::Base
    # the server, the default location is still available to process and save the .tifs. All other
    # contents of the unit subfolder in 10_raw/(unit subfolder) should remain where they are in 10_raw.
    def move_files( project )
+      # No move needed; just validate directory
+      if self.start_dir == self.finish_dir
+         Rails.logger.info("No automatic move needed. Validating #{self.finish_dir}...")
+         return validate_finish_dir( project )
+      end
+
       unit_dir = "%09d" % project.unit.id
       src_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, unit_dir)
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
-      # Neither directory exists; nothing can be done. Raise an exception
+      # Neither directory exists; nothing can be done; fail
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         raise "Neither source nor destination directory exist."
+         Rails.logger.error("Manually moved destination dir #{dest_dir} does not exist")
+         step_failed(project, "<p>Neither start nor finsh directory exists</p>")
+         return false
       end
 
-      # Source is gone, but dest exists and has files. Assume the owner
-      # manualy moved the files and bail early
-      if !Dir.exists?(src_dir) && Dir.exists?(dest_dir) && Dir[File.join(dest_dir, '**', '*.tif')].count { |file| File.file?(file) } > 0
-         Rails.logger.info("Destination directory #{src_dir} exists, and is populated. Assuming move done manually.")
-         return
+      # Source is gone, but dest exists and has files. Validate them
+      if !Dir.exists?(src_dir) && Dir.exists?(dest_dir) && Dir[File.join(dest_dir, '*.tif')].count { |file| File.file?(file) } > 0
+         Rails.logger.info("Destination directory #{src_dir} exists, and is populated. Validating...")
+         return validate_finish_dir(project)
       end
 
-      # See if there is an 'Output' or 'output' folder present in the source directory
+      # See if there is an 'Output' directory for special handling
       output_dir =  File.join(src_dir, "Output")
-      output_exists = false
-      if !Dir.exists? output_dir
-         output_dir =  File.join(src_dir, "output")
-         output_exists =  Dir.exists? output_dir
-      else
-         output_exists = true
-      end
 
-      # Output found; treat it as source directory. Its contents
+      # If Output exists, treat it as the source directory - Its contents
       # will be moved into dest dir and then it will be removed, leaving
-      # the root source folder intact
-      if output_exists
-         Rails.logger.info("Output directory found. Moving it to final directory.")
-         src_dir = output_dir
+      # the root source folder intact. See notes at top of this call for details.
+      begin
+         if Dir.exists? output_dir
+            Rails.logger.info("Output directory found. Moving it to final directory.")
+            src_dir = output_dir
 
-         # remove CaptureOne if it exists
-         cap_dir =  File.join(src_dir, "CaptureOne")
-         if Dir.exists? cap_dir
-            Rails.logger.info("Removing CaptureOne directory from Output")
-            FileUtils.rm_r cap_dir
+            # remove CaptureOne if it exists
+            cap_dir =  File.join(src_dir, "CaptureOne")
+            if Dir.exists? cap_dir
+               Rails.logger.info("Removing CaptureOne directory from Output")
+               FileUtils.rm_r cap_dir
+            end
          end
-      end
 
-      # Move the source directly to destination directory
-      FileUtils.mv(src_dir,dest_dir)
+         # Move the source directly to destination directory
+         FileUtils.mv(src_dir, dest_dir)
 
-      if output_exists
-         # put back the original src/ouput folder
-         # in case student needs to recreate scans later
-         FileUtils.mkdir src_dir
-         File.chmod(0775, src_dir)
+         # put back the original src/Ouput folder in case student needs to recreate scans later
+         if Dir.exists? output_dir
+            FileUtils.mkdir src_dir
+            File.chmod(0775, src_dir)
+         end
+
+         # One last validation of final directory contents, then done
+         return validate_finish_dir(project)
+      rescue Exception => e
+         Rails.logger.error("Move files FAILED #{e.to_s}")
+         # Any problems moving files around will set the assignment as ERROR and leave it
+         # uncompleted. A note detailing the error will be generated. At this point, the current
+         # user can try again, or manually fix the directories and finish the step again.
+         note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
+         note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
+         note << "<p><b>Error details:</b> #{e.to_s}</p>"
+         step_failed(project, note)
+         return false
       end
    end
 end

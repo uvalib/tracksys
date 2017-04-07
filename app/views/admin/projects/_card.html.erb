@@ -28,7 +28,12 @@
          <% end %>
       </span>
       </div>
-      <div class="due-date"><span class="label">Date Due:</span><span><%= project.due_on %></span></div>
+      <div class="due-date">
+         <span class="label">Date Due:</span><span><%= project.due_on %></span>
+         <% if project.finished? %>
+            <span class="label">| Date Finished:</span><span><%= project.finished_at.strftime("%Y-%m-%d") %></span>
+         <% end %>
+      </div>
    </h3>
    <div class="project-body">
       <div class="left">

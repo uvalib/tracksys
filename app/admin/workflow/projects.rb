@@ -10,7 +10,7 @@ ActiveAdmin.register Project do
    # scope ("Assigned to me") { |project| Project.active.where(owner: current_user) }
    scope :active, :default => lambda{ !current_user.student? }
    scope "Assigned to me", :default => lambda{ current_user.student? } { |project| Project.active.where(owner: current_user) }
-   
+
    scope :unassigned
    scope :overdue
    scope :bound, if: proc { current_user.can_process? Category.find(1)}
@@ -116,7 +116,7 @@ ActiveAdmin.register Project do
          if !project.current_step.fail_step.nil?
             div :class => 'workflow_button project' do
                c = "admin-button reject"
-               c << " disabled locked" if !project.active_assignment.started?
+               c << " disabled locked" if !project.active_assignment.started? && !project.active_assignment.error?
                raw("<span id='reject-button' class='#{c}'>Reject</span>")
             end
          end
@@ -168,7 +168,8 @@ ActiveAdmin.register Project do
          prob = Problem.find(prob_id)
       end
       begin
-        note = Note.create!(staff_member: current_user, project: project, note_type: type, note: params[:note], problem: prob )
+        note = Note.create!(staff_member: current_user, project: project, note_type: type,
+                            note: params[:note], problem: prob, step: project.current_step )
         html = render_to_string partial: "note", locals: {note: note}
         render json: {html: html}
      rescue Exception => e

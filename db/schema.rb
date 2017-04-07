@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170320130533) do
+ActiveRecord::Schema.define(version: 20170406180310) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -374,11 +374,13 @@ ActiveRecord::Schema.define(version: 20170320130533) do
     t.integer  "note_type",       limit: 4
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "step_id",         limit: 4
   end
 
   add_index "notes", ["problem_id"], name: "index_notes_on_problem_id", using: :btree
   add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
   add_index "notes", ["staff_member_id"], name: "index_notes_on_staff_member_id", using: :btree
+  add_index "notes", ["step_id"], name: "index_notes_on_step_id", using: :btree
 
   create_table "orders", force: :cascade do |t|
     t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
