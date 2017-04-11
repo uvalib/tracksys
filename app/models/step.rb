@@ -147,13 +147,7 @@ class Step < ActiveRecord::Base
 
       # if Output exists within destination, use it instead
       output_dir =  File.join(dest_dir, "Output")
-      dest_dir = output_dir if Dir.exists? dest_dir
-
-      if Dir[File.join(dest_dir, '*.tif')].count { |file| File.file?(file) } == 0
-         Rails.logger.error("Finish directory #{dest_dir} has no images")
-         step_failed(project, "<p>Finish directory #{dest_dir} does not contain any image files</p>")
-         return false
-      end
+      dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
       return validate_directory_content(project, dest_dir)
@@ -196,6 +190,7 @@ class Step < ActiveRecord::Base
 
       # See if there is an 'Output' directory for special handling
       output_dir =  File.join(src_dir, "Output")
+      has_output_dir = false
 
       # If Output exists, treat it as the source directory - Its contents
       # will be moved into dest dir and then it will be removed, leaving
@@ -204,6 +199,7 @@ class Step < ActiveRecord::Base
          if Dir.exists? output_dir
             Rails.logger.info("Output directory found. Moving it to final directory.")
             src_dir = output_dir
+            has_output_dir = true
 
             # remove CaptureOne if it exists
             cap_dir =  File.join(src_dir, "CaptureOne")
@@ -217,7 +213,7 @@ class Step < ActiveRecord::Base
          FileUtils.mv(src_dir, dest_dir)
 
          # put back the original src/Ouput folder in case student needs to recreate scans later
-         if Dir.exists? output_dir
+         if has_output_dir
             FileUtils.mkdir src_dir
             File.chmod(0775, src_dir)
          end
