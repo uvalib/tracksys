@@ -39,7 +39,10 @@ class Step < ActiveRecord::Base
       # if start dir doesnt exist, assume it has been manually moved.
       return true if !Dir.exists?(start_dir)
 
-      # Directory is present and has images; make sure content is all OK
+      # Base start directory is present, see if it also contains an output directory. If
+      # it does, use it as the directory to validate.
+      output_dir =  File.join(start_dir, "Output")
+      start_dir = output_dir if Dir.exists? output_dir
       return validate_directory_content(project, start_dir)
    end
 
