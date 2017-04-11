@@ -13,6 +13,8 @@ ActiveAdmin.register Project do
 
    scope :unassigned
    scope :overdue
+   scope :failed_qa, if: proc { !current_user.student?}
+   scope :has_error, if: proc { !current_user.student?}
    scope :bound, if: proc { current_user.can_process? Category.find(1)}
    scope :flat, if: proc { current_user.can_process? Category.find(2) }
    scope :film, if: proc { current_user.can_process? Category.find(3) }

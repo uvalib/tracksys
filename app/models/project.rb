@@ -77,6 +77,14 @@ class Project < ActiveRecord::Base
       return !finished? && self.due_on <= Date.today
    end
 
+   def self.failed_qa
+      Project.joins("inner join steps s on current_step_id = s.id where step_type = 2")
+   end
+   def self.has_error
+      q = "inner join (select * from assignments where status = 4 order by assigned_at desc limit 1) a on a.project_id = projects.id"
+      Project.joins(q)
+   end
+
    def assignment_in_progress?
       return false if self.owner.nil?
       return active_assignment.in_progress?
