@@ -145,6 +145,10 @@ class Step < ActiveRecord::Base
          return false
       end
 
+      # if Output exists within destination, use it instead
+      output_dir =  File.join(dest_dir, "Output")
+      dest_dir = output_dir if Dir.exists? dest_dir
+
       if Dir[File.join(dest_dir, '*.tif')].count { |file| File.file?(file) } == 0
          Rails.logger.error("Finish directory #{dest_dir} has no images")
          step_failed(project, "<p>Finish directory #{dest_dir} does not contain any image files</p>")
