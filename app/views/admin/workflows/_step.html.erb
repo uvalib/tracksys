@@ -1,4 +1,6 @@
-<div class="workflow-step<% if error %> error<% end %>">
+<div data-id="<%= step.id %>" data-next="<%= step.next_step_id %>"
+     data-error="<%= step.fail_step_id %>"
+     class="workflow-step<% if error %> error<% end %><% if final_error %> final<% end %>">
    <div class="step-toolbar">
       <span class="step-name"><%= step.name %></span>
       <span class="user-info">

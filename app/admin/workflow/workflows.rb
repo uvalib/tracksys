@@ -31,16 +31,11 @@ ActiveAdmin.register Workflow do
    # DETAILS page =============================================================
    #
    show do
-     div :class => 'one-third' do
-        panel "General Information" do
-          attributes_table_for workflow do
-            row :name
-            row :description
+     div do
+        panel "Workflow Name: #{workflow.name}" do
+           div class: "workflow-description" do
+             h4 do workflow.description end
           end
-        end
-     end
-     div :class => 'two-thirds' do
-        panel "Workflow Steps" do
            render partial: "workflow_steps", locals: { workflow: workflow}
         end
      end
