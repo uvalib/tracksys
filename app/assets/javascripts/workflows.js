@@ -1,18 +1,18 @@
 $(function() {
    /* lines on the chart */
-   var drawArrowhead=function(ctx,x,y,radians){
-            ctx.save();
-            ctx.beginPath();
-            ctx.translate(x,y);
-            ctx.rotate(radians);
-            ctx.moveTo(0,0);
-            ctx.lineTo(9,10);
-            ctx.lineTo(-9,10);
-            ctx.closePath();
-            ctx.restore();
-            ctx.fillStyle = "#1E90FF";
-            ctx.fill();
-        }
+   var drawArrowhead=function(ctx, x, y, radians){
+      ctx.save();
+      ctx.beginPath();
+      ctx.translate(x,y);
+      ctx.rotate(radians);
+      ctx.moveTo(0,0);
+      ctx.lineTo(9,10);
+      ctx.lineTo(-9,10);
+      ctx.closePath();
+      ctx.restore();
+      ctx.fillStyle = "#1E90FF";
+      ctx.fill();
+   };
    if ( $("#workflow-canvas").length > 0 ) {
       var canvas = $("#workflow-canvas")[0];
       canvas.width  = canvas.offsetWidth;
@@ -27,7 +27,7 @@ $(function() {
             var tgtStep = $(".workflow-step[data-id='"+tgtId+"']");
             var p0 = $(this).position();
             var l0 = p0.left;
-            var t0 = p0.top+$(this).outerHeight()
+            var t0 = p0.top+$(this).outerHeight();
             var p1 = tgtStep.position();
             var l1 =  p1.left+$(this).outerWidth()+2;
             var t1 = p1.top-2;
