@@ -25,6 +25,7 @@ class Project < ActiveRecord::Base
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
    scope :finished, ->{where.not(finished_at: nil).order(finished_at: :desc) }
+   scope :failed_qa, ->{ joins("inner join steps s on current_step_id = s.id" ).where("step_type = 2") }
    scope :bound, ->{active.where(category_id: 1).order(due_on: :asc) }
    scope :flat, ->{active.where(category_id: 2).order(due_on: :asc) }
    scope :film, ->{active.where(category_id: 3).order(due_on: :asc) }
@@ -39,14 +40,11 @@ class Project < ActiveRecord::Base
       .where('a.name like "% grant" ')}
    default_scope { order(added_at: :desc) }
 
-   def self.failed_qa
-      Project.joins("inner join steps s on current_step_id = s.id where step_type = 2")
-   end
    def self.has_error
       q = "inner join"
       q << " (select * from assignments where status = 4 order by assigned_at desc limit 1) "
-      q << " a on a.project_id = projects.id where projects.finished_at is null"
-      Project.joins(q)
+      q << " a on a.project_id = projects.id"
+      Project.joins(q).where("projects.finished_at is null")
    end
 
    before_create do
