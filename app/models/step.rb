@@ -30,7 +30,8 @@ class Step < ActiveRecord::Base
 
    private
    def validate_start_files(project)
-      # Error steps are all manual so start dir cannot be validated (it wont exist)
+      # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
+      # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
 
       unit_dir = "%09d" % project.unit.id
@@ -182,8 +183,8 @@ class Step < ActiveRecord::Base
          return false
       end
 
-      # Source is gone, but dest exists and has files. Validate them
-      if !Dir.exists?(src_dir) && Dir.exists?(dest_dir) && Dir[File.join(dest_dir, '*.tif')].count { |file| File.file?(file) } > 0
+      # Source is gone, but dest exists... Validate it
+      if !Dir.exists?(src_dir) && Dir.exists?(dest_dir)
          Rails.logger.info("Destination directory #{src_dir} exists, and is populated. Validating...")
          return validate_finish_dir(project)
       end

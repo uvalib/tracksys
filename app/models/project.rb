@@ -144,15 +144,31 @@ class Project < ActiveRecord::Base
       update!(owner: user)
    end
 
+   # Start work on active assignment, also starting project if it wasn't already
+   #
+   def start_assignment
+      return if self.active_assignment.nil?
+      return if !self.active_assignment.started_at.nil?
+
+      # only update project start time if it hasn't already been started
+      self.update(started_at: Time.now) if !started?
+
+      self.active_assignment.update(started_at: Time.now, status: :started)
+   end
+
+   # Reject current project, sending it into rescan
+   #
    def reject(duration)
       self.active_assignment.update(finished_at: Time.now, status: :rejected, duration_minutes: duration )
 
-      #find owner of first step and return the project to them
+      # find owner of first step and return the project to them
       step_1_owner = self.assignments.order(assigned_at: :asc).first.staff_member
       Assignment.create(project: self, staff_member: step_1_owner, step: self.current_step.fail_step)
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
+   # Finish assignment, automate file moves and advance project to next step
+   #
    def finish_assignment(duration)
       # Grab any pre-existing durations, add them up and update
       # the current duration. This to preserve total duration if a step ends in an error
@@ -162,12 +178,13 @@ class Project < ActiveRecord::Base
       total_duration = prior_duration + duration.to_i
       self.active_assignment.update(duration_minutes: total_duration )
 
-      # Carry out end of step validation/automation.
+      # Carry out end of step validation/automation. If this fails, there
+      # is nothing more to do so exit
       if !self.current_step.finish( self )
          return
       end
 
-      # Flag current assignment as finished. Bail if this is last step.
+      # Flag current assignment as finished and note time. Bail if this is last step.
       self.active_assignment.update(finished_at: Time.now, status: :finished)
       if self.current_step.end?
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
@@ -188,7 +205,7 @@ class Project < ActiveRecord::Base
          Assignment.create(project: self, staff_member: qa_user, step: new_step)
       else
          if new_step.prior_owner?
-            # Create a new assignment with staff_member set to current owner. Leave project owner as is.
+            # Create a new assignment with staff_member set to current owner.
             Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}], owner preserved")
             self.update(current_step: new_step)
             Assignment.create(project: self, staff_member: self.owner, step: new_step)
@@ -201,7 +218,7 @@ class Project < ActiveRecord::Base
             self.update(current_step: new_step, owner: first_owner)
             Assignment.create(project: self, staff_member: first_owner, step: new_step)
          else
-            # any, unique or supervisor for this step. Someone must claim it, so set owner nil
+            # any, unique or supervisor for this step. Someone must claim it, so set owner nil.
             # user type will be enforced in the CLAIM for these
             Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}]. No owner set.")
             self.update(current_step: new_step, owner: nil)
@@ -214,6 +231,7 @@ class Project < ActiveRecord::Base
    end
 
    def percentage_complete
+      return 100 if finished?
       num_steps = self.workflow.num_steps*3 # each step has 3 parts, assigned, in-process and done
       curr_step = 0
       step_ids = []
@@ -249,12 +267,5 @@ class Project < ActiveRecord::Base
             return "#{s.name}: Not assigned"
          end
       end
-   end
-
-   def start_work
-      return if self.active_assignment.nil?
-      return if !self.active_assignment.started_at.nil?
-      self.update(started_at: Time.now)
-      self.active_assignment.update(started_at: Time.now, status: :started)
    end
 end

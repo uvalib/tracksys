@@ -142,7 +142,7 @@ ActiveAdmin.register Project do
    #
    member_action :start_assignment, :method => :put do
       project = Project.find(params[:id])
-      project.start_work
+      project.start_assignment
       logger.info("User #{current_user.computing_id} starting workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
       render nothing: true
    end
