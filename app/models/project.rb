@@ -45,7 +45,7 @@ class Project < ActiveRecord::Base
    def self.has_error
       q = "inner join"
       q << " (select * from assignments where status = 4 order by assigned_at desc limit 1) "
-      q << " a on a.project_id = projects.id where project.finished_at is null"
+      q << " a on a.project_id = projects.id where projects.finished_at is null"
       Project.joins(q)
    end
 
