@@ -139,8 +139,10 @@ class Project < ActiveRecord::Base
    end
 
    def assign_to(user)
+      # If someone else has this assignment, flag it as reassigned. Do not
+      # mark the finished time as it was never actually finished
       if assignment_in_progress?
-         active_assignment.update!(status: :reassigned, finished_at: Time.now)
+         active_assignment.update!(status: :reassigned)
       end
       assignment = Assignment.create!(project: self, staff_member: user, step: self.current_step)
       update!(owner: user)
@@ -233,19 +235,29 @@ class Project < ActiveRecord::Base
    end
 
    def percentage_complete
-      return 100 if finished?
       num_steps = self.workflow.num_steps*3 # each step has 3 parts, assigned, in-process and done
       curr_step = 0
       step_ids = []
       self.assignments.joins(:step).each do |a|
-         if !a.step.error? && !step_ids.include?(a.step.id) && !a.reassigned? && !a.error? && !a.rejected?
+         if !a.step.error? && !step_ids.include?(a.step.id) && !a.reassigned? && !a.error?
+            # Rejections generally count as a completion as they finish the step. Per team, reject moves to a rescan.
+            # When rescan is done, the workflow proceeds to the step AFTER the one that was rejected.
+            # The exception to this is the last step. If rejected, completing the rescan returns
+            # to that step, not the next. This is the case we need to skip when computing percentage complete.
+            next if a.rejected? && a.step.fail_step.next_step == a.step
+
             step_ids << a.step.id
             curr_step +=1  # if an assignment is here, that is the first count: Assigned
             curr_step +=1 if !a.started_at.nil?    # Started
             curr_step +=1 if !a.finished_at.nil?   # Finished
          end
       end
-      return (curr_step.to_f/num_steps.to_f*100).to_i
+      percent =  (curr_step.to_f/num_steps.to_f*100).to_i
+      if finished? && percent != 100
+         Rals.logger.error("Project #{self.id} is finished, but percentage reported as #{percentage}")
+         percent = 100
+      end
+      return percent
    end
 
    def active_assignment

@@ -15,6 +15,6 @@ class Assignment < ActiveRecord::Base
    end
 
    def in_progress?
-      return pending? || started?
+      return pending? || started? || error?
    end
 end
