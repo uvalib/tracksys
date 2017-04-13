@@ -24,7 +24,7 @@ class Project < ActiveRecord::Base
    validates :item_condition,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
-   scope :finished, ->{where.not(finished_at: nil).order(due_on: :asc) }
+   scope :finished, ->{where.not(finished_at: nil).order(finished_at: :desc) }
    scope :bound, ->{active.where(category_id: 1).order(due_on: :asc) }
    scope :flat, ->{active.where(category_id: 2).order(due_on: :asc) }
    scope :film, ->{active.where(category_id: 3).order(due_on: :asc) }
@@ -38,6 +38,16 @@ class Project < ActiveRecord::Base
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant" ')}
    default_scope { order(added_at: :desc) }
+
+   def self.failed_qa
+      Project.joins("inner join steps s on current_step_id = s.id where step_type = 2")
+   end
+   def self.has_error
+      q = "inner join"
+      q << " (select * from assignments where status = 4 order by assigned_at desc limit 1) "
+      q << " a on a.project_id = projects.id where project.finished_at is null"
+      Project.joins(q)
+   end
 
    before_create do
       self.added_at = Time.now
@@ -75,14 +85,6 @@ class Project < ActiveRecord::Base
 
    def overdue?
       return !finished? && self.due_on <= Date.today
-   end
-
-   def self.failed_qa
-      Project.joins("inner join steps s on current_step_id = s.id where step_type = 2")
-   end
-   def self.has_error
-      q = "inner join (select * from assignments where status = 4 order by assigned_at desc limit 1) a on a.project_id = projects.id"
-      Project.joins(q)
    end
 
    def assignment_in_progress?
