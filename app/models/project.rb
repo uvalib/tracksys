@@ -252,7 +252,7 @@ class Project < ActiveRecord::Base
       end
       percent =  (curr_step.to_f/num_steps.to_f*100).to_i
       if finished? && percent != 100
-         Rals.logger.error("Project #{self.id} is finished, but percentage reported as #{percentage}")
+         Rails.logger.error("Project #{self.id} is finished, but percentage reported as #{percent}")
          percent = 100
       end
       return percent
