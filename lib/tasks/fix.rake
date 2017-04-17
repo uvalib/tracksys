@@ -12,6 +12,16 @@ namespace :fix do
       end
    end
 
+   desc "fix blank genre/resource type. Replace blank with NULL"
+   task :blank_metadata_info => :environment do
+      q = "update metadata set resource_type=null where resource_type = ''"
+      Metadata.connection.execute(q)
+      q = "update metadata set genre=null where genre = ''"
+      Metadata.connection.execute(q)
+      q = "update metadata set creator_name=null where creator_name = ''"
+      Metadata.connection.execute(q)
+   end
+
    desc "fix final qa"
    task :final_qa => :environment do
       Step.all.each do |s|
