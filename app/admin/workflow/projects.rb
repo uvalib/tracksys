@@ -183,21 +183,14 @@ ActiveAdmin.register Project do
    member_action :settings, :method => :put do
       project = Project.find(params[:id])
       if params[:camera]
-         if params[:workstation]
-            ws = Workstation.find(params[:workstation])
-            project.equipment.clear
-            ws.equipment.each do |e|
-               project.equipment << e
-            end
-            ok = project.update(
-               workstation:ws, capture_resolution: params[:capture_resolution],
-               resized_resolution: params[:resized_resolution], resolution_note: params[:resolution_note])
-         else
-            ok = project.update(
-               capture_resolution: params[:capture_resolution], resized_resolution: params[:resized_resolution],
-               resolution_note: params[:resolution_note])
+         ws = Workstation.find(params[:workstation])
+         project.equipment.clear
+         ws.equipment.each do |e|
+            project.equipment << e
          end
-
+         ok = project.update(
+            workstation:ws, capture_resolution: params[:capture_resolution],
+            resized_resolution: params[:resized_resolution], resolution_note: params[:resolution_note])
          if !ok
             render text: project.errors.full_messages.to_sentence, status: :error
          else

@@ -308,9 +308,7 @@ $(function() {
       if ( $(this).hasClass("item")) {
          tgtClass= "item";
       } else {
-         if ( $("#workstation-edit").length > 0 ) {
-            $("table.project-equipment-setup").hide();
-         }
+         $("table.project-equipment-setup").hide();
       }
       $(".project.edit-btn."+tgtClass).addClass("hidden");
       $(".project.cancel-btn."+tgtClass).removeClass("hidden");
@@ -337,15 +335,12 @@ $(function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("item")) {
          tgtClass = "item";
-         data = { viu_number: $("#viu_number-edit").val() };
+         data = {condition: $("#condition-edit").val(), viu_number: $("#viu_number-edit").val() };
       } else {
          data =  { camera: true,
-            capture_resolution: $("#capture_resolution-edit").val(),
+            workstation: $("#workstation-edit").val(), capture_resolution: $("#capture_resolution-edit").val(),
             resized_resolution: $("#resized_resolution-edit").val(), resolution_note: $("#resolution_note-edit").val()
          };
-         if ( $("#workstation-edit").length > 0){
-            data.workstation = $("#workstation-edit").val();
-         }
       }
       $(".project.cancel-btn."+tgtClass).addClass("hidden");
       $(".project.save-btn."+tgtClass).addClass("hidden");
@@ -364,9 +359,7 @@ $(function() {
             } else {
                if (tgtClass === "camera") {
                   $("tr.row.row-setup td").html(jqXHR.responseJSON.html );
-                  if ( $("#workstation-edit").length > 0){
-                     $("#workstation").text( $("#workstation-edit option:selected").text() );
-                  }
+                  $("#workstation").text( $("#workstation-edit option:selected").text() );
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
@@ -374,6 +367,7 @@ $(function() {
                   $("div.equipment-note").hide();
                } else {
                   $("#viu_number").text( data.viu_number );
+                  $("#condition").text( $("#condition-edit option:selected").text() );
                }
             }
          }

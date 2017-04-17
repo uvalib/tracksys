@@ -47,20 +47,23 @@ div :class => 'columns-none' do
          attributes_table_for project do
             row :workstation do |project|
                v = "<span class='empty'>Empty</span>"
+               data_id = ""
+
                if !project.workstation.blank?
                   v = project.workstation.name
+                  data_id = "data-id='#{project.workstation.id}'"
                end
-               if project.workstation.nil?
-                  sel = "<select id='workstation-edit' class='hidden edit-camera'>"
-                  sel << "<option value=''>Choose a workstation</option>"
-                  Workstation.available.each do |w|
+               disp = "<span #{data_id}' class='disp-camera' id='workstation'>#{v}</span>"
+               sel = "<select id='workstation-edit' class='hidden edit-camera'>"
+               sel << "<option value=''>Choose a workstation</option>"
+               Workstation.available.each do |w|
+                  if project.workstation == w
+                     sel << "<option value='#{w.id}' selected>#{w.name}</option>"
+                  else
                      sel << "<option value='#{w.id}'>#{w.name}</option>"
                   end
-                  sel << "</select>"
-               else
-                  disp = "<span class='camera' id='workstation'>#{v}</span>"
-                  sel = ""
                end
+               sel << "</select>"
                raw("#{disp}#{sel}")
             end
             row ("setup") do |project|
