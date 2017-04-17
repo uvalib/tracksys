@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170406180310) do
+ActiveRecord::Schema.define(version: 20170417150720) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -533,7 +533,6 @@ ActiveRecord::Schema.define(version: 20170406180310) do
     t.datetime "updated_at"
     t.integer  "intended_use_id",                limit: 4
     t.text     "staff_notes",                    limit: 65535
-    t.datetime "date_queued_for_ingest"
     t.datetime "date_archived"
     t.datetime "date_patron_deliverables_ready"
     t.boolean  "include_in_dl",                                default: false
