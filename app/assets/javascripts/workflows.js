@@ -143,6 +143,7 @@ $(function() {
             }
          }
       });
+      $("#duration-minutes").prop('disabled', enabled);
       if ( enabled ) {
          $(".time-entry.mf-action-button").removeClass("disabled");
       } else {
@@ -187,6 +188,12 @@ $(function() {
 
    // Duration entry
    //
+   $("#duration-minutes").keypress(function (evt) {
+      if (evt.keyCode === 13) {
+         $(".submit.time-entry").click();
+         return false;
+      }
+   });
    $(".cancel.time-entry").on("click", function() {
       $("#finish-assignment-btn").show();
       $("#reject-button").show();
