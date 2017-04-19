@@ -31,7 +31,7 @@ class QaUnitData < BaseJob
       end
 
       # Must have a unit status, and it must be approved
-      if !unit.unit_status.blank? && unit.unit_status == "approved"
+      if unit.unit_status != "approved"
          failure_messages << "Unit #{unit.id} has not been approved."
       end
 
