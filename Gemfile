@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rails', '4.2.8'
+gem 'thin'
 
 gem 'activeadmin', '~> 1.0.0.pre5'
 gem 'passenger', '5.0.28'
@@ -36,8 +37,8 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
-gem 'uglifier'
-gem 'sass-rails'
+gem 'uglifier', '>= 1.3.0'
+gem 'sass-rails', '~> 5.0'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'

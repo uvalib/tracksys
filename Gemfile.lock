@@ -111,6 +111,7 @@ GEM
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
+    eventmachine (1.2.3)
     execjs (2.7.0)
     exifr (1.2.5)
     ffi (1.9.18)
@@ -248,6 +249,10 @@ GEM
     therubyracer (0.12.3)
       libv8 (~> 3.16.14.15)
       ref
+    thin (1.7.0)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.7)
@@ -264,7 +269,7 @@ GEM
       execjs (>= 0.3.0, < 3)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.3)
+    unf_ext (0.0.7.4)
     validates_timeliness (4.0.2)
       timeliness (~> 0.3.7)
     web-console (2.3.0)
@@ -304,11 +309,12 @@ DEPENDENCIES
   rails (= 4.2.8)
   rest-client
   rmagick
-  sass-rails
+  sass-rails (~> 5.0)
   spring
   therubyracer
+  thin
   turnout
-  uglifier
+  uglifier (>= 1.3.0)
   validates_timeliness (~> 4.0)
   web-console (~> 2.0)
   whenever
