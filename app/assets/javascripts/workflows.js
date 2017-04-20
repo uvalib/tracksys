@@ -143,7 +143,7 @@ $(function() {
             }
          }
       });
-      $("#duration-minutes").prop('disabled', enabled);
+      $("#duration-minutes").prop('disabled', !enabled);
       if ( enabled ) {
          $(".time-entry.mf-action-button").removeClass("disabled");
       } else {
@@ -370,7 +370,9 @@ $(function() {
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
-                  $("#finish-assignment-btn").removeClass("disabled");
+                  if ( $("#start-assignment-btn").hasClass("disabled") ) {
+                     $("#finish-assignment-btn").removeClass("disabled");
+                  }
                   $("div.equipment-note").hide();
                } else {
                   $("#viu_number").text( data.viu_number );
