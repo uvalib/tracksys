@@ -93,6 +93,19 @@ class BaseJob
       end
    end
 
+   def handle_wokflow_exception(exception)
+      # if this error was raised by on_error to end processing, the
+      # status will have been bumped to failure. If status is still running
+      # this error is the result of some other exception, call on_error to deal with it
+      if @status.status == "running"
+         on_error(exception)
+      elsif @status.status == "failure"
+         # if this has already failed, just keep passing the exception up the chain
+         # to ensure all jobs get stopped and the head of the workflow is notified of the failure
+         raise exception
+      end
+   end
+
    # Extension point for all jobs derived from BaseJob
    #
    def do_workflow(message)
@@ -129,19 +142,6 @@ class BaseJob
       @logger.info "Workflow #{self.class.name} has FAILED"
    end
 
-   def handle_wokflow_exception(exception)
-      # if this error was raised by on_error to end processing, the
-      # status will have been bumped to failure. If status is still running
-      # this error is the result of some other exception, call on_error to deal with it
-      if @status.status == "running"
-         on_error(exception)
-      elsif @status.status == "failure"
-         # if this has already failed, just keep passing the exception up the chain
-         # to ensure all jobs get stopped and the head of the workflow is notified of the failure
-         raise exception
-      end
-   end
-
    # Workflow is complete. Mark jobs status as done, update timestamps
    #
    def complete()
@@ -170,22 +170,16 @@ class BaseJob
    # are raised, terminating processing.
    #
    def on_error(err)
-      # if err.is_a? StandardError
-      #    @status.update_attribute(:failures, (@status.failures+1) )
-      #    @logger.error err.message
-      #    @logger.error err.backtrace.join("\n")
-      # else
-         if err.is_a? Exception
-            @status.failed( err.message )
-            @logger.fatal err.message
-            @logger.fatal err.backtrace.join("\n")
-         else
-            @status.failed( err )
-            @logger.fatal err
-         end
+      if err.is_a? Exception
+         @status.failed( err.message )
+         @logger.fatal err.message
+         @logger.fatal err.backtrace.join("\n")
+      else
+         @status.failed( err )
+         @logger.fatal err
+      end
 
-         # Stop processing
-         raise err
-      # end
+      # Stop processing
+      raise err
    end
 end

@@ -96,6 +96,10 @@ class Unit < ActiveRecord::Base
       return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
    end
 
+   def directory
+      return "%09d" % self.id
+   end
+
    def approved?
       if self.unit_status == "approved"
          return true

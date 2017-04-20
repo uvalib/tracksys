@@ -1,6 +1,13 @@
 .admin-button-note {
    margin: 0 10px 15px 10px;
 }
+.manual-move-note {
+   margin: 0;
+    font-size: 0.85em;
+    font-weight: bold;
+    font-style: italic;
+    color: #06c;
+}
 .workflow.time-entry {
    text-align: center;
    border-top: 1px solid #aaa;
@@ -180,11 +187,19 @@ div.panel.notes, div.panel.history {
    tr.create td{
       background: #e5e5fa;
    }
+   tr.finalize {
+      background-color: #5a5;
+      color: white;
+   }
    tr.success td{
       background: #cff3cf;
    }
-   tr.fail td{
+   tr.reject td{
       background: #f3cfcf;
+   }
+   tr.error td{
+      background: #a33;
+      color: white;
    }
    tr.reassign td {
       background: lightgoldenrodyellow;

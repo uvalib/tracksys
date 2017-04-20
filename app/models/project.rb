@@ -85,11 +85,6 @@ class Project < ActiveRecord::Base
       return !finished? && self.due_on <= Date.today
    end
 
-   def assignment_in_progress?
-      return false if self.owner.nil?
-      return active_assignment.in_progress?
-   end
-
    def claimable_by? (user)
       return true if (user.admin? || user.supervisor?)   # admin/supervisor can take anyting
       return true if self.current_step.any_owner?        # anyone can take an any assignment
@@ -139,7 +134,7 @@ class Project < ActiveRecord::Base
    def assign_to(user)
       # If someone else has this assignment, flag it as reassigned. Do not
       # mark the finished time as it was never actually finished
-      if assignment_in_progress?
+      if !self.owner.nil?
          active_assignment.update!(status: :reassigned)
       end
       assignment = Assignment.create!(project: self, staff_member: user, step: self.current_step)
@@ -169,6 +164,35 @@ class Project < ActiveRecord::Base
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
+   # Finalization of the associated unit was successful
+   #
+   def finalization_success(job)
+      Rails.logger.info("Project [#{self.project_name}] completed finalization")
+      self.update(finished_at: Time.now, owner: nil, current_step: nil)
+      prior_duration = self.active_assignment.duration_minutes
+      processing_mins = ((Time.now - job.started_at)/60.0).round
+      self.active_assignment.update(finished_at: Time.now, status: :finished,
+         duration_minutes: (prior_duration+processing_mins))
+   end
+
+   # Finalzation of the associated unit failed
+   #
+   def finalization_failure(job)
+      Rails.logger.error("Project [#{self.project_name}] FAILED finalization")
+
+      # Fail the step and increase time spent
+      prior_duration = self.active_assignment.duration_minutes
+      processing_mins = ((job.ended_at - job.started_at)/60.0).round
+      self.active_assignment.update(duration_minutes: (prior_duration+processing_mins), status: :error )
+
+      # Add a problem note with a summary of the issue
+      prob = Problem.find(6) # Finalization
+      msg = "<p>#{job.error}</p>"
+      msg << "<p>Please manually correct the finalization problems. Once complete, press the Finish button for a final validation.</p>"
+      msg << "<p>Error details <a href='/admin/job_statuses/#{job.id}'>here</a></p>"
+      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+   end
+
    # Finish assignment, automate file moves and advance project to next step
    #
    def finish_assignment(duration)
@@ -180,51 +204,48 @@ class Project < ActiveRecord::Base
       total_duration = prior_duration + duration.to_i
       self.active_assignment.update(duration_minutes: total_duration )
 
+      # if this is detected to be a project that was manually finalized
+      # due to a finalization error, validate the finalization and exit early
+      if manually_finalized?
+         validate_manual_finalization
+         return
+      end
+
       # Carry out end of step validation/automation. If this fails, there
       # is nothing more to do so exit
       if !self.current_step.finish( self )
          return
       end
 
-      # Flag current assignment as finished and note time. Bail if this is last step.
-      self.active_assignment.update(finished_at: Time.now, status: :finished)
+      # Special handling for last step; begin finalization and bail early
       if self.current_step.end?
-         Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
-         self.update(finished_at: Time.now, owner: nil, current_step: nil)
+         self.active_assignment.update(status: :finalizing)
+         Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
+         FinalizeUnit.exec({project_id: self.id})
          return
       end
 
       # Advance to next step, enforcing owner type
+      self.active_assignment.update(finished_at: Time.now, status: :finished)
       new_step = self.current_step.next_step
-      if self.current_step.error?
-         # Completion of an error step is a special case:
-         # Ownership is returned to the QA user that rejected it originally. This assignment is
-         # the last assigned, non-error step
-         orig = self.assignments.joins(:step).where('steps.step_type <> ?', "error").order(assigned_at: :desc).first
-         qa_user = orig.staff_member
-         Rails.logger.info("Workflow [#{self.workflow.name}] returned to [#{new_step.name}] with original QA user [#{qa_user.computing_id}]")
-         self.update(current_step: new_step, owner: qa_user)
-         Assignment.create(project: self, staff_member: qa_user, step: new_step)
+      if new_step.prior_owner?
+         # Create a new assignment with staff_member set to current owner.
+         Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}], owner preserved")
+         self.update(current_step: new_step)
+         Assignment.create(project: self, staff_member: self.owner, step: new_step)
+      elsif new_step.original_owner?
+         # Send back to the first person assigned this project
+         # Note: no need to check for nil; we are finishing an assignment, so one will always exist
+         first_assign = self.assignments.all.order(assigned_at: :desc).first
+         first_owner = first_assign.staff_member
+         Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}] with original owner [#{first_owner.computing_id}]")
+         self.update(current_step: new_step, owner: first_owner)
+         Assignment.create(project: self, staff_member: first_owner, step: new_step)
       else
-         if new_step.prior_owner?
-            # Create a new assignment with staff_member set to current owner.
-            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}], owner preserved")
-            self.update(current_step: new_step)
-            Assignment.create(project: self, staff_member: self.owner, step: new_step)
-         elsif new_step.original_owner?
-            # Send back to the first person assigned this project
-            # Note: no need to check for nil; we are finishing an assignment, so one will always exist
-            first_assign = self.assignments.all.order(assigned_at: :desc).first
-            first_owner = first_assign.staff_member
-            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}] with original owner [#{first_owner.computing_id}]")
-            self.update(current_step: new_step, owner: first_owner)
-            Assignment.create(project: self, staff_member: first_owner, step: new_step)
-         else
-            # any, unique or supervisor for this step. Someone must claim it, so set owner nil.
-            # user type will be enforced in the CLAIM for these
-            Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}]. No owner set.")
-            self.update(current_step: new_step, owner: nil)
-         end
+         # any, unique or supervisor for this step. Someone must claim it, so set owner nil.
+         # user type will be enforced in the CLAIM for these
+         Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}]. No owner set.")
+         self.update(current_step: new_step, owner: nil)
       end
    end
 
@@ -279,5 +300,74 @@ class Project < ActiveRecord::Base
             return "#{s.name}: Not assigned"
          end
       end
+   end
+
+   private
+   def manually_finalized?
+      # Finalization failure is detected by the presence of
+      # problem note with a cause of Finailzation
+      self.notes.joins(:problem).where("problems.id=6").count > 0
+   end
+
+   private
+   def validation_failed(reason)
+      prob = Problem.find(6) # Finalization
+      msg = "<p>Validation of manual finalization failed: #{reason}</p>"
+      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+      self.active_assignment.update(status: :error )
+   end
+
+   private
+   def validate_manual_finalization
+      Rails.logger.info("Validating manually finalized unit")
+      if unit.date_archived.nil?
+         validation_failed("Unit was not archived")
+         return
+      end
+
+      # archive OK; make sure masterfiles all have metadata (tech and desc)
+      # and that the archived file count matches masterfile count
+      archive_dir = File.join(ARCHIVE_DIR, unit.directory)
+      archived_tif_count = Dir[File.join(archive_dir, '*.tif')].count
+      if archived_tif_count == 0
+         validation_failed("No tif files found in archive")
+         return
+      end
+
+      mf_count = 0
+      unit.master_files.each do |mf|
+         mf_count += 1
+         if mf.metadata.nil?
+            validation_failed("Masterfile #{mf.filename} missing desc metadata")
+            return
+         end
+         if mf.image_tech_meta.nil?
+            validation_failed("Masterfile #{mf.filename} missing tech metadata")
+            return
+         end
+      end
+
+      if archived_tif_count != mf_count
+         validation_failed("MasterFile / tif count mismatch. #{archived_tif_count} tif files vs #{mf_count} MasterFiles")
+         return
+      end
+
+      # deliverables ready (patron or dl)
+      if unit.intended_use_id == 110
+         if unit.date_dl_deliverables_ready.nil?
+            validation_failed("DL deliverables ready date not set")
+            return
+         end
+      else
+         if unit.date_patron_deliverables_ready.nil?
+            validation_failed("Patron deliverables ready date not set")
+            return
+         end
+      end
+
+      # Validations all passed, complete the workflow
+      Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
+      self.active_assignment.update(finished_at: Time.now, status: :finished)
+      self.update(finished_at: Time.now, owner: nil, current_step: nil)
    end
 end

@@ -45,7 +45,6 @@ class RecreatePatronDeliverables < BaseJob
 
       # files are in the correct directory. now regenerate
       CopyUnitForDeliverableGeneration.exec_now({unit: unit, source_dir: in_proc_dir, mode: "patron", skip_delivery_check: true}, self)
-      MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
    end
 
    def did_deliverable_format_change(unit, deliverable_dir )

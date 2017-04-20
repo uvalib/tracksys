@@ -101,26 +101,10 @@ ActiveAdmin.register_page "Dashboard" do
 
       if !current_user.viewer? && !current_user.student?
          div :class => 'three-column' do
-            panel "Finalization Workflow Buttons", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
+            panel "Manual Upload", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
                div :class => 'workflow_button' do
-                  button_to "Finalize digiserv-production : #{prod_cnt}",
-                  admin_dashboard_start_finalization_production_path, :user => current_user, :method => :get
-               end
-               div :class => 'workflow_button' do
-                  button_to "Finalize digiserv-migration : #{migration_cnt}",
-                  admin_dashboard_start_finalization_migration_path, :user => current_user, :method => :get
-               end
-               div :class => 'workflow_button' do
-                  button_to "Manual Upload digiserv-prodution : #{manual_prod_cnt}",
+                  button_to "Manual Upload from digiserv-prodution",
                   admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get
-               end
-               div :class => 'workflow_button' do
-                  button_to "Manual Upload digiserv-migration : #{manual_migration_cnt}",
-                  admin_dashboard_start_manual_upload_to_archive_migration_path, :user => current_user, :method => :get
-               end
-               div :class => 'workflow_button' do
-                  button_to "Manual Upload lib_content37 : #{manual_batch_cnt}",
-                  admin_dashboard_start_manual_upload_to_archive_batch_migration_path, :user => current_user, :method => :get
                end
             end
 
@@ -179,69 +163,9 @@ ActiveAdmin.register_page "Dashboard" do
       redirect_to "/admin/dashboard"
    end
 
-   page_action :start_finalization_production do
-      StartFinalization.exec( {:user_id=>current_user.id, :directory => FINALIZATION_DROPOFF_DIR_PRODUCTION } )
-      flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_PRODUCTION} have begun finalization workflow."
-      redirect_to "/admin/dashboard"
-   end
-
-   page_action :start_finalization_migration do
-      StartFinalization.exec( {:user_id=>current_user.id, :directory => FINALIZATION_DROPOFF_DIR_MIGRATION } )
-      flash[:notice] = "Items in #{FINALIZATION_DROPOFF_DIR_MIGRATION} have begun finalization workflow."
-      redirect_to "/admin/dashboard"
-   end
-
-   page_action :start_manual_upload_to_archive_batch_migration do
-      StartManualUploadToArchive.exec( {:user_id => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION } )
-      flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/#{Time.now.strftime('%A')}."
-      redirect_to "/admin/dashboard"
-   end
-
    page_action :start_manual_upload_to_archive_production do
       StartManualUploadToArchive.exec( {:user_id => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
       flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{Time.now.strftime('%A')}."
       redirect_to "/admin/dashboard"
-   end
-
-   page_action :start_manual_upload_to_archive_migration do
-      StartManualUploadToArchive.exec( {:user => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION} )
-      flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/#{Time.now.strftime('%A')}."
-      redirect_to "/admin/dashboard"
-   end
-
-   controller do
-      before_filter :get_counts
-      def get_counts
-         @prod_cnt = count_units( FINALIZATION_DROPOFF_DIR_PRODUCTION )
-         @migration_cnt = count_units( FINALIZATION_DROPOFF_DIR_MIGRATION )
-         @manual_prod_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION)
-         @manual_migration_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION)
-         @manual_batch_cnt = count_manual_units(MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION)
-      end
-
-      def count_manual_units(dir)
-         now = Time.now
-         day = now.strftime("%A")
-         cnt = 0
-         tgt_dir = File.join(dir, day)
-         return 0 if !File.exist?(tgt_dir)
-         contents = Dir.entries(tgt_dir).delete_if {|x| x == "." || x == ".." || x == ".AppleDouble" || x == ".DS_Store" }
-         contents.each do |content|
-            complete_path = File.join(dir, content)
-            cnt += 1 if File.directory?(complete_path)
-         end
-         return cnt
-      end
-
-      def count_units(dir)
-         cnt = 0
-         regex_unit = Regexp.new('(\d{9}$)')
-         contents = Dir.entries(dir).delete_if {|x| x == "." || x == ".." || x == ".AppleDouble" || x == ".DS_Store" }
-         contents.each do |content|
-            complete_path = File.join(dir, content)
-            cnt += 1 if (File.directory?(complete_path) && regex_unit.match(content))
-         end
-         return cnt
-      end
    end
 end

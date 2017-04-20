@@ -1,19 +1,33 @@
 class FinalizeUnit < BaseJob
    require 'fileutils'
 
+   def set_originator(message)
+      @status.update_attributes( :originator_type=>"Project", :originator_id=>message[:project_id])
+   end
+
    def do_workflow(message)
-      raise "Parameter 'user_id' is required" if message[:user_id].blank?
-      raise "Parameter 'unit_dir' is required" if message[:unit_dir].blank?
-      raise "Parameter 'finalization_dir' is required" if message[:finalization_dir].blank?
+      raise "Parameter 'project_id' is required" if message[:project_id].blank?
+      @project = Project.find(message[:project_id])
 
-      finalization_dir =  message[:finalization_dir]
-      unit_dir =  message[:unit_dir]
+      logger().info "Unit #{@project.unit.id} begins Finalization."
+      src_dir = File.join(FINALIZATION_DROPOFF_DIR_PRODUCTION, @project.unit.directory)
+      if !Dir.exists? src_dir
+         on_error("Dropoff directory #{src_dir} does not exist")
+      end
 
-      logger().info "Directory #{unit_dir} begins the finalization workflow."
-      FileUtils.mv File.join(finalization_dir, unit_dir), File.join(IN_PROCESS_DIR, unit_dir)
-      unit_id = unit_dir.to_s.sub(/^0+/, '')
-      unit = Unit.find(unit_id)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>unit_id )
-      QaUnitData.exec_now( { :unit => unit }, self)
+      logger().info "Moving unit #{@project.unit.id} from dropoff to #{src_dir}"
+      FileUtils.mv(src_dir, File.join(IN_PROCESS_DIR, @project.unit.directory))
+      QaUnitData.exec_now( { :unit => @project.unit }, self)
+
+      # At this point, finalization has completed successfully and project is done
+      @project.finalization_success( status_object() )
+   end
+
+   # Override the normal delayed_job failure hook to pass the
+   # problem info back to the project
+   def failure(job)
+      logger().info "Unit #{@project.unit.id} failed Finalization; updating project #{@project.id} with failure info"
+      @project.finalization_failure( status_object() )
+      super
    end
 end

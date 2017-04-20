@@ -7,7 +7,7 @@
       <div class="right-info">
          <p class="note-type"><%= note.note_type.gsub(/_/,' ').upcase %></p>
          <% if !note.step.nil? %>
-            <p class="note-step"><%= note.step.name %></p>
+            <p class="note-step"><b>Step: </b><%= note.step.name %></p>
          <% end %>
       </div>
    </div>

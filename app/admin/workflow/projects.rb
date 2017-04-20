@@ -92,7 +92,11 @@ ActiveAdmin.register Project do
             end
             if project.current_step.start_dir != project.current_step.finish_dir
                row ("Finish Directory") do |project|
-                  project.current_step.finish_dir
+                  str = "<span>#{project.current_step.finish_dir}</span>"
+                  if project.current_step.manual
+                     str << "<p class='manual-move-note'>Manual move required</p>"
+                  end
+                  raw(str)
                end
             end
          end
@@ -101,14 +105,21 @@ ActiveAdmin.register Project do
 
    sidebar "Assignment Workflow", :only => [:show], if: proc{ !project.finished? } do
       if current_user == project.owner
+         if current_user.admin? || current_user.supervisor?
+            div class: 'workflow_button project' do
+               c = "admin-button assign"
+               c << " disabled locked" if project.active_assignment.finalizing?
+               raw("<span data-project='#{project.id}' id='assign-button' class='#{c}'>Reassign</span>")
+            end
+         end
          div :class => 'workflow_button project' do
             clazz = "admin-button"
-            clazz << " disabled locked" if project.active_assignment.started? || project.active_assignment.error?
+            clazz << " disabled locked" if project.active_assignment.in_progress?
             raw("<span class='#{clazz}' id='start-assignment-btn'>Start</span>")
          end
          div :class => 'workflow_button project' do
             clazz = "admin-button"
-            clazz << " disabled locked" if !project.active_assignment.started? && !project.active_assignment.error? || project.workstation.nil?
+            clazz << " disabled locked" if !(project.active_assignment.started? || project.active_assignment.error?) || project.workstation.nil?
             raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
          render partial: 'time_entry', locals: {project: project}
@@ -118,13 +129,14 @@ ActiveAdmin.register Project do
          if !project.current_step.fail_step.nil?
             div :class => 'workflow_button project' do
                c = "admin-button reject"
-               c << " disabled locked" if !project.active_assignment.started? && !project.active_assignment.error?
+               c << " disabled locked" if !(project.active_assignment.started? || project.active_assignment.error?)
                raw("<span id='reject-button' class='#{c}'>Reject</span>")
             end
          end
       else
          div :class => 'workflow_button project' do
             options = {:method => :put}
+            options[:disabled] = true if project.active_assignment.finalizing?
             options[:disabled] = true if !project.claimable_by? current_user
             options[:disabled] = true if !project.owner.blank? && (current_user.student? || current_user.viewer?)
             button_to "Claim", "/admin/projects/#{project.id}/claim?details=1", options
@@ -132,9 +144,15 @@ ActiveAdmin.register Project do
          if current_user.admin? || current_user.supervisor?
             div class: 'workflow_button project' do
                c = "admin-button assign"
+               c << " disabled locked" if project.active_assignment.finalizing?
                raw("<span data-project='#{project.id}' id='assign-button' class='#{c}'>Assign</span>")
             end
          end
+      end
+      if project.active_assignment.finalizing?
+         # ?q[originator_type_eq]=Project&q[originator_id_eq]=1
+         q = "?q[originator_type_eq]=Project&q[originator_id_eq]=#{project.id}"
+         div do raw("Project is finailzing. Check the <a href='/admin/job_statuses#{q}'>Job Status</a> page for more information.") end
       end
    end
 
@@ -213,6 +231,8 @@ ActiveAdmin.register Project do
          render text: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
          return
       end
+
+      byebug
 
       begin
          project.assign_to(user)

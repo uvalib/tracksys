@@ -12,9 +12,10 @@ class Step < ActiveRecord::Base
    # Perform end of step validation and automation
    #
    def finish( project )
-      # For manual steps, just validate the destingation directory
+      # For manual steps, just validate the finish directory
       if self.manual
-         return validate_finish_dir( project )
+         dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, project.unit.directory)
+         return validate_finish_dir( project, dest_dir )
       end
 
       # Make sure no illegal/stopper files are present in the starting directory
@@ -22,23 +23,32 @@ class Step < ActiveRecord::Base
       # is needed to handle error recovery when a automatic move failed and the
       # user manually moved files to finsh dir befor finish clicked
       Rails.logger.info "Validate start files for project #{project.id}, step #{project.current_step.id}"
-      return false if !validate_start_files(project)
+      return false if !validate_start_dir(project)
 
       # Automatically move files to destination directory
       return move_files( project )
    end
 
    private
-   def validate_start_files(project)
+   def step_failed(project, msg)
+      prob = Problem.find(5) # Filesystem
+      Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, problem: prob, step: project.current_step )
+      project.active_assignment.update(status: :error )
+   end
+
+   private
+   def validate_start_dir(project)
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
       # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
 
-      unit_dir = "%09d" % project.unit.id
-      start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, unit_dir)
+      start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
 
       # if start dir doesnt exist, assume it has been manually moved.
-      return true if !Dir.exists?(start_dir)
+      if !Dir.exists?(start_dir)
+         Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
+         return true
+      end
 
       # Base start directory is present, see if it also contains an output directory. If
       # it does, use it as the directory to validate.
@@ -48,10 +58,21 @@ class Step < ActiveRecord::Base
    end
 
    private
-   def step_failed(project, msg)
-      prob = Problem.find_by(name: "Filesystem")
-      Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, problem: prob, step: project.current_step )
-      project.active_assignment.update(status: :error )
+   def validate_finish_dir(project, dest_dir)
+      Rails.logger.info("Validate files present in finish directory: #{dest_dir}")
+
+      if !Dir.exists?(dest_dir)
+         Rails.logger.error("Finish directory #{dest_dir} does not exist")
+         step_failed(project, "<p>Finish directory #{dest_dir} does not exist</p>")
+         return false
+      end
+
+      # if Output exists within destination, use it instead
+      output_dir =  File.join(dest_dir, "Output")
+      dest_dir = output_dir if Dir.exists? output_dir
+
+      # Directory is present and has images; make sure content is all OK
+      return validate_directory_content(project, dest_dir)
    end
 
    private
@@ -59,7 +80,7 @@ class Step < ActiveRecord::Base
       # Make sure the names match the unit & highest number is the same as the count
       highest = -1
       cnt = 0
-      unit_dir = "%09d" % project.unit.id
+      unit_dir = project.unit.directory
       Dir[File.join(dir, '*.tif')].each do |f|
          name = File.basename f,".tif" # get name minus extention
          num = name.split("_")[1].to_i
@@ -106,7 +127,6 @@ class Step < ActiveRecord::Base
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
       if Dir[File.join(dir, '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
-         prob = Problem.find_by(name: "Filesystem")
          step_failed(project, "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
          return false
       end
@@ -135,26 +155,6 @@ class Step < ActiveRecord::Base
    end
 
    private
-   def validate_finish_dir(project)
-      unit_dir = "%09d" % project.unit.id
-      dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
-      Rails.logger.info("Validate files present in #{dest_dir}")
-
-      if !Dir.exists?(dest_dir)
-         Rails.logger.error("Finish firectory #{dest_dir} does not exist")
-         step_failed(project, "<p>Finish directory #{dest_dir} does not exist</p>")
-         return false
-      end
-
-      # if Output exists within destination, use it instead
-      output_dir =  File.join(dest_dir, "Output")
-      dest_dir = output_dir if Dir.exists? output_dir
-
-      # Directory is present and has images; make sure content is all OK
-      return validate_directory_content(project, dest_dir)
-   end
-
-   private
    # NOTES ON Output Folder and file moves:
    # The contents of the Output folder need to be moved to a new folder in
    # 40_first_QA/(unit subfolder). The processing of images and generating of
@@ -165,28 +165,42 @@ class Step < ActiveRecord::Base
    # the server, the default location is still available to process and save the .tifs. All other
    # contents of the unit subfolder in 10_raw/(unit subfolder) should remain where they are in 10_raw.
    def move_files( project )
+      src_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
+      dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, project.unit.directory)
+
       # No move needed; just validate directory
       if self.start_dir == self.finish_dir
          Rails.logger.info("No automatic move needed. Validating #{self.finish_dir}...")
-         return validate_finish_dir( project )
+         return validate_finish_dir( project, dest_dir )
       end
 
-      unit_dir = "%09d" % project.unit.id
-      src_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, unit_dir)
-      dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, unit_dir)
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
-      # Neither directory exists; nothing can be done; fail
-      if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         Rails.logger.error("Manually moved destination dir #{dest_dir} does not exist")
-         step_failed(project, "<p>Neither start nor finsh directory exists</p>")
+      # Both exist; something is wrong. Fail
+      if Dir.exists?(src_dir) && Dir.exists?(dest_dir)
+         Rails.logger.error("Both source dir #{src_dir} and destination dir #{dest_dir} exist")
+         step_failed(project, "<p>Both source dir #{src_dir} and destination dir #{dest_dir} exist</p>")
          return false
+      end
+
+      # Neither directory exists, this is generally a failure, but a special case exists.
+      # Files may be 20_in_process if a prior finalization failed. Accept this.
+      alt_dest_dir = File.join(IN_PROCESS_DIR,  project.unit.directory)
+      if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
+         if self.end? && Dir.exists?(alt_dest_dir)
+            Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
+            dest_dir = alt_dest_dir
+         else
+            Rails.logger.error("Neither source nor destination directories exist")
+            step_failed(project, "<p>Neither start nor finsh directory exists</p>")
+            return false
+         end
       end
 
       # Source is gone, but dest exists... Validate it
       if !Dir.exists?(src_dir) && Dir.exists?(dest_dir)
-         Rails.logger.info("Destination directory #{src_dir} exists, and is populated. Validating...")
-         return validate_finish_dir(project)
+         Rails.logger.info("Destination directory #{dest_dir} exists, and is populated. Validating...")
+         return validate_finish_dir(project, dest_dir)
       end
 
       # See if there is an 'Output' directory for special handling
@@ -220,7 +234,7 @@ class Step < ActiveRecord::Base
          end
 
          # One last validation of final directory contents, then done
-         return validate_finish_dir(project)
+         return validate_finish_dir(project, dest_dir)
       rescue Exception => e
          Rails.logger.error("Move files FAILED #{e.to_s}")
          # Any problems moving files around will set the assignment as ERROR and leave it

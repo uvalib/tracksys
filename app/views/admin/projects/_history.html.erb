@@ -17,13 +17,9 @@
                <% c="success"
                   t = "Finished"
                   if a.rejected?
-                     c="fail"
+                     c="reject"
                      t="Rejected"
-                  elsif a.reassigned?
-                     c="reassign"
-                     t="Reassigned"
-                  end
-                  %>
+                  end%>
                <tr class="<%= c %>">
                   <td><%= a.finished_at.strftime("%F %r") %></td>
                   <td><%= a.step.name %></td>
@@ -40,8 +36,11 @@
                <% t = "Started"
                   c = ""
                   if a.error?
-                     c="class=fail"
+                     c="class=error"
                      t="Error"
+                  elsif a.finalizing?
+                     c="class=finalize"
+                     t="Finalizing..."
                   end %>
                <tr <%= c %> >
                   <td><%= a.started_at.strftime("%F %r") %></td>
@@ -51,7 +50,7 @@
                </tr>
             <% end %>
 
-            <tr >
+            <tr>
                <td><%= a.assigned_at.strftime("%F %r") %></td>
                <td><%= a.step.name %></td>
                <td>Assigned</td>

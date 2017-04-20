@@ -1,5 +1,5 @@
 class Assignment < ActiveRecord::Base
-   enum status: [:pending, :started, :finished, :rejected, :error, :reassigned]
+   enum status: [:pending, :started, :finished, :rejected, :error, :reassigned, :finalizing]
 
    belongs_to :project
    belongs_to :step
@@ -15,6 +15,6 @@ class Assignment < ActiveRecord::Base
    end
 
    def in_progress?
-      return pending? || started? || error?
+      return started? || error? || finalizing?
    end
 end
