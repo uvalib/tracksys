@@ -81,17 +81,19 @@
    </div>
    <div class="project-footer">
       <div class="progress-info">
-         <div class="owner<% if (current_user.student? || current_user.viewer?) && !project.owner.nil? %> disabled<% end %>">
-           <%= image_tag "owner.png" %>
-           <span class="owner-name" data-project="<%= project.id %>" >
-               <% if project.owner.nil? %>
-                  Unassigned
-               <% else %>
-                  <% owner = project.owner %>
-                  <a href='/admin/staff_members/<%= owner.id %>'><%= owner.full_name %> (<%= owner.computing_id%>)</a>
-               <% end %>
-           </span>
-         </div>
+         <% if !project.finished? %>
+            <div class="owner<% if (current_user.student? || current_user.viewer?) && !project.owner.nil? %> disabled<% end %>">
+              <%= image_tag "owner.png" %>
+              <span class="owner-name" data-project="<%= project.id %>" >
+                  <% if project.owner.nil? %>
+                     Unassigned
+                  <% else %>
+                     <% owner = project.owner %>
+                     <a href='/admin/staff_members/<%= owner.id %>'><%= owner.full_name %> (<%= owner.computing_id%>)</a>
+                  <% end %>
+              </span>
+            </div>
+         <% end %>
          <%= render :partial=>"status", :locals=>{ project: project} %>
       </div>
       <div class="owner-dd">
