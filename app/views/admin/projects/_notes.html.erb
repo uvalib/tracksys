@@ -30,7 +30,7 @@
             <div class="two-column invisible" id="problem-select">
                <label>Problem:</label>
                <select name="problem">
-                  <% Problem.all.each do |p| %>
+                  <% Problem.where("name <> 'Filesystem' and name <> 'Finalization'").each do |p| %>
                   <option value="<%= p.id %>"><%= p.name %></option>
                   <% end %>
                </select>
