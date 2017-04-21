@@ -432,10 +432,11 @@ ActiveAdmin.register Unit do
                 div :class => 'workflow_button' do button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put end
              end
           else
-            # div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
-            div :class => 'workflow_button' do
-               button_to "Manual Upload to Archive",
-                  start_manual_upload_to_archive_admin_unit_path, :method => :get
+            if unit.date_archived.nil?
+               div :class => 'workflow_button' do
+                  button_to "Manual Upload to Archive",
+                     start_manual_upload_to_archive_admin_unit_path, :method => :get
+               end
             end
           end
        end

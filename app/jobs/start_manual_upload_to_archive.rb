@@ -54,9 +54,9 @@ class StartManualUploadToArchive < BaseJob
          on_error "There were errors with the archiving process"
       else
          logger().info "Updating date archived"
-         unit.update(date_archived: true)
+         unit.update(date_archived: Time.now)
          unit.master_files.each do |mf|
-            mf.update(date_archived: true)
+            mf.update(date_archived: Time.now)
          end
 
          del_dir = File.join(DELETE_DIR_FROM_STORNEXT, unit.directory)
