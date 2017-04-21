@@ -101,13 +101,6 @@ ActiveAdmin.register_page "Dashboard" do
 
       if !current_user.viewer? && !current_user.student?
          div :class => 'three-column' do
-            panel "Manual Upload", :width => '33%', :priority => 3, :namespace => :admin, :toggle => 'show' do
-               div :class => 'workflow_button' do
-                  button_to "Manual Upload from digiserv-prodution",
-                  admin_dashboard_start_manual_upload_to_archive_production_path, :method => :get
-               end
-            end
-
             panel "Statistics", :priority => 6, :toggle => 'show' do
                div :class => 'workflow_button border-bottom' do
                   render 'admin/stats_report'
@@ -160,12 +153,6 @@ ActiveAdmin.register_page "Dashboard" do
       end
 
       flash[:notice] = "Could not find PID #{params[:pid]}"
-      redirect_to "/admin/dashboard"
-   end
-
-   page_action :start_manual_upload_to_archive_production do
-      StartManualUploadToArchive.exec( {:user_id => current_user.id, :directory=>MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION } )
-      flash[:notice] = "Items in #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{Time.now.strftime('%A')}."
       redirect_to "/admin/dashboard"
    end
 end

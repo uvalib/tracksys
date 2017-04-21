@@ -16,17 +16,14 @@ end
 #
 Settings = Figaro.env
 PRODUCTION_MOUNT = Settings.production_mount
-MIGRATION_MOUNT = Settings.migration_mount
 DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
 XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/dropoff"
 XML_PICKUP_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/pickup"
-FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
-FINALIZATION_DIR_MIGRATION = "#{MIGRATION_MOUNT}/finalization"
 
-FINALIZATION_DROPOFF_DIR_MIGRATION = "#{FINALIZATION_DIR_MIGRATION}/10_dropoff"
+FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DROPOFF_DIR_PRODUCTION = "#{FINALIZATION_DIR_PRODUCTION}/10_dropoff"
 
 IN_PROCESS_DIR = "#{FINALIZATION_DIR_PRODUCTION}/20_in_process"
@@ -40,16 +37,10 @@ DELETE_DIR_FROM_SCAN = "#{DELETE_DIR}/from_scan"
 DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
 
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
-MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION = "#{MIGRATION_MOUNT}/stornext_dropoff"
 
 PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
-
-# Batch migration variables
-BATCH_MIGRATION_MOUNT = Settings.batch_migration_mount
-MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION = "#{BATCH_MIGRATION_MOUNT}/stornext_dropoff"
-BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT = "#{BATCH_MIGRATION_MOUNT}/ready_to_delete/from_stornext_manual_upload"
 
 # Kakadu JPEG2000 executable
 KDU_COMPRESS= Settings.kdu_compress

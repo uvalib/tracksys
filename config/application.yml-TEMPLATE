@@ -37,9 +37,7 @@ deaccession_users: lf6f,cmm2t
 production:
    archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /digiserv-production
-   migration_mount: /digiserv-migration
    delivery_dir: /digiserv-delivery/patron
-   batch_migration_mount: /lib_content37/Rimage
    solr_url: http://solr.lib.virginia.edu:8082/solr      # Virgo solr instance
    iiif_mount: /iiif/jp2k                                # storage mount for iiif images
    iiif_manifest_url: http://localhost:8080/iiif         # IIIF presentation metadata base URL
@@ -55,9 +53,7 @@ development:
    dev_user_compute_id: lf6f
    archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /home/user/tracksys-dev/sandbox/digiserv-production # Override default mount with local
-   migration_mount:  /home/user/tracksys-dev/sandbox/digiserv-migration
    delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron
-   batch_migration_mount:  /home/user/tracksys-dev/sandbox/lib_content37/Rimage
    solr_url: http://solr.lib.virginia.edu:8082/solr         # Virgo solr instance
    iiif_mount: /home/user/tracksys-dev/sandbox/jp2k         # storage mount for iiif images
    iiif_manifest_url: http://localhost:8080/iiif            # IIIF presentation metadata base URL

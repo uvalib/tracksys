@@ -354,7 +354,7 @@ ActiveAdmin.register Unit do
   end
 
   # XML Upload / Download
-  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
+  sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 } do
      if unit.unit_status != "approved"
         div do "Unit has not been approved. No bulk actions can be taken." end
      else
@@ -432,7 +432,11 @@ ActiveAdmin.register Unit do
                 div :class => 'workflow_button' do button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put end
              end
           else
-            div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
+            # div do "Files for this unit do not reside in the finalization in-process directory. No work can be done on them." end
+            div :class => 'workflow_button' do
+               button_to "Manual Upload to Archive",
+                  start_manual_upload_to_archive_admin_unit_path, :method => :get
+            end
           end
        end
     end
@@ -475,6 +479,13 @@ ActiveAdmin.register Unit do
 
   action_item :next, :only => :show do
     link_to("Next", admin_unit_path(unit.next)) unless unit.next.nil?
+  end
+
+  member_action :start_manual_upload_to_archive do
+     unit = Unit.find(params[:id])
+     StartManualUploadToArchive.exec( {unit_id: params[:id], :user_id => current_user.id} )
+     flash[:notice] = "Archiving items to #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{unit.directory}."
+     redirect_to "/admin/units/#{params[:id]}"
   end
 
   member_action :download, :method => :get do
