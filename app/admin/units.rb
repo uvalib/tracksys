@@ -377,11 +377,13 @@ ActiveAdmin.register Unit do
        approved = unit.unit_status == 'approved' && unit.order.order_status == 'approved'
        div :class => 'workflow_button' do
          cn = "admin-button"
-         cn << " disabled" if !approved
+         cn << " disabled" if !approved || unit.metadata.blank?
          raw("<span class='#{cn}' id='show-create-digitization-project'>Create Digitization Project</span>")
        end
        if !approved
           div class: "admin-button-note" do "Cannot create project, unit has not been approved." end
+       elsif unit.metadata.blank?
+          div class: "admin-button-note" do "Cannot create project, no metadata assigned to unit." end
        end
     end
 
