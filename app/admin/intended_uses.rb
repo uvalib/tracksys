@@ -16,6 +16,7 @@ ActiveAdmin.register IntendedUse do
    config.filters = false
 
    index do
+      column :id
       column :description
       column :is_internal_use_only do |intended_use|
          format_boolean_as_yes_no(intended_use.is_internal_use_only)

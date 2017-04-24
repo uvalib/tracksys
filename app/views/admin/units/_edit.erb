@@ -9,7 +9,7 @@
    <% end %>
 
    <%= f.inputs "Patron Request", :class => 'panel three-column' do %>
-      <%= f.input :intended_use, :as => :select, :collection => IntendedUse.all %>
+      <%= f.input :intended_use, :as => :select, :collection => IntendedUse.where(is_approved: 1) %>
       <%= f.input :remove_watermark, :as => :radio %>
       <% if @unit.reorder == false %>
          <%= f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker} %>

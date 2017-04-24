@@ -28,13 +28,9 @@ class QueuePatronDeliverables < BaseJob
 
       unit.master_files.each do |master_file|
          file_source = File.join(source, master_file.filename)
-         CreatePatronDeliverables.exec_now({ :master_file_id => master_file.id,
-            :source => file_source, :format => unit.intended_use_deliverable_format,
-            :actual_resolution => master_file.image_tech_meta.resolution,
-            :desired_resolution => unit.intended_use_deliverable_resolution,
-            :unit_id => unit.id, :personal_item => unit.metadata.personal_item?,
-            :call_number => call_number, :title => unit.metadata.title,
-            :location => location, :remove_watermark => unit.remove_watermark}, self)
+         CreatePatronDeliverables.exec_now({ unit: unit, :master_file => master_file,
+            :source => file_source, :call_number => call_number, :title => unit.metadata.title,
+            :location => location, :personal_item => unit.metadata.personal_item?}, self)
 
          # also send to IIIF server for thumbnail generation and visibility from archivesspace
          if unit.reorder == false

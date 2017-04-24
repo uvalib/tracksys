@@ -29,4 +29,13 @@ namespace :fix do
         s.update(finish_dir: "scan/80_final_QA") if s.finish_dir == "scan/80_final_qa"
       end
    end
+
+   desc "Deactivate combine and create new intended uses"
+   task :intended_use => :environment do
+      IntendedUse.create(description: "Print Publication", is_internal_use_only: 0, is_approved: 1,
+         deliverable_format: "tiff", deliverable_resolution: "Highest Possible", deliverable_resolution_unit: "dpi")
+      IntendedUse.find(107).update(is_approved: 0)    # academic print pub
+      IntendedUse.find(108).update(is_approved: 0)    # non-academic print public
+      IntendedUse.find(111).update(is_approved: 0)    # sharing
+   end
 end

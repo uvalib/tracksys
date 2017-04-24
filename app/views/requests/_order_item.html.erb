@@ -52,22 +52,45 @@
 
       <div class="form-group">
          <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
-         <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] }, {:include_blank => true}, :required => true, :class => 'form-control intended_use_select' %>
+         <p class="help-block">
+            (Note: This helps us determine a digital format and watermark appropriate to your ultimate intended use.
+            We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
+            apply to use for purposes other than private study, scholarship, or research.
+            Please see our <a href="https://small.library.virginia.edu/services/publishing/">Permissions and Publishing</a> page for more information.)</p>
+         <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] },
+            {:include_blank => true}, :required => true, :class => 'form-control intended_use_select' %>
       </div>
       <div class="intended_use_watermarked_jpg" style="display: none;">
          <p>Deliverables: <strong>300dpi JPEG</strong></p>
-         <p>For this use Digital Production Group will deliver <strong>300dpi JPEG</strong> images suitable for your needs.  These images will include a copyright statment within a surrounding gray border similar in apperance to the image below.  The watermark text states:</p>
-         <blockquote>
-            <p>Under 17USC, Section 107, this single copy was produced for the purposes of private study, scholarship, or research.  No further copies should be made. Copyright and other legal restrictions may apply. Special Collections, University of Virginia Library.</p>
+         <p>
+            For this use Digital Production Group will deliver <strong>300dpi JPEG</strong> images suitable for your needs.
+            These images will include a copyright statment within a surrounding gray border similar in apperance to the image below.
+            The watermark text states:</p>
+         <blockquote class="classroom" style="display:none">
+            <p>This single copy was produced for the purposes of classroom teaching pursuant to 17 USC § 107 (fair use).
+               Copyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library.</p>
+         </blockquote>
+         <blockquote class="research" style="display:none">
+            <p>This single copy was produced for the purposes of private study, scholarship, or research pursuant to 17 USC § 107 and/or 108.
+               Copyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library.</p>
          </blockquote>
          <div class="watermark_thumb" style="float: center;">
             <img class="watermark_thumb" src="<%=image_path('request_form/watermark_thumb.jpg')%>" title="Watermarked 300dpi JPG" onclick="" />
          </div>
          <p><br/>If you require special formats such as TIFF or higher resolutions, please add a note in the Special Instructions field (above.)</p>
       </div>
+      <div class="intended_use_non_watermarked_jpg" style="display: none;">
+         <p>Deliverables: <strong>300dpi JPEG</strong></p>
+         <p>For this use Digital Production Group will deliver <strong>300dpi JPEG</strong> images suitable for your needs.</p>
+      </div>
       <div class="intended_use_highest_tif" style="display: none;">
          <p>Deliverables: <strong>Highest possible dpi TIFF</strong></p>
-         <p>For this use Digital Production Group will deliver <strong>Highest possible dpi TIFF</strong> images suitable for your needs.  The resolution of the images is dependent on the size of the physical object.  Generally, if the item is smaller than 11" on the longest side, the resolution will be 600dpi.  If the item is between 11" and 14" on the longest side, the resolution will be 400dpi.  Any item larger than 14" on the long side will generally have a resolution of 300dpi.</p>
+         <p>For this use Digital Production Group will deliver <strong>Highest possible dpi TIFF</strong>
+            images suitable for your needs.  The resolution of the images is dependent on the size of the physical object.
+            Generally, if the item is smaller than 11" on the longest side, the resolution will be 600dpi.
+            If the item is between 11" and 14" on the longest side, the resolution will be 400dpi.
+            Any item larger than 14" on the long side will generally have a resolution of 300dpi.
+         </p>
       </div>
    </div>
 

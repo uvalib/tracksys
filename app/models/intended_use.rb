@@ -12,8 +12,7 @@ class IntendedUse < ActiveRecord::Base
   #------------------------------------------------------------------
   # scopes
   #------------------------------------------------------------------
-  scope :interal_use_only, ->{ where(:is_internal_use_only => true) }
-  scope :external_use, ->{ where(:is_internal_use_only => false) }
+  scope :external_use, ->{ where(:is_internal_use_only => false).where(is_approved:1) }
   default_scope {order('description') }
 
   #------------------------------------------------------------------
