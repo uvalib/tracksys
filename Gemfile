@@ -3,7 +3,8 @@ source 'http://rubygems.org'
 gem 'rails', '4.2.8'
 gem 'thin'
 
-gem 'activeadmin', '~> 1.0.0.pre5'
+#gem 'activeadmin', '~> 1.0.0.pre5'
+gem 'activeadmin', '~> 1.0'
 gem 'passenger', '5.0.28'
 gem 'figaro'
 
