@@ -75,6 +75,20 @@ class Unit < ActiveRecord::Base
       self.remove_watermark = 0 if self.remove_watermark.nil?
       self.unit_status = "unapproved" if self.unit_status.nil? || self.unit_status.empty?
    end
+   after_save do
+      if self.master_files.count > 0
+         self.master_files.each do |mf|
+            # if unit metadata is changed while there are master files,
+            # update all of those master files to match the unit. IMPORTANT:
+            # Don't do this if masterfile has XML metadata. These will always
+            # be different from the unit and must remain that way - the metadata
+            # is specific to each masterfile.
+            if mf.metadata.id != self.metadata.id && mf.metadata.type != "XmlMetadata"
+               mf.update(metadata: self.metadata)
+            end
+         end
+      end
+   end
    after_update :check_order_status, :if => :unit_status_changed?
 
    #------------------------------------------------------------------
