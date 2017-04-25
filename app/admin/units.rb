@@ -694,7 +694,9 @@ ActiveAdmin.register Unit do
      def get_digital_collection_units
         metadata = resource.metadata
         @dc_units = []
-        Unit.where(metadata: metadata).where(intended_use_id: 110).each do |u|
+        q = "master_files_count > 0 and reorder = 0 and id <> #{resource.id}"
+        q << " and metadata_id = #{resource.metadata_id}"
+        Unit.where(q).each do |u|
            @dc_units << u.id
         end
      end
