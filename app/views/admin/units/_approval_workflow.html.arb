@@ -1,0 +1,42 @@
+if unit.project.nil?
+   approved = unit.unit_status == 'approved' && unit.order.order_status == 'approved'
+   div :class => 'workflow_button' do
+      cn = "admin-button"
+      cn << " disabled" if !approved || unit.metadata.blank?
+      raw("<span class='#{cn}' id='show-create-digitization-project'>Create Digitization Project</span>")
+   end
+   if !approved
+      div class: "admin-button-note" do
+         "Cannot create project, unit has not been approved."
+      end
+   elsif unit.metadata.blank?
+      div class: "admin-button-note" do
+         "Cannot create project, no metadata assigned to unit."
+      end
+   end
+end
+
+if unit.date_materials_received.nil?      # i.e. Material has yet to be checked out to Digital Production Group
+   div :class => 'workflow_button' do
+      button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put
+   end
+   div :class => 'workflow_button' do
+      button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put, :disabled => true
+   end
+elsif unit.date_materials_received        # i.e. Material has been checked out to Digital Production Group
+   if unit.date_materials_returned.nil?   # i.e. Material has been checkedout to Digital Production Group but not yet returned
+      div :class => 'workflow_button' do
+         button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put, :disabled => true
+      end
+      div :class => 'workflow_button' do
+         button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put
+      end
+   else
+      div :class => 'workflow_button' do
+         button_to "Check out to DigiServ", checkout_to_digiserv_admin_unit_path, :method => :put, :disabled => true
+      end
+      div :class => 'workflow_button' do
+         button_to "Check in from DigiServ", checkin_from_digiserv_admin_unit_path, :method => :put, :disabled => true
+      end
+   end
+end

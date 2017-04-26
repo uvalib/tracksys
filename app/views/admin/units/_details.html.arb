@@ -1,0 +1,61 @@
+div :class => 'two-column' do
+  panel "General Information" do
+    attributes_table_for unit do
+      row ("Status") do |unit|
+        status_tag(unit.unit_status)
+      end
+      row :unit_extent_estimated
+      row :unit_extent_actual
+      row :patron_source_url
+      row :special_instructions do |unit|
+        raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))
+      end
+      row :staff_notes do |unit|
+        raw(unit.staff_notes.to_s.gsub(/\n/, '<br/>'))
+      end
+      row :complete_scan
+    end
+  end
+end
+
+div :class => 'two-column' do
+  panel "Patron Request" do
+    attributes_table_for unit do
+      row :intended_use
+      row :intended_use_deliverable_format
+      row :intended_use_deliverable_resolution
+      row :remove_watermark do |unit|
+        format_boolean_as_yes_no(unit.remove_watermark)
+      end
+      if unit.reorder == false
+         row("Date Delivered to DigiServ") do |unit|
+           format_date(unit.date_materials_received)
+         end
+         row("Date Returned from DigiServ") do |unit|
+           format_date(unit.date_materials_returned)
+         end
+         row :date_archived do |unit|
+           format_datetime(unit.date_archived)
+         end
+      end
+      row :date_patron_deliverables_ready do |unit|
+        format_datetime(unit.date_patron_deliverables_ready)
+      end
+    end
+  end
+end
+
+if !unit.reorder
+   div :class => "columns-none" do
+     panel "Digital Library Information", :toggle => 'show' do
+      attributes_table_for unit do
+         row ("In Digital Library?") do |unit|
+           format_boolean_as_yes_no(unit.include_in_dl)
+         end
+         row :date_dl_deliverables_ready do |unit|
+           format_datetime(unit.date_dl_deliverables_ready)
+         end
+      end
+     end
+   end
+end

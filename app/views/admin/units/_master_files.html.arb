@@ -1,0 +1,24 @@
+# Master Files info =======================================================
+#
+div :class => "columns-none" do
+  panel "Master Files", :toggle => 'show' do
+     if unit.master_files.count == 0
+        div id: "masterfile-list" do
+           "No master files are ssociated with this unit."
+        end
+        if unit.intended_use.id != 110 # Digital Collection Building
+           div :class=>'panel-buttons' do
+              if unit.unit_status != "approved"
+                div do "Master files cannot be aded to unapproved units." end
+              else
+                 add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
+                 raw("#{add_btn}")
+              end
+           end
+        end
+        render "clone_masterfiles", :context => self
+     else
+        render "unit_masterfiles", :context => self
+     end
+  end
+end
