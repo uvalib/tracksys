@@ -144,12 +144,12 @@ ActiveAdmin.register Project do
          if current_user.admin? || current_user.supervisor?
             div class: 'workflow_button project' do
                c = "admin-button assign"
-               c << " disabled locked" if project.active_assignment.finalizing?
+               c << " disabled locked" if !project.active_assignment.nil? && project.active_assignment.finalizing?
                raw("<span data-project='#{project.id}' id='assign-button' class='#{c}'>Assign</span>")
             end
          end
       end
-      if project.active_assignment.finalizing?
+      if !project.active_assignment.nil? && project.active_assignment.finalizing?
          # ?q[originator_type_eq]=Project&q[originator_id_eq]=1
          q = "?q[originator_type_eq]=Project&q[originator_id_eq]=#{project.id}"
          div do raw("Project is finailzing. Check the <a href='/admin/job_statuses#{q}'>Job Status</a> page for more information.") end
