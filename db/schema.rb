@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170417150720) do
+ActiveRecord::Schema.define(version: 20170425193307) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -93,6 +93,18 @@ ActiveRecord::Schema.define(version: 20170417150720) do
   end
 
   add_index "attachments", ["unit_id"], name: "index_attachments_on_unit_id", using: :btree
+
+  create_table "audit_events", force: :cascade do |t|
+    t.integer  "staff_member_id", limit: 4
+    t.integer  "auditable_id",    limit: 4
+    t.string   "auditable_type",  limit: 255
+    t.integer  "event",           limit: 4
+    t.string   "details",         limit: 255
+    t.datetime "created_at"
+  end
+
+  add_index "audit_events", ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable_type_and_auditable_id", using: :btree
+  add_index "audit_events", ["staff_member_id"], name: "index_audit_events_on_staff_member_id", using: :btree
 
   create_table "availability_policies", force: :cascade do |t|
     t.string   "name",           limit: 255

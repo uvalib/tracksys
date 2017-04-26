@@ -83,7 +83,7 @@ class Unit < ActiveRecord::Base
             # Don't do this if masterfile has XML metadata. These will always
             # be different from the unit and must remain that way - the metadata
             # is specific to each masterfile.
-            if mf.metadata.id != self.metadata.id && mf.metadata.type != "XmlMetadata"
+            if mf.metadata.nil? || (mf.metadata.id != self.metadata.id && mf.metadata.type != "XmlMetadata")
                mf.update(metadata: self.metadata)
             end
          end

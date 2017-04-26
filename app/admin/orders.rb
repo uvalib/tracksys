@@ -2,6 +2,16 @@ ActiveAdmin.register Order do
   menu :priority => 4
   config.batch_actions = false
 
+  before_update do |order|
+     prior = Order.find(order.id)
+     if prior.order_status != order.order_status
+        Rails.logger.info "Order #{order.id} status changed from #{prior.order_status} to #{order.order_status} by #{current_user.computing_id}"
+        msg = "Change from #{prior.order_status} to #{order.order_status}"
+        AuditEvent.create(auditable: order, event: AuditEvent.events[:status_update],
+                          staff_member: current_user, details: msg)
+     end
+  end
+
   # strong paramters handling
   permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
      :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer, :date_permissions_given,

@@ -17,6 +17,7 @@ class Order < ActiveRecord::Base
    belongs_to :customer, :counter_cache => true, :inverse_of => :orders
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
+   has_many :audit_events, :as=> :auditable, :dependent => :destroy
 
    has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
    has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
