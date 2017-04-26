@@ -136,7 +136,7 @@ ActiveAdmin.register Project do
       else
          div :class => 'workflow_button project' do
             options = {:method => :put}
-            options[:disabled] = true if project.active_assignment.finalizing?
+            options[:disabled] = true if !project.active_assignment.nil? && project.active_assignment.finalizing?
             options[:disabled] = true if !project.claimable_by? current_user
             options[:disabled] = true if !project.owner.blank? && (current_user.student? || current_user.viewer?)
             button_to "Claim", "/admin/projects/#{project.id}/claim?details=1", options
@@ -231,9 +231,6 @@ ActiveAdmin.register Project do
          render text: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
          return
       end
-
-      byebug
-
       begin
          project.assign_to(user)
          logger.info("Project[#{project.id}] assigned to staff_member[#{user.id}]: #{user.computing_id} ")
