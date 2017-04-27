@@ -6,7 +6,7 @@ ActiveAdmin.register Order do
       prior = Order.find(order.id)
       if prior.order_status != order.order_status
          Rails.logger.info "Order #{order.id} status changed from #{prior.order_status} to #{order.order_status} by #{current_user.computing_id}"
-         msg = "Change from #{prior.order_status} to #{order.order_status}"
+         msg = "Status #{prior.order_status.upcase} to #{order.order_status.upcase}"
          AuditEvent.create(auditable: order, event: AuditEvent.events[:status_update],
          staff_member: current_user, details: msg)
       end
@@ -242,5 +242,13 @@ ActiveAdmin.register Order do
       order = Order.find(params[:id])
       pdf = order.generate_notice
       send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
+   end
+
+   controller do
+      before_filter :get_audit_log, only: [:show]
+      def get_audit_log
+         @audit_log = AuditEvent.where(auditable: resource)
+         puts "LOG #{@audit_log.to_json} =================================================="
+      end
    end
 end

@@ -1,0 +1,12 @@
+<div class="audit-log">
+   <table>
+      <tr><th>Date</th><th>User</th><th>Details</th></tr>
+      <% audit_log.each do |ae | %>
+      <tr>
+         <td><%= ae.created_at.strftime('%F %r') %></td>
+         <td><%= ae.staff_member.full_name %></td>
+         <td><%= ae.details %></td>
+      </tr>
+      <% end %>
+   </table>
+</div>

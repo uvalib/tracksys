@@ -11,4 +11,6 @@ class AuditEvent < ActiveRecord::Base
    before_save do
       self.created_at = Time.now
    end
+
+   default_scope { order(created_at: :desc) }
 end

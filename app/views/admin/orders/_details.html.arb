@@ -2,7 +2,13 @@ div :class => 'two-column' do
    panel "Basic Information" do
       attributes_table_for order do
          row :order_status do |order|
-            status_tag(order.order_status)
+            span do
+               status_tag(order.order_status)
+            end
+            if audit_log.count > 0 && current_user.admin?
+               span class: "audit-button" do end
+               render partial: "audit_log", locals: {audit_log: audit_log}
+            end
          end
          row :order_title
          row :special_instructions

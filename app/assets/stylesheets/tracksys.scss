@@ -70,6 +70,38 @@ body.active_admin {
       font-weight: normal;
    }
 
+   span.audit-button {
+      float: right;
+      background-image: image_url("info2.png");
+      width: 19px;
+      height: 19px;
+      cursor: pointer;
+   }
+   .audit-log {
+      position: absolute;
+      background: white;
+      padding: 0px;
+      border: 1px solid #999;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px #999;
+      display: none;
+      table {
+         border-collapse: collapse;
+         margin: 0;
+         th {
+            padding: 5px 5px 2px 5px;
+            background-color: #ededed;
+            border-bottom: 1px solid #aaa;
+            text-shadow: none;
+         }
+         td {
+            padding: 5px;
+            vertical-align: top;
+            border-bottom: none;
+         }
+      }
+   }
+
    input[readonly] {
       border: 0;
       background: transparent;
