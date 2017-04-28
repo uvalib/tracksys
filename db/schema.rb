@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170425193307) do
+ActiveRecord::Schema.define(version: 20170428150212) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -256,15 +256,14 @@ ActiveRecord::Schema.define(version: 20170425193307) do
   end
 
   create_table "intended_uses", force: :cascade do |t|
-    t.string   "description",                 limit: 255
-    t.boolean  "is_internal_use_only",                    default: false, null: false
-    t.boolean  "is_approved",                             default: false, null: false
+    t.string   "description",            limit: 255
+    t.boolean  "is_internal_use_only",               default: false, null: false
+    t.boolean  "is_approved",                        default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "units_count",                 limit: 4,   default: 0
-    t.string   "deliverable_format",          limit: 255
-    t.string   "deliverable_resolution",      limit: 255
-    t.string   "deliverable_resolution_unit", limit: 255
+    t.integer  "units_count",            limit: 4,   default: 0
+    t.string   "deliverable_format",     limit: 255
+    t.string   "deliverable_resolution", limit: 255
   end
 
   add_index "intended_uses", ["description"], name: "index_intended_uses_on_description", unique: true, using: :btree

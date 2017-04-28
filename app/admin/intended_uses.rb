@@ -3,7 +3,7 @@ ActiveAdmin.register IntendedUse do
    config.sort_order = "description_asc"
 
    # strong paramters handling
-   permit_params :description, :is_internal_use_only, :is_approved, :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit
+   permit_params :description, :is_internal_use_only, :is_approved, :deliverable_format, :deliverable_resolution
 
    config.clear_action_items!
    action_item :new, :only => :index do
@@ -39,9 +39,8 @@ ActiveAdmin.register IntendedUse do
       panel "General Information" do
          attributes_table_for intended_use do
             row :description
-            row :deliverable_format
-            row :deliverable_resolution
-            row :deliverable_resolution_unit
+            row ("Format") { |iu| iu.deliverable_format }
+            row ("Resolution (DPI)") { |iu| iu.deliverable_resolution }
             row :is_internal_use_only do |intended_use|
                format_boolean_as_yes_no(intended_use.is_internal_use_only)
             end
@@ -57,9 +56,8 @@ ActiveAdmin.register IntendedUse do
    form do |f|
       f.inputs "General Information", :class => 'columns-none panel' do
          f.input :description
-         f.input :deliverable_format
-         f.input :deliverable_resolution
-         f.input :deliverable_resolution_unit
+         f.input :deliverable_format, :label=>"Format"
+         f.input :deliverable_resolution, :label=>"Resolution (DPI)"
          f.input :is_internal_use_only, :as => :radio
          f.input :is_approved, :as => :radio
       end

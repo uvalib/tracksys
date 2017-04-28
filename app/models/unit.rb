@@ -28,7 +28,7 @@ class Unit < ActiveRecord::Base
 
    delegate :title, :to=>:metadata, :allow_nil => true, :prefix => true
    delegate :date_due, :to => :order, :allow_nil => true, :prefix => true
-   delegate :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit,
+   delegate :deliverable_format, :deliverable_resolution,
       :to => :intended_use, :allow_nil => true, :prefix => true
 
    delegate :call_number, :to=>:metadata, :allow_nil => true, :prefix => true

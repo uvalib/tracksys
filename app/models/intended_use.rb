@@ -67,5 +67,4 @@ end
 #  units_count                 :integer          default(0)
 #  deliverable_format          :string(255)
 #  deliverable_resolution      :string(255)
-#  deliverable_resolution_unit :string(255)
 #
