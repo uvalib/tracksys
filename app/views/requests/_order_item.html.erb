@@ -57,7 +57,7 @@
             We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
             apply to use for purposes other than private study, scholarship, or research.
             Please see our <a href="https://small.library.virginia.edu/services/publishing/">Permissions and Publishing</a> page for more information.)</p>
-         <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.description, i.id] },
+         <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.name, i.id] },
             {:include_blank => true}, :required => true, :class => 'form-control intended_use_select' %>
       </div>
       <div class="intended_use_watermarked_jpg" style="display: none;">

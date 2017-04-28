@@ -32,13 +32,12 @@ class IntendedUse < ActiveRecord::Base
     self.is_approved = 0          if self.is_approved.nil?
   end
 
-  #------------------------------------------------------------------
-  # public class methods
-  #------------------------------------------------------------------
-  # Returns a string containing a brief, general description of this
-  # class/model.
-  def IntendedUse.class_description
-    return "Intended Use indicates how the Customer intends to use the digitized resource (Unit)."
+  def name
+     res = "#{self.deliverable_resolution} DPI"
+     res = "highest possible resolution" if self.deliverable_resolution == "Highest Possible" || self.deliverable_resolution.blank?
+     fmt = self.deliverable_format
+     fmt = "tif" if fmt.blank?
+     return "#{self.description} : #{res} #{fmt}"
   end
 
   # Returns a boolean value indicating whether it is safe to delete this record

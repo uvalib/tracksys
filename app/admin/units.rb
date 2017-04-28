@@ -103,7 +103,9 @@ ActiveAdmin.register Unit do
       column :date_dl_deliverables_ready do |unit|
          format_date(unit.date_dl_deliverables_ready)
       end
-      column :intended_use
+      column :intended_use do |unit|
+         unit.intended_use.description
+      end
       column("Master Files") do |unit|
          link_to unit.master_files_count, admin_master_files_path(:q => {:unit_id_eq => unit.id})
       end

@@ -18,7 +18,9 @@ ActiveAdmin.register IntendedUse do
 
    index do
       column :id
-      column :description
+      column :description do |iu|
+         iu.name
+      end
       column :is_internal_use_only do |intended_use|
          format_boolean_as_yes_no(intended_use.is_internal_use_only)
       end
