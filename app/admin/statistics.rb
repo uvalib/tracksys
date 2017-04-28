@@ -3,22 +3,25 @@ ActiveAdmin.register_page "Statistics" do
 
    content do
       div :class => 'two-column' do
-         panel "Image Statictics", :namespace => :admin, :priority => 1 do
+         panel "Image Statictics" do
             render partial: 'statistics', locals: { stat_group: "image"}
             render partial: 'image_query'
          end
-         panel "Unit Statictics", :namespace => :admin, :priority => 3 do
+         panel "Unit Statictics" do
             render partial: 'statistics', locals: { stat_group: "unit"}
             render partial: 'unit_query'
+         end
+         panel "Orders Processed Statictics" do
+            render partial: 'processed_query'
          end
       end
 
       div :class => 'two-column' do
-         panel "Storage Statictics", :namespace => :admin, :priority => 2 do
+         panel "Storage Statictics" do
             render partial: 'statistics', locals: { stat_group: "size"}
             render partial: 'size_query'
          end
-         panel "Metadata Statictics", :namespace => :admin, :priority => 4 do
+         panel "Metadata Statictics" do
             render partial: 'statistics', locals: { stat_group: "metadata"}
             render partial: 'metadata_query'
          end
@@ -26,6 +29,10 @@ ActiveAdmin.register_page "Statistics" do
    end
 
    page_action :query, method: :get do
+      if params[:type] == "processed"
+         resp = Statistic.orders_processed_by_count( params[:user], params[:start_date], params[:end_date])
+         render text: resp, status: :ok and return
+      end
       if params[:type] == "image"
          resp = Statistic.image_count( params[:location].to_sym, params[:start_date], params[:end_date])
          render text: resp, status: :ok and return
@@ -50,6 +57,7 @@ ActiveAdmin.register_page "Statistics" do
       before_filter :get_stats
       def get_stats
          @stats = Statistic.get
+         @users = StaffMember.where("role <= 1")   # admins and supervisors
       end
    end
 end

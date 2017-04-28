@@ -26,6 +26,30 @@ class Statistic < ActiveRecord::Base
       return stats
    end
 
+   def self.orders_processed_by_count(user_id, start_date=nil, end_date = nil)
+      raise "User required" if user_id.blank?
+      raise "At least one date is required" if start_date.blank? && end_date.blank?
+
+      query = "select count(distinct(auditable_id)) from audit_events where auditable_type='Order'"
+      query << " and staff_member_id='#{user_id.to_i}' and (details='Status REQUESTED to APPROVED' or details='Status REQUESTED to CANCELED')"
+
+      conditions = []
+      if !start_date.nil?
+         start_date.to_date
+         if end_date.nil?
+            conditions << "created_at <= '#{start_date}'"
+         else
+            conditions << "created_at >= '#{start_date}'"
+            end_date.to_date
+            conditions << "created_at <= '#{end_date}'"
+         end
+      end
+      if !conditions.empty?
+         query << " and " << conditions.join(" and ")
+      end
+      return Statistic.connection.execute(query).first.first.to_i
+   end
+
    def self.unit_count( type=:all, user=:all, start_date=nil, end_date = nil)
       raise "Invalid unit type #{type}" if type != :all && type != :archived && type != :unarchived
       raise "Invalid user type #{user}" if user != :all && user != :student && user != :faculty && user != :staff && user != :nonuva
