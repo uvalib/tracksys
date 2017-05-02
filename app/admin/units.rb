@@ -41,37 +41,37 @@ ActiveAdmin.register Unit do
    config.clear_action_items!
 
    batch_action :approve_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'approved') }
+      Unit.find(selection).each {|s| s.update(unit_status: 'approved') }
       flash[:notice] = "Units #{selection.join(", ")} are now approved."
       redirect_to "/admin/units"
    end
 
    batch_action :cancel_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'canceled') }
+      Unit.find(selection).each {|s| s.update(unit_status: 'canceled') }
       flash[:notice] = "Units #{selection.join(", ")} are now canceled."
       redirect_to "/admin/units"
    end
 
    batch_action :check_condition_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'condition') }
+      Unit.find(selection).each {|s| s.update(unit_status: 'condition') }
       flash[:notice] = "Units #{selection.join(", ")} need to be vetted for condition."
       redirect_to "/admin/units"
    end
 
    batch_action :check_copyright_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:unit_status, 'copyright') }
+      Unit.find(selection).each {|s| s.update(unit_status: 'copyright') }
       flash[:notice] = "Units #{selection.join(", ")} need to be vetted for copyright."
       redirect_to "/admin/units"
    end
 
    batch_action :include_in_dl_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, true) }
+      Unit.find(selection).each {|s| s.update(include_in_dl: true) }
       flash[:notice] = "Units #{selection.join(", ")} have been marked for inclusion in the Digital Library."
       redirect_to "/admin/units"
    end
 
    batch_action :exclude_from_dl_units do |selection|
-      Unit.find(selection).each {|s| s.update_attribute(:include_in_dl, false) }
+      Unit.find(selection).each {|s| s.update(include_in_dl: false) }
       flash[:notice] = "Units #{selection.join(", ")} have been marked for exclusion from the Digital Library."
       redirect_to "/admin/units"
    end
@@ -401,12 +401,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :checkout_to_digiserv, :method => :put do
-      Unit.find(params[:id]).update_attribute(:date_materials_received, Time.now)
+      Unit.find(params[:id]).update(date_materials_received: Time.now)
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
    end
 
    member_action :checkin_from_digiserv, :method => :put do
-      Unit.find(params[:id]).update_attribute(:date_materials_returned, Time.now)
+      Unit.find(params[:id]).update(date_materials_returned: Time.now)
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
    end
 

@@ -208,19 +208,7 @@ class Order < ActiveRecord::Base
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
    end
    def self.active
-      # FIXME NEED TO EXCLUDE DIGITAL COLLECTION BUILDING ORDERS
-      # ['requested', 'deferred', 'canceled', 'approved', 'completed']
       where("order_status = 'approved' and date_customer_notified is null")
-      # where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'")
-      #    .where("date_patron_deliverables_complete is NULL").where("order_status != 'requested'")
-      #    .where("order_status != 'deferred'").where("order_status != 'completed'")
-   end
-
-
-   # Determine if any of an Order's Units are not 'approved' or 'cancelled'
-   def ready_to_approve?
-      status = self.units.map(&:unit_status) & ['condition', 'copyright', 'unapproved']
-      return status.empty?
    end
 
    def title

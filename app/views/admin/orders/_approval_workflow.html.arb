@@ -3,7 +3,7 @@ if order.order_status == 'requested'
       if order.fee_estimated.nil?
          # External customers (who require a fee estaimte) for which there IS NO estimated fee
          div :class => 'workflow_button' do
-            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
          end
          div :class => 'workflow_button' do
             button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
@@ -19,7 +19,7 @@ if order.order_status == 'requested'
             # External customers (who require a fee estaimte) for which there IS estimated fee but actual fee is blank.
             # Actions available: Cancel or Send Fee Estimate
             div :class => 'workflow_button' do
-               button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+               button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
             end
             div :class => 'workflow_button' do
                button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
@@ -35,7 +35,7 @@ if order.order_status == 'requested'
             # Actions available: Approve or Cancel
             if order.has_units_being_prepared.any?
                div :class => 'workflow_button' do
-                  button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+                  button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
                end
                div do
                   "You must approve or cancel this order's units before approving."
@@ -49,7 +49,7 @@ if order.order_status == 'requested'
                button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
             end
             div :class => 'workflow_button' do
-               button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => 'true', :method => :put
+               button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true, :method => :put
             end
             div do
                "Either approve or cancel this order."
@@ -60,7 +60,7 @@ if order.order_status == 'requested'
       # Internal customers require no fee.
       if order.has_units_being_prepared.any?
          div :class => 'workflow_button' do
-            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
          end
          div do
             "You must approve or cancel this order's units before approving."
@@ -84,7 +84,7 @@ elsif order.order_status == 'deferred'
    if order.customer.external?
       if order.fee_actual.nil?
          div :class => 'workflow_button' do
-            button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+            button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
          end
          div :class => 'workflow_button' do
             button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put
@@ -103,10 +103,10 @@ elsif order.order_status == 'deferred'
    end
 elsif order.order_status == 'approved' || order.order_status == 'canceled'
    div :class => 'workflow_button' do
-      button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+      button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
    end
    div :class => 'workflow_button' do
-      button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => 'true', :method => :put
+      button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => true, :method => :put
    end
    div :class => 'workflow_button' do
       button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put,  :disabled => true

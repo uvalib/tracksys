@@ -248,7 +248,6 @@ ActiveAdmin.register Order do
       before_filter :get_audit_log, only: [:show]
       def get_audit_log
          @audit_log = AuditEvent.where(auditable: resource)
-         puts "LOG #{@audit_log.to_json} =================================================="
       end
    end
 end

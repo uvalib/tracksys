@@ -89,7 +89,6 @@ class Unit < ActiveRecord::Base
          end
       end
    end
-   after_update :check_order_status, :if => :unit_status_changed?
 
    #------------------------------------------------------------------
    # aliases
@@ -153,14 +152,6 @@ class Unit < ActiveRecord::Base
       return false if self.metadata.availability_policy_id.nil?
       return true if self.date_dl_deliverables_ready.nil? and not self.date_archived.nil?
       return false
-   end
-
-   def check_order_status
-      if self.order.ready_to_approve?
-         self.order.order_status = 'approved'
-         self.order.date_order_approved = Time.now
-         self.order.save!
-      end
    end
 
    def last_error
