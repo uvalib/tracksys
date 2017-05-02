@@ -8,7 +8,7 @@ ActiveAdmin.register IndexingScenario do
       raw("<a href='/admin/indexing_scenarios/new'>New</a>") if current_user.admin?
    end
 
-   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
+   menu :parent => "Controlled Vocabulary", if: proc{ current_user.admin? || current_user.supervisor? }
 
    config.batch_actions = false
    config.filters = false

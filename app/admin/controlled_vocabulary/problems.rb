@@ -1,5 +1,6 @@
 ActiveAdmin.register Problem do
-   menu :parent => "Digitization Workflow", if: proc{ current_user.admin? || current_user.supervisor? }
+   # menu :parent => "Digitization Workflow", if: proc{ current_user.admin? || current_user.supervisor? }
+   menu :parent => "Controlled Vocabulary", if: proc{ current_user.admin? || current_user.supervisor? }
 
    # strong paramters handling
    permit_params :name
@@ -10,7 +11,7 @@ ActiveAdmin.register Problem do
    config.sort_order = 'id_asc'
    config.clear_action_items!
    action_item :new, :only => :index do
-      raw("<a href='/admin/use_rights/new'>New</a>") if current_user.admin?
+      raw("<a href='/admin/problems/new'>New</a>") if current_user.admin?
    end
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if current_user.admin?

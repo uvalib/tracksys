@@ -1,5 +1,5 @@
 ActiveAdmin.register IntendedUse do
-   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
+   menu :parent => "Controlled Vocabulary", if: proc{ current_user.admin? || current_user.supervisor? }
    config.sort_order = "description_asc"
 
    # strong paramters handling

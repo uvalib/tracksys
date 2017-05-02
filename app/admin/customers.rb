@@ -1,5 +1,6 @@
 ActiveAdmin.register Customer do
-  menu :priority => 3
+  # menu :priority => 3
+  menu :parent => "Miscellaneous"
   config.batch_actions = false
 
   # strong paramters handling

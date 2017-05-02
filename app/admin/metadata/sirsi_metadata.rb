@@ -4,7 +4,7 @@ ActiveAdmin.register SirsiMetadata do
 
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
-      :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre,
+      :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :indexing_scenario_id, :parent_bibl_id
 
@@ -38,7 +38,8 @@ ActiveAdmin.register SirsiMetadata do
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'
-  filter :resource_type, :as => :select, :collection => Metadata::RESOURCE_TYPES
+  filter :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc)
+  filter :genre, :as => :select, :collection=>Genre.all.order(name: :asc)
   filter :availability_policy
   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
 
@@ -131,12 +132,8 @@ ActiveAdmin.register SirsiMetadata do
           row "Collection?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_collection)
           end
-          row :resource_type do |sirsi_metadata|
-            sirsi_metadata.resource_type.to_s.titleize
-          end
-          row :genre do |sirsi_metadata|
-            sirsi_metadata.genre.to_s.titleize
-          end
+          row :resource_type
+          row :genre
           row ("Date Created") do |sirsi_metadata|
             sirsi_metadata.created_at
           end

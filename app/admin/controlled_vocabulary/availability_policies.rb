@@ -1,6 +1,6 @@
 ActiveAdmin.register AvailabilityPolicy do
   config.sort_order = 'name_asc'
-  menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
+  menu :parent => "Controlled Vocabulary", if: proc{ current_user.admin? || current_user.supervisor? }
 
   # strong paramters handling
   permit_params :name, :repository_url, :pid

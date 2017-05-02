@@ -11,8 +11,10 @@ module Tracksys
       config.autoload_paths << Rails.root.join('lib')
       config.autoload_paths << Rails.root.join('app',"models", "metadata")
       config.autoload_paths << Rails.root.join('app',"models", "equipment")
+      config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
       config.autoload_paths << Rails.root.join('app',"admin", "metadata")
       config.autoload_paths << Rails.root.join('app',"admin", "workflow")
+      config.autoload_paths << Rails.root.join('app',"admin", "controlled_vocabulary")
 
       config.assets.paths << "#{config.root}/assets/images/request_form"
       config.assets.paths << "#{config.root}/assets/stylesheets/request"

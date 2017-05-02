@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170428150212) do
+ActiveRecord::Schema.define(version: 20170501143303) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -221,6 +221,10 @@ ActiveRecord::Schema.define(version: 20170428150212) do
     t.integer  "status",        limit: 4,   default: 0
   end
 
+  create_table "genres", force: :cascade do |t|
+    t.string "name", limit: 255
+  end
+
   create_table "image_tech_meta", force: :cascade do |t|
     t.integer  "master_file_id", limit: 4,                  default: 0, null: false
     t.string   "image_format",   limit: 255
@@ -336,8 +340,6 @@ ActiveRecord::Schema.define(version: 20170428150212) do
   create_table "metadata", force: :cascade do |t|
     t.boolean  "is_approved",                          default: false,           null: false
     t.boolean  "is_personal_item",                     default: false,           null: false
-    t.string   "resource_type",          limit: 255
-    t.string   "genre",                  limit: 255
     t.boolean  "is_manuscript",                        default: false,           null: false
     t.boolean  "is_collection",                        default: false,           null: false
     t.text     "title",                  limit: 65535
@@ -365,6 +367,8 @@ ActiveRecord::Schema.define(version: 20170428150212) do
     t.string   "external_uri",           limit: 255
     t.string   "supplemental_system",    limit: 255
     t.string   "supplemental_uri",       limit: 255
+    t.integer  "genre_id",               limit: 4
+    t.integer  "resource_type_id",       limit: 4
   end
 
   add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
@@ -372,9 +376,11 @@ ActiveRecord::Schema.define(version: 20170428150212) do
   add_index "metadata", ["call_number"], name: "index_metadata_on_call_number", using: :btree
   add_index "metadata", ["catalog_key"], name: "index_metadata_on_catalog_key", using: :btree
   add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
+  add_index "metadata", ["genre_id"], name: "index_metadata_on_genre_id", using: :btree
   add_index "metadata", ["indexing_scenario_id"], name: "index_metadata_on_indexing_scenario_id", using: :btree
   add_index "metadata", ["parent_bibl_id"], name: "index_metadata_on_parent_bibl_id", using: :btree
   add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
+  add_index "metadata", ["resource_type_id"], name: "index_metadata_on_resource_type_id", using: :btree
   add_index "metadata", ["use_right_id"], name: "index_metadata_on_use_right_id", using: :btree
 
   create_table "notes", force: :cascade do |t|
@@ -471,6 +477,10 @@ ActiveRecord::Schema.define(version: 20170428150212) do
   add_index "projects", ["unit_id"], name: "index_projects_on_unit_id", using: :btree
   add_index "projects", ["workflow_id"], name: "index_projects_on_workflow_id", using: :btree
   add_index "projects", ["workstation_id"], name: "index_projects_on_workstation_id", using: :btree
+
+  create_table "resource_types", force: :cascade do |t|
+    t.string "name", limit: 255
+  end
 
   create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
     t.integer "sirsi_metadata_id", limit: 4
