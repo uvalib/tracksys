@@ -4,7 +4,7 @@ ActiveAdmin.register XmlMetadata do
 
    # strong paramters handling
    permit_params :title, :creator_name,
-       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type, :genre,
+       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
        :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata, :dpla, :parent_bibl_id
 
@@ -31,17 +31,16 @@ ActiveAdmin.register XmlMetadata do
 
    # Filters ==================================================================
    #
-   filter :id
-   filter :title
-   filter :desc_metadata, :as => :string, :label => "XML Metadata"
-   filter :pid
+   filter :title_contains, label: "Title"
+   filter :pid_starts_with, label: "PID"
    filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
-   filter :resource_type, :as => :select, :collection => SirsiMetadata::RESOURCE_TYPES
+   filter :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc)
+   filter :genre, :as => :select, :collection=>Genre.all.order(name: :asc)
    filter :availability_policy
-   filter :orders_id, :as => :numeric
-   filter :collection_facet, :as => :string
+   filter :desc_metadata_contains, label: "XML Metadata"
+   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
 
    # INDEX page ===============================================================
    #
@@ -125,12 +124,8 @@ ActiveAdmin.register XmlMetadata do
            row "Collection?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_collection)
            end
-           row :resource_type do |xml_metadata|
-             xml_metadata.resource_type.to_s.titleize
-           end
-           row :genre do |xml_metadata|
-             xml_metadata.genre.to_s.titleize
-           end
+           row :resource_type
+           row :genre
            row ("Date Created") do |xml_metadata|
              xml_metadata.created_at
            end

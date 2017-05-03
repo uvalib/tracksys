@@ -1,0 +1,69 @@
+.ts-icon {
+   float:right;
+   width: 16px;
+   height: 16px;
+   cursor: pointer;
+   display: inline-block;
+   background-repeat: no-repeat;
+   background-position: center center;
+   opacity: 0.4;
+   position: relative;
+   &:hover {
+      opacity: 1;
+      background-color: transparent;
+   }
+}
+
+.ts-icon.recent-error {
+   background-color: white;
+   padding: 8px;
+   border-radius: 8px;
+   border: 1px solid #444;
+   position: absolute;
+   right: 3px;
+   top: 4px !important;
+}
+
+.ts-icon.add {
+   background-image: image_url("add.png");
+   border-radius: 10px;
+}
+.ts-icon.trash {
+   background-image: image_url("trash.png");
+   top: 1px;
+}
+.ts-icon.edit {
+   background-image: image_url("edit2.png");
+}
+
+.ts-icon.down {
+   background-image: image_url("down.png");
+   margin: 0 5px;
+}
+
+.ts-icon.up {
+   background-image: image_url("up.png");
+   margin: 0 5px;
+}
+
+.equipment-status {
+   display: inline-block;
+   width: 14px;
+   height: 14px;
+   cursor: pointer;
+   border-radius: 10px;
+   position: relative;
+   top: 2px;
+}
+.equipment-status.active {
+   background-color: #0c0;
+   &:hover {
+      background-color: #090;
+   }
+}
+.equipment-status.inactive {
+   background-color: #ccc;
+   &:hover {
+      background-color: #aaa;
+   }
+}

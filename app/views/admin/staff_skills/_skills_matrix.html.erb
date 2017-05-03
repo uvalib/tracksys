@@ -1,0 +1,33 @@
+<div class="skills-matrix-wrapper">
+   <div class="skills-matrix">
+      <div class="skills-panel">
+            <label class="header">Category</label>
+            <div class="category-selector">
+               <select id="category">
+                  <option>Select a category</option>
+                  <% Category.all.each do |c| %>
+                     <option value="<%= c.id %>"><%= c.name %></option>
+                  <% end %>
+               </select>
+            </div>
+         <div class="scroller">
+            <div class="staff-skills">
+            </div>
+         </div>
+      </div>
+      <div class="skill-buttons-panel">
+         <span id="assign-skill" class="mf-action-button"> << </span>
+         <span id="unassign-skill" class="mf-action-button"> >> </span>
+      </div>
+      <div class="staff-panel">
+         <label class="header">Staff Members</label>
+         <div class="scroller">
+            <div class="staff-list">
+               <% StaffMember.all.order(last_name: :asc).each do |s| %>
+                  <p data-id="<%=s.id%>" class="staff"><%= s.full_name %></p>
+               <% end %>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

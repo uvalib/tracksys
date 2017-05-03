@@ -108,7 +108,7 @@ $(function() {
       var selectedUnit = $("#source-unit").val();
       var r = "<tr class='mf-row'><td><input data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
       r +=    "<td>MF_FILE</td><td><span class='title'>MF_TITLE</span><span class='rename-btn'></span></td>";
-      r +=    "<td class='sort'><span class='down'></span><span class='up'></span></td></tr>";
+      r +=    "<td class='sort'><span class='ts-icon down'></span><span class='ts-icon up'></span></td></tr>";
       r = r.replace("MF_ID", mfRow.data("id"));
       r = r.replace("MF_FILE", mfRow.find(".mf-file").text() );
       r = r.replace("MF_TITLE",  mfRow.find(".mf-title").text() );

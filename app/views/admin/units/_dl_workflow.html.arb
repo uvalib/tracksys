@@ -1,0 +1,17 @@
+if unit.ready_for_repo?
+   div :class => 'workflow_button' do
+      button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(), :method => :put
+   end
+end
+if unit.in_dl?
+   div :class => 'workflow_button' do
+      button_to "Publish All", publish_admin_unit_path(), :method => :put
+   end
+   div :class => 'workflow_button' do
+      button_to "Publish to Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
+   end
+else
+   div :class => 'workflow_button' do
+      button_to "Put into Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
+   end
+end

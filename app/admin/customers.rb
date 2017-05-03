@@ -1,5 +1,6 @@
 ActiveAdmin.register Customer do
-  menu :priority => 3
+  # menu :priority => 3
+  menu :parent => "Miscellaneous"
   config.batch_actions = false
 
   # strong paramters handling
@@ -18,17 +19,12 @@ ActiveAdmin.register Customer do
   scope :all, :default => true
   scope :has_unpaid_invoices
 
-  filter :id
-  filter :first_name
-  filter :last_name
-  filter :email
-  filter :primary_address_organization, :as => :string, :label => "Primary Organization"
-  filter :billable_address_organization, :as => :string, :label => "Billable Organization"
-  filter :academic_status, :as => :select
-  filter :department, :as => :select
-  filter :orders_count
-  filter :master_files_count
-  filter :agencies_id, :as => :numeric
+  filter :last_name_or_first_name_starts_with, label: "Name"
+  filter :email_starts_with, label: "Email"
+  filter :agencies, :as => :select, collection: Agency.pluck(:name, :id)
+  filter :department, :as => :select, collection: Department.pluck(:name, :id)
+  filter :primary_address_organization_or_billable_address_organization_starts_with, :label => "Organization"
+  filter :academic_status, :as => :select, collection: AcademicStatus.pluck(:name, :id)
 
   index :as => :table do
     selectable_column

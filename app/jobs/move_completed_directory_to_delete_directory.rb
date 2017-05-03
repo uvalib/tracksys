@@ -12,15 +12,20 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
          unit_dir = "%09d" % unit_id
       end
 
-      # If source_dir matches a stornext manual upload dir, move to DELETE_DIR_FROM_STORNEXT
-      if /#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}|#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_MIGRATION}/ =~ source_dir
-         FileUtils.mv File.join(source_dir, unit_dir), File.join(DELETE_DIR_FROM_STORNEXT, unit_dir)
-         on_success "All files associated with #{unit_dir} has been moved to #{DELETE_DIR_FROM_STORNEXT}."
+      if !Dir.exists? source_dir
+         on_success "Source directory #{unit_dir} has already been removed"
+         return
+      end
 
-      # If source_dir matches a stornext manual upload dir from the batch migration mount (i.e. /lib_content37), move to BATCH_MIGRATION_DELETE_DIR_FROM_STORNEX
-      elsif /#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_BATCH_MIGRATION}/ =~ source_dir
-         FileUtils.mv File.join(source_dir, unit_dir), File.join(BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT, unit_dir)
-         on_success "All files associated with #{unit_dir} has been moved to #{BATCH_MIGRATION_DELETE_DIR_FROM_STORNEXT}."
+      # If source_dir matches a stornext manual upload dir, move to DELETE_DIR_FROM_STORNEXT
+      if /#{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/ =~ source_dir
+         unit_src_dir = File.join(source_dir, unit_dir)
+         if !Dir.exists? unit_src_dir
+            on_success "Unit source directory #{unit_src_dir} has already been removed"
+            return
+         end
+         FileUtils.mv unit_src_dir, File.join(DELETE_DIR_FROM_STORNEXT, unit_dir)
+         on_success "All files associated with #{unit_dir} has been moved to #{DELETE_DIR_FROM_STORNEXT}."
 
       # Unit update?
       elsif /unit_update/ =~ source_dir
@@ -34,7 +39,12 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
 
       # If source_dir matches the finalization in process dir, move to DELETE_DIR_FROM_FINALIZATION and look for items in /digiserv-production/scan
       elsif /#{IN_PROCESS_DIR}/ =~ source_dir
-         FileUtils.mv File.join(source_dir, unit_dir), File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
+         unit_src_dir = File.join(source_dir, unit_dir)
+         if !Dir.exists? unit_src_dir
+            on_success "Unit source directory #{unit_src_dir} has already been removed"
+            return
+         end
+         FileUtils.mv unit_src_dir, File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
          on_success "All files associated with #{unit_dir} has been moved to #{DELETE_DIR_FROM_FINALIZATION}."
 
          # Once the files are moved from IN_PROCESS_DIR, search /digiserv-production/scan for legacy files and move them to DELETE_DIR_FROM_SCAN
@@ -46,7 +56,6 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
 
          PRODUCTION_SCAN_SUBDIRECTORIES.each do |dir|
             if  Dir.exists? (  File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}" )  )
-               puts dir
                contents = Dir.entries(File.join("#{PRODUCTION_SCAN_DIR}", "#{dir}")).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
                contents.each do |content|
                   if /#{unit_id}/ =~ content

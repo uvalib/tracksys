@@ -1,4 +1,7 @@
-div.stats-query {
+div.processed-query {
+    border: none;
+}
+div.stats-query, .processed-query {
    .query-dimmer {
       position: absolute;
       left: 0;

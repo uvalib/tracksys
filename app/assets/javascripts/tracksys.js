@@ -1,6 +1,19 @@
 $(function() {
    $("#q_desc_metadata_input select").attr("disabled", "disabled");
 
+   $(".recent-error.trash.ts-icon").on("click", function() {
+      var resp = confirm('Delete recent error?');
+      if (!resp) return;
+
+      var box = $(this).closest("div.error");
+      $.ajax({
+         url: "/admin/job_statuses/"+box.data("job-id"),
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            box.hide();
+         }
+      });
+   });
 
    $("input").not($(":button")).keypress(function (evt) {
       var filterForm = $(this).closest(".filter_form");
@@ -15,6 +28,19 @@ $(function() {
             return false;
          }
       }
+   });
+
+   // Audit Log display
+   $(".audit-button").on("mouseover", function() {
+      var pos = $(".audit-button").offset();
+      if ( !$(".audit-log").data("positioned") ) {
+         $(".audit-log").offset({top: pos.top+$(".audit-button").outerHeight()+5, left: pos.left});
+         $(".audit-log").data("positioned", true);
+      }
+      $(".audit-log").show();
+   });
+   $(".audit-button").on("mouseout", function() {
+      $(".audit-log").hide();
    });
 
    // Colorbox

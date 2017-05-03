@@ -1,14 +1,11 @@
 ActiveAdmin.register Agency do
-  menu :parent => "Miscellaneous"
+  menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
   config.batch_actions = false
 
   # strong paramters handling
   permit_params :name, :description, :parent_id
 
   config.sort_order = 'name_asc'
-
-  scope :all, :default => true
-  scope :no_parent
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -18,8 +15,7 @@ ActiveAdmin.register Agency do
      link_to "Edit", edit_resource_path  if current_user.admin?
   end
 
-  filter :id
-  filter :name
+  filter :name_starts_with, label: "Name"
 
   index :id => 'agencies' do
     selectable_column

@@ -17,12 +17,14 @@ class Order < ActiveRecord::Base
    belongs_to :customer, :counter_cache => true, :inverse_of => :orders
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
+   has_many :audit_events, :as=> :auditable, :dependent => :destroy
 
    has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
    has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
    has_many :invoices, :dependent => :destroy
    has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
+   has_many :projects, :through=> :units
 
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer
@@ -38,12 +40,9 @@ class Order < ActiveRecord::Base
    scope :awaiting_approval, ->{where("order_status = 'requested'") }
    scope :approved,->{ where("order_status = 'approved'") }
    scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
-   scope :recent,
-   lambda {|limit=5|
-      order('date_request_submitted DESC').limit(limit)
-   }
+   scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
-   scope :complete, ->{ where("date_archiving_complete is not null OR order_status = 'completed'") }
+   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
    # validations
@@ -89,6 +88,12 @@ class Order < ActiveRecord::Base
       self.is_approved = 0 if self.is_approved.nil?
       self.is_approved = 1 if self.order_status == 'approved'
       self.email = nil if self.email.blank?
+      if self.projects.count > 0
+         self.projects.update_all(due_on: self.date_due)
+      end
+      if self.order_status == 'canceled' && self.units.count > 0
+         self.units.update_all(unit_status: 'canceled')
+      end
    end
 
    before_destroy :destroyable?
@@ -189,24 +194,21 @@ class Order < ActiveRecord::Base
          logger.error "#{self.name}#due_within expecting ActiveSupport::TimeWithZone as argument.  Got #{timespan.class} instead"
          timespan = 1.week.from_now
       end
+      q = nil
       if Time.now.to_date == timespan.to_date
-         where("date_due = ?", Date.today)
+         where("date_due = ?", Date.today).active.patron_requests
       elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan)
+         where("date_due < ?", Date.today).where("date_due > ?", timespan).active.patron_requests
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan)
+         where("date_due > ?", Date.today).where("date_due < ?", timespan).active.patron_requests
       end
    end
    def self.overdue
       date=0.days.ago
-      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).where("date_deferred is NULL").where("date_canceled is NULL").where("order_status != 'canceled'").where("date_patron_deliverables_complete is NULL").where("order_status != 'deferred'").where("order_status != 'completed'")
+      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
    end
-
-
-   # Determine if any of an Order's Units are not 'approved' or 'cancelled'
-   def ready_to_approve?
-      status = self.units.map(&:unit_status) & ['condition', 'copyright', 'unapproved']
-      return status.empty?
+   def self.active
+      where("order_status = 'approved' and date_customer_notified is null")
    end
 
    def title

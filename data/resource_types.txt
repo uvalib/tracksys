@@ -1,0 +1,12 @@
+Text
+Cartographic
+Notated Music
+Sound Recording
+Sound Recording-Musical
+Sound Recording-Nonmusical
+Still Image
+Moving Image
+Three Dimensional Object
+Software
+Multimedia
+Mixed Material

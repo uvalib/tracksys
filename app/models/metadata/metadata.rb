@@ -1,33 +1,14 @@
 class Metadata < ActiveRecord::Base
 
-   TYPES = ['Sirsi', "Xml", "ArchivesSpace"]
-
-   GENRES = [
-      'abstract or summary', 'art original', 'art reproduction', 'article', 'atlas',
-      'autobiography', 'bibliography', 'biography', 'book', 'catalog', 'chart', 'comic strip',
-      'conference publication', 'database', 'dictionary', 'diorama', 'directory', 'discography',
-      'drama', 'encyclopedia', 'essay', 'festschrift', 'fiction', 'filmography', 'filmstrip',
-      'finding aid', 'flash card', 'folktale', 'font', 'game', 'government publication',
-      'graphic', 'globe', 'handbook', 'history', 'hymnal', 'humor, satire', 'index',
-      'instruction', 'interview', 'issue', 'journal', 'kit', 'language instruction',
-      'law report or digest', 'legal article', 'legal case and case notes', 'legislation',
-      'letter', 'loose-leaf', 'map', 'memoir', 'microscope slide', 'model', 'motion picture',
-      'multivolume monograph', 'newspaper', 'novel', 'numeric data', 'offprint',
-      'online system or service', 'patent', 'periodical', 'picture', 'poetry', 'programmed text',
-      'realia', 'rehearsal', 'remote sensing image', 'reporting', 'review', 'script', 'series',
-      'short story', 'slide', 'sound', 'speech', 'statistics', 'survey of literature', 'technical drawing',
-      'technical report', 'thesis', 'toy', 'transparency', 'treaty', 'videorecording', 'web site']
-
-   RESOURCE_TYPES = [
-      'text', 'cartographic', 'notated music', 'sound recording', 'sound recording-musical', 'sound recording-nonmusical',
-      'still image', 'moving image', 'three dimensional object', 'software, multimedia', 'mixed material']
-
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
    belongs_to :availability_policy, :counter_cache => true
    belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :use_right, :counter_cache => true
+
+   belongs_to :genre
+   belongs_to :resource_type
 
    has_many :agencies, :through => :orders
    has_many :job_statuses, :as => :originator, :dependent => :destroy
@@ -51,6 +32,7 @@ class Metadata < ActiveRecord::Base
    # validations
    #------------------------------------------------------------------
    validates :title, :presence => {:message => "Title is required" }
+   validates :type, presence: true
 
    #------------------------------------------------------------------
    # callbacks

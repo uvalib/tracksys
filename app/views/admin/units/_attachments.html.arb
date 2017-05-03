@@ -1,0 +1,32 @@
+# Attachments info ========================================================
+#
+div :class => "columns-none" do
+  panel "Attachments", :toggle => 'show' do
+     div :class=>'panel-buttons' do
+        if unit.unit_status != "approved"
+          div do "Attachments cannot be aded to unapproved units." end
+        else
+          add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"
+          raw("#{add_btn}")
+      end
+     end
+     if unit.attachments.count > 0
+        table_for unit.attachments do |att|
+           column :filename
+           column :description
+           column("") do |a|
+              div do
+                link_to "Download", "/admin/units/#{unit.id}/download?attachment=#{a.id}", :class => "member_link view_link"
+              end
+              div do
+                msg = "Are you sure you want to delete atachment '#{a.filename}'?"
+                link_to "Delete", "/admin/units/#{unit.id}/remove?attachment=#{a.id}",
+                    :class => "member_link view_link", :method => :delete, data: { confirm: msg }
+              end
+           end
+        end
+     else
+        div "No attachments are associated with this unit."
+     end
+  end
+end

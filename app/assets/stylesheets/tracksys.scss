@@ -1,6 +1,105 @@
 body.active_admin {
+   .pid-note {
+      font-size: 0.8em;
+      padding-bottom: 4px;
+   }
+   h3  {
+      background-image: none;
+      box-shadow: none;
+      background-color: #e5e5e5;
+      text-shadow: none;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      font-weight: 500;
+   }
+   table.index_table th {
+      background-color: #efefef;
+      background-image: none;
+      text-shadow: none;
+      box-shadow: none;
+      border-color: #ddd;
+   }
+   table.index_table th.sorted-desc, table.index_table th.sorted-asc {
+      background-color: #ddd;
+   }
+   div.section, div.panel {
+      box-shadow: none;
+      border-radius: 0;
+      border: 1px solid #e0e0e0;
+   }
+   #header {
+      background-color: #405056;
+      background-image: none;
+      box-shadow: none;
+      text-shadow: none;
+      border-bottom: none;
+   }
+   #title_bar {
+      box-shadow: none;
+      text-shadow: none;
+      border-bottom: none;
+      background-image: none;
+      background-color: #eaeaea;
+      border-top: none;
+      border-left: none;
+      a, .breadcrumb_sep {
+         color: #444;
+      }
+      .action_item a {
+         background-image: none;
+         background-color: #f0f0f0;
+         color: #444;
+         text-shadow: none;
+         box-shadow: none;
+         border-radius: 5px;
+         border-color: #bbb;
+      }
+   }
    #search-status-_sidebar_section {
       display: none;
+   }
+   #copy-existing {
+      margin-top: 10px;
+   }
+   div.flashes div.flash.flash_notice {
+      background-image: none;
+      border-bottom: none;
+      text-shadow: none;
+      border-top: 1px solid #080;
+      border-bottom: 1px solid #080;
+      font-weight: normal;
+   }
+
+   span.audit-button {
+      float: right;
+      background-image: image_url("info2.png");
+      width: 19px;
+      height: 19px;
+      cursor: pointer;
+   }
+   .audit-log {
+      position: absolute;
+      background: white;
+      padding: 0px;
+      border: 1px solid #999;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px #999;
+      display: none;
+      table {
+         border-collapse: collapse;
+         margin: 0;
+         th {
+            padding: 5px 5px 2px 5px;
+            background-color: #ededed;
+            border-bottom: 1px solid #aaa;
+            text-shadow: none;
+         }
+         td {
+            padding: 5px;
+            vertical-align: top;
+            border-bottom: none;
+         }
+      }
    }
 
    input[readonly] {
@@ -180,6 +279,7 @@ body.active_admin {
       text-shadow: 1px 1px #444;
       font-size: 1.15em;
       box-shadow: 1px 1px 5px #222;
+      position: relative;
 
       a {
          color: white;
@@ -193,7 +293,8 @@ body.active_admin {
       }
    }
 
-   #update-dl-settings {
+   .admin-button {
+      text-decoration: none;
       border-radius: 200px;
       text-align: center;
       display: block;
@@ -382,55 +483,22 @@ body.active_admin {
          .sort {
             text-align: right;
             min-width: 48px;
-
-            .down {
-               background-image: image_url("down.png");
-            }
-
-            .up {
-               background-image: image_url("up.png");
-            }
-
-            .down,
-            .up {
-               width: 16px;
-               height: 16px;
-               cursor: pointer;
-               display: inline-block;
-               margin: 0 5px 0 0;
-               position: relative;
-               top: 2px;
-               border: 1px solid #fefefe;
-               background-repeat: no-repeat;
-               background-position: center center;
-               border-radius: 10px;
-               opacity: 0.5;
-
-               &:hover {
-                  opacity: 1;
-                  border-color: #bcf;
-                  background-color: #def;
-               }
-            }
          }
       }
 
       .rename-btn {
-         background-image: image_url("edit.png");
+         background-image: image_url("edit2.png");
          width: 16px;
          height: 16px;
          float: right;
-         border: 1px solid #fefefe;
          padding: 2px;
          background-repeat: no-repeat;
          background-position: center center;
-         border-radius: 10px;
          cursor: pointer;
          opacity: 0.5;
 
          &:hover {
             opacity: 1;
-            border-color: #bcf;
             background-color: #def;
          }
       }
@@ -508,7 +576,7 @@ body.active_admin {
       }
    }
 
-   #dimmer {
+   #dimmer, #assign-dimmer {
       position: fixed;
       left: 0;
       top: 0;
@@ -518,12 +586,19 @@ body.active_admin {
       background: rgba(0,0,0,0.3);
       display: none;
 
+      table.settings {
+         margin: 10px;
+         select {
+            width: 100%;
+         }
+         input[type=text] {
+            width: 100%;
+            box-sizing: border-box;
+         }
+      }
+
       #settings-modal {
          width: 430px;
-
-         table.settings {
-            margin: 10px;
-         }
 
          td.label {
             text-align: right;
@@ -715,7 +790,7 @@ body.active_admin {
       }
    }
 
-   .xml-submit {
+   .xml-submit, .workflow-submit {
       a.cancel {
          border-radius: 200px;
          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -809,10 +884,6 @@ body.active_admin {
       }
    }
 
-   form input[disabled="disabled"] {
-      color: #B5B5B5;
-   }
-
    .two-column {
       width: 48%;
       margin-right: 1%;
@@ -831,18 +902,9 @@ body.active_admin {
       width: 97%;
    }
 
-   form input[disabled="disabled"] {
-      color: #777777;
+   form input[disabled="disabled"], .admin-button.disabled {
       cursor: default;
-      opacity: 0.6;
-   }
-
-   form input[disabled="disabled"]:hover {
-      color: #777777;
-   }
-
-   form input[disable="disabled"]:active {
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px white inset;
+      opacity: 0.4;
    }
 
    li.required > label {
@@ -861,13 +923,22 @@ body.active_admin {
       padding: 0 0 0 30%;
    }
 
+   form fieldset input[type="email"],
+   form fieldset input[type="number"],
+   form fieldset input[type="password"],
+   form fieldset input[type="tel"],
+   form fieldset input[type="text"],
+   form fieldset input[type="url"],
+   form fieldset textarea {
+      width: 60%;
+   }
+
    form input[type="email"],
    form input[type="number"],
    form input[type="password"],
    form input[type="tel"],
    form input[type="text"],
-   form input[type="url"],
-   form textarea {
-      width: 60%;
+   form input[type="url"] {
+      padding: 5px;
    }
 }

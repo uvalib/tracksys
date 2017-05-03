@@ -1,0 +1,29 @@
+<table class="equipment">
+   <tr><th></th><th></th><th>Name</th><th>Serial Number</th><th></th><th></th></tr>
+   <% odd="" %>
+   <% equipment.each do |e| %>
+      <% if e.workstation.nil? %>
+      <tr class="equipment <%=odd%>" data-id="<%= e.id %>">
+      <% else %>
+      <tr class="equipment assigned <%=odd%>" data-id="<%= e.id %>" data-workstation="<%= e.workstation.id %>">
+      <% end %>
+         <td class="sel"><input class="sel-cb" type="checkbox" data-id="<%= e.id %>"/></td>
+         <td class="status"><span class="equipment-status <%= e.status %>"></span></td>
+         <td>
+            <span class="name"><%= e.name %></span>
+            <% if !e.workstation.nil? %>
+               <span class="assigned-ws"><%= e.workstation.name %></span>
+            <% end %>
+         </td>
+         <td><span class="serial"><%= e.serial_number %></span></td>
+
+         <td class="sel"><span class="edit ts-icon"></span></td>
+         <td class="sel"><span class="trash ts-icon"></span></td>
+      </tr>
+      <%  if odd.blank?
+            odd = "odd"
+          else
+            odd = ""
+          end %>
+   <% end %>
+</table>

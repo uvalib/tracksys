@@ -12,7 +12,6 @@
 @import "active_admin/base";
 @import "tracksys";
 @import "colorbox";
-@import "printable";
 @import "chosen";
 @import "codemirror";
 @import "foldgutter";
@@ -20,6 +19,57 @@
 @import "stats";
 @import "ocr";
 @import "jobs";
+@import "workflow";
+@import "project-card";
+@import "equipment";
+@import "skills";
+@import "icons";
+
+body.active_admin.admin_sirsi_metadata, body.active_admin.admin_xml_metadata {
+   #title_bar {
+      background-color: #d4e0f5;
+   }
+}
+body.active_admin.admin_units {
+   #title_bar {
+      background-color: #e0cafa;
+   }
+}
+body.active_admin.admin_orders {
+   #title_bar {
+      background-color: #bff5bf;
+   }
+}
+
+span.blank_slate {
+   display:none !important;
+}
+
+#login-info.acting-as {
+   right: 5px;
+   top: -6px;
+}
+#login-info {
+   display: table-cell;
+   white-space: nowrap;
+   text-align: right;
+   position: absolute;
+   right: 15px;
+   top: 2px;
+   div {
+      color: #cdcdcd;
+   }
+   .act_as {
+      font-weight: bold;
+      margin-right: 5px;
+   }
+   a {
+      text-decoration: none;
+      &:hover {
+         color: #fff;
+      }
+   }
+}
 
 #mf-metadata-wrap {
    border:1px solid #ccc;

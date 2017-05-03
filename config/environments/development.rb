@@ -1,39 +1,41 @@
 Tracksys::Application.configure do
-  # Settings specified here will take precedence over those in config/application.rb
+   # Settings specified here will take precedence over those in config/application.rb.
 
-  # In the development environment your application's code is reloaded on
-  # every request.  This slows down response time but is perfect for development
-  # since you don't have to restart the web server when you make code changes.
+   # In the development environment your application's code is reloaded on
+   # every request. This slows down response time but is perfect for development
+   # since you don't have to restart the web server when you make code changes.
+   config.cache_classes = false
 
-  # This has to be set to true if we want to expire pages and actions.
-  config.cache_classes = false
-  # Setting this to null avoids annoying database timeouts
-  config.cache_store = :null_store
+   # Do not eager load code on boot.
+   config.eager_load = false
 
-  config.eager_load = false
+   # Show full error reports and disable caching.
+   config.consider_all_requests_local       = true
+   config.action_controller.perform_caching = false
 
-  # Show full error reports and disable caching
-  config.consider_all_requests_local       = false
-  config.action_controller.perform_caching = false
+   # Don't care if the mailer can't send.
+   config.action_mailer.raise_delivery_errors = false
 
-  # Don't care if the mailer can't send
-  config.action_mailer.raise_delivery_errors = false
+   # Print deprecation notices to the Rails logger.
+   config.active_support.deprecation = :log
 
-  # Provide path for CSS for Roadie.
-  config.action_mailer.default_url_options = {:host => 'tracksystest.lib.virginia.edu'}
+   # Raise an error on page load if there are pending migrations.
+   config.active_record.migration_error = :page_load
 
-  # Print deprecation notices to the Rails logger
-  config.active_support.deprecation = :log
+   # Debug mode disables concatenation and preprocessing of assets.
+   # This option may cause significant delays in view rendering with a large
+   # number of complex assets.
+   config.assets.debug = true
 
-  # Only use best-standards-support built into browsers
-  config.action_dispatch.best_standards_support = :builtin
- #config.action_controller.perform_caching = true
-# config.cache_store = :mem_cache_store, { :namespace => 'master_files' }
+   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
+   # yet still be able to expire them through the digest params.
+   config.assets.digest = true
 
-  # Do not compress assets
-  config.assets.compress = false
+   # Adds additional error checking when serving assets at runtime.
+   # Checks for improperly declared sprockets dependencies.
+   # Raises helpful error messages.
+   config.assets.raise_runtime_errors = true
 
-  # Expands the lines which load the assets
-  config.assets.debug = true
-
+   # Raises error for missing translations
+   # config.action_view.raise_on_missing_translations = true
 end

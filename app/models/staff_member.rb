@@ -1,27 +1,25 @@
-# == Schema Information
-#
-# Table name: staff_members
-#
-#  id           :integer          not null, primary key
-#  computing_id :string(255)
-#  last_name    :string(255)
-#  first_name   :string(255)
-#  is_active    :boolean          default(FALSE), not null
-#  created_at   :datetime
-#  updated_at   :datetime
-#  email        :string(255)
-#  role_id      :integer          default(1)
-#
-
 class StaffMember < ActiveRecord::Base
-   enum role: [:admin, :supervisor, :editor, :student, :viewer]
-   
+   enum role: [:admin, :supervisor, :student, :viewer]
+
+   has_and_belongs_to_many :skills, :join_table=>:staff_skills, :class_name=>"Category"
+
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
    public
    def can_deaccession?
       return DEACCESSION_USERS.include? self.computing_id
+   end
+
+   def can_process? ( category)
+      return self.skills.include?(category) || self.admin? || self.supervisor?
+   end
+
+   def self.candidates_for ( category )
+      join = "inner join staff_skills s on s.staff_member_id=staff_members.id"
+      return StaffMember.joins(join)
+         .where("role <= 1 or s.category_id=? and role=2", category.id)
+         .distinct.order(last_name: :asc)
    end
 
    # Returns a boolean value indicating whether the StaffMember is
@@ -92,17 +90,4 @@ class StaffMember < ActiveRecord::Base
 
    alias_attribute :name, :full_name
 
-end# == Schema Information
-#
-# Table name: staff_members
-#
-#  id                        :integer(4)      not null, primary key
-#  access_level_id           :integer(4)      default(0), not null
-#  computing_id              :string(255)
-#  last_name                 :string(255)
-#  first_name                :string(255)
-#  is_active                 :boolean(1)      default(FALSE), not null
-#  created_at                :datetime
-#  updated_at                :datetime
-#  email                     :string(255)
-#
+end

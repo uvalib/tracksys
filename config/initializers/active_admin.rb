@@ -1,5 +1,11 @@
 ActiveAdmin.setup do |config|
+   ActiveAdmin.setup do |config|
 
+     # View a list of all the elements you can override
+     # https://github.com/gregbell/active_admin/blob/master/lib/active_admin/view_factory.rb
+     config.view_factory.utility_navigation = HeaderUserInfo
+
+   end
   # == Site Title
   #
   # Set the title that is displayed on the main layout
@@ -46,6 +52,12 @@ ActiveAdmin.setup do |config|
   #
   config.namespace :admin do |admin|
     admin.site_title = "Tracksys #{TRACKSYS_VERSION}"
+    admin.build_menu do |menu|
+       menu.add label: 'Metadata', priority: 10
+       menu.add label: 'Digitization Workflow', priority: 12
+       menu.add label: 'Miscellaneous', priority: 15
+       menu.add label: 'Controlled Vocabulary', priority: 20
+    end
   end
 
   #   # In order to have multiple ActiveAdmin namespaces (i.e. /app/admin and /app/transcription), the ActiveAdmin initializer

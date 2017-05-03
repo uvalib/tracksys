@@ -30,9 +30,9 @@ class QaUnitData < BaseJob
          failure_messages << "Unit #{unit.id} already has a value for date_dl_deliverables_ready."
       end
 
-      # Must have a unit status
-      if not unit.unit_status
-         failure_messages << "Unit #{unit.id} must have a valid unit status."
+      # Must have a unit status, and it must be approved
+      if unit.unit_status != "approved"
+         failure_messages << "Unit #{unit.id} has not been approved."
       end
 
       # Check if unit is assigned to metadata record
@@ -52,7 +52,7 @@ class QaUnitData < BaseJob
          order.date_order_approved = Time.now
          order.order_status = 'approved'
          if !order.save
-            # if status cant be set, fail this  QA
+            # if status cant be set, fail this QA
             on_error( order.errors.full_messages.to_sentence )
          end
       end

@@ -1,0 +1,27 @@
+<div class="processed-query">
+   <div class="params">
+      <div class="row">
+         <label>User:</label>
+         <select id="processed-query-user" prompt="poo">
+            <option value=""></option>
+            <% @users.each do |u| %>
+               <option value="<%= u.id %>"><%= u.full_name %></option>
+            <% end %>
+         </select>
+      </div>
+      <div class="row">
+         <label>Start Date:</label>
+         <input id="processed-query-start-date" type="text"  class="query-datepicker">
+         <label>End Date:</label>
+         <input id="processed-query-end-date" type="text" class="query-datepicker">
+      </div>
+      <div class="controls">
+         <label>Result:</label>
+         <span id="processed-result"></span>
+         <div id="processed-query" class="mf-action-button">Query</div>
+      </div>
+   </div>
+   <div class="query-dimmer">
+      <%= image_tag("loading") %>
+   </div>
+</div>

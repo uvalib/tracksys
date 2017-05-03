@@ -1,0 +1,20 @@
+<div class="note-card <%= note.note_type %>">
+   <div class="note-info">
+      <div class="left-info">
+         <p class="note-date"><%= note.created_at.strftime('%F %r') %></p>
+         <p class="note-by"><%= note.staff_member.full_name  %></p>
+      </div>
+      <div class="right-info">
+         <p class="note-type"><%= note.note_type.gsub(/_/,' ').upcase %></p>
+         <% if !note.step.nil? %>
+            <p class="note-step"><b>Step: </b><%= note.step.name %></p>
+         <% end %>
+      </div>
+   </div>
+   <div class="note-text">
+      <% if note.problem? %>
+         <h4><%= note.problem.name %></h4>
+      <% end %>
+      <%= raw(note.note) %>
+   </div>
+</div>

@@ -23,11 +23,15 @@ class Unit < ActiveRecord::Base
    has_one :agency, :through => :order
    has_one :customer, :through => :order
    has_one :department, :through => :order
+   has_one :project
+   has_many :notes, :through => :project
 
    delegate :title, :to=>:metadata, :allow_nil => true, :prefix => true
    delegate :date_due, :to => :order, :allow_nil => true, :prefix => true
-   delegate :deliverable_format, :deliverable_resolution, :deliverable_resolution_unit,
+   delegate :deliverable_format, :deliverable_resolution,
       :to => :intended_use, :allow_nil => true, :prefix => true
+
+   delegate :call_number, :to=>:metadata, :allow_nil => true, :prefix => true
 
    #------------------------------------------------------------------
    # scopes
@@ -41,8 +45,6 @@ class Unit < ActiveRecord::Base
    scope :canceled, ->{where(:unit_status => 'canceled') }
    scope :overdue_materials, ->{where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
    scope :checkedout_materials, ->{where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
-   scope :uncompleted_units_of_partially_completed_orders, ->{includes(:order).where(:unit_status => 'approved', :date_archived => nil).where('intended_use_id != 110').where('orders.date_finalization_begun is not null').references(:order) }
-
 
    #------------------------------------------------------------------
    # validations
@@ -57,6 +59,12 @@ class Unit < ActiveRecord::Base
       :message => "association with this Order is no longer valid because it no longer exists."
    }
 
+   def self.uncompleted_units_of_partially_completed_orders
+      Unit.where(unit_status: 'approved', date_patron_deliverables_ready: nil, date_archived: nil)
+         .where('intended_use_id != 110').joins(:order)
+         .where('orders.date_finalization_begun is not null and orders.date_patron_deliverables_complete is null')
+   end
+
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
@@ -67,7 +75,20 @@ class Unit < ActiveRecord::Base
       self.remove_watermark = 0 if self.remove_watermark.nil?
       self.unit_status = "unapproved" if self.unit_status.nil? || self.unit_status.empty?
    end
-   after_update :check_order_status, :if => :unit_status_changed?
+   after_save do
+      if self.master_files.count > 0
+         self.master_files.each do |mf|
+            # if unit metadata is changed while there are master files,
+            # update all of those master files to match the unit. IMPORTANT:
+            # Don't do this if masterfile has XML metadata. These will always
+            # be different from the unit and must remain that way - the metadata
+            # is specific to each masterfile.
+            if mf.metadata.nil? || (mf.metadata.id != self.metadata.id && mf.metadata.type != "XmlMetadata")
+               mf.update(metadata: self.metadata)
+            end
+         end
+      end
+   end
 
    #------------------------------------------------------------------
    # aliases
@@ -88,6 +109,10 @@ class Unit < ActiveRecord::Base
       return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
    end
 
+   def directory
+      return "%09d" % self.id
+   end
+
    def approved?
       if self.unit_status == "approved"
          return true
@@ -102,6 +127,10 @@ class Unit < ActiveRecord::Base
       else
          return false
       end
+   end
+
+   def ingested?
+      return !date_dl_deliverables_ready.nil? || !date_patron_deliverables_ready.nil? || !date_archived.nil?
    end
 
    def in_dl?
@@ -123,14 +152,6 @@ class Unit < ActiveRecord::Base
       return false if self.metadata.availability_policy_id.nil?
       return true if self.date_dl_deliverables_ready.nil? and not self.date_archived.nil?
       return false
-   end
-
-   def check_order_status
-      if self.order.ready_to_approve?
-         self.order.order_status = 'approved'
-         self.order.date_order_approved = Time.now
-         self.order.save!
-      end
    end
 
    def last_error

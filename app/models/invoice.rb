@@ -37,10 +37,12 @@ class Invoice < ActiveRecord::Base
    def self.past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date)
+         .joins(:order).where("orders.fee_actual is not null and orders.fee_actual > 0")
    end
    def self.notified_past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date).where("date_second_notice_sent is not NULL")
+         .joins(:order).where("orders.fee_actual is not null and orders.fee_actual > 0")
    end
 end
 

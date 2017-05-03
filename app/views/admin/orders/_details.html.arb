@@ -1,0 +1,68 @@
+div :class => 'two-column' do
+   panel "Basic Information" do
+      attributes_table_for order do
+         row :order_status do |order|
+            span do
+               status_tag(order.order_status)
+            end
+            if audit_log.count > 0 && current_user.admin?
+               span class: "audit-button" do end
+               render partial: "audit_log", locals: {audit_log: audit_log}
+            end
+         end
+         row :order_title
+         row :special_instructions
+         row :staff_notes
+      end
+   end
+end
+
+div :class => 'two-column' do
+   panel "Approval Information" do
+      attributes_table_for order do
+         row :date_request_submitted do |customer|
+            format_date(customer.date_request_submitted)
+         end
+         row :date_due do |customer|
+            format_date(customer.date_due)
+         end
+         row :fee_estimated do |customer|
+            number_to_currency(customer.fee_estimated)
+         end
+         row :fee_actual do |customer|
+            number_to_currency(customer.fee_actual)
+         end
+         row :date_deferred do |customer|
+            format_date(customer.date_deferred)
+         end
+         row :date_fee_estimate_sent_to_customer do |customer|
+            format_date(customer.date_fee_estimate_sent_to_customer)
+         end
+         row :date_permissions_given do |customer|
+            format_date(customer.date_permissions_given)
+         end
+      end
+   end
+end
+
+div :class => 'columns-none' do
+   panel "Delivery Information" do
+      attributes_table_for order do
+         row :date_finalization_begun do |order|
+            format_date(order.date_finalization_begun)
+         end
+         row :date_archiving_complete do |order|
+            format_date(order.date_archiving_complete)
+         end
+         row :date_patron_deliverables_complete do |order|
+            format_date(order.date_patron_deliverables_complete)
+         end
+         row :date_customer_notified do |order|
+            format_date(order.date_customer_notified)
+         end
+         row :email do |order|
+            raw( strip_email(order.email) )
+         end
+      end
+   end
+end

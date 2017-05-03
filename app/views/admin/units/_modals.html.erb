@@ -68,4 +68,68 @@
       </div>
    </div>
 
+   <div id="project-modal" class="modal">
+      <h1>Create Digitization Project</h1>
+      <div class="title-wrapper">
+         <table class="settings">
+            <tr>
+               <td class="label">Workflow</td>
+               <td>
+                  <select id="workflow">
+                      <% Workflow.all.each do |p| %>
+                          <option value="<%= p.id %>"><%= p.name %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Category</td>
+               <td>
+                  <select id="category">
+                      <% Category.all.each do |p| %>
+                          <option value="<%= p.id %>"><%= p.name %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Priority</td>
+               <td>
+                  <select id="priority">
+                      <% Project.priorities.to_a.each do |p| %>
+                          <option value="<%= p[1] %>"><%= p[0] %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Due On</td>
+               <td>
+                  <input type="text" class="datepicker" id="due_on" value="<%= unit.order.date_due %>"/>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">Condition</td>
+            </tr>
+               <td colspan="2">
+                  <select id="item_condition">
+                      <% Project.item_conditions.to_a.each do |p| %>
+                          <option value="<%= p[1] %>"><%= p[0] %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="2">
+                  <textarea id="condition_notes"></textarea>
+               </td>
+            </tr>
+         </table>
+         <div class="buttons">
+            <input type="button" id="cancel-project-create" value="Cancel"/>
+            <input type="button" id="ok-project-create" value="Create Project"/>
+         </div>
+      </div>
+   </div>
+
 </div>

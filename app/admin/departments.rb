@@ -1,11 +1,10 @@
 ActiveAdmin.register Department do
-  menu :parent => "Miscellaneous"
+  menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
 
   # strong paramters handling
   permit_params :name
 
-  filter :id
-  filter :name
+  filter :name_starts_with, label: "Name"
 
   config.clear_action_items!
   action_item :new, :only => :index do

@@ -1,0 +1,17 @@
+attributes_table_for unit do
+   row "Metadata" do |unit|
+      if !unit.metadata.nil?
+         disp = "<a href='/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}'><span>#{unit.metadata.pid}<br/>#{unit.metadata.title}</span></a>"
+         raw( disp)
+      end
+   end
+   row :order do |unit|
+      link_to "##{unit.order.id}", admin_order_path(unit.order.id)
+   end
+   row :master_files do |unit|
+      link_to "#{unit.master_files_count}", admin_master_files_path(:q => {:unit_id_eq => unit.id})
+   end
+   row :customer
+   row :agency
+   row :project
+end

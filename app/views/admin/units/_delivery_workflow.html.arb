@@ -1,0 +1,70 @@
+if !current_user.viewer? && !current_user.student?
+   if unit.has_in_process_files?
+      if unit.date_archived.blank? && unit.reorder == false
+         div :class => 'workflow_button' do
+            button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put
+         end
+         div :class => 'workflow_button' do
+            button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put
+         end
+         div :class => 'workflow_button' do
+            button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put
+         end
+         div :class => 'workflow_button' do
+            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put
+         end
+      end
+      if unit.intended_use != 'Digital Collection Buidling'
+         if !unit.date_patron_deliverables_ready
+            div :class => 'workflow_button' do
+               button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+            end
+            if unit.reorder && unit.order.all_reorders_ready? && unit.order.units.count > 1
+               div do
+                  hr :class=>'sidebar-sep'
+               end
+               div :class => 'workflow_button' do
+                  button_to "Generate All Deliverables", generate_all_deliverables_admin_unit_path, :method => :put
+               end
+               div do
+                  "Generate deliverables for all units in this order."
+               end
+            end
+         else
+            div :class => 'workflow_button' do
+               button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+            end
+         end
+      end
+   else
+      if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
+         if unit.date_patron_deliverables_ready
+            div :class => 'workflow_button' do
+               button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+            end
+         end
+      else
+         if unit.date_archived.nil?
+            div :class => 'workflow_button' do
+               button_to "Manual Upload to Archive",
+               start_manual_upload_to_archive_admin_unit_path, :method => :get
+            end
+         end
+      end
+   end
+end
+
+if unit.date_archived
+   div :class => 'workflow_button' do
+      button_to "Download Unit From Archive", copy_from_archive_admin_unit_path(unit.id), :method => :put
+   end
+   div :class => 'workflow_button' do
+      raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
+   end
+else
+   if  unit.reorder == false
+      div do
+         "This unit cannot be downloaded because it is not archived."
+      end
+   end
+end

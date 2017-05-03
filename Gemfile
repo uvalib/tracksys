@@ -1,8 +1,10 @@
 source 'http://rubygems.org'
 
-gem 'rails', '4.2.7.1'
+gem 'rails', '4.2.8'
+gem 'thin'
 
-gem 'activeadmin', '~> 1.0.0.pre4'
+#gem 'activeadmin', '~> 1.0.0.pre5'
+gem 'activeadmin', '~> 1.0'
 gem 'passenger', '5.0.28'
 gem 'figaro'
 
@@ -36,10 +38,10 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
-gem 'uglifier'
-gem 'sass-rails'
+gem 'uglifier', '>= 1.3.0'
+gem 'sass-rails', '~> 5.0'
 gem 'jquery-rails'
-gem 'jquery-ui-rails', '5.0.5' # Stuck here because of an old dependency in activeadmin
+gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'
 
 gem 'compass-rails'           # required by chosen rails, but not included by it directly

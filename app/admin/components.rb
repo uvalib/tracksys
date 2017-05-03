@@ -17,13 +17,11 @@ ActiveAdmin.register Component do
    #    link_to "Edit", edit_resource_path  if current_user.admin?
    # end
 
-   filter :id
-   filter :ead_id_att
+   filter :title_or_content_desc_contains, label: "Title / Description"
+   filter :date_contains, label: "Date"
+   filter :ead_id_att_starts_with , label: "EAD ID ATT"
+   filter :pid_starts_with, label: "PID"
    filter :component_type
-   filter :title
-   filter :content_desc
-   filter :date
-   filter :pid
    filter :indexing_scenario
 
    index do

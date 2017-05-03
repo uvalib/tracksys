@@ -1,0 +1,2 @@
+class CameraBody < Equipment
+end

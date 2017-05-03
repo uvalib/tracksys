@@ -1,0 +1,16 @@
+attributes_table_for order do
+  row :units do |order|
+    link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
+  end
+  row :master_files do |order|
+    link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
+  end
+  row :customer
+  row :agency
+  row :invoices do |order|
+    link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
+  end
+  row :projects do |order|
+    link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
+  end
+end

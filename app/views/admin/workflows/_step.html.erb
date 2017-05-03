@@ -1,0 +1,22 @@
+<div data-id="<%= step.id %>" data-next="<%= step.next_step_id %>"
+     data-error="<%= step.fail_step_id %>"
+     class="workflow-step<% if error %> error<% end %><% if final_error %> final<% end %>">
+   <div class="step-toolbar">
+      <span class="step-name"><%= step.name %></span>
+      <span class="user-info">
+         <span class="owner"><%= step.owner_type.split("_").first.capitalize %></span>
+         <%= image_tag "owner.png" %>
+      </span>
+   </div>
+   <div class="step-content">
+      <p class="desc"><%= step.description %></p>
+      <% if !error %>
+         <p><b>Start Directory:</b><%= step.start_dir %></p>
+      <% end %>
+
+      <p><b>Finish Directory:</b><%= step.finish_dir %></p>
+      <% if step.manual  %>
+         <p class='note'>Manually move all files to finish directory</p>
+      <% end %>
+   </div>
+</div>

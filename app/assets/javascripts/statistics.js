@@ -1,4 +1,9 @@
 $(function() {
+   $("#processing-query-staff").chosen({
+       no_results_text: "Sorry, no matches found",
+       placeholder_text_single: "Select a user"
+   });
+
    $('.query-datepicker').datepicker({
       changeMonth: true,
       changeYear: true,
@@ -37,6 +42,23 @@ $(function() {
       }
       issueStatsQuery(type, params, dimmer);
    };
+
+   $("#processed-query").on("click", function() {
+      var query = $(this).closest(".stats-query");
+      var dimmer = query.find(".query-dimmer");
+      dimmer.show();
+      var params = ["type=processed"];
+      params.push("user="+$("#processed-query-user").val());
+      var date = $("#processed-query-start-date").val();
+      if ( date.length > 0) {
+         params.push("start_date="+date);
+      }
+      date = $("#processed-query-end-date").val();
+      if ( date.length > 0) {
+         params.push("end_date="+date);
+      }
+      issueStatsQuery("processed", params, dimmer);
+   });
 
    $("#image-query").on("click", function() {
       queryImageData(this, "image");
