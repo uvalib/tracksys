@@ -18,6 +18,9 @@ ActiveAdmin.register Order do
    :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
    :date_customer_notified, :email
 
+   # eager load to preven n+1 queries, and improve performance
+   includes :department, :agency, :customer, :academic_status
+
    collection_action :autocomplete, method: :get do
       suggestions = []
       like_keyword = "#{params[:query]}%"

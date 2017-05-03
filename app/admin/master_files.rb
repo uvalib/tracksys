@@ -4,6 +4,9 @@ ActiveAdmin.register MasterFile do
    config.sort_order = "filename_asc"
    config.batch_actions = false
 
+   # eager load to preven n+1 queries, and improve performance 
+   includes :metadata, :unit, :customer
+
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
       :creator_death_date, :date_archived, :md5, :filesize, :unit_id,

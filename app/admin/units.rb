@@ -1,6 +1,9 @@
 ActiveAdmin.register Unit do
    menu :priority => 5
 
+   # eager load to preven n+1 queries, and improve performance
+   includes :metadata, :order, :department, :agency
+
    # strong paramters handling
    permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
       :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,

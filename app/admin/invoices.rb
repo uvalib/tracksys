@@ -5,6 +5,9 @@ ActiveAdmin.register Invoice do
    # strong paramters handling
    permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes
 
+   # eager load to preven n+1 queries, and improve performance
+   includes :order
+
    scope :all, :default => true
    scope :past_due
    scope :notified_past_due
