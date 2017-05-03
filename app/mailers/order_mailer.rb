@@ -23,7 +23,8 @@ class OrderMailer < ActionMailer::Base
          address = Settings.alternate_email_recipient
       end
 
-      mail to: address, subject: "UVA Digital Production Group - Request ##{@request.id} Confirmation", :css => :email
+      mail to: address, cc: 'digitalservices@virginia.edu',
+         subject: "UVA Digital Production Group - Request ##{@request.id} Confirmation", :css => :email
    end
 
    def web_delivery(order, delivery_files)
