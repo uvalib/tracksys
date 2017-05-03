@@ -11,7 +11,6 @@ module Tracksys
       config.autoload_paths << Rails.root.join('lib')
       config.autoload_paths << Rails.root.join('app',"models", "metadata")
       config.autoload_paths << Rails.root.join('app',"models", "equipment")
-      config.autoload_paths << Rails.root.join('app',"models", "workflow")
       config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
       config.autoload_paths << Rails.root.join('app',"admin", "metadata")
       config.autoload_paths << Rails.root.join('app',"admin", "workflow")
