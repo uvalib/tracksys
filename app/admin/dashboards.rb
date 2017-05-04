@@ -126,7 +126,7 @@ ActiveAdmin.register_page "Dashboard" do
          end
          if !current_user.viewer? && !current_user.student?
                panel "Problem Projects", :toggle => 'show' do
-                  if Project.has_error.count == 0 && Project.failed_qa == 0 && Project.overdue == 0
+                  if Project.has_error.count == 0 && Project.failed_qa.count == 0 && Project.overdue.count == 0
                      div do
                         "There are no problems with any active projects"
                      end
