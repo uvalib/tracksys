@@ -3,7 +3,7 @@ ActiveAdmin.register_page "Dashboard" do
 
    content do
       div :class => 'three-column' do
-         panel "Recent DL Items (20)", :priority => 4, :toggle => 'show' do
+         panel "Recent DL Items (20)", :toggle => 'show' do
             table_for Metadata.in_digital_library.limit(20) do
                column ("Title") {|metadata| truncate(metadata.title, :length => 80)}
                column ("Thumbnail") do |metadata|
@@ -32,7 +32,7 @@ ActiveAdmin.register_page "Dashboard" do
       end
 
       div :class => 'three-column' do
-         panel "Outstanding Orders", :priority => 5, :toggle => 'show' do
+         panel "Outstanding Orders", :toggle => 'show' do
             table do
                tr do
                   td do "Orders Due Today" end
@@ -61,7 +61,7 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
 
-         panel "Recent Job Status Summary", :namespace => :admin, :priority => 1, :toggle => 'show' do
+         panel "Recent Job Status Summary", :namespace => :admin, :toggle => 'show' do
             table do
                tr do
                   td do "Pending Jobs" end
@@ -82,7 +82,7 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
 
-         panel "Finalization", :width => '33%', :namespace => :admin, :priority => 2, :toggle => 'show' do
+         panel "Finalization", :width => '33%', :namespace => :admin, :toggle => 'show' do
             table do
                tr do
                   td do "Unfinished Units of Partially Finalized Orders" end
@@ -99,29 +99,53 @@ ActiveAdmin.register_page "Dashboard" do
          end
       end
 
-      if !current_user.viewer? && !current_user.student?
-         div :class => 'three-column' do
-            panel "Statistics", :priority => 6, :toggle => 'show' do
-               div :class => 'workflow_button border-bottom' do
-                  render 'admin/stats_report'
-               end
-               div :class => 'workflow_button border-bottom' do
-                  button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
-               end
-               table :style=>"margin-bottom: 0" do
+      div :class => 'three-column' do
+         panel "My Projects", :toggle => 'show' do
+            if current_user.projects.count > 0
+               table do
                   tr do
-                     td do "Total unpaid invoices:" end
-                     td do
-                        link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
-                           admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                     th do "Name" end
+                     th do "Current Step" end
+                     th do "Due On" end
+                     th do "Link" end
+                  end
+                  current_user.projects.order(due_on: :desc).each do |p|
+                     tr do
+                        td do p.project_name end
+                        td do p.current_step.name end
+                        td do p.due_on end
+                        td do link_to "Details", "/admin/projects/#{p.id}" end
                      end
                   end
                end
+            else
+               div do
+                  "No projects are currently assigned to you"
+               end
             end
+         end
+         if !current_user.viewer? && !current_user.student?
+               panel "Statistics", :toggle => 'show' do
+                  div :class => 'workflow_button border-bottom' do
+                     render 'admin/stats_report'
+                  end
+                  div :class => 'workflow_button border-bottom' do
+                     button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
+                  end
+                  table :style=>"margin-bottom: 0" do
+                     tr do
+                        td do "Total unpaid invoices:" end
+                        td do
+                           link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
+                              admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                        end
+                     end
+                  end
+               end
 
-            panel "PID Finder" do
-               render 'admin/pid_finder'
-            end
+               panel "PID Finder" do
+                  render 'admin/pid_finder'
+               end
          end
       end
    end

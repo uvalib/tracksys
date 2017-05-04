@@ -6,6 +6,8 @@ class StaffMember < ActiveRecord::Base
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
+   has_many :projects, foreign_key: 'owner_id'
+
    public
    def can_deaccession?
       return DEACCESSION_USERS.include? self.computing_id
