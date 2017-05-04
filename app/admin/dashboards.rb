@@ -105,15 +105,15 @@ ActiveAdmin.register_page "Dashboard" do
                table do
                   tr do
                      th do "Name" end
-                     th do "Current Step" end
                      th do "Due On" end
+                     th do "Current Step" end
                      th do "Link" end
                   end
                   current_user.projects.order(due_on: :desc).each do |p|
                      tr do
                         td do p.project_name end
-                        td do p.current_step.name end
                         td do p.due_on end
+                        td do p.current_step.name end
                         td do link_to "Details", "/admin/projects/#{p.id}" end
                      end
                   end
