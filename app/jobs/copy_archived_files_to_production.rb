@@ -1,7 +1,7 @@
 class CopyArchivedFilesToProduction < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
@@ -11,13 +11,12 @@ class CopyArchivedFilesToProduction < BaseJob
       # 2. Download all master files for a unit
       # All messages will include a unit_id.
 
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'computing_id' is required" if message[:computing_id].blank?
 
-      unit = message[:unit]
-      unit_id = unit.id
+      unit = Unit.find(message[:unit_id])
       computing_id = message[:computing_id]
-      unit_dir = "%09d" % unit_id
+      unit_dir = "%09d" % unit.id
       failure_messages = Array.new
 
       source_dir = File.join(ARCHIVE_DIR, unit_dir)
@@ -74,9 +73,9 @@ class CopyArchivedFilesToProduction < BaseJob
 
       if failure_messages.empty?
          if master_file_filename
-            on_success "Master file #{master_file_filename} from unit #{unit_id} has been successfully copied to #{destination_dir}."
+            on_success "Master file #{master_file_filename} from unit #{unit.id} has been successfully copied to #{destination_dir}."
          else
-            on_success "All master files from unit #{unit_id} have been successfully copied to #{destination_dir}."
+            on_success "All master files from unit #{unit.id} have been successfully copied to #{destination_dir}."
          end
       else
          failure_messages.each do |message|

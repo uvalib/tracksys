@@ -4,7 +4,7 @@ ActiveAdmin.register MasterFile do
    config.sort_order = "filename_asc"
    config.batch_actions = false
 
-   # eager load to preven n+1 queries, and improve performance 
+   # eager load to preven n+1 queries, and improve performance
    includes :metadata, :unit, :customer
 
    # strong paramters handling
@@ -289,7 +289,7 @@ ActiveAdmin.register MasterFile do
 
    member_action :download_from_archive, :method => :get do
       mf = MasterFile.find(params[:id])
-      CopyArchivedFilesToProduction.exec_now( {:unit => mf.unit, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
+      CopyArchivedFilesToProduction.exec_now( {:unit_id => mf.unit_id, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
       redirect_to "/admin/master_files/#{params[:id]}",
          :notice => "Master File downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}/#{current_user.computing_id}/#{mf.filename}."
    end

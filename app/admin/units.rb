@@ -319,7 +319,8 @@ ActiveAdmin.register Unit do
    end
 
    member_action :check_unit_delivery_mode, :method => :put do
-      Unit.find(params[:id]).check_unit_delivery_mode
+      unit = Unit.find(params[:id])
+      CheckUnitDeliveryMode.exec( {:unit => unit} )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
    end
 
@@ -335,27 +336,32 @@ ActiveAdmin.register Unit do
    end
 
    member_action :copy_from_archive, :method => :put do
-      Unit.find(params[:id]).get_from_stornext( current_user.computing_id )
+      CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => computing_id })
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
    end
 
    member_action :import_unit_iview_xml, :method => :put do
-      Unit.find(params[:id]).import_unit_iview_xml
+      unit = Unit.find(params[:id])
+      unit_dir = "%09d" % unit.id
+      ImportUnitIviewXML.exec( {:unit => unit, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
    end
 
    member_action :qa_filesystem_and_iview_xml, :method => :put do
-      Unit.find(params[:id]).qa_filesystem_and_iview_xml
+      unit = Unit.find(params[:id])
+      QaFilesystemAndIviewXml.exec( {:unit => unit} )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem and Iview XML."
    end
 
    member_action :qa_unit_data, :method => :put do
-      Unit.find(params[:id]).qa_unit_data
+      unit = Unit.find(params[:id])
+      QaUnitData.exec( {:unit => unit})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA unit data."
    end
 
    member_action :send_unit_to_archive, :method => :put do
-      Unit.find(params[:id]).send_unit_to_archive
+      unit = Unit.find(params[:id])
+      SendUnitToArchive.exec( {:unit => unit, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 

@@ -191,35 +191,6 @@ class Unit < ActiveRecord::Base
       return false if !Dir.exist? assemble_dir
       return Dir["#{assemble_dir}/*"].length >= self.master_files.count
    end
-
-   def create_patron_zip
-      CreateUnitZip.exec({unit: self, replace: true})
-   end
-
-   def check_unit_delivery_mode
-      CheckUnitDeliveryMode.exec( {:unit => self} )
-   end
-
-   def get_from_stornext(computing_id)
-      CopyArchivedFilesToProduction.exec( {:unit => self, :computing_id => computing_id })
-   end
-
-   def import_unit_iview_xml
-      unit_dir = "%09d" % self.id
-      ImportUnitIviewXML.exec( {:unit => self, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
-   end
-
-   def qa_filesystem_and_iview_xml
-      QaFilesystemAndIviewXml.exec( {:unit => self} )
-   end
-
-   def qa_unit_data
-      QaUnitData.exec( {:unit => self})
-   end
-
-   def send_unit_to_archive
-      SendUnitToArchive.exec( {:unit => self, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
-   end
 end
 
 # == Schema Information
