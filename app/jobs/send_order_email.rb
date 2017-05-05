@@ -1,11 +1,11 @@
 class SendOrderEmail < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=> "Order", :originator_id=>message[:order].id )
+      @status.update_attributes( :originator_type=> "Order", :originator_id=>message[:order_id] )
    end
 
    def do_workflow(message)
-      order = message[:order]
+      order = Order.find(message[:order_id])
       email = order.email
 
       # recreate the email but there is no longer a need to pass correct
@@ -15,7 +15,7 @@ class SendOrderEmail < BaseJob
       new_email.date = Time.now
       new_email.deliver
 
-      order.update_attribute(:date_customer_notified, Time.now)
+      order.update(date_customer_notified: Time.now)
       on_success("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
       if order.invoices.count == 0

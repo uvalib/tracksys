@@ -218,15 +218,13 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_fee_estimate_to_customer, :method => :put do
-      order = Order.find(params[:id])
-      order.send_fee_estimate_to_customer()
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to #{order.customer.full_name}."
+      SendFeeEstimateToCustomer.exec( {:order_id => params[:id]} )
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
    end
 
    member_action :check_order_ready_for_delivery, :method => :put do
-      order = Order.find(params[:id])
-      order.check_order_ready_for_delivery
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{order.id} is being checked to see if it is ready."
+      CheckOrderReadyForDelivery.exec( {:order_id => params[:id]})
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is being checked to see if it is ready."
    end
 
    member_action :recreate_email, :method => :put do
@@ -236,9 +234,8 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_order_email, :method => :put do
-      order = Order.find(params[:id])
-      order.send_order_email
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{order.customer.full_name}."
+      SendOrderEmail.exec({:order_id => params[:id]})
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
    end
 
    member_action :generate_pdf_notice, :method => :put do

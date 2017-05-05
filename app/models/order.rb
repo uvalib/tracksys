@@ -241,18 +241,6 @@ class Order < ActiveRecord::Base
       return false
    end
 
-   def check_order_ready_for_delivery
-      CheckOrderReadyForDelivery.exec( {:order => self})
-   end
-
-   def send_fee_estimate_to_customer()
-      SendFeeEstimateToCustomer.exec( {:order => self})
-   end
-
-   def send_order_email
-      SendOrderEmail.exec({:order => self})
-   end
-
    def generate_notice
        generate_invoice_pdf(self, self.fee_actual)
    end

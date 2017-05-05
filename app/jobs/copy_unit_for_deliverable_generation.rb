@@ -48,7 +48,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
             QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
             if message[:skip_delivery_check].nil?
                CreateUnitZip.exec_now( { unit: unit }, self)
-               CheckOrderReadyForDelivery.exec_now( { :order => unit.order}, self  )
+               CheckOrderReadyForDelivery.exec_now( { :order_id => unit.order_id}, self  )
             else
                CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
             end

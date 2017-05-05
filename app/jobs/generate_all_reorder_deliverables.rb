@@ -38,6 +38,6 @@ class GenerateAllReorderDeliverables < BaseJob
          MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
       end
 
-      CheckOrderReadyForDelivery.exec_now( { :order => order}, self  )
+      CheckOrderReadyForDelivery.exec_now( { :order_id => order.id}, self  )
    end
 end

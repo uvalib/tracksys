@@ -1,13 +1,13 @@
 class CheckOrderReadyForDelivery < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id )
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id] )
    end
 
    # This processor only accepts units whose delivery_mode = 'patron', so there is no need to worry, from here on out, about 'dl' materials.
    def do_workflow(message)
-      raise "Parameter 'order' is required" if message[:order].blank?
-      order = message[:order]
+      raise "Parameter 'order_id' is required" if message[:order_id].blank?
+      order = Order.find(message[:order_id])
       incomplete_units = Array.new
 
       order.units.each do |unit|
