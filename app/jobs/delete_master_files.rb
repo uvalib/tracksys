@@ -1,14 +1,14 @@
 class DeleteMasterFiles < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'filenames' is required" if message[:filenames].blank?
 
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
       filenames = message[:filenames].sort
 
       on_error("Cannot delete from units that have been published") if unit.in_dl?

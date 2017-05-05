@@ -1,7 +1,7 @@
 class AddMasterFiles < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def validate_tif_files_and_mode(tif_files, unit)
@@ -32,9 +32,9 @@ class AddMasterFiles < BaseJob
    end
 
    def do_workflow(message)
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       src_dir = File.join(Settings.production_mount, "unit_update", "#{unit.id}")

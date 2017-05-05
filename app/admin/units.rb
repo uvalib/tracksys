@@ -420,19 +420,15 @@ ActiveAdmin.register Unit do
    end
 
    member_action :add, :method => :post do
-      unit = Unit.find(params[:id])
-      job_id = AddMasterFiles.exec({unit: unit})
+      job_id = AddMasterFiles.exec({unit_id: params[:id]})
       render :text=>job_id, status: :ok
    end
    member_action :replace, :method => :post do
-      unit = Unit.find(params[:id])
-      job_id = ReplaceMasterFiles.exec({unit: unit})
+      job_id = ReplaceMasterFiles.exec({unit_id: params[:id]})
       render :text=>job_id, status: :ok
    end
    member_action :delete, :method => :post do
-      unit = Unit.find(params[:id])
-      filenames = params[:filenames]
-      job_id = DeleteMasterFiles.exec({unit: unit, filenames: filenames})
+      job_id = DeleteMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames]})
       render :text=>job_id, status: :ok
    end
    member_action :status, method: :get do
