@@ -372,30 +372,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :publish_to_test, :method => :put do
-      unit = Unit.find(params[:id])
-      PublishToTest.exec({unit: unit})
+      PublishToDL.exec({unit_id: params[:id], mode: :test})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
    end
 
    member_action :publish, :method => :put do
-      unit = Unit.find(params[:id])
-      now = Time.now
-      unit.metadata.update(date_dl_update: now)
-      unit.master_files.each do |mf|
-         mf.update(date_dl_update: now)
-         if mf.metadata.id != unit.metadata.id
-            if mf.metadata.date_dl_ingest.blank?
-               if mf.metadata.date_dl_update.blank?
-                  mf.metadata.update(date_dl_ingest: now)
-               else
-                  mf.metadata.update(date_dl_ingest: mf.metadata.date_dl_update, date_dl_update: now)
-               end
-            else
-               mf.metadata.update(date_dl_update: now)
-            end
-         end
-      end
-      logger.info "Unit #{unit.id} and #{unit.master_files_count} master files have been flagged for an update in the DL"
+      PublishToDL.exec({unit_id: params[:id], mode: :production})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
    end
 
