@@ -20,6 +20,16 @@ class CheckUnitDeliveryMode < BaseJob
          CheckAutoPublish.exec_now({:unit => unit}, self)
       end
 
+      if unit.reorder? && unit.include_in_dl
+         on_failure("Reorders can not be sent to DL. resetting include_in_dl to false")
+         unit.update(include_in_dl: false)
+      end
+
+      if unit.include_in_dl && unit.metadata.availability_policy_id.blank?
+         # stop processing if availability policy is not set
+         on_error("Availability policy must be set for all units flagged for inclusion in the DL")
+      end
+
       # Make sure an exemplar is picked if flagged for DL
       if unit.include_in_dl == true && unit.metadata.type == "SirsiMetadata" && unit.metadata.exemplar.blank?
          logger.info "Exemplar is blank; looking for a default"
