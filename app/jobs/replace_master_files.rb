@@ -5,7 +5,7 @@ class ReplaceMasterFiles < BaseJob
    end
 
    def do_workflow(message)
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
