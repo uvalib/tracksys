@@ -1,6 +1,6 @@
 class GenerateAllReorderDeliverables < BaseJob
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id )
+      @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id] )
    end
 
    def copy_master_files(unit, source_dir, destination_dir)
@@ -23,8 +23,8 @@ class GenerateAllReorderDeliverables < BaseJob
    end
 
    def do_workflow(message)
-      raise "Parameter 'order' is required" if message[:order].blank?
-      order = message[:order]
+      raise "Parameter 'order_id' is required" if message[:order_id].blank?
+      order = Order.find(message[:order_id])
 
       order.units.each do |unit|
          unit_dir = "%09d" % unit.id

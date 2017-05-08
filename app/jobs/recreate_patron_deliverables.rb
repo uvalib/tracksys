@@ -1,14 +1,14 @@
 class RecreatePatronDeliverables < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
 
       # first, try to locate the original files for the unit.
       # if they are not in IN_PROCESS_DIR, put them there
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       in_proc_dir = File.join(IN_PROCESS_DIR, unit_dir)
       del_finalized = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)

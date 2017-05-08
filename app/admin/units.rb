@@ -214,8 +214,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :clone_master_files, method: :post do
-      unit = Unit.find(params[:id])
-      job_id = CloneMasterFiles.exec({unit: unit, list: params[:masterfiles]})
+      job_id = CloneMasterFiles.exec({unit_id: params[:id], list: params[:masterfiles]})
       render :text=>job_id, status: :ok
    end
 
@@ -308,19 +307,17 @@ ActiveAdmin.register Unit do
 
    member_action :generate_all_deliverables, :method=>:put do
       unit = Unit.find(params[:id])
-      GenerateAllReorderDeliverables.exec({order: unit.order})
+      GenerateAllReorderDeliverables.exec({order_id: unit.order_id})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Generating deliverables for all units in the order."
    end
 
    member_action :regenerate_deliverables, :method=>:put do
-      unit = Unit.find(params[:id])
-      RecreatePatronDeliverables.exec({unit: unit})
+      RecreatePatronDeliverables.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
    end
 
    member_action :check_unit_delivery_mode, :method => :put do
-      unit = Unit.find(params[:id])
-      CheckUnitDeliveryMode.exec( {:unit => unit} )
+      CheckUnitDeliveryMode.exec( {:unit_id => params[:id]} )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
    end
 
@@ -366,8 +363,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :start_ingest_from_archive, :method => :put do
-      unit = Unit.find(params[:id])
-      StartIngestFromArchive.exec( {:unit => unit})
+      StartIngestFromArchive.exec( {:unit_id => params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
    end
 
@@ -438,7 +434,7 @@ ActiveAdmin.register Unit do
          metadata = resource.metadata
          @dc_units = []
          q = "master_files_count > 0 and reorder = 0 and id <> #{resource.id}"
-         q << " and metadata_id = #{resource.metadata_id}"
+         q << " and metadata_id = #{resource.metadata_id}" if !resource.metadata_id.nil?
          Unit.where(q).each do |u|
             @dc_units << u.id
          end

@@ -64,6 +64,6 @@ class ImportRawImages < BaseJob
       logger().info ("Images for Unit #{unit.id} successfully imported. Beginning finalization...")
       unit.order.update_attribute(:date_finalization_begun, Time.now)
 
-      CheckUnitDeliveryMode.exec_now({ :unit => unit }, self)
+      CheckUnitDeliveryMode.exec_now({ :unit_id => unit.id }, self)
    end
 end

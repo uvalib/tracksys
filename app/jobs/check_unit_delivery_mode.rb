@@ -1,15 +1,16 @@
 class CheckUnitDeliveryMode < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
 
       # Validate incoming messages
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
+      logger.info "Source Unit: #{unit.to_json}"
       unit.id = unit.id
       unit_dir = "%09d" % unit.id
       source_dir = File.join(IN_PROCESS_DIR, unit_dir)

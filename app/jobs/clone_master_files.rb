@@ -1,11 +1,12 @@
 class CloneMasterFiles < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
+      logger.info "Source Unit: #{unit.to_json}"
 
       # List of master files to clone. Form: {id, title} or {unit: id}
       list = message[:list]
