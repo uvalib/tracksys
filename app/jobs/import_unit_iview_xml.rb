@@ -1,18 +1,18 @@
 class ImportUnitIviewXML < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
 
       # Validate incoming message
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'path' is required" if message[:path].blank?
 
       # Set unit variables
-      unit = message[:unit]
-      unit_dir = "%09d" % unit.id
+      unit = Unit.find(message[:unit_id])
+      logger.info "Source Unit: #{unit.to_json}"
       path = message[:path]
 
       # Import XML files

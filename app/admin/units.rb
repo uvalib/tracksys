@@ -338,27 +338,23 @@ ActiveAdmin.register Unit do
    end
 
    member_action :import_unit_iview_xml, :method => :put do
-      unit = Unit.find(params[:id])
-      unit_dir = "%09d" % unit.id
-      ImportUnitIviewXML.exec( {:unit => unit, :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
+      unit_dir = "%09d" % params[:id].to_i
+      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
    end
 
    member_action :qa_filesystem_and_iview_xml, :method => :put do
-      unit = Unit.find(params[:id])
-      QaFilesystemAndIviewXml.exec( {:unit => unit} )
+      QaFilesystemAndIviewXml.exec( {:unit_id => params[:id]} )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem and Iview XML."
    end
 
    member_action :qa_unit_data, :method => :put do
-      unit = Unit.find(params[:id])
-      QaUnitData.exec( {:unit => unit})
+      QaUnitData.exec( {:unit_id => params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA unit data."
    end
 
    member_action :send_unit_to_archive, :method => :put do
-      unit = Unit.find(params[:id])
-      SendUnitToArchive.exec( {:unit => unit, :internal_dir => true, :source_dir => "#{IN_PROCESS_DIR}"})
+      SendUnitToArchive.exec( {:unit_id => params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
@@ -429,8 +425,9 @@ ActiveAdmin.register Unit do
    end
 
    controller do
-      before_filter :get_digital_collection_units, only: [:show]
-      def get_digital_collection_units
+      before_filter :get_clone_src_units, only: [:show]
+      def get_clone_src_units
+         # Get a list of units that can be used as a source for cloning masterfiles
          metadata = resource.metadata
          @dc_units = []
          q = "master_files_count > 0 and reorder = 0 and id <> #{resource.id}"

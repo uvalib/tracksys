@@ -78,7 +78,7 @@ class CheckUnitDeliveryMode < BaseJob
             file_source = File.join(source_dir, master_file.filename)
             PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
          end
-         SendUnitToArchive.exec_now({ :unit => unit, :internal_dir => true, :source_dir => IN_PROCESS_DIR }, self)
+         SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
       end
    end
 end

@@ -1,16 +1,17 @@
 class QaUnitData < BaseJob
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
 
       # Validate incoming message
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
       # If this Unit.find fails, a unit with this id does not exist in Tracksys
-      unit = message[:unit]
+      unit = Unit.find(message[:unit_id])
+      logger.info "Source Unit: #{unit.to_json}"
       order = unit.order
 
       # Create error message holder array
@@ -63,7 +64,7 @@ class QaUnitData < BaseJob
 
       if failure_messages.empty?
          on_success "Unit #{unit.id} has passed the QaUnitDataProcessor."
-         QaFilesystemAndIviewXml.exec_now( { :unit => unit }, self)
+         QaFilesystemAndIviewXml.exec_now( { :unit_id => unit.id }, self)
       else
          failure_messages.each do |message|
             on_failure message

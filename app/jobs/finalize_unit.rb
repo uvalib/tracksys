@@ -17,7 +17,7 @@ class FinalizeUnit < BaseJob
 
       logger().info "Moving unit #{@project.unit.id} from dropoff to #{src_dir}"
       FileUtils.mv(src_dir, File.join(IN_PROCESS_DIR, @project.unit.directory))
-      QaUnitData.exec_now( { :unit => @project.unit }, self)
+      QaUnitData.exec_now( { :unit_id => @project.unit_id }, self)
 
       # At this point, finalization has completed successfully and project is done
       @project.finalization_success( status_object() )

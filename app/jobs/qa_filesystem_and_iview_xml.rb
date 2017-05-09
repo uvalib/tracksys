@@ -2,16 +2,17 @@ class QaFilesystemAndIviewXml < BaseJob
    require 'nokogiri'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit].id )
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )
    end
 
    def do_workflow(message)
 
       # Validate incoming message
-      raise "Parameter 'unit' is required" if message[:unit].blank?
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
       # Set unit variables
-      @unit = message[:unit]
+      @unit = Unit.find(message[:unit_id])
+      logger.info "Source Unit: #{@unit.to_json}"
       @unit_dir = "%09d" % @unit.id
 
       # Create error message holder array
@@ -299,7 +300,7 @@ class QaFilesystemAndIviewXml < BaseJob
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
          on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA Processor"
-         ImportUnitIviewXML.exec_now({ :unit => @unit, :path => path }, self)
+         ImportUnitIviewXML.exec_now({ :unit_id => @unit.id, :path => path }, self)
       else
          @error_messages.each do |message|
             logger().debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
