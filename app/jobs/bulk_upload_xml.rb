@@ -15,6 +15,8 @@ class BulkUploadXml < BaseJob
          parts = line.split(":")
          if parts[0].strip.downcase == "discoverability"
             settings[:discoverability] = parts[1].strip == "true"
+         elsif parts[0].strip.downcase == "dpla"
+               settings[:dpla] = parts[1].strip == "true"
          elsif parts[0].strip.downcase == "availability"
             if parts[1].strip.downcase == "uva"
                settings[:availability] = AvailabilityPolicy.find(3)
@@ -80,6 +82,8 @@ class BulkUploadXml < BaseJob
             title = title_node.text.strip if !title_node.nil?
             creator_node = xml.xpath("//name/namePart").first
             creator = creator_node.text.strip if !creator_node.nil?
+            dpla = orig_metadata.dpla
+            dpla = settings[:dpla] if !settings[:dpla].nil?
 
             if mf.metadata == orig_metadata
                # This Master file is still associated with the original unit metadata.
@@ -88,13 +92,14 @@ class BulkUploadXml < BaseJob
                   discoverability: settings[:discoverability], indexing_scenario_id: 2,
                   desc_metadata: xml_str, use_right: settings[:rights],
                   availability_policy: settings[:availability],
-                  creator_name: creator, exemplar: mf.filename)
+                  creator_name: creator, exemplar: mf.filename,
+                  dpla: dpla, parent_metadata_id: orig_metadata.id )
                mf.update(metadata_id: metadata.id)
             else
                # This masterfile already has its own metadata; just update content
                mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,
                   discoverability: settings[:discoverability], use_right: settings[:rights],
-                  availability_policy: settings[:availability] )
+                  availability_policy: settings[:availability], dpla: dpla )
             end
          end
       end

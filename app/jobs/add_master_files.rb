@@ -123,6 +123,7 @@ class AddMasterFiles < BaseJob
                   md = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
                      indexing_scenario_id: 2, desc_metadata: xml_str, creator_name: creator,
                      discoverability: true, availability_policy: unit.metadata.availability_policy,
+                     dpla: unit.metadata.dpla, parent_metadata_id: unit.metadata.id, 
                      exemplar: master_file.filename)
                   master_file.update(metadata_id: md.id)
                   logger.debug "Created XML Metadata for master file #{fn}"
