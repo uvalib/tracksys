@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: staff_members
+#
+#  id           :integer          not null, primary key
+#  computing_id :string(255)
+#  last_name    :string(255)
+#  first_name   :string(255)
+#  is_active    :boolean          default(FALSE), not null
+#  created_at   :datetime
+#  updated_at   :datetime
+#  email        :string(255)
+#  role         :integer          default(0)
+#
+
 class StaffMember < ActiveRecord::Base
    enum role: [:admin, :supervisor, :student, :viewer]
 

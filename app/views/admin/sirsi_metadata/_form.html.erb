@@ -41,7 +41,7 @@
 
       <%= f.input :dpla, :as => :radio %>
       <% if @sirsi_metadata.dpla %>
-         <%= f.input :parent_bibl_id, :as => :select, :label=>"Parent Metadata",
+         <%= f.input :parent_metadata_id, :as => :select, :label=>"Parent Metadata",
              :collection => Hash[@dpla_collection_records.map{|b| ["#{b[:title]}", b[:id] ]}],
              :input_html => {:class => 'chosen-select',  :style => 'width: 300px'} %>
       <% end %>

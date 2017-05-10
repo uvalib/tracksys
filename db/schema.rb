@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170501143303) do
+ActiveRecord::Schema.define(version: 20170510151519) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -351,7 +351,7 @@ ActiveRecord::Schema.define(version: 20170501143303) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "exemplar",               limit: 255
-    t.integer  "parent_bibl_id",         limit: 4,     default: 0,               null: false
+    t.integer  "parent_metadata_id",     limit: 4,     default: 0,               null: false
     t.text     "desc_metadata",          limit: 65535
     t.boolean  "discoverability",                      default: true
     t.integer  "indexing_scenario_id",   limit: 4
@@ -378,7 +378,7 @@ ActiveRecord::Schema.define(version: 20170501143303) do
   add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
   add_index "metadata", ["genre_id"], name: "index_metadata_on_genre_id", using: :btree
   add_index "metadata", ["indexing_scenario_id"], name: "index_metadata_on_indexing_scenario_id", using: :btree
-  add_index "metadata", ["parent_bibl_id"], name: "index_metadata_on_parent_bibl_id", using: :btree
+  add_index "metadata", ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id", using: :btree
   add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
   add_index "metadata", ["resource_type_id"], name: "index_metadata_on_resource_type_id", using: :btree
   add_index "metadata", ["use_right_id"], name: "index_metadata_on_use_right_id", using: :btree

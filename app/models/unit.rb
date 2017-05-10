@@ -211,7 +211,6 @@ end
 #  updated_at                     :datetime
 #  intended_use_id                :integer
 #  staff_notes                    :text(65535)
-#  date_queued_for_ingest         :datetime
 #  date_archived                  :datetime
 #  date_patron_deliverables_ready :datetime
 #  include_in_dl                  :boolean          default(FALSE)

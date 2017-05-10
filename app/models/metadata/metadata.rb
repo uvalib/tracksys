@@ -139,30 +139,19 @@ class Metadata < ActiveRecord::Base
    # Returns the array of child metadata records
    #
    def children
-      begin
-         return Metadata.where(parent_bibl_id: id)
-      rescue ActiveRecord::RecordNotFound
-         return Array.new
-      end
+      return Metadata.where(parent_metadata_id: self.id)
    end
 
    def typed_children( )
       out = {}
-      begin
-         out[:sirsi] =  SirsiMetadata.where(parent_bibl_id: id, type: "SirsiMetadata")
-         out[:xml] =  SirsiMetadata.where(parent_bibl_id: id, type: "XmlMetadata")
-         return out
-      rescue ActiveRecord::RecordNotFound
-         return {}
-      end
+      out[:sirsi] = SirsiMetadata.where(parent_metadata_id: self.id)
+      out[:xml] = XmlMetadata.where(parent_metadata_id: id)
+      return out
    end
 
    def parent
-      begin
-         return Metadata.find(parent_bibl_id)
-      rescue ActiveRecord::RecordNotFound
-         return nil
-      end
+      return nil if self.parent_metadata_id.blank? || self.parent_metadata_id == 0
+      return Metadata.find_by(id: self.parent_metadata_id)
    end
 end
 
@@ -173,8 +162,6 @@ end
 #  id                     :integer          not null, primary key
 #  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
-#  resource_type          :string(255)
-#  genre                  :string(255)
 #  is_manuscript          :boolean          default(FALSE), not null
 #  is_collection          :boolean          default(FALSE), not null
 #  title                  :text(65535)
@@ -186,7 +173,7 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  exemplar               :string(255)
-#  parent_bibl_id         :integer          default(0), not null
+#  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)
 #  indexing_scenario_id   :integer
@@ -200,6 +187,8 @@ end
 #  type                   :string(255)      default("SirsiMetadata")
 #  external_system        :string(255)
 #  external_uri           :string(255)
-#  supplimentary_system   :string(255)
-#  supplimentary_uri      :string(255)
+#  supplemental_system    :string(255)
+#  supplemental_uri       :string(255)
+#  genre_id               :integer
+#  resource_type_id       :integer
 #

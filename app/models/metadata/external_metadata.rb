@@ -5,8 +5,6 @@
 #  id                     :integer          not null, primary key
 #  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
-#  resource_type          :string(255)
-#  genre                  :string(255)
 #  is_manuscript          :boolean          default(FALSE), not null
 #  is_collection          :boolean          default(FALSE), not null
 #  title                  :text(65535)
@@ -18,7 +16,7 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  exemplar               :string(255)
-#  parent_bibl_id         :integer          default(0), not null
+#  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)
 #  indexing_scenario_id   :integer
@@ -32,8 +30,10 @@
 #  type                   :string(255)      default("SirsiMetadata")
 #  external_system        :string(255)
 #  external_uri           :string(255)
-#  supplimentary_system   :string(255)
-#  supplimentary_uri      :string(255)
+#  supplemental_system    :string(255)
+#  supplemental_uri       :string(255)
+#  genre_id               :integer
+#  resource_type_id       :integer
 #
 
 class ExternalMetadata < Metadata

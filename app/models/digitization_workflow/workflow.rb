@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: workflows
+#
+#  id          :integer          not null, primary key
+#  name        :string(255)
+#  description :text(65535)
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
 class Workflow < ActiveRecord::Base
    validates :name, :uniqueness => true, :presence => true
    has_many :steps

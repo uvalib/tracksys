@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: audit_events
+#
+#  id              :integer          not null, primary key
+#  staff_member_id :integer
+#  auditable_id    :integer
+#  auditable_type  :string(255)
+#  event           :integer
+#  details         :string(255)
+#  created_at      :datetime
+#
+
 class AuditEvent < ActiveRecord::Base
    enum event: [:status_update]
 

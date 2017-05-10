@@ -3,7 +3,7 @@
       <td class="child-type">Sirsi: </td>
       <td>
          <% if map[:sirsi].size > 0 %>
-            <%= link_to "#{map[:sirsi].size}", admin_sirsi_metadata_path(:q => {:parent_bibl_id_eq => parent_id } ) %>
+            <%= link_to "#{map[:sirsi].size}", admin_sirsi_metadata_path(:q => {:parent_metadata_id_eq => parent_id } ) %>
          <% else %>
             <span class="none">None</span>
          <% end %>
@@ -13,7 +13,7 @@
       <td class="child-type">Xml: </td>
       <td>
          <% if map[:xml].size > 0 %>
-            <%= link_to "#{map[:xml].size}", admin_xml_metadata_path(:q => {:parent_bibl_id_eq => parent_id } ) %>
+            <%= link_to "#{map[:xml].size}", admin_xml_metadata_path(:q => {:parent_metadata_id_eq => parent_id } ) %>
          <% else %>
             <span class="none">None</span>
          <% end %>

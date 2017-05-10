@@ -58,13 +58,13 @@ end
 #
 # Table name: intended_uses
 #
-#  id                          :integer          not null, primary key
-#  description                 :string(255)
-#  is_internal_use_only        :boolean          default(FALSE), not null
-#  is_approved                 :boolean          default(FALSE), not null
-#  created_at                  :datetime
-#  updated_at                  :datetime
-#  units_count                 :integer          default(0)
-#  deliverable_format          :string(255)
-#  deliverable_resolution      :string(255)
+#  id                     :integer          not null, primary key
+#  description            :string(255)
+#  is_internal_use_only   :boolean          default(FALSE), not null
+#  is_approved            :boolean          default(FALSE), not null
+#  created_at             :datetime
+#  updated_at             :datetime
+#  units_count            :integer          default(0)
+#  deliverable_format     :string(255)
+#  deliverable_resolution :string(255)
 #

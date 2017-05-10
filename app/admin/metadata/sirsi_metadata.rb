@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :indexing_scenario_id, :parent_bibl_id
+      :collection_facet, :use_right_id, :indexing_scenario_id, :parent_metadata_id
 
   config.clear_action_items!
 
@@ -150,7 +150,7 @@ ActiveAdmin.register SirsiMetadata do
           end
           row :dpla
           if sirsi_metadata.dpla
-             row('Parent Metadata ID'){ |r| r.parent_bibl_id }
+             row('Parent Metadata ID'){ |r| r.parent_metadata_id }
           end
           row :exemplar do |sirsi_metadata|
             link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
