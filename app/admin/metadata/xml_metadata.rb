@@ -148,8 +148,10 @@ ActiveAdmin.register XmlMetadata do
    #
    sidebar "Related Information", :only => [:show, :edit] do
      attributes_table_for xml_metadata do
-       row :master_files do |xml_metadata|
-         link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
+       if xml_metadata.master_files.count > 0
+          row :master_files do |xml_metadata|
+            link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
+          end
        end
        if xml_metadata.units.count > 0
           row :units do |xml_metadata|
@@ -164,7 +166,7 @@ ActiveAdmin.register XmlMetadata do
           row "Agencies Requesting Resource" do |xml_metadata|
             raw(xml_metadata.agency_links)
           end
-          row("Collection Metadata Record") do |xml_metadata|
+          row("Parent Metadata Record") do |xml_metadata|
              if xml_metadata.parent
                if xml_metadata.parent.type == "SirsiMetadata"
                   link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
@@ -177,13 +179,19 @@ ActiveAdmin.register XmlMetadata do
              map = xml_metadata.typed_children
              render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
           end
-       elsif xml_metadata.master_files.count == 1
-          unit = xml_metadata.master_files.first.unit
-          row :unit do |xml_metadata|
-             link_to "##{unit.id}", "/admin/units/#{unit.id}"
+       else
+          if xml_metadata.master_files.count == 1
+             unit = xml_metadata.master_files.first.unit
+             row :unit do |xml_metadata|
+                link_to "##{unit.id}", "/admin/units/#{unit.id}"
+             end
+             row :order do |xml_metadata|
+               link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
+             end
           end
-          row :order do |xml_metadata|
-            link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
+          row "child metadata records" do |xml_metadata|
+             map = xml_metadata.typed_children
+             render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
           end
        end
      end

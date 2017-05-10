@@ -198,7 +198,7 @@ ActiveAdmin.register SirsiMetadata do
       row "Agencies Requesting Resource" do |sirsi_metadata|
         raw(sirsi_metadata.agency_links)
       end
-      row("Collection Metadata Record") do |sirsi_metadata|
+      row("Parent Metadata Record") do |sirsi_metadata|
         if sirsi_metadata.parent
           if sirsi_metadata.parent.type == "SirsiMetadata"
              link_to "#{sirsi_metadata.parent.title}", "/admin/sirsi_metadata/#{sirsi_metadata.parent.id}"
