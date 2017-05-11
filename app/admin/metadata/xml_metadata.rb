@@ -189,6 +189,15 @@ ActiveAdmin.register XmlMetadata do
                link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
              end
           end
+          row("Parent Metadata Record") do |xml_metadata|
+             if xml_metadata.parent
+               if xml_metadata.parent.type == "SirsiMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+               elsif xml_metadata.parent.type == "XmlMetadata"
+                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
+               end
+             end
+          end
           row "child metadata records" do |xml_metadata|
              map = xml_metadata.typed_children
              render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}

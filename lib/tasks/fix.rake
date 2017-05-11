@@ -36,13 +36,15 @@ namespace :fix do
       # Get all metadata flagged for inclusion in DPLA...
       Metadata.where(dpla:true).each do |dpla_md|
          # Only care about units of this metadata that are in the DL...
-         dpla_md.units.where(include_in_dl: true).each do |u|
+         dpla_md.units.where(include_in_dl: true).where(reorder: false).each do |u|
             # Get all of the master files associated with the unit that have XmlMetadata
+            puts "Check masterfile metadata for unit #{u.id}, metadata #{dpla_md.id}"
             u.master_files.joins(:metadata).where("metadata.type='XmlMetadata'").each do |xm|
                # if the master file metadata is different than the unit metadata, make sure
                # the data is set correctly
-               if u.metadata.id != xm.id
-                  xm.update(parent_metadata_id: dpla_md.id, dpla: true)
+               if u.metadata.id != xm.metadata.id
+                  puts "   ==> Update XmlMetadata #{xm.id} - prior parent/dpla: #{xm.metadata.parent_metadata_id}/#{xm.metadata.dpla}"
+                  xm.metadata.update(parent_metadata_id: dpla_md.id, dpla: true)
                end
             end
          end
