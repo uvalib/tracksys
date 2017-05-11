@@ -22,14 +22,6 @@ namespace :fix do
       Metadata.connection.execute(q)
    end
 
-   desc "fix final qa"
-   task :final_qa => :environment do
-      Step.all.each do |s|
-        s.update(start_dir: "scan/80_final_QA") if s.start_dir == "scan/80_final_qa"
-        s.update(finish_dir: "scan/80_final_QA") if s.finish_dir == "scan/80_final_qa"
-      end
-   end
-
    desc "Deactivate combine and create new intended uses"
    task :intended_use => :environment do
       IntendedUse.create(description: "Print Publication", is_internal_use_only: 0, is_approved: 1,
@@ -37,5 +29,23 @@ namespace :fix do
       IntendedUse.find(107).update(is_approved: 0)    # academic print pub
       IntendedUse.find(108).update(is_approved: 0)    # non-academic print public
       IntendedUse.find(111).update(is_approved: 0)    # sharing
+   end
+
+   desc "Migrate DPLA flag from unit metadata to XmlMetadata"
+   task :xml_dpla => :environment do
+      # Get all metadata flagged for inclusion in DPLA...
+      Metadata.where(dpla:true).each do |dpla_md|
+         # Only care about units of this metadata that are in the DL...
+         dpla_md.units.where(include_in_dl: true).each do |u|
+            # Get all of the master files associated with the unit that have XmlMetadata
+            u.master_files.joins(:metadata).where("metadata.type='XmlMetadata'").each do |xm|
+               # if the master file metadata is different than the unit metadata, make sure
+               # the data is set correctly
+               if u.metadata.id != xm.id
+                  xm.update(parent_metadata_id: dpla_md.id, dpla: true)
+               end
+            end
+         end
+      end
    end
 end
