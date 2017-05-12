@@ -84,6 +84,7 @@ class BulkUploadXml < BaseJob
             creator = creator_node.text.strip if !creator_node.nil?
             dpla = orig_metadata.dpla
             dpla = settings[:dpla] if !settings[:dpla].nil?
+            dpla = false if unit.reorder
 
             if mf.metadata == orig_metadata
                # This Master file is still associated with the original unit metadata.
