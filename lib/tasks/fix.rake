@@ -50,4 +50,57 @@ namespace :fix do
          end
       end
    end
+
+   desc "Export staff skills matrix to json"
+   task :export_skills => :environment do
+      out = []
+      StaffMember.all.each do |u|
+         skills = []
+         u.skills.each do |s|
+            skills << {id: s.id, name: s.name}
+         end
+         staff = {computing_id: u.computing_id, last_name: u.last_name, first_name: u.first_name,
+            role: u.role, email: u.email}
+         out<< { staff: staff, skills: skills }
+      end
+      puts out.to_json
+   end
+
+   desc "IMPORT staff skills matrix from json"
+   task :import_skills => :environment do
+      f = ENV['file']
+      abort "File is required" if f.nil?
+      json = File.read(f)
+      data = JSON.parse(json)
+      data.each do |d|
+         computing_id = d['staff']['computing_id']
+         puts "Import skills for staff member #{computing_id}"
+         staff = StaffMember.find_by(computing_id: computing_id)
+         if staff.nil?
+            puts "Staff Member #{computing_id} does not exist. Create (y/n)?"
+            input = STDIN.gets.strip
+            if input == 'y'
+               puts "Creating staff member #{computing_id}"
+               a = d['staff']
+               staff = StaffMember.create!(
+                  computing_id: a['computing_id'], last_name: a['last_name'],
+                  first_name: a['first_name'], is_active: true, email: a['email'],
+                  role: StaffMember.roles[ a['role'] ] )
+            else
+               puts "Skipping staff member #{computing_id}"
+               next
+            end
+         end
+
+         # add skills to staff member
+         puts "Adding skills"
+         d['skills'].each do |skill|
+            c = Category.find(skill['id'])
+            if !staff.skills.include? c
+               staff.skills << c
+               puts "   added #{c.name}"
+            end
+         end
+      end
+   end
 end
