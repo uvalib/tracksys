@@ -2,26 +2,28 @@ div :class => 'columns-none' do
    div :class => 'two-column' do
       panel "Item Information" do
          attributes_table_for project do
-            row("Call Number") do |project|
-               project.unit.metadata.call_number
-            end
-            row :viu_number, class: "viu_row" do |project|
-               div do
-                  v = project.viu_number
-                  v = "<span class='empty'>Empty</span>" if v.blank?
-                  disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
-                  raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
+            if project.unit.metadata.type=="SirsiMetadata"
+               row("Call Number") do |project|
+                  project.unit.metadata.call_number
                end
-               if current_user == project.owner
-                  div class: "viu-button-bar" do
-                     span class: "project mf-action-button item edit-btn" do "Edit" end
-                     span class: "project mf-action-button hidden item save-btn"  do "Save" end
-                     span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
+               row :viu_number, class: "viu_row" do |project|
+                  div do
+                     v = project.viu_number
+                     v = "<span class='empty'>Empty</span>" if v.blank?
+                     disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
+                     raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
+                  end
+                  if current_user == project.owner
+                     div class: "viu-button-bar" do
+                        span class: "project mf-action-button item edit-btn" do "Edit" end
+                        span class: "project mf-action-button hidden item save-btn"  do "Save" end
+                        span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
+                     end
                   end
                end
-            end
-            row("Location") do |project|
-               project.unit.metadata.location
+               row("Location") do |project|
+                  project.unit.metadata.location
+               end
             end
             row("Title") do |project|
                project.unit.metadata.title
