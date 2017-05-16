@@ -28,6 +28,14 @@ $(document).ready(function () {
        }
    });
 
+   $("#unit_metadata_selector").keyup( function() {
+      // when the selector is cleared, also clear the hidden
+      // input field that holds the ID  of the chosen metadata
+      if ( $(this).val().length === 0) {
+         $("#unit_metadata_id").val("");
+      }
+   });
+
    // Toggle between Sirsi/Xml metadata
    $("#metadata-type-picker").on("change", function() {
       var metadataType = $(this).val();
