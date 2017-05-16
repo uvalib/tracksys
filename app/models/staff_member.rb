@@ -35,7 +35,7 @@ class StaffMember < ActiveRecord::Base
    def self.candidates_for ( category )
       join = "inner join staff_skills s on s.staff_member_id=staff_members.id"
       return StaffMember.joins(join)
-         .where("role <= 1 or s.category_id=? and role=2", category.id)
+         .where("(role <= 1 and is_active=1) or (s.category_id=? and role=2 and is_active=1)", category.id)
          .distinct.order(last_name: :asc)
    end
 
