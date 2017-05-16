@@ -221,7 +221,7 @@ class Project < ActiveRecord::Base
       if self.current_step.end?
          self.active_assignment.update(status: :finalizing)
          Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
-         FinalizeUnit.exec({project_id: self.id})
+         FinalizeUnit.exec({project_id: self.id, unit_id: self.unit_id})
          return
       end
 

@@ -2,14 +2,15 @@ class FinalizeUnit < BaseJob
    require 'fileutils'
 
    def set_originator(message)
-      @status.update_attributes( :originator_type=>"Project", :originator_id=>message[:project_id])
+      @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
    end
 
    def do_workflow(message)
+      raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       raise "Parameter 'project_id' is required" if message[:project_id].blank?
       @project = Project.find(message[:project_id])
 
-      logger().info "Unit #{@project.unit.id} begins Finalization."
+      logger().info "Project #{@project.id}, unit #{@project.unit.id} begins Finalization."
       src_dir = File.join(FINALIZATION_DROPOFF_DIR_PRODUCTION, @project.unit.directory)
       if !Dir.exists? src_dir
          on_error("Dropoff directory #{src_dir} does not exist")

@@ -10,7 +10,7 @@ ActiveAdmin.register Category do
    config.sort_order = 'id_asc'
    config.clear_action_items!
    action_item :new, :only => :index do
-      raw("<a href='/admin/category/new'>New</a>") if current_user.admin?
+      raw("<a href='/admin/categories/new'>New</a>") if current_user.admin?
    end
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if current_user.admin?
