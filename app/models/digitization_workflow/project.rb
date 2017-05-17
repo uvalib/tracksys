@@ -131,6 +131,14 @@ class Project < ActiveRecord::Base
       return "#{'%02d' % h}:#{'%02d' % del_mins}"
    end
 
+   def clear_assignment(admin_user)
+      msg = "<p>Admin user #{admin_user.full_name} canceled assignment to #{self.owner.full_name}</p>"
+      Note.create(staff_member: admin_user, project: self, note_type: :comment, note: msg, step: self.current_step )
+      self.active_assignment.update(status: :error )
+      active_assignment.destroy
+      update!(owner: nil)
+   end
+
    def assign_to(user)
       # If someone else has this assignment, flag it as reassigned. Do not
       # mark the finished time as it was never actually finished

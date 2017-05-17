@@ -150,6 +150,13 @@ ActiveAdmin.register Project do
                c << " disabled locked" if !project.active_assignment.nil? && project.active_assignment.finalizing?
                raw("<span data-project='#{project.id}' id='assign-button' class='#{c}'>Assign</span>")
             end
+            if !project.owner.nil?
+               div class: 'workflow_button project' do
+                  c = "admin-button assign"
+                  c << " disabled locked" if project.active_assignment.finalizing?
+                  raw("<span data-project='#{project.id}' id='unassign-button' class='#{c}'>Clear Assignment</span>")
+               end
+            end
          end
       end
       if !project.active_assignment.nil? && project.active_assignment.finalizing?
@@ -224,6 +231,22 @@ ActiveAdmin.register Project do
          else
             render text: project.errors.full_messages.to_sentence, status: :error
          end
+      end
+   end
+
+   member_action :unassign, :method => :post do
+      if !(current_user.admin? || current_user.supervisor?)
+         render text: "You do not have permissions to remove the assigned staff.", status: :error
+         return
+      end
+      begin
+         project = Project.find(params[:id])
+         project.clear_assignment(current_user)
+         logger.info("Project[#{project.id}] is now unassigned ")
+         render nothing: true
+      rescue Exception=>e
+         logger.error("Unassign project FAILED: #{e.class.name} - #{e.message}}")
+         render text: "#{e.class.name}: #{e.message}}", status: :error
       end
    end
 

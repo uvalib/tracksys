@@ -97,6 +97,24 @@ $(function() {
          }
       });
    });
+   $("#unassign-button").on("click", function() {
+      var resp = confirm("Are you sure you want to clear the currently assigned staff for this project?");
+      if (!resp) {
+         return;
+      }
+      var projectId = $(this).data("project");
+      $.ajax({
+         url: "/admin/projects/"+projectId+"/unassign",
+         method: "POST",
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to clear assignment:"+jqXHR.responseText);
+            } else {
+               window.location.reload();
+            }
+         }
+      });
+   });
 
    var menuHideTimerId=-1;
    var killHideTimeout = function() {
