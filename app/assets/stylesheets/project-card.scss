@@ -120,6 +120,17 @@ div.project-card.special {
       border-color: #cce;
    }
 }
+div.project-card.clone {
+   background: #fcf;
+   border-color: #939;
+   h3 {
+      background: #dad;
+      border-color: #939;
+   }
+   .project-footer {
+      border-color: #dad;
+   }
+}
 div.project-card {
    border: 1px solid #bbb;
    font-size: 0.9em;

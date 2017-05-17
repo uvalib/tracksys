@@ -204,25 +204,33 @@ class Project < ActiveRecord::Base
       total_duration = prior_duration + duration.to_i
       self.active_assignment.update(duration_minutes: total_duration )
 
-      # if this is detected to be a project that was manually finalized
-      # due to a finalization error, validate the finalization and exit early
-      if manually_finalized?
-         validate_manual_finalization
-         return
-      end
+      # Clone workflow is a special case; nothing needs to be done when finishing a step
+      if self.workflow.name != "Clone"
+         # if this is detected to be a project that was manually finalized
+         # due to a finalization error, validate the finalization and exit early
+         if manually_finalized?
+            validate_manual_finalization
+            return
+         end
 
-      # Carry out end of step validation/automation. If this fails, there
-      # is nothing more to do so exit
-      if !self.current_step.finish( self )
-         return
+         # Carry out end of step validation/automation. If this fails, there
+         # is nothing more to do so exit
+         if !self.current_step.finish( self )
+            return
+         end
       end
 
       # Special handling for last step; begin finalization and bail early
       if self.current_step.end?
-         self.active_assignment.update(status: :finalizing)
-         Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
-         FinalizeUnit.exec({project_id: self.id, unit_id: self.unit_id})
-         return
+         if self.workflow.name == "Clone"
+            validate_clone_deliverables
+            return
+         else
+            self.active_assignment.update(status: :finalizing)
+            Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
+            FinalizeUnit.exec({project_id: self.id, unit_id: self.unit_id})
+            return
+         end
       end
 
       # Advance to next step, enforcing owner type
@@ -247,6 +255,43 @@ class Project < ActiveRecord::Base
          Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}]. No owner set.")
          self.update(current_step: new_step, owner: nil)
       end
+   end
+
+   def fail_clone_validation(reason)
+      prob = Problem.find(7) # Other
+      msg = "<p>Validation of patron deliverables failed: #{reason}</p>"
+      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+      self.active_assignment.update(status: :error )
+   end
+
+   def validate_clone_deliverables
+      # check date delverables ready
+      if self.unit.order.date_patron_deliverables_complete.nil?
+         fail_clone_validation("Date deliverables ready not set")
+         return false
+      end
+
+      # ensure there is a properly named set of deliverables present
+      #    digiserv-delivery/patron/order_####/[order#.pdf] and unit_*.zip
+      order_dir = File.join(DELIVERY_DIR, "order_#{order.id}")
+      if !Dir.exists?(order_dir)
+         fail_clone_validation("Missing order delivery directory #{order_dir}")
+         return false
+      end
+      order_pdf = File.join(order_dir, "#{order.id}.pdf")
+      if !File.exists?(order_pdf)
+         fail_clone_validation("Missing order PDF #{order_pdf}")
+         return false
+      end
+
+      if  Dir[File.join(order_dir, "#{self.unit.id}*.zip")].count == 0
+         fail_clone_validation("No zip delivery files found")
+         return false
+      end
+
+      Rails.logger.info("Project [#{self.project_name}] completed validation of cloned files")
+      self.update(finished_at: Time.now, owner: nil, current_step: nil)
+      self.active_assignment.update(finished_at: Time.now, status: :finished)
    end
 
    def project_name

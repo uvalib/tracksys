@@ -1,0 +1,57 @@
+if project.workflow.name != "Clone"
+   div :class => 'two-column' do
+      panel "Equipment" do
+         attributes_table_for project do
+            row :workstation do |project|
+               v = "<span class='empty'>Empty</span>"
+               data_id = ""
+
+               if !project.workstation.blank?
+                  v = project.workstation.name
+                  data_id = "data-id='#{project.workstation.id}'"
+               end
+               disp = "<span #{data_id}' class='disp-camera' id='workstation'>#{v}</span>"
+               sel = "<select id='workstation-edit' class='hidden edit-camera'>"
+               sel << "<option value=''>Choose a workstation</option>"
+               Workstation.available.each do |w|
+                  if project.workstation == w
+                     sel << "<option value='#{w.id}' selected>#{w.name}</option>"
+                  else
+                     sel << "<option value='#{w.id}'>#{w.name}</option>"
+                  end
+               end
+               sel << "</select>"
+               raw("#{disp}#{sel}")
+            end
+            row ("setup") do |project|
+               render partial: "project_equipment", locals: {equipment: project.equipment}
+            end
+            row :capture_resolution do |project|
+               v = project.capture_resolution
+               v = "<span class='empty'>Empty</span>" if v.blank?
+               disp = "<span class='disp-camera' id='capture_resolution'>#{v}</span>"
+               raw("#{disp}<input type='text' class='hidden edit-camera' id='capture_resolution-edit' value='#{project.capture_resolution}'/>")
+            end
+            row :resized_resolution do |project|
+               v = project.resized_resolution
+               v = "<span class='empty'>Empty</span>" if v.blank?
+               disp = "<span class='disp-camera' id='resized_resolution'>#{v}</span>"
+               raw("#{disp}<input type='text' class='hidden edit-camera' id='resized_resolution-edit' value='#{project.resized_resolution}'/>")
+            end
+            row :resolution_note do |project|
+               v = project.resolution_note
+               v = "<span class='empty'>Empty</span>" if v.blank?
+               disp = "<span class='disp-camera' id='resolution_note'>#{v}</span>"
+               raw("#{disp}<textarea class='hidden edit-camera' id='resolution_note-edit'>#{project.resolution_note}</textarea>")
+            end
+         end
+         if current_user == project.owner
+            div class: "mini-button-bar" do
+               span class: "project mf-action-button camera edit-btn" do "Edit" end
+               span class: "project mf-action-button hidden camera save-btn"  do "Save" end
+               span class: "project mf-action-button hidden camera cancel-btn" do "Cancel" end
+            end
+         end
+      end
+   end
+end

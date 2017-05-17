@@ -6,6 +6,8 @@
       tc << " slide"
    elsif project.unit.intended_use.id == 110 #digital collection building
       tc << " green"
+   elsif project.workflow.name == "Clone"
+      tc << " clone"
    end
    tc << " overdue" if project.overdue?
    tc << " finished" if project.finished? %>

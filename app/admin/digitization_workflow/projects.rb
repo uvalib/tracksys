@@ -119,11 +119,14 @@ ActiveAdmin.register Project do
          end
          div :class => 'workflow_button project' do
             clazz = "admin-button"
-            clazz << " disabled locked" if !(project.active_assignment.started? || project.active_assignment.error?) || project.workstation.nil?
+            if !(project.active_assignment.started? || project.active_assignment.error?) ||
+                (project.workstation.nil? && project.workflow.name != "Clone")
+               clazz << " disabled locked"
+            end
             raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
          render partial: 'time_entry', locals: {project: project}
-         if project.workstation.nil?
+         if project.workstation.nil? && project.workflow.name != "Clone"
             div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
          end
          if !project.current_step.fail_step.nil?
