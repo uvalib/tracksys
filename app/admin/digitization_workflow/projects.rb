@@ -26,7 +26,7 @@ ActiveAdmin.register Project do
    scope :finished, if: proc { !current_user.student?}
 
    filter :workflow, :as => :select, :collection => Workflow.all
-   filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.all
+   filter :owner_computing_id, :as => :select, :label => "Assigned to", :collection => StaffMember.where(is_active:1).order(first_name: :asc)
    filter :priority, :as => :select, :collection => Project.priorities
    filter :order_id_equals, :label => "Order ID"
    filter :unit_id_equals, :label => "Unit ID"
