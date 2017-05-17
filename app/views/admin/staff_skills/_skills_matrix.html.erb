@@ -23,7 +23,7 @@
          <label class="header">Staff Members</label>
          <div class="scroller">
             <div class="staff-list">
-               <% StaffMember.all.order(last_name: :asc).each do |s| %>
+               <% StaffMember.where(is_active: 1).order(last_name: :asc).each do |s| %>
                   <p data-id="<%=s.id%>" class="staff"><%= s.full_name %></p>
                <% end %>
             </div>
