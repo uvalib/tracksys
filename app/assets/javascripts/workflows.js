@@ -361,7 +361,7 @@ $(function() {
       if ( $(this).hasClass("item")) {
          tgtClass = "item";
          data = {category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
-                 item_condition: $("#item_condition-edit").val(), condition_note: $("#condition_note-edit").val()};
+                 item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val()};
       } else {
          data =  { camera: true,
             workstation: $("#workstation-edit").val(), capture_resolution: $("#capture_resolution-edit").val(),
@@ -396,7 +396,7 @@ $(function() {
                } else {
                   $("#viu_number").text( data.viu_number );
                   $("#category").text( $("#category-edit option:selected").text() );
-                  $("#item_condition").text( $("#item_condition-edit option:selected").text() );
+                  $("#condition").text( $("#condition-edit option:selected").text() );
                   $("#condition_note").text( data.condition_note  );
                }
             }
