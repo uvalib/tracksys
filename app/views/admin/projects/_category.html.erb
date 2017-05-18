@@ -4,7 +4,7 @@
       <select class='hidden edit-item' id='category-edit' >
          <% Category.all.order(name: :asc).each do |c| %>
             <% sel = ""
-               sel = 'selected="selected"' if c.id = project.category_id %>
+               sel = 'selected=selected' if c.id == project.category_id %>
             <option <%= sel %> value="<%= c.id %>"><%= c.name %></option>
          <% end %>
       </select>

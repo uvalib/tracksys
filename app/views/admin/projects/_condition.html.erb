@@ -4,7 +4,7 @@
       <select class='hidden edit-item' id='condition-edit' >
          <% Project.item_conditions.to_a.each do |p| %>
             <% sel = ""
-               sel = 'selected="selected"' if p[1] = project.item_condition %>
+               sel = 'selected=selected' if p[1] == project.item_condition %>
              <option value="<%= p[1] %>"><%= p[0] %></option>
          <% end %>
       </select>
