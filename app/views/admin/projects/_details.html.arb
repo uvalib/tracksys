@@ -1,50 +1,5 @@
 div :class => 'columns-none' do
    div :class => 'two-column' do
-      panel "Item Information" do
-         attributes_table_for project do
-            if project.unit.metadata.type=="SirsiMetadata"
-               row("Call Number") do |project|
-                  project.unit.metadata.call_number
-               end
-               row :viu_number, class: "viu_row" do |project|
-                  div do
-                     v = project.viu_number
-                     v = "<span class='empty'>Empty</span>" if v.blank?
-                     disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
-                     raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
-                  end
-                  if current_user == project.owner
-                     div class: "viu-button-bar" do
-                        span class: "project mf-action-button item edit-btn" do "Edit" end
-                        span class: "project mf-action-button hidden item save-btn"  do "Save" end
-                        span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
-                     end
-                  end
-               end
-               row("Location") do |project|
-                  project.unit.metadata.location
-               end
-            end
-            row("Title") do |project|
-               project.unit.metadata.title
-            end
-            row ("Special Instructions") do |project|
-               si = []
-               si << "#{project.order.special_instructions}" if !project.order.special_instructions.blank?
-               si << "#{project.unit.special_instructions}" if !project.unit.special_instructions.blank?
-               si << "None" if si.length == 0
-               raw("#{si.join('<br/>')}")
-            end
-            row :item_condition do |project|
-               project.item_condition
-            end
-            row ("Condition Notes") do |project|
-               project.condition_note
-            end
-         end
-      end
-   end
-   div :class => 'two-column' do
       panel "Order Information" do
          attributes_table_for project do
             row :project_name
@@ -63,6 +18,60 @@ div :class => 'columns-none' do
             end
             row :due_on do |project|
               format_date(project.due_on)
+            end
+         end
+      end
+   end
+
+   div :class => 'two-column' do
+      panel "Item Information" do
+         attributes_table_for project do
+            row :category do |p|
+               render partial: "category", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
+            end
+            if project.unit.metadata.type=="SirsiMetadata"
+               row("Call Number") do |project|
+                  project.unit.metadata.call_number
+               end
+               row :viu_number, class: "viu_row" do |project|
+                  div do
+                     v = project.viu_number
+                     v = "<span class='empty'>Empty</span>" if v.blank?
+                     disp = "<span class='disp-item' id='viu_number'>#{v}</span>"
+                     raw("#{disp}<input type='text' class='hidden edit-item' id='viu_number-edit' value='#{project.viu_number}'/>")
+                  end
+               end
+               row("Location") do |project|
+                  project.unit.metadata.location
+               end
+            end
+            row("Title") do |project|
+               project.unit.metadata.title
+            end
+            row ("Special Instructions") do |project|
+               si = []
+               si << "#{project.order.special_instructions}" if !project.order.special_instructions.blank?
+               si << "#{project.unit.special_instructions}" if !project.unit.special_instructions.blank?
+               si << "None" if si.length == 0
+               raw("#{si.join('<br/>')}")
+            end
+            row :item_condition do |project|
+               render partial: "condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
+            end
+            row ("Condition Notes") do |project|
+               div do
+                  v = project.condition_note
+                  v = "<span class='empty'>Empty</span>" if v.blank?
+                  disp = "<span class='disp-item' id='condition_note'>#{v}</span>"
+                  raw("#{disp}<textarea class='hidden edit-item' id='condition_note-edit'>#{project.condition_note}</textarea>")
+               end
+            end
+         end
+         if current_user == project.owner
+            div class: "mini-button-bar" do
+               span class: "project mf-action-button item edit-btn" do "Edit" end
+               span class: "project mf-action-button hidden item save-btn"  do "Save" end
+               span class: "project mf-action-button hidden item cancel-btn" do "Cancel" end
             end
          end
       end

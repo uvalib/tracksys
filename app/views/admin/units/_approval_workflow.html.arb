@@ -7,7 +7,7 @@ if unit.project.nil?
    end
    if !approved
       div class: "admin-button-note" do
-         "Cannot create project, unit has not been approved."
+         "Cannot create project, unit or order has not been approved."
       end
    elsif unit.metadata.blank?
       div class: "admin-button-note" do

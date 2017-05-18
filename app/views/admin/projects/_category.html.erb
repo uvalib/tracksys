@@ -1,0 +1,12 @@
+<div>
+   <span class='disp-item' id='category'><%= project.category.name %></span>
+   <% if admin %>
+      <select class='hidden edit-item' id='category-edit' >
+         <% Category.all.order(name: :asc).each do |c| %>
+            <% sel = ""
+               sel = 'selected="selected"' if c.id = project.category_id %>
+            <option <%= sel %> value="<%= c.id %>"><%= c.name %></option>
+         <% end %>
+      </select>
+   <% end %>
+</div>
