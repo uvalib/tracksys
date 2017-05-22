@@ -23,16 +23,16 @@ class Project < ActiveRecord::Base
    validates :due_on,  :presence => true
    validates :item_condition,  :presence => true
 
-   scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
-   scope :finished, ->{where("finished_at is not null").order(finished_at: :desc) }
+   scope :active, ->{where(finished_at: nil).reorder(due_on: :asc) }
+   scope :finished, ->{where("finished_at is not null").reorder(finished_at: :desc) }
    scope :failed_qa, ->{ joins("inner join steps s on current_step_id = s.id" ).where("step_type = 2") }
-   scope :bound, ->{active.where(category_id: 1).order(due_on: :asc) }
-   scope :flat, ->{active.where(category_id: 2).order(due_on: :asc) }
-   scope :film, ->{active.where(category_id: 3).order(due_on: :asc) }
-   scope :oversize, ->{active.where(category_id: 4).order(due_on: :asc) }
-   scope :special, ->{active.where(category_id: 5).order(due_on: :asc) }
-   scope :unassigned, ->{active.where(owner: nil).order(due_on: :asc) }
-   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).order(due_on: :asc) }
+   scope :bound, ->{active.where(category_id: 1).reorder(due_on: :asc) }
+   scope :flat, ->{active.where(category_id: 2).reorder(due_on: :asc) }
+   scope :film, ->{active.where(category_id: 3).reorder(due_on: :asc) }
+   scope :oversize, ->{active.where(category_id: 4).reorder(due_on: :asc) }
+   scope :special, ->{active.where(category_id: 5).reorder(due_on: :asc) }
+   scope :unassigned, ->{active.where(owner: nil).reorder(due_on: :asc) }
+   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).reorder(due_on: :asc) }
    scope :patron, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id <> 110")}
    scope :digital_collection_building, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id = 110")}
    scope :grant, ->{active

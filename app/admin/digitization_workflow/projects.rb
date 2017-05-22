@@ -1,6 +1,7 @@
 ActiveAdmin.register Project do
    menu :parent => "Digitization Workflow", :priority => 1, if: proc{ !current_user.viewer? }
    config.per_page = 10
+   config.sort_order = ""
 
    config.batch_actions = false
    config.clear_action_items!
