@@ -24,7 +24,7 @@ class Project < ActiveRecord::Base
    validates :item_condition,  :presence => true
 
    scope :active, ->{where(finished_at: nil).order(due_on: :asc) }
-   scope :finished, ->{where.not(finished_at: nil).order(finished_at: :desc) }
+   scope :finished, ->{where("finished_at is not null").order(finished_at: :desc) }
    scope :failed_qa, ->{ joins("inner join steps s on current_step_id = s.id" ).where("step_type = 2") }
    scope :bound, ->{active.where(category_id: 1).order(due_on: :asc) }
    scope :flat, ->{active.where(category_id: 2).order(due_on: :asc) }
