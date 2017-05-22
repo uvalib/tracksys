@@ -8,7 +8,8 @@ ActiveAdmin.register Project do
 
    # scope :active, :default =>true
    # scope ("Assigned to me") { |project| Project.active.where(owner: current_user) }
-   scope :active, :default => lambda{ !current_user.student? }
+   scope :active, :default => lambda{ current_user.admin? }
+   scope :ready_to_finalize, if: proc { !current_user.student?}, :default => lambda{ current_user.supervisor? }
    scope "Assigned to me", :default => lambda{ current_user.student? } { |project| Project.active.where(owner: current_user) }
 
    scope :unassigned

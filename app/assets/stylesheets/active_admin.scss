@@ -41,6 +41,11 @@ body.active_admin.admin_orders {
    }
 }
 
+li.scope.selected a {
+   background-color: #efeffc;
+   background-image: none;
+   color: #449;
+}
 #login-info.acting-as {
    right: 5px;
    top: -6px;

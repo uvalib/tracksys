@@ -47,6 +47,11 @@ class Project < ActiveRecord::Base
       Project.joins(q).where("projects.finished_at is null")
    end
 
+   def self.ready_to_finalize
+      q = "inner join steps on steps.id=current_step_id"
+      Project.joins(q).where("steps.name = 'Finalize'")
+   end
+
    before_create do
       self.added_at = Time.now
       self.current_step = self.workflow.first_step
