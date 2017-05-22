@@ -38,7 +38,6 @@ class Project < ActiveRecord::Base
    scope :grant, ->{active
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant" ')}
-   default_scope { order(added_at: :desc) }
 
    def self.has_error
       q = "inner join"
