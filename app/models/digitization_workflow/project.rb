@@ -57,19 +57,19 @@ class Project < ActiveRecord::Base
    end
 
    def bound?
-      return self.category.name == "Bound"
+      return !self.category.blank? && self.category.name == "Bound"
    end
    def flat?
-      return self.category.name == "Flat"
+      return !self.category.blank? && self.category.name == "Flat"
    end
    def film?
-      return self.category.name == "Film"
+      return !self.category.blank? && self.category.name == "Film"
    end
    def oversize?
-      return self.category.name == "Oversize"
+      return !self.category.blank? && self.category.name == "Oversize"
    end
    def special?
-      return self.category.name == "Special"
+      return !self.category.blank? && self.category.name == "Special"
    end
 
    def grant_funded?
