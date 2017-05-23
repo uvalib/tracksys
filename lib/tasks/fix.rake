@@ -31,6 +31,28 @@ namespace :fix do
       IntendedUse.find(111).update(is_approved: 0)    # sharing
    end
 
+   desc "Add parent setting for XML metadata that needs it"
+   task :xml_parent => :environment do
+      XmlMetadata.where(parent_metadata_id: 0).each do |m|
+         print "."
+         if m.master_files.count == 0
+            #puts "XmlMetadata #{m.id} has no master files. Skipping"
+            next
+         end
+         unit = m.master_files.first.unit
+         if unit.nil?
+            #puts "Unable to find unit for XmlMetadata #{m.id}"
+            next
+         end
+         if unit.metadata.id == m.id
+            #puts "XmlMetadata #{m.id} same as unit metadata. Don't set parent"
+            next
+         end
+         puts "XmlMetadata #{m.id}: set parent to #{unit.metadata.id}"
+         m.update(metadata_id: unit.metadata_id)
+      end
+   end
+
    desc "Migrate DPLA flag from unit metadata to XmlMetadata"
    task :xml_dpla => :environment do
       # Get all metadata flagged for inclusion in DPLA...
