@@ -25,8 +25,13 @@ class Step < ActiveRecord::Base
       Rails.logger.info "Validate start files for project #{project.id}, step #{project.current_step.id}"
       return false if !validate_start_dir(project)
 
-      # Automatically move files to destination directory
-      return move_files( project )
+      # Automatically move files to destination directory?
+      if self.start_dir != self.finish_dir
+         return move_files( project )
+      end
+
+      Rails.logger.info("No automatic file move needed; step is complete")
+      return true
    end
 
    private
@@ -50,11 +55,25 @@ class Step < ActiveRecord::Base
          return true
       end
 
-      # Base start directory is present, see if it also contains an output directory. If
-      # it does, use it as the directory to validate.
-      output_dir =  File.join(start_dir, "Output")
-      start_dir = output_dir if Dir.exists? output_dir
-      return validate_directory_content(project, start_dir)
+      # Base start directory is present; now handle special cases.
+      # In the first Scan step, there may be a CaptureOne session in progress. If this is
+      # the case, there will be a Capture directory present that is filled with IIQ files. Validate this.
+      # In the Process step, a CaptureOne session may also exists. In this case, there will be an Output
+      # directory present. Treat it as the start dir and validate.
+      capture_dir = File.join(start_dir, "Capture")
+      if self.name == "Scan" && Dir.exists?(capture_dir)
+         Rails.logger.info "Validate presence raw CaptureOne files"
+         if Dir[File.join(dir, '*.IIQ')].count == 0
+            step_failed(project, "<p>No raw files found in #{capture_dir}</p>")
+            return false
+         else
+            return true
+         end
+      else
+         output_dir =  File.join(start_dir, "Output")
+         start_dir = output_dir if Dir.exists? output_dir
+         return validate_directory_content(project, start_dir)
+      end
    end
 
    private
@@ -167,12 +186,6 @@ class Step < ActiveRecord::Base
    def move_files( project )
       src_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
       dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, project.unit.directory)
-
-      # No move needed; just validate directory
-      if self.start_dir == self.finish_dir
-         Rails.logger.info("No automatic move needed. Validating #{self.finish_dir}...")
-         return validate_finish_dir( project, dest_dir )
-      end
 
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
