@@ -63,7 +63,7 @@ class Step < ActiveRecord::Base
       capture_dir = File.join(start_dir, "Capture")
       if self.name == "Scan" && Dir.exists?(capture_dir)
          Rails.logger.info "Validate presence raw CaptureOne files"
-         if Dir[File.join(dir, '*.IIQ')].count == 0
+         if Dir[File.join(capture_dir, '*.IIQ')].count == 0
             step_failed(project, "<p>No raw files found in #{capture_dir}</p>")
             return false
          else
