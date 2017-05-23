@@ -25,7 +25,7 @@ namespace :fix do
    desc "Deactivate combine and create new intended uses"
    task :intended_use => :environment do
       IntendedUse.create(description: "Print Publication", is_internal_use_only: 0, is_approved: 1,
-         deliverable_format: "tiff", deliverable_resolution: "Highest Possible", deliverable_resolution_unit: "dpi")
+         deliverable_format: "tiff", deliverable_resolution: "Highest Possible")
       IntendedUse.find(107).update(is_approved: 0)    # academic print pub
       IntendedUse.find(108).update(is_approved: 0)    # non-academic print public
       IntendedUse.find(111).update(is_approved: 0)    # sharing
