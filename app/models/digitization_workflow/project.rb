@@ -22,6 +22,7 @@ class Project < ActiveRecord::Base
    validates :unit,  :presence => true
    validates :due_on,  :presence => true
    validates :item_condition,  :presence => true
+   validates :category,  :presence => true
 
    scope :active, ->{where(finished_at: nil).reorder(due_on: :asc) }
    scope :finished, ->{where("finished_at is not null").reorder(finished_at: :desc) }
