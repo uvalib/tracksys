@@ -4,7 +4,6 @@ class Metadata < ActiveRecord::Base
    # relationships
    #------------------------------------------------------------------
    belongs_to :availability_policy, :counter_cache => true
-   belongs_to :indexing_scenario, :counter_cache => true
    belongs_to :use_right, :counter_cache => true
 
    belongs_to :genre
@@ -38,6 +37,7 @@ class Metadata < ActiveRecord::Base
    # callbacks
    #------------------------------------------------------------------
    before_save do
+      self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
       self.is_approved = false if self.is_approved.nil?
       self.is_collection = false if self.is_collection.nil?
       self.is_manuscript = false if self.is_manuscript.nil?
@@ -124,14 +124,6 @@ class Metadata < ActiveRecord::Base
    end
 
    def publish_to_test
-      if self.indexing_scenario.blank?
-         if self.type == "XmlMetadata"
-            self.update(indexing_scenario_id: 2)
-         else
-            self.update(indexing_scenario_id: 1)
-         end
-      end
-
       xml = Hydra.solr( self )
       RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
    end
@@ -176,7 +168,6 @@ end
 #  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)
-#  indexing_scenario_id   :integer
 #  date_dl_ingest         :datetime
 #  date_dl_update         :datetime
 #  units_count            :integer          default(0)

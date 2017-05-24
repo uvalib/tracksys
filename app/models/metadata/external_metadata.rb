@@ -19,7 +19,6 @@
 #  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)
-#  indexing_scenario_id   :integer
 #  date_dl_ingest         :datetime
 #  date_dl_update         :datetime
 #  units_count            :integer          default(0)

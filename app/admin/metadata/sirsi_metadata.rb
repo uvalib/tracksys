@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :indexing_scenario_id, :parent_metadata_id
+      :collection_facet, :use_right_id
 
   config.clear_action_items!
 
@@ -157,7 +157,6 @@ ActiveAdmin.register SirsiMetadata do
           end
           row('Right Statement'){ |r| r.use_right.name }
           row :availability_policy
-          row :indexing_scenario
           row ("Discoverable?") do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.discoverability)
           end
@@ -219,9 +218,6 @@ ActiveAdmin.register SirsiMetadata do
         div :class => 'workflow_button' do
            button_to "Publish", "/admin/sirsi_metadata/#{sirsi_metadata.id}/publish", :method => :put
         end
-        div :class => 'workflow_button' do
-           button_to "Publish to Virgo Test", "/admin/sirsi_metadata/#{sirsi_metadata.id}/test_publish", :method => :put
-        end
      else
         "No options available.  Object is not in DL."
      end
@@ -250,15 +246,6 @@ ActiveAdmin.register SirsiMetadata do
 
     logger.info "SirsiMetadata #{metadata.id} has been flagged for an update in the DL"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"
-  end
-
-  # Publish immediately to test instance of Virgo
-  #
-  member_action :test_publish, :method => :put do
-    metadata = SirsiMetadata.find(params[:id])
-    metadata.publish_to_test
-    logger.info "SirsiMetadata #{metadata.pid} has been published to the test instance of Virgo"
-    redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
   end
 
   include ActionView::Helpers::TextHelper

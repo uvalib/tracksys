@@ -17,19 +17,22 @@ Step.connection.execute("truncate steps")
 Workstation.connection.execute("truncate workstations")
 Workstation.connection.execute("truncate workstation_equipment")
 Workflow.connection.execute("truncate workflows")
-ControlledVocabulary.connection.execute("truncate controlled_vocabularies")
 
-src = [{file: 'genres.txt', type: "Genre"}, {file: 'resource_types.txt', type: "ResourceType"}]
-src.each do |s|
-   txt = File.read(Rails.root.join('data', s[:file]))
-   txt.each_line do |v|
-      if s[:type] == "Genre"
-         Genre.create(name: v.strip)
-      else
-         ResourceType.create(name: v.strip)
-      end
-   end
-end
+# Note: these are added during the migration. Dont do it here too
+#
+# ControlledVocabulary.connection.execute("truncate controlled_vocabularies")
+#
+# src = [{file: 'genres.txt', type: "Genre"}, {file: 'resource_types.txt', type: "ResourceType"}]
+# src.each do |s|
+#    txt = File.read(Rails.root.join('data', s[:file]))
+#    txt.each_line do |v|
+#       if s[:type] == "Genre"
+#          Genre.create(name: v.strip)
+#       else
+#          ResourceType.create(name: v.strip)
+#       end
+#    end
+# end
 
 Workstation.create([{name: 'Jefferson'}, {name: 'Washington'}, {name: 'Lincoln'},
    {name: 'Roosevelt'}, {name: 'Cruse'}, {name: 'Flatbed Scanner'}, {name: 'Multispectral Scanner'}])

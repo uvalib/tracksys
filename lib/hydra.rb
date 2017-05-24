@@ -4,6 +4,8 @@ module Hydra
 
    # Create SOLR <add><doc> for metadata objects
    def self.solr(metadata)
+      raise "Not availble for SirsiMetadata records" if metadata.type!="XmlMetadata"
+      
       # init common parameter values
       payload = {}
       now_str = Time.now.strftime('%Y%m%d%H')
@@ -81,12 +83,10 @@ module Hydra
    end
 
    def self.servlet_transform(metadata, payload)
-      xform = "default"
-      if !metadata.indexing_scenario.blank? && metadata.indexing_scenario.id == 2
-         xform = "holsinger"
-      end
+      # TODO for now there is only 1 XML format supported (MODS) and one
+      # transform. When this changes, the code here will need to be updated
       payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=desc_metadata"
-      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/#{xform}"
+      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/holsinger"
       payload['clear-stylesheet-cache'] = "yes"
 
       uri = URI("http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet")
@@ -100,10 +100,9 @@ module Hydra
       tmp.write(Hydra.desc(metadata))
       tmp.close
 
-      xsl = File.join(Rails.root, "lib", "xslt", "defaultModsTransformation.xsl")
-      if !metadata.indexing_scenario.blank? && metadata.indexing_scenario.id == 2
-         xsl = File.join(Rails.root, "lib", "xslt", "holsingerTransformation.xsl")
-      end
+      # TODO for now there is only 1 XML format supported (MODS) and one
+      # transform. When this changes, the code here will need to be updated
+      xsl = File.join(Rails.root, "lib", "xslt", "holsingerTransformation.xsl")
       saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
 
       params = ""

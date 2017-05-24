@@ -10,7 +10,6 @@
        <%= f.input :availability_policy %>
        <%= f.input :discoverability, :as => :select %>
        <%= f.input :use_right, label: "Right Statement" %>
-       <%= f.input :indexing_scenario %>
        <%= f.input :dpla, :as => :radio %>
        <% if @xml_metadata.dpla %>
           <%= f.input :parent_metadata_id, :as => :select, :label=>"Parent Metadata",

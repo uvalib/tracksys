@@ -4,7 +4,7 @@ ActiveAdmin.register Component do
 
    # # strong paramters handling
    # permit_params :title, :content_desc, :date, :level, :label, :ead_id_att, :component_type_id,
-   #    :pid, :exemplar, :indexing_scenario_id, :desc_meta
+   #    :pid, :exemplar, :desc_meta
 
    #scope :all, :default => true
 
@@ -22,7 +22,6 @@ ActiveAdmin.register Component do
    filter :ead_id_att_starts_with , label: "EAD ID ATT"
    filter :pid_starts_with, label: "PID"
    filter :component_type
-   filter :indexing_scenario
 
    index do
       column :id
@@ -102,7 +101,6 @@ ActiveAdmin.register Component do
                      nil
                   end
                end
-               row :indexing_scenario
                row :discoverability do |component|
                   case component.discoverability
                   when false
@@ -227,7 +225,6 @@ ActiveAdmin.register Component do
       f.inputs "Digital Library Information", :class => 'inputs one-column' do
          f.input :pid, :as => :string, :input_html => {:disabled => true}
          f.input :exemplar, :as => :select
-         f.input :indexing_scenario
          f.input :desc_metadata, :input_html => {:rows => 5}
       end
 

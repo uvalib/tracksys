@@ -21,8 +21,10 @@ end
 div :class => 'two-column' do
   panel "Patron Request" do
     attributes_table_for unit do
-      row :intended_use do |unit|
-         unit.intended_use.description
+      if !unit.intended_use.nil?
+         row :intended_use do |unit|
+            unit.intended_use.description
+         end
       end
       row :intended_use_deliverable_format
       row :intended_use_deliverable_resolution

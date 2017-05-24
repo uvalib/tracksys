@@ -90,7 +90,7 @@ class BulkUploadXml < BaseJob
                # This Master file is still associated with the original unit metadata.
                # Create a new metadata record based on the XML and associate it with the masterfile
                metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: orig_metadata.is_approved,
-                  discoverability: settings[:discoverability], indexing_scenario_id: 2,
+                  discoverability: settings[:discoverability], 
                   desc_metadata: xml_str, use_right: settings[:rights],
                   availability_policy: settings[:availability],
                   creator_name: creator, exemplar: mf.filename,

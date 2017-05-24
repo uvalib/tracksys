@@ -66,7 +66,7 @@ class CheckUnitDeliveryMode < BaseJob
       if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description != "Digital Collection Building"
          has_deliverables = true
          mode = "both"
-         on_success("Unit #{unit.id} requires the creation of patron deliverables.")
+         on_success("Unit #{unit.id} requires the creation of patron and DL deliverables.")
          CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
       end
 

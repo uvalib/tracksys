@@ -6,7 +6,7 @@ ActiveAdmin.register XmlMetadata do
    permit_params :title, :creator_name,
        :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :indexing_scenario_id, :desc_metadata, :dpla, :parent_metadata_id
+       :collection_facet, :use_right_id, :desc_metadata, :dpla
 
    config.clear_action_items!
 
@@ -97,7 +97,6 @@ ActiveAdmin.register XmlMetadata do
            end
            row('Right Statement'){ |r| r.use_right.name }
            row :availability_policy
-           row :indexing_scenario
            row ("Discoverable?") do |sirsi_metadata|
              format_boolean_as_yes_no(sirsi_metadata.discoverability)
            end

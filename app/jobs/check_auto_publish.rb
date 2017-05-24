@@ -29,10 +29,6 @@ class CheckAutoPublish < BaseJob
       if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
          logger.info "Unit #{unit.id} is a candidate for auto-publishing."
          # year is set and it is before 1923. Good to go for Autopublish.
-         # Ensure indexing and availability are all set correctly
-         if sirsi_meta.indexing_scenario.nil?
-            sirsi_meta.update(indexing_scenario_id: 1)
-         end
          if sirsi_meta.availability_policy.nil?
             sirsi_meta.update(availability_policy_id: 1)
          end

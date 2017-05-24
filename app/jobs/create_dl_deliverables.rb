@@ -15,10 +15,6 @@ class CreateDlDeliverables < BaseJob
       if metadata.discoverability.nil?
          on_error "Metadata #{metadata.id} for Unit #{unit.id} has no discoverability value.  Please fill in and restart ingestion."
       end
-      if metadata.indexing_scenario.nil?
-         metadata.update(indexing_scenario: IndexingScenario.find(1) )
-         logger.info "Metadata #{metadata.id} for Unit #{unit.id} has no indexing scenario selected so it is assumed to use the default scenario."
-      end
 
       # All ingestable objects have a date_dl_ingest attribute which can be updated at this time.
       # Also, send all masterfiles to IIIF server (this is the generation of DL deliverables)
@@ -36,7 +32,7 @@ class CreateDlDeliverables < BaseJob
       unit.update(date_dl_deliverables_ready: Time.now)
       logger.info "Unit #{unit.id} is ready for ingestion into the DL."
 
-      if source.match("#{FINALIZATION_DIR_MIGRATION}") or source.match("#{FINALIZATION_DIR_PRODUCTION}")
+      if source.match("#{FINALIZATION_DIR_PRODUCTION}")
          del_dir = File.dirname(source)
          logger().debug("Removing processing directory #{del_dir}/...")
          FileUtils.rm_rf(del_dir)

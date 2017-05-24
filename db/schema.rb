@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170510151519) do
+ActiveRecord::Schema.define(version: 20170512173844) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -150,7 +150,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
     t.datetime "updated_at"
     t.text     "desc_metadata",           limit: 65535
     t.boolean  "discoverability",                       default: true
-    t.integer  "indexing_scenario_id",    limit: 4
     t.text     "level",                   limit: 65535
     t.string   "ead_id_att",              limit: 255
     t.datetime "date_dl_ingest"
@@ -166,7 +165,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
   add_index "components", ["ancestry"], name: "index_components_on_ancestry", using: :btree
   add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
   add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
-  add_index "components", ["indexing_scenario_id"], name: "index_components_on_indexing_scenario_id", using: :btree
   add_index "components", ["pid"], name: "index_components_on_pid", using: :btree
 
   create_table "customers", force: :cascade do |t|
@@ -250,14 +248,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
   end
 
   add_index "image_tech_meta", ["master_file_id"], name: "index_image_tech_meta_on_master_file_id", using: :btree
-
-  create_table "indexing_scenarios", force: :cascade do |t|
-    t.string   "name",             limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "metadata_count",   limit: 4,   default: 0
-    t.integer  "components_count", limit: 4,   default: 0
-  end
 
   create_table "intended_uses", force: :cascade do |t|
     t.string   "description",            limit: 255
@@ -354,7 +344,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
     t.integer  "parent_metadata_id",     limit: 4,     default: 0,               null: false
     t.text     "desc_metadata",          limit: 65535
     t.boolean  "discoverability",                      default: true
-    t.integer  "indexing_scenario_id",   limit: 4
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer  "units_count",            limit: 4,     default: 0
@@ -377,7 +366,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
   add_index "metadata", ["catalog_key"], name: "index_metadata_on_catalog_key", using: :btree
   add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
   add_index "metadata", ["genre_id"], name: "index_metadata_on_genre_id", using: :btree
-  add_index "metadata", ["indexing_scenario_id"], name: "index_metadata_on_indexing_scenario_id", using: :btree
   add_index "metadata", ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id", using: :btree
   add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
   add_index "metadata", ["resource_type_id"], name: "index_metadata_on_resource_type_id", using: :btree
@@ -607,7 +595,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
 
   add_foreign_key "attachments", "units"
   add_foreign_key "components", "component_types", name: "components_component_type_id_fk"
-  add_foreign_key "components", "indexing_scenarios", name: "components_indexing_scenario_id_fk"
   add_foreign_key "customers", "academic_statuses", name: "customers_academic_status_id_fk"
   add_foreign_key "customers", "departments", name: "customers_department_id_fk"
   add_foreign_key "image_tech_meta", "master_files", name: "image_tech_meta_master_file_id_fk"
@@ -615,7 +602,6 @@ ActiveRecord::Schema.define(version: 20170510151519) do
   add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
   add_foreign_key "metadata", "availability_policies", name: "bibls_availability_policy_id_fk"
-  add_foreign_key "metadata", "indexing_scenarios", name: "bibls_indexing_scenario_id_fk"
   add_foreign_key "metadata", "use_rights", name: "bibls_use_right_id_fk"
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"

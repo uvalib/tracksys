@@ -6,7 +6,6 @@ class Component < ActiveRecord::Base
    # relationships
    #------------------------------------------------------------------
    belongs_to :component_type, :counter_cache => true
-   belongs_to :indexing_scenario, :counter_cache => true
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_many :master_files
@@ -235,7 +234,6 @@ end
 #  updated_at              :datetime
 #  desc_metadata           :text(65535)
 #  discoverability         :boolean          default(TRUE)
-#  indexing_scenario_id    :integer
 #  level                   :text(65535)
 #  ead_id_att              :string(255)
 #  date_dl_ingest          :datetime

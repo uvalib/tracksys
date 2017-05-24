@@ -107,7 +107,7 @@ ActiveAdmin.register Unit do
          format_date(unit.date_dl_deliverables_ready)
       end
       column :intended_use do |unit|
-         unit.intended_use.description
+         unit.intended_use.description if !unit.intended_use.nil?
       end
       column("Master Files") do |unit|
          link_to unit.master_files_count, admin_master_files_path(:q => {:unit_id_eq => unit.id})
@@ -170,7 +170,8 @@ ActiveAdmin.register Unit do
       render "delivery_workflow", :context=>self
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl?) } do
+   sidebar "Digital Library Workflow", :only => [:show],
+      if: proc{ !current_user.viewer? && !current_user.student? && unit.has_xml_masterfiles? && (unit.ready_for_repo? || unit.in_dl? ) } do
       render "dl_workflow", :context=>self
    end
 
