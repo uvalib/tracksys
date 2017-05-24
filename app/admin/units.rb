@@ -296,9 +296,11 @@ ActiveAdmin.register Unit do
       ic = params[:condition]
       note = params[:notes]
       t = Project.new(workflow: w, unit: u, priority: params[:priority].to_i,
-      item_condition: ic.to_i, condition_note: note,
-      category: c, due_on: params[:due])
+         item_condition: ic.to_i, condition_note: note,
+         category: c, due_on: params[:due])
       if t.save
+         msg = "Project created"
+         AuditEvent.create(auditable: t, event: AuditEvent.events[:project_create], staff_member: current_user, details: msg)
          render text: t.id, status: :ok
       else
          render text: t.errors.full_messages.to_sentence, status: :error
