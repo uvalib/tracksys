@@ -1,6 +1,6 @@
 <div>
-   <span class='disp-item' id='category'><%= project.category.name if !project.category.blank? %></span>
    <% if admin %>
+      <span class='disp-item' id='category'><%= project.category.name if !project.category.blank? %></span>
       <select class='hidden edit-item' id='category-edit' >
          <% Category.all.order(name: :asc).each do |c| %>
             <% sel = ""
@@ -8,5 +8,7 @@
             <option <%= sel %> value="<%= c.id %>"><%= c.name %></option>
          <% end %>
       </select>
+   <% else %>
+      <span><%= project.category.name if !project.category.blank? %></span>
    <% end %>
 </div>

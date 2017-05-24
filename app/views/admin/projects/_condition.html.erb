@@ -1,6 +1,6 @@
 <div>
-   <span class='disp-item' id='condition'><%= project.item_condition %></span>
-   <% if admin %>
+   <% if admin  %>
+      <span class='disp-item' id='condition'><%= project.item_condition %></span>
       <select class='hidden edit-item' id='condition-edit' >
          <% Project.item_conditions.to_a.each do |p| %>
             <% sel = ""
@@ -8,5 +8,7 @@
              <option value="<%= p[1] %>"><%= p[0] %></option>
          <% end %>
       </select>
+   <% else %>
+      <span><%= project.item_condition %></span>
    <% end %>
 </div>

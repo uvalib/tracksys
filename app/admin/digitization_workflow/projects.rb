@@ -226,8 +226,13 @@ ActiveAdmin.register Project do
             render json: {html: html}, status: :ok
          end
       else
-         if project.update(category_id: params[:category], item_condition: params[:item_condition].to_i,
-                           condition_note: params[:condition_note], viu_number: params[:viu_number] )
+         if params[:category]
+            resp = project.update(category_id: params[:category], item_condition: params[:item_condition].to_i,
+                                  condition_note: params[:condition_note], viu_number: params[:viu_number] )
+         else
+            resp = project.update(viu_number: params[:viu_number] )
+         end
+         if resp
             render nothing:true
          else
             render text: project.errors.full_messages.to_sentence, status: :error

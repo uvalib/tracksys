@@ -62,8 +62,12 @@ div :class => 'columns-none' do
                div do
                   v = project.condition_note
                   v = "<span class='empty'>Empty</span>" if v.blank?
-                  disp = "<span class='disp-item' id='condition_note'>#{v}</span>"
-                  raw("#{disp}<textarea class='hidden edit-item' id='condition_note-edit'>#{project.condition_note}</textarea>")
+                  if current_user.admin? || current_user.supervisor?
+                     disp = "<span class='disp-item' id='condition_note'>#{v}</span>"
+                     raw("#{disp}<textarea class='hidden edit-item' id='condition_note-edit'>#{project.condition_note}</textarea>")
+                  else
+                     raw(v)
+                  end
                end
             end
          end
