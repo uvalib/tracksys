@@ -19,8 +19,8 @@ ActiveAdmin.register Component do
 
    filter :title_or_content_desc_contains, label: "Title / Description"
    filter :date_contains, label: "Date"
-   filter :ead_id_att_starts_with , label: "EAD ID ATT"
-   filter :pid_starts_with, label: "PID"
+   filter :ead_id_att_contains , label: "EAD ID ATT"
+   filter :pid_contains, label: "PID"
    filter :component_type
 
    index do
