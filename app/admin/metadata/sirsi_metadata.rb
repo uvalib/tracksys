@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id
+      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id, :ocr_hint_id
 
   config.clear_action_items!
 
@@ -134,6 +134,7 @@ ActiveAdmin.register SirsiMetadata do
           end
           row :resource_type
           row :genre
+          row :ocr_hint
           row ("Date Created") do |sirsi_metadata|
             sirsi_metadata.created_at
           end

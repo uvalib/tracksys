@@ -6,6 +6,7 @@ class Metadata < ActiveRecord::Base
    belongs_to :availability_policy, :counter_cache => true
    belongs_to :use_right, :counter_cache => true
 
+   belongs_to :ocr_hint
    belongs_to :genre
    belongs_to :resource_type
 

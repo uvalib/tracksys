@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170613131645) do
+ActiveRecord::Schema.define(version: 20170613174425) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -361,6 +361,7 @@ ActiveRecord::Schema.define(version: 20170613131645) do
     t.string   "collection_id",          limit: 255
     t.string   "box_id",                 limit: 255
     t.string   "folder_id",              limit: 255
+    t.integer  "ocr_hint_id",            limit: 4
   end
 
   add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
@@ -369,6 +370,7 @@ ActiveRecord::Schema.define(version: 20170613131645) do
   add_index "metadata", ["catalog_key"], name: "index_metadata_on_catalog_key", using: :btree
   add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
   add_index "metadata", ["genre_id"], name: "index_metadata_on_genre_id", using: :btree
+  add_index "metadata", ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id", using: :btree
   add_index "metadata", ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id", using: :btree
   add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
   add_index "metadata", ["resource_type_id"], name: "index_metadata_on_resource_type_id", using: :btree
@@ -389,6 +391,11 @@ ActiveRecord::Schema.define(version: 20170613131645) do
   add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
   add_index "notes", ["staff_member_id"], name: "index_notes_on_staff_member_id", using: :btree
   add_index "notes", ["step_id"], name: "index_notes_on_step_id", using: :btree
+
+  create_table "ocr_hints", force: :cascade do |t|
+    t.string  "name",          limit: 255
+    t.boolean "ocr_candidate",             default: true
+  end
 
   create_table "orders", force: :cascade do |t|
     t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
@@ -605,6 +612,7 @@ ActiveRecord::Schema.define(version: 20170613131645) do
   add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
   add_foreign_key "metadata", "availability_policies", name: "bibls_availability_policy_id_fk"
+  add_foreign_key "metadata", "ocr_hints"
   add_foreign_key "metadata", "use_rights", name: "bibls_use_right_id_fk"
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"

@@ -6,7 +6,8 @@ ActiveAdmin.register XmlMetadata do
    permit_params :title, :creator_name,
        :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :desc_metadata, :dpla, :collection_id, :box_id, :folder_id
+       :collection_facet, :use_right_id, :desc_metadata, :dpla,
+       :collection_id, :box_id, :folder_id, :ocr_hint_id
 
    config.clear_action_items!
 
@@ -99,7 +100,7 @@ ActiveAdmin.register XmlMetadata do
            row :availability_policy
            row ("Discoverable?") do |sirsi_metadata|
              format_boolean_as_yes_no(sirsi_metadata.discoverability)
-           end
+          end
            row :collection_facet
            row :date_dl_ingest
            row :date_dl_update
@@ -133,6 +134,7 @@ ActiveAdmin.register XmlMetadata do
           end
            row :resource_type
            row :genre
+           row :ocr_hint
            row ("Date Created") do |xml_metadata|
              xml_metadata.created_at
            end

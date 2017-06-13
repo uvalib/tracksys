@@ -66,7 +66,7 @@
                <% url = "sirsi_metadata"
                   url = "xml_metadata" if project.unit.metadata.type=="XmlMetadata" %>
                <td class="label">Title:</td>
-               <td><a href="/admin/<%= url %>/<%=project.customer.id%>"><%= project.unit.metadata.title.truncate(50, separator: ' ') %></a></td>
+               <td><a href="/admin/<%= url %>/<%=project.unit.metadata.id%>"><%= project.unit.metadata.title.truncate(50, separator: ' ') %></a></td>
             </tr>
             <% if project.unit.metadata.type=="SirsiMetadata" %>
                <tr>

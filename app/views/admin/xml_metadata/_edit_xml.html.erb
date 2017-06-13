@@ -42,6 +42,7 @@
       <%= f.input :is_collection, :as => :radio, label: "Collection?" %>
       <%= f.input :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :genre, :as => :select, :collection => Genre.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
    <% end %>
 
    <%= f.inputs "XML Metadata", :class => 'columns-none panel', :style=>"margin-top:15px" do %>
