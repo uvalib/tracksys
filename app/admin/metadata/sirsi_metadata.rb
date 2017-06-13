@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id
+      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id
 
   config.clear_action_items!
 
@@ -261,7 +261,9 @@ ActiveAdmin.register SirsiMetadata do
       before_filter :get_sirsi, only: [:edit, :show]
       def get_sirsi
          @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
-            title: resource.title, creator_name: resource.creator_name, call_number: resource.call_number }
+            title: resource.title, creator_name: resource.creator_name,
+            call_number: resource.call_number
+          }
          if !resource.catalog_key.blank? || !resource.barcode.blank?
             begin
                @sirsi_meta =  Virgo.external_lookup(resource.catalog_key, resource.barcode)
@@ -269,6 +271,13 @@ ActiveAdmin.register SirsiMetadata do
                @sirsi_meta = { invalid: true, catalog_key: resource.catalog_key, barcode: resource.barcode }
             end
          end
+         if !resource.collection_id.blank?
+            @sirsi_meta[:collection_id] = resource.collection_id
+         else
+            resource.update(collection_id: @sirsi_meta[:collection_id])
+         end
+         @sirsi_meta[:box_id] = resource.box_id
+         @sirsi_meta[:folder_id] = resource.folder_id
       end
       before_filter :blank_sirsi, only: [:new ]
       def blank_sirsi

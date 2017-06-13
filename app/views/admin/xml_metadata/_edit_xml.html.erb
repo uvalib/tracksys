@@ -33,6 +33,9 @@
    <% end %>
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
+      <%= f.input :collection_id, label: "Collection ID" %>
+      <%= f.input :box_id, label: "Box Number" %>
+      <%= f.input :folder_id, label: "Folder Number" %>
       <%= f.input :is_approved, :as => :radio, label: "Approved?" %>
       <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
       <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>

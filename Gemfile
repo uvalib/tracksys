@@ -1,7 +1,8 @@
 source 'http://rubygems.org'
 
 gem 'rails', '4.2.8'
-gem 'thin'
+# gem 'thin'
+gem 'puma', '~> 3.7'
 
 gem 'activeadmin', '~> 1.0'
 gem 'passenger', '5.0.28'

@@ -6,7 +6,7 @@ ActiveAdmin.register XmlMetadata do
    permit_params :title, :creator_name,
        :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :desc_metadata, :dpla
+       :collection_facet, :use_right_id, :desc_metadata, :dpla, :collection_id, :box_id, :folder_id
 
    config.clear_action_items!
 
@@ -110,7 +110,15 @@ ActiveAdmin.register XmlMetadata do
      div :class => 'two-column' do
        panel "Administrative Information" do
          attributes_table_for xml_metadata do
-           row :id
+           row("Collection ID") do |xml_metadata|
+             xml_metadata.collection_id
+           end
+           row ("Box Number") do |xml_metadata|
+             xml_metadata.box_id
+           end
+           row ("Folder Number") do |xml_metadata|
+             xml_metadata.folder_id
+           end
            row "Approved?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_approved)
            end
@@ -122,7 +130,7 @@ ActiveAdmin.register XmlMetadata do
            end
            row "Collection?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_collection)
-           end
+          end
            row :resource_type
            row :genre
            row ("Date Created") do |xml_metadata|

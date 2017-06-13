@@ -155,6 +155,9 @@ $(function() {
       $("#sirsi_metadata_title").val( metadata.title );
       $("#sirsi_metadata_creator_name").val( metadata.creator_name );
       $("#sirsi_metadata_call_number").val( metadata.call_number );
+      if ( $("#sirsi_metadata_collection_id").val().length === 0 ) {
+         $("#sirsi_metadata_collection_id").val( metadata.collection_id);
+      }
 
       // auto-set the is_manuscript flag id call number looks like MSS or RG-
       if ( metadata.call_number.trim().indexOf("MSS") === 0 || metadata.call_number.trim().indexOf("RG-") === 0) {

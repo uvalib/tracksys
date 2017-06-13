@@ -426,6 +426,16 @@ module Virgo
           metadata[:location] = barcodes[barcode]['location']
         end
       end
+
+      # See if there is any collection ID info.
+      # This field should be automatically generated using the 852c field from the marc record,
+      # or failing that, should fall back to presenting the value selected for the "call number" field.
+      marc852c = marc_record.xpath("datafield[@tag='852']/subfield[@code='c']").first
+      if marc852c && marc852c.text
+         metadata[:collection_id] = marc852c.text
+      else
+         metadata[:collection_id] = metadata[:call_number]
+      end
     end  # END if marc_record
 
     return metadata

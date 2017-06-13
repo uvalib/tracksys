@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170512173844) do
+ActiveRecord::Schema.define(version: 20170613131645) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -358,6 +358,9 @@ ActiveRecord::Schema.define(version: 20170512173844) do
     t.string   "supplemental_uri",       limit: 255
     t.integer  "genre_id",               limit: 4
     t.integer  "resource_type_id",       limit: 4
+    t.string   "collection_id",          limit: 255
+    t.string   "box_id",                 limit: 255
+    t.string   "folder_id",              limit: 255
   end
 
   add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
