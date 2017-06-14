@@ -14,6 +14,12 @@ class SendUnitToArchive < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
 
+      if unit.throw_away
+         logger.info "This unit has been flagged as a throw-away scan and will not be set to the archive."
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
+         return
+      end
+
       # Create array to hold all created directories so they can be removed after the process is complete
       created_dirs = Array.new
       error_count = 0

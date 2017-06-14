@@ -61,6 +61,12 @@ body.active_admin {
    #copy-existing {
       margin-top: 10px;
    }
+   div.throw-away-note {
+      margin: 5px 50px 0 10px;
+      font-size: 0.85em;
+      font-style: italic;
+      color: #999;
+   }
    div.flashes div.flash.flash_notice {
       background-image: none;
       border-bottom: none;

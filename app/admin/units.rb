@@ -8,7 +8,7 @@ ActiveAdmin.register Unit do
    permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
       :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
       :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
-      :include_in_dl, :date_dl_deliverables_ready
+      :include_in_dl, :date_dl_deliverables_ready, :throw_away
 
    scope :all, :default => true
    scope :approved

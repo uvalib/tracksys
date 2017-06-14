@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170613174425) do
+ActiveRecord::Schema.define(version: 20170614170628) do
 
   create_table "academic_statuses", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -561,6 +561,7 @@ ActiveRecord::Schema.define(version: 20170613174425) do
     t.integer  "master_files_count",             limit: 4,     default: 0
     t.boolean  "complete_scan",                                default: false
     t.boolean  "reorder",                                      default: false
+    t.boolean  "throw_away",                                   default: false
   end
 
   add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
