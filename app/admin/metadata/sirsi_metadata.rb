@@ -35,6 +35,9 @@ ActiveAdmin.register SirsiMetadata do
   filter :creator_name_starts_with, label: "Creator name"
   filter :catalog_key_starts_with, label: "Catalog key"
   filter :pid_starts_with, label: "PID"
+  filter :collection_id_contains, label: "Collection ID"
+  filter :box_id_contains, label: "Box Number"
+  filter :folder_id_contains, label: "Folder Number"
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'

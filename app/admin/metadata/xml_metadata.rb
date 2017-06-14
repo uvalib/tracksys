@@ -34,6 +34,9 @@ ActiveAdmin.register XmlMetadata do
    #
    filter :title_contains, label: "Title"
    filter :pid_starts_with, label: "PID"
+   filter :collection_id_contains, label: "Collection ID"
+   filter :box_id_contains, label: "Box Number"
+   filter :folder_id_contains, label: "Folder Number"
    filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
