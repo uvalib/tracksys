@@ -1,0 +1,15 @@
+<div>
+   <% if project.unit.metadata.ocr_hint.blank? %>
+      <span class="disp-item empty" id='ocr-hint'>Empty</span>
+   <% else %>
+      <span class='disp-item' id='ocr-hint'><%= project.unit.metadata.ocr_hint.name %></span>
+   <% end %>
+   <select class='hidden edit-item' id='ocr-hint-edit' >
+       <option>Select an OCR Hint</option>
+      <% OcrHint.all.each do |p| %>
+         <% sel = ""
+            sel = 'selected=selected' if p.id == project.unit.metadata.ocr_hint_id %>
+          <option value="<%= p.id %>"><%= p.name %></option>
+      <% end %>
+   </select>
+</div>

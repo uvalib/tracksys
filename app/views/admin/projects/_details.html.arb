@@ -55,6 +55,9 @@ div :class => 'columns-none' do
                si << "None" if si.length == 0
                raw("#{si.join('<br/>')}")
             end
+            row ("OCR Hint") do |project|
+               render partial: "ocr_hint", locals: {project: project}
+            end
             row :item_condition do |project|
                render partial: "condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
             end

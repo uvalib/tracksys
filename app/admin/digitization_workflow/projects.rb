@@ -126,8 +126,10 @@ ActiveAdmin.register Project do
             raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
          end
          render partial: 'time_entry', locals: {project: project}
-         if project.workstation.nil? && project.workflow.name != "Clone"
-            div class: 'equipment-note' do "Assignment cannot be finished until the workstation has been set." end
+         if (project.workstation.nil? || project.unit.metadata.ocr_hint) && project.workflow.name != "Clone"
+            div class: 'equipment-note' do
+               "Assignment cannot be finished until the workstation and OCR hint has been set."
+            end
          end
          if !project.current_step.fail_step.nil?
             div :class => 'workflow_button project' do
@@ -231,6 +233,9 @@ ActiveAdmin.register Project do
                                   condition_note: params[:condition_note], viu_number: params[:viu_number] )
          else
             resp = project.update(viu_number: params[:viu_number] )
+         end
+         if params[:ocr_hint_id]
+            project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
          end
          if resp
             render nothing:true

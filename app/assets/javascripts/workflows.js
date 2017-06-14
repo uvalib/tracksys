@@ -360,8 +360,11 @@ $(function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("item")) {
          tgtClass = "item";
-         data = {category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
-                 item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val()};
+         data = {
+            category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
+            item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val(),
+            ocr_hint_id: $("#ocr-hint-edit").val()
+         };
       } else {
          data =  { camera: true,
             workstation: $("#workstation-edit").val(), capture_resolution: $("#capture_resolution-edit").val(),
@@ -389,15 +392,21 @@ $(function() {
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
-                  if ( $("#start-assignment-btn").hasClass("disabled") ) {
-                     $("#finish-assignment-btn").removeClass("disabled");
-                  }
-                  $("div.equipment-note").hide();
                } else {
                   $("#viu_number").text( data.viu_number );
                   $("#category").text( $("#category-edit option:selected").text() );
                   $("#condition").text( $("#condition-edit option:selected").text() );
                   $("#condition_note").text( data.condition_note  );
+                  $("#ocr-hint").text( $("#ocr-hint-edit option:selected").text() );
+                  $("#ocr-hint").removeClass("empty");
+               }
+
+               // if requirements met, enable finish and hide note
+               if ( !$("#ocr-hint").hasClass("empty") && $("#workstation .empty").length === 0 ) {
+                  if ( $("#start-assignment-btn").hasClass("disabled") ) {
+                     $("#finish-assignment-btn").removeClass("disabled");
+                  }
+                  $("div.equipment-note").hide();
                }
             }
          }
