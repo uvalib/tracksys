@@ -35,6 +35,10 @@ ActiveAdmin.register Project do
    filter :due_on
    filter :added_at
 
+   action_item :delete, only: :show do
+      link_to "Delete", "/admin/projects/#{resource.id}", method: :delete, data: {confirm: "Delete this project? All data will be lost. Contine?"} if current_user.admin?
+   end
+
 
    # INDEX page ===============================================================
    #
@@ -270,7 +274,7 @@ ActiveAdmin.register Project do
       end
       begin
          project.assign_to(user)
-         logger.info("Project[#{project.id}] assigned to staff_member[#{user.id}]: #{user.computing_id} ")
+         logger.info("Project[#{project.id}] assigned to staff_member[#{user.id}]: #{user.computing_id} by #{current_user.computing_id}")
          render json: {id: user.id, name: "#{user.full_name} (#{user.computing_id})"}, status: :ok
       rescue Exception=>e
          logger.error("Assign project FAILED: #{e.class.name} - #{e.message}}")

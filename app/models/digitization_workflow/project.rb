@@ -13,10 +13,10 @@ class Project < ActiveRecord::Base
    has_one :customer, :through => :order
    has_one :order, :through => :unit
 
-   has_and_belongs_to_many :equipment, :join_table=>:project_equipment
+   has_and_belongs_to_many :equipment, :join_table=>:project_equipment,  :dependent=>:destroy
 
-   has_many :assignments
-   has_many :notes
+   has_many :assignments,  :dependent=>:destroy
+   has_many :notes,  :dependent=>:destroy
 
    validates :workflow,  :presence => true
    validates :unit,  :presence => true

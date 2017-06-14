@@ -31,6 +31,7 @@ ActiveAdmin.register Unit do
    filter :department, :as => :select
    filter :reorder, :as => :select
    filter :complete_scan, :as => :select
+   filter :master_files_count, :as => :numeric
 
    csv do
       column :id
