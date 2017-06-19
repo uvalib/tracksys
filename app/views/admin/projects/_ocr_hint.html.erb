@@ -9,7 +9,7 @@
       <% OcrHint.all.each do |p| %>
          <% sel = ""
             sel = 'selected=selected' if p.id == project.unit.metadata.ocr_hint_id %>
-          <option value="<%= p.id %>"><%= p.name %></option>
+          <option <%= sel %> value="<%= p.id %>"><%= p.name %></option>
       <% end %>
    </select>
 </div>
