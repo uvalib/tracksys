@@ -38,7 +38,7 @@ class Project < ActiveRecord::Base
    scope :digital_collection_building, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id = 110")}
    scope :grant, ->{active
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
-      .where('a.name like "% grant" ')}
+      .where('a.name like "% grant%" ')}
 
    def self.has_error
       q = "inner join"

@@ -244,6 +244,12 @@ ActiveAdmin.register Unit do
       render json: out, status: :ok
    end
 
+   member_action :finalize_raw_images do
+      FinalizeUnit.exec( {unit_id: params[:id]} )
+      flash[:notice] = "Finalizing unit"
+      redirect_to "/admin/units/#{params[:id]}"
+   end
+
    member_action :start_manual_upload_to_archive do
       unit = Unit.find(params[:id])
       StartManualUploadToArchive.exec( {unit_id: params[:id], :user_id => current_user.id} )
