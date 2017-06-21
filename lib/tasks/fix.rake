@@ -49,7 +49,7 @@ namespace :fix do
             next
          end
          puts "XmlMetadata #{m.id}: set parent to #{unit.metadata.id}"
-         m.update(metadata_id: unit.metadata_id)
+         m.update(parent_metadata_id: unit.metadata_id)
       end
    end
 

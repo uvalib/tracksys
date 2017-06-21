@@ -1,0 +1,17 @@
+Items going into the DPLA are grouped into collections. There are currently 6 of these:
+
+ 3002: Negatives from the Charlottesville photographic studio plus an index volume
+ 3009: University of Virginia Visual History Collection
+ 3109: Papers and photographs of Jackson Davis
+ 6405: Cecil Lang Collection of Vanity Fair Illustrations
+15784: DPLA Collection Record for UVA Digital Library Text Collections
+18587: UVA Digital Library Manuscript Collections
+
+The SQL to find such records:
+select distinct parent_metadata_id from metadata where parent_metadata_id>0 and dpla = 1;
+
+There is also one outlier that is included in DPLA / DL that is not in one of the above:
+
+58765: The Bowery News
+
+

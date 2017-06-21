@@ -2,7 +2,7 @@ require "#{Rails.root}/app/helpers/dpla_helper"
 include DplaHelper
 
 namespace :dpla do
-   desc "Generate DPLA METS/MODS for a parent bibl ID"
+   desc "Generate DPLA METS/MODS for a parent metadata ID"
    task :generate  => :environment do
       id = ENV['id']
       abort("id is required") if id.nil?
