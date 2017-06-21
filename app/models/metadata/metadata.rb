@@ -40,7 +40,6 @@ class Metadata < ActiveRecord::Base
    before_save do
       self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
       self.is_approved = false if self.is_approved.nil?
-      self.is_collection = false if self.is_collection.nil?
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
       self.discoverability = true if self.discoverability.nil?
@@ -156,7 +155,6 @@ end
 #  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
 #  is_manuscript          :boolean          default(FALSE), not null
-#  is_collection          :boolean          default(FALSE), not null
 #  title                  :text(65535)
 #  creator_name           :string(255)
 #  catalog_key            :string(255)

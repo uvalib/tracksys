@@ -4,7 +4,7 @@ ActiveAdmin.register SirsiMetadata do
 
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
-      :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
+      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id, :ocr_hint_id
 
@@ -131,9 +131,6 @@ ActiveAdmin.register SirsiMetadata do
           end
           row "Manuscript or unpublished item?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_manuscript)
-          end
-          row "Collection?" do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.is_collection)
           end
           row :resource_type
           row :genre

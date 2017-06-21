@@ -4,7 +4,7 @@ ActiveAdmin.register XmlMetadata do
 
    # strong paramters handling
    permit_params :title, :creator_name,
-       :is_approved, :is_personal_item, :is_manuscript, :is_collection, :resource_type_id, :genre_id,
+       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
        :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
        :collection_facet, :use_right_id, :desc_metadata, :dpla,
        :collection_id, :box_id, :folder_id, :ocr_hint_id
@@ -132,9 +132,6 @@ ActiveAdmin.register XmlMetadata do
            row "Manuscript or unpublished item?" do |xml_metadata|
              format_boolean_as_yes_no(xml_metadata.is_manuscript)
            end
-           row "Collection?" do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.is_collection)
-          end
            row :resource_type
            row :genre
            row :ocr_hint
