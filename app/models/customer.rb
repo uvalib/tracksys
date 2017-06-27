@@ -1,19 +1,19 @@
-class Customer < ActiveRecord::Base
+class Customer < ApplicationRecord
    include Rails.application.routes.url_helpers # neeeded for _path helpers to work in models
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :academic_status, :counter_cache => true
-   belongs_to :department, :counter_cache => true
+   belongs_to :academic_status, counter_cache: true, optional: true
+   belongs_to :department, counter_cache: true, optional: true
 
    has_many :orders, :inverse_of => :customer
    has_many :requests, ->{ where('orders.order_status = ?', 'requested')}, :inverse_of => :customer
    has_many :units, :through => :orders
    has_many :master_files, :through => :units
-   has_many :metadata, ->{ uniq }, :through => :units
+   has_many :metadata, :through => :units
    has_many :invoices, :through => :orders
-   has_many :agencies, ->{ uniq }, :through => :orders
+   has_many :agencies, :through => :orders
 
    has_one :primary_address, ->{ where(address_type: 'primary')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
    has_one :billable_address, ->{ where(address_type: 'billable_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true

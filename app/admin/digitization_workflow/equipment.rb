@@ -47,17 +47,17 @@ ActiveAdmin.register_page "Equipment" do
          end
          if scanner
             if equipment.length > 1
-               render text: "A workstation can only have a camera assembly or a scanner, not both", status: :error and return
+               render plain: "A workstation can only have a camera assembly or a scanner, not both", status: :error and return
             end
          else
             if equipment.length < 3
-               render text: "Incomplete camera assembly", status: :error and return
+               render plain: "Incomplete camera assembly", status: :error and return
             end
             if body_cnt != 1 || back_cnt != 1
-               render text: "Camera assembly must have 1 back and 1 body", status: :error and return
+               render plain: "Camera assembly must have 1 back and 1 body", status: :error and return
             end
             if lens_cnt > 2
-               render text: "A maximum of 2 lenses can be selected", status: :error and return
+               render plain: "A maximum of 2 lenses can be selected", status: :error and return
             end
          end
          ws.equipment.clear
@@ -65,12 +65,12 @@ ActiveAdmin.register_page "Equipment" do
 
          render json: ws.equipment.order(type: :asc).to_json(only: [:id, :name, :type, :serial_number])
       else
-         render text: "There are active projects assigned", status: :error
+         render plain: "There are active projects assigned", status: :error
       end
    end
 
    controller do
-       before_filter :get_equipment
+       before_action :get_equipment
        def get_equipment
           @bodies = CameraBody.all.order(name: :asc)
           @backs = DigitalBack.all.order(name: :asc)
@@ -85,7 +85,7 @@ ActiveAdmin.register_page "Equipment" do
              html = render_to_string partial: "/admin/equipment/equipment_table", locals: {equipment: Equipment.where(type: params[:type])}
              render json: { html: html, id: e.id }
           else
-             render text: e.errors.full_messages.to_sentence, status: :error
+             render plain: e.errors.full_messages.to_sentence, status: :error
           end
        end
 
@@ -104,16 +104,16 @@ ActiveAdmin.register_page "Equipment" do
                 end
              end
           end
-          render nothing: true
+          render plain: "OK"
        end
 
        def destroy
           e = Equipment.find(params[:id])
           if e.workstation.nil?
              e.update(status: 2)
-             render nothing: true
+             render plain: "OK"
           else
-             render text: "#{e.name} is assigned to workstation #{e.workstation.name}", status: :error and return
+             render plain: "#{e.name} is assigned to workstation #{e.workstation.name}", status: :error and return
           end
        end
     end

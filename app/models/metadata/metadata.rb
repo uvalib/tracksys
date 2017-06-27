@@ -1,21 +1,22 @@
-class Metadata < ActiveRecord::Base
+class Metadata < ApplicationRecord
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :availability_policy, :counter_cache => true
-   belongs_to :use_right, :counter_cache => true
+   belongs_to :availability_policy, counter_cache: true
+   belongs_to :use_right, counter_cache: true
 
    belongs_to :ocr_hint
-   belongs_to :genre
-   belongs_to :resource_type
+   belongs_to :genre, optional: true
+   belongs_to :resource_type, optional: true
+
+   has_many :master_files
+   has_many :units
+   has_many :orders, :through => :units
+   has_many :job_statuses, :as => :originator, :dependent => :destroy
 
    has_many :agencies, :through => :orders
-   has_many :job_statuses, :as => :originator, :dependent => :destroy
-   has_many :customers, ->{ uniq }, :through => :orders
-   has_many :orders, ->{ uniq }, :through => :units
-   has_many :units
-   has_many :master_files
+   has_many :customers, :through => :orders
 
    #------------------------------------------------------------------
    # scopes

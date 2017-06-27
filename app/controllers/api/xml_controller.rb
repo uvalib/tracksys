@@ -2,9 +2,9 @@ class Api::XmlController < ApplicationController
    def validate
       errors = XmlMetadata.validate params[:xml]
       if errors.length > 0
-         render text: errors.join("\n"), status: :error
+         render plain: errors.join("\n"), status: :error
       else
-         render text: "valid", status: :ok
+         render plain: "valid", status: :ok
       end
    end
 

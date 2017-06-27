@@ -8,7 +8,7 @@
 #  updated_at :datetime         not null
 #
 
-class CollectionFacet < ActiveRecord::Base
+class CollectionFacet < ApplicationRecord
    validates :name, presence: true
    validates :name, uniqueness: true
 end

@@ -289,10 +289,10 @@ ActiveAdmin.register Unit do
       upload_file = params[:attachment].tempfile.path
       begin
          AttachFile.exec_now({unit: unit, filename: filename, tmpfile: upload_file, description: params[:description]})
-         render nothing: true
+         render plain: "OK"
       rescue Exception => e
          Rails.logger.error e.to_s
-         render text: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
+         render plain: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
       end
    end
 
@@ -308,9 +308,9 @@ ActiveAdmin.register Unit do
       if t.save
          msg = "Project created"
          AuditEvent.create(auditable: t, event: AuditEvent.events[:project_create], staff_member: current_user, details: msg)
-         render text: t.id, status: :ok
+         render plain: t.id, status: :ok
       else
-         render text: t.errors.full_messages.to_sentence, status: :error
+         render plain: t.errors.full_messages.to_sentence, status: :error
       end
    end
 
@@ -337,7 +337,7 @@ ActiveAdmin.register Unit do
       if File.exists? source_fn
          send_file(source_fn)
       else
-         render text: "Unit XML does not exist in the archive."
+         render plain: "Unit XML does not exist in the archive."
       end
    end
 
@@ -434,7 +434,7 @@ ActiveAdmin.register Unit do
    end
 
    controller do
-      before_filter :get_clone_src_units, only: [:show]
+      before_action :get_clone_src_units, only: [:show]
       def get_clone_src_units
          # Get a list of units that can be used as a source for cloning masterfiles
          metadata = resource.metadata

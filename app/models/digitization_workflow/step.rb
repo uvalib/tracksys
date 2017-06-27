@@ -1,4 +1,4 @@
-class Step < ActiveRecord::Base
+class Step < ApplicationRecord
    enum step_type: [:start, :end, :error, :normal]
    enum owner_type: [:any_owner, :prior_owner, :unique_owner, :original_owner, :supervisor_owner]
 

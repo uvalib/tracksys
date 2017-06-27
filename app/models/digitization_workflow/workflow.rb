@@ -9,7 +9,7 @@
 #  updated_at  :datetime         not null
 #
 
-class Workflow < ActiveRecord::Base
+class Workflow < ApplicationRecord
    validates :name, :uniqueness => true, :presence => true
    has_many :steps
 

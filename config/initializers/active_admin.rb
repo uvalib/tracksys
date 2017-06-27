@@ -93,10 +93,10 @@ ActiveAdmin.setup do |config|
   # Turn off Devise authentication; NetBadge is used instead. In dev mode all access granted
  config.authentication_method = false
  config.current_user_method   = :current_user
- config.before_filter :authorize, :except => [ :access_denied ]
+ config.before_action :authorize, :except => [ :access_denied ]
 
   # Set language
-  config.before_filter :set_admin_locale
+  config.before_action :set_admin_locale
 
   # == Logging Out
   #
@@ -155,7 +155,7 @@ ActiveAdmin.setup do |config|
   # You can add before, after and around filters to all of your
   # Active Admin resources from here.
   #
-  # config.before_filter :do_something_awesome
+  # config.before_action :do_something_awesome
 
 
   # == Register Stylesheets & Javascripts

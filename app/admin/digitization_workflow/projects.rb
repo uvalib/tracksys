@@ -178,21 +178,21 @@ ActiveAdmin.register Project do
       project = Project.find(params[:id])
       project.start_assignment
       logger.info("User #{current_user.computing_id} starting workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
-      render nothing: true
+      render plain: "OK"
    end
 
    member_action :reject_assignment, :method => :put do
       project = Project.find(params[:id])
       logger.info("User #{current_user.computing_id} REJECTS workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
       project.reject(params[:duration])
-      render nothing: true
+      render plain: "OK"
    end
 
    member_action :finish_assignment, :method => :post do
       project = Project.find(params[:id])
       logger.info("User #{current_user.computing_id} finished workflow [#{project.workflow.name}] step [#{project.current_step.name}]")
       project.finish_assignment(params[:duration])
-      render nothing: true
+      render plain: "OK"
    end
 
    member_action :note, :method => :post do
@@ -210,7 +210,7 @@ ActiveAdmin.register Project do
         render json: {html: html}
      rescue Exception => e
         Rails.logger.error e.to_s
-        render text: "Create note FAILED: #{e.to_s}", status:  :error
+        render plain: "Create note FAILED: #{e.to_s}", status:  :error
      end
    end
 
@@ -226,7 +226,7 @@ ActiveAdmin.register Project do
             workstation:ws, capture_resolution: params[:capture_resolution],
             resized_resolution: params[:resized_resolution], resolution_note: params[:resolution_note])
          if !ok
-            render text: project.errors.full_messages.to_sentence, status: :error
+            render plain: project.errors.full_messages.to_sentence, status: :error
          else
             html = render_to_string partial: "project_equipment", locals: {equipment: project.equipment}
             render json: {html: html}, status: :ok
@@ -242,26 +242,26 @@ ActiveAdmin.register Project do
             project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
          end
          if resp
-            render nothing:true
+            render plain: "OK"
          else
-            render text: project.errors.full_messages.to_sentence, status: :error
+            render plain: project.errors.full_messages.to_sentence, status: :error
          end
       end
    end
 
    member_action :unassign, :method => :post do
       if !(current_user.admin? || current_user.supervisor?)
-         render text: "You do not have permissions to remove the assigned staff.", status: :error
+         render plain: "You do not have permissions to remove the assigned staff.", status: :error
          return
       end
       begin
          project = Project.find(params[:id])
          project.clear_assignment(current_user)
          logger.info("Project[#{project.id}] is now unassigned ")
-         render nothing: true
+         render plain: "OK"
       rescue Exception=>e
          logger.error("Unassign project FAILED: #{e.class.name} - #{e.message}}")
-         render text: "#{e.class.name}: #{e.message}}", status: :error
+         render plain: "#{e.class.name}: #{e.message}}", status: :error
       end
    end
 
@@ -269,7 +269,7 @@ ActiveAdmin.register Project do
       project = Project.find(params[:id])
       user = StaffMember.find(params[:user])
       if !project.claimable_by? user
-         render text: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
+         render plain: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
          return
       end
       begin
@@ -278,7 +278,7 @@ ActiveAdmin.register Project do
          render json: {id: user.id, name: "#{user.full_name} (#{user.computing_id})"}, status: :ok
       rescue Exception=>e
          logger.error("Assign project FAILED: #{e.class.name} - #{e.message}}")
-         render text: "#{e.class.name}: #{e.message}}", status: :error
+         render plain: "#{e.class.name}: #{e.message}}", status: :error
       end
    end
 

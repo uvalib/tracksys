@@ -1,4 +1,4 @@
-class AcademicStatus < ActiveRecord::Base
+class AcademicStatus < ApplicationRecord
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------

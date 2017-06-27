@@ -1,4 +1,4 @@
-class Agency < ActiveRecord::Base
+class Agency < ApplicationRecord
    has_ancestry
    before_save :cache_ancestry
 
@@ -11,8 +11,8 @@ class Agency < ActiveRecord::Base
   has_many :master_files, :through => :units
   has_one :primary_address, ->{where(address_type: "primary")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_one :billable_address, ->{where(address_type: "billable_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
-  has_many :customers, ->{uniq}, :through => :orders
-  has_many :metadata, ->{uniq}, :through => :units
+  has_many :customers, :through => :orders
+  has_many :metadata, :through => :units
 
   #------------------------------------------------------------------
   # validations

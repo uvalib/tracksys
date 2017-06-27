@@ -20,7 +20,7 @@ ActiveAdmin.register_page "Staff Skills" do
          u = StaffMember.find(id)
          u.skills << c
       end
-      render nothing: true
+      render plain: "OK"
    end
 
    page_action :remove, :method => :post do
@@ -29,6 +29,6 @@ ActiveAdmin.register_page "Staff Skills" do
          q = "delete from staff_skills where category_id=#{cid} and staff_member_id=#{sid.to_i}"
          Category.connection.execute(q);
       end
-      render nothing: true
+      render plain: "OK"
    end
 end

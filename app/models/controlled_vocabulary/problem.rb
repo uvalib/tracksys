@@ -7,6 +7,6 @@
 #  notes_count :integer          default(0)
 #
 
-class Problem < ActiveRecord::Base
+class Problem < ApplicationRecord
    validates :name, :uniqueness => true, :presence => true
 end

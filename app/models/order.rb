@@ -1,7 +1,7 @@
 require 'prawn'
 require 'prawn/table'
 
-class Order < ActiveRecord::Base
+class Order < ApplicationRecord
 
    ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed']
    include BuildOrderPDF
@@ -13,17 +13,17 @@ class Order < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :agency, :counter_cache => true
-   belongs_to :customer, :counter_cache => true, :inverse_of => :orders
+   belongs_to :agency, counter_cache: true, optional: true
+   belongs_to :customer, counter_cache: true, :inverse_of => :orders
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :audit_events, :as=> :auditable, :dependent => :destroy
-
-   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
-   has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
    has_many :invoices, :dependent => :destroy
-   has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
+
+   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata") }, :through => :units, :source=>:metadata
+   has_many :xml_metadata, ->{where(type: "XmlMetadata") }, :through => :units, :source=>:metadata
+   has_many :master_files, :through => :units
    has_many :projects, :through=> :units
 
    has_one :academic_status, :through => :customer

@@ -125,4 +125,20 @@ namespace :fix do
          end
       end
    end
+
+   desc "fix missing PID/IIIF"
+   task :missing_pid => :environment do
+      uid = ENV['id']
+      abort("id is required") if uid.nil?
+      unit = Unit.find(uid)
+      unit.master_files.each do |mf|
+         next if !mf.pid.blank?
+
+         pid = "tsm:#{mf.id}"
+         mf.update(pid: pid)
+         src = File.join(Settings.archive_mount, unit.id.to_s.rjust(9, "0") )
+         puts "MF #{mf.id} new PID #{mf.pid}, src: #{src}"
+         publish_to_iiif(mf, "#{src}/#{mf.filename}" )
+      end
+   end
 end

@@ -251,7 +251,7 @@ ActiveAdmin.register SirsiMetadata do
 
   include ActionView::Helpers::TextHelper
   controller do
-     before_filter :get_dpla_collection_records, only: [:edit]
+     before_action :get_dpla_collection_records, only: [:edit]
      def get_dpla_collection_records
         @dpla_collection_records = [{id:0, title:"None"}]
         Metadata.where("id in (#{Settings.dpla_collection_records})").each do |r|
@@ -259,7 +259,7 @@ ActiveAdmin.register SirsiMetadata do
         end
      end
 
-      before_filter :get_sirsi, only: [:edit, :show]
+      before_action :get_sirsi, only: [:edit, :show]
       def get_sirsi
          @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
             title: resource.title, creator_name: resource.creator_name,
@@ -280,7 +280,7 @@ ActiveAdmin.register SirsiMetadata do
          @sirsi_meta[:box_id] = resource.box_id
          @sirsi_meta[:folder_id] = resource.folder_id
       end
-      before_filter :blank_sirsi, only: [:new ]
+      before_action :blank_sirsi, only: [:new ]
       def blank_sirsi
          @sirsi_meta = {catalog_key: '', barcode: '' }
       end

@@ -10,7 +10,7 @@
 #  components_count :integer
 #
 
-class ComponentType < ActiveRecord::Base
+class ComponentType < ApplicationRecord
 
   #------------------------------------------------------------------
   # relationships

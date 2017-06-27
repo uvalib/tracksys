@@ -7,6 +7,6 @@
 #  projects_count :integer          default(0)
 #
 
-class Category < ActiveRecord::Base
+class Category < ApplicationRecord
    validates :name, presence: true, uniqueness: true
 end

@@ -1,4 +1,4 @@
-class Unit < ActiveRecord::Base
+class Unit < ApplicationRecord
 
    UNIT_STATUSES = %w[approved canceled condition copyright unapproved]
 
@@ -16,7 +16,7 @@ class Unit < ActiveRecord::Base
    belongs_to :order, :counter_cache => true, :inverse_of => :units
 
    has_many :master_files
-   has_many :components, :through => :master_files#, :uniq => true
+   has_many :components, :through => :master_files
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :attachments, :dependent=>:destroy
 
@@ -49,15 +49,15 @@ class Unit < ActiveRecord::Base
    #------------------------------------------------------------------
    # validations
    #------------------------------------------------------------------
-   validates_presence_of :order
-   validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   validates :intended_use, :presence => {
-      :message => "must be selected."
-   }
-   validates :order, :presence => {
-      :if => 'self.order_id',
-      :message => "association with this Order is no longer valid because it no longer exists."
-   }
+   # validates_presence_of :order
+   # validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
+   # validates :intended_use, :presence => {
+   #    :message => "must be selected."
+   # }
+   # validates :order, :presence => {
+   #    :if => 'self.order_id',
+   #    :message => "association with this Order is no longer valid because it no longer exists."
+   # }
 
    def self.uncompleted_units_of_partially_completed_orders
       Unit.where(unit_status: 'approved', date_patron_deliverables_ready: nil, date_archived: nil)

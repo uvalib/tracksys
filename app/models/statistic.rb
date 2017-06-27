@@ -10,7 +10,7 @@
 #  group      :string(255)
 #
 
-class Statistic < ActiveRecord::Base
+class Statistic < ApplicationRecord
    validates :name, presence: true
    validates :name, uniqueness: true
    validates :value, presence: true

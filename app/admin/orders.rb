@@ -245,7 +245,7 @@ ActiveAdmin.register Order do
    end
 
    controller do
-      before_filter :get_audit_log, only: [:show]
+      before_action :get_audit_log, only: [:show]
       def get_audit_log
          @audit_log = AuditEvent.where(auditable: resource)
       end

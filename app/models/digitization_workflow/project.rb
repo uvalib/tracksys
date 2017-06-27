@@ -1,4 +1,4 @@
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
    enum priority: [:normal, :high, :critical]
    enum item_condition: [:good, :bad]
 

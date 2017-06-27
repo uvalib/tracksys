@@ -18,9 +18,9 @@ class Api::FulltextController < ApplicationController
       render :text=>"Could not find PID", status: :not_found and return if object.nil?
 
       if type == "master_file"
-         render text: object.transcription_text.gsub(/\s+/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
-         render text: object.description.gsub(/\s+/, ' ').strip if params[:type] == "description" && !object.description.blank?
-         render text: object.title.gsub(/\s+/, ' ').strip if params[:type] == "title" && !object.title.blank?
+         render plain: object.transcription_text.gsub(/\s+/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
+         render plain: object.description.gsub(/\s+/, ' ').strip if params[:type] == "description" && !object.description.blank?
+         render plain: object.title.gsub(/\s+/, ' ').strip if params[:type] == "title" && !object.title.blank?
       else
          out = ""
          out << object.title if params[:type] == "title" && !object.title.blank?
@@ -30,7 +30,7 @@ class Api::FulltextController < ApplicationController
             out << mf.description if params[:type] == "description" && !mf.description.blank?
             out << mf.title if params[:type] == "title" && !mf.title.blank?
          end
-         render text: out.gsub(/\s+/, ' ').strip
+         render plain: out.gsub(/\s+/, ' ').strip
       end
    end
 end

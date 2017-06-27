@@ -1,4 +1,4 @@
-class Equipment < ActiveRecord::Base
+class Equipment < ApplicationRecord
    enum status: [:active, :inactive, :retired]
    validates :status, presence: true
    validates :name, presence: true
