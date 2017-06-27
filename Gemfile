@@ -6,7 +6,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'sass-rails', '~> 5.0'
 
 gem 'activeadmin', '~> 1.0'
-gem 'passenger', '5.0.28'
+gem 'passenger', '5.1.5'
 gem 'figaro'
 
 gem 'turnout'  # Maintence page
