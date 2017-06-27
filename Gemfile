@@ -5,7 +5,7 @@ gem 'rails', '4.2.8'
 gem 'puma', '~> 3.7'
 
 gem 'activeadmin', '~> 1.0'
-gem 'passenger', '5.0.28'
+gem 'passenger', '5.1.5'
 gem 'figaro'
 
 gem 'turnout'  # Maintence page
