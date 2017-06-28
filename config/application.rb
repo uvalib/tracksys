@@ -9,8 +9,7 @@ Bundler.require(*Rails.groups)
 module Tracksys
    class Application < Rails::Application
       config.load_defaults 5.1
-      
-      config.autoload_paths << Rails.root.join('lib')
+
       config.autoload_paths << Rails.root.join('app',"models", "metadata")
       config.autoload_paths << Rails.root.join('app',"models", "equipment")
       config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
