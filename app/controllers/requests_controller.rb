@@ -33,7 +33,7 @@ class RequestsController < ApplicationController
       @request.date_request_submitted = Time.now
 
       # make sure there are items
-      if params[:order][:units_attributes].nil? || params[:order][:units_attributes].count == 0
+      if params[:order][:units_attributes].nil?
          @request.customer = @customer
          @request.customer.build_billable_address if @request.customer.billable_address.nil?
          @request.errors.add(:item, ": at least one item is required")
