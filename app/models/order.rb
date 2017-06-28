@@ -31,6 +31,9 @@ class Order < ApplicationRecord
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
 
+   accepts_nested_attributes_for :units
+   accepts_nested_attributes_for :customer
+
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
@@ -50,7 +53,6 @@ class Order < ApplicationRecord
    validates :date_due, :date_request_submitted, :presence => {
       :message => 'is required.'
    }
-   validates_presence_of :customer
 
    validates :order_title, :uniqueness => true, :allow_blank => true
 
@@ -58,23 +60,6 @@ class Order < ApplicationRecord
 
    validates :order_status, :inclusion => { :in => ORDER_STATUSES,
       :message => 'must be one of these values: ' + ORDER_STATUSES.join(", ")}
-
-   validates_datetime :date_request_submitted
-
-   validates_date :date_due, :on => :update
-   validates_date :date_due, :on => :create, :on_or_after => 28.days.from_now, :if => 'self.order_status == "requested"'
-
-   validates_datetime :date_order_approved,
-      :date_deferred,
-      :date_canceled,
-      :date_permissions_given,
-      :date_started,
-      :date_archiving_complete,
-      :date_patron_deliverables_complete,
-      :date_customer_notified,
-      :date_finalization_begun,
-      :date_fee_estimate_sent_to_customer,
-      :allow_blank => true
 
    # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved" || "canceled"
    validate :validate_order_approval, :on => :update, :if => 'self.order_status == "approved"'

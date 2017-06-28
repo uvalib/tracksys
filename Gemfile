@@ -11,7 +11,6 @@ gem 'figaro'
 
 gem 'turnout'  # Maintence page
 
-gem 'validates_timeliness', '~> 4.0'
 gem 'annotate'
 gem 'mysql2'
 gem 'ancestry'
@@ -20,7 +19,7 @@ gem 'delayed_job_active_record'
 gem 'daemons'
 
 # for patron request forms
-gem 'nested_form'
+gem 'cocoon'
 gem 'bootstrap-datepicker-rails'
 
 gem 'whenever', :require => false   # to age off job status records

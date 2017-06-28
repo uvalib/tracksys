@@ -11,7 +11,7 @@ class Unit < ApplicationRecord
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :metadata, :counter_cache => true
+   belongs_to :metadata, :counter_cache => true, optional: true
    belongs_to :intended_use, :counter_cache => true
    belongs_to :order, :counter_cache => true, :inverse_of => :units
 

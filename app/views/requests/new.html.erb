@@ -10,7 +10,7 @@
       </div>
    <% end %>
 
-   <%= nested_form_for @request, :html => {:class => 'form-horizontal'} do |f| %>
+   <%= form_for @request, method: :post, :url=>"/requests", :html => {:class => 'form-horizontal'} do |f| %>
       <%= f.fields_for :customer_attributes do |c| %>
          <div class="row">
             <div class="col-md-4">
@@ -29,17 +29,17 @@
          <%= render :partial=>"request_info", :locals=>{ :f=>f } %>
       </div>
 
-      <div class="col-md-12">
+      <div id="units" class="col-md-12">
          <fieldset id="order-items">
             <legend>Items for Digitization</legend>
             <%= f.fields_for :units do |unit| %>
-               <%= render :partial=>"order_item", :locals=>{ :unit=>unit } %>
+               <%= render "unit_fields", f: unit %>
             <% end %>
          </fiedset>
       </div>
 
       <div class="form-actions">
-         <%= f.link_to_add "Add an item", :units, :class => 'btn btn-success' %>
+         <%= link_to_add_association "Add an item", f, :units, :class => 'btn btn-success' %>
          <button id="submit-request" class="btn btn-primary">Submit Request</button>
       </div>
 
