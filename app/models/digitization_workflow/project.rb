@@ -4,8 +4,8 @@ class Project < ApplicationRecord
 
    belongs_to :workflow
    belongs_to :unit
-   belongs_to :owner, :class_name=>"StaffMember"
-   belongs_to :current_step, :class_name=>"Step"
+   belongs_to :owner, :class_name=>"StaffMember", optional: true
+   belongs_to :current_step, :class_name=>"Step", optional: true
    belongs_to :category, counter_cache: true
    belongs_to :workstation, optional: true
 
