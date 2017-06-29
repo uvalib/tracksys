@@ -7,7 +7,7 @@ class Project < ApplicationRecord
    belongs_to :owner, :class_name=>"StaffMember"
    belongs_to :current_step, :class_name=>"Step"
    belongs_to :category, counter_cache: true
-   belongs_to :workstation
+   belongs_to :workstation, optional: true
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
