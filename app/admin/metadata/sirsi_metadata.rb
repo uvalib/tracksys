@@ -75,6 +75,8 @@ ActiveAdmin.register SirsiMetadata do
       end
     end
     column :barcode, :class => 'sortable_short'
+    column :box, :class => 'sortable_short'
+    column :folder, :class => 'sortable_short'
     column ("Digital Library?") do |sirsi_metadata|
       div do
         format_boolean_as_yes_no(sirsi_metadata.in_dl?)
