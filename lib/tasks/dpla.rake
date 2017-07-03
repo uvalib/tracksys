@@ -3,6 +3,18 @@ include DplaHelper
 
 namespace :dpla do
    desc "Generate DPLA METS/MODS for a parent metadata ID"
+   task :generate_all  => :environment do
+      ids = ["3002", "3009", "3109", "6405", "15784"]
+      overwrite = (ENV['force'] == "1" || ENV['force'] == "yes" || ENV['force'] == "true")
+      id.each do |id|
+         puts "===> GENERATE #{id}"
+         ENV['id'] = id
+         ENV['force'] = overwrite
+         Rake::Task['dpla:generate'].execute
+      end
+   end
+
+   desc "Generate DPLA METS/MODS for a parent metadata ID"
    task :generate  => :environment do
       id = ENV['id']
       abort("id is required") if id.nil?

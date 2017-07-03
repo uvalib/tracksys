@@ -4,7 +4,7 @@ class MasterFile < ApplicationRecord
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :component, :counter_cache => true
+   belongs_to :component, :counter_cache => true, optional: true
    belongs_to :unit
    belongs_to :metadata
    belongs_to :deaccessioned_by, class_name: "StaffMember",
