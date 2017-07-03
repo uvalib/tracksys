@@ -12,7 +12,7 @@ gem 'figaro'
 gem 'turnout'  # Maintence page
 
 gem 'annotate'
-gem 'mysql2'
+gem 'mysql2', '0.4.6'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
