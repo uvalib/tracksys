@@ -9,4 +9,5 @@ class CreateImageTechnicalMetadata < BaseJob
       image_path = message[:source]
       master_file = message[:master_file]
       TechMetadata.create(master_file, image_path)
+   end
 end
