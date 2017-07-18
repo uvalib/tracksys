@@ -56,21 +56,28 @@ namespace :dpla do
             # write desc metadata out to temp file
             desc_xml_file = Tempfile.new([b.pid, "xml"])
             src = desc_xml_file.path
-            desc_xml_file.write(Hydra.desc(b))
-            desc_xml_file.close
+            begin
+               desc_xml_file.write(Hydra.desc(b))
+               desc_xml_file.close
 
-            params = "pid=#{b.pid}"
-            if b.exemplar.blank?
-               emf = b.master_files.first
-            else
-               emf = MasterFile.find_by(filename: b.exemplar)
+               params = "pid=#{b.pid}"
+               if b.exemplar.blank?
+                  emf = b.master_files.first
+               else
+                  emf = MasterFile.find_by(filename: b.exemplar)
+               end
+               raise("No exemplar set for metadata record. Skipping #{b.pid}") if emf.nil?
+               params << " exemplarPid=#{emf.pid}"
+               child_info << { pid: b.pid, exemplar: emf.pid }
+
+               cmd = "     #{saxon} -s:#{src} -xsl:#{xsl} -o:#{out} #{params}"
+               `#{cmd}`
+            rescue Exception => e
+               puts "          SKIPPING #{b.pid} ERROR: #{e.message}"
+               bt = e.backtrace.join("\n")
+               puts "          #{bt}"
             end
-            abort("No exemplar set for metadata record") if emf.nil?
-            params << " exemplarPid=#{emf.pid}"
-            child_info << { pid: b.pid, exemplar: emf.pid }
 
-            cmd = "     #{saxon} -s:#{src} -xsl:#{xsl} -o:#{out} #{params}"
-            `#{cmd}`
             desc_xml_file.unlink
          end
       else

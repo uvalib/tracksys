@@ -66,6 +66,20 @@ class Metadata < ApplicationRecord
       update_attribute(:pid, "tsb:#{self.id}") if self.pid.blank?
    end
 
+   after_update do
+      if parent.nil?
+         children.each do |child|
+            if child.dpla != self.dpla
+               if child.ocr_hint_id.nil?
+                  child.update(dpla: self.dpla, ocr_hint_id: self.ocr_hint_id)
+               else
+                  child.update(dpla: self.dpla)
+               end
+            end
+         end
+      end
+   end
+
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
