@@ -36,6 +36,13 @@ ActiveAdmin.register Unit do
    csv do
       column :id
       column :metadata_title
+      column ("Call Number") do |unit|
+         if unit.metadata.nil? || !unit.metadata.nil? && unit.metadata.type != "SirsiMetadata"
+            "N/A"
+         else
+            "#{unit.metadata.call_number}"
+         end
+      end
       column("Date Archived") {|unit| format_date(unit.date_archived)}
       column("Date DL Deliverables Ready") {|unit| format_date(unit.date_dl_deliverables_ready)}
       column :master_files_count
