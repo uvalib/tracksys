@@ -107,7 +107,7 @@ ActiveAdmin.register Unit do
             end
          end
       end
-      column("call number") do |unit|
+      column("Call Number") do |unit|
          if unit.metadata.nil? || !unit.metadata.nil? && unit.metadata.type != "SirsiMetadata"
             "N/A"
          else
@@ -123,7 +123,7 @@ ActiveAdmin.register Unit do
       column :date_archived do |unit|
          format_date(unit.date_archived)
       end
-      column :date_dl_deliverables_ready do |unit|
+      column ("Date DL\nDeliverables Ready")  do |unit|
          format_date(unit.date_dl_deliverables_ready)
       end
       column :intended_use do |unit|
