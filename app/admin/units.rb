@@ -44,6 +44,18 @@ ActiveAdmin.register Unit do
    actions :all, :except => [:destroy]
    config.clear_action_items!
 
+   batch_action :checkout_units_to_digiserv do |selection|
+      Unit.find(selection).each {|s| s.update(date_materials_received: Time.now) }
+      flash[:notice] = "Units #{selection.join(", ")} are now checked out to DigiServ."
+      redirect_to "/admin/units"
+   end
+
+   batch_action :checkin_units_from_digiserv do |selection|
+      Unit.find(selection).each {|s| s.update(date_materials_returned: Time.now) }
+      flash[:notice] = "Units #{selection.join(", ")} are now checked in from DigiServ."
+      redirect_to "/admin/units"
+   end
+
    batch_action :approve_units do |selection|
       Unit.find(selection).each {|s| s.update(unit_status: 'approved') }
       flash[:notice] = "Units #{selection.join(", ")} are now approved."
