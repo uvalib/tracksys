@@ -95,6 +95,13 @@ ActiveAdmin.register Unit do
             end
          end
       end
+      column("call number") do |unit|
+         if unit.metadata.nil? || !unit.metadata.nil? && unit.metadata.type != "SirsiMetadata"
+            "N/A"
+         else
+            "#{unit.metadata.call_number}"
+         end
+      end
       column ("Reorder?") do |unit|
          format_boolean_as_yes_no(unit.reorder)
       end
