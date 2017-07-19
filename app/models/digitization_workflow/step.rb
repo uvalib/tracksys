@@ -57,23 +57,32 @@ class Step < ApplicationRecord
 
       # Base start directory is present; now handle special cases.
       # In the first Scan step, there may be a CaptureOne session in progress. If this is
-      # the case, there will be a Capture directory present that is filled with IIQ files. Validate this.
-      # In the Process step, a CaptureOne session may also exists. In this case, there will be an Output
-      # directory present. Treat it as the start dir and validate.
-      capture_dir = File.join(start_dir, "Capture")
-      if self.name == "Scan" && Dir.exists?(capture_dir)
-         Rails.logger.info "Validate presence raw CaptureOne files"
-         if Dir[File.join(capture_dir, '*.IIQ')].count == 0
-            step_failed(project, "<p>No raw files found in #{capture_dir}</p>")
-            return false
-         else
-            return true
+      # the case, there will be a Capture directory present that is filled with IIQ files.
+      # Some students don't use a Capture directory. Instead they use Recto and Verso.
+      if self.name == "Scan"
+         capture_exists = false
+         tgts = ["Capture", "Recto", "Verso"]
+         tgts.each do |tgt_dir|
+            capture_dir = File.join(start_dir, tgt_dir)
+            if Dir.exists?(capture_dir)
+               capture_exists = true
+               return true if Dir[File.join(capture_dir, '*.IIQ')].count > 0
+            end
          end
-      else
-         output_dir =  File.join(start_dir, "Output")
-         start_dir = output_dir if Dir.exists? output_dir
-         return validate_directory_content(project, start_dir)
+
+         # if we got here and a capture directory exists, it must not
+         # include IIQ files. Fail the step
+         if capture_exists
+            step_failed(project, "<p>No raw files found in Capture, Recto or Verso directories</p>")
+            return false
+         end
       end
+
+      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
+      # directory present. Treat it as the start dir and validate.
+      output_dir =  File.join(start_dir, "Output")
+      start_dir = output_dir if Dir.exists? output_dir
+      return validate_directory_content(project, start_dir)
    end
 
    private
