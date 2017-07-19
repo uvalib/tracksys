@@ -9,10 +9,11 @@ gem 'activeadmin', '~> 1.0'
 gem 'passenger', '5.1.5'
 gem 'figaro'
 
-gem 'turnout'  # Maintence page
+gem 'turnout'           # Maintence page
+gem "roo", "~> 2.7.0"   # to parse excel sheets for importing Gannon project
 
 gem 'annotate'
-gem 'mysql2', '0.4.6'
+gem 'mysql2'#, '0.4.6'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
@@ -35,8 +36,6 @@ gem 'axlsx', '~> 2.1.0.pre'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'
-
-gem 'compass-rails'           # required by chosen rails, but not included by it directly
 gem "chosen-rails"
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
