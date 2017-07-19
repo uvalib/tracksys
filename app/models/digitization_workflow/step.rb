@@ -61,7 +61,7 @@ class Step < ApplicationRecord
       # Some students don't use a Capture directory. Instead they use Recto and Verso.
       if self.name == "Scan"
          capture_exists = false
-         tgts = ["Capture", "Recto", "Verso","Rectos", "Versos"]
+         tgts = ["Capture", "Recto", "Verso", "Rectos", "Versos", "recto", "verso", "rectos", "versos"]
          tgts.each do |tgt_dir|
             capture_dir = File.join(start_dir, tgt_dir)
             if Dir.exists?(capture_dir)
