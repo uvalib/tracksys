@@ -38,7 +38,8 @@ else
    end
    div :class => 'workflow_button' do
       approve_disabled = order.order_status == 'approved' || order.customer.external? || !order.date_order_approved.nil?
-      approve_disabled = false if order.customer.external? && !order.fee_estimated.nil? && !order.fee_actual.nil? && order.order_status != 'approved' 
+      approve_disabled = false if order.customer.external? && !order.fee_estimated.nil? && !order.fee_actual.nil? && order.order_status != 'approved'
+      approve_disabled = order.has_units_being_prepared.any?  # non-ready units trumps other enabling
       button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => approve_disabled, :method => :put
    end
    div :class => 'workflow_button' do
@@ -54,6 +55,10 @@ else
    if order.customer.external? && order.fee_estimated.nil?
       div do
          "Either enter an estimated fee, defer or cancel this order."
+      end
+   elsif order.has_units_being_prepared.any?
+      div do
+         "You must approve or cancel this order's units before approving."
       end
    end
 end
