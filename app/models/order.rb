@@ -93,14 +93,8 @@ class Order < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
-   # Returns a boolean value indicating whether the Order is active, which is
-   # true unless the Order has been canceled or deferred.
    def active?
-      if order_status == 'canceled' or order_status == 'deferred'
-         return false
-      else
-         return true
-      end
+      return !(order_status == 'canceled' || order_status == 'deferred'||  order_status == 'completed')
    end
 
    def reorder?
@@ -119,19 +113,11 @@ class Order < ApplicationRecord
    # Returns a boolean value indicating whether the Order is approved
    # for digitization ("order") or not ("request").
    def approved?
-      if order_status == 'approved'
-         return true
-      else
-         return false
-      end
+      return order_status == 'approved'
    end
 
    def canceled?
-      if order_status == 'canceled'
-         return true
-      else
-         return false
-      end
+      return if order_status == 'canceled'
    end
 
    # Returns a boolean value indicating whether this Order has
@@ -193,7 +179,7 @@ class Order < ApplicationRecord
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
    end
    def self.active
-      where("order_status = 'approved' and date_customer_notified is null")
+      where("order_status != ? and order_status != ?", "completed", "deferred")
    end
 
    def title

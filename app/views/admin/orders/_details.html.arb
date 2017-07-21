@@ -10,6 +10,9 @@ div :class => 'two-column' do
                render partial: "audit_log", locals: {audit_log: audit_log}
             end
          end
+         if order.order_status == "completed"
+            row :date_completed
+         end
          row :order_title
          row :special_instructions
          row :staff_notes

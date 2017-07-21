@@ -1,13 +1,18 @@
 #encoding: utf-8
 namespace :fix do
-   desc "Editor role retire"
-   task :retire_editor  => :environment do
-      StaffMember.all.each do |s|
-         role_id = StaffMember.roles[s.role]
-         if role_id > 1
-            role_id -= 1
-            s.update(role: role_id)
-            puts "Updated role for #{s.email}"
+   desc "completed orders"
+   task :completed_orders  => :environment do
+      puts "Detect completed orders and flag them as complete"
+      Order.where(order_status: 'approved').find_each do |o|
+         # If date_customer_notified is set, this is safe to consider complete
+         if !o.date_customer_notified.nil?
+            puts "Marking PATRON order #{o.id} complete"
+            o.update(order_status: "completed", date_completed: o.date_customer_notified)
+         elsif !o.date_archiving_complete.nil?
+            puts "Marking archived order #{o.id} complete"
+            o.update(order_status: "completed", date_completed: o.date_archiving_complete)
+         else
+            puts "questionable order staaus #{o.id}"
          end
       end
    end

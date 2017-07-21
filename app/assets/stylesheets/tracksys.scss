@@ -891,6 +891,9 @@ body.active_admin {
       &.canceled {
          background: #d45f53;
       }
+      &.completed {
+         background: #5f53d4;
+      }
    }
 
    .two-column {
