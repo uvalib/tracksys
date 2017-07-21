@@ -28,7 +28,7 @@ ActiveAdmin.register Order do
             failed << s.id
          end
       end
-      if failed
+      if !failed.empty?
          flash[:notice] = "Unable to cancel order(s) #{failed.join(',')}. See order details for reason."
       end
       redirect_to "/admin/orders"
@@ -37,7 +37,7 @@ ActiveAdmin.register Order do
    batch_action :complete_orders do |selection|
       failed = []
       Order.find(selection).each {|s| failed << s.id if !s.complete_order }
-      if failed
+      if !failed.empty?
          flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
       end
       redirect_to "/admin/orders"
