@@ -1,4 +1,5 @@
 <%= semantic_form_for([:admin, @unit], :url => "/admin/units/#{@unit.id}") do |f| %>
+   <%= f.semantic_errors *f.object.errors.keys %>
    <%= f.inputs "General Information", :class => 'panel three-column ' do %>
       <%= f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES %>
       <%= f.input :unit_extent_estimated  %>

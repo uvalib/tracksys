@@ -46,19 +46,6 @@ class Unit < ApplicationRecord
    scope :overdue_materials, ->{where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
    scope :checkedout_materials, ->{where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
 
-   #------------------------------------------------------------------
-   # validations
-   #------------------------------------------------------------------
-   # validates_presence_of :order
-   # validates :patron_source_url, :format => {:with => URI::regexp(['http','https'])}, :allow_blank => true
-   # validates :intended_use, :presence => {
-   #    :message => "must be selected."
-   # }
-   # validates :order, :presence => {
-   #    :if => 'self.order_id',
-   #    :message => "association with this Order is no longer valid because it no longer exists."
-   # }
-
    def self.uncompleted_units_of_partially_completed_orders
       Unit.where(unit_status: 'approved', date_patron_deliverables_ready: nil, date_archived: nil)
          .where('intended_use_id != 110').joins(:order)
@@ -69,6 +56,11 @@ class Unit < ApplicationRecord
    # callbacks
    #------------------------------------------------------------------
    before_save do
+      if self.unit_status == "approved" && self.metadata.nil?
+         errors.add(:base, "Metadata is required")
+         throw(:abort)
+      end
+      
       # boolean fields cannot be NULL at database level
       self.include_in_dl = 0 if self.include_in_dl.nil?
       self.order_id = 0 if self.order_id.nil?
