@@ -38,9 +38,6 @@ div :class => 'two-column' do
          row :date_fee_estimate_sent_to_customer do |customer|
             format_date(customer.date_fee_estimate_sent_to_customer)
          end
-         row :date_permissions_given do |customer|
-            format_date(customer.date_permissions_given)
-         end
       end
    end
 end

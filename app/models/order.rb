@@ -3,7 +3,7 @@ require 'prawn/table'
 
 class Order < ApplicationRecord
 
-   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed']
+   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'awaiting_fee_approval']
    include BuildOrderPDF
 
    def as_json(options)
@@ -203,6 +203,39 @@ class Order < ApplicationRecord
       return nil
    end
 
+   def complete_order
+      if has_patron_deliverables?
+         # validate that the order has date customer notified set
+         if !date_customer_notified.nil?
+            update(order_status: "completed", date_completed: Time.now)
+            return true
+         end
+      else
+         # validate that date archived set
+         if !date_archiving_complete.nil?
+            update(order_status: "completed", date_completed: Time.now)
+            return true
+         end
+      end
+      return false
+   end
+
+   def defer_order
+      # entering a deferred state or leaving it?
+      if self.order_status != 'deferred'
+         self.order_status = 'deferred'
+         self.date_deferred = Time.now
+         self.save!
+      else
+         # resuming a deferred order
+         if self.date_order_approved.nil?
+            update(order_status: "requested")
+         else
+            update(order_status: "approved")
+         end
+      end
+   end
+
    def approve_order
       self.order_status = 'approved'
       self.date_order_approved = Time.now
@@ -298,13 +331,10 @@ end
 #  date_order_approved                :datetime
 #  date_deferred                      :datetime
 #  date_canceled                      :datetime
-#  date_permissions_given             :datetime
-#  date_started                       :datetime
 #  date_due                           :date
 #  date_customer_notified             :datetime
 #  fee_estimated                      :decimal(7, 2)
 #  fee_actual                         :decimal(7, 2)
-#  entered_by                         :string(255)
 #  special_instructions               :text(65535)
 #  created_at                         :datetime
 #  updated_at                         :datetime

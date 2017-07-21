@@ -1,22 +1,53 @@
 ActiveAdmin.register Order do
    menu :priority => 4
-   config.batch_actions = false
 
-   before_update do |order|
-      prior = Order.find(order.id)
-      if prior.order_status != order.order_status
-         Rails.logger.info "Order #{order.id} status changed from #{prior.order_status} to #{order.order_status} by #{current_user.computing_id}"
-         msg = "Status #{prior.order_status.upcase} to #{order.order_status.upcase}"
-         AuditEvent.create(auditable: order, event: AuditEvent.events[:status_update],
-         staff_member: current_user, details: msg)
+   actions :all, :except => [:destroy]
+   config.clear_action_items!
+
+   batch_action :approve_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.approve_order
+         rescue Exception=>e
+            failed << s.id
+         end
       end
+      if failed
+         flash[:notice] = "Unable to approve order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :cancel_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.cancel_order
+         rescue Exception=>e
+            failed << s.id
+         end
+      end
+      if failed
+         flash[:notice] = "Unable to cancel order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :complete_orders do |selection|
+      failed = []
+      Order.find(selection).each {|s| failed << s.id if !s.complete_order }
+      if failed
+         flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
    end
 
    # strong paramters handling
    permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
-   :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer, :date_permissions_given,
-   :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
-   :date_customer_notified, :email
+      :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer,
+      :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
+      :date_customer_notified, :email
 
    # eager load to preven n+1 queries, and improve performance
    includes :department, :agency, :customer, :academic_status
@@ -163,7 +194,6 @@ ActiveAdmin.register Order do
          f.input :fee_actual, :as => :string
          f.input :date_deferred, :as => :string, :input_html => {:class => :datepicker}
          f.input :date_fee_estimate_sent_to_customer, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_permissions_given, :as => :string, :input_html => {:class => :datepicker}
       end
 
       f.inputs "Related Information", :class => 'panel three-column' do
@@ -184,11 +214,14 @@ ActiveAdmin.register Order do
       end
    end
 
-   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
+   # Only show order workflow for active orders (not canceled or complete)
+   sidebar :order_workflow, :only => :show,  if: proc{
+      !current_user.viewer? && !current_user.student? &&
+      resource.order_status != "completed" && resource.order_status != "canceled"  } do
       render "approval_workflow", :context=>self
    end
 
-   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? }  do
+   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && resource.order_status != "canceled" }  do
       render "delivery_workflow", :context=>self
    end
 
@@ -202,13 +235,20 @@ ActiveAdmin.register Order do
    end
 
    member_action :approve_order, :method => :put do
-      begin
-         order = Order.find(params[:id])
-         order.update_attributes!(:order_status => "approved")
-         redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
-      rescue ActiveRecord::RecordInvalid => invalid
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "#{invalid.record.errors.full_messages.join(', ')}"
+      order = Order.find(params[:id])
+      order.approve_order
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
+   end
+
+   member_action :defer_order, :method => :put do
+      order = Order.find(params[:id])
+      was_deferred = order.order_status == 'deferred'
+      order.defer_order
+      msg = "Order #{params[:id]} is now deferred."
+      if was_deferred
+         msg = "Order #{params[:id]} has been reactivated."
       end
+      redirect_to "/admin/orders/#{params[:id]}", :notice => msg
    end
 
    member_action :cancel_order, :method => :put do
@@ -217,8 +257,17 @@ ActiveAdmin.register Order do
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now canceled."
    end
 
+   member_action :complete_order, :method => :put do
+      order = Order.find(params[:id])
+      if order.complete_order
+         redirect_to "/admin/orders/#{params[:id]}"
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is not complete."
+      end
+   end
+
    member_action :send_fee_estimate_to_customer, :method => :put do
-      SendFeeEstimateToCustomer.exec( {:order_id => params[:id]} )
+      SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
    end
 

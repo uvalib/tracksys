@@ -4,14 +4,13 @@ class SendFeeEstimateToCustomer < BaseJob
    end
 
    def do_workflow(message)
-
       raise "Parameter 'order_id' is required" if message[:order_id].blank?
 
       order = Order.find(message[:order_id])
       OrderMailer.send_fee_estimate(order).deliver
       logger().info "Fee estimate email sent to customer."
 
-      order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'deferred')
+      order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'awaiting_fee_approval')
       logger().info "Date fee estimate sent to customer has been updated and order deferred."
    end
 end
