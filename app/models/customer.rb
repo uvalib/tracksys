@@ -8,7 +8,6 @@ class Customer < ApplicationRecord
    belongs_to :department, counter_cache: true, optional: true
 
    has_many :orders, :inverse_of => :customer
-   has_many :requests, ->{ where('orders.order_status = ?', 'requested')}, :inverse_of => :customer
    has_many :units, :through => :orders
    has_many :master_files, :through => :units
    has_many :metadata, :through => :units
@@ -56,8 +55,6 @@ class Customer < ApplicationRecord
          return false
       end
    end
-
-   alias_attribute :name, :full_name
 
    def agency_links
       return ""  if agencies.empty?
