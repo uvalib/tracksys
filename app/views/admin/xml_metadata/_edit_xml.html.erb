@@ -11,11 +11,13 @@
        <%= f.input :discoverability, :as => :select %>
        <%= f.input :use_right, label: "Right Statement" %>
        <%= f.input :dpla, :as => :radio %>
-       <% if @xml_metadata.dpla %>
-          <%= f.input :parent_metadata_id, :as => :select, :label=>"Parent Metadata",
-               :collection => Hash[@dpla_collection_records.map{|b| ["#{b[:title]}", b[:id] ]}],
-               :input_html => { :class => 'chosen-select', :style => 'width: 200px'} %>
-       <% end %>
+
+       <li class="select input optional" id="xml_metadata_parent_metadata_id_input">
+          <label for="xml_metadata_parent_metadata_id" class="label">Parent metadata</label>
+          <input id="xml_metadata_parent_metadata_id" type="text" name="xml_metadata[parent_metadata_id]">
+          <span id="find-metadata"></span>
+       </li>
+
        <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
        <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
        <li class="select input optional" id="xml_metadata_collection_facet_input">
@@ -31,6 +33,7 @@
           </select>
        </li>
    <% end %>
+   <%= render partial: "/admin/common/metadata_finder_modal" %>
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
       <%= f.input :collection_id, label: "Collection ID" %>

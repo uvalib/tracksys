@@ -1,0 +1,58 @@
+#dimmer .modal#metadata-finder {
+width: 500px;
+   div.find {
+      padding: 15px;
+      p.note {
+         color: #999;
+         font-size: 0.9em;
+         font-style: italic;
+         margin-bottom: 10px;
+         text-align: center;
+      }
+      input[type=text] {
+         width: 100%;
+         box-sizing: border-box;
+      }
+      p.error {
+         display: none;
+         color: #a00;
+         margin-bottom: 10px;
+      }
+      p.results {
+         margin-top: 10px;
+      }
+      div.results-panel {
+         margin-bottom: 15px;
+         height: 225px;
+         background: white;
+         overflow-y: scroll;
+         border: 1px solid #ccc;
+         border-radius: 4px;
+         font-size: 0.8em;
+         th {
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            color: #666;
+         }
+         th.short {
+            width: 75px;
+         }
+         tr.hit {
+            cursor: pointer;
+            &:hover {
+               background: aliceblue;
+            }
+         }
+         tr.hit.selected {
+            background: #cef;
+         }
+      }
+      div.buttons {
+         position: relative;
+         .select {
+            position: absolute;
+            left: 0;
+         }
+      }
+   }
+}

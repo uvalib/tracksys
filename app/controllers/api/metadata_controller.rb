@@ -29,4 +29,16 @@ class Api::MetadataController < ApplicationController
          render :xml=> `#{cmd}`
       end
    end
+
+   include ActionView::Helpers::TextHelper
+   def search
+      q = params[:q]
+      out = []
+      Metadata.where("title like ? or barcode like ? or pid like ?", "%#{q}%", "#{q}%", "#{q}%").each do |h|
+         bc = h.barcode
+         bc = "N/A" if bc.nil?
+         out << {id: h.id, pid: h.pid, title: truncate(h.title, length: 35, separator: ' '), barcode: bc}
+      end
+      render json: out
+   end
 end

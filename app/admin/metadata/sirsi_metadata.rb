@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id, :ocr_hint_id
+      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id, :ocr_hint_id, :parent_metadata_id
 
   config.clear_action_items!
 

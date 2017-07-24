@@ -14,6 +14,7 @@
 //= require workflows
 //= require equipment
 //= require skills
+//= require metadata
 //= require codemirror
 //= require_tree ./mode/
 //= require_tree ./addon/

@@ -24,6 +24,25 @@
    top: 4px !important;
 }
 
+#find-metadata {
+   background-image: image_url("zoom.png");
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   position: relative;
+   position: relative;
+   top: 4px;
+   left: 4px;
+   cursor: pointer;
+   border-radius: 4px;
+   padding: 2px;
+   background-repeat: no-repeat;
+   background-position: 2px 2px;
+   &:hover {
+      background-color: #fafafa;
+   }
+}
+
 .ts-icon.add {
    background-image: image_url("add.png");
    border-radius: 10px;
