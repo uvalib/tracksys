@@ -26,11 +26,12 @@ $(function() {
          if (textStatus == "success" ) {
             $("tr.hit").remove();
             $("span.metadata-finder.find").removeClass("disabled");
-            var template = "<tr class='hit' data-metadata-id='MID'><td>MID</td><td>PID</td><td>BARCODE</td><td>TITLE</td></tr>";
+            var template = "<tr class='hit' data-metadata-id='MID'><td>MID</td><td>PID</td><td>BARCODE</td><td>CALL</td><td>TITLE</td></tr>";
             $.each(data, function(idx,val) {
                var line = template.replace(/MID/g, val.id);
                line = line.replace("PID", val.pid);
                line = line.replace("BARCODE", val.barcode);
+               line = line.replace("CALL", val.call_number);
                line = line.replace("TITLE", val.title);
                $("div.results-panel table").append( $(line) );
             });
