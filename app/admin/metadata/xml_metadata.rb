@@ -242,17 +242,6 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
-   collection_action :get_all
-
-   collection_action :autocomplete, method: :get do
-      suggestions = []
-      like_keyword = "#{params[:query]}%"
-      Metadata.where("type=? and id like ?", "XmlMetadata", like_keyword).each do |o|
-         suggestions << {value: "#{o.id}: #{o.title}", data: o.id}
-      end
-      resp = {query: "Unit", suggestions: suggestions}
-      render json: resp, status: :ok
-   end
 
    # Flag for publication  overnight
    #
@@ -272,15 +261,4 @@ ActiveAdmin.register XmlMetadata do
      logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
-
-   controller do
-       def get_all
-         out = []
-         XmlMetadata.all.order(id: :asc).each do |m|
-           out << {id: m.id, title: "#{m.id}: #{m.title}"}
-         end
-         render json: out, status: :ok
-       end
-    end
-
 end

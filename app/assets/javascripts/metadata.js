@@ -43,6 +43,7 @@ $(function() {
 
    $("#search-text").keypress(function (evt) {
       if (evt.keyCode === 13 ) {
+         window.scrollTo(0,0);
          evt.stopPropagation();
          doSearch();
       }
@@ -71,6 +72,7 @@ $(function() {
       $("#sirsi_metadata_parent_metadata_id").val( $("tr.selected").data("metadata-id"));
       $("#xml_metadata_parent_metadata_id").val( $("tr.selected").data("metadata-id"));
       $("#unit_metadata_id").val( $("tr.selected").data("metadata-id"));
+      $("#master_file_metadata_id").val( $("tr.selected").data("metadata-id"));
 
       $("#dimmer").hide();
       $("#metadata-finder").hide();

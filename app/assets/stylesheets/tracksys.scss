@@ -1,4 +1,7 @@
 body.active_admin {
+   form fieldset select {
+       max-width: 65%;
+   }
    .pid-note {
       font-size: 0.8em;
       padding-bottom: 4px;
@@ -929,7 +932,6 @@ body.active_admin {
 
    form fieldset ol > li label {
       width: 30%;
-      margin-right: 10px;
    }
 
    form fieldset > ol > li fieldset ol {

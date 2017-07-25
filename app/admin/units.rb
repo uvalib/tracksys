@@ -449,16 +449,6 @@ ActiveAdmin.register Unit do
       render :text=>job.status, status: :ok
    end
 
-   collection_action :autocomplete, method: :get do
-      suggestions = []
-      like_keyword = "#{params[:query]}%"
-      Unit.where("id like ?", like_keyword).each do |o|
-         suggestions << "#{o.id}"
-      end
-      resp = {query: "Unit", suggestions: suggestions}
-      render json: resp, status: :ok
-   end
-
    controller do
       before_action :get_clone_src_units, only: [:show]
       def get_clone_src_units

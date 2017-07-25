@@ -1,7 +1,5 @@
-form.formtastic.sirsi_metadata , form.formtastic.xml_metadata {
-   label {
-      text-transform: uppercase;
-   }
+form.formtastic label, div.attributes_table th {
+   text-transform: capitalize;
 }
 #unit_metadata_id {
    width: 55%;

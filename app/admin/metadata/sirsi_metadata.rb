@@ -228,18 +228,7 @@ ActiveAdmin.register SirsiMetadata do
 
   form :partial => "form"
 
-  collection_action :autocomplete, method: :get do
-     suggestions = []
-     like_keyword = "#{params[:query]}%"
-     Metadata.where("type=? and barcode like ?", "SirsiMetadata", like_keyword).each do |o|
-        suggestions << {value: o.barcode, data: o.id}
-     end
-     resp = {query: "Unit", suggestions: suggestions}
-     render json: resp.to_json, status: :ok
-  end
-
   collection_action :external_lookup
-  collection_action :get_all
 
   # Flag for publication  overnight
   #
@@ -274,18 +263,10 @@ ActiveAdmin.register SirsiMetadata do
          @sirsi_meta[:box_id] = resource.box_id
          @sirsi_meta[:folder_id] = resource.folder_id
       end
-      
+
       before_action :blank_sirsi, only: [:new ]
       def blank_sirsi
          @sirsi_meta = {catalog_key: '', barcode: '' }
-      end
-
-      def get_all
-        out = []
-        SirsiMetadata.all.order(barcode: :asc).each do |m|
-          out << {id: m.id, title: "#{m.barcode}"}
-        end
-        render json: out, status: :ok
       end
 
       def external_lookup
