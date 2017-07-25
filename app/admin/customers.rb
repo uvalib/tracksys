@@ -31,6 +31,9 @@ ActiveAdmin.register Customer do
     column("Name", :sortable => false) do |customer|
       customer.full_name
     end
+    column :requests do |customer|
+      link_to customer.requests.to_a.size, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
+    end
     column :orders do |customer|
       link_to customer.orders.count, admin_orders_path(:q => {:customer_id_eq => customer.id})
     end

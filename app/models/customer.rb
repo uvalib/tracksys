@@ -65,6 +65,10 @@ class Customer < ApplicationRecord
       return out
    end
 
+   def requests
+      self.orders.where('order_status = ?', 'requested')
+   end
+
 end
 
 # == Schema Information

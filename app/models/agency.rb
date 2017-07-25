@@ -6,7 +6,6 @@ class Agency < ApplicationRecord
   # relationships
   #------------------------------------------------------------------
   has_many :orders
-  has_many :requests, -> { where("orders.order_status=?", 'requested') }
   has_many :units, :through => :orders
   has_many :master_files, :through => :units
   has_one :primary_address, ->{where(address_type: "primary")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
@@ -81,6 +80,10 @@ class Agency < ApplicationRecord
         out << "<a class='agency-ancestry' href='/admin/agencies/#{a.id}'>#{a.name}</a>" if !a.nil?
      end
      return out
+  end
+
+  def requests
+     self.orders.where('order_status = ?', 'requested')
   end
 end
 
