@@ -274,14 +274,6 @@ ActiveAdmin.register XmlMetadata do
    end
 
    controller do
-       before_action :get_dpla_collection_records, only: [:edit]
-       def get_dpla_collection_records
-          @dpla_collection_records = [{id:0, title:"None"}]
-          Metadata.where("id in (#{Settings.dpla_collection_records})").each do |r|
-             @dpla_collection_records << {id:r.id, title:r.title}
-          end
-       end
-
        def get_all
          out = []
          XmlMetadata.all.order(id: :asc).each do |m|
