@@ -10,13 +10,9 @@ $(function() {
       $("#metadata-finder").hide();
    });
 
-   $("#search-text").keypress(function (evt) {
-      if (evt.keyCode === 13 ) {
-         $("span.metadata-finder.find").click();
-      }
-   });
+   var doSearch = function() {
+      if ( $("span.metadata-finder.find").hasClass("disabled") ) return;
 
-   $("span.metadata-finder.find").on("click", function() {
       $("p.error").hide();
       var val = $("#search-text").val();
       if (val.length < 3) {
@@ -25,12 +21,14 @@ $(function() {
          return;
       }
 
+      $("span.metadata-finder.find").addClass("disabled");
       $.getJSON("/api/metadata/search?q="+val, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             $("tr.hit").remove();
-            var template = "<tr class='hit' data-metadata-id='MID'><td>PID</td><td>BARCODE</td><td>TITLE</td></tr>";
+            $("span.metadata-finder.find").removeClass("disabled");
+            var template = "<tr class='hit' data-metadata-id='MID'><td>MID</td><td>PID</td><td>BARCODE</td><td>TITLE</td></tr>";
             $.each(data, function(idx,val) {
-               var line = template.replace("MID", val.id);
+               var line = template.replace(/MID/g, val.id);
                line = line.replace("PID", val.pid);
                line = line.replace("BARCODE", val.barcode);
                line = line.replace("TITLE", val.title);
@@ -41,6 +39,17 @@ $(function() {
             $("p.error").show();
          }
       });
+   };
+
+   $("#search-text").keypress(function (evt) {
+      if (evt.keyCode === 13 ) {
+         evt.stopPropagation();
+         doSearch();
+      }
+   });
+
+   $("span.metadata-finder.find").on("click", function() {
+      doSearch();
    });
 
    $("div.results-panel table").on("click", "tr.hit", function() {
@@ -58,9 +67,10 @@ $(function() {
       }
 
       // only one or the other will ever be on screen at a time. One will fail,
-      // the other will succeed. This covers edit of both types of metadata
+      // the other will succeed. This covers edit of all types of metadata
       $("#sirsi_metadata_parent_metadata_id").val( $("tr.selected").data("metadata-id"));
       $("#xml_metadata_parent_metadata_id").val( $("tr.selected").data("metadata-id"));
+      $("#unit_metadata_id").val( $("tr.selected").data("metadata-id"));
 
       $("#dimmer").hide();
       $("#metadata-finder").hide();
