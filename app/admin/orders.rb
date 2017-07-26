@@ -117,6 +117,8 @@ ActiveAdmin.register Order do
    filter :department, :as => :select
    filter :agency, :as => :select
 
+   # INDEX ====================================================================
+   #
    index :id => 'orders' do
       selectable_column
       column :id, :class => 'sortable_short'
@@ -167,6 +169,8 @@ ActiveAdmin.register Order do
       end
    end
 
+   # DETAILS Page =============================================================
+   #
    show :title => proc{|order| "Order ##{order.id}"} do
       err = order.last_error
       if !err.blank?
@@ -177,40 +181,9 @@ ActiveAdmin.register Order do
       render "details", :context => self
    end
 
-   form do |f|
-      f.inputs "Basic Information", :class => 'panel three-column' do
-         f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-         f.input :order_title
-         f.input :special_instructions, :input_html => {:rows => 3}
-         f.input :staff_notes, :input_html => {:rows => 3}
-      end
-
-      f.inputs "Approval Information", :class => 'panel three-column' do
-         f.input :date_request_submitted, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_due, :as => :string, :input_html => {:class => :datepicker}
-         f.input :fee_estimated, :as => :string
-         f.input :fee_actual, :as => :string
-         f.input :date_deferred, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_fee_estimate_sent_to_customer, :as => :string, :input_html => {:class => :datepicker}
-      end
-
-      f.inputs "Related Information", :class => 'panel three-column' do
-         f.input :agency_id, :as => :select,  :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true
-         f.input :customer, :as => :select, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
-      end
-
-      f.inputs "Delivery Information", :class => 'panel columns-none' do
-         f.input :date_finalization_begun, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_archiving_complete, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_patron_deliverables_complete, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_customer_notified, :as => :string, :input_html => {:class => :datepicker}
-         f.input :email, :as => :text
-      end
-
-      f.inputs :class => 'columns-none' do
-         f.actions
-      end
-   end
+   # EDIT page =================================================================
+   #
+   form :partial => "form"
 
    # Only show order workflow for active orders (not canceled or complete)
    sidebar :order_workflow, :only => :show,  if: proc{
@@ -220,7 +193,7 @@ ActiveAdmin.register Order do
    end
 
    sidebar "Delivery Workflow", :only => :show,  if: proc{
-      resource.order_status != "canceled" && 
+      resource.order_status != "canceled" &&
       resource.has_patron_deliverables? && !current_user.viewer? &&
       !current_user.student? && resource.order_status != "canceled" }  do
       render "delivery_workflow", :context=>self

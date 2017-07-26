@@ -3,7 +3,7 @@ require 'prawn/table'
 
 class Order < ApplicationRecord
 
-   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'awaiting_fee_approval']
+   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'await_fee']
    include BuildOrderPDF
 
    def as_json(options)
@@ -40,7 +40,7 @@ class Order < ApplicationRecord
    scope :complete, ->{ where("order_status = 'completed' or date_archiving_complete is not null") }
    scope :deferred, ->{where("order_status = 'deferred'") }
    scope :in_process, ->{where("order_status = 'approved'") }
-   scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'awaiting_fee_approval'") }
+   scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
    scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }

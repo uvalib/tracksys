@@ -883,6 +883,10 @@ body.active_admin {
 
    /* add different statuses to status_tag styling in active_admin/components/_status_tag.scss*/
    .status_tag {
+      border-radius: 10px;
+      background-color: #bbb;
+      padding: 3px 10px;
+
       &.approved {
          background: #8daa92;
       }
@@ -946,6 +950,7 @@ body.active_admin {
    form fieldset input[type="url"],
    form fieldset textarea {
       width: 60%;
+      box-sizing: border-box;
    }
 
    form input[type="email"],

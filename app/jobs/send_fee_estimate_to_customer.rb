@@ -10,7 +10,7 @@ class SendFeeEstimateToCustomer < BaseJob
       OrderMailer.send_fee_estimate(order).deliver
       logger().info "Fee estimate email sent to customer."
 
-      order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'awaiting_fee_approval')
+      order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'await_fee')
       logger().info "Date fee estimate sent to customer has been updated and order deferred."
    end
 end

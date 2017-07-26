@@ -1,6 +1,6 @@
 # Awaiting fee approval has different workflow; just accept and cancel.
 # Accept can only be enabled if actual fee is set and there are no units being prepared
-if order.order_status == 'awaiting_fee_approval'
+if order.order_status == 'await_fee'
    accept_disable = order.fee_actual.nil? || order.has_units_being_prepared.any?
    div :class => 'workflow_button' do
       button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => accept_disable, :method => :put
