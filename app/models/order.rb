@@ -37,13 +37,18 @@ class Order < ApplicationRecord
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
+   scope :active, ->{where("order_status != 'canceled' and order_status!='completed'") }
    scope :complete, ->{ where("order_status = 'completed' or date_archiving_complete is not null") }
    scope :deferred, ->{where("order_status = 'deferred'") }
    scope :in_process, ->{where("order_status = 'approved'") }
+   scope :canceled, ->{where("order_status = 'canceled'") }
    scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
-   scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
+   scope :ready_for_delivery, ->{ joins(:units).where("units.intended_use_id != 110")
+      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null") }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
-   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
+   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
+      .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
+      .order('fee_actual desc') }
    scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
@@ -92,9 +97,6 @@ class Order < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
-   def active?
-      return !(order_status == 'canceled' || order_status == 'deferred'||  order_status == 'completed')
-   end
 
    def reorder?
       self.units.each do |u|
@@ -166,18 +168,18 @@ class Order < ApplicationRecord
       end
       q = nil
       if Time.now.to_date == timespan.to_date
-         where("date_due = ?", Date.today).active.patron_requests
+         where("date_due = ?", Date.today).in_progress.patron_requests
       elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan).active.patron_requests
+         where("date_due < ?", Date.today).where("date_due > ?", timespan).in_progress.patron_requests
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan).active.patron_requests
+         where("date_due > ?", Date.today).where("date_due < ?", timespan).in_progress.patron_requests
       end
    end
    def self.overdue
       date=0.days.ago
-      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
+      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).in_progress
    end
-   def self.active
+   def self.in_progress
       where("order_status != ? and order_status != ?", "completed", "deferred")
    end
 

@@ -92,12 +92,13 @@ ActiveAdmin.register Order do
       link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
    end
 
-   scope :all, :default => true
+   scope :active, :default => true
    scope :awaiting_approval
    scope :in_process
    scope :deferred
    scope :ready_for_delivery
    scope :complete
+   scope :canceled
    scope :due_today
    scope :due_in_a_week
    scope :overdue
