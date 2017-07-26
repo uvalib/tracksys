@@ -37,11 +37,10 @@ class Order < ApplicationRecord
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   scope :complete, ->{ where("date_archiving_complete is not null") }
+   scope :complete, ->{ where("order_status = 'completed' or date_archiving_complete is not null") }
    scope :deferred, ->{where("order_status = 'deferred'") }
-   scope :in_process, ->{where("date_archiving_complete is null").where("order_status = 'approved'") }
-   scope :awaiting_approval, ->{where("order_status = 'requested'") }
-   scope :approved,->{ where("order_status = 'approved'") }
+   scope :in_process, ->{where("order_status = 'approved'") }
+   scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'awaiting_fee_approval'") }
    scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
@@ -195,12 +194,16 @@ class Order < ApplicationRecord
          if !date_customer_notified.nil?
             update(order_status: "completed", date_completed: Time.now)
             return true
+         else
+            errors.add(:customer, "has not been notified")
          end
       else
          # validate that date archived set
          if !date_archiving_complete.nil?
             update(order_status: "completed", date_completed: Time.now)
             return true
+         else
+            errors.add(:order, "unit(s) have not been archived")
          end
       end
       return false

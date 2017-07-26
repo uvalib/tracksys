@@ -26,6 +26,10 @@
 @import "icons";
 @import "metadata_finder";
 
+body.active_admin.logged_in .flash.flash_error {
+   border-top: 1px solid #e0c2c0;
+}
+
 body.active_admin.admin_sirsi_metadata, body.active_admin.admin_xml_metadata {
    #title_bar {
       background-color: #d4e0f5;

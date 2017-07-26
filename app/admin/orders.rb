@@ -94,16 +94,14 @@ ActiveAdmin.register Order do
 
    scope :all, :default => true
    scope :awaiting_approval
-   scope :approved
-   scope :deferred
    scope :in_process
+   scope :deferred
    scope :ready_for_delivery
    scope :complete
    scope :due_today
    scope :due_in_a_week
    scope :overdue
    scope :unpaid
-   scope :uniq
 
    filter :id_equals, :label=>"ID"
    filter :order_title_contains, :label=>"Title"
@@ -221,7 +219,10 @@ ActiveAdmin.register Order do
       render "approval_workflow", :context=>self
    end
 
-   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && resource.order_status != "canceled" }  do
+   sidebar "Delivery Workflow", :only => :show,  if: proc{
+      resource.order_status != "canceled" && 
+      resource.has_patron_deliverables? && !current_user.viewer? &&
+      !current_user.student? && resource.order_status != "canceled" }  do
       render "delivery_workflow", :context=>self
    end
 
@@ -262,7 +263,7 @@ ActiveAdmin.register Order do
       if order.complete_order
          redirect_to "/admin/orders/#{params[:id]}"
       else
-         redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is not complete."
+         redirect_to "/admin/orders/#{params[:id]}", :flash => {:error => "Order #{params[:id]} is not complete: #{order.errors.full_messages.to_sentence}"}
       end
    end
 
