@@ -195,7 +195,11 @@ class Order < ApplicationRecord
             update(order_status: "completed", date_completed: Time.now)
             return true
          else
-            errors.add(:customer, "has not been notified")
+            if date_patron_deliverables_complete.nil?
+               errors.add(:customer, "deliverables have not been generated")
+            else
+               errors.add(:customer, "has not been notified")
+            end
          end
       else
          # validate that date archived set
@@ -203,7 +207,11 @@ class Order < ApplicationRecord
             update(order_status: "completed", date_completed: Time.now)
             return true
          else
-            errors.add(:order, "unit(s) have not been archived")
+            if date_finalization_begun.nil?
+               errors.add(:order, "has not been finalized")
+            else
+               errors.add(:order, "has not been archived")
+            end
          end
       end
       return false
