@@ -200,8 +200,8 @@ ActiveAdmin.register SirsiMetadata do
       row "Agencies Requesting Resource" do |sirsi_metadata|
         raw(sirsi_metadata.agency_links)
       end
-      row("Parent Metadata Record") do |sirsi_metadata|
         if sirsi_metadata.parent
+          row("Parent Metadata Record") do |sirsi_metadata|
           if sirsi_metadata.parent.type == "SirsiMetadata"
              link_to "#{sirsi_metadata.parent.title}", "/admin/sirsi_metadata/#{sirsi_metadata.parent.id}"
           elsif sirsi_metadata.parent.type == "XmlMetadata"
@@ -209,10 +209,12 @@ ActiveAdmin.register SirsiMetadata do
           end
         end
       end
-      row "child metadata records" do |sirsi_metadata|
-         map = sirsi_metadata.typed_children
-         render partial: 'children_links', locals: {map: map, parent_id: sirsi_metadata.id}
-      end
+        if sirsi_metadata.children.count > 0
+          row "child metadata records" do |sirsi_metadata|
+            map = sirsi_metadata.typed_children
+            render partial: 'children_links', locals: {map: map, parent_id: sirsi_metadata.id}
+          end
+        end
     end
   end
 
