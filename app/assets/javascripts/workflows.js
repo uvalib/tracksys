@@ -206,6 +206,24 @@ $(function() {
 
    // Duration entry
    //
+   var submitFinish = function(mins) {
+      $.ajax({
+         url: window.location.href+"/finish_assignment",
+         method: "POST",
+         data: { duration: mins },
+         complete: function(jqXHR, textStatus) {
+            if ( textStatus != "success" ) {
+               alert("Unable to mark assignment as completed:"+jqXHR.responseText);
+               toggleWorkflowButtons(true);
+               $("#finish-assignment-btn").show();
+               $("#reject-button").show();
+               $("div.workflow.time-entry").hide();
+            } else {
+               window.location.reload();
+            }
+         }
+      });
+   };
    $("#duration-minutes").keypress(function (evt) {
       if (evt.keyCode === 13) {
          $(".submit.time-entry").click();
@@ -241,23 +259,7 @@ $(function() {
          $("#finish-assignment-btn").show();
          $("#reject-button").show();
       } else {
-         // Just submit the duration and step finish
-         $.ajax({
-            url: window.location.href+"/finish_assignment",
-            method: "POST",
-            data: { duration: mins },
-            complete: function(jqXHR, textStatus) {
-               if ( textStatus != "success" ) {
-                  alert("Unable to mark assignment as completed:"+jqXHR.responseText);
-                  toggleWorkflowButtons(true);
-                  $("#finish-assignment-btn").show();
-                  $("#reject-button").show();
-                  $("div.workflow.time-entry").hide();
-               } else {
-                  window.location.reload();
-               }
-            }
-         });
+         submitFinish(mins);
       }
    });
 
@@ -273,7 +275,13 @@ $(function() {
    };
    $("#finish-assignment-btn").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
-      showDurationEntry();
+      if ( !$(this).data("duration") ) {
+         showDurationEntry();
+      } else {
+         toggleWorkflowButtons(false);
+         submitFinish( 0 );
+      }
+
       $("div.workflow.time-entry").data("rejection", false);
    });
 

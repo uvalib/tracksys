@@ -127,10 +127,15 @@ ActiveAdmin.register Project do
                 (project.workstation.nil? && project.workflow.name != "Clone")
                clazz << " disabled locked"
             end
-            raw("<span class='#{clazz}' id='finish-assignment-btn'>Finish</span>")
+            if !project.active_assignment.duration_minutes.nil?
+               mins = project.active_assignment.duration_minutes
+               raw("<span class='#{clazz}' id='finish-assignment-btn' data-duration='#{mins}'>Finish</span>")
+            else
+               raw("<span class='#{clazz}' id='finish-assignment-btn' >Finish</span>")
+            end
          end
          render partial: 'time_entry', locals: {project: project}
-         if (project.workstation.nil? || project.unit.metadata.ocr_hint) && project.workflow.name != "Clone"
+         if (project.workstation.nil? || project.unit.metadata.ocr_hint.nil?) && project.workflow.name != "Clone"
             div class: 'equipment-note' do
                "Assignment cannot be finished until the workstation and OCR hint has been set."
             end
