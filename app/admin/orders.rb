@@ -4,45 +4,6 @@ ActiveAdmin.register Order do
    actions :all, :except => [:destroy]
    config.clear_action_items!
 
-   batch_action :approve_orders do |selection|
-      failed = []
-      Order.find(selection).each do |s|
-         begin
-            s.approve_order
-         rescue Exception=>e
-            failed << s.id
-         end
-      end
-      if failed
-         flash[:notice] = "Unable to approve order(s) #{failed.join(',')}. See order details for reason."
-      end
-      redirect_to "/admin/orders"
-   end
-
-   batch_action :cancel_orders do |selection|
-      failed = []
-      Order.find(selection).each do |s|
-         begin
-            s.cancel_order
-         rescue Exception=>e
-            failed << s.id
-         end
-      end
-      if !failed.empty?
-         flash[:notice] = "Unable to cancel order(s) #{failed.join(',')}. See order details for reason."
-      end
-      redirect_to "/admin/orders"
-   end
-
-   batch_action :complete_orders do |selection|
-      failed = []
-      Order.find(selection).each {|s| failed << s.id if !s.complete_order }
-      if !failed.empty?
-         flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
-      end
-      redirect_to "/admin/orders"
-   end
-
    # strong paramters handling
    permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
       :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer,
@@ -209,16 +170,59 @@ ActiveAdmin.register Order do
       send_file(report.path)
    end
 
+   # BATCH ACTIONS ============================================================
+   #
+   batch_action :approve_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.approve_order
+         rescue Exception=>e
+            failed << s.id
+         end
+      end
+      if failed
+         flash[:notice] = "Unable to approve order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :cancel_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.cancel_order
+         rescue Exception=>e
+            failed << s.id
+         end
+      end
+      if !failed.empty?
+         flash[:notice] = "Unable to cancel order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :complete_orders do |selection|
+      failed = []
+      Order.find(selection).each {|s| failed << s.id if !s.complete_order }
+      if !failed.empty?
+         flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   # MEMBER ACTIONS ===========================================================
+   #
    member_action :approve_order, :method => :put do
       order = Order.find(params[:id])
-      order.approve_order
+      order.approve_order(current_user)
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
    end
 
    member_action :defer_order, :method => :put do
       order = Order.find(params[:id])
       was_deferred = order.order_status == 'deferred'
-      order.defer_order
+      order.defer_order(current_user)
       msg = "Order #{params[:id]} is now deferred."
       if was_deferred
          msg = "Order #{params[:id]} has been reactivated."
@@ -228,13 +232,13 @@ ActiveAdmin.register Order do
 
    member_action :cancel_order, :method => :put do
       order = Order.find(params[:id])
-      order.cancel_order
+      order.cancel_order(current_user)
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now canceled."
    end
 
    member_action :complete_order, :method => :put do
       order = Order.find(params[:id])
-      if order.complete_order
+      if order.complete_order(current_user)
          redirect_to "/admin/orders/#{params[:id]}"
       else
          redirect_to "/admin/orders/#{params[:id]}", :flash => {:error => "Order #{params[:id]} is not complete: #{order.errors.full_messages.to_sentence}"}
@@ -242,6 +246,9 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_fee_estimate_to_customer, :method => :put do
+      msg = "Status #{self.order_status.upcase} to AWAIT_FEE"
+      AuditEvent.create(auditable: Order.find(params[:id]), event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
+
       SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
    end

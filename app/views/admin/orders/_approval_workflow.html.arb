@@ -26,9 +26,11 @@ else
       div :class => 'workflow_button' do
          # Only enable send estimate when estimate is populated, fee has not been sent and actual is blank
          fee_disabled = order.fee_estimated.nil? || !order.date_fee_estimate_sent_to_customer.nil? || !order.fee_actual.nil?
+         fee_disabled = order.order_status == 'deferred'
          button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => fee_disabled, :method => :put
       end
    end
+
    div :class => 'workflow_button' do
       if order.order_status == 'deferred'
          button_to "Resume Order", defer_order_admin_order_path(order.id), :method => :put
@@ -36,12 +38,14 @@ else
          button_to "Defer Order", defer_order_admin_order_path(order.id), :method => :put
       end
    end
+
    div :class => 'workflow_button' do
       approve_disabled = order.order_status == 'approved' || order.customer.external? || !order.date_order_approved.nil?
       approve_disabled = false if order.customer.external? && !order.fee_estimated.nil? && !order.fee_actual.nil? && order.order_status != 'approved'
-      approve_disabled = order.has_units_being_prepared.any?  # non-ready units trumps other enabling
+      approve_disabled = true if order.has_units_being_prepared.any?  # non-ready units trumps other enabling
       button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => approve_disabled, :method => :put
    end
+
    div :class => 'workflow_button' do
       # Cancel is always available
       button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put

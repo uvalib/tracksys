@@ -190,10 +190,13 @@ class Order < ApplicationRecord
       return nil
    end
 
-   def complete_order
+   def complete_order(user)
       if has_patron_deliverables?
          # validate that the order has date customer notified set
          if !date_customer_notified.nil?
+            msg = "Status #{self.order_status.upcase} to COMPLETED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
             update(order_status: "completed", date_completed: Time.now)
             return true
          else
@@ -206,6 +209,9 @@ class Order < ApplicationRecord
       else
          # validate that date archived set
          if !date_archiving_complete.nil?
+            msg = "Status #{self.order_status.upcase} to COMPLETED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
             update(order_status: "completed", date_completed: Time.now)
             return true
          else
@@ -219,29 +225,44 @@ class Order < ApplicationRecord
       return false
    end
 
-   def defer_order
+   def defer_order(user)
       # entering a deferred state or leaving it?
       if self.order_status != 'deferred'
+         msg = "Status #{self.order_status.upcase} to DEFERRED"
+         AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
          self.order_status = 'deferred'
          self.date_deferred = Time.now
          self.save!
       else
          # resuming a deferred order
          if self.date_order_approved.nil?
+            msg = "Status #{self.order_status.upcase} to REQUESTED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
             update(order_status: "requested")
          else
+            msg = "Status #{self.order_status.upcase} to APPROVED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
             update(order_status: "approved")
          end
       end
    end
 
-   def approve_order
+   def approve_order(user)
+      msg = "Status #{self.order_status.upcase} to APPROVED"
+      AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
       self.order_status = 'approved'
       self.date_order_approved = Time.now
       self.save!
    end
 
-   def cancel_order
+   def cancel_order(user)
+      msg = "Status #{self.order_status.upcase} to CANCELED"
+      AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
       self.order_status = 'canceled'
       self.date_canceled = Time.now
       self.save!
