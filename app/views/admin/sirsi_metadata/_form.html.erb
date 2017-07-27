@@ -40,11 +40,14 @@
 
       <%= f.input :dpla, :as => :radio %>
 
-      <li class="select input optional" id="sirsi_metadata_parent_metadata_id_input">
-         <label for="sirsi_metadata_parent_metadata_id" class="label">Parent Metadata ID</label>
-         <input id="sirsi_metadata_parent_metadata_id" type="text" name="sirsi_metadata[parent_metadata_id]">
-         <span id="find-metadata"></span>
-      </li>
+      <!-- Only allow single level heirarchy; if metadata has children, it can't also be a child -->
+      <% if @sirsi_metadata.children.count == 0 %>
+         <li class="select input optional" id="sirsi_metadata_parent_metadata_id_input">
+            <label for="sirsi_metadata_parent_metadata_id" class="label">Parent Metadata ID</label>
+            <input id="sirsi_metadata_parent_metadata_id" type="text" name="sirsi_metadata[parent_metadata_id]">
+            <span id="find-metadata"></span>
+         </li>
+      <% end %>
 
       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
