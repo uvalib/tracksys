@@ -2,7 +2,6 @@
 //= require jquery.colorbox
 //= require chosen-jquery
 //= require tracksys
-//= require jquery.panzoom
 //= require jquery.form.min
 //= require jquery.autocomplete
 //= require autocomplete
