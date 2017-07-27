@@ -4,10 +4,10 @@ ActiveAdmin.register XmlMetadata do
 
    # strong paramters handling
    permit_params :title, :creator_name,
-       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
-       :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-       :collection_facet, :use_right_id, :desc_metadata, :dpla,
-       :collection_id, :box_id, :folder_id, :ocr_hint_id, :parent_metadata_id
+      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
+      :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
+      :collection_facet, :use_right_id, :desc_metadata, :dpla,
+      :collection_id, :box_id, :folder_id, :ocr_hint_id, :parent_metadata_id
 
    config.clear_action_items!
 
@@ -62,13 +62,21 @@ ActiveAdmin.register XmlMetadata do
          end
       end
       column ("DPLA?") do |xml_metadata|
-        format_boolean_as_yes_no(xml_metadata.dpla)
+         format_boolean_as_yes_no(xml_metadata.dpla)
       end
       column :units, :class => 'sortable_short', :sortable => :units_count do |xml_metadata|
-         link_to xml_metadata.units.count, admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
+         if xml_metadata.units.count == 0 && xml_metadata.master_files.count == 1
+            link_to "1", "/admin/units/#{xml_metadata.master_files.first.unit.id}"
+         else
+            link_to xml_metadata.units.count, admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
+         end
       end
       column("Master Files") do |xml_metadata|
-         link_to xml_metadata.master_files.count, admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
+         if xml_metadata.master_files.count == 1
+            link_to "1", "/admin/master_files/#{xml_metadata.master_files.first.id}"
+         else
+            link_to xml_metadata.master_files.count, admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
+         end
       end
       column("Links") do |xml_metadata|
          div do
@@ -86,67 +94,64 @@ ActiveAdmin.register XmlMetadata do
    #
    show :title => proc { |xml_metadata| truncate(xml_metadata.title, :length => 60) } do
       div :class => 'two-column' do
-       panel "Digital Library Information"  do
-         attributes_table_for xml_metadata do
-           row :pid
-           row ("In Digital Library?") do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.in_dl?)
-           end
-           row :dpla
-           if xml_metadata.dpla
-              row('Parent Metadata ID'){ |r| r.parent_metadata_id }
-           end
-           row :exemplar do |xml_metadata|
-             link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
-           end
-           row('Right Statement'){ |r| r.use_right.name }
-           row :availability_policy
-           row ("Discoverable?") do |sirsi_metadata|
-             format_boolean_as_yes_no(sirsi_metadata.discoverability)
-          end
-           row :collection_facet
-           row :date_dl_ingest
-           row :date_dl_update
+         panel "Digital Library Information"  do
+            attributes_table_for xml_metadata do
+               row :pid
+               row ("In Digital Library?") do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.in_dl?)
+               end
+               row :dpla
+               row :exemplar do |xml_metadata|
+                  link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
+               end
+               row('Right Statement'){ |r| r.use_right.name }
+               row :availability_policy
+               row ("Discoverable?") do |sirsi_metadata|
+                  format_boolean_as_yes_no(sirsi_metadata.discoverability)
+               end
+               row :collection_facet
+               row :date_dl_ingest
+               row :date_dl_update
+            end
          end
-       end
-     end
+      end
 
-     div :class => 'two-column' do
-       panel "Administrative Information" do
-         attributes_table_for xml_metadata do
-           row("Collection ID") do |xml_metadata|
-             xml_metadata.collection_id
-           end
-           row ("Box Number") do |xml_metadata|
-             xml_metadata.box_id
-           end
-           row ("Folder Number") do |xml_metadata|
-             xml_metadata.folder_id
-           end
-           row "Approved?" do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.is_approved)
-           end
-           row "Personal item?" do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.is_personal_item)
-           end
-           row "Manuscript or unpublished item?" do |xml_metadata|
-             format_boolean_as_yes_no(xml_metadata.is_manuscript)
-           end
-           row :resource_type
-           row :genre
-           row :ocr_hint
-           row ("Date Created") do |xml_metadata|
-             xml_metadata.created_at
-           end
+      div :class => 'two-column' do
+         panel "Administrative Information" do
+            attributes_table_for xml_metadata do
+               row("Collection ID") do |xml_metadata|
+                  xml_metadata.collection_id
+               end
+               row ("Box Number") do |xml_metadata|
+                  xml_metadata.box_id
+               end
+               row ("Folder Number") do |xml_metadata|
+                  xml_metadata.folder_id
+               end
+               row "Approved?" do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.is_approved)
+               end
+               row "Personal item?" do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.is_personal_item)
+               end
+               row "Manuscript or unpublished item?" do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.is_manuscript)
+               end
+               row :resource_type
+               row :genre
+               row :ocr_hint
+               row ("Date Created") do |xml_metadata|
+                  xml_metadata.created_at
+               end
+            end
          end
-       end
-     end
+      end
 
-     div :class => 'columns-none' do
-       panel "XML Metadata" do
-           render 'xml_meta'
-       end
-    end
+      div :class => 'columns-none' do
+         panel "XML Metadata" do
+            render 'xml_meta'
+         end
+      end
    end
 
    # EDIT page ================================================================
@@ -156,63 +161,78 @@ ActiveAdmin.register XmlMetadata do
    # Sidebars =================================================================
    #
    sidebar "Related Information", :only => [:show, :edit] do
-     attributes_table_for xml_metadata do
-       if xml_metadata.master_files.count > 0
-          row :master_files do |xml_metadata|
-            link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
-          end
-       end
-       if xml_metadata.units.count > 0
-          row :units do |xml_metadata|
-            link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
-          end
-          row :orders do |xml_metadata|
-            link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
-          end
-          row :customers do |xml_metadata|
-            link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
-          end
-          row "Agencies Requesting Resource" do |xml_metadata|
-            raw(xml_metadata.agency_links)
-          end
-          row("Parent Metadata Record") do |xml_metadata|
-             if xml_metadata.parent
-               if xml_metadata.parent.type == "SirsiMetadata"
-                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
-               elsif xml_metadata.parent.type == "XmlMetadata"
-                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
+      attributes_table_for xml_metadata do
+         # If there is only one master file, link directy to it
+         if xml_metadata.master_files.count == 1
+            row :master_file do |xml_metadata|
+               link_to "##{xml_metadata.master_files.first.id}", "/admin/master_files/#{xml_metadata.master_files.first.id}"
+            end
+         else
+            row :master_files do |xml_metadata|
+               if xml_metadata.master_files.count > 0
+                  link_to "#{xml_metadata.master_files.count}", admin_master_files_path(:q => {:metadata_id_eq => xml_metadata.id})
+               else
+                  raw("<span class='empty'>Empty</span>")
                end
-             end
-          end
-          row "child metadata records" do |xml_metadata|
-             map = xml_metadata.typed_children
-             render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
-          end
-       else
-          if xml_metadata.master_files.count == 1
-             unit = xml_metadata.master_files.first.unit
-             row :unit do |xml_metadata|
-                link_to "##{unit.id}", "/admin/units/#{unit.id}"
-             end
-             row :order do |xml_metadata|
+            end
+         end
+
+         # No units but one master file is an indicator that descriptive XML
+         # metadata was created specifically for the master file after initial ingest.
+         # This is usually the case with image collections where each image has its own descriptive metadata.
+         # In this case, there is no direct link from metadata to unit. Must find it by
+         # going through the master file that this metadata describes
+         if xml_metadata.units.count == 0 && xml_metadata.master_files.count == 1
+            unit = xml_metadata.master_files.first.unit
+            row :unit do |xml_metadata|
+               link_to "##{unit.id}", "/admin/units/#{unit.id}"
+            end
+            row :order do |xml_metadata|
                link_to "##{unit.order.id}", "/admin/orders/#{unit.order.id}"
-             end
-          end
-          row("Parent Metadata Record") do |xml_metadata|
-             if xml_metadata.parent
+            end
+         else
+            # units exist; use them as normal
+            row :units do |xml_metadata|
+               if xml_metadata.units.count > 0
+                  link_to "#{xml_metadata.units.count}", admin_units_path(:q => {:metadata_id_eq => xml_metadata.id})
+               else
+                  raw("<span class='empty'>Empty</span>")
+               end
+            end
+            row :orders do |xml_metadata|
+               if xml_metadata.orders.count > 0
+                  link_to "#{xml_metadata.orders.count}", admin_orders_path(:q => {:xml_metadata_id_eq => xml_metadata.id}, :scope => :uniq )
+               else
+                  raw("<span class='empty'>Empty</span>")
+               end
+            end
+            if xml_metadata.units.count > 0
+               row :customers do |xml_metadata|
+                  link_to "#{xml_metadata.customers.count}", admin_customers_path(:q => {:metadata_id_eq => xml_metadata.id})
+               end
+               row "Agencies Requesting Resource" do |xml_metadata|
+                  raw(xml_metadata.agency_links)
+               end
+            end
+         end
+
+         # metadata heirarchy display (if necessary)
+         if xml_metadata.parent
+            row("Parent Metadata Record") do |xml_metadata|
                if xml_metadata.parent.type == "SirsiMetadata"
                   link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
                elsif xml_metadata.parent.type == "XmlMetadata"
                   link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
                end
-             end
-          end
-          row "child metadata records" do |xml_metadata|
-             map = xml_metadata.typed_children
-             render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
-          end
-       end
-     end
+            end
+         end
+         if !xml_metadata.children.blank?
+            row "child metadata records" do |xml_metadata|
+               map = xml_metadata.typed_children
+               render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+            end
+         end
+      end
    end
 
    sidebar "Supplemental Metadata", :only => [:show],  if: proc{ !xml_metadata.supplemental_system.nil?} do
@@ -234,9 +254,9 @@ ActiveAdmin.register XmlMetadata do
             button_to "Publish to Virgo Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
          end
       else
-        div :class => 'workflow_button' do
-           button_to "Publish to Digital Library Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
-        end
+         div :class => 'workflow_button' do
+            button_to "Publish to Digital Library Test", "/admin/xml_metadata/#{xml_metadata.id}/test_publish", :method => :put
+         end
       end
    end
 
@@ -246,19 +266,19 @@ ActiveAdmin.register XmlMetadata do
    # Flag for publication  overnight
    #
    member_action :publish, :method => :put do
-     metadata = XmlMetadata.find(params[:id])
-     metadata.flag_for_publication
+      metadata = XmlMetadata.find(params[:id])
+      metadata.flag_for_publication
 
-     logger.info "XmlMetadata #{metadata.id} has been flagged for an update in the DL"
-     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
+      logger.info "XmlMetadata #{metadata.id} has been flagged for an update in the DL"
+      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
    end
 
    # Publish immediately to test instance of Virgo
    #
    member_action :test_publish, :method => :put do
-     metadata = XmlMetadata.find(params[:id])
-     metadata.publish_to_test
-     logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
-     redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
+      metadata = XmlMetadata.find(params[:id])
+      metadata.publish_to_test
+      logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
+      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
 end
