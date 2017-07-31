@@ -1,3 +1,7 @@
+require 'exifr/jpeg'
+require 'exifr/tiff'
+require "rmagick"
+
 module TechMetadata
    # Create image tech metadata
    def self.create(master_file, image_path)

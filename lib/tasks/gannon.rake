@@ -16,13 +16,13 @@ namespace :gannon do
       bc = ENV['barcode']
       abort "barcode is required" if bc.nil?
 
-      csv_file = File.join(PRODUCTION_MOUNT, "Gannon", "Complete_Adam", "#{bc}.csv")
-      image_dir = File.join(PRODUCTION_MOUNT, "Gannon", "COMPLETED FOLDERS", bc)
+      excel_file = File.join(PRODUCTION_MOUNT, "Gannon", "excel", "#{bc}.xlsx")
+      image_dir = File.join(PRODUCTION_MOUNT, "Gannon", "content", bc)
       if !Dir.exists? image_dir
          abort "Image dir #{image_dir} does not exist"
       end
-      if !File.exists? csv_file
-         abort "CSV file #{csv_file} does not exist"
+      if !File.exists? excel_file
+         abort "Excel file #{excel_file} does not exist"
       end
 
       # get rights - no copyright US and collection_facet
@@ -53,8 +53,9 @@ namespace :gannon do
          unit = sm.units.first
       end
 
-
-      CSV.foreach(csv_file, headers: true) do |row|
+      xlsx = Roo::Spreadsheet.open(excel_file)
+      csv_data = xlsx.to_csv
+      CSV.parse(csv_data, headers: true) do |row|
          next if row[0].blank?
          filename = row[0]
          title = row[1]
@@ -82,9 +83,6 @@ namespace :gannon do
          else
             text_filename = filename.gsub(/\.tif/, '.txt')
             publish_to_iiif(mf, img_file)
-            #FIXME... Above gets error:
-            # convert: unable to open image `/Users/lf6f/dev/tracksys-dev/sandbox/digiserv-production/Gannon/COMPLETED':
-            # the space is a problem in the name
          end
 
          # Update MF with OCR text
@@ -92,7 +90,7 @@ namespace :gannon do
          file = File.open(txt_file, "rb")
          ocr_txt = file.read
          file.close
-         mf.update(transcription_text: ocr_txt, text_source: 0)
+         mf.update!(transcription_text: ocr_txt, text_source: 0)
 
          # Archive!
          dest_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
@@ -104,7 +102,7 @@ namespace :gannon do
          dest_file = File.join(dest_dir, filename )
          FileUtils.copy(img_file, dest_file)
          dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
-         mf.update(date_archived: DateTime.now, date_dl_ingest: DateTime.now)
+         mf.update!(date_archived: DateTime.now, date_dl_ingest: DateTime.now)
          if dest_md5 != md5
             puts "ERROR: MD5 does not match for #{filename}"
          end
