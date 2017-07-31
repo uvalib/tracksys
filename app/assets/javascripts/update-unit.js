@@ -1,9 +1,14 @@
 $(function() {
 
    $(".mf-checkbox").on("change", function() {
-      var url = $("#download-select-pdf").attr("href");
-      url = url.split("&token")[0];
       $("#download-select-pdf, #del-pages").removeClass("disabled");
+      var pdfButtonExists = $("#download-select-pdf").length > 0;
+      var url = "";
+
+      if ( pdfButtonExists ) {
+         url = $("#download-select-pdf").attr("href");
+         url = url.split("&token")[0];
+      }
 
       var ids = [];
       var filenames = [];
@@ -14,13 +19,18 @@ $(function() {
          }
       });
       if (ids.length > 0) {
-         var token = "&token=" + Math.floor((new Date()).getTime() / 1000);
-         url = url + token + "&pages=" + ids.join(",");
+         if ( pdfButtonExists ) {
+            var token = "&token=" + Math.floor((new Date()).getTime() / 1000);
+            url = url + token + "&pages=" + ids.join(",");
+         }
       } else {
          $("#download-select-pdf, #del-pages").addClass("disabled");
       }
       $("#del-pages").data("filenames", filenames);
-      $("#download-select-pdf").attr("href", url);
+
+      if (pdfButtonExists) {
+         $("#download-select-pdf").attr("href", url);
+      }
    });
 
    $("#del-pages").on("click", function() {
