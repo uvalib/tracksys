@@ -64,5 +64,12 @@ div :class => 'columns-none' do
             raw( strip_email(order.email) )
          end
       end
+      if (current_user.admin? || current_user.supervisor?) &&
+         (!order.date_finalization_begun.blank? || !order.date_archiving_complete.blank?
+          !order.date_patron_deliverables_complete.blank? )
+         div class: "mini-button-bar" do
+            span class: "order mf-action-button reset-btn" do "Reset Dates" end
+         end
+      end
    end
 end

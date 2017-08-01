@@ -12,7 +12,7 @@
 #
 
 class AuditEvent < ApplicationRecord
-   enum event: [:status_update, :project_create]
+   enum event: [:status_update, :project_create, :date_reset]
 
    belongs_to :auditable, polymorphic: true
    belongs_to :staff_member

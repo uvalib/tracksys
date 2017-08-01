@@ -275,6 +275,15 @@ ActiveAdmin.register Order do
       send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
    end
 
+   member_action :reset_dates, :method => :post do
+      o = Order.find(params[:id])
+      AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update],
+         staff_member: current_user, details: "Finalize, Archive and deliverable dates reset")
+      o.update(date_finalization_begun: nil, date_archiving_complete: nil,
+         date_patron_deliverables_complete: nil)
+      render plain: "OK"
+   end
+
    controller do
       before_action :get_audit_log, only: [:show]
       def get_audit_log
