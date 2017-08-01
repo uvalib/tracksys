@@ -278,7 +278,7 @@ ActiveAdmin.register Order do
    member_action :reset_dates, :method => :post do
       o = Order.find(params[:id])
       AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update],
-         staff_member: current_user, details: "Finalize, Archive and deliverable dates reset")
+         staff_member: current_user, details: "Finalize, archive and deliverable dates reset")
       o.update(date_finalization_begun: nil, date_archiving_complete: nil,
          date_patron_deliverables_complete: nil)
       render plain: "OK"
