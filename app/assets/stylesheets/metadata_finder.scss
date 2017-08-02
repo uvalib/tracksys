@@ -6,6 +6,9 @@ form.formtastic label, div.attributes_table th {
 }
 #dimmer .modal#metadata-finder {
 width: 500px;
+table {
+       border-collapse: collapse;
+}
    div.find {
       padding: 15px;
       p.note {
