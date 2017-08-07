@@ -10,6 +10,9 @@ div :class => 'two-column' do
                render partial: "audit_log", locals: {audit_log: audit_log}
             end
          end
+         if order.order_status == "completed"
+            row :date_completed
+         end
          row :order_title
          row :special_instructions
          row :staff_notes
@@ -38,9 +41,6 @@ div :class => 'two-column' do
          row :date_fee_estimate_sent_to_customer do |customer|
             format_date(customer.date_fee_estimate_sent_to_customer)
          end
-         row :date_permissions_given do |customer|
-            format_date(customer.date_permissions_given)
-         end
       end
    end
 end
@@ -62,6 +62,13 @@ div :class => 'columns-none' do
          end
          row :email do |order|
             raw( strip_email(order.email) )
+         end
+      end
+      if (current_user.admin? || current_user.supervisor?) &&
+         (!order.date_finalization_begun.blank? || !order.date_archiving_complete.blank?
+          !order.date_patron_deliverables_complete.blank? )
+         div class: "mini-button-bar" do
+            span class: "order mf-action-button reset-btn" do "Reset Dates" end
          end
       end
    end

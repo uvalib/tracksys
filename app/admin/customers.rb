@@ -32,10 +32,10 @@ ActiveAdmin.register Customer do
       customer.full_name
     end
     column :requests do |customer|
-       link_to customer.requests.to_a.size, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
+      link_to customer.requests.to_a.size, admin_orders_path(:q => {:customer_id_eq => customer.id}, :scope => 'awaiting_approval')
     end
     column :orders do |customer|
-      link_to customer.orders_count.to_s, admin_orders_path(:q => {:customer_id_eq => customer.id})
+      link_to customer.orders.count, admin_orders_path(:q => {:customer_id_eq => customer.id})
     end
     column :units do |customer|
       link_to customer.units.to_a.size, admin_units_path(:q => {:customer_id_eq => customer.id})

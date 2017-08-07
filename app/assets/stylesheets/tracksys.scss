@@ -1,4 +1,7 @@
 body.active_admin {
+   form fieldset select {
+       max-width: 65%;
+   }
    .pid-note {
       font-size: 0.8em;
       padding-bottom: 4px;
@@ -9,15 +12,18 @@ body.active_admin {
       background-color: #e5e5e5;
       text-shadow: none;
       border: none;
-      border-bottom: 1px solid #ccc;
       font-weight: 500;
    }
+   .panel_contents table th {
+      border:none;
+   }
+
    table.index_table th {
       background-color: #efefef;
       background-image: none;
       text-shadow: none;
       box-shadow: none;
-      border-color: #ddd;
+      border:none;
    }
    table.index_table th.sorted-desc, table.index_table th.sorted-asc {
       background-color: #ddd;
@@ -25,7 +31,7 @@ body.active_admin {
    div.section, div.panel {
       box-shadow: none;
       border-radius: 0;
-      border: 1px solid #e0e0e0;
+      border: none;
    }
    #header {
       background-color: #405056;
@@ -643,6 +649,7 @@ body.active_admin {
             border-radius: 5px 5px 0 0;
             border-bottom: 1px solid #555;
             text-shadow: 1px 1px #333;
+            margin: 0;
          }
 
          div.buttons {
@@ -877,6 +884,10 @@ body.active_admin {
 
    /* add different statuses to status_tag styling in active_admin/components/_status_tag.scss*/
    .status_tag {
+      border-radius: 10px;
+      background-color: #bbb;
+      padding: 3px 10px;
+
       &.approved {
          background: #8daa92;
       }
@@ -887,6 +898,9 @@ body.active_admin {
 
       &.canceled {
          background: #d45f53;
+      }
+      &.completed {
+         background: #5f53d4;
       }
    }
 
@@ -937,6 +951,7 @@ body.active_admin {
    form fieldset input[type="url"],
    form fieldset textarea {
       width: 60%;
+      box-sizing: border-box;
    }
 
    form input[type="email"],

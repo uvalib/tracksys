@@ -1,16 +1,18 @@
-class MasterFile < ActiveRecord::Base
+class MasterFile < ApplicationRecord
    enum text_source: {ocr: 0, corrected_ocr: 1, transcription: 2}
 
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :component, :counter_cache => true
+   belongs_to :component, :counter_cache => true, optional: true
    belongs_to :unit
    belongs_to :metadata
-   belongs_to :deaccessioned_by, class_name: "StaffMember", foreign_key: "deaccessioned_by_id"
+   belongs_to :deaccessioned_by, class_name: "StaffMember",
+              foreign_key: "deaccessioned_by_id", optional: true
 
    has_many :reorders, class_name: "MasterFile", foreign_key: "original_mf_id"
-   belongs_to :original, class_name: "MasterFile", foreign_key: "original_mf_id"
+   belongs_to :original, class_name: "MasterFile",
+              foreign_key: "original_mf_id", optional: true
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 

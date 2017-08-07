@@ -1,4 +1,4 @@
-class Workstation < ActiveRecord::Base
+class Workstation < ApplicationRecord
    enum status: [:active, :inactive, :retired]
    has_many :projects
    has_and_belongs_to_many :equipment, :join_table=>:workstation_equipment

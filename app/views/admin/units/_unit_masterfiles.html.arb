@@ -37,7 +37,7 @@ div id: "masterfile-list" do
 
    paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
       table_for collection do |mf|
-         if !unit.metadata.nil? && !unit.date_archived.blank?
+         if !unit.metadata.nil? && unit.date_archived.blank?
             column ('') do |mf|
                raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>") if !mf.deaccessioned?
             end

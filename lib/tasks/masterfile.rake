@@ -79,7 +79,7 @@ namespace :masterfile do
       unless tiff.compression.to_s == "NoCompression"
           temp_file = Tempfile.new([mf.filename.split(".")[0], ".tif"] )
           puts "   writing uncompresed tif to #{temp_file.path}"
-          cmd = "convert -quiet #{source} -compress None #{temp_file.path}"
+          cmd = "convert -quiet #{source_tif} -compress None #{temp_file.path}"
           `#{cmd}`
           source_tif = temp_file.path
       end

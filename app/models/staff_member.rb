@@ -13,7 +13,7 @@
 #  role         :integer          default(0)
 #
 
-class StaffMember < ActiveRecord::Base
+class StaffMember < ApplicationRecord
    enum role: [:admin, :supervisor, :student, :viewer]
 
    has_and_belongs_to_many :skills, :join_table=>:staff_skills, :class_name=>"Category"

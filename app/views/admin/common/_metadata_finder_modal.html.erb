@@ -1,0 +1,34 @@
+<div id="dimmer">
+   <div id="metadata-finder" class="modal">
+      <h1>Find Metadata Record</h1>
+      <div class="find">
+         <p class="note">
+            Find metadata by partial title, barcode or PID.
+         </p>
+         <p>
+            <label>Search:</label><input type="text" class="name" id="search-text"/>
+            <p class="error"></p>
+         </p>
+         <p class="results">
+            <label>Results:</label>
+            <div class="results-panel">
+               <table>
+                  <tr>
+                     <th class="tiny">ID</th>
+                     <th class="short">PID</th>
+                     <th class="short">Barcode</th>
+                     <th>Call Number</th>
+                     <th>Title</th>
+                  </tr>
+               </table>
+            </div>
+         </p>
+
+         <div class="buttons">
+            <span class="mf-action-button metadata-finder select">Select</span>
+            <span class="mf-action-button metadata-finder cancel">Cancel</span>
+            <span class="mf-action-button metadata-finder find">Find</span>
+         </div>
+      </div>
+   </div>
+</div>

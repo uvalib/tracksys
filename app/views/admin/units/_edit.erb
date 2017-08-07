@@ -1,4 +1,5 @@
 <%= semantic_form_for([:admin, @unit], :url => "/admin/units/#{@unit.id}") do |f| %>
+   <%= f.semantic_errors *f.object.errors.keys %>
    <%= f.inputs "General Information", :class => 'panel three-column ' do %>
       <%= f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES %>
       <%= f.input :unit_extent_estimated  %>
@@ -30,30 +31,13 @@
          <input  name="unit[order_id]" id="unit_order_id" type="text" value="<%= oid %>"/>
       </li>
 
-      <li class="string input required stringish">
-         <label for="metadata-type-picker" class="label">Metadata Type</label>
-         <select id="metadata-type-picker" style="width: 260px">
-            <option value="sirsi_metadata">SirsiMetadata</option>
-            <option value="xml_metadata"<% if !@unit.metadata.nil? && @unit.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
-         </select>
-      </li>
-
-      <li class="string input required stringish">
-         <label for="unit_metadata_id" class="label">Metadata</label>
-         <% curr = ""
-            uri = "sirsi_metadata"
-            if !@unit.metadata.nil?
-               if @unit.metadata.type == "SirsiMetadata"
-                  curr = @unit.metadata.barcode
-               else
-                  uri = "xml_metadata"
-                  curr = "#{@unit.metadata.id}: #{@unit.metadata.title}"
-               end
-            end %>
-         <input name="unit[metadata_id]" id="unit_metadata_id" value="<%= @unit.metadata_id %>" style="display:none"/>
-         <input data-queryuri="<%= uri %>" id="unit_metadata_selector" type="text" value="<%= curr %>"/>
+      <li class="select input optional required stringish" id="unit_metadata_id_input">
+         <label for="unit_metadata_id" class="label">Metadata ID</label>
+         <input type="text" name="unit[metadata_id]" id="unit_metadata_id" value="<%= @unit.metadata_id %>"/>
+         <span id="find-metadata"></span>
       </li>
    <% end %>
+   <%= render partial: "/admin/common/metadata_finder_modal" %>
 
    <% if !@unit.reorder %>
       <%= f.inputs "Digital Library Information", :class => 'columns-none panel', :style=>"margin-top:15px" do %>

@@ -1,7 +1,7 @@
 # ImageTechMeta represents image technical metadata. An ImageTechMeta record is
 # an extension of a single MasterFile record and is applicable only for a
 # MasterFile of type "image".
-class ImageTechMeta < ActiveRecord::Base
+class ImageTechMeta < ApplicationRecord
 
    # include HasFormat
 

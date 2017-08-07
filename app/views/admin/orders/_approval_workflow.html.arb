@@ -1,117 +1,68 @@
-if order.order_status == 'requested'
-   if order.customer.external?
-      if order.fee_estimated.nil?
-         # External customers (who require a fee estaimte) for which there IS NO estimated fee
-         div :class => 'workflow_button' do
-            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true, :method => :put
-         end
-         div do
-            "Either enter an estimated fee or cancel this order."
-         end
-      elsif order.fee_estimated
-         if order.fee_actual.nil?
-            # External customers (who require a fee estaimte) for which there IS estimated fee but actual fee is blank.
-            # Actions available: Cancel or Send Fee Estimate
-            div :class => 'workflow_button' do
-               button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
-            end
-            div :class => 'workflow_button' do
-               button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
-            end
-            div :class => 'workflow_button' do
-               button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put
-            end
-            div do
-               "Either send fee estimate or cancel this order."
-            end
-         else
-            # External customers (who require a fee) for which there IS both an estimated fee and actual fee
-            # Actions available: Approve or Cancel
-            if order.has_units_being_prepared.any?
-               div :class => 'workflow_button' do
-                  button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
-               end
-               div do
-                  "You must approve or cancel this order's units before approving."
-               end
-            else
-               div :class => 'workflow_button' do
-                  button_to "Approve Order", approve_order_admin_order_path(order.id), :method => :put
-               end
-            end
-            div :class => 'workflow_button' do
-               button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
-            end
-            div :class => 'workflow_button' do
-               button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => true, :method => :put
-            end
-            div do
-               "Either approve or cancel this order."
-            end
-         end
+# Awaiting fee approval has different workflow; just accept and cancel.
+# Accept can only be enabled if actual fee is set and there are no units being prepared
+if order.order_status == 'await_fee'
+   accept_disable = order.fee_actual.nil? || order.has_units_being_prepared.any?
+   div :class => 'workflow_button' do
+      button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => accept_disable, :method => :put
+   end
+   div :class => 'workflow_button' do
+      button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put
+   end
+   if order.fee_actual.nil?
+      div do
+         "Please input the actual fee before approving order."
       end
    else
-      # Internal customers require no fee.
       if order.has_units_being_prepared.any?
-         div :class => 'workflow_button' do
-            button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
-         end
          div do
-            "You must approve or cancel this order's units before approving."
+            "You must approve or cancel this order's units before clicking Customer Accepts Fee."
          end
-      else
-         div :class => 'workflow_button' do
-            button_to "Approve Order", approve_order_admin_order_path(order.id), :method => :put
-         end
-      end
-      div :class => 'workflow_button' do
-         button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
-      end
-      div :class => 'workflow_button' do
-         button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put, :disabled => true
-      end
-      div do
-         "#{order.customer.full_name} is internal to UVA and requires no fee approval"
       end
    end
-elsif order.order_status == 'deferred'
+else
+
+   # Only external customers require fee...
    if order.customer.external?
-      if order.fee_actual.nil?
-         div :class => 'workflow_button' do
-            button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put
-         end
-         div do
-            "Please input the actual fee before approving order."
-         end
-      else
-         div :class => 'workflow_button' do
-            button_to "Customer Accepts Fee", approve_order_admin_order_path(order.id), :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put
-         end
+      div :class => 'workflow_button' do
+         # Only enable send estimate when estimate is populated, fee has not been sent and actual is blank
+         fee_disabled = order.fee_estimated.nil? || !order.date_fee_estimate_sent_to_customer.nil? || !order.fee_actual.nil?
+         fee_disabled = order.order_status == 'deferred'
+         button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => fee_disabled, :method => :put
       end
    end
-elsif order.order_status == 'approved' || order.order_status == 'canceled'
+
    div :class => 'workflow_button' do
-      button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => true, :method => :put
+      if order.order_status == 'deferred'
+         button_to "Resume Order", defer_order_admin_order_path(order.id), :method => :put
+      else
+         button_to "Defer Order", defer_order_admin_order_path(order.id), :method => :put
+      end
+   end
+
+   div :class => 'workflow_button' do
+      approve_disabled = order.order_status == 'approved' || order.customer.external? || !order.date_order_approved.nil?
+      approve_disabled = false if order.customer.external? && !order.fee_estimated.nil? && !order.fee_actual.nil? && order.order_status != 'approved'
+      approve_disabled = true if order.has_units_being_prepared.any?  # non-ready units trumps other enabling
+      button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => approve_disabled, :method => :put
+   end
+
+   div :class => 'workflow_button' do
+      # Cancel is always available
+      button_to "Cancel Order", cancel_order_admin_order_path(order.id), :method => :put
    end
    div :class => 'workflow_button' do
-      button_to "Cancel Order", cancel_order_admin_order_path(order.id), :disabled => true, :method => :put
+      # complete is only available on approved orders
+      button_to "Complete Order", complete_order_admin_order_path(order.id), :disabled => order.order_status != 'approved', :method => :put
    end
-   div :class => 'workflow_button' do
-      button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put,  :disabled => true
-   end
-   div do
-      "No options available.  Order is #{order.order_status}."
+
+   # messages section
+   if order.customer.external? && order.fee_estimated.nil?
+      div do
+         "Either enter an estimated fee, defer or cancel this order."
+      end
+   elsif order.has_units_being_prepared.any?
+      div do
+         "You must approve or cancel this order's units before approving."
+      end
    end
 end

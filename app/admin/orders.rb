@@ -1,22 +1,14 @@
 ActiveAdmin.register Order do
    menu :priority => 4
-   config.batch_actions = false
 
-   before_update do |order|
-      prior = Order.find(order.id)
-      if prior.order_status != order.order_status
-         Rails.logger.info "Order #{order.id} status changed from #{prior.order_status} to #{order.order_status} by #{current_user.computing_id}"
-         msg = "Status #{prior.order_status.upcase} to #{order.order_status.upcase}"
-         AuditEvent.create(auditable: order, event: AuditEvent.events[:status_update],
-         staff_member: current_user, details: msg)
-      end
-   end
+   actions :all, :except => [:destroy]
+   config.clear_action_items!
 
    # strong paramters handling
    permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
-   :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer, :date_permissions_given,
-   :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
-   :date_customer_notified, :email
+      :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer,
+      :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
+      :date_customer_notified, :email
 
    # eager load to preven n+1 queries, and improve performance
    includes :department, :agency, :customer, :academic_status
@@ -61,18 +53,17 @@ ActiveAdmin.register Order do
       link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
    end
 
-   scope :all, :default => true
+   scope :active, :default => true
    scope :awaiting_approval
-   scope :approved
-   scope :deferred
    scope :in_process
+   scope :deferred
    scope :ready_for_delivery
    scope :complete
+   scope :canceled
    scope :due_today
    scope :due_in_a_week
    scope :overdue
    scope :unpaid
-   scope :uniq
 
    filter :id_equals, :label=>"ID"
    filter :order_title_contains, :label=>"Title"
@@ -88,6 +79,8 @@ ActiveAdmin.register Order do
    filter :department, :as => :select
    filter :agency, :as => :select
 
+   # INDEX ====================================================================
+   #
    index :id => 'orders' do
       selectable_column
       column :id, :class => 'sortable_short'
@@ -138,6 +131,8 @@ ActiveAdmin.register Order do
       end
    end
 
+   # DETAILS Page =============================================================
+   #
    show :title => proc{|order| "Order ##{order.id}"} do
       err = order.last_error
       if !err.blank?
@@ -148,47 +143,21 @@ ActiveAdmin.register Order do
       render "details", :context => self
    end
 
-   form do |f|
-      f.inputs "Basic Information", :class => 'panel three-column' do
-         f.input :order_status, :as => :select, :collection => Order::ORDER_STATUSES
-         f.input :order_title
-         f.input :special_instructions, :input_html => {:rows => 3}
-         f.input :staff_notes, :input_html => {:rows => 3}
-      end
+   # EDIT page =================================================================
+   #
+   form :partial => "form"
 
-      f.inputs "Approval Information", :class => 'panel three-column' do
-         f.input :date_request_submitted, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_due, :as => :string, :input_html => {:class => :datepicker}
-         f.input :fee_estimated, :as => :string
-         f.input :fee_actual, :as => :string
-         f.input :date_deferred, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_fee_estimate_sent_to_customer, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_permissions_given, :as => :string, :input_html => {:class => :datepicker}
-      end
-
-      f.inputs "Related Information", :class => 'panel three-column' do
-         f.input :agency_id, :as => :select,  :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}, :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""), :include_blank => true
-         f.input :customer, :as => :select, :input_html => {:class => 'chosen-select',  :style => 'width: 210px'}
-      end
-
-      f.inputs "Delivery Information", :class => 'panel columns-none' do
-         f.input :date_finalization_begun, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_archiving_complete, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_patron_deliverables_complete, :as => :string, :input_html => {:class => :datepicker}
-         f.input :date_customer_notified, :as => :string, :input_html => {:class => :datepicker}
-         f.input :email, :as => :text
-      end
-
-      f.inputs :class => 'columns-none' do
-         f.actions
-      end
-   end
-
-   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? } do
+   # Only show order workflow for active orders (not canceled or complete)
+   sidebar :order_workflow, :only => :show,  if: proc{
+      !current_user.viewer? && !current_user.student? &&
+      resource.order_status != "completed" && resource.order_status != "canceled"  } do
       render "approval_workflow", :context=>self
    end
 
-   sidebar "Delivery Workflow", :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? }  do
+   sidebar "Delivery Workflow", :only => :show,  if: proc{
+      resource.order_status != "canceled" &&
+      resource.has_patron_deliverables? && !current_user.viewer? &&
+      !current_user.student? && resource.order_status != "canceled" }  do
       render "delivery_workflow", :context=>self
    end
 
@@ -201,24 +170,86 @@ ActiveAdmin.register Order do
       send_file(report.path)
    end
 
-   member_action :approve_order, :method => :put do
-      begin
-         order = Order.find(params[:id])
-         order.update_attributes!(:order_status => "approved")
-         redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
-      rescue ActiveRecord::RecordInvalid => invalid
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "#{invalid.record.errors.full_messages.join(', ')}"
+   # BATCH ACTIONS ============================================================
+   #
+   batch_action :approve_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.approve_order
+         rescue Exception=>e
+            failed << s.id
+         end
       end
+      if failed
+         flash[:notice] = "Unable to approve order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :cancel_orders do |selection|
+      failed = []
+      Order.find(selection).each do |s|
+         begin
+            s.cancel_order
+         rescue Exception=>e
+            failed << s.id
+         end
+      end
+      if !failed.empty?
+         flash[:notice] = "Unable to cancel order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   batch_action :complete_orders do |selection|
+      failed = []
+      Order.find(selection).each {|s| failed << s.id if !s.complete_order }
+      if !failed.empty?
+         flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
+      end
+      redirect_to "/admin/orders"
+   end
+
+   # MEMBER ACTIONS ===========================================================
+   #
+   member_action :approve_order, :method => :put do
+      order = Order.find(params[:id])
+      order.approve_order(current_user)
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now approved."
+   end
+
+   member_action :defer_order, :method => :put do
+      order = Order.find(params[:id])
+      was_deferred = order.order_status == 'deferred'
+      order.defer_order(current_user)
+      msg = "Order #{params[:id]} is now deferred."
+      if was_deferred
+         msg = "Order #{params[:id]} has been reactivated."
+      end
+      redirect_to "/admin/orders/#{params[:id]}", :notice => msg
    end
 
    member_action :cancel_order, :method => :put do
       order = Order.find(params[:id])
-      order.cancel_order
+      order.cancel_order(current_user)
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now canceled."
    end
 
+   member_action :complete_order, :method => :put do
+      order = Order.find(params[:id])
+      if order.complete_order(current_user)
+         redirect_to "/admin/orders/#{params[:id]}"
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :flash => {:error => "Order #{params[:id]} is not complete: #{order.errors.full_messages.to_sentence}"}
+      end
+   end
+
    member_action :send_fee_estimate_to_customer, :method => :put do
-      SendFeeEstimateToCustomer.exec( {:order_id => params[:id]} )
+      msg = "Status #{self.order_status.upcase} to AWAIT_FEE"
+      AuditEvent.create(auditable: Order.find(params[:id]), event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
+
+      SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
    end
 
@@ -244,8 +275,17 @@ ActiveAdmin.register Order do
       send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
    end
 
+   member_action :reset_dates, :method => :post do
+      o = Order.find(params[:id])
+      AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update],
+         staff_member: current_user, details: "Finalize, archive and deliverable dates reset")
+      o.update(date_finalization_begun: nil, date_archiving_complete: nil,
+         date_patron_deliverables_complete: nil)
+      render plain: "OK"
+   end
+
    controller do
-      before_filter :get_audit_log, only: [:show]
+      before_action :get_audit_log, only: [:show]
       def get_audit_log
          @audit_log = AuditEvent.where(auditable: resource)
       end

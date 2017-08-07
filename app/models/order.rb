@@ -1,9 +1,9 @@
 require 'prawn'
 require 'prawn/table'
 
-class Order < ActiveRecord::Base
+class Order < ApplicationRecord
 
-   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed']
+   ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'await_fee']
    include BuildOrderPDF
 
    def as_json(options)
@@ -13,17 +13,17 @@ class Order < ActiveRecord::Base
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
-   belongs_to :agency, :counter_cache => true
-   belongs_to :customer, :counter_cache => true, :inverse_of => :orders
+   belongs_to :agency, counter_cache: true, optional: true
+   belongs_to :customer, counter_cache: true, :inverse_of => :orders
 
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :audit_events, :as=> :auditable, :dependent => :destroy
-
-   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").uniq }, :through => :units, :source=>:metadata
-   has_many :xml_metadata, ->{where(type: "XmlMetadata").uniq}, :through => :units, :source=>:metadata
    has_many :invoices, :dependent => :destroy
-   has_many :master_files, :through => :units
    has_many :units, :inverse_of => :order
+
+   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata") }, :through => :units, :source=>:metadata
+   has_many :xml_metadata, ->{where(type: "XmlMetadata") }, :through => :units, :source=>:metadata
+   has_many :master_files, :through => :units
    has_many :projects, :through=> :units
 
    has_one :academic_status, :through => :customer
@@ -31,17 +31,24 @@ class Order < ActiveRecord::Base
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
 
+   accepts_nested_attributes_for :units
+   accepts_nested_attributes_for :customer
+
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   scope :complete, ->{ where("date_archiving_complete is not null") }
+   scope :active, ->{where("order_status != 'canceled' and order_status!='completed'") }
+   scope :complete, ->{ where("order_status = 'completed' or date_archiving_complete is not null") }
    scope :deferred, ->{where("order_status = 'deferred'") }
-   scope :in_process, ->{where("date_archiving_complete is null").where("order_status = 'approved'") }
-   scope :awaiting_approval, ->{where("order_status = 'requested'") }
-   scope :approved,->{ where("order_status = 'approved'") }
-   scope :ready_for_delivery, ->{ where("`orders`.email is not null").where(:date_customer_notified => nil) }
+   scope :in_process, ->{where("order_status = 'approved'") }
+   scope :canceled, ->{where("order_status = 'canceled'") }
+   scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
+   scope :ready_for_delivery, ->{ joins(:units).where("units.intended_use_id != 110")
+      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null") }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
-   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL').where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago).order('fee_actual desc') }
+   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
+      .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
+      .order('fee_actual desc') }
    scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
@@ -50,7 +57,6 @@ class Order < ActiveRecord::Base
    validates :date_due, :date_request_submitted, :presence => {
       :message => 'is required.'
    }
-   validates_presence_of :customer
 
    validates :order_title, :uniqueness => true, :allow_blank => true
 
@@ -58,23 +64,6 @@ class Order < ActiveRecord::Base
 
    validates :order_status, :inclusion => { :in => ORDER_STATUSES,
       :message => 'must be one of these values: ' + ORDER_STATUSES.join(", ")}
-
-   validates_datetime :date_request_submitted
-
-   validates_date :date_due, :on => :update
-   validates_date :date_due, :on => :create, :on_or_after => 28.days.from_now, :if => 'self.order_status == "requested"'
-
-   validates_datetime :date_order_approved,
-      :date_deferred,
-      :date_canceled,
-      :date_permissions_given,
-      :date_started,
-      :date_archiving_complete,
-      :date_patron_deliverables_complete,
-      :date_customer_notified,
-      :date_finalization_begun,
-      :date_fee_estimate_sent_to_customer,
-      :allow_blank => true
 
    # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved" || "canceled"
    validate :validate_order_approval, :on => :update, :if => 'self.order_status == "approved"'
@@ -108,15 +97,6 @@ class Order < ActiveRecord::Base
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
-   # Returns a boolean value indicating whether the Order is active, which is
-   # true unless the Order has been canceled or deferred.
-   def active?
-      if order_status == 'canceled' or order_status == 'deferred'
-         return false
-      else
-         return true
-      end
-   end
 
    def reorder?
       self.units.each do |u|
@@ -134,19 +114,11 @@ class Order < ActiveRecord::Base
    # Returns a boolean value indicating whether the Order is approved
    # for digitization ("order") or not ("request").
    def approved?
-      if order_status == 'approved'
-         return true
-      else
-         return false
-      end
+      return order_status == 'approved'
    end
 
    def canceled?
-      if order_status == 'canceled'
-         return true
-      else
-         return false
-      end
+      return if order_status == 'canceled'
    end
 
    # Returns a boolean value indicating whether this Order has
@@ -196,19 +168,19 @@ class Order < ActiveRecord::Base
       end
       q = nil
       if Time.now.to_date == timespan.to_date
-         where("date_due = ?", Date.today).active.patron_requests
+         where("date_due = ?", Date.today).in_progress.patron_requests
       elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan).active.patron_requests
+         where("date_due < ?", Date.today).where("date_due > ?", timespan).in_progress.patron_requests
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan).active.patron_requests
+         where("date_due > ?", Date.today).where("date_due < ?", timespan).in_progress.patron_requests
       end
    end
    def self.overdue
       date=0.days.ago
-      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).active
+      where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).in_progress
    end
-   def self.active
-      where("order_status = 'approved' and date_customer_notified is null")
+   def self.in_progress
+      where("order_status != ? and order_status != ?", "completed", "deferred")
    end
 
    def title
@@ -218,13 +190,79 @@ class Order < ActiveRecord::Base
       return nil
    end
 
-   def approve_order
+   def complete_order(user)
+      if has_patron_deliverables?
+         # validate that the order has date customer notified set
+         if !date_customer_notified.nil?
+            msg = "Status #{self.order_status.upcase} to COMPLETED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
+            update(order_status: "completed", date_completed: Time.now)
+            return true
+         else
+            if date_patron_deliverables_complete.nil?
+               errors.add(:customer, "deliverables have not been generated")
+            else
+               errors.add(:customer, "has not been notified")
+            end
+         end
+      else
+         # validate that date archived set
+         if !date_archiving_complete.nil?
+            msg = "Status #{self.order_status.upcase} to COMPLETED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
+            update(order_status: "completed", date_completed: Time.now)
+            return true
+         else
+            if date_finalization_begun.nil?
+               errors.add(:order, "has not been finalized")
+            else
+               errors.add(:order, "has not been archived")
+            end
+         end
+      end
+      return false
+   end
+
+   def defer_order(user)
+      # entering a deferred state or leaving it?
+      if self.order_status != 'deferred'
+         msg = "Status #{self.order_status.upcase} to DEFERRED"
+         AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
+         self.order_status = 'deferred'
+         self.date_deferred = Time.now
+         self.save!
+      else
+         # resuming a deferred order
+         if self.date_order_approved.nil?
+            msg = "Status #{self.order_status.upcase} to REQUESTED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
+            update(order_status: "requested")
+         else
+            msg = "Status #{self.order_status.upcase} to APPROVED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
+            update(order_status: "approved")
+         end
+      end
+   end
+
+   def approve_order(user)
+      msg = "Status #{self.order_status.upcase} to APPROVED"
+      AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
       self.order_status = 'approved'
       self.date_order_approved = Time.now
       self.save!
    end
 
-   def cancel_order
+   def cancel_order(user)
+      msg = "Status #{self.order_status.upcase} to CANCELED"
+      AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+
       self.order_status = 'canceled'
       self.date_canceled = Time.now
       self.save!
@@ -313,13 +351,10 @@ end
 #  date_order_approved                :datetime
 #  date_deferred                      :datetime
 #  date_canceled                      :datetime
-#  date_permissions_given             :datetime
-#  date_started                       :datetime
 #  date_due                           :date
 #  date_customer_notified             :datetime
 #  fee_estimated                      :decimal(7, 2)
 #  fee_actual                         :decimal(7, 2)
-#  entered_by                         :string(255)
 #  special_instructions               :text(65535)
 #  created_at                         :datetime
 #  updated_at                         :datetime

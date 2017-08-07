@@ -1,4 +1,4 @@
-class Component < ActiveRecord::Base
+class Component < ApplicationRecord
    has_ancestry
    include ExportIviewXML
 

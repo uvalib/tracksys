@@ -1,13 +1,18 @@
 #encoding: utf-8
 namespace :fix do
-   desc "Editor role retire"
-   task :retire_editor  => :environment do
-      StaffMember.all.each do |s|
-         role_id = StaffMember.roles[s.role]
-         if role_id > 1
-            role_id -= 1
-            s.update(role: role_id)
-            puts "Updated role for #{s.email}"
+   desc "completed orders"
+   task :completed_orders  => :environment do
+      puts "Detect completed orders and flag them as complete"
+      Order.where(order_status: 'approved').find_each do |o|
+         # If date_customer_notified is set, this is safe to consider complete
+         if !o.date_customer_notified.nil?
+            puts "Marking PATRON order #{o.id} complete"
+            o.update(order_status: "completed", date_completed: o.date_customer_notified)
+         elsif !o.date_archiving_complete.nil?
+            puts "Marking archived order #{o.id} complete"
+            o.update(order_status: "completed", date_completed: o.date_archiving_complete)
+         else
+            puts "questionable order staaus #{o.id}"
          end
       end
    end
@@ -123,6 +128,22 @@ namespace :fix do
                puts "   added #{c.name}"
             end
          end
+      end
+   end
+
+   desc "fix missing PID/IIIF"
+   task :missing_pid => :environment do
+      uid = ENV['id']
+      abort("id is required") if uid.nil?
+      unit = Unit.find(uid)
+      unit.master_files.each do |mf|
+         next if !mf.pid.blank?
+
+         pid = "tsm:#{mf.id}"
+         mf.update(pid: pid)
+         src = File.join(Settings.archive_mount, unit.id.to_s.rjust(9, "0") )
+         puts "MF #{mf.id} new PID #{mf.pid}, src: #{src}"
+         publish_to_iiif(mf, "#{src}/#{mf.filename}" )
       end
    end
 end

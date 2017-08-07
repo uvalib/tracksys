@@ -36,6 +36,13 @@ ActiveAdmin.register Unit do
    csv do
       column :id
       column :metadata_title
+      column ("Call Number") do |unit|
+         if unit.metadata.nil? || !unit.metadata.nil? && unit.metadata.type != "SirsiMetadata"
+            "N/A"
+         else
+            "#{unit.metadata.call_number}"
+         end
+      end
       column("Date Archived") {|unit| format_date(unit.date_archived)}
       column("Date DL Deliverables Ready") {|unit| format_date(unit.date_dl_deliverables_ready)}
       column :master_files_count
@@ -43,6 +50,18 @@ ActiveAdmin.register Unit do
 
    actions :all, :except => [:destroy]
    config.clear_action_items!
+
+   batch_action :checkout_units_to_digiserv do |selection|
+      Unit.find(selection).each {|s| s.update(date_materials_received: Time.now) }
+      flash[:notice] = "Units #{selection.join(", ")} are now checked out to DigiServ."
+      redirect_to "/admin/units"
+   end
+
+   batch_action :checkin_units_from_digiserv do |selection|
+      Unit.find(selection).each {|s| s.update(date_materials_returned: Time.now) }
+      flash[:notice] = "Units #{selection.join(", ")} are now checked in from DigiServ."
+      redirect_to "/admin/units"
+   end
 
    batch_action :approve_units do |selection|
       Unit.find(selection).each {|s| s.update(unit_status: 'approved') }
@@ -95,6 +114,13 @@ ActiveAdmin.register Unit do
             end
          end
       end
+      column("Call Number") do |unit|
+         if unit.metadata.nil? || !unit.metadata.nil? && unit.metadata.type != "SirsiMetadata"
+            "N/A"
+         else
+            "#{unit.metadata.call_number}"
+         end
+      end
       column ("Reorder?") do |unit|
          format_boolean_as_yes_no(unit.reorder)
       end
@@ -104,7 +130,7 @@ ActiveAdmin.register Unit do
       column :date_archived do |unit|
          format_date(unit.date_archived)
       end
-      column :date_dl_deliverables_ready do |unit|
+      column ("Date DL\nDeliverables Ready")  do |unit|
          format_date(unit.date_dl_deliverables_ready)
       end
       column :intended_use do |unit|
@@ -289,10 +315,10 @@ ActiveAdmin.register Unit do
       upload_file = params[:attachment].tempfile.path
       begin
          AttachFile.exec_now({unit: unit, filename: filename, tmpfile: upload_file, description: params[:description]})
-         render nothing: true
+         render plain: "OK"
       rescue Exception => e
          Rails.logger.error e.to_s
-         render text: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
+         render plain: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
       end
    end
 
@@ -308,9 +334,9 @@ ActiveAdmin.register Unit do
       if t.save
          msg = "Project created"
          AuditEvent.create(auditable: t, event: AuditEvent.events[:project_create], staff_member: current_user, details: msg)
-         render text: t.id, status: :ok
+         render plain: t.id, status: :ok
       else
-         render text: t.errors.full_messages.to_sentence, status: :error
+         render plain: t.errors.full_messages.to_sentence, status: :error
       end
    end
 
@@ -337,7 +363,7 @@ ActiveAdmin.register Unit do
       if File.exists? source_fn
          send_file(source_fn)
       else
-         render text: "Unit XML does not exist in the archive."
+         render plain: "Unit XML does not exist in the archive."
       end
    end
 
@@ -423,18 +449,8 @@ ActiveAdmin.register Unit do
       render :text=>job.status, status: :ok
    end
 
-   collection_action :autocomplete, method: :get do
-      suggestions = []
-      like_keyword = "#{params[:query]}%"
-      Unit.where("id like ?", like_keyword).each do |o|
-         suggestions << "#{o.id}"
-      end
-      resp = {query: "Unit", suggestions: suggestions}
-      render json: resp, status: :ok
-   end
-
    controller do
-      before_filter :get_clone_src_units, only: [:show]
+      before_action :get_clone_src_units, only: [:show]
       def get_clone_src_units
          # Get a list of units that can be used as a source for cloning masterfiles
          metadata = resource.metadata

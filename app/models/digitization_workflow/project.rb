@@ -1,13 +1,13 @@
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
    enum priority: [:normal, :high, :critical]
    enum item_condition: [:good, :bad]
 
    belongs_to :workflow
    belongs_to :unit
-   belongs_to :owner, :class_name=>"StaffMember"
-   belongs_to :current_step, :class_name=>"Step"
+   belongs_to :owner, :class_name=>"StaffMember", optional: true
+   belongs_to :current_step, :class_name=>"Step", optional: true
    belongs_to :category, counter_cache: true
-   belongs_to :workstation
+   belongs_to :workstation, optional: true
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
@@ -209,13 +209,12 @@ class Project < ActiveRecord::Base
    # Finish assignment, automate file moves and advance project to next step
    #
    def finish_assignment(duration)
-      # Grab any pre-existing durations, add them up and update
-      # the current duration. This to preserve total duration if a step ends in an error
-      # and is subsequently corrrected
-      prior_duration = self.active_assignment.duration_minutes
-      prior_duration = 0 if prior_duration.nil?
-      total_duration = prior_duration + duration.to_i
-      self.active_assignment.update(duration_minutes: total_duration )
+      # First finish attempt includes a non-zero duration. Record it.
+      # If a step fails and is corrected, 0 duration will be passed. Just
+      # preserve the original duration. Requested by Sam P.
+      if duration.to_i > 0
+         self.active_assignment.update(duration_minutes: duration )
+      end
 
       # Clone workflow is a special case; nothing needs to be done when finishing a step
       if self.workflow.name != "Clone"

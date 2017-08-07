@@ -3,7 +3,7 @@
    <%= c.fields_for :primary_address_attributes do |pa| %>
       <div class="form-group">
          <%= pa.label "Address Line1", :class => 'control-label required' %>
-         <%= pa.text_field :address_1, :class=>'form-control', :value => @request.customer.primary_address.address_1, :required => true %>
+         <%= pa.text_field :address_1, :class=>'form-control', :value => @request.customer.primary_address.address_1 %>
       </div>
       <div class="form-group">
          <%= pa.label "Address Line2", :class => 'control-label' %>
@@ -11,7 +11,7 @@
       </div>
       <div class="form-group">
          <%= pa.label "City", :class => 'control-label required' %>
-         <%= pa.text_field :city, :class=>'form-control', :value => @request.customer.primary_address.city, :required => true %>
+         <%= pa.text_field :city, :class=>'form-control', :value => @request.customer.primary_address.city %>
       </div>
       <div class="form-group">
          <%= pa.label "State", :class => 'control-label' %>

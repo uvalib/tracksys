@@ -1,64 +1,64 @@
 
-<div class="row add-item">
+<div class="row add-item nested-fields">
    <div class="col-md-5">
       <div class="form-group">
-         <%= unit.label "Image or page numbers", :class => 'control-label required' %>
-         <%= unit.text_area :request_pages_to_digitize, :rows => 3, :class => 'form-control input-large', :required => true %>
+         <%= f.label "Image or page numbers", :class => 'control-label' %>
+         <%= f.text_area :request_pages_to_digitize, :rows => 3, :class => 'form-control input-large' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Call Number", :class => 'control-label'%>
-         <%= unit.text_field :request_call_number, :class=>'form-control' %>
+         <%= f.label "Call Number", :class => 'control-label'%>
+         <%= f.text_field :request_call_number, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Title", :class => 'control-label'%>
-         <%= unit.text_field :request_title, :class=>'form-control' %>
+         <%= f.label "Title", :class => 'control-label'%>
+         <%= f.text_field :request_title, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Author", :class => 'control-label' %>
-         <%= unit.text_field :request_author, :class=>'form-control' %>
+         <%= f.label "Author", :class => 'control-label' %>
+         <%= f.text_field :request_author, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Year Published", :class => 'control-label'%>
-         <%= unit.text_field :request_year, :class=>'form-control' %>
+         <%= f.label "Year Published", :class => 'control-label'%>
+         <%= f.text_field :request_year, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Location", :class => 'control-label'%>
-         <%= unit.text_field :request_location, :class=>'form-control'%>
+         <%= f.label "Location", :class => 'control-label'%>
+         <%= f.text_field :request_location, :class=>'form-control'%>
       </div>
       <div class="form-group">
-         <%= unit.label "Copy Number", :class => 'control-label' %>
-         <%= unit.text_field :request_copy_number, :class=>'form-control' %>
+         <%= f.label "Copy Number", :class => 'control-label' %>
+         <%= f.text_field :request_copy_number, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Volume Number", :class => 'control-label' %>
-         <%= unit.text_field :request_volume_number, :class=>'form-control' %>
+         <%= f.label "Volume Number", :class => 'control-label' %>
+         <%= f.text_field :request_volume_number, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Issue Number", :class => 'control-label' %>
-         <%= unit.text_field :request_issue_number, :class=>'form-control' %>
+         <%= f.label "Issue Number", :class => 'control-label' %>
+         <%= f.text_field :request_issue_number, :class=>'form-control' %>
       </div>
       <div class="form-group">
-         <%= unit.label "Web Link for item (if available)", :class => 'control-label' %>
-         <%= unit.text_area :patron_source_url, :rows => 3, :class => 'input-large form-control' %>
+         <%= f.label "Web Link for item (if available)", :class => 'control-label' %>
+         <%= f.text_area :patron_source_url, :rows => 3, :class => 'input-large form-control' %>
       </div>
    </div>
 
    <div class="col-md-5">
       <div class="form-group">
-         <%= unit.label "Additional Description", :class => 'control-label' %>
-         <%= unit.text_area :request_description, :rows => 5, :class => 'input-large form-control'  %>
+         <%= f.label "Additional Description", :class => 'control-label' %>
+         <%= f.text_area :request_description, :rows => 5, :class => 'input-large form-control'  %>
          <p class="help-block">If the provided fields were insufficient to describe the item, include supplemental information above.</p>
       </div>
 
       <div class="form-group">
-         <%= unit.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
+         <%= f.label "How do you intend to use this digitized resource?", :class => 'control-label required' %>
          <p class="help-block">
             (Note: This helps us determine a digital format and watermark appropriate to your ultimate intended use.
             We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
             apply to use for purposes other than private study, scholarship, or research.
             Please see our <a href="https://small.library.virginia.edu/services/publishing/">Permissions and Publishing</a> page for more information.)</p>
-         <%= unit.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.name, i.id] },
-            {:include_blank => true}, :required => true, :class => 'form-control intended_use_select' %>
+         <%= f.select :intended_use_id, IntendedUse.external_use.collect {|i| [i.name, i.id] },
+            {:include_blank => true}, :class => 'form-control intended_use_select' %>
       </div>
       <div class="intended_use_watermarked_jpg" style="display: none;">
          <p>Deliverables: <strong>300dpi JPEG</strong></p>
@@ -95,6 +95,6 @@
    </div>
 
    <div class="col-md-2">
-      <%= unit.link_to_remove "Remove this item", :class => 'btn btn-danger' %>
+      <%= link_to_remove_association"Remove this item", f, :class => 'btn btn-danger' %>
    </div>
 </div>

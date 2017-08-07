@@ -1,7 +1,7 @@
-class Note < ActiveRecord::Base
+class Note < ApplicationRecord
    enum note_type: [:comment, :suggestion, :problem, :item_condition]
    belongs_to :staff_member
-   belongs_to :problem, :counter_cache => true
+   belongs_to :problem, counter_cache: true, optional: true
    belongs_to :project
    belongs_to :step
 

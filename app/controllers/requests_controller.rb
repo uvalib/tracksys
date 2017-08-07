@@ -1,6 +1,6 @@
 class RequestsController < ApplicationController
    def customer_params
-      req = params[:request]
+      req = params[:order]
       req.require(:customer_attributes).permit(
          :first_name, :last_name, :email, :academic_status_id,
          :primary_address_attributes=>[:address_1, :address_2, :city, :state, :post_code, :country, :phone],
@@ -8,7 +8,7 @@ class RequestsController < ApplicationController
    end
 
    def units_params
-      params.require(:request).permit( :date_due, :special_instructions, :units_attributes=>[
+      params.require(:order).permit( :date_due, :special_instructions, :units_attributes=>[
          :request_pages_to_digitize, :request_call_number, :request_title, :request_author, :request_year, :request_location,
          :request_copy_number, :request_volume_number, :request_issue_number, :patron_source_url, :request_description,
          :intended_use_id] )
@@ -18,7 +18,7 @@ class RequestsController < ApplicationController
       # Customer Logic
       #
       # Find existing Customer record by email address, or instantiate new one
-      @customer = Customer.find_by( email: params[:request][:customer_attributes][:email].strip )
+      @customer = Customer.find_by( email: params[:order][:customer_attributes][:email].strip )
       if @customer.nil?
          @customer = Customer.new
       end
@@ -28,15 +28,24 @@ class RequestsController < ApplicationController
       @customer.update_attributes( customer_params )
 
       # request/order
-      @request = Request.new( units_params )
+      @request = Order.new( units_params )
       @request.order_status = 'requested'
       @request.date_request_submitted = Time.now
 
+      # make sure there are items
+      if params[:order][:units_attributes].nil?
+         @request.customer = @customer
+         @request.customer.build_billable_address if @request.customer.billable_address.nil?
+         @request.errors.add(:item, ": at least one item is required")
+         render :action => 'new'
+         return
+      end
+
       begin
-         Request.transaction do
+         Order.transaction do
             @request.customer = @customer
             @request.save!
-            @request.units.each {|unit|
+            @request.units.each do |unit|
                unit.special_instructions = ""
                unit.special_instructions += "Pages to Digitize: #{unit.request_pages_to_digitize}\n" unless unit.request_pages_to_digitize.blank?
                unit.special_instructions += "Call Number: #{unit.request_call_number}\n" unless unit.request_call_number.blank?
@@ -49,7 +58,7 @@ class RequestsController < ApplicationController
                unit.special_instructions += "Issue: #{unit.request_issue_number}\n" unless unit.request_issue_number.blank?
                unit.special_instructions += "Description: #{unit.request_description}\n" unless unit.request_description.blank?
                unit.save!
-            }
+            end
          end
 
       rescue ActiveRecord::RecordInvalid => invalid
@@ -95,7 +104,7 @@ class RequestsController < ApplicationController
    end
 
    def new
-      @request = Request.new
+      @request = Order.new
       @request.build_customer
       @request.customer.build_billable_address
       @request.customer.build_primary_address

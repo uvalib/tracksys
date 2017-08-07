@@ -1,6 +1,19 @@
 $(function() {
    $("#q_desc_metadata_input select").attr("disabled", "disabled");
 
+   $(".order.mf-action-button.reset-btn").on("click", function() {
+      var resp = confirm('Reset all order delivery dates? This cannot be undone.');
+      if ( !resp) return;
+
+      $.ajax({
+         url: window.location.href+"/reset_dates",
+         method: "POST",
+         complete: function(jqXHR, textStatus) {
+            window.location.reload();
+         }
+      });
+   });
+
    $(".recent-error.trash.ts-icon").on("click", function() {
       var resp = confirm('Delete recent error?');
       if (!resp) return;

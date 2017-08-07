@@ -6,6 +6,6 @@
 #  name :string(255)
 #
 
-class Genre < ActiveRecord::Base
+class Genre < ApplicationRecord
    validates :name, presence: true
 end

@@ -6,6 +6,6 @@
 #  name :string(255)
 #
 
-class ResourceType < ActiveRecord::Base
+class ResourceType < ApplicationRecord
    validates :name, presence: true
 end

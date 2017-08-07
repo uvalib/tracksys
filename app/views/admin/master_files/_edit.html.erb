@@ -17,30 +17,13 @@
          <input  name="master_file[unit_id]" id="master_file_unit_id" type="text" value="<%= @master_file.unit_id %>"/>
       </li>
 
-      <li class="string input required stringish">
-         <label for="mf-metadata-type-picker" class="label">Metadata Type</label>
-         <select id="mf-metadata-type-picker" style="width: 260px">
-            <option value="sirsi_metadata">SirsiMetadata</option>
-            <option value="xml_metadata"<% if !@master_file.metadata.nil? && @master_file.metadata.type == "XmlMetadata" %>selected<% end %> >XmlMetadata</option>
-         </select>
-      </li>
-
-      <li class="string input required stringish" id="master_file_metadata_input">
-         <label class="label">Metadata</label>
-         <% curr = ""
-            uri = "sirsi_metadata"
-            if !@master_file.metadata.nil?
-               if @master_file.metadata.type == "SirsiMetadata"
-                  curr = @master_file.metadata.barcode
-               else
-                  uri = "xml_metadata"
-                  curr = "#{@master_file.metadata.id}: #{@master_file.metadata.title}"
-               end
-            end %>
-          <input name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>" style="display:none"/>
-          <input data-queryuri="<%= uri %>" id="mf_metadata_selector" type="text" value="<%= curr %>"/>
+      <li class="select input optional required stringish" id="master_file_metadata_id_input">
+         <label for="master_file_metadata_id" class="label">Metadata ID</label>
+         <input type="text" name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>"/>
+         <span id="find-metadata"></span>
       </li>
    <% end %>
+   <%= render partial: "/admin/common/metadata_finder_modal" %>
 
    <fieldset class="columns-none xml-submit">
       <input type="submit" name="commit" value="Update Master File">

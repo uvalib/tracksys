@@ -1,18 +1,19 @@
 $(function() {
 
+   if ($("#src-img").length > 0 ) {
+      $("#src-img").panzoom({
+         minScale: 1,
+         maxScale: 20,
 
-   $("#src-img").panzoom({
-      minScale: 1,
-      maxScale: 20,
-
-      $zoomIn: $(".zoom-in"),
-      $zoomOut: $(".zoom-out"),
-      $zoomRange: $(".zoom-range"),
-      $reset: $(".reset"),
-      onPan: function() {
-         $(".img-box").css("background-image", "none");
-      }
-   });
+         $zoomIn: $(".zoom-in"),
+         $zoomOut: $(".zoom-out"),
+         $zoomRange: $(".zoom-range"),
+         $reset: $(".reset"),
+         onPan: function() {
+            $(".img-box").css("background-image", "none");
+         }
+      });
+   }
 
 
    var updateUnitOcrStatus = function(statusObj) {
@@ -76,7 +77,7 @@ $(function() {
                   $("#start-unit-ocr").removeClass("disabled");
                }
             }
-         })
+         });
       }, 2000);
    };
 
@@ -88,7 +89,7 @@ $(function() {
       if (btn.hasClass("ocr")) {
          textType = "ocr";
       }
-      var data = {id: id, type: textType, transcription: $("textarea.transcription").val() }
+      var data = {id: id, type: textType, transcription: $("textarea.transcription").val() };
       btn.addClass("disabled");
       $.ajax({
          url: "/admin/ocr/save",
@@ -140,7 +141,7 @@ $(function() {
                $("#ocr-status-message").text("OCR in progress...");
                $("input.exclude").each( function(idx) {
                   $(this).attr("disabled", "disabled");
-                  var statusIcon = $(this).closest("tr").find("span.status")
+                  var statusIcon = $(this).closest("tr").find("span.status");
                   if ( !$(this).is(":checked") ) {
                      $(statusIcon).removeClass().addClass("status").addClass("pending");
                   }
@@ -206,7 +207,7 @@ $(function() {
    });
 
    var showUnitOcrStatus = function(job) {
-      var params = JSON.parse(job.params)
+      var params = JSON.parse(job.params);
       $(".exclude").each( function(idx) {
          var id = parseInt($(this).data("id"),10);
          if ( $.inArray(id, params.exclude) > -1) {

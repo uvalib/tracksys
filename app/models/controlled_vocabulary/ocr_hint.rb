@@ -1,3 +1,3 @@
-class OcrHint < ActiveRecord::Base
+class OcrHint < ApplicationRecord
    validates :name, presence: true, uniqueness: true
 end

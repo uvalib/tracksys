@@ -11,6 +11,6 @@
 #  updated_at  :datetime         not null
 #
 
-class Attachment < ActiveRecord::Base
+class Attachment < ApplicationRecord
   belongs_to :unit
 end

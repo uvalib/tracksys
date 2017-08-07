@@ -1,9 +1,9 @@
-# Load the rails application
-require File.expand_path('../application', __FILE__)
+# Load the Rails application.
+require_relative 'application'
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '4.10.0'
+TRACKSYS_VERSION = '5.0.0'
 
 # Setup logger for all jobs processors
 #
@@ -57,5 +57,5 @@ NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
 DEACCESSION_USERS = Settings.deaccession_users.blank? ? [] : Settings.deaccession_users.split(",")
 
-# Initialize the rails application
-Tracksys::Application.initialize!
+# Initialize the Rails application.
+Rails.application.initialize!

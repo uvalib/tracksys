@@ -1,4 +1,4 @@
-class Assignment < ActiveRecord::Base
+class Assignment < ApplicationRecord
    enum status: [:pending, :started, :finished, :rejected, :error, :reassigned, :finalizing]
 
    belongs_to :project

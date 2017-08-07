@@ -1,4 +1,4 @@
-class AvailabilityPolicy < ActiveRecord::Base
+class AvailabilityPolicy < ApplicationRecord
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------

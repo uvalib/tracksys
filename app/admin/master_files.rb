@@ -10,7 +10,7 @@ ActiveAdmin.register MasterFile do
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
       :creator_death_date, :date_archived, :md5, :filesize, :unit_id,
-      :transcription_text, :pid, :metadata_id
+      :transcription_text, :pid, :metadata_id, :date_dl_update, :date_dl_ingest
 
    scope :all, :show_count => true, :default => true
    scope :in_digital_library, :show_count => true

@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,596 +10,567 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170621172441) do
+ActiveRecord::Schema.define(version: 20170720140912) do
 
-  create_table "academic_statuses", force: :cascade do |t|
-    t.string   "name",            limit: 255
+  create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "customers_count", limit: 4,   default: 0
+    t.integer "customers_count", default: 0
+    t.index ["name"], name: "index_academic_statuses_on_name", unique: true
   end
 
-  add_index "academic_statuses", ["name"], name: "index_academic_statuses_on_name", unique: true, using: :btree
-
-  create_table "active_admin_comments", force: :cascade do |t|
-    t.integer  "resource_id",   limit: 4,     null: false
-    t.string   "resource_type", limit: 255,   null: false
-    t.integer  "author_id",     limit: 4
-    t.string   "author_type",   limit: 255
-    t.text     "body",          limit: 65535
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.string   "namespace",     limit: 255
+  create_table "active_admin_comments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "resource_id", null: false
+    t.string "resource_type", null: false
+    t.integer "author_id"
+    t.string "author_type"
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "namespace"
+    t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id"
+    t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
+    t.index ["resource_type", "resource_id"], name: "index_admin_notes_on_resource_type_and_resource_id"
   end
 
-  add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id", using: :btree
-  add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
-  add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_admin_notes_on_resource_type_and_resource_id", using: :btree
-
-  create_table "addresses", force: :cascade do |t|
-    t.integer  "addressable_id",   limit: 4,   null: false
-    t.string   "addressable_type", limit: 20,  null: false
-    t.string   "address_type",     limit: 20,  null: false
-    t.string   "last_name",        limit: 255
-    t.string   "first_name",       limit: 255
-    t.string   "address_1",        limit: 255
-    t.string   "address_2",        limit: 255
-    t.string   "city",             limit: 255
-    t.string   "state",            limit: 255
-    t.string   "country",          limit: 255
-    t.string   "post_code",        limit: 255
-    t.string   "phone",            limit: 255
-    t.string   "organization",     limit: 255
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+  create_table "addresses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "addressable_id", null: false
+    t.string "addressable_type", limit: 20, null: false
+    t.string "address_type", limit: 20, null: false
+    t.string "last_name"
+    t.string "first_name"
+    t.string "address_1"
+    t.string "address_2"
+    t.string "city"
+    t.string "state"
+    t.string "country"
+    t.string "post_code"
+    t.string "phone"
+    t.string "organization"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "agencies", force: :cascade do |t|
-    t.string   "name",              limit: 255
-    t.string   "description",       limit: 255
+  create_table "agencies", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.string "description"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "ancestry",          limit: 255
-    t.string   "names_depth_cache", limit: 255
-    t.integer  "orders_count",      limit: 4,   default: 0
+    t.string "ancestry"
+    t.string "names_depth_cache"
+    t.integer "orders_count", default: 0
+    t.index ["ancestry"], name: "index_agencies_on_ancestry"
+    t.index ["name"], name: "index_agencies_on_name", unique: true
   end
 
-  add_index "agencies", ["ancestry"], name: "index_agencies_on_ancestry", using: :btree
-  add_index "agencies", ["name"], name: "index_agencies_on_name", unique: true, using: :btree
-
-  create_table "assignments", force: :cascade do |t|
-    t.integer  "project_id",       limit: 4
-    t.integer  "step_id",          limit: 4
-    t.integer  "staff_member_id",  limit: 4
+  create_table "assignments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "project_id"
+    t.integer "step_id"
+    t.integer "staff_member_id"
     t.datetime "assigned_at"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.integer  "status",           limit: 4, default: 0
-    t.integer  "duration_minutes", limit: 4
+    t.integer "status", default: 0
+    t.integer "duration_minutes"
+    t.index ["project_id"], name: "index_assignments_on_project_id"
+    t.index ["staff_member_id"], name: "index_assignments_on_staff_member_id"
+    t.index ["step_id"], name: "index_assignments_on_step_id"
   end
 
-  add_index "assignments", ["project_id"], name: "index_assignments_on_project_id", using: :btree
-  add_index "assignments", ["staff_member_id"], name: "index_assignments_on_staff_member_id", using: :btree
-  add_index "assignments", ["step_id"], name: "index_assignments_on_step_id", using: :btree
-
-  create_table "attachments", force: :cascade do |t|
-    t.integer  "unit_id",     limit: 4
-    t.string   "filename",    limit: 255
-    t.string   "md5",         limit: 255
-    t.text     "description", limit: 65535
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+  create_table "attachments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "unit_id"
+    t.string "filename"
+    t.string "md5"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_attachments_on_unit_id"
   end
 
-  add_index "attachments", ["unit_id"], name: "index_attachments_on_unit_id", using: :btree
-
-  create_table "audit_events", force: :cascade do |t|
-    t.integer  "staff_member_id", limit: 4
-    t.integer  "auditable_id",    limit: 4
-    t.string   "auditable_type",  limit: 255
-    t.integer  "event",           limit: 4
-    t.string   "details",         limit: 255
+  create_table "audit_events", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "staff_member_id"
+    t.integer "auditable_id"
+    t.string "auditable_type"
+    t.integer "event"
+    t.string "details"
     t.datetime "created_at"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable_type_and_auditable_id"
+    t.index ["staff_member_id"], name: "index_audit_events_on_staff_member_id"
   end
 
-  add_index "audit_events", ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable_type_and_auditable_id", using: :btree
-  add_index "audit_events", ["staff_member_id"], name: "index_audit_events_on_staff_member_id", using: :btree
-
-  create_table "availability_policies", force: :cascade do |t|
-    t.string   "name",           limit: 255
-    t.integer  "metadata_count", limit: 4,   default: 0
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.string   "pid",            limit: 255
+  create_table "availability_policies", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.integer "metadata_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "pid"
   end
 
-  create_table "categories", force: :cascade do |t|
-    t.string  "name",           limit: 255
-    t.integer "projects_count", limit: 4,   default: 0
+  create_table "categories", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.integer "projects_count", default: 0
   end
 
-  create_table "collection_facets", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "collection_facets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "component_types", force: :cascade do |t|
-    t.string   "name",             limit: 255
-    t.string   "description",      limit: 255
+  create_table "component_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.string "description"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "components_count", limit: 4
+    t.integer "components_count"
+    t.index ["name"], name: "index_component_types_on_name", unique: true
   end
 
-  add_index "component_types", ["name"], name: "index_component_types_on_name", unique: true, using: :btree
-
-  create_table "components", force: :cascade do |t|
-    t.integer  "component_type_id",       limit: 4,     default: 0,    null: false
-    t.integer  "parent_component_id",     limit: 4,     default: 0,    null: false
-    t.string   "title",                   limit: 255
-    t.string   "label",                   limit: 255
-    t.string   "date",                    limit: 255
-    t.text     "content_desc",            limit: 65535
-    t.string   "idno",                    limit: 255
-    t.string   "barcode",                 limit: 255
-    t.integer  "seq_number",              limit: 4
-    t.string   "pid",                     limit: 255
+  create_table "components", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "component_type_id", default: 0, null: false
+    t.integer "parent_component_id", default: 0, null: false
+    t.string "title"
+    t.string "label"
+    t.string "date"
+    t.text "content_desc"
+    t.string "idno"
+    t.string "barcode"
+    t.integer "seq_number"
+    t.string "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "desc_metadata",           limit: 65535
-    t.boolean  "discoverability",                       default: true
-    t.text     "level",                   limit: 65535
-    t.string   "ead_id_att",              limit: 255
+    t.text "desc_metadata"
+    t.boolean "discoverability", default: true
+    t.text "level"
+    t.string "ead_id_att"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.integer  "master_files_count",      limit: 4,     default: 0,    null: false
-    t.string   "exemplar",                limit: 255
-    t.string   "ancestry",                limit: 255
-    t.string   "pids_depth_cache",        limit: 255
-    t.string   "ead_id_atts_depth_cache", limit: 255
-    t.integer  "followed_by_id",          limit: 4
+    t.integer "master_files_count", default: 0, null: false
+    t.string "exemplar"
+    t.string "ancestry"
+    t.string "pids_depth_cache"
+    t.string "ead_id_atts_depth_cache"
+    t.integer "followed_by_id"
+    t.index ["ancestry"], name: "index_components_on_ancestry"
+    t.index ["component_type_id"], name: "index_components_on_component_type_id"
+    t.index ["followed_by_id"], name: "index_components_on_followed_by_id"
+    t.index ["pid"], name: "index_components_on_pid"
   end
 
-  add_index "components", ["ancestry"], name: "index_components_on_ancestry", using: :btree
-  add_index "components", ["component_type_id"], name: "index_components_on_component_type_id", using: :btree
-  add_index "components", ["followed_by_id"], name: "index_components_on_followed_by_id", using: :btree
-  add_index "components", ["pid"], name: "index_components_on_pid", using: :btree
-
-  create_table "customers", force: :cascade do |t|
-    t.integer  "department_id",      limit: 4
-    t.integer  "academic_status_id", limit: 4,   default: 0, null: false
-    t.string   "last_name",          limit: 255
-    t.string   "first_name",         limit: 255
-    t.string   "email",              limit: 255
+  create_table "customers", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "department_id"
+    t.integer "academic_status_id", default: 0, null: false
+    t.string "last_name"
+    t.string "first_name"
+    t.string "email"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "master_files_count", limit: 4,   default: 0
-    t.integer  "orders_count",       limit: 4,   default: 0
+    t.integer "master_files_count", default: 0
+    t.integer "orders_count", default: 0
+    t.index ["academic_status_id"], name: "index_customers_on_academic_status_id"
+    t.index ["department_id"], name: "index_customers_on_department_id"
+    t.index ["email"], name: "index_customers_on_email"
+    t.index ["first_name"], name: "index_customers_on_first_name"
+    t.index ["last_name"], name: "index_customers_on_last_name"
   end
 
-  add_index "customers", ["academic_status_id"], name: "index_customers_on_academic_status_id", using: :btree
-  add_index "customers", ["department_id"], name: "index_customers_on_department_id", using: :btree
-  add_index "customers", ["email"], name: "index_customers_on_email", using: :btree
-  add_index "customers", ["first_name"], name: "index_customers_on_first_name", using: :btree
-  add_index "customers", ["last_name"], name: "index_customers_on_last_name", using: :btree
-
-  create_table "delayed_jobs", force: :cascade do |t|
-    t.integer  "priority",   limit: 4,     default: 0, null: false
-    t.integer  "attempts",   limit: 4,     default: 0, null: false
-    t.text     "handler",    limit: 65535,             null: false
-    t.text     "last_error", limit: 65535
+  create_table "delayed_jobs", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
     t.datetime "run_at"
     t.datetime "locked_at"
     t.datetime "failed_at"
-    t.string   "locked_by",  limit: 255
-    t.string   "queue",      limit: 255
+    t.string "locked_by"
+    t.string "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
-
-  create_table "departments", force: :cascade do |t|
-    t.string   "name",            limit: 255
+  create_table "departments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "customers_count", limit: 4,   default: 0
+    t.integer "customers_count", default: 0
+    t.index ["name"], name: "index_departments_on_name", unique: true
   end
 
-  add_index "departments", ["name"], name: "index_departments_on_name", unique: true, using: :btree
-
-  create_table "equipment", force: :cascade do |t|
-    t.string   "type",          limit: 255
-    t.string   "name",          limit: 255
-    t.string   "serial_number", limit: 255
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
-    t.integer  "status",        limit: 4,   default: 0
+  create_table "equipment", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "type"
+    t.string "name"
+    t.string "serial_number"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
   end
 
-  create_table "genres", force: :cascade do |t|
-    t.string "name", limit: 255
+  create_table "genres", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
   end
 
-  create_table "image_tech_meta", force: :cascade do |t|
-    t.integer  "master_file_id", limit: 4,                  default: 0, null: false
-    t.string   "image_format",   limit: 255
-    t.integer  "width",          limit: 4
-    t.integer  "height",         limit: 4
-    t.integer  "resolution",     limit: 4
-    t.string   "color_space",    limit: 255
-    t.integer  "depth",          limit: 4
-    t.string   "compression",    limit: 255
+  create_table "image_tech_meta", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "master_file_id", default: 0, null: false
+    t.string "image_format"
+    t.integer "width"
+    t.integer "height"
+    t.integer "resolution"
+    t.string "color_space"
+    t.integer "depth"
+    t.string "compression"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "color_profile",  limit: 255
-    t.string   "equipment",      limit: 255
-    t.string   "software",       limit: 255
-    t.string   "model",          limit: 255
-    t.string   "exif_version",   limit: 255
+    t.string "color_profile"
+    t.string "equipment"
+    t.string "software"
+    t.string "model"
+    t.string "exif_version"
     t.datetime "capture_date"
-    t.integer  "iso",            limit: 4
-    t.string   "exposure_bias",  limit: 255
-    t.string   "exposure_time",  limit: 255
-    t.string   "aperture",       limit: 255
-    t.decimal  "focal_length",               precision: 10
+    t.integer "iso"
+    t.string "exposure_bias"
+    t.string "exposure_time"
+    t.string "aperture"
+    t.decimal "focal_length", precision: 10
+    t.index ["master_file_id"], name: "index_image_tech_meta_on_master_file_id"
   end
 
-  add_index "image_tech_meta", ["master_file_id"], name: "index_image_tech_meta_on_master_file_id", using: :btree
-
-  create_table "intended_uses", force: :cascade do |t|
-    t.string   "description",            limit: 255
-    t.boolean  "is_internal_use_only",               default: false, null: false
-    t.boolean  "is_approved",                        default: false, null: false
+  create_table "intended_uses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "description"
+    t.boolean "is_internal_use_only", default: false, null: false
+    t.boolean "is_approved", default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "units_count",            limit: 4,   default: 0
-    t.string   "deliverable_format",     limit: 255
-    t.string   "deliverable_resolution", limit: 255
+    t.integer "units_count", default: 0
+    t.string "deliverable_format"
+    t.string "deliverable_resolution"
+    t.index ["description"], name: "index_intended_uses_on_description", unique: true
   end
 
-  add_index "intended_uses", ["description"], name: "index_intended_uses_on_description", unique: true, using: :btree
-
-  create_table "invoices", force: :cascade do |t|
-    t.integer  "order_id",                limit: 4,     default: 0,     null: false
+  create_table "invoices", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "order_id", default: 0, null: false
     t.datetime "date_invoice"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "invoice_number",          limit: 4
-    t.integer  "fee_amount_paid",         limit: 4
+    t.integer "invoice_number"
+    t.integer "fee_amount_paid"
     t.datetime "date_fee_paid"
     t.datetime "date_second_notice_sent"
-    t.text     "transmittal_number",      limit: 65535
-    t.text     "notes",                   limit: 65535
-    t.boolean  "permanent_nonpayment",                  default: false
+    t.text "transmittal_number"
+    t.text "notes"
+    t.boolean "permanent_nonpayment", default: false
+    t.index ["order_id"], name: "index_invoices_on_order_id"
   end
 
-  add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree
-
-  create_table "job_statuses", force: :cascade do |t|
-    t.string   "name",            limit: 255,                     null: false
-    t.string   "status",          limit: 255, default: "pending", null: false
+  create_table "job_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name", null: false
+    t.string "status", default: "pending", null: false
     t.datetime "started_at"
     t.datetime "ended_at"
-    t.integer  "failures",        limit: 4,   default: 0,         null: false
-    t.string   "error",           limit: 255
-    t.integer  "originator_id",   limit: 4
-    t.string   "originator_type", limit: 255
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.integer "failures", default: 0, null: false
+    t.string "error"
+    t.integer "originator_id"
+    t.string "originator_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "master_files", force: :cascade do |t|
-    t.integer  "unit_id",             limit: 4,     default: 0, null: false
-    t.integer  "component_id",        limit: 4
-    t.string   "filename",            limit: 255
-    t.integer  "filesize",            limit: 4
-    t.string   "title",               limit: 255
+  create_table "master_files", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "unit_id", default: 0, null: false
+    t.integer "component_id"
+    t.string "filename"
+    t.integer "filesize"
+    t.string "title"
     t.datetime "date_archived"
-    t.text     "description",         limit: 65535
-    t.string   "pid",                 limit: 255
+    t.text "description"
+    t.string "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "transcription_text",  limit: 65535
-    t.string   "md5",                 limit: 255
+    t.text "transcription_text"
+    t.string "md5"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.string   "creator_death_date",  limit: 255
-    t.string   "creation_date",       limit: 255
-    t.string   "primary_author",      limit: 255
-    t.integer  "metadata_id",         limit: 4
-    t.integer  "original_mf_id",      limit: 4
+    t.string "creator_death_date"
+    t.string "creation_date"
+    t.string "primary_author"
+    t.integer "metadata_id"
+    t.integer "original_mf_id"
     t.datetime "deaccessioned_at"
-    t.text     "deaccession_note",    limit: 65535
-    t.integer  "deaccessioned_by_id", limit: 4
-    t.integer  "text_source",         limit: 4
+    t.text "deaccession_note"
+    t.integer "deaccessioned_by_id"
+    t.integer "text_source"
+    t.index ["component_id"], name: "index_master_files_on_component_id"
+    t.index ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest"
+    t.index ["date_dl_update"], name: "index_master_files_on_date_dl_update"
+    t.index ["filename"], name: "index_master_files_on_filename"
+    t.index ["metadata_id"], name: "index_master_files_on_metadata_id"
+    t.index ["original_mf_id"], name: "index_master_files_on_original_mf_id"
+    t.index ["pid"], name: "index_master_files_on_pid"
+    t.index ["title"], name: "index_master_files_on_title"
+    t.index ["unit_id"], name: "index_master_files_on_unit_id"
   end
 
-  add_index "master_files", ["component_id"], name: "index_master_files_on_component_id", using: :btree
-  add_index "master_files", ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest", using: :btree
-  add_index "master_files", ["date_dl_update"], name: "index_master_files_on_date_dl_update", using: :btree
-  add_index "master_files", ["filename"], name: "index_master_files_on_filename", using: :btree
-  add_index "master_files", ["metadata_id"], name: "index_master_files_on_metadata_id", using: :btree
-  add_index "master_files", ["original_mf_id"], name: "index_master_files_on_original_mf_id", using: :btree
-  add_index "master_files", ["pid"], name: "index_master_files_on_pid", using: :btree
-  add_index "master_files", ["title"], name: "index_master_files_on_title", using: :btree
-  add_index "master_files", ["unit_id"], name: "index_master_files_on_unit_id", using: :btree
-
-  create_table "metadata", force: :cascade do |t|
-    t.boolean  "is_approved",                          default: false,           null: false
-    t.boolean  "is_personal_item",                     default: false,           null: false
-    t.boolean  "is_manuscript",                        default: false,           null: false
-    t.text     "title",                  limit: 65535
-    t.string   "creator_name",           limit: 255
-    t.string   "catalog_key",            limit: 255
-    t.string   "barcode",                limit: 255
-    t.string   "call_number",            limit: 255
-    t.string   "pid",                    limit: 255
+  create_table "metadata", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.boolean "is_approved", default: false, null: false
+    t.boolean "is_personal_item", default: false, null: false
+    t.boolean "is_manuscript", default: false, null: false
+    t.text "title"
+    t.string "creator_name"
+    t.string "catalog_key"
+    t.string "barcode"
+    t.string "call_number"
+    t.string "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "exemplar",               limit: 255
-    t.integer  "parent_metadata_id",     limit: 4,     default: 0,               null: false
-    t.text     "desc_metadata",          limit: 65535
-    t.boolean  "discoverability",                      default: true
+    t.string "exemplar"
+    t.integer "parent_metadata_id", default: 0, null: false
+    t.text "desc_metadata"
+    t.boolean "discoverability", default: true
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.integer  "units_count",            limit: 4,     default: 0
-    t.integer  "availability_policy_id", limit: 4
-    t.integer  "use_right_id",           limit: 4
-    t.boolean  "dpla",                                 default: false
-    t.string   "collection_facet",       limit: 255
-    t.string   "type",                   limit: 255,   default: "SirsiMetadata"
-    t.string   "external_system",        limit: 255
-    t.string   "external_uri",           limit: 255
-    t.string   "supplemental_system",    limit: 255
-    t.string   "supplemental_uri",       limit: 255
-    t.integer  "genre_id",               limit: 4
-    t.integer  "resource_type_id",       limit: 4
-    t.string   "collection_id",          limit: 255
-    t.string   "box_id",                 limit: 255
-    t.string   "folder_id",              limit: 255
-    t.integer  "ocr_hint_id",            limit: 4
+    t.integer "units_count", default: 0
+    t.integer "availability_policy_id"
+    t.integer "use_right_id"
+    t.boolean "dpla", default: false
+    t.string "collection_facet"
+    t.string "type", default: "SirsiMetadata"
+    t.string "external_system"
+    t.string "external_uri"
+    t.string "supplemental_system"
+    t.string "supplemental_uri"
+    t.integer "genre_id"
+    t.integer "resource_type_id"
+    t.string "collection_id"
+    t.string "box_id"
+    t.string "folder_id"
+    t.integer "ocr_hint_id"
+    t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
+    t.index ["barcode"], name: "index_metadata_on_barcode"
+    t.index ["call_number"], name: "index_metadata_on_call_number"
+    t.index ["catalog_key"], name: "index_metadata_on_catalog_key"
+    t.index ["dpla"], name: "index_metadata_on_dpla"
+    t.index ["genre_id"], name: "index_metadata_on_genre_id"
+    t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
+    t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
+    t.index ["pid"], name: "index_metadata_on_pid"
+    t.index ["resource_type_id"], name: "index_metadata_on_resource_type_id"
+    t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
   end
 
-  add_index "metadata", ["availability_policy_id"], name: "index_metadata_on_availability_policy_id", using: :btree
-  add_index "metadata", ["barcode"], name: "index_metadata_on_barcode", using: :btree
-  add_index "metadata", ["call_number"], name: "index_metadata_on_call_number", using: :btree
-  add_index "metadata", ["catalog_key"], name: "index_metadata_on_catalog_key", using: :btree
-  add_index "metadata", ["dpla"], name: "index_metadata_on_dpla", using: :btree
-  add_index "metadata", ["genre_id"], name: "index_metadata_on_genre_id", using: :btree
-  add_index "metadata", ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id", using: :btree
-  add_index "metadata", ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id", using: :btree
-  add_index "metadata", ["pid"], name: "index_metadata_on_pid", using: :btree
-  add_index "metadata", ["resource_type_id"], name: "index_metadata_on_resource_type_id", using: :btree
-  add_index "metadata", ["use_right_id"], name: "index_metadata_on_use_right_id", using: :btree
-
-  create_table "notes", force: :cascade do |t|
-    t.integer  "staff_member_id", limit: 4
-    t.integer  "project_id",      limit: 4
-    t.integer  "problem_id",      limit: 4
-    t.text     "note",            limit: 65535
-    t.integer  "note_type",       limit: 4
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "step_id",         limit: 4
+  create_table "notes", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "staff_member_id"
+    t.integer "project_id"
+    t.integer "problem_id"
+    t.text "note"
+    t.integer "note_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "step_id"
+    t.index ["problem_id"], name: "index_notes_on_problem_id"
+    t.index ["project_id"], name: "index_notes_on_project_id"
+    t.index ["staff_member_id"], name: "index_notes_on_staff_member_id"
+    t.index ["step_id"], name: "index_notes_on_step_id"
   end
 
-  add_index "notes", ["problem_id"], name: "index_notes_on_problem_id", using: :btree
-  add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
-  add_index "notes", ["staff_member_id"], name: "index_notes_on_staff_member_id", using: :btree
-  add_index "notes", ["step_id"], name: "index_notes_on_step_id", using: :btree
-
-  create_table "ocr_hints", force: :cascade do |t|
-    t.string  "name",          limit: 255
-    t.boolean "ocr_candidate",             default: true
+  create_table "ocr_hints", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.boolean "ocr_candidate", default: true
   end
 
-  create_table "orders", force: :cascade do |t|
-    t.integer  "customer_id",                        limit: 4,                             default: 0,     null: false
-    t.integer  "agency_id",                          limit: 4
-    t.string   "order_status",                       limit: 255
-    t.boolean  "is_approved",                                                              default: false, null: false
-    t.string   "order_title",                        limit: 255
+  create_table "orders", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "customer_id", default: 0, null: false
+    t.integer "agency_id"
+    t.string "order_status"
+    t.boolean "is_approved", default: false, null: false
+    t.string "order_title"
     t.datetime "date_request_submitted"
     t.datetime "date_order_approved"
-    t.datetime "date_deferred"
     t.datetime "date_canceled"
-    t.datetime "date_permissions_given"
-    t.datetime "date_started"
-    t.date     "date_due"
+    t.date "date_due"
     t.datetime "date_customer_notified"
-    t.decimal  "fee_estimated",                                    precision: 7, scale: 2
-    t.decimal  "fee_actual",                                       precision: 7, scale: 2
-    t.string   "entered_by",                         limit: 255
-    t.text     "special_instructions",               limit: 65535
+    t.decimal "fee_estimated", precision: 7, scale: 2
+    t.decimal "fee_actual", precision: 7, scale: 2
+    t.text "special_instructions"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "staff_notes",                        limit: 65535
-    t.text     "email",                              limit: 65535
+    t.text "staff_notes"
+    t.text "email"
     t.datetime "date_patron_deliverables_complete"
     t.datetime "date_archiving_complete"
     t.datetime "date_finalization_begun"
     t.datetime "date_fee_estimate_sent_to_customer"
-    t.integer  "units_count",                        limit: 4,                             default: 0
-    t.integer  "invoices_count",                     limit: 4,                             default: 0
-    t.integer  "master_files_count",                 limit: 4,                             default: 0
+    t.integer "units_count", default: 0
+    t.integer "invoices_count", default: 0
+    t.integer "master_files_count", default: 0
+    t.datetime "date_deferred"
+    t.datetime "date_completed"
+    t.index ["agency_id"], name: "index_orders_on_agency_id"
+    t.index ["customer_id"], name: "index_orders_on_customer_id"
+    t.index ["date_archiving_complete"], name: "index_orders_on_date_archiving_complete"
+    t.index ["date_due"], name: "index_orders_on_date_due"
+    t.index ["date_order_approved"], name: "index_orders_on_date_order_approved"
+    t.index ["date_request_submitted"], name: "index_orders_on_date_request_submitted"
+    t.index ["order_status"], name: "index_orders_on_order_status"
   end
 
-  add_index "orders", ["agency_id"], name: "index_orders_on_agency_id", using: :btree
-  add_index "orders", ["customer_id"], name: "index_orders_on_customer_id", using: :btree
-  add_index "orders", ["date_archiving_complete"], name: "index_orders_on_date_archiving_complete", using: :btree
-  add_index "orders", ["date_due"], name: "index_orders_on_date_due", using: :btree
-  add_index "orders", ["date_order_approved"], name: "index_orders_on_date_order_approved", using: :btree
-  add_index "orders", ["date_request_submitted"], name: "index_orders_on_date_request_submitted", using: :btree
-  add_index "orders", ["order_status"], name: "index_orders_on_order_status", using: :btree
-
-  create_table "problems", force: :cascade do |t|
-    t.string  "name",        limit: 255
-    t.integer "notes_count", limit: 4,   default: 0
+  create_table "problems", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.integer "notes_count", default: 0
   end
 
-  create_table "project_equipment", force: :cascade do |t|
-    t.integer  "project_id",   limit: 4
-    t.integer  "equipment_id", limit: 4
+  create_table "project_equipment", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "project_id"
+    t.integer "equipment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["equipment_id"], name: "index_project_equipment_on_equipment_id"
+    t.index ["project_id"], name: "index_project_equipment_on_project_id"
   end
 
-  add_index "project_equipment", ["equipment_id"], name: "index_project_equipment_on_equipment_id", using: :btree
-  add_index "project_equipment", ["project_id"], name: "index_project_equipment_on_project_id", using: :btree
-
-  create_table "projects", force: :cascade do |t|
-    t.integer  "workflow_id",        limit: 4
-    t.integer  "unit_id",            limit: 4
-    t.integer  "owner_id",           limit: 4
-    t.integer  "current_step_id",    limit: 4
-    t.integer  "priority",           limit: 4,     default: 0
-    t.date     "due_on"
-    t.integer  "item_condition",     limit: 4
+  create_table "projects", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "workflow_id"
+    t.integer "unit_id"
+    t.integer "owner_id"
+    t.integer "current_step_id"
+    t.integer "priority", default: 0
+    t.date "due_on"
+    t.integer "item_condition"
     t.datetime "added_at"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.integer  "category_id",        limit: 4
-    t.string   "viu_number",         limit: 255
-    t.integer  "capture_resolution", limit: 4
-    t.integer  "resized_resolution", limit: 4
-    t.string   "resolution_note",    limit: 255
-    t.integer  "workstation_id",     limit: 4
-    t.text     "condition_note",     limit: 65535
+    t.integer "category_id"
+    t.string "viu_number"
+    t.integer "capture_resolution"
+    t.integer "resized_resolution"
+    t.string "resolution_note"
+    t.integer "workstation_id"
+    t.text "condition_note"
+    t.index ["category_id"], name: "index_projects_on_category_id"
+    t.index ["unit_id"], name: "index_projects_on_unit_id"
+    t.index ["workflow_id"], name: "index_projects_on_workflow_id"
+    t.index ["workstation_id"], name: "index_projects_on_workstation_id"
   end
 
-  add_index "projects", ["category_id"], name: "index_projects_on_category_id", using: :btree
-  add_index "projects", ["unit_id"], name: "index_projects_on_unit_id", using: :btree
-  add_index "projects", ["workflow_id"], name: "index_projects_on_workflow_id", using: :btree
-  add_index "projects", ["workstation_id"], name: "index_projects_on_workstation_id", using: :btree
-
-  create_table "resource_types", force: :cascade do |t|
-    t.string "name", limit: 255
+  create_table "resource_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
   end
 
-  create_table "sirsi_metadata_components", id: false, force: :cascade do |t|
-    t.integer "sirsi_metadata_id", limit: 4
-    t.integer "component_id",      limit: 4
+  create_table "sirsi_metadata_components", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "sirsi_metadata_id"
+    t.integer "component_id"
+    t.index ["component_id"], name: "component_id"
+    t.index ["sirsi_metadata_id"], name: "bibl_id"
   end
 
-  add_index "sirsi_metadata_components", ["component_id"], name: "component_id", using: :btree
-  add_index "sirsi_metadata_components", ["sirsi_metadata_id"], name: "bibl_id", using: :btree
-
-  create_table "staff_members", force: :cascade do |t|
-    t.string   "computing_id", limit: 255
-    t.string   "last_name",    limit: 255
-    t.string   "first_name",   limit: 255
-    t.boolean  "is_active",                default: false, null: false
+  create_table "staff_members", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "computing_id"
+    t.string "last_name"
+    t.string "first_name"
+    t.boolean "is_active", default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "email",        limit: 255
-    t.integer  "role",         limit: 4,   default: 0
+    t.string "email"
+    t.integer "role", default: 0
+    t.index ["computing_id"], name: "index_staff_members_on_computing_id", unique: true
   end
 
-  add_index "staff_members", ["computing_id"], name: "index_staff_members_on_computing_id", unique: true, using: :btree
-
-  create_table "staff_skills", force: :cascade do |t|
-    t.integer  "staff_member_id", limit: 4
-    t.integer  "category_id",     limit: 4
+  create_table "staff_skills", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "staff_member_id"
+    t.integer "category_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["category_id"], name: "index_staff_skills_on_category_id"
+    t.index ["staff_member_id"], name: "index_staff_skills_on_staff_member_id"
   end
 
-  add_index "staff_skills", ["category_id"], name: "index_staff_skills_on_category_id", using: :btree
-  add_index "staff_skills", ["staff_member_id"], name: "index_staff_skills_on_staff_member_id", using: :btree
-
-  create_table "statistics", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.string   "value",      limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.string   "group",      limit: 255
+  create_table "statistics", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "group"
   end
 
-  create_table "steps", force: :cascade do |t|
-    t.integer  "step_type",    limit: 4,     default: 3
-    t.string   "name",         limit: 255
-    t.text     "description",  limit: 65535
-    t.string   "start_dir",    limit: 255
-    t.string   "finish_dir",   limit: 255
-    t.integer  "workflow_id",  limit: 4
-    t.integer  "next_step_id", limit: 4
-    t.integer  "fail_step_id", limit: 4
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
-    t.integer  "owner_type",   limit: 4,     default: 0
-    t.boolean  "manual",                     default: false
+  create_table "steps", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "step_type", default: 3
+    t.string "name"
+    t.text "description"
+    t.string "start_dir"
+    t.string "finish_dir"
+    t.integer "workflow_id"
+    t.integer "next_step_id"
+    t.integer "fail_step_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "owner_type", default: 0
+    t.boolean "manual", default: false
+    t.index ["fail_step_id"], name: "index_steps_on_fail_step_id"
+    t.index ["next_step_id"], name: "index_steps_on_next_step_id"
+    t.index ["workflow_id"], name: "index_steps_on_workflow_id"
   end
 
-  add_index "steps", ["fail_step_id"], name: "index_steps_on_fail_step_id", using: :btree
-  add_index "steps", ["next_step_id"], name: "index_steps_on_next_step_id", using: :btree
-  add_index "steps", ["workflow_id"], name: "index_steps_on_workflow_id", using: :btree
-
-  create_table "units", force: :cascade do |t|
-    t.integer  "order_id",                       limit: 4,     default: 0,     null: false
-    t.integer  "metadata_id",                    limit: 4
-    t.string   "unit_status",                    limit: 255
+  create_table "units", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "order_id", default: 0, null: false
+    t.integer "metadata_id"
+    t.string "unit_status"
     t.datetime "date_materials_received"
     t.datetime "date_materials_returned"
-    t.integer  "unit_extent_estimated",          limit: 4
-    t.integer  "unit_extent_actual",             limit: 4
-    t.text     "patron_source_url",              limit: 65535
-    t.text     "special_instructions",           limit: 65535
+    t.integer "unit_extent_estimated"
+    t.integer "unit_extent_actual"
+    t.text "patron_source_url"
+    t.text "special_instructions"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "intended_use_id",                limit: 4
-    t.text     "staff_notes",                    limit: 65535
+    t.integer "intended_use_id"
+    t.text "staff_notes"
     t.datetime "date_archived"
     t.datetime "date_patron_deliverables_ready"
-    t.boolean  "include_in_dl",                                default: false
+    t.boolean "include_in_dl", default: false
     t.datetime "date_dl_deliverables_ready"
-    t.boolean  "remove_watermark",                             default: false
-    t.boolean  "checked_out",                                  default: false
-    t.integer  "master_files_count",             limit: 4,     default: 0
-    t.boolean  "complete_scan",                                default: false
-    t.boolean  "reorder",                                      default: false
-    t.boolean  "throw_away",                                   default: false
+    t.boolean "remove_watermark", default: false
+    t.boolean "checked_out", default: false
+    t.integer "master_files_count", default: 0
+    t.boolean "complete_scan", default: false
+    t.boolean "reorder", default: false
+    t.boolean "throw_away", default: false
+    t.index ["date_archived"], name: "index_units_on_date_archived"
+    t.index ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready"
+    t.index ["intended_use_id"], name: "index_units_on_intended_use_id"
+    t.index ["metadata_id"], name: "index_units_on_metadata_id"
+    t.index ["order_id"], name: "index_units_on_order_id"
   end
 
-  add_index "units", ["date_archived"], name: "index_units_on_date_archived", using: :btree
-  add_index "units", ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready", using: :btree
-  add_index "units", ["intended_use_id"], name: "index_units_on_intended_use_id", using: :btree
-  add_index "units", ["metadata_id"], name: "index_units_on_metadata_id", using: :btree
-  add_index "units", ["order_id"], name: "index_units_on_order_id", using: :btree
-
-  create_table "use_rights", force: :cascade do |t|
-    t.string   "name",           limit: 255
+  create_table "use_rights", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "metadata_count", limit: 4,   default: 0
-    t.string   "uri",            limit: 255
+    t.integer "metadata_count", default: 0
+    t.string "uri"
+    t.index ["name"], name: "index_use_rights_on_name", unique: true
   end
 
-  add_index "use_rights", ["name"], name: "index_use_rights_on_name", unique: true, using: :btree
-
-  create_table "workflows", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.text     "description", limit: 65535
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+  create_table "workflows", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "workstation_equipment", force: :cascade do |t|
-    t.integer  "workstation_id", limit: 4
-    t.integer  "equipment_id",   limit: 4
+  create_table "workstation_equipment", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer "workstation_id"
+    t.integer "equipment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["equipment_id"], name: "index_workstation_equipment_on_equipment_id"
+    t.index ["workstation_id"], name: "index_workstation_equipment_on_workstation_id"
   end
 
-  add_index "workstation_equipment", ["equipment_id"], name: "index_workstation_equipment_on_equipment_id", using: :btree
-  add_index "workstation_equipment", ["workstation_id"], name: "index_workstation_equipment_on_workstation_id", using: :btree
-
-  create_table "workstations", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.integer  "status",     limit: 4,   default: 0
+  create_table "workstations", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
   end
 
   add_foreign_key "attachments", "units"

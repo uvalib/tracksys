@@ -1,4 +1,4 @@
-class IntendedUse < ActiveRecord::Base
+class IntendedUse < ApplicationRecord
   #------------------------------------------------------------------
   # relationships
   #------------------------------------------------------------------

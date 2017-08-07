@@ -1,4 +1,4 @@
-class JobStatus < ActiveRecord::Base
+class JobStatus < ApplicationRecord
    belongs_to :originator, :polymorphic=>true
    validates :status, inclusion: {
       in: ["pending", "running", "success", "failure"],

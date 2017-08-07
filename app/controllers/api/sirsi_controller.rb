@@ -43,7 +43,7 @@ class Api::SirsiController < ApplicationController
       if found
          render json: resp
       else
-         render text: "Not Found", status: :not_found
+         render plain: "Not Found", status: :not_found
       end
    end
 end

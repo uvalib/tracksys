@@ -11,8 +11,8 @@
 #  created_at      :datetime
 #
 
-class AuditEvent < ActiveRecord::Base
-   enum event: [:status_update, :project_create]
+class AuditEvent < ApplicationRecord
+   enum event: [:status_update, :project_create, :date_reset]
 
    belongs_to :auditable, polymorphic: true
    belongs_to :staff_member
