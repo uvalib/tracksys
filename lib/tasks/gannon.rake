@@ -16,8 +16,9 @@ namespace :gannon do
       bc = ENV['barcode']
       abort "barcode is required" if bc.nil?
 
-      excel_file = File.join(PRODUCTION_MOUNT, "Gannon", "excel", "#{bc}.xlsx")
-      image_dir = File.join(PRODUCTION_MOUNT, "Gannon", "content", bc)
+      excel_file = File.join("gannon-excel", "#{bc}.xlsx")
+      image_dir = File.join("gannon-content", bc)
+
       if !Dir.exists? image_dir
          abort "Image dir #{image_dir} does not exist"
       end
@@ -55,6 +56,7 @@ namespace :gannon do
 
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
+      mf_cnt = 0
       CSV.parse(csv_data, headers: true) do |row|
          next if row[0].blank?
          filename = row[0]
@@ -64,6 +66,11 @@ namespace :gannon do
             puts "ERROR: Unable to find source image #{img_file}; skipping"
             next
          end
+
+         mf_cnt += 1
+
+         # if masterfile with this filename already exists, skip it
+         next if !MasterFile.find_by(filename: filename).nil?
 
          md5 = Digest::MD5.hexdigest(File.read(img_file))
          mf = MasterFile.create!(unit: unit, filename: filename, filesize: File.size(img_file),
@@ -107,5 +114,14 @@ namespace :gannon do
             puts "ERROR: MD5 does not match for #{filename}"
          end
       end
+
+      # all MF ingested. Grab unit and update relevant stats
+      unit.reload # up to date with newly added MF
+      if unit.master_files.count != mf_cnt
+         puts "WARN: unit master files count #{unit.master_files.count} mismatch file count #{mf_cnt}"
+      end
+
+      unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
+         date_archived: DateTime.now, complete_scan: 1)
    end
 end
