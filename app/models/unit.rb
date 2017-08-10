@@ -60,7 +60,7 @@ class Unit < ApplicationRecord
          errors.add(:base, "Metadata is required")
          throw(:abort)
       end
-      
+
       # boolean fields cannot be NULL at database level
       self.include_in_dl = 0 if self.include_in_dl.nil?
       self.order_id = 0 if self.order_id.nil?
@@ -68,14 +68,15 @@ class Unit < ApplicationRecord
       self.unit_status = "unapproved" if self.unit_status.nil? || self.unit_status.empty?
    end
    after_save do
-      if self.master_files.count > 0
+      if self.master_files.count > 0 && !self.metadata.nil?
          self.master_files.each do |mf|
             # if unit metadata is changed while there are master files,
             # update all of those master files to match the unit. IMPORTANT:
             # Don't do this if masterfile has XML metadata. These will always
             # be different from the unit and must remain that way - the metadata
             # is specific to each masterfile.
-            if mf.metadata.nil? || (mf.metadata.id != self.metadata.id && mf.metadata.type != "XmlMetadata")
+            next if mf.metadata.type == "XmlMetadata"
+            if mf.metadata.nil? || (!mf.metadata.nil? && mf.metadata.id != self.metadata.id)
                mf.update(metadata: self.metadata)
             end
          end
