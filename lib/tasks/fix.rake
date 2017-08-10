@@ -4,6 +4,9 @@ namespace :fix do
    task :completed_orders  => :environment do
       puts "Detect completed orders and flag them as complete"
       Order.where(order_status: 'approved').find_each do |o|
+         # already marked complete. nothing to do
+         next if !o.date_completed.nil?
+
          # If date_customer_notified is set, this is safe to consider complete
          if !o.date_customer_notified.nil?
             puts "Marking PATRON order #{o.id} complete"
