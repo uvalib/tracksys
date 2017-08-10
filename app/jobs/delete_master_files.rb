@@ -91,12 +91,14 @@ class DeleteMasterFiles < BaseJob
                mf.update(title: curr_page.to_s)
             end
 
-            archive_file = File.join(archive_dir, orig_fn)
-            new_archive = File.join(archive_dir, new_fn)
-            logger.info "Rename archived file #{archive_file} -> #{new_fn}"
-            File.rename(archive_file, new_archive)
-            new_md5 = Digest::MD5.hexdigest( File.read(new_archive) )
-            on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
+            if !mf.is_clone?
+               archive_file = File.join(archive_dir, orig_fn)
+               new_archive = File.join(archive_dir, new_fn)
+               logger.info "Rename archived file #{archive_file} -> #{new_fn}"
+               File.rename(archive_file, new_archive)
+               new_md5 = Digest::MD5.hexdigest( File.read(new_archive) )
+               on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
+            end
          end
 
          prev_page = curr_page
