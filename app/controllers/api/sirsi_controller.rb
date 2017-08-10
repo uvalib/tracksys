@@ -30,7 +30,7 @@ class Api::SirsiController < ApplicationController
          rights << "See the full Virgo Terms of Use at http://search.lib.virginia.edu/terms.html for more information."
 
          item =  {
-            pid: sm.pid, callNumber: sm.call_number,
+            pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode, 
             rightsWrapperUrl: "#{Settings.rights_wrapper_url}/?pid=#{sm.pid}&pagePid=",
             rightsWrapperText: "#{sm.get_citation}\n#{Settings.virgo_url}/#{sm.pid}\n\n#{rights}",
             backendIIIFManifestUrl: "#{Settings.iiif_manifest_url}/#{sm.pid}"
