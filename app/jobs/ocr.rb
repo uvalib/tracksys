@@ -33,7 +33,7 @@ class Ocr < BaseJob
    def ocr_master_file( mf, language )
       unit_dir = "%09d" % mf.unit_id
       srcs = [File.join(IN_PROCESS_DIR, unit_dir, mf.filename),
-         File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir, mf.filename)
+         File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir, mf.filename),
          File.join(ARCHIVE_DIR, "%09d" % unit.i, mf.filenamed)]
       srcs.each do |f|
          if File.exist? f
@@ -68,7 +68,7 @@ class Ocr < BaseJob
 
       logger().info("OCR Results added to master file #{mf.id}")
       logger().info("Cleaning up #{trans_file} and #{dest}")
-      
+
       File.delete(trans_file)
       File.delete(dest)
    end
