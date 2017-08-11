@@ -3,7 +3,9 @@
    <%= f.inputs "Order Information", :class => 'panel ' do %>
       <li class="text input optional">
          <label class="label">Order Status</label>
-         <span class="status_tag <%= @order.order_status %>"><%= @order.order_status.gsub(/_/, " ").upcase %></span>
+         <% os = @order.order_status
+            os = os.gsub(/_/, " ").upcase if !os.nil? %>
+         <span class="status_tag <%= @order.order_status %>"><%= os %></span>
       </li>
       <li class="text input optional">
          <label class="label">Date Request Submitted</label>
