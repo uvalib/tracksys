@@ -56,9 +56,9 @@ ActiveAdmin.register_page "OCR" do
                mf.transcription!
             end
          end
-         render :text=>"ok", :status=>:ok
+         render plain: "ok", :status=>:ok
       else
-         render :text=>mf.errors.full_messages.to_sentence, :status=>:error
+         render plain: mf.errors.full_messages.to_sentence, :status=>:error
       end
    end
 
@@ -71,7 +71,7 @@ ActiveAdmin.register_page "OCR" do
          exclude = params[:exclude].map { |id_str| id_str.to_i }
       end
       job_id = Ocr.exec({ :object_class=>params[:type], :object_id=>params[:id], :language=>params[:lang], :exclude=>exclude })
-      render :text=>job_id, :status=>:ok
+      render plain: job_id, :status=>:ok
    end
 
    # GET to status to get status of job ID passed as query param
@@ -103,7 +103,7 @@ ActiveAdmin.register_page "OCR" do
          end
          render :json=>resp, :status=>:ok
       rescue Exception => e
-         render :text=>"Unable to find job "+params[:job], :status=>:not_found
+         render plain: "Unable to find job "+params[:job], :status=>:not_found
       end
    end
 end
