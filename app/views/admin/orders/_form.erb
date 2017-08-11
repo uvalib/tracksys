@@ -9,7 +9,9 @@
       </li>
       <li class="text input optional">
          <label class="label">Date Request Submitted</label>
-         <span class="value"><%= @order.date_request_submitted.strftime("%F") %></span>
+         <% sub_date = @order.date_request_submitted
+            sub_date = sub_date.strftime("%F") if !sub_date.nil %>
+         <span class="value"><%= sub_date %></span>
       </li>
       <%= f.input :date_due, :as => :string, :input_html => {:class => :datepicker} %>
 
