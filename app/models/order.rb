@@ -44,11 +44,11 @@ class Order < ApplicationRecord
    scope :canceled, ->{where("order_status = 'canceled'") }
    scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
    scope :ready_for_delivery, ->{ joins(:units).where("units.intended_use_id != 110")
-      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null") }
+      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null").distinct }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
       .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
-      .order('fee_actual desc') }
+      .order('fee_actual desc').distinct }
    scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
