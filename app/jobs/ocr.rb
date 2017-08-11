@@ -32,23 +32,32 @@ class Ocr < BaseJob
 
    def ocr_master_file( mf, language )
       src = File.join(ARCHIVE_DIR, "%09d" % mf.unit_id, mf.filename)
-      dest = File.join(IN_PROCESS_DIR, "OCR_"+mf.filename)
+      dest = File.join(IN_PROCESS_DIR, "%09d" % mf.unit_id,  "OCR_"+mf.filename)
       logger().info("Preprocess #{src} to #{dest}")
       conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
       `#{conv_cmd}`
+      if !File.exist? dest
+         on_error("Preprocessed file #{dest} was not generated")
+      end
 
       lang_param = ""
       lang_param = "-l #{language}" if !language.nil?
-      logger().info("Running tesseract #{lang_param} on #{dest}")
       tess = "tesseract #{lang_param} #{dest} #{dest.split('.tif')[0]}"
+      logger().info("Running: #{tess}")
       `#{tess}`
 
       trans_file = dest.gsub /.tif/, ".txt"
+      if !File.exist? trans_file
+         on_error("OCR output file #{trans_file} was not generated")
+      end
+      logger().info("reading ocr result: #{trans_file}")
       file = File.open(trans_file, "r")
       mf.transcription_text = file.read
       file.close
       mf.save!
       mf.ocr!  # flag the text type as OCR
+
+      logger().info("OCR Results added to master file #{mf.id}")
 
       logger().info("Cleaning up #{trans_file} and #{dest}")
       File.delete(trans_file)
