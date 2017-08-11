@@ -39,7 +39,7 @@ gem 'jquery-colorbox-rails'
 gem "chosen-rails"
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
-gem 'therubyracer', platforms: :ruby
+#gem 'therubyracer', platforms: :ruby
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
