@@ -4,7 +4,7 @@
 
 ### Ruby
 * Install rbenv or RVM
-* Install ruby 2.2.4
+* Install ruby 2.4.1
 * If using rbenv: Run ```rbenv rehash```
 
 ### Other dependencies
@@ -14,17 +14,22 @@
 * Kakadu (No version for OSX; imagemagick used instead. www.kakadusoftware.com/)
 
 ### Rails
-* If using rbenv: rbenv 2.2.4
 * gem install bundler
 * cd /usr/local/projects
 * git clone https://github.com/uvalib-dcs/tracksys.git
 * cd tracksys
 * git submodule init
 * git submodule update
-* bundle install
+* bundle install --without development test (for production)
 * If using rbenv: rbenv rehash # to run the executables of the newly installed gems.
 * Create config/database.yml file with credentials for you MySQL install
 * Copy config/application.yml-TEMPLATE to config/application.yml and update variables to match your environment
 * rake db:create
-* rake db:migrate
-* A simple set of starter sql data can be found in db/ts_daily_progress_min.sql; import it into your DB.
+* rake db:schema:load
+* rake db:seed
+
+
+NOTE: Spring is included as a gem to speed up the development environment, but it must not
+      be used or installed on production. If it is, rails console will hang. Always use bundler commands
+      like this: bundle install/update  --without development test. 
+

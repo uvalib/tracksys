@@ -246,8 +246,9 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_fee_estimate_to_customer, :method => :put do
-      msg = "Status #{self.order_status.upcase} to AWAIT_FEE"
-      AuditEvent.create(auditable: Order.find(params[:id]), event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
+      o = Order.find(params[:id])
+      msg = "Status #{o.order_status.upcase} to AWAIT_FEE"
+      AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
 
       SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."

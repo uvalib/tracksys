@@ -11,6 +11,20 @@ namespace :gannon do
          date_request_submitted: DateTime.now, order_status: "approved",  date_due: (Date.today+1.year))
    end
 
+   desc "ingest all books"
+   task :ingest_all  => :environment do
+      excel_dir = File.join(Rails.root, "gannon-excel")
+      if !Dir.exists? excel_dir
+         abort "Excel dir #{excel_dir} does not exist"
+      end
+
+      Dir.foreach(excel_dir) do |f|
+         next if !f.include? ".xlsx"
+         ENV['barcode'] = f.split(".")[0]
+         Rake::Task['gannon:ingest'].execute
+      end
+   end
+
    desc "ingest a single book"
    task :ingest  => :environment do
       bc = ENV['barcode']
@@ -52,6 +66,10 @@ namespace :gannon do
          puts "Created new unit #{unit.as_json}"
       else
          unit = sm.units.first
+      end
+
+      if unit.master_files.count > 0
+         abort("This unit already has master files. SKIPPING")
       end
 
       xlsx = Roo::Spreadsheet.open(excel_file)
