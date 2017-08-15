@@ -30,7 +30,7 @@ class RequestsController < ApplicationController
             last_name: ca[:last_name], email: ca[:email], academic_status_id: ca[:academic_status_id])
          pap = ca[:primary_address_attributes]
          Address.create(addressable: @customer, address_type: "primary",
-            address_1: pap[:address_1], address_1: pap[:address_1],
+            address_1: pap[:address_1], address_2: pap[:address_s],
             city: pap[:city], state: pap[:state], post_code: pap[:post_code],
             country: pap[:country], phone: pap[:phone] )
 
