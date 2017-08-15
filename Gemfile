@@ -13,7 +13,7 @@ gem 'turnout'           # Maintence page
 gem "roo", "~> 2.7.0"   # to parse excel sheets for importing Gannon project
 
 gem 'annotate'
-gem 'mysql2', '0.4.5'
+gem 'mysql2'#, '0.4.5'
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
