@@ -38,7 +38,7 @@ class RequestsController < ApplicationController
          if !bap.nil?
             Address.create(addressable: @customer, address_type: "billable_address",
                first_name: bap[:first_name],last_name: bap[:last_name],
-               address_1: bap[:address_1], address_1: bap[:address_1],
+               address_1: bap[:address_1], address_2: bap[:address_2],
                city: bap[:city], state: bap[:state], post_code: bap[:post_code],
                country: bap[:country], phone: bap[:phone] )
          end
@@ -50,7 +50,7 @@ class RequestsController < ApplicationController
 
          pap = ca[:primary_address_attributes]
          @customer.primary_address.update(
-            address_1: pap[:address_1], address_1: pap[:address_1],
+            address_1: pap[:address_1], address_2: pap[:address_2],
             city: pap[:city], state: pap[:state], post_code: pap[:post_code],
             country: pap[:country], phone: pap[:phone] )
 
@@ -58,7 +58,7 @@ class RequestsController < ApplicationController
          if !bap.nil?
             @customer.billable_address.update(
                first_name: bap[:first_name],last_name: bap[:last_name],
-               address_1: bap[:address_1], address_1: bap[:address_1],
+               address_1: bap[:address_1], address_2: bap[:address_2],
                city: bap[:city], state: bap[:state], post_code: bap[:post_code],
                country: bap[:country], phone: bap[:phone] )
          end
