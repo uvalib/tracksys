@@ -8,20 +8,30 @@ class CheckOrderReadyForDelivery < BaseJob
    def do_workflow(message)
       raise "Parameter 'order_id' is required" if message[:order_id].blank?
       order = Order.find(message[:order_id])
-      incomplete_units = Array.new
+      incomplete_units = []
 
+      logger.info "Checking units for completeness..."
       order.units.each do |unit|
          # If an order can have both patron and dl-only units (i.e. some units have an intended use of "Digital Collection Building")
          # then we have to remove from consideration those units whose intended use is "Digital Collection Building"
          # and consider all other units.
-         if not unit.intended_use.description == "Digital Collection Building"
-            if not unit.unit_status == "canceled"
+         logger.info "   Check unit #{unit.id}"
+         if  unit.intended_use.description != "Digital Collection Building"
+            if unit.unit_status != "canceled"
                if unit.date_patron_deliverables_ready.nil?
+                  logger.info "   Unit #{unit.id} incomplete"
                   incomplete_units.push(unit.id)
+               else
+                  logger.info "   Unit #{unit.id} COMPLETE"
                end
+            else
+               logger.info "   unit is canceled"
             end
+         else
+            logger.info "   unit is for digital collection building"
          end
       end
+      logger.info "Incomplete units count #{incomplete_units.count}"
 
       if incomplete_units.empty?
          if order.date_customer_notified
