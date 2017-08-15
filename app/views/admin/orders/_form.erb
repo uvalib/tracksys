@@ -4,14 +4,22 @@
       <li class="text input optional">
          <label class="label">Order Status</label>
          <% os = @order.order_status
-            os = os.gsub(/_/, " ").upcase if !os.nil? %>
+            os = "requested" if os.nil?
+            os = os.gsub(/_/, " ").upcase %>
          <span class="status_tag <%= @order.order_status %>"><%= os %></span>
+         <% if @order.order_status.nil? %>
+            <input type="hidden" id="order_order_status]" name="order[order_status]" value="requested"/>
+         <% end %>
       </li>
       <li class="text input optional">
          <label class="label">Date Request Submitted</label>
          <% sub_date = @order.date_request_submitted
-            sub_date = sub_date.strftime("%F") if !sub_date.nil? %>
+            sub_date = DateTime.now if sub_date.nil?
+            sub_date = sub_date.strftime("%F")%>
          <span class="value"><%= sub_date %></span>
+         <% if @order.date_request_submitted.nil? %>
+            <input type="hidden" id="order_date_request_submitted" name="order[date_request_submitted]" value="<%= DateTime.now.strftime('%F') %>"/>
+         <% end %>
       </li>
       <%= f.input :date_due, :as => :string, :input_html => {:class => :datepicker} %>
 
