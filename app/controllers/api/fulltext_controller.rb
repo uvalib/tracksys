@@ -1,10 +1,10 @@
 class Api::FulltextController < ApplicationController
    def show
       types = ["transcription", "description", "title"]
-      render :text=>"PID is required", status: :bad_request and return if params[:pid].nil?
-      render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
-      render :text=>"Type is required", status: :bad_request and return if params[:type].nil?
-      render :text=>"Type is invalid", status: :bad_request and return if  !types.include? params[:type]
+      render :plain=>"PID is required", status: :bad_request and return if params[:pid].nil?
+      render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
+      render :plain=>"Type is required", status: :bad_request and return if params[:type].nil?
+      render :plain=>"Type is invalid", status: :bad_request and return if  !types.include? params[:type]
 
       # check each model that can have a PID to find a match. metadata takes precedence
       object = Metadata.find_by(pid: params[:pid])
@@ -15,7 +15,7 @@ class Api::FulltextController < ApplicationController
          type = object.type.underscore
       end
 
-      render :text=>"Could not find PID", status: :not_found and return if object.nil?
+      render :plain=>"Could not find PID", status: :not_found and return if object.nil?
 
       if type == "master_file"
          render plain: object.transcription_text.gsub(/\s+/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?

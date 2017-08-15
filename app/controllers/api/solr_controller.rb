@@ -25,13 +25,13 @@ class Api::SolrController < ApplicationController
    #
    def index
       ts = params[:timestamp]
-      render :text=>"Timestamp is required", status: :bad_request and return if ts.blank?
+      render :plain=>"Timestamp is required", status: :bad_request and return if ts.blank?
       date_str=""
       begin
          dt = DateTime.strptime(ts.to_s,'%s')
          date_str = dt.strftime("%Y-%m-%d")
       rescue Exception=>e
-         render :text=>"Invalid date", status: :bad_request and return
+         render :plain=>"Invalid date", status: :bad_request and return
       end
 
       pids = []
@@ -46,19 +46,19 @@ class Api::SolrController < ApplicationController
          end
       end
 
-      render :text=>pids.join(","), :status=>:ok
+      render :plain=>pids.join(","), :status=>:ok
    end
 
    # Get the index record for the pid specified
    #
    def show
-      render :text=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
+      render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
       # From the above index method, the only thing that will be returned and used here are
       # METADATA records. No need to generically handle metadata, masterfile and component
       metadata = Metadata.find_by(pid: params[:pid])
       if metadata.nil?
-         render :text=>"PID is invalid", status: :bad_request and return if metadata.nil?
+         render :plain=>"PID is invalid", status: :bad_request and return if metadata.nil?
       else
          render :xml=> Hydra.solr(metadata)
       end

@@ -99,7 +99,12 @@ namespace :gannon do
             TechMetadata.create(mf, img_file)
          rescue Exception => e
             puts "WARN: Unable to generate tech metadata #{e}"
+            # FIXME if this is not generated, there is no IIIF entry for this file
+            #       need to at least have a width and height
          end
+
+         # TODO also track file for exemplar. Prefer master file with title: Title-page
+         #      default to first master file if it cant be found
 
          if filename.include? ".jp2"
             text_filename = filename.gsub(/\.jp2/, '.txt')
