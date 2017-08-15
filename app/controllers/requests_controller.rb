@@ -15,17 +15,54 @@ class RequestsController < ApplicationController
    end
 
    def create
-      # Customer Logic
-      #
+      # if billable has all blanks, remove it from params
+      ba = params[:order][:customer_attributes][:billable_address_attributes]
+      if ba[:first_name].blank? && ba[:last_name].blank? && ba[:address_1].blank?
+         params[:order][:customer_attributes].delete :billable_address_attributes
+      end
+
       # Find existing Customer record by email address, or instantiate new one
       @customer = Customer.find_by( email: params[:order][:customer_attributes][:email].strip )
       if @customer.nil?
-         @customer = Customer.new
-      end
+         # CREATE NEW CUSTOMER =========
+         ca = params[:order][:customer_attributes]
+         @customer = Customer.create(first_name: ca[:first_name],
+            last_name: ca[:last_name], email: ca[:email], academic_status_id: ca[:academic_status_id])
+         pap = ca[:primary_address_attributes]
+         Address.create(addressable: @customer, address_type: "primary",
+            address_1: pap[:address_1], address_1: pap[:address_1],
+            city: pap[:city], state: pap[:state], post_code: pap[:post_code],
+            country: pap[:country], phone: pap[:phone] )
 
-      # Update that record (in memory, without saving it to database yet) with
-      # values from user input
-      @customer.update_attributes( customer_params )
+         bap = ca[:billing_address_attributes]
+         if !bap.nil?
+            Address.create(addressable: @customer, address_type: "billable_address",
+               first_name: bap[:first_name],last_name: bap[:last_name],
+               address_1: bap[:address_1], address_1: bap[:address_1],
+               city: bap[:city], state: bap[:state], post_code: bap[:post_code],
+               country: bap[:country], phone: bap[:phone] )
+         end
+      else
+         # UPDATE EXISTING CUSTOMER ==============
+         ca = params[:order][:customer_attributes]
+         @customer.update( first_name: ca[:first_name], last_name: ca[:last_name],
+            academic_status_id: ca[:academic_status_id])
+
+         pap = ca[:primary_address_attributes]
+         @customer.primary_address.update(
+            address_1: pap[:address_1], address_1: pap[:address_1],
+            city: pap[:city], state: pap[:state], post_code: pap[:post_code],
+            country: pap[:country], phone: pap[:phone] )
+
+         bap = ca[:billing_address_attributes]
+         if !bap.nil?
+            @customer.billable_address.update(
+               first_name: bap[:first_name],last_name: bap[:last_name],
+               address_1: bap[:address_1], address_1: bap[:address_1],
+               city: bap[:city], state: bap[:state], post_code: bap[:post_code],
+               country: bap[:country], phone: bap[:phone] )
+         end
+      end
 
       # request/order
       @request = Order.new( units_params )

@@ -14,14 +14,14 @@ class Customer < ApplicationRecord
    has_many :invoices, :through => :orders
    has_many :agencies, :through => :orders
 
-   has_one :primary_address, ->{ where(address_type: 'primary')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
-   has_one :billable_address, ->{ where(address_type: 'billable_address')}, :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
+   has_one :primary_address, ->{ where(address_type: 'primary')},
+      :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
+   has_one :billable_address, ->{ where(address_type: 'billable_address')},
+      :class_name => 'Address', :as => :addressable, :required=>false, :dependent => :destroy, :autosave => true
 
-   accepts_nested_attributes_for :primary_address, :update_only => true
-   accepts_nested_attributes_for :billable_address, :reject_if => :all_blank
    accepts_nested_attributes_for :orders
    accepts_nested_attributes_for :primary_address
-   accepts_nested_attributes_for :billable_address, :reject_if => :all_blank
+   accepts_nested_attributes_for :billable_address
 
    #------------------------------------------------------------------
    # validations
