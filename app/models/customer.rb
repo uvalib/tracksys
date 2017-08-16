@@ -20,8 +20,8 @@ class Customer < ApplicationRecord
       :class_name => 'Address', :as => :addressable, :required=>false, :dependent => :destroy, :autosave => true
 
    accepts_nested_attributes_for :orders
-   accepts_nested_attributes_for :primary_address
-   accepts_nested_attributes_for :billable_address
+   accepts_nested_attributes_for :primary_address, update_only: true
+   accepts_nested_attributes_for :billable_address, update_only: true
 
    #------------------------------------------------------------------
    # validations
