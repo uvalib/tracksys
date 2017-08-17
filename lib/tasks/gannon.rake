@@ -95,24 +95,37 @@ namespace :gannon do
             title: title, md5: md5, metadata: sm)
 
          # create tech metadata
+         no_tech_metadata = false
          begin
             TechMetadata.create(mf, img_file)
          rescue Exception => e
             puts "WARN: Unable to generate tech metadata #{e}"
-            # FIXME if this is not generated, there is no IIIF entry for this file
-            #       need to at least have a width and height
+            no_tech_metadata = false
          end
 
-         # TODO also track file for exemplar. Prefer master file with title: Title-page
-         #      default to first master file if it cant be found
-
+         file_type = "TIFF"
          if filename.include? ".jp2"
             text_filename = filename.gsub(/\.jp2/, '.txt')
             pth = iiif_path(mf.pid)
             FileUtils.copy(img_file, pth)
+            file_type = "JP2"
          else
             text_filename = filename.gsub(/\.tif/, '.txt')
             publish_to_iiif(mf, img_file)
+         end
+
+         # if we were previously unable to get any tech metadata, ask
+         # the iiif server for some.
+         if no_tech_metadata
+            puts "Attempting to get minimal texh metadta from IIIF server"
+            resp = RestClient.get("#{iiif_url}/#{mf.pid}/.info.json")
+            if resp.code == 200
+               json = JSON.parse(resp.body)
+               ImageTechMeta.create(master_file: mf, width: json["width"],
+                  height: json["height"], image_format: file_type)
+            else
+               puts "WARN: unable to retreive info for #{mf.pid} from IIIF server"
+            end
          end
 
          # Update MF with OCR text
@@ -146,5 +159,25 @@ namespace :gannon do
 
       unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
+   end
+
+   desc "Fix missing jp2 metadata"
+   task :fix_metadata  => :environment do
+      id = ENV["id"]
+      abort("ID is required") if id.nil?
+      mf = MasterFile.find(id)
+      abort("Master file already has tech metadata") if !mf.image_tech_meta.nil?
+      file_type="TIFF"
+      file_type="JP2" if filename.include? ".jp2"
+
+      puts "Attempting to get minimal texh metadta from IIIF server"
+      resp = RestClient.get("#{iiif_url}/#{mf.pid}/.info.json")
+      if resp.code == 200
+         json = JSON.parse(resp.body)
+         ImageTechMeta.create(master_file: mf, width: json["width"],
+            height: json["height"], image_format: file_type)
+      else
+         puts "WARN: unable to retreive info for #{mf.pid} from IIIF server"
+      end
    end
 end
