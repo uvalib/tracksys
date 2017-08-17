@@ -77,6 +77,7 @@ namespace :gannon do
       mf_cnt = 0
       exemplar = nil
       found_title_page = false
+      unit_dir = "%09d" % unit.id
       CSV.parse(csv_data, headers: true) do |row|
          next if row[0].blank?
          filename = row[0]
@@ -94,19 +95,24 @@ namespace :gannon do
          # default is first image if neither is found
          if title.strip.downcase == "title-page"
             found_title_page = true
-            exemlar = filename
+            exemplar = filename
          end
          if title.strip.downcase == "1" && found_title_page == false
-            exemlar = filename
+            exemplar = filename
          end
 
          mf_cnt += 1
 
+         # convert filename from source folder to tracksys scheme
+         fn_page = "%04d" % filename.to_i
+         ts_filename = "#{unit_dir}_#{fn_page}.#{filename.split('.')[1]}"
+         ts_txt_filename = "#{unit_dir}_#{fn_page}.txt"
+
          # if masterfile with this filename already exists, skip it
-         next if !MasterFile.find_by(filename: filename, unit_id: unit.id).nil?
+         next if !MasterFile.find_by(filename: ts_filename).nil?
 
          md5 = Digest::MD5.hexdigest(File.read(img_file))
-         mf = MasterFile.create!(unit: unit, filename: filename, filesize: File.size(img_file),
+         mf = MasterFile.create!(unit: unit, filename: ts_filename, filesize: File.size(img_file),
             title: title, md5: md5, metadata: sm)
 
          # create tech metadata
@@ -120,12 +126,10 @@ namespace :gannon do
 
          file_type = "TIFF"
          if filename.include? ".jp2"
-            text_filename = filename.gsub(/\.jp2/, '.txt')
             pth = iiif_path(mf.pid)
             FileUtils.copy(img_file, pth)
             file_type = "JP2"
          else
-            text_filename = filename.gsub(/\.tif/, '.txt')
             publish_to_iiif(mf, img_file)
          end
 
@@ -144,6 +148,7 @@ namespace :gannon do
          end
 
          # Update MF with OCR text
+         text_filename = "#{filename.split('.')[0]}.txt"
          txt_file = File.join(image_dir,  text_filename)
          file = File.open(txt_file, "rb")
          ocr_txt = file.read
@@ -154,10 +159,10 @@ namespace :gannon do
          dest_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
          FileUtils.makedirs(dest_dir) if !Dir.exists? dest_dir
 
-         dest_file = File.join(dest_dir, text_filename )
+         dest_file = File.join(dest_dir, ts_txt_filename )
          FileUtils.copy(txt_file, dest_file)
 
-         dest_file = File.join(dest_dir, filename )
+         dest_file = File.join(dest_dir, ts_filename )
          FileUtils.copy(img_file, dest_file)
          dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
          mf.update!(date_archived: DateTime.now, date_dl_ingest: DateTime.now)
@@ -207,6 +212,7 @@ namespace :gannon do
       puts "Update all master file names for unit #{id} to match naming convention..."
       unit.master_files.each do |mf|
          orig_fn = mf.filename
+         puts "Processing #{orig_fn}..."
          if /\d{9}_\d{4}\..{3}/.match(orig_fn)
             puts "Filename #{orig_fn} already in correct format. Skipping."
             next
@@ -224,7 +230,6 @@ namespace :gannon do
          orig_archive = File.join(archive_root_dir, txt_fn)
          txt_fn = "#{new_fn.split('.')[0]}.txt"
          new_archive = File.join(archive_root_dir, txt_fn)
-         puts "Rename #{orig_archive} to #{new_archive}"
          File.rename(orig_archive, new_archive)
 
          mf.update(filename: new_fn)
