@@ -75,14 +75,27 @@ namespace :gannon do
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
       mf_cnt = 0
+      exemplar = nil
+      found_title_page = false
       CSV.parse(csv_data, headers: true) do |row|
          next if row[0].blank?
          filename = row[0]
+         exemplar = filename if exemplar.nil?
+
          title = row[1]
          img_file = File.join(image_dir, filename)
          if !File.exists? img_file
             puts "ERROR: Unable to find source image #{img_file}; skipping"
             next
+         end
+
+         # Set exemplar to the title page if possible, or page 1.
+         # default is first image if neither is found
+         if title.strip.downcase == "title-page"
+            found_title_page = true
+            exemlar = filename
+         if title.strip.downcase == "1" && found_title_page == false
+            exemlar = filename
          end
 
          mf_cnt += 1
@@ -159,6 +172,7 @@ namespace :gannon do
 
       unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
+      unit.metadata.update(exemplar: exemplar)
    end
 
    desc "Fix missing jp2 metadata"
@@ -168,10 +182,10 @@ namespace :gannon do
       mf = MasterFile.find(id)
       abort("Master file already has tech metadata") if !mf.image_tech_meta.nil?
       file_type="TIFF"
-      file_type="JP2" if filename.include? ".jp2"
+      file_type="JP2" if mf.filename.include? ".jp2"
 
       puts "Attempting to get minimal texh metadta from IIIF server"
-      resp = RestClient.get("#{iiif_url}/#{mf.pid}/.info.json")
+      resp = RestClient.get("#{Settings.iiif_url}/#{mf.pid}/info.json")
       if resp.code == 200
          json = JSON.parse(resp.body)
          ImageTechMeta.create(master_file: mf, width: json["width"],
