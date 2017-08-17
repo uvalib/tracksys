@@ -10,7 +10,7 @@ class ReplaceMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      src_dir = File.join(Settings.production_mount, "unit_update", "#{unit.id}")
+      src_dir = File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit.id}")
       tif_files = Dir.glob("#{src_dir}/*.tif").sort
       tif_files.each do |mf_path|
          fs = File.size(mf_path)
