@@ -68,9 +68,9 @@ namespace :gannon do
          unit = sm.units.first
       end
 
-      if unit.master_files.count > 0
-         abort("This unit already has master files. SKIPPING")
-      end
+#      if unit.master_files.count > 0
+#         abort("This unit already has master files. SKIPPING")
+#      end
 
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
@@ -88,12 +88,14 @@ namespace :gannon do
             puts "ERROR: Unable to find source image #{img_file}; skipping"
             next
          end
+         puts "Processing #{filename}..."
 
          # Set exemplar to the title page if possible, or page 1.
          # default is first image if neither is found
          if title.strip.downcase == "title-page"
             found_title_page = true
             exemlar = filename
+         end
          if title.strip.downcase == "1" && found_title_page == false
             exemlar = filename
          end
@@ -101,7 +103,7 @@ namespace :gannon do
          mf_cnt += 1
 
          # if masterfile with this filename already exists, skip it
-         next if !MasterFile.find_by(filename: filename).nil?
+         next if !MasterFile.find_by(filename: filename, unit_id: unit.id).nil?
 
          md5 = Digest::MD5.hexdigest(File.read(img_file))
          mf = MasterFile.create!(unit: unit, filename: filename, filesize: File.size(img_file),
@@ -113,7 +115,7 @@ namespace :gannon do
             TechMetadata.create(mf, img_file)
          rescue Exception => e
             puts "WARN: Unable to generate tech metadata #{e}"
-            no_tech_metadata = false
+            no_tech_metadata = true
          end
 
          file_type = "TIFF"
@@ -130,8 +132,8 @@ namespace :gannon do
          # if we were previously unable to get any tech metadata, ask
          # the iiif server for some.
          if no_tech_metadata
-            puts "Attempting to get minimal texh metadta from IIIF server"
-            resp = RestClient.get("#{iiif_url}/#{mf.pid}/.info.json")
+            puts "Attempting to get minimal tech metadta from IIIF server"
+            resp = RestClient.get("#{Settings.iiif_url}/#{mf.pid}/info.json")
             if resp.code == 200
                json = JSON.parse(resp.body)
                ImageTechMeta.create(master_file: mf, width: json["width"],
@@ -193,5 +195,40 @@ namespace :gannon do
       else
          puts "WARN: unable to retreive info for #{mf.pid} from IIIF server"
       end
+   end
+
+   desc "fix filenames"
+   task :fix_filenames  => :environment do
+      id = ENV["id"]
+      abort("ID is required") if id.nil?
+      unit = Unit.find(id)
+      archive_root_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
+      unit_dir = "%09d" % unit.id
+      puts "Update all master file names for unit #{id} to match naming convention..."
+      unit.master_files.each do |mf|
+         orig_fn = mf.filename
+         if /\d{9}_\d{4}\..{3}/.match(orig_fn)
+            puts "Filename #{orig_fn} already in correct format. Skipping."
+            next
+         end
+
+         fn_page = "%04d" % orig_fn.to_i
+         new_fn = "#{unit_dir}_#{fn_page}.#{orig_fn.split('.')[1]}"
+
+         puts "   Update #{orig_fn} to #{new_fn}..."
+         orig_archive = File.join(archive_root_dir, orig_fn)
+         new_archive = File.join(archive_root_dir, new_fn)
+         File.rename(orig_archive, new_archive)
+
+         txt_fn = "#{orig_fn.split('.')[0]}.txt"
+         orig_archive = File.join(archive_root_dir, txt_fn)
+         txt_fn = "#{new_fn.split('.')[0]}.txt"
+         new_archive = File.join(archive_root_dir, txt_fn)
+         puts "Rename #{orig_archive} to #{new_archive}"
+         File.rename(orig_archive, new_archive)
+
+         mf.update(filename: new_fn)
+      end
+      puts "DONE"
    end
 end
