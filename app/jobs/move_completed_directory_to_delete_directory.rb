@@ -29,7 +29,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
 
       # Unit update?
       elsif /unit_update/ =~ source_dir
-         del_dir = File.join(DELETE_DIR, "from_update", unit_id.to_s)
+         del_dir = File.join(DELETE_DIR, "from_update", unit_dir)
          if Dir.exists? del_dir
             del_dir = del_dir.chomp("/")    # remove the trailing slash if present
             del_dir << Time.now.to_i.to_s   # add a timestamp
