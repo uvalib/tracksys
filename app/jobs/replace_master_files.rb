@@ -15,6 +15,7 @@ class ReplaceMasterFiles < BaseJob
          File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit_dir}")
       ]
       src_dir = nil
+      tif_files = []
       src_dirs.each do |dir|
          logger.info "Looking for replacement *.tif files in #{dir}"
          tif_files = Dir.glob("#{dir}/*.tif").sort
