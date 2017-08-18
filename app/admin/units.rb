@@ -242,14 +242,14 @@ ActiveAdmin.register Unit do
 
    member_action :clone_master_files, method: :post do
       job_id = CloneMasterFiles.exec({unit_id: params[:id], list: params[:masterfiles]})
-      render :text=>job_id, status: :ok
+      render plain: job_id, status: :ok
    end
 
    member_action :clone_status, method: :get do
       job = JobStatus.find(params[:job])
-      render :text=>"Invalid job", status: :bad_request and return if job.name != "CloneMasterFiles"
-      render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
-      render :text=>job.status, status: :ok
+      render plain: "Invalid job", status: :bad_request and return if job.name != "CloneMasterFiles"
+      render plain: "Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
+      render plain: job.status, status: :ok
    end
 
    member_action :master_files, method: :get do
@@ -430,23 +430,23 @@ ActiveAdmin.register Unit do
 
    member_action :add, :method => :post do
       job_id = AddMasterFiles.exec({unit_id: params[:id]})
-      render :text=>job_id, status: :ok
+      render plain: job_id, status: :ok
    end
    member_action :replace, :method => :post do
       job_id = ReplaceMasterFiles.exec({unit_id: params[:id]})
-      render :text=>job_id, status: :ok
+      render plain: job_id, status: :ok
    end
    member_action :delete, :method => :post do
       job_id = DeleteMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames]})
-      render :text=>job_id, status: :ok
+      render plain: job_id, status: :ok
    end
    member_action :status, method: :get do
       job = JobStatus.find(params[:job])
       job_type = params[:type]
       type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles"}
-      render :text=>"Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
-      render :text=>"Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
-      render :text=>job.status, status: :ok
+      render plain: "Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
+      render plain: "Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
+      render plain: job.status, status: :ok
    end
 
    controller do

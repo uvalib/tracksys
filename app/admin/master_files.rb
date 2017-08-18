@@ -283,7 +283,7 @@ ActiveAdmin.register MasterFile do
          DeaccessionMasterFile.exec_now({master_file: mf, user: current_user, note: params[:note] })
          render :nothing=>true
       rescue Exception=>e
-         render :text=> "Deaccession failed: #{e.message}", :status=>:error
+         render :plain=> "Deaccession failed: #{e.message}", :status=>:error
       end
    end
 

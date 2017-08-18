@@ -50,7 +50,7 @@ ActiveAdmin.register_page "Statistics" do
          render plain: resp, status: :ok and return
       end
 
-      render :text=>"Invalid query type", :status=>:error
+      render plain: "Invalid query type", :status=>:error
    end
 
    controller do
