@@ -13,7 +13,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
       end
 
       if !Dir.exists? source_dir
-         on_success "Source directory #{unit_dir} has already been removed"
+         on_success "Source directory #{source_dir} has already been removed"
          return
       end
 

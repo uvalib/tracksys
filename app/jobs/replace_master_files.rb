@@ -10,12 +10,28 @@ class ReplaceMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      src_dir = File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit.id}")
-      tif_files = Dir.glob("#{src_dir}/*.tif").sort
+      src_dirs = [
+         File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit.id}"),
+         File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit_dir}")
+      ]
+      src_dir = nil
+      src_dirs.each do |dir|
+         logger.info "Looking for replacement *.tif files in #{dir}"
+         tif_files = Dir.glob("#{dir}/*.tif").sort
+         if tif_files.count > 0
+            src_dir = dir
+         end
+      end
+
+      if tif_files.count == 0
+         on_error("No replacement *.tif files found")
+      end
+
       tif_files.each do |mf_path|
          fs = File.size(mf_path)
          md5 = Digest::MD5.hexdigest(File.read(mf_path) )
          fn = File.basename(mf_path)
+         logger.info("Replacing master file #{fn}")
          curr_mf = unit.master_files.find_by(filename: fn)
          if curr_mf.nil?
             on_failure("File #{fn} was not found in unit. Skipping")
