@@ -368,7 +368,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :copy_from_archive, :method => :put do
-      CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => computing_id })
+      CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
    end
 
