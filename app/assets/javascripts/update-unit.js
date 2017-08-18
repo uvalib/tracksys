@@ -45,7 +45,7 @@ $(function() {
       var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
-      var msg = "Replace master files with .tif files from 'digiserv-production/unit_update/" + unit + "'?";
+      var msg = "Replace master files with .tif files from '/digiserv-production/finalization/unit_update/" + unit + "'?";
       $("#confirm-msg").text(msg);
       $("#confirm-update").data("action", "replace");
       $("div.update-confirm").show();
@@ -58,7 +58,7 @@ $(function() {
       var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
-      var msg = "Add .tif master files from 'digiserv-production/unit_update/" + unit + "' to unit?";
+      var msg = "Add .tif master files from '/digiserv-production/finalization/unit_update/" + unit + "' to unit?";
       $("#confirm-msg").text(msg);
       $("div.update-confirm").show();
       $("#confirm-update").data("action", "add");
