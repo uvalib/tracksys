@@ -7,6 +7,7 @@ class SendOrderEmail < BaseJob
    def do_workflow(message)
       order = Order.find(message[:order_id])
       email = order.email
+      user = message[:user]
 
       # recreate the email but there is no longer a need to pass correct
       # information because the body will be drawn from order.email
@@ -20,6 +21,10 @@ class SendOrderEmail < BaseJob
 
       if order.invoices.count == 0
          CreateInvoice.exec_now({:order => order}, self)
+         logger.info("Marking order COMPLETE")
+         if !order.complete_order(user)
+            on_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
+         end
       else
          logger.info "An invoice already exists for order #{order.id}; not creating another."
       end

@@ -266,7 +266,7 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_order_email, :method => :put do
-      SendOrderEmail.exec({:order_id => params[:id]})
+      SendOrderEmail.exec({:order_id => params[:id], user: current_user})
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
    end
 
