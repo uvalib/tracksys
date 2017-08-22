@@ -182,10 +182,9 @@ class Project < ApplicationRecord
    def finalization_success(job)
       Rails.logger.info("Project [#{self.project_name}] completed finalization")
       self.update(finished_at: Time.now, owner: nil, current_step: nil)
-      prior_duration = self.active_assignment.duration_minutes
       processing_mins = ((Time.now - job.started_at)/60.0).round
       self.active_assignment.update(finished_at: Time.now, status: :finished,
-         duration_minutes: (prior_duration+processing_mins))
+         duration_minutes: processing_mins)
    end
 
    # Finalzation of the associated unit failed
@@ -194,9 +193,8 @@ class Project < ApplicationRecord
       Rails.logger.error("Project [#{self.project_name}] FAILED finalization")
 
       # Fail the step and increase time spent
-      prior_duration = self.active_assignment.duration_minutes
       processing_mins = ((job.ended_at - job.started_at)/60.0).round
-      self.active_assignment.update(duration_minutes: (prior_duration+processing_mins), status: :error )
+      self.active_assignment.update(duration_minutes: processing_mins, status: :error )
 
       # Add a problem note with a summary of the issue
       prob = Problem.find(6) # Finalization
