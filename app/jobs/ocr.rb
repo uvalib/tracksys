@@ -24,8 +24,6 @@ class Ocr < BaseJob
       logger().info("OCR Masterfiles from unit #{unit.id}, EXCEPT #{exclude}")
       unit.master_files.each do |mf|
          next if exclude.include? mf.id
-         mf.transcription_text = "PROCESSING"
-         mf.save!
          ocr_master_file(mf, language)
       end
    end

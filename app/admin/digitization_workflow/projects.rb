@@ -123,7 +123,9 @@ ActiveAdmin.register Project do
          end
          div :class => 'workflow_button project' do
             clazz = "admin-button"
-            if !(project.active_assignment.started? || project.active_assignment.error?) ||
+            if project.unit.metadata.ocr_hint_id.nil? && project.workflow.name != "Clone"
+               clazz << " disabled locked"
+            elsif !(project.active_assignment.started? || project.active_assignment.error?) ||
                 (project.workstation.nil? && project.workflow.name != "Clone")
                clazz << " disabled locked"
             end
@@ -243,8 +245,13 @@ ActiveAdmin.register Project do
          else
             resp = project.update(viu_number: params[:viu_number] )
          end
+         ocr_mf = params[:ocr_master_files] == "true"
+         project.unit.update(ocr_master_files: ocr_mf)
          if params[:ocr_hint_id]
             project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
+         end
+         if params[:ocr_language_hint]
+            project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
          end
          if resp
             render plain: "OK"
@@ -315,6 +322,16 @@ ActiveAdmin.register Project do
    end
 
    controller do
+       before_action :get_tesseract_langs, only: [:show, :edit]
+       def get_tesseract_langs
+          # Get list of tesseract supported languages
+          lang_str = `tesseract --list-langs 2>&1`
+
+          # gives something like: List of available languages (107):\nafr\...
+          # split off info and make array
+          lang_str = lang_str.split(":")[1].strip
+          @languages = lang_str.split("\n")
+       end
       def scoped_collection
          if params[:action] == 'index'
             if !current_user.admin? && !current_user.supervisor?

@@ -25,8 +25,8 @@ else
    if order.customer.external?
       div :class => 'workflow_button' do
          # Only enable send estimate when estimate is populated, fee has not been sent and actual is blank
-         fee_disabled = order.fee_estimated.nil? || !order.date_fee_estimate_sent_to_customer.nil? || !order.fee_actual.nil?
-         fee_disabled = order.order_status == 'deferred'
+         fee_disabled = order.fee_estimated.nil? || !order.date_fee_estimate_sent_to_customer.nil? ||
+                        !order.fee_actual.nil? || order.order_status == 'deferred' || order.order_status == 'approved'
          button_to "Send Fee Estimate", send_fee_estimate_to_customer_admin_order_path(order.id), :disabled => fee_disabled, :method => :put
       end
    end

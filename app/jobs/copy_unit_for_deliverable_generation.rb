@@ -42,6 +42,12 @@ class CopyUnitForDeliverableGeneration < BaseJob
          end
          logger.debug("All master files copied")
 
+         # If requested, OCR each master file in the unit
+         if unit.ocr_master_files
+            Ocr.exec_now({object_class: "Unit", object_id: unit.id,
+               language: unit.metadata.ocr_language_hint, exclude: []}, self)
+         end
+
          # If the copy was successful, start processing for this batch based on mode
          if mode == 'patron'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so patron deliverables can be made."
