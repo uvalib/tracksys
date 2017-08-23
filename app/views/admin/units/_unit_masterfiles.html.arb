@@ -10,13 +10,17 @@ div id: "masterfile-list" do
    div class: "unit-mf-action-panel" do
       all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
       all_btn = "" if page_size.to_i >= unit.master_files.count
+      sel_all_btn = "<span id='sel-all' class='mf-action-button'>Select All</span>"
 
       replace_btn = ""
       add_btn = ""
       del_btn = ""
+      renumber_btn = "<span id='renumber-pages' class='mf-action-button disabled'>Renumber Selected</span>"
       if !unit.reorder && current_user.admin?
          replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
-         del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>" if !unit.in_dl?
+         if unit.date_archived.blank? || !unit.in_dl?
+            del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>"
+         end
          add_btn = "<span id='add-pages' class='mf-action-button'>Add</span>"
       end
 
@@ -26,8 +30,9 @@ div id: "masterfile-list" do
          pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
       end
 
-      raw("#{all_btn}#{pdf_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}</span>")
+      raw("#{sel_all_btn}#{all_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}#{renumber_btn}#{pdf_btn}</span>")
    end
+
    div class: "update-confirm" do
       span id: "confirm-msg" do "replace master fiiles?" end
       div class: "button-bar" do
@@ -37,9 +42,9 @@ div id: "masterfile-list" do
 
    paginated_collection(unit.master_files.page(params[:page]).per(page_size.to_i), download_links: false) do
       table_for collection do |mf|
-         if !unit.metadata.nil? && unit.date_archived.blank?
+         if !unit.metadata.nil?
             column ('') do |mf|
-               raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>") if !mf.deaccessioned?
+               raw("<input type='checkbox' class='mf-checkbox' data-mf-id='#{mf.id}'/>") if  !mf.deaccessioned?
             end
          end
          column :filename, :sortable => false
