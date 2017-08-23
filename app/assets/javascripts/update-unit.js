@@ -8,7 +8,7 @@ $(function() {
       $("#working-message").show();
       $("div.update-confirm").hide();
       $("#confirm-update").data("action", "renumber");
-      var origUrl = window.location.href;
+      var origUrl = window.location.href.split("?")[0];
       $.ajax({
          url: origUrl + "/renumber",
          method: "POST",
@@ -84,7 +84,6 @@ $(function() {
    });
 
    $("#replace-pages").on("click", function() {
-      var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
       var msg = "Replace master files with .tif files from '/digiserv-production/finalization/unit_update/" + unit + "'?";
@@ -97,7 +96,6 @@ $(function() {
    $("#add-pages").on("click", function() {
       var btn = $(this);
       btn.addClass("disabled");
-      var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
       var msg = "Add .tif master files from '/digiserv-production/finalization/unit_update/" + unit + "' to unit?";
@@ -113,7 +111,7 @@ $(function() {
    });
 
    $("#confirm-update").on("click", function() {
-      var origUrl = window.location.href;
+      var origUrl = window.location.href.split("?")[0];
       $("#working-message").show();
       $("div.update-confirm").hide();
       var action = $("#confirm-update").data("action");
@@ -138,10 +136,11 @@ $(function() {
    });
 
    var awaitUpdateComplete = function(jobId) {
+      var url =  window.location.href.split("?")[0];
       var action = $("#confirm-update").data("action");
       var tid = setInterval(function() {
          $.ajax({
-            url: window.location.href+"/status?job="+jobId+"&type="+action,
+            url: url+"/status?job="+jobId+"&type="+action,
             method: "GET",
             complete: function(jqXHR, textStatus) {
                if (textStatus != "success") {
