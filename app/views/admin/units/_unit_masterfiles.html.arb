@@ -30,7 +30,7 @@ div id: "masterfile-list" do
          pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
       end
 
-      raw("#{sel_all_btn}#{all_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}#{renumber_btn}#{pdf_btn}</span>")
+      raw("#{all_btn}#{sel_all_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}#{renumber_btn}#{pdf_btn}</span>")
    end
 
    div class: "update-confirm" do
