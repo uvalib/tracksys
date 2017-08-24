@@ -280,7 +280,8 @@ ActiveAdmin.register Project do
    member_action :assign, :method => :post do
       project = Project.find(params[:id])
       user = StaffMember.find(params[:user])
-      if !project.claimable_by? user
+      if !project.assignable?(user, current_user)
+         logger.info("Project[#{project.id}] unable to assign staff_member[#{user.id}]: #{user.computing_id}. Not claimable.")
          render plain: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
          return
       end
@@ -298,7 +299,7 @@ ActiveAdmin.register Project do
       url = "/admin/projects"
       url = "/admin/projects/#{params[:id]}" if !params[:details].nil?
       project = Project.find(params[:id])
-      if !project.claimable_by? current_user
+      if !project.assignable?(current_user, nil)
          redirect_to url, :notice => "You don't have the required skills to claim this project"
          return
       end
