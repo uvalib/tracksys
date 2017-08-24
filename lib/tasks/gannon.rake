@@ -68,9 +68,9 @@ namespace :gannon do
          unit = sm.units.first
       end
 
-#      if unit.master_files.count > 0
-#         abort("This unit already has master files. SKIPPING")
-#      end
+     if unit.master_files.count > 0
+        abort("This unit already has master files. SKIPPING")
+     end
 
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
