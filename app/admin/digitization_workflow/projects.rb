@@ -331,7 +331,7 @@ ActiveAdmin.register Project do
           # gives something like: List of available languages (107):\nafr\...
           # split off info and make array
           lang_str = lang_str.split(":")[1].strip
-          @languages = lang_str.split("\n")
+          @languages = lang_str.split("\n").sort
        end
       def scoped_collection
          if params[:action] == 'index'
