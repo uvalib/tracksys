@@ -91,22 +91,24 @@ namespace :gannon do
          end
          puts "Processing #{filename}..."
 
-         # Set exemplar to the title page if possible, or page 1.
-         # default is first image if neither is found
-         if title.strip.downcase == "title-page"
-            found_title_page = true
-            exemplar = filename
-         end
-         if title.strip.downcase == "1" && found_title_page == false
-            exemplar = filename
-         end
-
          mf_cnt += 1
 
          # convert filename from source folder to tracksys scheme
          fn_page = "%04d" % filename.to_i
          ts_filename = "#{unit_dir}_#{fn_page}.#{filename.split('.')[1]}"
          ts_txt_filename = "#{unit_dir}_#{fn_page}.txt"
+
+         # Set exemplar to the title page if possible, or page 1.
+         # default is first image if neither is found
+         if !title.blank?
+            if title.strip.downcase == "title-page"
+               found_title_page = true
+               exemplar = ts_filename
+            end
+            if title.strip.downcase == "1" && found_title_page == false
+               exemplar = ts_filename
+            end
+         end
 
          # if masterfile with this filename already exists, skip it
          next if !MasterFile.find_by(filename: ts_filename).nil?
