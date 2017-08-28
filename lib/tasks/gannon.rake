@@ -86,8 +86,18 @@ namespace :gannon do
          title = row[1]
          img_file = File.join(image_dir, filename)
          if !File.exists? img_file
-            puts "ERROR: Unable to find source image #{img_file}; skipping"
-            next
+            puts "WARNING: Unable to find source image #{img_file}; trying alternate extension"
+            if img_file.include? ".tif"
+               img_file = img_file.gsub(/\.tif/, ".jp2")
+               filename = filename.gsub(/\.tif/, ".jp2")
+            else
+               img_file = img_file.gsub(/\.jp2/, ".tif")
+               filename = filename.gsub(/\.jp2/, ".tif")
+            end
+            if !File.exists? img_file
+               puts "ERROR: Unable to find source image #{img_file}; skipping"
+               next
+            end
          end
          puts "Processing #{filename}..."
 

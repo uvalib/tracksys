@@ -47,15 +47,9 @@ class Step < ApplicationRecord
       # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
 
+      # get the base start directory
       start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
 
-      # if start dir doesnt exist, assume it has been manually moved.
-      if !Dir.exists?(start_dir)
-         Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
-         return true
-      end
-
-      # Base start directory is present; now handle special cases.
       # In the first Scan step, there may be a CaptureOne session in progress. If this is
       # the case, there will be a Capture directory present that is filled with IIQ files.
       # Some students don't use a Capture directory. Instead they use Recto and Verso.
@@ -76,13 +70,27 @@ class Step < ApplicationRecord
             step_failed(project, "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
-      end
+      else
+         # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
+         # directory present. Treat it as the start dir and validate.
+         if self.name == "Process"
+            output_dir =  File.join(start_dir, "Output")
+            if Dir.exists? output_dir
+               start_dir = output_dir
+               if Dir[File.join(start_dir, '*.tif')].count == 0
+                  Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
+               end
+            end
+         end
 
-      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-      # directory present. Treat it as the start dir and validate.
-      output_dir =  File.join(start_dir, "Output")
-      start_dir = output_dir if Dir.exists? output_dir
-      return validate_directory_content(project, start_dir)
+         # if start dir doesn't exist, assume it has been manually moved.
+         if !Dir.exists?(start_dir)
+            Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
+            return true
+         end
+
+         return validate_directory_content(project, start_dir)
+      end
    end
 
    private
@@ -242,7 +250,7 @@ class Step < ApplicationRecord
             cap_dir =  File.join(src_dir, "CaptureOne")
             if Dir.exists? cap_dir
                Rails.logger.info("Removing CaptureOne directory from Output")
-               FileUtils.rm_r cap_dir
+               FileUtils.rm_rf cap_dir
             end
          end
 

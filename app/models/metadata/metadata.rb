@@ -6,7 +6,7 @@ class Metadata < ApplicationRecord
    belongs_to :availability_policy, counter_cache: true
    belongs_to :use_right, counter_cache: true
 
-   belongs_to :ocr_hint, optional: true   # FIXME
+   belongs_to :ocr_hint, optional: true 
    belongs_to :genre, optional: true
    belongs_to :resource_type, optional: true
 
