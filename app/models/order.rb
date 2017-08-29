@@ -44,12 +44,16 @@ class Order < ApplicationRecord
    scope :canceled, ->{where("order_status = 'canceled'") }
    scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
    scope :ready_for_delivery, ->{ joins(:units).where("units.intended_use_id != 110")
-      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null").distinct }
+      .where("orders.email is not null and order_status != 'canceled' and order_status != 'completed' and date_customer_notified is null")
+      .distinct }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
       .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
+      .where("order_status != ?", "canceled")
       .order('fee_actual desc').distinct }
-   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
+   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110')
+      .where("order_status != ?", "canceled")
+      .distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
    # validations
@@ -183,7 +187,8 @@ class Order < ApplicationRecord
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).in_progress
    end
    def self.in_progress
-      where("order_status != ? and order_status != ?", "completed", "deferred")
+      where("order_status != ? and order_status != ? and order_status != ?",
+         "completed", "deferred", "canceled")
    end
 
    def title
