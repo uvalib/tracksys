@@ -1,7 +1,7 @@
 namespace :medium_rare_workflow do
    desc "Create medium rare workflow"
    task :create  => :environment do
-      wf = Workflow.create!(name: 'Medium Rare', description: "Medium Rare workflow")
+      wf = Workflow.create!(name: 'Medium Rare', description: "Medium rare workflow")
 
       scan = Step.create!( workflow: wf, name: "Scan", description: "Scan all materials",
          step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")

@@ -33,6 +33,7 @@ class Project < ApplicationRecord
    scope :oversize, ->{active.where(category_id: 4).reorder(due_on: :asc) }
    scope :special, ->{active.where(category_id: 5).reorder(due_on: :asc) }
    scope :unassigned, ->{active.where(owner: nil).reorder(due_on: :asc) }
+   scope :medium_rare, ->{active.joins(:workflow).where("workflows.name=?","Medium Rare").reorder(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).reorder(due_on: :asc) }
    scope :patron, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id <> 110")}
    scope :digital_collection_building, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id = 110")}
