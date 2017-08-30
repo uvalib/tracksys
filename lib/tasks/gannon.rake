@@ -120,6 +120,13 @@ namespace :gannon do
             end
          end
 
+         # Before anything else happens, run identify on the file to see if it is valid
+         cmd = "identify #{img_file}"
+         if !system(cmd)
+            put "ERROR: File #{img_file} is invalid. Skipping"
+            next
+         end
+
          # if masterfile with this filename already exists, skip it
          next if !MasterFile.find_by(filename: ts_filename).nil?
 
