@@ -255,4 +255,11 @@ namespace :gannon do
       end
       puts "DONE"
    end
+
+   desc "Republish all"
+   task :republish  => :environment do
+      Metadata.joins(:units).joins(:orders).joins(:agencies).where("agencies.name=?","Gannon Project").each do |m|
+         m.update(date_dl_update: DateTime.now)
+      end
+   end
 end
