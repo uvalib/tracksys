@@ -8,7 +8,7 @@ ActiveAdmin.register Unit do
    permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
       :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
       :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
-      :include_in_dl, :date_dl_deliverables_ready, :throw_away
+      :include_in_dl, :date_dl_deliverables_ready, :throw_away, :ocr_master_files
 
    scope :all, :default => true
    scope :approved
@@ -440,10 +440,14 @@ ActiveAdmin.register Unit do
       job_id = DeleteMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames]})
       render plain: job_id, status: :ok
    end
+   member_action :renumber, :method => :post do
+      job_id = RenumberMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames], new_start_num: params[:new_start_num]})
+      render plain: job_id, status: :ok
+   end
    member_action :status, method: :get do
       job = JobStatus.find(params[:job])
       job_type = params[:type]
-      type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles"}
+      type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles", "renumber"=>"RenumberMasterFiles"}
       render plain: "Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
       render plain: "Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
       render plain: job.status, status: :ok

@@ -68,9 +68,9 @@ namespace :gannon do
          unit = sm.units.first
       end
 
-#      if unit.master_files.count > 0
-#         abort("This unit already has master files. SKIPPING")
-#      end
+     if unit.master_files.count > 0
+        abort("This unit already has master files. SKIPPING")
+     end
 
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
@@ -86,20 +86,20 @@ namespace :gannon do
          title = row[1]
          img_file = File.join(image_dir, filename)
          if !File.exists? img_file
-            puts "ERROR: Unable to find source image #{img_file}; skipping"
-            next
+            puts "WARNING: Unable to find source image #{img_file}; trying alternate extension"
+            if img_file.include? ".tif"
+               img_file = img_file.gsub(/\.tif/, ".jp2")
+               filename = filename.gsub(/\.tif/, ".jp2")
+            else
+               img_file = img_file.gsub(/\.jp2/, ".tif")
+               filename = filename.gsub(/\.jp2/, ".tif")
+            end
+            if !File.exists? img_file
+               puts "ERROR: Unable to find source image #{img_file}; skipping"
+               next
+            end
          end
          puts "Processing #{filename}..."
-
-         # Set exemplar to the title page if possible, or page 1.
-         # default is first image if neither is found
-         if title.strip.downcase == "title-page"
-            found_title_page = true
-            exemplar = filename
-         end
-         if title.strip.downcase == "1" && found_title_page == false
-            exemplar = filename
-         end
 
          mf_cnt += 1
 
@@ -107,6 +107,25 @@ namespace :gannon do
          fn_page = "%04d" % filename.to_i
          ts_filename = "#{unit_dir}_#{fn_page}.#{filename.split('.')[1]}"
          ts_txt_filename = "#{unit_dir}_#{fn_page}.txt"
+
+         # Set exemplar to the title page if possible, or page 1.
+         # default is first image if neither is found
+         if !title.blank?
+            if title.strip.downcase == "title-page"
+               found_title_page = true
+               exemplar = ts_filename
+            end
+            if title.strip.downcase == "1" && found_title_page == false
+               exemplar = ts_filename
+            end
+         end
+
+         # Before anything else happens, run identify on the file to see if it is valid
+         cmd = "identify #{img_file}"
+         if !system(cmd)
+            put "ERROR: File #{img_file} is invalid. Skipping"
+            next
+         end
 
          # if masterfile with this filename already exists, skip it
          next if !MasterFile.find_by(filename: ts_filename).nil?
@@ -235,5 +254,12 @@ namespace :gannon do
          mf.update(filename: new_fn)
       end
       puts "DONE"
+   end
+
+   desc "Republish all"
+   task :republish  => :environment do
+      Metadata.joins(:units).joins(:orders).joins(:agencies).where("agencies.name=?","Gannon Project").each do |m|
+         m.update(date_dl_update: DateTime.now)
+      end
    end
 end

@@ -44,12 +44,16 @@ class Order < ApplicationRecord
    scope :canceled, ->{where("order_status = 'canceled'") }
    scope :awaiting_approval, ->{where("order_status = 'requested' or order_status = 'await_fee'") }
    scope :ready_for_delivery, ->{ joins(:units).where("units.intended_use_id != 110")
-      .where("orders.email is not null and order_status != 'completed' and date_customer_notified is null").distinct }
+      .where("orders.email is not null and order_status != 'canceled' and order_status != 'completed' and date_customer_notified is null")
+      .distinct }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
       .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
+      .where("order_status != ?", "canceled")
       .order('fee_actual desc').distinct }
-   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110').distinct.order(id: :asc)}
+   scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110')
+      .where("order_status != ?", "canceled")
+      .distinct.order(id: :asc)}
 
    #------------------------------------------------------------------
    # validations
@@ -146,12 +150,15 @@ class Order < ApplicationRecord
       return units_beings_prepared
    end
 
+   def has_approved_units
+      return Unit.where(:order_id => self.id).where('unit_status = "approved"').count > 0
+   end
+
    # A validation callback which returns to the Order#edit view the IDs of Units which are preventing the Order from being approved because they
    # are neither approved or canceled.
    def validate_order_approval
-      units_beings_prepared = self.has_units_being_prepared
-      if not units_beings_prepared.empty?
-         errors[:order_status] << "cannot be set to approved because units #{units_beings_prepared.map(&:id).join(', ')} are neither approved nor canceled"
+      if !has_approved_units
+         errors[:order_status] << "cannot be set to approved because no units are approved"
       end
    end
 
@@ -180,7 +187,8 @@ class Order < ApplicationRecord
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).in_progress
    end
    def self.in_progress
-      where("order_status != ? and order_status != ?", "completed", "deferred")
+      where("order_status != ? and order_status != ? and order_status != ?",
+         "completed", "deferred", "canceled")
    end
 
    def title

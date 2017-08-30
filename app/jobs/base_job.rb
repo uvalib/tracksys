@@ -136,17 +136,11 @@ class BaseJob
       complete()
    end
 
-   # Delayed job hook: Called when job has FAILED
-   #
-   def failure(job)
-      @logger.info "Workflow #{self.class.name} has FAILED"
-   end
-
    # Workflow is complete. Mark jobs status as done, update timestamps
    #
    def complete()
       if @status.status == 'running'
-         @logger.info "Workflow #{self.class.name} has completed successfully"
+         @logger.info "Workflow #{self.class.name} has completed."
          @status.finished
       end
    end

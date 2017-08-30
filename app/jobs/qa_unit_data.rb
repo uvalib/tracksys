@@ -46,6 +46,20 @@ class QaUnitData < BaseJob
          failure_messages << "Unit #{unit.id} has no intended use.  All units that participate in this workflow must have an intended use."
       end
 
+      # fail for no ocr hint or incompatible hint / ocr Settings
+      if unit.metadata.ocr_hint_id.nil?
+         failure_messages << "Unit metadata #{unit.metadata.id} has no OCR Hint. This is a required setting."
+      else
+         if unit.ocr_master_files
+            if !unit.metadata.ocr_hint.ocr_candidate
+               failure_messages << "Unit is flagged to perform OCR, but the metadata setting indicates OCR is not possible. "
+            end
+            if unit.metadata.ocr_language_hint.nil?
+               failure_messages << "Unit is flagged to perform OCR, but the required language hint for metadata #{unit.metadata.id} is not set" 
+            end
+         end
+      end
+
       # In response to DSSR staff's inconsistent use of the date_approved field, this logic will now warn but enforce the inclusion of a date_approved value.
       if not order.date_order_approved?
          # Define and undefine @order_id within this conditional to ensure that only this message is attached to the Order.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170720140912) do
+ActiveRecord::Schema.define(version: 20170821140633) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -345,6 +345,7 @@ ActiveRecord::Schema.define(version: 20170720140912) do
     t.string "box_id"
     t.string "folder_id"
     t.integer "ocr_hint_id"
+    t.string "ocr_language_hint"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"
@@ -534,6 +535,7 @@ ActiveRecord::Schema.define(version: 20170720140912) do
     t.boolean "complete_scan", default: false
     t.boolean "reorder", default: false
     t.boolean "throw_away", default: false
+    t.boolean "ocr_master_files", default: false
     t.index ["date_archived"], name: "index_units_on_date_archived"
     t.index ["date_dl_deliverables_ready"], name: "index_units_on_date_dl_deliverables_ready"
     t.index ["intended_use_id"], name: "index_units_on_intended_use_id"

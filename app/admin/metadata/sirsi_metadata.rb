@@ -6,7 +6,8 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id, :ocr_hint_id, :parent_metadata_id
+      :collection_facet, :use_right_id, :collection_id, :box_id, :folder_id,
+      :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
   config.clear_action_items!
 
@@ -137,6 +138,7 @@ ActiveAdmin.register SirsiMetadata do
           row :resource_type
           row :genre
           row :ocr_hint
+          row :ocr_language_hint
           row ("Date Created") do |sirsi_metadata|
             sirsi_metadata.created_at
           end
@@ -244,6 +246,17 @@ ActiveAdmin.register SirsiMetadata do
 
   include ActionView::Helpers::TextHelper
   controller do
+      before_action :get_tesseract_langs, only: [:edit]
+      def get_tesseract_langs
+         # Get list of tesseract supported languages
+         lang_str = `tesseract --list-langs 2>&1`
+
+         # gives something like: List of available languages (107):\nafr\...
+         # split off info and make array
+         lang_str = lang_str.split(":")[1].strip
+         @languages = lang_str.split("\n")
+      end
+
       before_action :get_sirsi, only: [:edit, :show]
       def get_sirsi
          @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
@@ -266,7 +279,7 @@ ActiveAdmin.register SirsiMetadata do
          @sirsi_meta[:folder_id] = resource.folder_id
       end
 
-      before_action :blank_sirsi, only: [:new ]
+      before_action :blank_sirsi, except: [:show,:edit ]
       def blank_sirsi
          @sirsi_meta = {catalog_key: '', barcode: '' }
       end

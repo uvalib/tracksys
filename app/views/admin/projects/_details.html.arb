@@ -21,6 +21,7 @@ div :class => 'columns-none' do
             end
          end
       end
+      render "equipment"
    end
 
    div :class => 'two-column' do
@@ -58,6 +59,12 @@ div :class => 'columns-none' do
             row ("OCR Hint") do |project|
                render partial: "ocr_hint", locals: {project: project}
             end
+            row ("OCR Language Hint") do |project|
+               render partial: "ocr_language_hint", locals: {project: project}
+            end
+            row ("OCR Master Files") do |project|
+               render partial: "ocr_master_files", locals: {project: project}
+            end
             row :item_condition do |project|
                render partial: "condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
             end
@@ -83,10 +90,6 @@ div :class => 'columns-none' do
          end
       end
    end
-end
-
-div :class => 'columns-none' do
-   render "equipment"
 end
 
 div :class => 'columns-none' do

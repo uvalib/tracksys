@@ -26,16 +26,33 @@ class QueuePatronDeliverables < BaseJob
          FileUtils.rm_rf(assemble_dir)
       end
 
+      ocr_file = nil
+      if unit.ocr_master_files
+         FileUtils.mkdir_p(assemble_dir)
+         logger.info "OCR was requeseted for this unit; generate text file with OCR results"
+         ocr_file_name = File.join(assemble_dir, "#{unit.id}.txt")
+         ocr_file = File.open(ocr_file_name, "w")  # truncate existing and open for write
+      end
       unit.master_files.each do |master_file|
          file_source = File.join(source, master_file.filename)
          CreatePatronDeliverables.exec_now({ unit: unit, :master_file => master_file,
             :source => file_source, :call_number => call_number, :title => unit.metadata.title,
             :location => location, :personal_item => unit.metadata.personal_item?}, self)
 
+         # if OCR is present, include a single transcript file in the assembly dir
+         if !ocr_file.nil?
+            ocr_file.write("#{master_file.filename}\n")
+            ocr_file.write("#{master_file.transcription_text}\n")
+         end
+
          # also send to IIIF server for thumbnail generation and visibility from archivesspace
          if unit.reorder == false
             PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
          end
+      end
+
+      if !ocr_file.nil?
+         ocr_file.close
       end
 
       logger().info("All patron deliverables created")

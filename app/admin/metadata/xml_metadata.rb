@@ -7,7 +7,7 @@ ActiveAdmin.register XmlMetadata do
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :desc_metadata, :dpla,
-      :collection_id, :box_id, :folder_id, :ocr_hint_id, :parent_metadata_id
+      :collection_id, :box_id, :folder_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
    config.clear_action_items!
 
@@ -140,6 +140,7 @@ ActiveAdmin.register XmlMetadata do
                row :resource_type
                row :genre
                row :ocr_hint
+               row :ocr_language_hint
                row ("Date Created") do |xml_metadata|
                   xml_metadata.created_at
                end
@@ -281,4 +282,17 @@ ActiveAdmin.register XmlMetadata do
       logger.info "XmlMetadata #{metadata.pid} has been published to the test instance of Virgo"
       redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
+
+   controller do
+       before_action :get_tesseract_langs, only: [:edit]
+       def get_tesseract_langs
+          # Get list of tesseract supported languages
+          lang_str = `tesseract --list-langs 2>&1`
+
+          # gives something like: List of available languages (107):\nafr\...
+          # split off info and make array
+          lang_str = lang_str.split(":")[1].strip
+          @languages = lang_str.split("\n")
+       end
+    end
 end

@@ -115,6 +115,11 @@ class Project < ApplicationRecord
       return false
    end
 
+   def assignable?(assignee, assigner)
+      return true if !assigner.nil? && (assigner.admin? || assigner.supervisor?)   # admin can assign project to anyone
+      return claimable_by? assignee
+   end
+
    def total_work_time
       mins = self.assignments.sum(:duration_minutes)
       h = mins/60

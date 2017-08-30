@@ -371,7 +371,8 @@ $(function() {
          data = {
             category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
             item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val(),
-            ocr_hint_id: $("#ocr-hint-edit").val()
+            ocr_hint_id: $("#ocr-hint-edit").val(), ocr_language_hint: $("#ocr-language-hint-edit").val(),
+            ocr_master_files: $("#ocr-master-files-edit").is(':checked')
          };
       } else {
          data =  { camera: true,
@@ -407,6 +408,15 @@ $(function() {
                   $("#condition_note").text( data.condition_note  );
                   $("#ocr-hint").text( $("#ocr-hint-edit option:selected").text() );
                   $("#ocr-hint").removeClass("empty");
+                  if ( $("#ocr-language-hint-edit option:selected").text().length > 0 ) {
+                     $("#ocr-language-hint").text( $("#ocr-language-hint-edit option:selected").text() );
+                     $("#ocr-language-hint").removeClass("empty");
+                  }
+                  if ( $("#ocr-master-files-edit").is(':checked' ) ) {
+                     $("#ocr-master-files").text("Yes");
+                  } else {
+                     $("#ocr-master-files").text("No");
+                  }
                }
 
                // if requirements met, enable finish and hide note
