@@ -20,7 +20,7 @@ namespace :medium_rare_workflow do
       fail_qa1 = Step.create!( workflow: wf, name: "Fail First QA", description: "Rescan after failing first QA", owner_type: :original_owner,
          step_type: :error, manual: true, finish_dir: "scan/70_second_qa")
 
-      qa2 = Step.create!( workflow: wf, name: "Second QA", description: "Secondary QA pass; student B 100% check", owner_type: :unique_owner,
+      qa2 = Step.create!( workflow: wf, name: "Second QA", description: "Secondary QA pass; 100% metadata check, 50% image check", owner_type: :unique_owner,
          start_dir: "scan/70_second_qa", finish_dir: "scan/80_final_QA")
       fail_qa2 = Step.create!( workflow: wf, name: "Fail Second QA", description: "Rescan after failing Second QA", owner_type: :original_owner,
          step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
