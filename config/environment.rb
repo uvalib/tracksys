@@ -3,7 +3,7 @@ require_relative 'application'
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '5.1.0'
+TRACKSYS_VERSION = '5.2.0'
 
 # Setup logger for all jobs processors
 #
@@ -20,9 +20,13 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
+# same for all jobs
 XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/dropoff"
 XML_PICKUP_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/pickup"
+MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
+PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 
+# RETIRE
 FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
 FINALIZATION_DROPOFF_DIR_PRODUCTION = "#{FINALIZATION_DIR_PRODUCTION}/10_dropoff"
 
@@ -36,9 +40,6 @@ DELETE_DIR_FROM_FINALIZATION = "#{DELETE_DIR}/from_finalization"
 DELETE_DIR_FROM_SCAN = "#{DELETE_DIR}/from_scan"
 DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
 
-MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
-
-PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 

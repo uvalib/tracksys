@@ -34,7 +34,12 @@ ActiveAdmin.register Workflow do
      div do
         panel "Workflow Name: #{workflow.name}" do
            div class: "workflow-description" do
-             h4 do workflow.description end
+             h4 do
+                workflow.description
+             end
+             h5 do
+                "Base Directory: #{workflow.base_directory}"
+             end
           end
            render partial: "workflow_steps", locals: { workflow: workflow}
         end
