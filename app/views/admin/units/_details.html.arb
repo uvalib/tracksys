@@ -29,8 +29,8 @@ div :class => 'two-column' do
       end
       row :intended_use_deliverable_format
       row :intended_use_deliverable_resolution
-      row :ocr_masterfiles
-      row :remove_watermark 
+      row :ocr_master_files
+      row :remove_watermark
       if unit.reorder == false
          row("Date Delivered to DigiServ") do |unit|
            format_date(unit.date_materials_received)
