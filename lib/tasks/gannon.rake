@@ -50,7 +50,13 @@ namespace :gannon do
       sm = SirsiMetadata.find_by(barcode: bc)
       if sm.nil?
          puts "Siri metadata record not found, creating..."
-         meta =  Virgo.external_lookup(nil, bc)
+         meta =  nil
+         begin
+            meta = Virgo.external_lookup(nil, bc)
+         rescue Exception=>e
+            puts "ERROR: Unable to find barcode #{bc}; skipping"
+            next
+         end
          sm = SirsiMetadata.create(is_approved: true,
             barcode: bc, catalog_key: meta[:catalog_key], call_number: meta[:call_number],
             title: meta[:title], creator_name: meta[:creator_name],
@@ -69,7 +75,8 @@ namespace :gannon do
       end
 
      if unit.master_files.count > 0
-        abort("This unit already has master files. SKIPPING")
+        puts "This unit already has master files. SKIPPING"
+        next
      end
 
       xlsx = Roo::Spreadsheet.open(excel_file)
