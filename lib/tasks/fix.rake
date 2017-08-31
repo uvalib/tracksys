@@ -1,5 +1,25 @@
 #encoding: utf-8
 namespace :fix do
+   desc "Update creator name for XmlMetadata"
+   task :creator_name  => :environment do
+      puts "Updating creator_name for XmlMetadata..."
+      XmlMetadata.all.find_each do |metadata|
+          print(".")
+          xml = Nokogiri::XML( metadata.desc_metadata )
+          xml.remove_namespaces!
+          creator = []
+          xml.xpath("//name/namePart").each do |node|
+             creator << node.text.strip
+          end
+          if !creator.blank?
+             creator_name = creator.join(" ")
+             if creator_name != metadata.creator_name
+                metadata.update(creator_name: creator_name)
+             end
+          end
+      end
+   end
+
    desc "completed orders"
    task :completed_orders  => :environment do
       puts "Detect completed orders and flag them as complete"

@@ -3,9 +3,9 @@
 module Hydra
 
    # Create SOLR <add><doc> for metadata objects
-   def self.solr(metadata)
+   def self.solr(metadata, no_external)
       raise "Not availble for SirsiMetadata records" if metadata.type!="XmlMetadata"
-      
+
       # init common parameter values
       payload = {}
       now_str = Time.now.strftime('%Y%m%d%H')
@@ -13,6 +13,11 @@ module Hydra
       date_received = metadata.date_dl_ingest.strftime('%Y%m%d%H') if !metadata.date_dl_ingest.blank?
 
       # Build payload for transformation
+      if !no_external.nil?
+         # hack to allow a call to this from the iiif service. Without it
+         # recursive calls happen as the XSLT calls back to tracksys
+         payload[excludeExternallyGenerated] = 1
+      end
       payload["pid"] = "#{metadata.pid}"
       payload["destination"] = "#{Settings.index_destintion}"
       payload["dateReceived"] = "#{date_received}"

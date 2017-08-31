@@ -6,7 +6,7 @@ class Metadata < ApplicationRecord
    belongs_to :availability_policy, counter_cache: true
    belongs_to :use_right, counter_cache: true
 
-   belongs_to :ocr_hint, optional: true 
+   belongs_to :ocr_hint, optional: true
    belongs_to :genre, optional: true
    belongs_to :resource_type, optional: true
 
@@ -139,7 +139,7 @@ class Metadata < ApplicationRecord
    end
 
    def publish_to_test
-      xml = Hydra.solr( self )
+      xml = Hydra.solr( self, nil )
       RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
    end
 
