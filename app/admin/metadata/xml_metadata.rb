@@ -294,5 +294,28 @@ ActiveAdmin.register XmlMetadata do
           lang_str = lang_str.split(":")[1].strip
           @languages = lang_str.split("\n")
        end
+
+       def update
+          metadata = Metadata.find(params[:id])
+          xml = Nokogiri::XML( params[:xml_metadata][:desc_metadata] )
+          xml.remove_namespaces!
+          title_node = xml.xpath( "//titleInfo/title" ).first
+          change = false
+          if !title_node.nil?
+             change = true
+             title = title_node.text.strip
+             metadata.title = title
+          end
+          creator = []
+          xml.xpath("//name/namePart").each do |node|
+             creator << node.text.strip
+          end
+          if !creator.blank?
+             change = true
+             metadata.creator_name = creator.join(" ")
+          end
+          metadata.save
+          super
+       end
     end
 end

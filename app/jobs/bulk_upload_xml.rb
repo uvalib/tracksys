@@ -76,12 +76,20 @@ class BulkUploadXml < BaseJob
             # if the data is not present in the xml
             xml = Nokogiri::XML( xml_str )
             xml.remove_namespaces!
+
             title = orig_metadata.title
-            creator = orig_metadata.creator_name
             title_node = xml.xpath( "//titleInfo/title" ).first
             title = title_node.text.strip if !title_node.nil?
-            creator_node = xml.xpath("//name/namePart").first
-            creator = creator_node.text.strip if !creator_node.nil?
+
+            creator = orig_metadata.creator_name
+            creator_parts = []
+            xml.xpath("//name/namePart").each do |node|
+               creator_parts << node.text.strip
+            end
+            if !creator_parts.blank?
+               creator = creator_parts.join(" ")
+            end
+
             dpla = orig_metadata.dpla
             dpla = settings[:dpla] if !settings[:dpla].nil?
             dpla = false if unit.reorder
@@ -90,7 +98,7 @@ class BulkUploadXml < BaseJob
                # This Master file is still associated with the original unit metadata.
                # Create a new metadata record based on the XML and associate it with the masterfile
                metadata = Metadata.create!(type: "XmlMetadata", title: title, is_approved: orig_metadata.is_approved,
-                  discoverability: settings[:discoverability], 
+                  discoverability: settings[:discoverability],
                   desc_metadata: xml_str, use_right: settings[:rights],
                   availability_policy: settings[:availability],
                   creator_name: creator, exemplar: mf.filename,
