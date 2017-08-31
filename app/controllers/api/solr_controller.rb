@@ -60,7 +60,7 @@ class Api::SolrController < ApplicationController
       if metadata.nil?
          render :plain=>"PID is invalid", status: :bad_request and return if metadata.nil?
       else
-         render :xml=> Hydra.solr(metadata)
+         render :xml=> Hydra.solr(metadata, params[:no_external])
       end
    end
 end
