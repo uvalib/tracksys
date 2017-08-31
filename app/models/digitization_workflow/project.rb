@@ -310,7 +310,7 @@ class Project < ApplicationRecord
    end
 
    def project_name
-      return self.unit.order.title
+      return self.unit.metadata.title
    end
 
    def percentage_complete
