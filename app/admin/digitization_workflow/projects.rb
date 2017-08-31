@@ -248,7 +248,11 @@ ActiveAdmin.register Project do
          ocr_mf = params[:ocr_master_files] == "true"
          project.unit.update(ocr_master_files: ocr_mf)
          if params[:ocr_hint_id]
-            project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
+            logger.info "Setting OCR hint to #{params[:ocr_hint_id]}"
+            ocr_resp = project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
+            if !ocr_resp
+               logger.info "Unable to set OCR hint: #{project.unit.metadata.errors.full_messages.to_sentence}"
+            end
          end
          if params[:ocr_language_hint]
             project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
