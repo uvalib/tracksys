@@ -16,7 +16,7 @@ module Hydra
       if !no_external.nil?
          # hack to allow a call to this from the iiif service. Without it
          # recursive calls happen as the XSLT calls back to tracksys
-         payload[excludeExternallyGenerated] = 1
+         payload["excludeExternallyGenerated"] = 1
       end
       payload["pid"] = "#{metadata.pid}"
       payload["destination"] = "#{Settings.index_destintion}"
