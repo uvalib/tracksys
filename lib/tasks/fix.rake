@@ -8,8 +8,11 @@ namespace :fix do
           xml = Nokogiri::XML( metadata.desc_metadata )
           xml.remove_namespaces!
           creator = []
-          xml.xpath("//name/namePart").each do |node|
-             creator << node.text.strip
+          first_node = xml.xpath("/mods/name").first
+          if !first_node.nil?
+             first_node.xpath("namePart").each do |node|
+                creator << node.text.strip
+             end
           end
           if !creator.blank?
              creator_name = creator.join(" ")

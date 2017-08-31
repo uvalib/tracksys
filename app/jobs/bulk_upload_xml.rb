@@ -83,8 +83,11 @@ class BulkUploadXml < BaseJob
 
             creator = orig_metadata.creator_name
             creator_parts = []
-            xml.xpath("//name/namePart").each do |node|
-               creator_parts << node.text.strip
+            first_node = xml.xpath("/mods/name").first
+            if !first_node.nil?
+               first_node.xpath("namePart").each do |node|
+                  creator_parts << node.text.strip
+               end
             end
             if !creator_parts.blank?
                creator = creator_parts.join(" ")
