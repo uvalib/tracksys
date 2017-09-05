@@ -46,7 +46,6 @@ class Step < ApplicationRecord
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
       # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
-      byebug
 
       # get the base start directory
       start_dir =  File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
