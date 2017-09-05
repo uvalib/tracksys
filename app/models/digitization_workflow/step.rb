@@ -84,15 +84,14 @@ class Step < ApplicationRecord
          end
       end
 
-      # if start dir doesn't exist, assume it has been manually moved - unless finish is missing too
+      # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
-         finish_dir =  File.join(self.workflow.base_directory, self.finish_dir, project.unit.directory)
-         if !Dir.exists?(finish_dir)
-            step_failed(project, "<p>Neither start nor finish directory found!</p>")
-            return false
+         if self.start_dir == self.finish_dir
+            step_failed(project, "<p>Start directory #{start_dir} does not exist</p>")
+         else
+            Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
+            return true
          end
-         Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
-         return true
       end
 
       return validate_directory_content(project, start_dir)
