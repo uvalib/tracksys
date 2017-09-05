@@ -1,6 +1,9 @@
 namespace :medium_rare_workflow do
    desc "Create medium rare workflow"
    task :create  => :environment do
+      base = ENV['base']
+      abort("base is required") if base.nil?
+      
       wf = Workflow.create!(name: 'Medium Rare', description: "Medium rare workflow")
 
       scan = Step.create!( workflow: wf, name: "Scan", description: "Scan all materials",

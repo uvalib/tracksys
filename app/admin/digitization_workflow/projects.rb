@@ -93,12 +93,12 @@ ActiveAdmin.register Project do
             end
             if !project.current_step.start_dir.blank?
                row ("Working Directory") do |project|
-                  project.current_step.start_dir
+                  File.join(project.workflow.base_directory, project.current_step.start_dir)
                end
             end
             if project.current_step.start_dir != project.current_step.finish_dir
                row ("Finish Directory") do |project|
-                  str = "<span>#{project.current_step.finish_dir}</span>"
+                  str = "<span>#{File.join(project.workflow.base_directory, project.current_step.finish_dir)}</span>"
                   if project.current_step.manual
                      str << "<p class='manual-move-note'>Manual move required</p>"
                   end
