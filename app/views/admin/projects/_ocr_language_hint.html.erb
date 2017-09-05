@@ -1,10 +1,10 @@
 <div>
    <% if project.unit.metadata.ocr_language_hint.blank? %>
-      <span class="disp-item empty" id='ocr-language-hint'>Empty</span>
+      <span class="disp-ocr empty" id='ocr-language-hint'>Empty</span>
    <% else %>
-      <span class='disp-item' id='ocr-language-hint'><%= project.unit.metadata.ocr_language_hint.upcase %></span>
+      <span class='disp-ocr' id='ocr-language-hint'><%= project.unit.metadata.ocr_language_hint.upcase %></span>
    <% end %>
-   <select class='hidden edit-item' id='ocr-language-hint-edit' >
+   <select class='hidden edit-ocr' id='ocr-language-hint-edit' >
        <option>Select an OCR Language Hint</option>
       <% @languages.each do |p| %>
          <% sel = ""

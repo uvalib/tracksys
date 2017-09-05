@@ -1,0 +1,22 @@
+if !project.active_assignment.nil? && project.active_assignment.step.name == "Finalize"
+   panel "OCR Settings" do
+      attributes_table_for project do
+         row ("OCR Hint") do |project|
+            render partial: "ocr_hint", locals: {project: project}
+         end
+         row ("OCR Language Hint") do |project|
+            render partial: "ocr_language_hint", locals: {project: project}
+         end
+         row ("OCR Master Files") do |project|
+            render partial: "ocr_master_files", locals: {project: project}
+         end
+      end
+      if current_user == project.owner
+         div class: "mini-button-bar" do
+            span class: "project mf-action-button ocr edit-btn" do "Edit" end
+            span class: "project mf-action-button hidden ocr save-btn"  do "Save" end
+            span class: "project mf-action-button hidden ocr cancel-btn" do "Cancel" end
+         end
+      end
+   end
+end

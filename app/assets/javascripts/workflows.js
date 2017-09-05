@@ -332,7 +332,7 @@ $(function() {
       }
    });
 
-   // Edit Camera / item
+   // Edit Camera / item / OCR settings
    // NOTES: there are two sets of edit / readonly controls.
    //        all have same classes with the exception of one that
    //        differentiates camera vs item
@@ -340,6 +340,8 @@ $(function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("item")) {
          tgtClass= "item";
+      } else if ( $(this).hasClass("ocr")) {
+         tgtClass= "ocr";
       } else {
          $("table.project-equipment-setup").hide();
       }
@@ -354,6 +356,8 @@ $(function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("item")) {
          tgtClass= "item";
+      } else if ( $(this).hasClass("ocr")) {
+         tgtClass= "ocr";
       } else {
          $("table.project-equipment-setup").show();
       }
@@ -370,7 +374,11 @@ $(function() {
          tgtClass = "item";
          data = {
             category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
-            item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val(),
+            item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val()
+         };
+      } else if ( $(this).hasClass("ocr")) {
+         tgtClass= "ocr";
+         data = {
             ocr_hint_id: $("#ocr-hint-edit").val(), ocr_language_hint: $("#ocr-language-hint-edit").val(),
             ocr_master_files: $("#ocr-master-files-edit").is(':checked')
          };
@@ -401,11 +409,7 @@ $(function() {
                   $("#capture_resolution").text( data.capture_resolution );
                   $("#resized_resolution").text( data.resized_resolution );
                   $("#resolution_note").text( data.resolution_note );
-               } else {
-                  $("#viu_number").text( data.viu_number );
-                  $("#category").text( $("#category-edit option:selected").text() );
-                  $("#condition").text( $("#condition-edit option:selected").text() );
-                  $("#condition_note").text( data.condition_note  );
+               } else if ( tgtClass === "ocr") {
                   $("#ocr-hint").text( $("#ocr-hint-edit option:selected").text() );
                   $("#ocr-hint").removeClass("empty");
                   if ( $("#ocr-language-hint-edit option:selected").text().length > 0 ) {
@@ -417,6 +421,11 @@ $(function() {
                   } else {
                      $("#ocr-master-files").text("No");
                   }
+               } else {
+                  $("#viu_number").text( data.viu_number );
+                  $("#category").text( $("#category-edit option:selected").text() );
+                  $("#condition").text( $("#condition-edit option:selected").text() );
+                  $("#condition_note").text( data.condition_note  );
                }
 
                // if requirements met, enable finish and hide note

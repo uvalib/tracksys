@@ -2,7 +2,9 @@ div :class => 'columns-none' do
    div :class => 'two-column' do
       panel "Order Information" do
          attributes_table_for project do
-            row :project_name
+            row :project_name do |project|
+               project.project_name.truncate( 50, separator: ' ')
+            end
             row :customer
             row ("Customer Status") do |project|
                project.customer.academic_status.name
@@ -46,24 +48,12 @@ div :class => 'columns-none' do
                   project.unit.metadata.location
                end
             end
-            row("Title") do |project|
-               project.unit.metadata.title
-            end
             row ("Special Instructions") do |project|
                si = []
                si << "#{project.order.special_instructions}" if !project.order.special_instructions.blank?
                si << "#{project.unit.special_instructions}" if !project.unit.special_instructions.blank?
                si << "None" if si.length == 0
                raw("#{si.join('<br/>')}")
-            end
-            row ("OCR Hint") do |project|
-               render partial: "ocr_hint", locals: {project: project}
-            end
-            row ("OCR Language Hint") do |project|
-               render partial: "ocr_language_hint", locals: {project: project}
-            end
-            row ("OCR Master Files") do |project|
-               render partial: "ocr_master_files", locals: {project: project}
             end
             row :item_condition do |project|
                render partial: "condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
@@ -89,6 +79,7 @@ div :class => 'columns-none' do
             end
          end
       end
+      render "ocr_settings"
    end
 end
 
