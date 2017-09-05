@@ -46,6 +46,7 @@ class Step < ApplicationRecord
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
       # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
+      byebug
 
       # get the base start directory
       start_dir =  File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
@@ -70,27 +71,27 @@ class Step < ApplicationRecord
             step_failed(project, "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
-      else
-         # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-         # directory present. Treat it as the start dir and validate.
-         if self.name == "Process"
-            output_dir =  File.join(start_dir, "Output")
-            if Dir.exists? output_dir
-               start_dir = output_dir
-               if Dir[File.join(start_dir, '*.tif')].count == 0
-                  Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
-               end
+      end
+
+      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
+      # directory present. Treat it as the start dir and validate.
+      if self.name == "Process"
+         output_dir =  File.join(start_dir, "Output")
+         if Dir.exists? output_dir
+            start_dir = output_dir
+            if Dir[File.join(start_dir, '*.tif')].count == 0
+               Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
             end
          end
-
-         # if start dir doesn't exist, assume it has been manually moved.
-         if !Dir.exists?(start_dir)
-            Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
-            return true
-         end
-
-         return validate_directory_content(project, start_dir)
       end
+
+      # if start dir doesn't exist, assume it has been manually moved.
+      if !Dir.exists?(start_dir)
+         Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
+         return true
+      end
+
+      return validate_directory_content(project, start_dir)
    end
 
    private

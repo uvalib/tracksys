@@ -2,7 +2,9 @@ div :class => 'columns-none' do
    div :class => 'two-column' do
       panel "Order Information" do
          attributes_table_for project do
-            row :project_name
+            row :project_name do |project|
+               project.project_name.truncate( 50, separator: ' ')
+            end
             row :customer
             row ("Customer Status") do |project|
                project.customer.academic_status.name
