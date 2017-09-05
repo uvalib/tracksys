@@ -1,10 +1,10 @@
 <div>
    <% if project.unit.metadata.ocr_hint.blank? %>
-      <span class="disp-item empty" id='ocr-hint'>Empty</span>
+      <span class="disp-ocr empty" id='ocr-hint'>Empty</span>
    <% else %>
-      <span class='disp-item' id='ocr-hint'><%= project.unit.metadata.ocr_hint.name %></span>
+      <span class='disp-ocr' id='ocr-hint'><%= project.unit.metadata.ocr_hint.name %></span>
    <% end %>
-   <select class='hidden edit-item' id='ocr-hint-edit' >
+   <select class='hidden edit-ocr' id='ocr-hint-edit' >
        <option>Select an OCR Hint</option>
       <% OcrHint.all.each do |p| %>
          <% sel = ""
