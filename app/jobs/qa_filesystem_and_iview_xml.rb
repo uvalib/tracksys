@@ -15,6 +15,9 @@ class QaFilesystemAndIviewXml < BaseJob
       logger.info "Source Unit: #{@unit.to_json}"
       @unit_dir = "%09d" % @unit.id
 
+      # Prefer the project configured directories over the hardcoded
+      @in_proc_dir = @unit.get_finalization_dir(:in_process)
+
       # Create error message holder array
       @error_messages = Array.new
 
@@ -26,7 +29,7 @@ class QaFilesystemAndIviewXml < BaseJob
       @unknown_files = Array.new
 
       # Read contents of message into an array
-      unit_dir_contents = Dir.entries(File.join(IN_PROCESS_DIR, @unit_dir))
+      unit_dir_contents = Dir.entries(@in_proc_dir)
 
       #  Run through every file in the entry directory
       unit_dir_contents.each do |unit_dir_content|
@@ -34,13 +37,13 @@ class QaFilesystemAndIviewXml < BaseJob
          else
             # Remove ._ resource fork files
             if (unit_dir_content =~ /^._/)
-               File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
+               File.delete(File.join(@in_proc_dir, unit_dir_content))
                # Remove .DS_Store* files produced by Mac OSX
             elsif (unit_dir_content =~ /.DS/)
-               File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
+               File.delete(File.join(@in_proc_dir, unit_dir_content))
             elsif (unit_dir_content == ".AppleDouble" ) # ignore
             elsif (unit_dir_content =~ /.(ivc|mpcatalog)_[0-9]/)
-               File.delete(File.join(IN_PROCESS_DIR, @unit_dir, unit_dir_content))
+               File.delete(File.join(@in_proc_dir, unit_dir_content))
             elsif (unit_dir_content =~ /.(tif|jp2)$/)
                @content_files.push(unit_dir_content)
             elsif (unit_dir_content =~ /.xml$/)
@@ -110,7 +113,7 @@ class QaFilesystemAndIviewXml < BaseJob
                @error_messages.push("#{content_file} has an incorrectly formatted sequence number or extension.")
             end
             # Check that the content file is greater than 1MB.
-            if File.size(File.join(IN_PROCESS_DIR, @unit_dir, content_file)) < @minimum
+            if File.size(File.join(@in_proc_dir, content_file)) < @minimum
                @error_messages.push("#{content_file} is less than #{@minimum} bytes large and is very likely an incorrect file.")
             end
          end
@@ -129,7 +132,7 @@ class QaFilesystemAndIviewXml < BaseJob
       elsif @xml_files.length != 1
          # Check if there is more than one XML file in the directory
          @error_messages.push("There is more than one xml file in the directory.")
-      elsif File.size(File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))) < 100
+      elsif File.size(File.join(@in_proc_dir, @xml_files.at(0))) < 100
          @error_messages.push("#{@xml_files.at(0)} is empty.")
       else
          # If any of the three tests above fail, then the test below won't because there is no definitive file.
@@ -144,8 +147,8 @@ class QaFilesystemAndIviewXml < BaseJob
          end
 
          # Read the XML file for processing
-         doc = Nokogiri.XML(File.new(File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)))
-         logger().debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
+         doc = Nokogiri.XML(File.new(File.join(@in_proc_dir, xml_file_name)))
+         logger().debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(@in_proc_dir, xml_file_name)}"
 
          # Check XML for expected elements
          root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
@@ -268,7 +271,7 @@ class QaFilesystemAndIviewXml < BaseJob
             @error_messages.push("#{ivc_file} does not match image naming convention.")
          end
 
-         if File.size(File.join(IN_PROCESS_DIR, @unit_dir, ivc_file)) < 4096
+         if File.size(File.join(@in_proc_dir, ivc_file)) < 4096
             @error_messages.push("#{ivc_file} is empty.")
          end
       end
@@ -298,7 +301,7 @@ class QaFilesystemAndIviewXml < BaseJob
    def handle_errors
       @error_messages.compact!
       if @error_messages.empty?
-         path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
+         path = File.join(@in_proc_dir, @xml_files.at(0))
          on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA Processor"
          ImportUnitIviewXML.exec_now({ :unit_id => @unit.id, :path => path }, self)
       else

@@ -259,9 +259,11 @@ module ImportIviewXml
 
    # Reads text file (if present) matching MF filename and adds it as
    # transcription text
-   def self.get_transcription_text(master_file, dir=nil)
+   def self.get_transcription_text(master_file)
+      in_proc = IN_PROCESS_DIR
+      in_proc = master_file.unit.project.workflow.base_directory if !master_file.unit.project.nil?
       unit_dir = sprintf('%09d', master_file.unit.id)
-      dir ||= "#{IN_PROCESS_DIR}/#{unit_dir}"
+      dir = "#{in_proc}/#{unit_dir}"
       text_file = master_file.filename.gsub(/\..*$/, '.txt')
       text_file_fqn = "#{dir}/#{text_file}"
       if File.exist?(text_file_fqn)

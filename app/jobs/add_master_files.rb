@@ -38,8 +38,8 @@ class AddMasterFiles < BaseJob
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       src_dirs = [
-         File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit.id}"),
-         File.join(FINALIZATION_DIR_PRODUCTION, "unit_update", "#{unit_dir}")
+         File.join(FINALIZATION_DIR, "unit_update", "#{unit.id}"),
+         File.join(FINALIZATION_DIR, "unit_update", "#{unit_dir}")
       ]
       src_dir = nil
       xml_files = []

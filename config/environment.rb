@@ -27,12 +27,12 @@ MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
 PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 
 # RETIRE
-FINALIZATION_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/finalization"
-FINALIZATION_DROPOFF_DIR_PRODUCTION = "#{FINALIZATION_DIR_PRODUCTION}/10_dropoff"
+FINALIZATION_DIR = "#{PRODUCTION_MOUNT}/finalization"
+DROPOFF_DIR = "#{FINALIZATION_DIR}/10_dropoff"
 
-IN_PROCESS_DIR = "#{FINALIZATION_DIR_PRODUCTION}/20_in_process"
-PROCESS_DELIVERABLES_DIR = "#{FINALIZATION_DIR_PRODUCTION}/30_process_deliverables"
-ASSEMBLE_DELIVERY_DIR = "#{FINALIZATION_DIR_PRODUCTION}/40_assemble_deliverables"
+IN_PROCESS_DIR = "#{FINALIZATION_DIR}/20_in_process"
+PROCESS_DELIVERABLES_DIR = "#{FINALIZATION_DIR}/30_process_deliverables"
+ASSEMBLE_DELIVERY_DIR = "#{FINALIZATION_DIR}/40_assemble_deliverables"
 
 DELETE_DIR = "#{PRODUCTION_MOUNT}/ready_to_delete"
 DELETE_DIR_FROM_STORNEXT = "#{DELETE_DIR}/from_stornext_manual_upload"

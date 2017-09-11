@@ -12,8 +12,7 @@ class CheckUnitDeliveryMode < BaseJob
       unit = Unit.find(message[:unit_id])
       logger.info "Source Unit: #{unit.to_json}"
       unit.id = unit.id
-      unit_dir = "%09d" % unit.id
-      source_dir = File.join(IN_PROCESS_DIR, unit_dir)
+      source_dir = unit.get_finalization_dir(:in_process)
       has_deliverables = false
 
       # First, check if this unit is a candidate for Autopublish to Virgo
@@ -47,6 +46,8 @@ class CheckUnitDeliveryMode < BaseJob
             unit.metadata.update(exemplar: exemplar)
          end
       end
+
+      # TODO STOPPED in CopyUnitForDeliverableGeneration --------------------------------------------------
 
       # Figure out if this unit has any deliverables, and of what type...
       if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description == "Digital Collection Building"

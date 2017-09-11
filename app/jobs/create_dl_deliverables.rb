@@ -32,7 +32,7 @@ class CreateDlDeliverables < BaseJob
       unit.update(date_dl_deliverables_ready: Time.now)
       logger.info "Unit #{unit.id} is ready for ingestion into the DL."
 
-      if source.match("#{FINALIZATION_DIR_PRODUCTION}")
+      if source.match("#{FINALIZATION_DIR}")
          del_dir = File.dirname(source)
          logger().debug("Removing processing directory #{del_dir}/...")
          FileUtils.rm_rf(del_dir)

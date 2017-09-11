@@ -13,21 +13,21 @@ class FinalizeUnit < BaseJob
       # from a project (the majority). Finalizing raw images is a special
       # case. It occurs outside of the normal digitization workflow and
       # will not have a project
-      if !message[:project_id].nil?
-         @project = Project.find(message[:project_id])
+      src_dir = unit.get_finalization_dir(:dropoff)
+      in_process_dir = unit.get_finalization_dir(:in_process)
+      if !unit.project.nil?
+         @project = unit.project
          logger().info "Project #{@project.id}, unit #{unit.id} begins finalization."
-
       else
-         logger().info "Unit #{unit.id} begins dinalization."
+         logger().info "Unit #{unit.id} begins finalization without project."
       end
 
-      src_dir = File.join(FINALIZATION_DROPOFF_DIR_PRODUCTION, unit.directory)
       if !Dir.exists? src_dir
          on_error("Dropoff directory #{src_dir} does not exist")
       end
 
-      logger().info "Moving unit #{unit.id} from dropoff to #{src_dir}"
-      FileUtils.mv(src_dir, File.join(IN_PROCESS_DIR, unit.directory))
+      logger().info "Moving unit #{unit.id} from #{src_dir} to #{in_process_dir}"
+      FileUtils.mv(src_dir, in_process_dir)
       QaUnitData.exec_now( { :unit_id => unit.id }, self)
 
       # At this point, finalization has completed successfully and project is done
