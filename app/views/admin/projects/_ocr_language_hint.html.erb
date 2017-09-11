@@ -5,7 +5,7 @@
       <span class='disp-ocr' id='ocr-language-hint'><%= project.unit.metadata.ocr_language_hint.upcase %></span>
    <% end %>
    <select class='hidden edit-ocr' id='ocr-language-hint-edit' >
-       <option>Select an OCR Language Hint</option>
+       <option value="">Select an OCR Language Hint</option>
       <% @languages.each do |p| %>
          <% sel = ""
             sel = 'selected=selected' if p == project.unit.metadata.ocr_language_hint %>

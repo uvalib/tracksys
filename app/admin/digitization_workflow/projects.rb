@@ -166,36 +166,39 @@ ActiveAdmin.register Project do
             workstation:ws, capture_resolution: params[:capture_resolution],
             resized_resolution: params[:resized_resolution], resolution_note: params[:resolution_note])
          if !ok
-            render plain: project.errors.full_messages.to_sentence, status: :error
+            render json: {status: "fail", enable_finish: false, error: project.errors.full_messages.to_sentence}, status: :error
          else
             html = render_to_string partial: "project_equipment", locals: {equipment: project.equipment}
-            render json: {html: html}, status: :ok
+            render json: {html: html, enable_finish: project.assignment_finish_available?}, status: :ok
          end
-      else
-         if params[:category]
-            resp = project.update(category_id: params[:category], item_condition: params[:item_condition].to_i,
-                                  condition_note: params[:condition_note], viu_number: params[:viu_number] )
-         else
-            resp = project.update(viu_number: params[:viu_number] )
-         end
-         ocr_mf = params[:ocr_master_files] == "true"
-         project.unit.update(ocr_master_files: ocr_mf)
-         if params[:ocr_hint_id]
-            logger.info "Setting OCR hint to #{params[:ocr_hint_id]}"
-            ocr_resp = project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
-            if !ocr_resp
-               logger.info "Unable to set OCR hint: #{project.unit.metadata.errors.full_messages.to_sentence}"
-            end
-         end
-         if params[:ocr_language_hint]
-            project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
-         end
-         if resp
-            render plain: "OK"
-         else
-            render plain: project.errors.full_messages.to_sentence, status: :error
+         return
+      end
+
+      if params[:category]
+         project.update(category_id: params[:category], item_condition: params[:item_condition].to_i,
+                        condition_note: params[:condition_note], viu_number: params[:viu_number] )
+      end
+
+      if params[:viu_number]
+         resp = project.update(viu_number: params[:viu_number] )
+      end
+
+      ocr_mf = params[:ocr_master_files] == "true"
+      project.unit.update(ocr_master_files: ocr_mf)
+      
+      if params[:ocr_hint_id]
+         logger.info "Setting OCR hint to #{params[:ocr_hint_id]}"
+         ocr_resp = project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
+         if !ocr_resp
+            logger.info "Unable to set OCR hint: #{project.unit.metadata.errors.full_messages.to_sentence}"
          end
       end
+
+      if params[:ocr_language_hint]
+         project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
+      end
+
+      render json: {status: "success", enable_finish: project.assignment_finish_available?}
    end
 
    member_action :unassign, :method => :post do
