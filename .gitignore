@@ -19,5 +19,13 @@ config/database.yml
 *~
 *.bak
 
+gannon-content
+gannon-excel
+gannon-logs/
+log/jobs
+log/tmp/
+node_modules/
+yarn.lock
+
 # Ignore application configuration
 /config/application.yml

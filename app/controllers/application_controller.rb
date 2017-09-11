@@ -14,6 +14,10 @@ class ApplicationController < ActionController::Base
       end
       if @curr_user.nil?
          @curr_user = StaffMember.find_by(computing_id: computing_id)
+         if @curr_user.nil?
+            logger.error("No staff found with ID #{computing_id}")
+            return nil?
+         end
       end
       if @curr_user.admin? && !session[:act_as].nil?
          @curr_user = StaffMember.find_by(computing_id: session[:act_as])

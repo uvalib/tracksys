@@ -210,6 +210,27 @@ class Project < ApplicationRecord
       Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
    end
 
+   def assignment_finish_available?
+      # can finish non-started assignment
+      return false if active_assignment.blank?
+      return false if active_assignment.started_at.blank?
+
+      if current_step.name == "Scan"
+         # workstation must be set at scan stage
+         return !project.workstation.blank?
+      end
+
+      if current_step.name == "Finalize"
+         # at finalize, OCR hint must be set. If it is set to text, language must also be set
+         # Also cannot OCR non-text documents
+         return false if unit.metadata.ocr_hint.blank?
+         return false if unit.metadata.ocr_hint_id > 1 && unit.ocr_master_files
+         return false if unit.metadata.ocr_hint_id == 1 && unit.metadata.ocr_language_hint.blank?
+         return true
+      end
+      return true
+   end
+
    # Finish assignment, automate file moves and advance project to next step
    #
    def finish_assignment(duration)

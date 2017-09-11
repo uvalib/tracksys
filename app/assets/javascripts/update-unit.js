@@ -84,6 +84,7 @@ $(function() {
    });
 
    $("#replace-pages").on("click", function() {
+      var origUrl = window.location.href.split("?")[0];
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
       var msg = "Replace master files with .tif files from '/digiserv-production/finalization/unit_update/" + unit + "'?";
@@ -96,6 +97,7 @@ $(function() {
    $("#add-pages").on("click", function() {
       var btn = $(this);
       btn.addClass("disabled");
+      var origUrl = window.location.href.split("?")[0];
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
       var msg = "Add .tif master files from '/digiserv-production/finalization/unit_update/" + unit + "' to unit?";

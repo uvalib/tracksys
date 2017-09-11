@@ -401,7 +401,7 @@ $(function() {
             $(".edit-"+tgtClass).addClass("hidden");
             $(".disp-"+tgtClass).removeClass("hidden");
             if ( textStatus != "success" ) {
-               alert("Update "+tgtClass+" failed: "+jqXHR.responseText);
+               alert("Update "+tgtClass+" failed: "+jqXHR.responseJSON.error);
             } else {
                if (tgtClass === "camera") {
                   $("tr.row.row-setup td").html(jqXHR.responseJSON.html );
@@ -412,7 +412,7 @@ $(function() {
                } else if ( tgtClass === "ocr") {
                   $("#ocr-hint").text( $("#ocr-hint-edit option:selected").text() );
                   $("#ocr-hint").removeClass("empty");
-                  if ( $("#ocr-language-hint-edit option:selected").text().length > 0 ) {
+                  if ( $("#ocr-language-hint-edit option:selected").val().length > 0 ) {
                      $("#ocr-language-hint").text( $("#ocr-language-hint-edit option:selected").text() );
                      $("#ocr-language-hint").removeClass("empty");
                   }
@@ -429,11 +429,15 @@ $(function() {
                }
 
                // if requirements met, enable finish and hide note
-               if ( !$("#ocr-hint").hasClass("empty") && $("#workstation .empty").length === 0 ) {
+               if ( jqXHR.responseJSON.enable_finish ) {
                   if ( $("#start-assignment-btn").hasClass("disabled") ) {
                      $("#finish-assignment-btn").removeClass("disabled");
                   }
                   $("div.equipment-note").hide();
+               } else {
+                  if ($("#finish-assignment-btn").hasClass("disabled") === false ) {
+                     $("#finish-assignment-btn").add("disabled");
+                  }
                }
             }
          }
