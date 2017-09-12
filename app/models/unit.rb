@@ -219,6 +219,12 @@ class Unit < ApplicationRecord
          if !project.nil?
             dir = File.join(project.workflow.base_directory, "ready_to_delete", "from_update", unit_dir)
          end
+      elsif name == :delete_from_delivered
+         order_dir = File.join("order_#{self.order.id}", self.id.to_s)
+         dir = File.join(DELETE_DIR_DELIVERED_ORDERS, order_dir)
+         if !project.nil?
+            dir = File.join(project.workflow.base_directory, "ready_to_delete", "delivered_orders", order_dir)
+         end
       else
          raise "Unknown directory #{name}"
       end
