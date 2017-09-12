@@ -9,10 +9,9 @@ class FinalizeUnit < BaseJob
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       unit =  Unit.find( message[:unit_id] )
 
-      # Project is an optional param for finailizations that begin
-      # from a project (the majority). Finalizing raw images is a special
-      # case. It occurs outside of the normal digitization workflow and
-      # will not have a project
+      # Almost all units will be associated with a project.
+      # Finalizing raw images is a special case. It occurs outside of the normal
+      # digitization workflow and will not have a project. Handle this.
       src_dir = unit.get_finalization_dir(:dropoff)
       in_process_dir = unit.get_finalization_dir(:in_process)
       if !unit.project.nil?

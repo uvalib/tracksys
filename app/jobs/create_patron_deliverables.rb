@@ -40,7 +40,7 @@ class CreatePatronDeliverables < BaseJob
       end
 
       # format output path so it includes order number and unit number, like so: .../order123/54321/...
-      dest_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{order_id}", unit.id.to_s)
+      dest_dir = unit.get_finalization_dir(:assemble_deliverables)
       FileUtils.mkdir_p(dest_dir)
       dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
 

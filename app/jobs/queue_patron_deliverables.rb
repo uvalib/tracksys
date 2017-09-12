@@ -20,7 +20,7 @@ class QueuePatronDeliverables < BaseJob
       end
 
       # if a prior set of deliveranbles is in the assembly dir, remove them
-      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+      assemble_dir = unit.get_finalization_dir(:assemble_deliverables)
       if Dir.exist? assemble_dir
          logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
          FileUtils.rm_rf(assemble_dir)

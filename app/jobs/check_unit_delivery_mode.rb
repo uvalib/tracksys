@@ -47,8 +47,6 @@ class CheckUnitDeliveryMode < BaseJob
          end
       end
 
-      # TODO STOPPED in CopyUnitForDeliverableGeneration --------------------------------------------------
-
       # Figure out if this unit has any deliverables, and of what type...
       if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description == "Digital Collection Building"
          has_deliverables = true

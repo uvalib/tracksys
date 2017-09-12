@@ -12,10 +12,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
       # Set unit variables
       @unit = Unit.find(message[:unit_id])
-      logger.info "Source Unit: #{@unit.to_json}"
       @unit_dir = "%09d" % @unit.id
-
-      # Prefer the project configured directories over the hardcoded
       @in_proc_dir = @unit.get_finalization_dir(:in_process)
 
       # Create error message holder array

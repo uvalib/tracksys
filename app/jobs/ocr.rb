@@ -30,9 +30,11 @@ class Ocr < BaseJob
 
    def ocr_master_file( mf, language )
       unit_dir = "%09d" % mf.unit_id
-      srcs = [File.join(IN_PROCESS_DIR, unit_dir, mf.filename),
-         File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir, mf.filename),
-         File.join(ARCHIVE_DIR, unit_dir, mf.filename)]
+      srcs = [
+         File.join(mf.unit.get_finalization_dir(:in_process), mf.filename),
+         File.join(mf.unit.get_finalization_dir(:delete_from_finalization), mf.filename),
+         File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+      ]
       src = nil
       srcs.each do |f|
          if File.exist? f
@@ -44,7 +46,7 @@ class Ocr < BaseJob
          on_error("Source #{mf.filename} could not be found")
       end
 
-      dest = File.join(IN_PROCESS_DIR, "%09d" % mf.unit_id,  "OCR_"+mf.filename)
+      dest = File.join(mf.unit.get_finalization_dir(:in_process),  "OCR_"+mf.filename)
       logger().info("Preprocess #{src} to #{dest}")
       conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
       `#{conv_cmd}`

@@ -200,16 +200,48 @@ class Unit < ApplicationRecord
          dir = File.join(project.workflow.base_directory, "finalization", "20_in_process", unit_dir) if !project.nil?
       elsif name == :process_deliverables
          dir = File.join(PROCESS_DELIVERABLES_DIR, unit_dir)
-         dir = File.join(project.workflow.base_directory, "finalization", "30_process_deliverables", unit_dir) if !project.nil?
+         if !project.nil?
+            dir = File.join(project.workflow.base_directory, "finalization", "30_process_deliverables", unit_dir)
+         end
       elsif name == :assemble_deliverables
          order_dir = File.join("order_#{self.order.id}", self.id.to_s)
          dir = File.join(ASSEMBLE_DELIVERY_DIR, order_dir)
-         dir = File.join(project.workflow.base_directory, "finalization", "40_assemble_deliverables", order_dir) if !project.nil?
+         if !project.nil?
+            dir = File.join(project.workflow.base_directory, "finalization", "40_assemble_deliverables", order_dir)
+         end
+      elsif name == :delete_from_finalization
+         dir = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
+         if !project.nil?
+            dir = File.join(project.workflow.base_directory, "ready_to_delete", "from_finalization", unit_dir)
+         end
+      elsif name == :delete_from_update
+         dir = File.join(DELETE_DIR, "from_update", unit_dir)
+         if !project.nil?
+            dir = File.join(project.workflow.base_directory, "ready_to_delete", "from_update", unit_dir)
+         end
       else
          raise "Unknown directory #{name}"
       end
       return dir
    end
+
+    def get_scan_dirs( )
+      unit_dir = "%09d" % self.id
+      scan_dir = PRODUCTION_SCAN_DIR
+      if !project.nil?
+          scan_dir = File.join(project.workflow.base_directory, "scan")
+      end
+      dirs = []
+      scan_subdirs = [
+         '01_from_archive', '10_raw', '40_first_QA', '50_create_metadata',
+         '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables',
+         '101_archive', '100_finalization'
+      ]
+      scan_subdirs.each do |subdir|
+         File.join(scan_dir, subdir, unit_dir)
+      end
+      return dirs
+    end
 end
 
 # == Schema Information

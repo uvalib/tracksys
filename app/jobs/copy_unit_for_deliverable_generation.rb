@@ -75,7 +75,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
          SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
       elsif unit.reorder == true
          logger.info "Cleaning up in_process files for completed re-order"
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: source_dir}, self)
       end
    end
 end

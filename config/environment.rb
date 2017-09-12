@@ -24,7 +24,6 @@ ARCHIVE_DIR = Settings.archive_mount
 XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/dropoff"
 XML_PICKUP_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/pickup"
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
-PRODUCTION_SCAN_SUBDIRECTORIES = ['01_from_archive', '10_raw', '40_first_QA', '50_create_metadata', '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables', '101_archive', '100_finalization']
 
 # RETIRE
 FINALIZATION_DIR = "#{PRODUCTION_MOUNT}/finalization"

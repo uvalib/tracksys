@@ -16,7 +16,8 @@ class SendUnitToArchive < BaseJob
 
       if unit.throw_away
          logger.info "This unit has been flagged as a throw-away scan and will not be set to the archive."
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
+         src_dir =  unit.get_finalization_dir(:in_process)
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
          return
       end
 
@@ -24,9 +25,10 @@ class SendUnitToArchive < BaseJob
       created_dirs = Array.new
       error_count = 0
 
-      Dir.chdir(IN_PROCESS_DIR)
-
-      Find.find(unit_dir) do |f|
+      unit_in_proc = unit.get_finalization_dir(:in_process)
+      in_proc = unit_in_proc.split('/')[0...-1].join('/') # toss the unit dir
+      Dir.chdir(in_proc)
+      Find.find( unit_dir ) do |f|
          case
          when File.file?(f)
             # Get pertinent information for creating dirs in REVIEW and DELETE dirs
@@ -89,8 +91,10 @@ class SendUnitToArchive < BaseJob
 
          CheckOrderDateArchivingComplete.exec_now({ :order_id => unit.order_id }, self)
 
-         # Now that all archiving work for the unit is done, it (and any subsidary files) must be moved to the ready_to_delete directory
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
+         # Now that all archiving work for the unit is done,
+         # it (and any subsidary files) must be moved to the ready_to_delete directory
+         src_dir =  unit.get_finalization_dir(:in_process)
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
       else
          on_error "There were errors with the archiving process"
       end
