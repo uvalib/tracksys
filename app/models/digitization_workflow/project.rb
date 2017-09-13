@@ -189,8 +189,10 @@ class Project < ApplicationRecord
       Rails.logger.info("Project [#{self.project_name}] completed finalization")
       self.update(finished_at: Time.now, owner: nil, current_step: nil)
       processing_mins = ((Time.now - job.started_at)/60.0).round
-      self.active_assignment.update(finished_at: Time.now, status: :finished,
-         duration_minutes: processing_mins)
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: (processing_mins+qa_mins) )
    end
 
    # Finalzation of the associated unit failed
@@ -200,7 +202,10 @@ class Project < ApplicationRecord
 
       # Fail the step and increase time spent
       processing_mins = ((job.ended_at - job.started_at)/60.0).round
-      self.active_assignment.update(duration_minutes: processing_mins, status: :error )
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(duration_minutes: (processing_mins+qa_mins), status: :error )
 
       # Add a problem note with a summary of the issue
       prob = Problem.find(6) # Finalization
@@ -217,7 +222,7 @@ class Project < ApplicationRecord
 
       if current_step.name == "Scan"
          # workstation must be set at scan stage
-         return !project.workstation.blank?
+         return !workstation.blank?
       end
 
       if current_step.name == "Finalize"

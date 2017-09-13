@@ -80,7 +80,7 @@ ActiveAdmin.register Project do
             if project.finished_at
                "Finished"
             else
-               project.current_step.name
+               raw("<b class='step'>#{project.current_step.name} :</b> #{project.current_step.description}")
             end
          end
          if !project.finished?
@@ -186,7 +186,7 @@ ActiveAdmin.register Project do
 
       ocr_mf = params[:ocr_master_files] == "true"
       project.unit.update(ocr_master_files: ocr_mf)
-      
+
       if params[:ocr_hint_id]
          logger.info "Setting OCR hint to #{params[:ocr_hint_id]}"
          ocr_resp = project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )

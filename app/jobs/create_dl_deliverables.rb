@@ -33,9 +33,8 @@ class CreateDlDeliverables < BaseJob
       logger.info "Unit #{unit.id} is ready for ingestion into the DL."
 
       if source.match("finalization")
-         del_dir = File.dirname(source)
-         logger().debug("Removing processing directory #{del_dir}/...")
-         FileUtils.rm_rf(del_dir)
+         logger().debug("Removing processing directory #{source}/...")
+         FileUtils.rm_rf(source)
          logger.info("Files for unit #{unit.id} copied for the creation of DL deliverables have now been deleted.")
       end
    end
