@@ -7,7 +7,7 @@ class RecreatePatronDeliverables < BaseJob
    def do_workflow(message)
 
       # first, try to locate the original files for the unit.
-      # if they are not in IN_PROCESS_DIR, put them there
+      # if they are not in the in process directory, put them there
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       in_proc_dir = unit.get_finalization_dir(:in_process)

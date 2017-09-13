@@ -34,7 +34,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
          FileUtils.mv source_dir, del_dir
          logger.info "All files associated with #{unit_dir} has been moved to #{del_dir}."
 
-         # Once the files are moved from IN_PROCESS_DIR, dump all scan directories too
+         # Once the files are moved from the in process directory, dump all scan directories too
          unit.get_scan_dirs.each do |scan_dir|
             if  Dir.exists? scan_dir
                del_dir = scan_dir.gsub(/scan/, "ready_to_delete/from_scan")

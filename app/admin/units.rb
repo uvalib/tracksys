@@ -374,7 +374,8 @@ ActiveAdmin.register Unit do
 
    member_action :import_unit_iview_xml, :method => :put do
       unit_dir = "%09d" % params[:id].to_i
-      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
+      unit = Unit.find(params[:id])
+      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{unit.get_finalization_dir(:in_process)}/#{unit_dir}.xml"})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
    end
 
