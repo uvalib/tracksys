@@ -8,8 +8,6 @@ class QueuePatronDeliverables < BaseJob
 
       unit = message[:unit]
       source = message[:source]
-      # NOTES: in this case source is File.join(PROCESS_DELIVERABLES_DIR, 'patron', unit_dir)
-      # where unit_dir is the 9-digit, 0-padded unit ID
 
       call_number = nil
       location = nil

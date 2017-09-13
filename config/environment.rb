@@ -15,31 +15,28 @@ end
 # Convert settings into global constants
 #
 Settings = Figaro.env
-PRODUCTION_MOUNT = Settings.production_mount
 DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
 # same for all jobs
-XML_DROPOFF_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/dropoff"
-XML_PICKUP_DIR = "#{PRODUCTION_MOUNT}/xml_metadata/pickup"
-MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{PRODUCTION_MOUNT}/stornext_dropoff"
+XML_DROPOFF_DIR = "#{Settings.production_mount}/xml_metadata/dropoff"
+XML_PICKUP_DIR = "#{Settings.production_mount}/xml_metadata/pickup"
+MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{Settings.production_mount}/stornext_dropoff"
 
-# RETIRE
-FINALIZATION_DIR = "#{PRODUCTION_MOUNT}/finalization"
+# Original paths to production finalize/scan/delete directories
+FINALIZATION_DIR = "#{Settings.production_mount}/finalization"
 DROPOFF_DIR = "#{FINALIZATION_DIR}/10_dropoff"
-
 IN_PROCESS_DIR = "#{FINALIZATION_DIR}/20_in_process"
 PROCESS_DELIVERABLES_DIR = "#{FINALIZATION_DIR}/30_process_deliverables"
 ASSEMBLE_DELIVERY_DIR = "#{FINALIZATION_DIR}/40_assemble_deliverables"
 
-DELETE_DIR = "#{PRODUCTION_MOUNT}/ready_to_delete"
+DELETE_DIR = "#{Settings.production_mount}/ready_to_delete"
 DELETE_DIR_FROM_STORNEXT = "#{DELETE_DIR}/from_stornext_manual_upload"
 DELETE_DIR_FROM_FINALIZATION = "#{DELETE_DIR}/from_finalization"
-DELETE_DIR_FROM_SCAN = "#{DELETE_DIR}/from_scan"
 DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
 
-PRODUCTION_SCAN_DIR = "#{PRODUCTION_MOUNT}/scan"
+PRODUCTION_SCAN_DIR = "#{Settings.production_mount}/scan"
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 
 # Kakadu JPEG2000 executable
@@ -51,7 +48,7 @@ VIRGO_URL = Settings.virgo_url
 # Library homepage URL for request form footer
 LIBRARY_URL = Settings.library_url
 
-IVIEW_CATALOG_EXPORT_DIR = "#{PRODUCTION_MOUNT}/administrative/EAD2iViewXML"
+IVIEW_CATALOG_EXPORT_DIR = "#{Settings.production_mount}/administrative/EAD2iViewXML"
 
 NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
