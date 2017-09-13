@@ -192,7 +192,10 @@ class Unit < ApplicationRecord
    def get_finalization_dir(name)
       dir = ""
       unit_dir = "%09d" % self.id
-      if name == :dropoff
+      if name == :base
+         dir = FINALIZATION_DIR
+         dir = File.join(project.workflow.base_directory, "finalization") if !project.nil?
+      elsif name == :dropoff
          dir = File.join(DROPOFF_DIR, unit_dir)
          dir = File.join(project.workflow.base_directory, "finalization", "10_dropoff", unit_dir) if !project.nil?
       elsif name == :in_process
@@ -231,7 +234,23 @@ class Unit < ApplicationRecord
       return dir
    end
 
-    def get_scan_dirs( )
+   # Helper to get the unit update (add/replace master files) directories based upon project/workflow.
+   # Defaults to didgserv-production/finalzie if no project is configured
+   #
+   def get_update_dirs( )
+      unit_dir = "%09d" % self.id
+      finalize_dir = FINALIZATION_DIR
+      if !project.nil?
+         finalize_dir = File.join(project.workflow.base_directory, "finalization")
+      end
+      return [ File.join(finalize_dir, "unit_update", "#{id}"),
+         File.join(finalize_dir, "unit_update", "#{unit_dir}") ]
+   end
+
+   # Helper to get the scanning workflow directories based upon project/workflow. Defaults
+   # to didgserv-production if not project is configured
+   #
+   def get_scan_dirs( )
       unit_dir = "%09d" % self.id
       scan_dir = PRODUCTION_SCAN_DIR
       if !project.nil?

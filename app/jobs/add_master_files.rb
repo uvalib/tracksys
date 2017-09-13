@@ -37,19 +37,16 @@ class AddMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      src_dirs = [
-         File.join(FINALIZATION_DIR, "unit_update", "#{unit.id}"),
-         File.join(FINALIZATION_DIR, "unit_update", "#{unit_dir}")
-      ]
       src_dir = nil
       xml_files = []
       tif_files = []
-      src_dirs.each do |dir|
+      unit.get_update_dirs().each do |dir|
          logger.info "Looking for new *.tif and *.xml files in #{dir}"
          tif_files = Dir.glob("#{dir}/*.tif").sort
          if tif_files.count > 0
             src_dir = dir
             xml_files = Dir.glob("#{src_dir}/*.xml").sort
+            break
          end
       end
 
