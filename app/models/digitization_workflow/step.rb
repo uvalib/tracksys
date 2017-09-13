@@ -70,27 +70,31 @@ class Step < ApplicationRecord
             step_failed(project, "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
-      else
-         # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-         # directory present. Treat it as the start dir and validate.
-         if self.name == "Process"
-            output_dir =  File.join(start_dir, "Output")
-            if Dir.exists? output_dir
-               start_dir = output_dir
-               if Dir[File.join(start_dir, '*.tif')].count == 0
-                  Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
-               end
+      end
+
+      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
+      # directory present. Treat it as the start dir and validate.
+      if self.name == "Process"
+         output_dir =  File.join(start_dir, "Output")
+         if Dir.exists? output_dir
+            start_dir = output_dir
+            if Dir[File.join(start_dir, '*.tif')].count == 0
+               Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
             end
          end
+      end
 
-         # if start dir doesn't exist, assume it has been manually moved.
-         if !Dir.exists?(start_dir)
+      # if start dir doesn't exist and a move is called for, assume it has been manually moved
+      if !Dir.exists?(start_dir)
+         if self.start_dir == self.finish_dir
+            step_failed(project, "<p>Start directory #{start_dir} does not exist</p>")
+         else
             Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
             return true
          end
-
-         return validate_directory_content(project, start_dir)
       end
+
+      return validate_directory_content(project, start_dir)
    end
 
    private
