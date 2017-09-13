@@ -21,17 +21,11 @@ class SendOrderEmail < BaseJob
 
       # If an invoice does not yet exist for this order, create one
       if order.invoices.count == 0
-
          invoice = Invoice.new
          invoice.order = order
          invoice.date_invoice = Time.now
          invoice.save!
-         on_success "A new invoice has been created for order #{order.id}."
-
-         logger.info("Marking order COMPLETE")
-         if !order.complete_order(user)
-            on_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
-         end
+         logger.info "A new invoice has been created for order #{order.id}."
       else
          logger.info "An invoice already exists for order #{order.id}; not creating another."
       end
@@ -58,7 +52,17 @@ class SendOrderEmail < BaseJob
             FileUtils.rm_rf assemble_order_dir
          end
       end
+      logger.info "Directory the deliverables for order #{order.id} have been moved from assembly to ready to delete."
 
-      on_success "Directory the deliverables for order #{order.id} have been moved from assembly to ready to delete."
+      # Now that all of the above is done, the order is considered complete. Mark
+      # it as such if it is not already done
+      if order.order_status != "completed"
+         if !order.complete_order(user)
+            logger.info("Marking order COMPLETE")
+            on_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
+         else
+            logger.info "Order is now complete"
+         end
+      end
    end
 end
