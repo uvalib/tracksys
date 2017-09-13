@@ -1,5 +1,28 @@
 #encoding: utf-8
 namespace :fix do
+   desc "Fix missing dimensions in image metadata"
+   task :blank_size  => :environment do
+      puts "Fixing blank dimensions..."
+      cnt = 0
+      ImageTechMeta.where('width is null').each do |md|
+         print(".")
+         unit_dir = "%09d" % md.master_file.unit_id
+         mf_path = File.join(ARCHIVE_DIR, unit_dir, md.master_file.filename)
+         if File.exist? mf_path
+            cmd = "identify #{mf_path}"
+            cnt += 1
+            out = `#{cmd}`
+            size = out.split(" ")[2]
+            wh = size.split("x")
+            md.update!(width: wh[0], height: wh[1])
+         else
+            puts "ERROR: #{mf_path} not found"
+         end
+      end
+      puts "\nDONE"
+      puts "Fixed #{cnt} master files"
+   end
+
    desc "Update creator name for XmlMetadata"
    task :creator_name  => :environment do
       puts "Updating creator_name for XmlMetadata..."
