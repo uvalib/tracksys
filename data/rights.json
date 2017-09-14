@@ -1,0 +1,82 @@
+{
+	"statements": [{
+			"uri": "http://rightsstatements.org/vocab/CNE/1.0/",
+			"use": [],
+			"statement": [
+				"The UVA Library has not evaluated the copyright status of this work.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/NKC/1.0/",
+			"use": ["education", "commercial", "modify"],
+			"statement": [
+				"The UVA Library is not aware of any copyright interest in this work.",
+				"This single copy was produced for purposes of private study, scholarship, or research. You are responsible for making a rights determination for your own uses."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/InC/1.0/",
+			"use": [],
+			"statement": [
+				"The UVA Library has determined that this work is in-copyright.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/InC-EDU/1.0/",
+			"use": ["education"],
+			"statement": [
+				"The UVA Library has determined that this work is in-copyright.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/InC-NC/1.0/",
+			"use": ["education"],
+			"statement": [
+				"The UVA Library has determined that this work is in-copyright.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/InC-RUU/1.0/",
+			"use": [],
+			"statement": [
+				"The UVA Library has not determined the copyright status of this work.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/NoC-OKLR/1.0/",
+			"use": [],
+			"statement": [
+				"The UVA Library is not aware of any copyright interest in this work, but other legal restrictions apply.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Legal restrictions may apply to further use of this image."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/NoC-US/1.0/",
+			"use": ["education", "commercial", "modify"],
+			"statement": [
+				"The UVA Library is not aware of any copyright interest in this work.",
+				"This single copy was produced for purposes of private study, scholarship, or research. You are responsible for making a rights determination for your own uses."
+			]
+		},
+		{
+			"uri": "http://rightsstatements.org/vocab/UND/1.0/",
+			"use": [],
+			"statement": [
+				"The UVA Library has been unable to determine the copyright status of this work.",
+				"This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.",
+				"Copyright and other restrictions may apply to any further use of this image."
+			]
+		}
+	]
+}

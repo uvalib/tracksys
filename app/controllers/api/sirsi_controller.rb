@@ -14,23 +14,17 @@ class Api::SirsiController < ApplicationController
             thumb_pid = MasterFile.find_by("filename = ?", sm.exemplar).pid
          end
 
-         rights = ""
-         if sm.use_right_id ==  3      # in copyright
-            rights << "The UVA Library has determined that this work is in-copyright.\n"
-            rights << "This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.\n"
-            rights << "Copyright and other restrictions may apply to any further use of this image.\n"
-         elsif sm.use_right_id == 2    # no known copyright
-            rights << "The UVA Library is not aware of any copyright interest in this work.\n"
-            rights << "This single copy was produced for purposes of private study, scholarship, or research. You are responsible for making a rights determination for your own uses.\n"
-         else                          # default to not evaluated
-            rights << "The UVA Library has not evaluated the copyright status of this work.\n"
-            rights << "This single copy was produced for purposes of private study, scholarship, or research, pursuant to the library's rights under the Copyright Act.\n"
-            rights << "Copyright and other restrictions may apply to any further use of this image.\n"
-         end
-         rights << "See the full Virgo Terms of Use at http://search.lib.virginia.edu/terms.html for more information."
+         rights = sm.use_right.statement
+         rights << "\nFind more information about permission to use the library's materials at http://search.lib.virginia.edu/terms.html."
+         uses = []
+         uses << "Educational Use Permitted" if sm.use_right.educational_use
+         uses << "Commercial Use Permitted" if sm.use_right.commercial_use
+         uses << "Modifications Permitted" if sm.use_right.modifications
 
          item =  {
-            pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode, 
+            pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode,
+            rsURI: sm.use_right.uri,
+            rsUses: uses,
             rightsWrapperUrl: "#{Settings.rights_wrapper_url}/?pid=#{sm.pid}&pagePid=",
             rightsWrapperText: "#{sm.get_citation}\n#{Settings.virgo_url}/#{sm.pid}\n\n#{rights}",
             backendIIIFManifestUrl: "#{Settings.iiif_manifest_url}/#{sm.pid}"

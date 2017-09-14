@@ -163,4 +163,20 @@ namespace :rights do
          u.update(uri: d[:uri])
       end
    end
+
+   desc "UPDATE use rights to to include wrapper statement and permission flags"
+   task :add_details  => :environment do
+      file = File.read("data/rights.json")
+      rights = JSON.parse(file)
+      rights['statements'].each do |s|
+         ur = UseRight.find_by(uri: s['uri'])
+         if ur.nil?
+            puts "ERROR: Couldn't find use right with URI #{s['uri']}"
+            next
+         end
+         statement = s['statement'].join("\n")
+         ur.update!(statement: statement, educational_use: s['use'].include?("education"),
+            commercial_use: s['use'].include?("commercial"), modifications: s['use'].include?("modify"))
+      end
+   end
 end
