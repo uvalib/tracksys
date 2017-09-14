@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170830145816) do
+ActiveRecord::Schema.define(version: 20170913201341) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -549,6 +549,10 @@ ActiveRecord::Schema.define(version: 20170830145816) do
     t.datetime "updated_at"
     t.integer "metadata_count", default: 0
     t.string "uri"
+    t.text "statement"
+    t.boolean "commercial_use", default: false
+    t.boolean "educational_use", default: false
+    t.boolean "modifications", default: false
     t.index ["name"], name: "index_use_rights_on_name", unique: true
   end
 
