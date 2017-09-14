@@ -2,6 +2,15 @@ class UseRight < ApplicationRecord
    has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
    validates :name, :uniqueness => true
    has_many :master_files, :through=>:metadata
+
+   def uses
+      uses = []
+      uses << "Educational Use Permitted" if educational_use
+      uses << "Commercial Use Permitted" if commercial_use
+      uses << "Modifications Permitted" if modifications
+      uses << "None" if uses.blank?
+      return uses.join(", ")
+   end
 end
 
 # == Schema Information
