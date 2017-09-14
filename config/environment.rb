@@ -24,11 +24,10 @@ MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{Settings.production_mount}/stornext
 PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{Settings.production_mount}/scan/01_from_archive"
 
 # Original paths to production finalize/scan/delete directories
-FINALIZATION_DIR = "#{Settings.production_mount}/finalization"
-DROPOFF_DIR = "#{FINALIZATION_DIR}/10_dropoff"
-IN_PROCESS_DIR = "#{FINALIZATION_DIR}/20_in_process"
-PROCESS_DELIVERABLES_DIR = "#{FINALIZATION_DIR}/30_process_deliverables"
-ASSEMBLE_DELIVERY_DIR = "#{FINALIZATION_DIR}/40_assemble_deliverables"
+DROPOFF_DIR = "#{Settings.production_mount}/finalization/10_dropoff"
+IN_PROCESS_DIR = "#{Settings.production_mount}/finalization/20_in_process"
+PROCESS_DELIVERABLES_DIR = "#{Settings.production_mount}/finalization/30_process_deliverables"
+ASSEMBLE_DELIVERY_DIR = "#{Settings.production_mount}/finalization/40_assemble_deliverables"
 
 DELETE_DIR = "#{Settings.production_mount}/ready_to_delete"
 DELETE_DIR_FROM_STORNEXT = "#{DELETE_DIR}/from_stornext_manual_upload"

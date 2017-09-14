@@ -40,7 +40,7 @@ class AddMasterFiles < BaseJob
       src_dir = nil
       xml_files = []
       tif_files = []
-      unit.get_update_dirs().each do |dir|
+      Finder.update_dirs(unit).each do |dir|
          logger.info "Looking for new *.tif and *.xml files in #{dir}"
          tif_files = Dir.glob("#{dir}/*.tif").sort
          if tif_files.count > 0

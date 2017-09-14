@@ -233,53 +233,6 @@ class Unit < ApplicationRecord
       end
       return dir
    end
-
-   def get_xml_dir(type)
-      unit_dir = "%09d" % self.id
-      dir = File.join(Settings.production_mount, "xml_metadata")
-      dir = File.join(project.workflow.base_directory, "xml_metadata") if !project.nil?
-      if type == :dropoff
-         return File.join(dir, "dropoff", unit_dir)
-      elsif type == :pickup
-         return File.join(dir, "pickup", unit_dir)
-      else
-         raise "Unknown XML directory #{type}"
-      end
-   end
-
-   # Helper to get the unit update (add/replace master files) directories based upon project/workflow.
-   # Defaults to didgserv-production/finalzie if no project is configured
-   #
-   def get_update_dirs( )
-      unit_dir = "%09d" % self.id
-      finalize_dir = File.join(Settings.production_mount, "finalization")
-      if !project.nil?
-         finalize_dir = File.join(project.workflow.base_directory, "finalization")
-      end
-      return [ File.join(finalize_dir, "unit_update", "#{id}"),
-         File.join(finalize_dir, "unit_update", "#{unit_dir}") ]
-   end
-
-   # Helper to get the scanning workflow directories based upon project/workflow. Defaults
-   # to didgserv-production if not project is configured
-   #
-   def get_scan_dirs( )
-      unit_dir = "%09d" % self.id
-      scan_dir = File.join(Settings.production_mount, "scan")
-      if !project.nil?
-          scan_dir = File.join(project.workflow.base_directory, "scan")
-      end
-      dirs = []
-      scan_subdirs = [
-         '01_from_archive', '10_raw', '40_first_QA', '50_create_metadata',
-         '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables',
-         '101_archive', '100_finalization'
-      ]
-      scan_subdirs.each do |subdir|
-         File.join(scan_dir, subdir, unit_dir)
-      end
-      return dirs
-    end
 end
 
 # == Schema Information

@@ -34,7 +34,7 @@ class BulkUploadXml < BaseJob
    def do_workflow(message)
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       unit = Unit.find(message[:unit_id])
-      xml_dir = unit.get_xml_dir(:pickup)
+      xml_dir = Finder.xml_directory(unit, :dropoff)
       if !Dir.exist? xml_dir
          on_error("XML Dropoff directory #{xml_dir} does not exist")
       end
