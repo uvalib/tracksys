@@ -252,7 +252,7 @@ class Unit < ApplicationRecord
    #
    def get_update_dirs( )
       unit_dir = "%09d" % self.id
-      finalize_dir = FINALIZATION_DIR
+      finalize_dir = File.join(Settings.production_mount, "finalization")
       if !project.nil?
          finalize_dir = File.join(project.workflow.base_directory, "finalization")
       end
@@ -265,7 +265,7 @@ class Unit < ApplicationRecord
    #
    def get_scan_dirs( )
       unit_dir = "%09d" % self.id
-      scan_dir = PRODUCTION_SCAN_DIR
+      scan_dir = File.join(Settings.production_mount, "scan")
       if !project.nil?
           scan_dir = File.join(project.workflow.base_directory, "scan")
       end

@@ -21,6 +21,7 @@ ARCHIVE_DIR = Settings.archive_mount
 
 # same for all jobs
 MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{Settings.production_mount}/stornext_dropoff"
+PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{Settings.production_mount}/scan/01_from_archive"
 
 # Original paths to production finalize/scan/delete directories
 FINALIZATION_DIR = "#{Settings.production_mount}/finalization"
@@ -33,9 +34,6 @@ DELETE_DIR = "#{Settings.production_mount}/ready_to_delete"
 DELETE_DIR_FROM_STORNEXT = "#{DELETE_DIR}/from_stornext_manual_upload"
 DELETE_DIR_FROM_FINALIZATION = "#{DELETE_DIR}/from_finalization"
 DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
-
-PRODUCTION_SCAN_DIR = "#{Settings.production_mount}/scan"
-PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{PRODUCTION_SCAN_DIR}/01_from_archive"
 
 # Kakadu JPEG2000 executable
 KDU_COMPRESS= Settings.kdu_compress

@@ -27,9 +27,8 @@ class GenerateAllReorderDeliverables < BaseJob
       order = Order.find(message[:order_id])
 
       order.units.each do |unit|
-         unit_dir = "%09d" % unit.id
-         source_dir = File.join(IN_PROCESS_DIR, unit_dir)
-         destination_dir = File.join(PROCESS_DELIVERABLES_DIR, "patron", unit_dir)
+         source_dir = unit.get_finalization_dir(:in_process)
+         destination_dir =  unit.get_finalization_dir(:process_deliverables)
          FileUtils.mkdir_p(destination_dir)
 
          copy_master_files(unit, source_dir, destination_dir)
