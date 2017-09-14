@@ -17,7 +17,9 @@ body.active_admin {
    .panel_contents table th {
       border:none;
    }
-
+   table {
+          border-collapse: collapse;
+   }
    table.index_table th {
       background-color: #efefef;
       background-image: none;

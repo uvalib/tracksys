@@ -193,7 +193,7 @@ class Unit < ApplicationRecord
       dir = ""
       unit_dir = "%09d" % self.id
       if name == :base
-         dir = FINALIZATION_DIR
+         dir = "#{Settings.production_mount}/finalization"
          dir = File.join(project.workflow.base_directory, "finalization") if !project.nil?
       elsif name == :dropoff
          dir = File.join(DROPOFF_DIR, unit_dir)
@@ -232,6 +232,19 @@ class Unit < ApplicationRecord
          raise "Unknown directory #{name}"
       end
       return dir
+   end
+
+   def get_xml_dir(type)
+      unit_dir = "%09d" % self.id
+      dir = File.join(Settings.production_mount, "xml_metadata")
+      dir = File.join(project.workflow.base_directory, "xml_metadata") if !project.nil?
+      if type == :dropoff
+         return File.join(dir, "dropoff", unit_dir)
+      elsif type == :pickup
+         return File.join(dir, "pickup", unit_dir)
+      else
+         raise "Unknown XML directory #{type}"
+      end
    end
 
    # Helper to get the unit update (add/replace master files) directories based upon project/workflow.
