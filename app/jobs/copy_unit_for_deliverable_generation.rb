@@ -22,7 +22,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
       # For each mode specified, move files into processing dir and kick of processing
       modes.each do |mode|
          # NOTE: mode has been retired from dir name, not useful
-         destination_dir = unit.get_finalization_dir(:process_deliverables)
+         destination_dir = Finder.finalization_dir(unit, :process_deliverables)
          FileUtils.mkdir_p(destination_dir)
 
          # copy all of the master files for this unit to the processing directory based on MODE

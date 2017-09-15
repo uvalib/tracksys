@@ -25,7 +25,7 @@ class CreateUnitZip < BaseJob
       end
 
       # unit_path is the path to the unit tif/jpg files
-      unit_path = unit.get_finalization_dir(:assemble_deliverables)
+      unit_path = Finder.finalization_dir(unit, :assemble_deliverables)
 
       # The zip file is stored one directory level down in the order dir
       zip_order_path = unit_path.split('/')[0...-1].join('/')

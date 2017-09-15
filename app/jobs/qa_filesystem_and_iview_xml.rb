@@ -13,7 +13,7 @@ class QaFilesystemAndIviewXml < BaseJob
       # Set unit variables
       @unit = Unit.find(message[:unit_id])
       @unit_dir = "%09d" % @unit.id
-      @in_proc_dir = @unit.get_finalization_dir(:in_process)
+      @in_proc_dir = Finder.finalization_dir(@unit, :in_process)
 
       # Create error message holder array
       @error_messages = Array.new

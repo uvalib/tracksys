@@ -65,4 +65,53 @@ class Finder
       end
       return dirs
     end
+
+    # Get a finalization directory by name. Supported names: base, dropoff, in_process,
+    #    process_deliverables, assemble_deliverables, delete_from_finalization, delete_from_update
+    #    and delete_from_delivered
+    #
+    def self.finalization_dir(unit, name)
+      dir = ""
+      unit_dir = "%09d" % unit.id
+      if name == :base
+          dir = "#{Settings.production_mount}/finalization"
+          dir = File.join(unit.project.workflow.base_directory, "finalization") if !unit.project.nil?
+      elsif name == :dropoff
+          dir = File.join(DROPOFF_DIR, unit_dir)
+          dir = File.join(unit.project.workflow.base_directory, "finalization", "10_dropoff", unit_dir) if !unit.project.nil?
+      elsif name == :in_process
+          dir = File.join(IN_PROCESS_DIR, unit_dir)
+          dir = File.join(unit.project.workflow.base_directory, "finalization", "20_in_process", unit_dir) if !unit.project.nil?
+      elsif name == :process_deliverables
+          dir = File.join(PROCESS_DELIVERABLES_DIR, unit_dir)
+          if !unit.project.nil?
+             dir = File.join(unit.project.workflow.base_directory, "finalization", "30_process_deliverables", unit_dir)
+          end
+      elsif name == :assemble_deliverables
+          order_dir = File.join("order_#{self.order.id}", self.id.to_s)
+          dir = File.join(ASSEMBLE_DELIVERY_DIR, order_dir)
+          if !unit.project.nil?
+             dir = File.join(unit.project.workflow.base_directory, "finalization", "40_assemble_deliverables", order_dir)
+          end
+      elsif name == :delete_from_finalization
+          dir = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
+          if !unit.project.nil?
+             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "from_finalization", unit_dir)
+          end
+      elsif name == :delete_from_update
+          dir = File.join(DELETE_DIR, "from_update", unit_dir)
+          if !unit.project.nil?
+             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "from_update", unit_dir)
+          end
+      elsif name == :delete_from_delivered
+          order_dir = File.join("order_#{unit.order.id}", unit.id.to_s)
+          dir = File.join(DELETE_DIR_DELIVERED_ORDERS, order_dir)
+          if !unit.project.nil?
+             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "delivered_orders", order_dir)
+          end
+      else
+          raise "Unknown finalization directory: #{name}"
+      end
+      return dir
+    end
 end

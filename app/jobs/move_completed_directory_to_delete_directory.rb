@@ -20,7 +20,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
 
       # Unit update?
       if /unit_update/ =~ source_dir
-         del_dir = unit.get_finalization_dir(:delete_from_update)
+         del_dir = Finder.finalization_dir(unit, :delete_from_update)
          if Dir.exists? del_dir
             del_dir = del_dir.chomp("/")    # remove the trailing slash if present
             del_dir << Time.now.to_i.to_s   # add a timestamp
@@ -30,7 +30,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
 
       # If source_dir matches the finalization in process dir, move to delet and look for items in /scan
       elsif /20_in_process/ =~ source_dir
-         del_dir = unit.get_finalization_dir(:delete_from_finalization)
+         del_dir = Finder.finalization_dir(unit, :delete_from_finalization)
          FileUtils.mv source_dir, del_dir
          logger.info "All files associated with #{unit_dir} has been moved to #{del_dir}."
 

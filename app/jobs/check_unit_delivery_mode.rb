@@ -12,7 +12,7 @@ class CheckUnitDeliveryMode < BaseJob
       unit = Unit.find(message[:unit_id])
       logger.info "Source Unit: #{unit.to_json}"
       unit.id = unit.id
-      source_dir = unit.get_finalization_dir(:in_process)
+      source_dir = Finder.finalization_dir(unit, :in_process)
       has_deliverables = false
 
       # First, check if this unit is a candidate for Autopublish to Virgo

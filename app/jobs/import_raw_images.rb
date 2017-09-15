@@ -7,7 +7,7 @@ class ImportRawImages < BaseJob
       xml_files = message[:xml_files]
       unit =  message[:unit]
       unit_dir = "%09d" % unit.id
-      in_proc_dir = unit.get_finalization_dir(:in_process)
+      in_proc_dir = Finder.finalization_dir(unit, :in_process)
 
       seq = 1
       images.each do |image|

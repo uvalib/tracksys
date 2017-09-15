@@ -35,11 +35,11 @@ class SendOrderEmail < BaseJob
       # Each workflow can have its own base directory. Move each unit individually
       order.units.each do |unit|
          # get the unit assembly dir
-         assemble_dir = unit.get_finalization_dir(:assemble_deliverables)
+         assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
          if Dir.exist? assemble_dir
             # get delete destination; this contains the unit. strip it
             # so we don't end up with nested unit info in the del dir
-            del_dest = unit.get_finalization_dir(:delete_from_delivered)
+            del_dest = Finder.finalization_dir(unit, :delete_from_delivered)
             del_dest = del_dest.split('/')[0...-1].join('/')
             FileUtils.mkdir_p(del_dest) if !Dir.exist? del_dest
 

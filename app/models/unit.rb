@@ -97,7 +97,7 @@ class Unit < ApplicationRecord
    # public instance methods
    #------------------------------------------------------------------
    def has_in_process_files?
-      in_proc_dir = get_finalization_dir(:in_process)
+      in_proc_dir = Finder.finalization_dir(self, :in_process)
       return false if !File.exist?(in_proc_dir)
       return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
    end
@@ -180,58 +180,9 @@ class Unit < ApplicationRecord
 
    def patron_deliverables_available?
       return false if self.date_patron_deliverables_ready.nil?
-      assemble_dir = get_finalization_dir(:assemble_deliverables)
+      assemble_dir = Finder.finalization_dir(self, :assemble_deliverables)
       return false if !Dir.exist? assemble_dir
       return Dir["#{assemble_dir}/*"].length >= self.master_files.count
-   end
-
-   # helper to get directory used in finalization. Takes into account base directory
-   # configured by project (should one exist). Note a slight change: the mode portion
-   # of the process_deliverables has been dropped. Doesn't seem to be a need for it
-   #
-   def get_finalization_dir(name)
-      dir = ""
-      unit_dir = "%09d" % self.id
-      if name == :base
-         dir = "#{Settings.production_mount}/finalization"
-         dir = File.join(project.workflow.base_directory, "finalization") if !project.nil?
-      elsif name == :dropoff
-         dir = File.join(DROPOFF_DIR, unit_dir)
-         dir = File.join(project.workflow.base_directory, "finalization", "10_dropoff", unit_dir) if !project.nil?
-      elsif name == :in_process
-         dir = File.join(IN_PROCESS_DIR, unit_dir)
-         dir = File.join(project.workflow.base_directory, "finalization", "20_in_process", unit_dir) if !project.nil?
-      elsif name == :process_deliverables
-         dir = File.join(PROCESS_DELIVERABLES_DIR, unit_dir)
-         if !project.nil?
-            dir = File.join(project.workflow.base_directory, "finalization", "30_process_deliverables", unit_dir)
-         end
-      elsif name == :assemble_deliverables
-         order_dir = File.join("order_#{self.order.id}", self.id.to_s)
-         dir = File.join(ASSEMBLE_DELIVERY_DIR, order_dir)
-         if !project.nil?
-            dir = File.join(project.workflow.base_directory, "finalization", "40_assemble_deliverables", order_dir)
-         end
-      elsif name == :delete_from_finalization
-         dir = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
-         if !project.nil?
-            dir = File.join(project.workflow.base_directory, "ready_to_delete", "from_finalization", unit_dir)
-         end
-      elsif name == :delete_from_update
-         dir = File.join(DELETE_DIR, "from_update", unit_dir)
-         if !project.nil?
-            dir = File.join(project.workflow.base_directory, "ready_to_delete", "from_update", unit_dir)
-         end
-      elsif name == :delete_from_delivered
-         order_dir = File.join("order_#{self.order.id}", self.id.to_s)
-         dir = File.join(DELETE_DIR_DELIVERED_ORDERS, order_dir)
-         if !project.nil?
-            dir = File.join(project.workflow.base_directory, "ready_to_delete", "delivered_orders", order_dir)
-         end
-      else
-         raise "Unknown directory #{name}"
-      end
-      return dir
    end
 end
 

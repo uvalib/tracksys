@@ -40,7 +40,7 @@ class CreatePatronDeliverables < BaseJob
       end
 
       # format output path so it includes order number and unit number, like so: .../order123/54321/...
-      dest_dir = unit.get_finalization_dir(:assemble_deliverables)
+      dest_dir = Finder.finalization_dir(unit, :assemble_deliverables)
       FileUtils.mkdir_p(dest_dir)
       dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
 

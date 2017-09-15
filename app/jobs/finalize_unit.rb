@@ -12,8 +12,8 @@ class FinalizeUnit < BaseJob
       # Almost all units will be associated with a project.
       # Finalizing raw images is a special case. It occurs outside of the normal
       # digitization workflow and will not have a project. Handle this.
-      src_dir = unit.get_finalization_dir(:dropoff)
-      in_process_dir = unit.get_finalization_dir(:in_process)
+      src_dir = Finder.finalization_dir(unit, :dropoff)
+      in_process_dir = Finder.finalization_dir(unit, :in_process)
       if !unit.project.nil?
          @project = unit.project
          logger().info "Project #{@project.id}, unit #{unit.id} begins finalization."

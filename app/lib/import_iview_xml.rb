@@ -260,7 +260,7 @@ module ImportIviewXml
    # Reads text file (if present) matching MF filename and adds it as
    # transcription text
    def self.get_transcription_text(master_file)
-      in_proc = master_file.unit.get_finalization_dir(:in_process)
+      in_proc = Finder.finalization_dir(master_file.unit, :in_process)
       unit_dir = sprintf('%09d', master_file.unit.id)
       dir = "#{in_proc}/#{unit_dir}"
       text_file = master_file.filename.gsub(/\..*$/, '.txt')

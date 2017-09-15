@@ -34,7 +34,7 @@ div id: "masterfile-list" do
    end
 
    div class: "update-confirm" do
-      span id: "confirm-msg", "data-base-dir": "#{unit.get_finalization_dir(:base)}" do "replace master fiiles?" end
+      span id: "confirm-msg", "data-base-dir": "#{Finder.finalization_dir(unit, :base)}" do "replace master fiiles?" end
       div class: "button-bar" do
          raw("<span id='cancel-update' class='mf-action-button'>Cancel</span><span id='confirm-update' class='mf-action-button'>OK</span>")
       end

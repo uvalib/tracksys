@@ -18,7 +18,7 @@ class QueuePatronDeliverables < BaseJob
       end
 
       # if a prior set of deliveranbles is in the assembly dir, remove them
-      assemble_dir = unit.get_finalization_dir(:assemble_deliverables)
+      assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
       if Dir.exist? assemble_dir
          logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
          FileUtils.rm_rf(assemble_dir)

@@ -56,7 +56,7 @@ class CloneMasterFiles < BaseJob
       # so they will be ready to be used to generate deliverables with
       # the RecreatePatronDeliverables job
       unit_dir = "%09d" % unit.id
-      in_proc_dir = unit.get_finalization_dir(:in_process)
+      in_proc_dir = Finder.finalization_dir(unit, :in_process)
       FileUtils.mkdir_p(in_proc_dir) if !Dir.exist? in_proc_dir
 
       archive_dir = File.join(ARCHIVE_DIR, src_mf.filename.split("_")[0])

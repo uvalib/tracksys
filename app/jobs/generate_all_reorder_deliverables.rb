@@ -27,14 +27,14 @@ class GenerateAllReorderDeliverables < BaseJob
       order = Order.find(message[:order_id])
 
       order.units.each do |unit|
-         source_dir = unit.get_finalization_dir(:in_process)
-         destination_dir =  unit.get_finalization_dir(:process_deliverables)
+         source_dir = Finder.finalization_dir(unit, :in_process)
+         destination_dir =  Finder.finalization_dir(unit, :process_deliverables)
          FileUtils.mkdir_p(destination_dir)
 
          copy_master_files(unit, source_dir, destination_dir)
          QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
          CreateUnitZip.exec_now( { unit: unit }, self)
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => unit.get_finalization_dir(:in_process)}, self)
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => Finder.finalization_dir(unit, :in_process)}, self)
       end
 
       CheckOrderReadyForDelivery.exec_now( { :order_id => order.id}, self  )
