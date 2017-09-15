@@ -41,6 +41,10 @@ class Finder
       ]
    end
 
+   def self.scan_from_archive_dir
+      dir = File.join(Settings.production_mount, SCAN, "01_from_archive")
+   end
+
    # Helper to get the scanning workflow directories based upon project/workflow. Defaults
    # to didgserv-production if not project is configured
    #

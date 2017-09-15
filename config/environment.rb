@@ -19,10 +19,6 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
-# same for all jobs
-MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION = "#{Settings.production_mount}/stornext_dropoff"
-PRODUCTION_SCAN_FROM_ARCHIVE_DIR = "#{Settings.production_mount}/scan/01_from_archive"
-
 # Original paths to production finalize/scan/delete directories
 DROPOFF_DIR = "#{Settings.production_mount}/finalization/10_dropoff"
 IN_PROCESS_DIR = "#{Settings.production_mount}/finalization/20_in_process"
