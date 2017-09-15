@@ -216,7 +216,7 @@ class Project < ApplicationRecord
 
       if current_step.name == "Scan"
          # workstation must be set at scan stage
-         return !project.workstation.blank?
+         return !workstation.blank?
       end
 
       if current_step.name == "Finalize"
