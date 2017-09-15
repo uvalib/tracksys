@@ -18,20 +18,13 @@ Settings = Figaro.env
 DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
-
-# Kakadu JPEG2000 executable
-KDU_COMPRESS= Settings.kdu_compress
-
-# VIRGO (Blacklight) URL for catalog linking in UI
-VIRGO_URL = Settings.virgo_url
-
-# Library homepage URL for request form footer
-LIBRARY_URL = Settings.library_url
-
 IVIEW_CATALOG_EXPORT_DIR = "#{Settings.production_mount}/administrative/EAD2iViewXML"
 
+# Kakadu settings
+KDU_COMPRESS= Settings.kdu_compress
 NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
+# Users with special privileges
 DEACCESSION_USERS = Settings.deaccession_users.blank? ? [] : Settings.deaccession_users.split(",")
 
 # Initialize the Rails application.
