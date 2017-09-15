@@ -19,17 +19,6 @@ DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
-# Original paths to production finalize/scan/delete directories
-DROPOFF_DIR = "#{Settings.production_mount}/finalization/10_dropoff"
-IN_PROCESS_DIR = "#{Settings.production_mount}/finalization/20_in_process"
-PROCESS_DELIVERABLES_DIR = "#{Settings.production_mount}/finalization/30_process_deliverables"
-ASSEMBLE_DELIVERY_DIR = "#{Settings.production_mount}/finalization/40_assemble_deliverables"
-
-DELETE_DIR = "#{Settings.production_mount}/ready_to_delete"
-DELETE_DIR_FROM_STORNEXT = "#{DELETE_DIR}/from_stornext_manual_upload"
-DELETE_DIR_FROM_FINALIZATION = "#{DELETE_DIR}/from_finalization"
-DELETE_DIR_DELIVERED_ORDERS = "#{DELETE_DIR}/delivered_orders"
-
 # Kakadu JPEG2000 executable
 KDU_COMPRESS= Settings.kdu_compress
 

@@ -87,8 +87,8 @@ $(function() {
       var origUrl = window.location.href.split("?")[0];
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
-      var baseDir = $("#confirm-msg").data("base-dir");
-      var msg = "Replace master files with .tif files from '"+baseDir+"/unit_update/" + unit + "'?";
+      var updateDir = $("#confirm-msg").data("update-dir");
+      var msg = "Replace master files with .tif files from '"+updateDir+"'?";
       $("#confirm-msg").text(msg);
       $("#confirm-update").data("action", "replace");
       $("div.update-confirm").show();

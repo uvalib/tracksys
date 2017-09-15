@@ -6,22 +6,17 @@
 # is the configured production mount (Settings.production_mount)
 #
 class Finder
-   # fixed subdirectory names
-   FINALIZATION_DIR = "finalization"
-   XML_DIR = "xml_metadata"
-   UPDATE_DIR = "unit_update"
-   SCAN_DIR = "scan"
 
    # Find the bulk xml directory for a unit. Possible actions are :dropoff and :pickup
    #
    def self.xml_directory(unit, action)
       unit_dir = "%09d" % unit.id
-      dir = File.join(Settings.production_mount, XML_DIR)
-      dir = File.join(unit.project.workflow.base_directory, XML_DIR) if !unit.project.nil?
+      base_dir = base_dir(unit)
+      xml_dir = File.join(base_dir, "xml_metadata")
       if action == :dropoff
-         return File.join(dir, "dropoff", unit_dir)
+         return File.join(xml_dir, "dropoff", unit_dir)
       elsif action == :pickup
-         return File.join(dir, "pickup", unit_dir)
+         return File.join(xml_dir, "pickup", unit_dir)
       else
          raise "Unknown bulk XML action: #{action}"
       end
@@ -31,18 +26,16 @@ class Finder
    #
    def self.update_dirs( unit )
       unit_dir = "%09d" % unit.id
-      finalize_dir = File.join(Settings.production_mount, FINALIZATION_DIR)
-      if !unit.project.nil?
-         finalize_dir = File.join(unit.project.workflow.base_directory, FINALIZATION_DIR)
-      end
+      base_dir = base_dir(unit)
+      finalize_dir = File.join(base_dir, "finalization")
       return [
-         File.join(finalize_dir, UPDATE_DIR, "#{unit.id}"),
-         File.join(finalize_dir, UPDATE_DIR, "#{unit_dir}")
+         File.join(finalize_dir, "unit_update", "#{unit_dir}"),
+         File.join(finalize_dir, "unit_update", "#{unit.id}")
       ]
    end
 
    def self.scan_from_archive_dir
-      dir = File.join(Settings.production_mount, SCAN, "01_from_archive")
+      dir = File.join(Settings.production_mount, "scan", "01_from_archive")
    end
 
    # Helper to get the scanning workflow directories based upon project/workflow. Defaults
@@ -50,18 +43,16 @@ class Finder
    #
    def self.scan_dirs( unit )
       unit_dir = "%09d" % unit.id
-      scan_dir = File.join(Settings.production_mount, SCAN_DIR)
-      if !unit.project.nil?
-          scan_dir = File.join(unit.project.workflow.base_directory, SCAN_DIR)
-      end
-      dirs = []
+      base_dir = base_dir(unit)
+      scan_dir = File.join(base_dir, "scan")
       scan_subdirs = [
          '01_from_archive', '10_raw', '40_first_QA', '50_create_metadata',
          '60_rescans_and_corrections', '70_second_qa', '80_final_qa', '90_make_deliverables',
          '101_archive', '100_finalization'
       ]
+      dirs = []
       scan_subdirs.each do |subdir|
-         File.join(scan_dir, subdir, unit_dir)
+         dirs << File.join(scan_dir, subdir, unit_dir)
       end
       return dirs
     end
@@ -71,47 +62,38 @@ class Finder
     #    and delete_from_delivered
     #
     def self.finalization_dir(unit, name)
-      dir = ""
       unit_dir = "%09d" % unit.id
-      if name == :base
-          dir = "#{Settings.production_mount}/finalization"
-          dir = File.join(unit.project.workflow.base_directory, "finalization") if !unit.project.nil?
-      elsif name == :dropoff
-          dir = File.join(DROPOFF_DIR, unit_dir)
-          dir = File.join(unit.project.workflow.base_directory, "finalization", "10_dropoff", unit_dir) if !unit.project.nil?
+      base_dir = base_dir(unit)
+      finalize_dir = File.join(base_dir, "finalization")
+      ready_to_del_dir = File.join(base_dir, "ready_to_delete")
+
+      dir = ""
+      if name == :dropoff
+         dir = File.join(finalize_dir, "10_dropoff", unit_dir)
       elsif name == :in_process
-          dir = File.join(IN_PROCESS_DIR, unit_dir)
-          dir = File.join(unit.project.workflow.base_directory, "finalization", "20_in_process", unit_dir) if !unit.project.nil?
+         dir = File.join(finalize_dir, "20_in_process", unit_dir)
       elsif name == :process_deliverables
-          dir = File.join(PROCESS_DELIVERABLES_DIR, unit_dir)
-          if !unit.project.nil?
-             dir = File.join(unit.project.workflow.base_directory, "finalization", "30_process_deliverables", unit_dir)
-          end
+         dir = File.join(finalize_dir, "30_process_deliverables", unit_dir)
       elsif name == :assemble_deliverables
-          order_dir = File.join("order_#{self.order.id}", self.id.to_s)
-          dir = File.join(ASSEMBLE_DELIVERY_DIR, order_dir)
-          if !unit.project.nil?
-             dir = File.join(unit.project.workflow.base_directory, "finalization", "40_assemble_deliverables", order_dir)
-          end
+         order_dir = File.join("order_#{unit.order.id}", unt.id.to_s)
+         dir = File.join(finalize_dir, "40_assemble_deliverables", order_dir)
       elsif name == :delete_from_finalization
-          dir = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
-          if !unit.project.nil?
-             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "from_finalization", unit_dir)
-          end
+         dir = File.join(ready_to_del_dir, "from_finalization", unit_dir)
       elsif name == :delete_from_update
-          dir = File.join(DELETE_DIR, "from_update", unit_dir)
-          if !unit.project.nil?
-             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "from_update", unit_dir)
-          end
+         dir = File.join(ready_to_del_dir, "from_update", unit_dir)
       elsif name == :delete_from_delivered
-          order_dir = File.join("order_#{unit.order.id}", unit.id.to_s)
-          dir = File.join(DELETE_DIR_DELIVERED_ORDERS, order_dir)
-          if !unit.project.nil?
-             dir = File.join(unit.project.workflow.base_directory, "ready_to_delete", "delivered_orders", order_dir)
-          end
+         order_dir = File.join("order_#{unit.order.id}", unit.id.to_s)
+         dir = File.join(ready_to_del_dir, "delivered_orders", order_dir)
       else
-          raise "Unknown finalization directory: #{name}"
+         raise "Unknown finalization directory: #{name}"
       end
       return dir
     end
+
+    def self.base_dir(unit)
+      base_dir = Settings.production_mount
+      base_dir = unit.project.workflow.base_directory if !unit.project.nil?
+      return base_dir
+    end
+    private_class_method :base_dir
 end
