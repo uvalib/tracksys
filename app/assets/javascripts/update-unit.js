@@ -101,8 +101,8 @@ $(function() {
       var origUrl = window.location.href.split("?")[0];
       var bits = origUrl.split("/");
       var unit = bits[bits.length - 1];
-      var baseDir = $("#confirm-msg").data("base-dir");
-      var msg = "Add .tif master files from '"+baseDir+"/unit_update/" + unit + "' to unit?";
+      var updateDir = $("#confirm-msg").data("update-dir");
+      var msg = "Add .tif master files from '"+updateDir+ "' to unit?";
       $("#confirm-msg").text(msg);
       $("div.update-confirm").show();
       $("#confirm-update").data("action", "add");
