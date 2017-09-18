@@ -14,6 +14,8 @@
       <% else %>
          <% head = line[0..19] %>
          <% frag = line[19..line.length] %>
+         <% frag = frag.gsub /\</, "&#60;" %>
+         <% frag = frag.gsub /\>/, "&#62;" %>
          <% frag.gsub! /FATAL/, "<span class='fatal'>FATAL</span>" %>
          <% frag.gsub! /ERROR/, "<span class='error'>ERROR</span>" %>
          <% frag.gsub! /INFO/, "<span class='info'>INFO</span>" %>

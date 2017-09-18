@@ -12,6 +12,21 @@ class CreateUnitZip < BaseJob
       delivery_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
       FileUtils.mkdir_p delivery_dir if !Dir.exist?(delivery_dir)
 
+      # IF OCR was requested, generate a single text file containing all of the page OCR results
+      ocr_file = nil
+      if unit.ocr_master_files
+         assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+         ocr_file_name = File.join(assemble_dir, "#{unit.id}.txt")
+         logger.info "OCR was requeseted for this unit; generate text file with OCR resuls here: #{ocr_file_name}"
+         ocr_file = File.open(ocr_file_name, "w")  # truncate existing and open for write
+         unit.master_files.each do |master_file|
+            ocr_file.write("#{master_file.filename}\n")
+            ocr_file.write("#{master_file.transcription_text}\n")
+            logger.info "Added OCR results for master file #{master_file.filename}"
+         end
+         ocr_file.close
+      end
+
       # generate first zip file name, and fail if it already exists
       file_num = 1
       zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
