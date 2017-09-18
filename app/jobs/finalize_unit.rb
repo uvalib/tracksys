@@ -39,9 +39,8 @@ class FinalizeUnit < BaseJob
    # problem info back to the project
    def failure(job)
       if !@project.nil?
-         logger().info "Unit #{@project.unit.id} failed Finalization; updating project #{@project.id} with failure info"
+         logger().fatal "Unit #{@project.unit.id} failed Finalization"
          @project.finalization_failure( status_object() )
       end
-      super
    end
 end

@@ -75,7 +75,7 @@ class Finder
       elsif name == :process_deliverables
          dir = File.join(finalize_dir, "30_process_deliverables", unit_dir)
       elsif name == :assemble_deliverables
-         order_dir = File.join("order_#{unit.order.id}", unt.id.to_s)
+         order_dir = File.join("order_#{unit.order.id}", unit.id.to_s)
          dir = File.join(finalize_dir, "40_assemble_deliverables", order_dir)
       elsif name == :delete_from_finalization
          dir = File.join(ready_to_del_dir, "from_finalization", unit_dir)
