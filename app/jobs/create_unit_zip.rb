@@ -22,7 +22,7 @@ class CreateUnitZip < BaseJob
          unit.master_files.each do |master_file|
             ocr_file.write("#{master_file.filename}\n")
             ocr_file.write("#{master_file.transcription_text}\n")
-            logger.info "Writing master file #{master_file.filename} OCR results [#{master_file.transcription_text}]"
+            logger.info "Added OCR results for master file #{master_file.filename}"
          end
          ocr_file.close
       end
