@@ -46,6 +46,21 @@ class XmlMetadata < Metadata
    validates :external_system, :presence=>false
    validates :external_uri, :presence=>false
 
+   before_save do
+      if self.title.blank? || self.creator_name.blank?
+         xml = Nokogiri::XML( self.desc_metadata )
+         xml.remove_namespaces!
+         if self.title.blank?
+            title_node = xml.xpath( "//titleInfo/title" ).first
+            self.title = title_node.text.strip if !title_node.nil?
+         end
+         if self.creator_name.blank?
+            creator_node = xml.xpath("//name/namePart").first
+            self.creator_name = creator_node.text.strip if !creator_node.nil?
+         end
+      end
+   end
+
    # Validate XML against all schemas. Returns an array of errors
    #
    def self.validate( xml )
