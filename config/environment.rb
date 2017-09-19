@@ -18,7 +18,6 @@ Settings = Figaro.env
 DELIVERY_DIR = Settings.delivery_dir
 DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
-IVIEW_CATALOG_EXPORT_DIR = "#{Settings.production_mount}/administrative/EAD2iViewXML"
 
 # Kakadu settings
 KDU_COMPRESS= Settings.kdu_compress
