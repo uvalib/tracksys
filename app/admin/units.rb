@@ -333,12 +333,6 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :generate_all_deliverables, :method=>:put do
-      unit = Unit.find(params[:id])
-      GenerateAllReorderDeliverables.exec({order_id: unit.order_id})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Generating deliverables for all units in the order."
-   end
-
    member_action :regenerate_deliverables, :method=>:put do
       RecreatePatronDeliverables.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
