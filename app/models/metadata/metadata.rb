@@ -32,7 +32,6 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    # validations
    #------------------------------------------------------------------
-   validates :title, :presence => {:message => "Title is required" }
    validates :type, presence: true
 
    #------------------------------------------------------------------
