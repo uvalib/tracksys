@@ -1,7 +1,7 @@
 module ExportIviewXML
 
    # Build an XML file suitable for editing in Expressions (iView) Media from a component
-   def create_iview_xml
+   def export_iview_xml
       guide = self.root
 
       # load a template xml file, containing only <Catalog> and 1 child <MediaItemList> with sample JPEG
