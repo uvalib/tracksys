@@ -10,17 +10,11 @@ class ReplaceMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      src_dir = nil
-      tif_files = []
-      Finder.update_dirs(unit).each do |dir|
-         logger.info "Looking for replacement *.tif files in #{dir}"
-         tif_files = Dir.glob("#{dir}/*.tif").sort
-         if tif_files.count > 0
-            src_dir = dir
-            break
-         end
-      end
 
+      tif_files = []
+      src_dir = Finder.update_dir(unit)
+      logger.info "Looking for replacement *.tif files in #{src_dir}"
+      tif_files = Dir.glob("#{src_dir}/*.tif").sort
       if tif_files.count == 0
          on_error("No replacement *.tif files found")
       end

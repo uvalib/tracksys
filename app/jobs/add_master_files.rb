@@ -37,18 +37,12 @@ class AddMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      src_dir = nil
       xml_files = []
       tif_files = []
-      Finder.update_dirs(unit).each do |dir|
-         logger.info "Looking for new *.tif and *.xml files in #{dir}"
-         tif_files = Dir.glob("#{dir}/*.tif").sort
-         if tif_files.count > 0
-            src_dir = dir
-            xml_files = Dir.glob("#{src_dir}/*.xml").sort
-            break
-         end
-      end
+      src_dir = Finder.update_dir(unit)
+      logger.info "Looking for new *.tif and *.xml files in #{src_dir}"
+      tif_files = Dir.glob("#{src_dir}/*.tif").sort
+      xml_files = Dir.glob("#{src_dir}/*.xml").sort
 
       on_error("No tif files found.") if tif_files.count == 0
       on_error("Count mismatch between tif and xml files.") if xml_files.count > 0 && xml_files.count != tif_files.count

@@ -24,14 +24,11 @@ class Finder
 
    # Get a list of unit update directories. Difference is 0-paddded vs non-padded number
    #
-   def self.update_dirs( unit )
+   def self.update_dir( unit )
       unit_dir = "%09d" % unit.id
       base_dir = base_dir(unit)
       finalize_dir = File.join(base_dir, "finalization")
-      return [
-         File.join(finalize_dir, "unit_update", "#{unit_dir}"),
-         File.join(finalize_dir, "unit_update", "#{unit.id}")
-      ]
+      return File.join(finalize_dir, "unit_update", "#{unit_dir}")
    end
 
    def self.scan_from_archive_dir

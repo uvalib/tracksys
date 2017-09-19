@@ -22,8 +22,8 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
       if /unit_update/ =~ source_dir
          del_dir = Finder.finalization_dir(unit, :delete_from_update)
          if Dir.exists? del_dir
-            del_dir = del_dir.chomp("/")    # remove the trailing slash if present
-            del_dir << Time.now.to_i.to_s   # add a timestamp
+            del_dir = del_dir.chomp("/")        # remove the trailing slash if present
+            del_dir << "_#{Time.now.to_i.to_s}" # add a timestamp
          end
          FileUtils.mv source_dir, del_dir
          on_success "All update files for unit #{unit_id} have been moved to #{del_dir}."
