@@ -246,7 +246,7 @@ ActiveAdmin.register SirsiMetadata do
 
   include ActionView::Helpers::TextHelper
   controller do
-      before_action :get_tesseract_langs, only: [:edit]
+      before_action :get_tesseract_langs, only: [:edit, :new]
       def get_tesseract_langs
          # Get list of tesseract supported languages
          lang_str = `tesseract --list-langs 2>&1`
