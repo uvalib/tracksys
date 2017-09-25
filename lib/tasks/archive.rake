@@ -3,18 +3,32 @@ require 'digest/md5'
 
 namespace :archive do
    # archive the contents of the to_fineArts folder if not already archived
-   task :to_fine_arts  => :environment do
-      base_dir = File.join(Settings.production_mount, "guest_dropoff", "to_fineArts")
+   task :guest  => :environment do
+      tgt = ENV['dir']
+      abort ("'dir' is required") if tgt.nil?
+      base_dir = File.join(Settings.production_mount, "guest_dropoff", tgt)
+      abort("#{base_dir} does not exist") if !Dir.exist? base_dir
+
+      # list all of the relevant directory names in the base
       cmd = "ls #{base_dir} | grep -v Apple | grep -v DS_Store"
       dir_str = `#{cmd}`
       dirs = dir_str.split("\n")
+      cnt = 0
+      archived = 0
+
+      # check to see of each directory exists in the archive....
       dirs .each do |src_dir|
+         cnt += 1
          archive_dir = File.join(Settings.archive_mount, src_dir)
          if !Dir.exist? archive_dir
             puts "#{archive_dir} does not exist. Archiving..."
             send_to_archive(base_dir, src_dir)
+            archived += 1
+         else
+            print(".")
          end
       end
+      puts "Done. Checked #{cnt} directories, archived #{archived}"
    end
 
    def send_to_archive(base_dir, unit_dir)
