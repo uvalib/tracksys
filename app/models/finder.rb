@@ -36,10 +36,9 @@ class Finder
    end
 
    # Helper to get the scanning workflow directories based upon project/workflow. Defaults
-   # to didgserv-production if not project is configured
+   # to didgserv-production if not project is configured. This directory does not include UNIT
    #
    def self.scan_dirs( unit )
-      unit_dir = "%09d" % unit.id
       base_dir = base_dir(unit)
       scan_dir = File.join(base_dir, "scan")
       scan_subdirs = [
@@ -49,7 +48,7 @@ class Finder
       ]
       dirs = []
       scan_subdirs.each do |subdir|
-         dirs << File.join(scan_dir, subdir, unit_dir)
+         dirs << File.join(scan_dir, subdir)
       end
       return dirs
     end
@@ -85,6 +84,13 @@ class Finder
          raise "Unknown finalization directory: #{name}"
       end
       return dir
+    end
+
+    def self.ready_to_delete_from_scan(unit, scan_dir)
+      unit_dir = "%09d" % unit.id
+      del_dir = "#{unit_dir}_from_#{scan_dir}"
+      base_dir = base_dir(unit)
+      ready_to_del_dir = File.join(base_dir, "ready_to_delete", "from_scan", del_dir)
     end
 
     def self.base_dir(unit)
