@@ -97,6 +97,28 @@ ActiveAdmin.register_page "Dashboard" do
                end
             end
          end
+
+         panel "Statistics", :toggle => 'show' do
+            div :class => 'workflow_button border-bottom' do
+               render 'admin/stats_report'
+            end
+            div :class => 'workflow_button border-bottom' do
+               button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
+            end
+            table :style=>"margin-bottom: 0" do
+               tr do
+                  td do "Total unpaid invoices:" end
+                  td do
+                     link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
+                        admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                  end
+               end
+            end
+         end
+
+         panel "PID Finder" do
+            render 'admin/pid_finder'
+         end
       end
 
       div :class => 'three-column' do
@@ -125,71 +147,50 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
          if !current_user.viewer? && !current_user.student?
-               panel "Problem Projects", :toggle => 'show' do
-                  if Project.has_error.count == 0 && Project.failed_qa.count == 0 && Project.overdue.count == 0
-                     div do
-                        "There are no problems with any active projects"
-                     end
-                  else
-                     table do
-                        tr do
-                           th do "Name" end
-                           th do "Due On" end
-                           th do "STEP" end
-                           th do "Status" end
-                           th do "Link" end
-                        end
-                        Project.has_error.order(due_on: :desc).each do |p|
-                           tr do
-                              td do p.project_name end
-                              td do p.due_on end
-                              td do p.current_step.name end
-                              td do "ERROR" end
-                              td do link_to "Details", "/admin/projects/#{p.id}" end
-                           end
-                        end
-                        Project.failed_qa.order(due_on: :desc).each do |p|
-                           tr do
-                              td do p.project_name end
-                              td do p.due_on end
-                              td do p.current_step.name end
-                              td do "FAILED QA" end
-                              td do link_to "Details", "/admin/projects/#{p.id}" end
-                           end
-                        end
-                        Project.overdue.order(due_on: :desc).each do |p|
-                           tr do
-                              td do p.project_name end
-                              td do p.due_on end
-                              td do p.current_step.name end
-                              td do "OVERDUE" end
-                              td do link_to "Details", "/admin/projects/#{p.id}" end
-                           end
-                        end
-                     end
+            panel "Problem Projects", :toggle => 'show' do
+               if Project.has_error.count == 0 && Project.failed_qa.count == 0 && Project.overdue.count == 0
+                  div do
+                     "There are no problems with any active projects"
                   end
-               end
-               panel "Statistics", :toggle => 'show' do
-                  div :class => 'workflow_button border-bottom' do
-                     render 'admin/stats_report'
-                  end
-                  div :class => 'workflow_button border-bottom' do
-                     button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
-                  end
-                  table :style=>"margin-bottom: 0" do
+               else
+                  table do
                      tr do
-                        td do "Total unpaid invoices:" end
-                        td do
-                           link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
-                              admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                        th do "Name" end
+                        th do "Due On" end
+                        th do "STEP" end
+                        th do "Status" end
+                        th do "Link" end
+                     end
+                     Project.has_error.order(due_on: :desc).each do |p|
+                        tr do
+                           td do p.project_name end
+                           td do p.due_on end
+                           td do p.current_step.name end
+                           td do "ERROR" end
+                           td do link_to "Details", "/admin/projects/#{p.id}" end
+                        end
+                     end
+                     Project.failed_qa.order(due_on: :desc).each do |p|
+                        tr do
+                           td do p.project_name end
+                           td do p.due_on end
+                           td do p.current_step.name end
+                           td do "FAILED QA" end
+                           td do link_to "Details", "/admin/projects/#{p.id}" end
+                        end
+                     end
+                     Project.overdue.order(due_on: :desc).each do |p|
+                        tr do
+                           td do p.project_name end
+                           td do p.due_on end
+                           td do p.current_step.name end
+                           td do "OVERDUE" end
+                           td do link_to "Details", "/admin/projects/#{p.id}" end
                         end
                      end
                   end
                end
-
-               panel "PID Finder" do
-                  render 'admin/pid_finder'
-               end
+            end
          end
       end
    end
