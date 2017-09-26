@@ -37,15 +37,16 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
          # Once the files are moved from the in process directory, dump all scan directories too
          # This call returns directories like: /MOUNT/scan/10_raw
          Finder.scan_dirs(unit).each do |scan_dir|
-         if  Dir.exists? scan_dir
-            contents = Dir.entries(scan_dir).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
-            contents.each do |content|
-               if /#{unit.id}/ =~ content
-                  p = Pathname.new(scan_dir)
-                  del_dir = Finder.ready_to_delete_from_scan(unit, p.basename.to_s)
-                  src_dir = File.join(scan_dir, content)
-                  FileUtils.mv(src_dir, del_dir)
-                  logger.info "All files moved from #{src_dir} to #{del_dir}"
+            if  Dir.exists? scan_dir
+               contents = Dir.entries(scan_dir).delete_if {|x| x == "." or x == ".." or x == ".DS_Store" or /\._/ =~ x or x == ".AppleDouble" }
+               contents.each do |content|
+                  if /#{unit.id}/ =~ content
+                     p = Pathname.new(scan_dir)
+                     del_dir = Finder.ready_to_delete_from_scan(unit, p.basename.to_s)
+                     src_dir = File.join(scan_dir, content)
+                     FileUtils.mv(src_dir, del_dir)
+                     logger.info "All files moved from #{src_dir} to #{del_dir}"
+                  end
                end
             end
          end
