@@ -2,7 +2,6 @@ namespace :as do
    IIIF_USE_STATEMENT = "image-service-manifest"
 
    def get_auth_hdr(u,pw)
-      as_root = "http://archives-test.lib.virginia.edu:8089"
       url = "#{Settings.archives_space_url}/users/#{u}/login"
       puts "API Auth URL: #{url}"
       resp = RestClient.post url, {password: pw}
@@ -17,7 +16,9 @@ namespace :as do
 
    def get_ao_detail(ao_uri, hdr, pid)
       existing_do = nil
-      ao_detail = RestClient.get "#{Settings.archives_space_url}/#{ao_uri}", hdr
+      url = "#{Settings.archives_space_url}/#{ao_uri}"
+      puts "Looking for AO details at #{url}"
+      ao_detail = RestClient.get url, hdr
       ao_json = JSON.parse(ao_detail.body)
       ao_json['instances'].each do |instance|
          next if instance['instance_type'] != 'digital_object'
@@ -29,7 +30,7 @@ namespace :as do
       return {ao_json: ao_json, do_exist: false}
    end
 
-   def create_digital_object(repo_uri, hdr, tgt_ao, mf)
+   def create_digital_object(repo_uri, hdr, tgt_ao, mf, create_external_id)
       pid = mf.metadata.pid
       payload = {
          digital_object_id: pid,
@@ -58,21 +59,26 @@ namespace :as do
          raise "*** ADD FAILED #{rce.response}"
       end
 
-      # Add newly created digital object URI reference as an instance in the target archival object
-      # and add a link back to tracksys metadata
-      tgt_ao['instances'] << { instance_type: "digital_object", digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"} }
-      found = false
-      tgt_ao['external_ids'].each do |ext|
-         if ext['source'] == "tracksys"
-            found = true
-            puts "AO already has tracksys external ID. Not adding"
-            break
+      # If requested, add an external ID to reference AS back to the desc metadata for this object in TS
+      if create_external_id
+         found = false
+         tgt_ao['external_ids'].each do |ext|
+            if ext['source'] == "tracksys"
+               found = true
+               puts "AO already has tracksys external ID. Not adding"
+               break
+            end
+         end
+         if found == false
+            tgt_ao['external_ids'] << { source: "tracksys", external_id: "#{Settings.tracksys_url}/api/metadata/#{pid}?type=desc_metadata" }
          end
       end
-      if found == false
-         tgt_ao['external_ids'] << { source: "tracksys", external_id: "#{Settings.tracksys_url}/api/metadata/#{pid}?type=desc_metadata" }
-      end
 
+      # Add newly created digital object URI reference as an instance in the target archival object
+      tgt_ao['instances'] << {
+         instance_type: "digital_object",
+         digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"}
+      }
       begin
          resp = RestClient.post "#{Settings.archives_space_url}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
          if resp.code.to_i == 200
@@ -173,7 +179,7 @@ namespace :as do
                      puts "ERROR: Digital object already exists for the master file. Skipping"
                   else
                      puts "Creating new digitial object..."
-                     do_id = create_digital_object(repo_uri, hdr, ao_info[:ao_json], mf)
+                     do_id = create_digital_object(repo_uri, hdr, ao_info[:ao_json], mf, true)
                      mf.metadata.update(supplemental_system: "ArchivesSpace", supplemental_uri: "/digital_objects/#{do_id}")
                   end
                end
@@ -202,6 +208,7 @@ namespace :as do
       unit.master_files.each do |mf|
          # don't care about the flip side of the photos. These are titled 2
          next if mf.title == "2"
+         puts "Processing master file #{mf.pid}..."
 
          # A description is the start of a new folder. detect
          # and reset the current metadata.
@@ -220,10 +227,14 @@ namespace :as do
                   puts "===> AO MATCH #{child.to_json}"
                   # NOTE: record_uri is something like: /repositories/3/archival_objects/53541
                   # basically a full reference to the archival object that contains the
-                  # relevant metadata describing the DO that will be created below
+                  # relevant metadata describing the DO that will be created below. The
+                  # mf.metadata.pid is used to see if a DO already exists for this AO
                   ao_detail = get_ao_detail( child['record_uri'], hdr, mf.metadata.pid)
                   if ao_detail[:do_exist]
+                     # The AO already has a DO with the PID of the masterfile metadata.
+                     # Use is as the curr_metadata object to reference the folder
                      puts "AS Digital Object already exists"
+                     curr_metadata = mf.metadata
                   else
                      puts "AS Digital Object does not exist"
 
@@ -242,7 +253,7 @@ namespace :as do
                      end
 
                      puts "Creating new AS Digital Object..."
-                     do_id = create_digital_object(repo_uri, hdr, ao_detail[:ao_json], mf)
+                     do_id = create_digital_object(repo_uri, hdr, ao_detail[:ao_json], mf, false)
                      mf.metadata.update(supplemental_system: "ArchivesSpace", supplemental_uri: child['record_uri'])
                   end
                end
@@ -254,6 +265,8 @@ namespace :as do
             if mf.metadata.id != curr_metadata.id
                puts "Updating master file to point to folder-level external metadata"
                mf.update(metadata: curr_metadata)
+            else
+               puts "Nothing to do; master file already points to crrect external metadata"
             end
          end
       end
