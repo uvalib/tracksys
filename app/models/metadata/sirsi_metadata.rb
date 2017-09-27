@@ -157,6 +157,10 @@ class SirsiMetadata < Metadata
       return self.get_full_metadata[:location]
    end
 
+   def url_fragment
+      return "sirsi_metadata"
+   end
+
    # Although many Bibl records have citations provided through the MARC record, many do not
    # (especially those which lack a MARC record or are otherwise not cataloged in VIRGO).  As
    # a result, this method will impose some general order on the act of creating citations where

@@ -180,4 +180,80 @@ namespace :as do
       end
       puts "DONE"
    end
+
+   desc "va photos ingest"
+   task :va_photos  => :environment do
+      id = ENV['id']
+      abort("id is required") if id.nil?
+      unit = Unit.find(id)
+
+      hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
+
+      # 3 = UVA SC, 413 = VA photos. List all stuff under it and find children
+      repo_uri = "/repositories/3"
+      repo_url = "#{Settings.archives_space_url}#{repo_uri}"
+      out = RestClient.get "#{repo_url}/resources/413/tree", hdr
+      json = JSON.parse(out.body)
+
+      # Get all of the masterfiles
+      curr_metadata = nil
+      unit.master_files.each do |mf|
+         # don't care about the flip side of the photos. These are titled 2
+         next if mf.title == "2"
+
+         # A description is the start of a new folder. detect
+         # and reset the current metadata.
+         if !mf.description.blank?
+            curr_metadata = nil
+
+            # MF desc has photographs - at front. Toss it.
+            # After that, we can match AS if the first word matches
+            mf_folder_name = mf.description.split("-")[1].strip
+            mf_folder_name = mf_folder_name.split(" ")[0].strip
+            json['children'].each do |child|
+               next if child['node_type'] != 'archival_object'
+
+               test = child['title'].split(" ")[0].strip
+               if test == mf_folder_name
+                  puts "===> AO MATCH #{child.to_json}"
+                  # NOTE: record_uri is something like: /repositories/3/archival_objects/53541
+                  # basically a full reference to the archival object that contains the
+                  # relevant metadata describing the DO that will be created below
+                  ao_detail = get_ao_detail( child['record_uri'], hdr, mf.metadata.pid)
+                  if ao_detail[:do_exist]
+                     puts "AS Digital Object already exists"
+                  else
+                     puts "AS Digital Object does not exist"
+
+                     # see if MF metadata is external. Create new instance
+                     # if one doesn't exist. After this save a reference to the
+                     # external metatdata object as it will be assiciated with
+                     # each subsequent master file (until a new description is found)
+                     if mf.metadata.type != "ExternalMetadata"
+                        puts "Creating new TrackSys external metadata object"
+                        curr_metadata = ExternalMetadata.create(title: mf.description,
+                           external_system: "ArchivesSpace", use_right: mf.metadata.use_right)
+                        mf.update(metadata: curr_metadata)
+                     else
+                        puts "Using existing metadata #{mf.metadata.id}"
+                        curr_metadata = mf.metadata
+                     end
+
+                     puts "Creating new AS Digital Object..."
+                     do_id = create_digital_object(repo_uri, hdr, ao_detail[:ao_json], mf)
+                     mf.metadata.update(supplemental_system: "ArchivesSpace", supplemental_uri: child['record_uri'])
+                  end
+               end
+            end
+         else
+            # This MF occurrs after one with a description set
+            # the metadata should already extist and be tied to
+            # and ArchivesSpace DO. Just tie the curr_metadata to this MF
+            if mf.metadata.id != curr_metadata.id
+               puts "Updating master file to point to folder-level external metadata"
+               mf.update(metadata: curr_metadata)
+            end
+         end
+      end
+   end
 end

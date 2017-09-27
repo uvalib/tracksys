@@ -61,6 +61,10 @@ class XmlMetadata < Metadata
       end
    end
 
+   def url_fragment
+      return "xml_metadata" 
+   end
+
    # Validate XML against all schemas. Returns an array of errors
    #
    def self.validate( xml )
