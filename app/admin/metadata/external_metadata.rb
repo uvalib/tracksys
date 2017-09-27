@@ -107,6 +107,45 @@ ActiveAdmin.register ExternalMetadata do
                row :date_dl_update
             end
          end
+
+         panel "External Metadata" do
+            if as_info.nil?
+               div do "Unable to connect with external metadata source" end
+            else
+               attributes_table_for external_metadata do
+                  row("External System") do |xm|
+                     xm.external_system
+                  end
+                  row("Repository") do |xm|
+                     as_info[:repo]
+                  end
+                  row("Collection Title") do |xm|
+                     as_info[:collection_title]
+                  end
+                  row("ID") do |xm|
+                     as_info[:id]
+                  end
+                  row("Language") do |xm|
+                     as_info[:language]
+                  end
+                  row("Dates") do |xm|
+                     as_info[:dates]
+                  end
+                  row("Title") do |xm|
+                     as_info[:title]
+                  end
+                  row("Level") do |xm|
+                     as_info[:level]
+                  end
+                  row("Created By") do |xm|
+                     as_info[:created_by]
+                  end
+                  row("Create Time") do |xm|
+                     as_info[:create_time]
+                  end
+               end
+            end
+         end
       end
 
       div :class => 'two-column' do
@@ -218,4 +257,60 @@ ActiveAdmin.register ExternalMetadata do
          end
       end
    end
+
+   controller do
+       before_action :get_as_metadata, only: [:show]
+       def get_as_metadata
+          begin
+             # First, authenticate with the API. Necessary to call other methods
+             url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
+             resp = RestClient.post url, {password: Settings.as_pass}
+             json = JSON.parse(resp.body)
+             as_hdr = {:content_type => :json, :accept => :json, :'X-ArchivesSpace-Session'=>json['session']}
+
+             # Now get the AO and ancestor details
+             url = "#{Settings.as_api_url}#{resource.external_uri}"
+             ao_detail = RestClient.get url, as_hdr
+             ao_json = JSON.parse(ao_detail.body)
+
+             # build a data struct to represent the AS data
+             @as_info = {
+                title: ao_json['display_string'], created_by: ao_json['created_by'],
+                create_time: ao_json['create_time'], level: ao_json['level'],
+             }
+             dates = ao_json['dates'].first
+             if !dates.nil?
+                @as_info[:dates] = dates['expression']
+             end
+
+             # find the top level container in the ancestors
+             coll_json = nil
+             ao_json['ancestors'].each do |anc|
+                if anc['level'] == 'collection'
+                   url = "#{Settings.as_api_url}#{anc['ref']}"
+                   coll = RestClient.get url, as_hdr
+                   coll_json = JSON.parse(coll.body)
+                   break
+                end
+             end
+
+             @as_info[:collection_title] = coll_json['finding_aid_title']
+             @as_info[:id] = coll_json['id_0']
+             @as_info[:language] = coll_json['language']
+             uri = coll_json['collection_management']['parent']['ref']
+             @as_info[:uri] = uri
+
+             repo = coll_json['collection_management']['repository']['ref']
+             url = "#{Settings.as_api_url}#{repo}"
+             resp = RestClient.get url, as_hdr
+             repo_detail = JSON.parse(resp.body)
+             puts "======\n#{repo_detail}"
+             @as_info[:repo] = repo_detail['name']
+          rescue Exception => e
+             logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
+             @as_info = nil
+          end
+          puts "====> GOT AS_INFO #{@as_info.to_json}"
+       end
+    end
 end
