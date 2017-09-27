@@ -34,6 +34,10 @@ test_solr_url: http://docker1.lib.virginia.edu:8060/solr
 # Computing IDs of users that have the deaccession privilege
 deaccession_users: lf6f,cmm2t
 
+# Archivesspace API auth
+as_user: as_user
+as_pass: as_pass
+
 production:
    archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
    production_mount: /digiserv-production

@@ -41,4 +41,9 @@ class ExternalMetadata < Metadata
    validates :barcode, :presence=>false
    validates :call_number, :presence=>false
    validates :desc_metadata, :presence=>false
+   validates :external_system, presence: true
+
+   def url_fragment
+      return "external_metadata"
+   end
 end

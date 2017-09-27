@@ -83,8 +83,7 @@ class Metadata < ApplicationRecord
    # public instance methods
    #------------------------------------------------------------------
    def url_fragment
-      return "xml_metadata" if self.type == "XmlMetadata"
-      return "sirsi_metadata"
+      return null
    end
 
    # Returns an array of MasterFile objects that are in units to be included in the DL
