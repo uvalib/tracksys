@@ -4,7 +4,9 @@ namespace :as do
    def get_auth_hdr(u,pw)
       as_root = "http://archives-test.lib.virginia.edu:8089"
       url = "#{Settings.archives_space_url}/users/#{u}/login"
+      puts "API Auth URL: #{url}"
       resp = RestClient.post url, {password: pw}
+      puts "got resp"
       json = JSON.parse(resp.body)
       session = json['session']
 
@@ -231,7 +233,7 @@ namespace :as do
                      # each subsequent master file (until a new description is found)
                      if mf.metadata.type != "ExternalMetadata"
                         puts "Creating new TrackSys external metadata object"
-                        curr_metadata = ExternalMetadata.create(title: mf.description,
+                        curr_metadata = ExternalMetadata.create(title: mf.description, is_approved: true,
                            external_system: "ArchivesSpace", use_right: mf.metadata.use_right)
                         mf.update(metadata: curr_metadata)
                      else
@@ -254,6 +256,16 @@ namespace :as do
                mf.update(metadata: curr_metadata)
             end
          end
+      end
+   end
+
+   desc "Test authentication with AS API"
+   task :test_auth  => :environment do
+      begin
+         hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
+         puts hdr
+      rescue Exception=> e
+         puts "FAIL: #{e.to_json}"
       end
    end
 end
