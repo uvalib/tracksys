@@ -245,7 +245,7 @@ namespace :as do
                      if mf.metadata.type != "ExternalMetadata"
                         puts "Creating new TrackSys external metadata object"
                         curr_metadata = ExternalMetadata.create(title: mf.description, is_approved: true,
-                           external_system: "ArchivesSpace", use_right: mf.metadata.use_right)
+                           external_system: "ArchivesSpace", use_right: mf.metadata.use_right, ocr_hint_id: 2)
                         mf.update(metadata: curr_metadata)
                      else
                         puts "Using existing metadata #{mf.metadata.id}"
@@ -254,7 +254,7 @@ namespace :as do
 
                      puts "Creating new AS Digital Object..."
                      do_id = create_digital_object(repo_uri, hdr, ao_detail[:ao_json], mf, false)
-                     mf.metadata.update(supplemental_system: "ArchivesSpace", supplemental_uri: child['record_uri'])
+                     mf.metadata.update(external_uri: child['record_uri'])
                   end
                end
             end
