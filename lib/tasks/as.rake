@@ -205,6 +205,7 @@ namespace :as do
 
       # Get all of the masterfiles
       curr_metadata = nil
+      skip_folder = false
       unit.master_files.each do |mf|
          # don't care about the flip side of the photos. These are titled 2
          next if mf.title == "2"
@@ -219,6 +220,15 @@ namespace :as do
             # After that, we can match AS if the first word matches
             mf_folder_name = mf.description.split("-")[1].strip
             mf_folder_name = mf_folder_name.split(" ")[0].strip
+
+            # if we hit the ruckman files, flag them to me skipped and move on
+            skip_folder = false
+            if mf_folder_name == "Ruckman"
+               puts "Skipping #{mf.description}"
+               skip_folder = true
+               next
+            end
+
             json['children'].each do |child|
                next if child['node_type'] != 'archival_object'
 
@@ -259,14 +269,18 @@ namespace :as do
                end
             end
          else
-            # This MF occurrs after one with a description set
-            # the metadata should already extist and be tied to
-            # and ArchivesSpace DO. Just tie the curr_metadata to this MF
-            if mf.metadata.id != curr_metadata.id
-               puts "Updating master file to point to folder-level external metadata"
-               mf.update(metadata: curr_metadata)
+            if skip_folder
+               puts "Skipping Ruckman masterfile"
             else
-               puts "Nothing to do; master file already points to correct external metadata"
+               # This MF occurrs after one with a description set
+               # the metadata should already extist and be tied to
+               # and ArchivesSpace DO. Just tie the curr_metadata to this MF
+               if mf.metadata.id != curr_metadata.id
+                  puts "Updating master file to point to folder-level external metadata"
+                  mf.update(metadata: curr_metadata)
+               else
+                  puts "Nothing to do; master file already points to correct external metadata"
+               end
             end
          end
       end
