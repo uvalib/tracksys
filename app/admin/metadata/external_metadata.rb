@@ -6,7 +6,7 @@ ActiveAdmin.register ExternalMetadata do
    permit_params :title, :creator_name,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :dpla,
+      :collection_facet, :use_right_id, :dpla, :external_uri,
       :collection_id, :box_id, :folder_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
    config.clear_action_items!
@@ -181,6 +181,10 @@ ActiveAdmin.register ExternalMetadata do
       end
    end
 
+   # EDIT page ================================================================
+   #
+   form :partial => "edit"
+
    # Sidebars =================================================================
    #
    sidebar "Related Information", :only => [:show, :edit] do
@@ -311,6 +315,17 @@ ActiveAdmin.register ExternalMetadata do
              @as_info = nil
           end
           puts "====> GOT AS_INFO #{@as_info.to_json}"
+       end
+
+       before_action :get_tesseract_langs, only: [:edit, :new]
+       def get_tesseract_langs
+          # Get list of tesseract supported languages
+          lang_str = `tesseract --list-langs 2>&1`
+
+          # gives something like: List of available languages (107):\nafr\...
+          # split off info and make array
+          lang_str = lang_str.split(":")[1].strip
+          @languages = lang_str.split("\n")
        end
     end
 end

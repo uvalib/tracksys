@@ -1,0 +1,64 @@
+<%= semantic_form_for([:admin, @external_metadata], :url => "/admin/external_metadata/#{@external_metadata.id}") do |f| %>
+
+   <%= f.inputs "Digital Library Information", :toggle=>'show', :class => 'two-column panel' do %>
+       <% if !@external_metadata.id.blank? %>
+          <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
+       <% end %>
+       <%= f.input :exemplar, :as => :select,
+         :collection => f.object.dl_master_files.map(&:filename),
+         :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
+       <%= f.input :availability_policy %>
+       <%= f.input :discoverability, :as => :select %>
+       <%= f.input :use_right, label: "Right Statement" %>
+       <%= f.input :dpla, :as => :radio %>
+
+       <!-- Only allow single level heirarchy; if metadata has children, it can't also be a child -->
+       <% if @external_metadata.children.count == 0 %>
+          <li class="select input optional" id="external_metadata_parent_metadata_id_input">
+             <label for="external_metadata_parent_metadata_id" class="label">Parent metadata id</label>
+             <input id="external_metadata_parent_metadata_id" type="text" name="external_metadata[parent_metadata_id]">
+             <span id="find-metadata"></span>
+          </li>
+       <% end %>
+
+       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
+       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
+       <li class="select input optional" id="external_metadata_collection_facet_input">
+          <label for="external_metadata_collection_facet" class="label">Collection Facet</label>
+          <select name="external_metadata[collection_facet]" id="external_metadata_collection_facet" >
+             <option value="" disabled selected>Select a facet</option>
+             <option value="">None</option>
+             <% CollectionFacet.all.order(name: :asc).each do |c| %>
+                <% selected = ""
+                   selected = "selected='selected'" if c.name == @external_metadata.collection_facet %>
+                <option value="<%= c.name %>" <%= selected %> ><%= c.name %></option>
+             <% end %>
+          </select>
+       </li>
+   <% end %>
+   <%= render partial: "/admin/common/metadata_finder_modal" %>
+
+   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
+      <%= f.input :collection_id, label: "Collection ID" %>
+      <%= f.input :box_id, label: "Box Number" %>
+      <%= f.input :folder_id, label: "Folder Number" %>
+      <%= f.input :is_approved, :as => :radio, label: "Approved?" %>
+      <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
+      <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>
+      <%= f.input :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :genre, :as => :select, :collection => Genre.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :ocr_language_hint, :as => :select, :collection => @languages, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+   <% end %>
+
+   <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
+      <%= f.input :external_system, :input_html => { :readonly => true } %>
+      <%= f.input :external_uri %>
+   <% end %>
+
+   <fieldset class="columns-none xml-submit">
+      <input type="submit" name="commit" value="Update External Metadata">
+      <a class="cancel" href="/admin/external_metadata/<%= @external_metadata.id %>">Cancel</a>
+   </fieldset>
+
+<% end %>
