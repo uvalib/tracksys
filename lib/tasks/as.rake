@@ -38,6 +38,7 @@ namespace :as do
          file_versions: [
             {
                use_statement: IIIF_USE_STATEMENT,
+               # TODO maybe stick unit id as a query param to work around access isues if unit is not in DL
                file_uri: "#{Settings.iiif_manifest_url}/#{pid}",
                publish: true
             }
@@ -96,9 +97,7 @@ namespace :as do
    #
    desc "enums"
    task :enums  => :environment do
-      u = ENV["u"]
-      pw = ENV["p"]
-      hdr = get_auth_hdr(u,pw)
+      hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
       out = RestClient.get "#{Settings.as_api_url}/config/enumerations", hdr
       found = false
       tgt_enum = nil
@@ -138,12 +137,10 @@ namespace :as do
    #
    desc "hs"
    task :hs  => :environment do
-      u = ENV["u"]
-      pw = ENV["p"]
       id = ENV['metadata']
       metadata = Metadata.find(id)
       puts "Source Metadata: #{metadata.title}"
-      hdr = get_auth_hdr(u,pw)
+      hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
 
       # 7 = health sciences, 210 = eduardo photos. List all stuff under it and find children
       repo_uri = "/repositories/7"
