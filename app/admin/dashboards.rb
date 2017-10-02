@@ -133,7 +133,7 @@ ActiveAdmin.register_page "Dashboard" do
                   end
                   current_user.projects.order(due_on: :desc).each do |p|
                      tr do
-                        td do p.project_name end
+                        td do p.project_name.truncate( 30, separator: ' ') end
                         td do p.due_on end
                         td do p.current_step.name end
                         td do link_to "Details", "/admin/projects/#{p.id}" end
@@ -161,27 +161,27 @@ ActiveAdmin.register_page "Dashboard" do
                         th do "Status" end
                         th do "Link" end
                      end
-                     Project.has_error.order(due_on: :desc).each do |p|
+                     Project.has_error.order(due_on: :desc).limit(10).each do |p|
                         tr do
-                           td do p.project_name end
+                           td do p.project_name.truncate( 30, separator: ' ') end
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "ERROR" end
                            td do link_to "Details", "/admin/projects/#{p.id}" end
                         end
                      end
-                     Project.failed_qa.order(due_on: :desc).each do |p|
+                     Project.failed_qa.order(due_on: :desc).limit(10).each do |p|
                         tr do
-                           td do p.project_name end
+                           td do p.project_name.truncate( 30, separator: ' ') end
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "FAILED QA" end
                            td do link_to "Details", "/admin/projects/#{p.id}" end
                         end
                      end
-                     Project.overdue.order(due_on: :desc).each do |p|
+                     Project.overdue.order(due_on: :desc).limit(10).each do |p|
                         tr do
-                           td do p.project_name end
+                           td do p.project_name.truncate( 30, separator: ' ') end
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "OVERDUE" end
