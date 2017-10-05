@@ -7,6 +7,11 @@ class RequestsController < ApplicationController
          :billable_address_attributes=>[:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone] )
    end
 
+   def primary_addr_params
+      req = params[:order][:customer_attributes]
+      req.require(:primary_address_attributes).permit(:address_1, :address_2, :city, :state, :post_code, :country, :phone)
+   end
+
    def units_params
       params.require(:order).permit( :date_due, :special_instructions, :units_attributes=>[
          :request_pages_to_digitize, :request_call_number, :request_title, :request_author, :request_year, :request_location,
@@ -19,6 +24,16 @@ class RequestsController < ApplicationController
       ba = params[:order][:customer_attributes][:billable_address_attributes]
       if ba[:first_name].blank? && ba[:last_name].blank? && ba[:address_1].blank?
          params[:order][:customer_attributes].delete :billable_address_attributes
+      end
+
+      # Validate customer attributes
+      if !validate_customer_attribs(params[:order][:customer_attributes])
+         render :action => 'new'
+         return
+      end
+      if !validate_address(params[:order][:customer_attributes][:primary_address_attributes])
+         render :action => 'new'
+         return
       end
 
       # Find existing Customer record by email address, or instantiate new one
@@ -49,38 +64,60 @@ class RequestsController < ApplicationController
             academic_status_id: ca[:academic_status_id])
 
          pap = ca[:primary_address_attributes]
-         @customer.primary_address.update(
-            address_1: pap[:address_1], address_2: pap[:address_2],
-            city: pap[:city], state: pap[:state], post_code: pap[:post_code],
-            country: pap[:country], phone: pap[:phone] )
+         if @customer.primary_address.nil?
+            Address.create(addressable: @customer, address_type: "primary",
+               address_1: pap[:address_1], address_2: pap[:address_2],
+               city: pap[:city], state: pap[:state], post_code: pap[:post_code],
+               country: pap[:country], phone: pap[:phone] )
+         else
+            @customer.primary_address.update(
+               address_1: pap[:address_1], address_2: pap[:address_2],
+               city: pap[:city], state: pap[:state], post_code: pap[:post_code],
+               country: pap[:country], phone: pap[:phone] )
+         end
 
          bap = ca[:billing_address_attributes]
          if !bap.nil?
-            @customer.billable_address.update(
-               first_name: bap[:first_name],last_name: bap[:last_name],
-               address_1: bap[:address_1], address_2: bap[:address_2],
-               city: bap[:city], state: bap[:state], post_code: bap[:post_code],
-               country: bap[:country], phone: bap[:phone] )
+            if @customer.billable_address.nil?
+               Address.create(addressable: @customer, address_type: "billable_address",
+                  first_name: bap[:first_name],last_name: bap[:last_name],
+                  address_1: bap[:address_1], address_2: bap[:address_2],
+                  city: bap[:city], state: bap[:state], post_code: bap[:post_code],
+                  country: bap[:country], phone: bap[:phone] )
+            else
+               @customer.billable_address.update(
+                  first_name: bap[:first_name],last_name: bap[:last_name],
+                  address_1: bap[:address_1], address_2: bap[:address_2],
+                  city: bap[:city], state: bap[:state], post_code: bap[:post_code],
+                  country: bap[:country], phone: bap[:phone] )
+            end
          end
       end
 
+
       # request/order
       @request = Order.new( units_params )
+      @request.customer = @customer
       @request.order_status = 'requested'
       @request.date_request_submitted = Time.now
 
       # make sure there are items
       if params[:order][:units_attributes].nil?
-         @request.customer = @customer
          @request.customer.build_billable_address if @request.customer.billable_address.nil?
          @request.errors.add(:item, ": at least one item is required")
          render :action => 'new'
          return
       end
 
+      if params[:order][:date_due].blank?
+         @request.customer.build_billable_address if @request.customer.billable_address.nil?
+         @request.errors.add(:item, ": Due Date is required")
+         render :action => 'new'
+         return
+      end
+
       begin
          Order.transaction do
-            @request.customer = @customer
             @request.save!
             @request.units.each do |unit|
                unit.special_instructions = ""
@@ -213,5 +250,48 @@ class RequestsController < ApplicationController
       end
       session[:computing_id] = cid
       redirect_to :action => :new
+   end
+
+   private
+   def validate_customer_attribs(ca)
+      return true if !(ca[:first_name].blank? || ca[:last_name].blank? || ca[:email].blank? || ca[:academic_status_id].blank?)
+      @request = Order.new
+      @request.build_customer(customer_params)
+      @request.customer.build_primary_address(primary_addr_params)
+      @request.customer.build_billable_address
+
+      if  ca[:first_name].blank?
+         @request.errors.add("Customer Information", ": First name is required")
+      end
+      if  ca[:last_name].blank?
+         @request.errors.add("Customer Information", ": Last name is required")
+      end
+      if  ca[:email].blank?
+         @request.errors.add("Customer Information", ": Email is required")
+      end
+      if  ca[:academic_status_id].blank?
+         @request.errors.add("Customer Information", ": Academic status is required")
+      end
+      return false
+   end
+
+   private
+   def validate_address(ca)
+      return true if !(ca[:address_1].blank? || ca[:city].blank? || ca[:country].blank?)
+      @request = Order.new
+      @request.build_customer(customer_params)
+      @request.customer.build_primary_address(primary_addr_params)
+      @request.customer.build_billable_address
+
+      if  ca[:address_1].blank?
+         @request.errors.add("Primary Address", ": Address is required")
+      end
+      if  ca[:city].blank?
+         @request.errors.add("Primary Address", ": City is required")
+      end
+      if  ca[:country].blank?
+         @request.errors.add("Primary Address", ": Country is required")
+      end
+      return false
    end
 end
