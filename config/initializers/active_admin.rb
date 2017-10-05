@@ -179,6 +179,7 @@ ActiveAdmin.setup do |config|
   # config.register_javascript 'tracksys'
   # config.register_javascript 'ocr'
   config.register_javascript "https://cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.2/jquery.panzoom.js"
+  config.register_javascript "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"
 
 
   # == CSV options
