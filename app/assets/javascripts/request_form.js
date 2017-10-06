@@ -7,6 +7,25 @@ $(document).ready(function () {
       format: "yyyy-mm-dd",
       });
 
+   $(".btn.btn-success.add_fields").on("click", function() {
+      var cnt = $(".btn.btn-success.add_fields").data("items");
+      if ( !cnt ) {
+         cnt = 0;
+      }
+      cnt++;
+      $(".btn.btn-success.add_fields").data("items", cnt);
+      $("div.item-required").hide();
+   });
+   $("#new_order").on("click", ".btn.btn-danger.remove_fields", function() {
+      var cnt = $(".btn.btn-success.add_fields").data("items");
+      cnt--;
+      if ( cnt <=0 ) {
+         cnt = 0;
+         $("div.item-required").show();
+      }
+      $(".btn.btn-success.add_fields").data("items", cnt);
+   });
+
    $("form").bind("nested:fieldAdded", function(event) {
       $('.intended_use_select').change(function() {
          var sel = $(this).closest('.intended_use_select');

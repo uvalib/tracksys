@@ -36,6 +36,13 @@ header {
    box-shadow: 0 1px 3px rgba(22,44,88,0.3),inset 0 0 7px rgba(64,92,120,0.4);
 
 }
+div.item-required {
+   font-size: 1.25em;
+   font-weight: bold;
+   margin-bottom: 20px;
+   color: #b00;
+   margin-left: 25px;
+}
 blockquote.research {
    padding: 10px 0px 10px 20px;
     margin: 0 0 20px;
