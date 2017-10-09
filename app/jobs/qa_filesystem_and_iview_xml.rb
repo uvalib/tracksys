@@ -51,7 +51,7 @@ class QaFilesystemAndIviewXml < BaseJob
                @ivc_files.push(unit_dir_content)
             elsif (unit_dir_content !~ /(.git$|.md5|.txt$)/) # safe to ignore (.txt files are OCR data typically)
                @unknown_files.push(unit_dir_content)
-               logger().debug "QaFilesystemAndIviewXmlProcessor pushing: " + unit_dir_content + " to @unknown_files"
+               logger().debug "Pushing: " + unit_dir_content + " to @unknown_files"
             end
          end
       end
@@ -145,7 +145,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
          # Read the XML file for processing
          doc = Nokogiri.XML(File.new(File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)))
-         logger().debug "QaFilesystemAndIviewXmlProcessor: parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
+         logger().debug "Parsing XML file #{File.join(IN_PROCESS_DIR, @unit_dir, xml_file_name)}"
 
          # Check XML for expected elements
          root = doc.root  # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
@@ -171,7 +171,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
             if not filename_regexp.match(filename)
                @error_messages.push("REGEXP: The <Filename> of <MediaItem> #{filename} does not pass regular expression test.")
-               logger().debug "QaFilesystemAndIviewXmlProcessor RexExp was #{filename_regexp} and returned #{filename_regexp.match(filename)}"
+               logger().debug "RexExp was #{filename_regexp} and returned #{filename_regexp.match(filename)}"
             end
 
             if filesize == 0 or filesize.length == 0
@@ -276,7 +276,7 @@ class QaFilesystemAndIviewXml < BaseJob
 
    def check_unknown_files
       if not @unknown_files.empty?
-         logger().debug "QaFilesystemAndIviewXmlProcessor: check_unknown_files receiving list of #{@unknown_files.length} items"
+         logger().debug "Check_unknown_files receiving list of #{@unknown_files.length} items"
          @unknown_files.each do |unknown_file|
             if (unknown_file =~ /.TIF/ )
                @error_messages.push("#{unknown_file} ends in .TIF.")
@@ -299,16 +299,13 @@ class QaFilesystemAndIviewXml < BaseJob
       @error_messages.compact!
       if @error_messages.empty?
          path = File.join(IN_PROCESS_DIR, @unit_dir, @xml_files.at(0))
-         on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA Processor"
+         on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA"
          ImportUnitIviewXML.exec_now({ :unit_id => @unit.id, :path => path }, self)
       else
          @error_messages.each do |message|
-            logger().debug "QaFilesystemAndIviewXmlProcessor handle_errors >#{message.class}< >#{message.to_s}< "
             on_failure message
-            if message == @error_messages.last
-               on_error "Unit #{@unit.id} has failed the Filesystem and Iview XML QA Processor #{message.to_s}"
-            end
          end
+         on_error "Unit #{@unit.id} has failed the Filesystem and IView XML QA."
       end
    end
 end
