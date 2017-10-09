@@ -41,5 +41,6 @@ Tracksys::Application.routes.draw do
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
      get "stylesheet/:id" => "stylesheet#show"
+     get "reports" => "reports#generate"
   end
 end
