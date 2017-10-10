@@ -11,6 +11,7 @@
 //= require clone-masterfiles
 //= require bulk_dl_settings
 //= require workflows
+//= require workflow-reports
 //= require equipment
 //= require skills
 //= require metadata
