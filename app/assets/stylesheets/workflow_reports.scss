@@ -19,4 +19,37 @@ div.panel.tracksys-report {
          box-shadow: 1px 1px 4px #ccc;
       }
    }
+   div.report-filter {
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+      color: #444;
+      label {
+         font-weight: bold;
+         margin-right: 5px;
+      }
+      input {
+         margin-right: 10px;
+      }
+      .mf-action-button {
+         padding: 1px 20px;
+         font-size: 80%;
+         font-weight: 400;
+      }
+   }
+   #avg-time-raw {
+      background: white;
+      border-radius: 2px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      th {
+         font-weight: bold;
+         border-bottom: 1px solid #ccc;
+         padding-top: 0;
+         text-transform: none;
+      }
+      td {
+         border-bottom: 1px solid #eee;
+      }
+   }
 }
