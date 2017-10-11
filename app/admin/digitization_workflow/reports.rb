@@ -43,15 +43,15 @@ ActiveAdmin.register_page "Reports" do
          panel "Problem Statistics", class:"tracksys-report" do
             div class: "report-filter" do
                d = Date.today.strftime("%F")
-               s = '<label>Start Date:</label><input type="text" class="rejects report-start query-datepicker">'
-               e = "<label>End Date:</label><input type='text' class='rejects report-end query-datepicker' value='#{d}'>"
-               b = "<span id='rejects' class='refresh-report mf-action-button'>Generate</span>"
+               s = '<label>Start Date:</label><input type="text" class="problems report-start query-datepicker">'
+               e = "<label>End Date:</label><input type='text' class='problems report-end query-datepicker' value='#{d}'>"
+               b = "<span id='problems' class='refresh-report mf-action-button'>Generate</span>"
                raw("#{s}#{e}#{b}")
             end
-            div id: "project-rejections-generating", class: "generating" do
+            div id: "project-problems-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
-            canvas id: "rejections" do end
+            canvas id: "problems-chart" do end
          end
       end
    end

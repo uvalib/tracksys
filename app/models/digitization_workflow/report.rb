@@ -16,9 +16,14 @@ class Report
       return chart
    end
 
+   # Generate a json report of rejections / step / workflow
+   #
+   def self.rejections(workflow, start_date, end_date)
+   end
+
    # Generate a json report of problems
    #
-   def self.rejections(start_date, end_date)
+   def self.problems(start_date, end_date)
       date_p = []
       date_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
       date_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
@@ -95,7 +100,6 @@ class Report
             end
          end
       end
-      puts "GOT #{cnt} HITS ================================="
 
       # massage raw data into chart.js format; each workflow is a new dataset
       data.each do |d|

@@ -10,13 +10,14 @@ div.panel.tracksys-report {
       bottom: 5px;
       div.wait {
          width: 100px;
-         margin: 10% auto;
-         background: white;
+         margin: 15% auto;
+         background: #eaeaff;
+         border: 2px solid #44c;
+         color: #44c;
          text-align: center;
-         padding: 5px 15px;
+         padding: 20px 40px;
          border-radius: 4px;
-         border: 1px solid #ccc;
-         box-shadow: 1px 1px 4px #ccc;
+         box-shadow: 1px 1px 8px;
       }
    }
    div.report-filter {
