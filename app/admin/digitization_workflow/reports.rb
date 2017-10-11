@@ -6,9 +6,9 @@ ActiveAdmin.register_page "Reports" do
          panel "Average Page Completion Time", class:"tracksys-report" do
             div class: "report-filter" do
                d = Date.today.strftime("%F")
-               s = '<label>Start Date:</label><input id="avg-time-start-date" type="text" class="query-datepicker">'
-               e = "<label>End Date:</label><input id='avg-time-end-date' type='text' class='query-datepicker' value='#{d}'>"
-               b = "<span id='refresh-avg-time' class='mf-action-button'>Generate</span>"
+               s = '<label>Start Date:</label><input type="text" class="avg-time report-start query-datepicker">'
+               e = "<label>End Date:</label><input type='text' class='avg-time report-end query-datepicker' value='#{d}'>"
+               b = "<span id='avg-time' class='refresh-report mf-action-button'>Generate</span>"
                raw("#{s}#{e}#{b}")
             end
 
@@ -30,13 +30,29 @@ ActiveAdmin.register_page "Reports" do
             end
          end
       end
-      # div :class => 'two-column' do
-      #    panel "Rejection Statistics", class:"tracksys-report" do
-      #       div id: "project-rejections-generating", class: "generating" do
-      #          div class: "wait" do "Please wait..." end
-      #       end
-      #       canvas id: "rejections" do end
-      #    end
-      # end
+      div :class => 'two-column' do
+         panel "Project Categories", class:"tracksys-report" do
+            div id: "project-categories-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            canvas id: "categories-chart" do end
+               div id: "total-projects" do
+               end
+         end
+
+         panel "Problem Statistics", class:"tracksys-report" do
+            div class: "report-filter" do
+               d = Date.today.strftime("%F")
+               s = '<label>Start Date:</label><input type="text" class="rejects report-start query-datepicker">'
+               e = "<label>End Date:</label><input type='text' class='rejects report-end query-datepicker' value='#{d}'>"
+               b = "<span id='rejects' class='refresh-report mf-action-button'>Generate</span>"
+               raw("#{s}#{e}#{b}")
+            end
+            div id: "project-rejections-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            canvas id: "rejections" do end
+         end
+      end
    end
 end

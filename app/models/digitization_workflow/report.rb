@@ -1,4 +1,46 @@
 class Report
+   # Generate data for a project breakdown by category
+   #
+   def self.categories
+      q= "select c.name, count(p.id) from projects p"
+      q << " inner join categories c on c.id = p.category_id"
+      q << " group by c.id"
+      chart = { labels:[], data:[]}
+      total = 0
+      Project.connection.execute(q).each do |res|
+         chart[:labels] << res[0]
+         chart[:data] << res[1]
+         total += res[1]
+      end
+      chart[:total] = total
+      return chart
+   end
+
+   # Generate a json report of problems
+   #
+   def self.rejections(start_date, end_date)
+      date_p = []
+      date_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
+      date_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
+      date_q = date_p.join(" and ")
+      q = "select problem_id,count(n.id) as cnt from notes n"
+      q << " inner join projects p on project_id = p.id"
+      q << " where note_type=2"
+      if !date_q.blank?
+         q << " and #{date_q}"
+      end
+      q << " group by problem_id"
+
+      chart = { labels:[], data:[]}
+      problems = Problem.all.order(id: :asc)
+      problems.each { |p| chart[:labels] << p.label }
+      Project.connection.execute(q).each do |res|
+         chart[:data] << res[1]
+      end
+
+      return chart
+   end
+
    # Generate a JSON report of average time per page per workflow/category
    #
    def self.avg_times(start_date, end_date)

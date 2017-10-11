@@ -3,7 +3,7 @@ ActiveAdmin.register Problem do
    menu :parent => "Controlled Vocabulary", if: proc{ current_user.admin? || current_user.supervisor? }
 
    # strong paramters handling
-   permit_params :name
+   permit_params :name, :label
 
    config.batch_actions = false
    config.filters = false

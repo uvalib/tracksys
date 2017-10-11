@@ -62,7 +62,8 @@ $(function() {
       if (start) params.push("start="+start);
       if (end) params.push("end="+end);
       if (params.length == 0) {
-         alert("At leas an end date is required");
+         $("#project-time-generating").hide();
+         alert("At least an end date is required");
          return;
       }
       url = "/api/reports?type=avg_time&"+params.join("&");
@@ -84,15 +85,100 @@ $(function() {
             populateRawAvgTimeTable(data.raw);
          }
       });
+   };
 
+   var requestRejectionsReport  = function(start, end) {
+      $("#project-rejections-generating").show();
+      var config = {
+         type: 'bar',
+         data: {
+            datasets: [{
+               backgroundColor: "#cc4444"
+            }],
+         },
+         options: {
+            responsive: true,
+            title: {
+               display: false,
+            },
+            legend: {
+               display: false
+            }
+         }
+      };
+
+      var params = [];
+      if (start) params.push("start="+start);
+      if (end) params.push("end="+end);
+      if (params.length == 0) {
+         $("#project-rejections-generating").hide();
+         alert("At least an end date is required");
+         return;
+      }
+      url = "/api/reports?type=rejections&"+params.join("&");
+      $.getJSON(url, function ( data, textStatus, jqXHR ){
+         $("#project-rejections-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.data;
+            config.data.labels = data.labels;
+            var ctx = document.getElementById("rejections").getContext("2d");
+            if ( window.rejectsChart ) {
+               window.rejectsChart.destroy();
+            }
+            window.rejectsChart = new Chart(ctx, config);
+         }
+      });
+   };
+
+   var requestCategoriesReport = function() {
+      $("#project-categories-generating").show();
+      var config = {
+         type: 'pie',
+         data: {
+            datasets: [{
+               backgroundColor: [
+                  "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231", "#911eb4", "#808080"
+               ]
+            }],
+         },
+         options: {
+            responsive: true,
+            title: {
+               display: false,
+            },
+            legend: {
+               display: true
+            }
+         }
+      };
+      $.getJSON("/api/reports?type=categories", function ( data, textStatus, jqXHR ){
+         $("#project-categories-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.data;
+            config.data.labels = data.labels;
+            var canvas = document.getElementById("categories-chart");
+            var ctx = canvas.getContext("2d");
+            var pie = new Chart(ctx, config);
+            $("#total-projects").text("Total projects: "+data.total);
+         }
+      });
    };
 
    var requestReportsData  = function() {
-      requestAvgTimeReport(null, $("#avg-time-end-date").val());
+      requestAvgTimeReport(null, $(".avg-time.report-end").val());
+      requestCategoriesReport();
+      requestRejectionsReport(null, $(".rejects.report-end").val());
    };
 
-   $("#refresh-avg-time").on("click", function() {
-      requestAvgTimeReport($("#avg-time-start-date").val(), $("#avg-time-end-date").val());
+   $(".refresh-report").on("click", function() {
+      var id = $(this).attr("id");
+      var start = $(".report-start."+id).val();
+      var end = $(".report-end."+id).val();
+      if (id == "rejects") {
+         requestRejectionsReport(start,end);
+      } else {
+         requestAvgTimeReport(start, end);
+      }
    });
 
    if ( $("#avg-times").length > 0 ) {
