@@ -4,9 +4,9 @@ class Api::ReportsController < ApplicationController
    #
    def generate
       if params[:type] == "avg_time"
-         render json: Report.avg_times(params[:start], params[:end]) and return
+         render json: Report.avg_times(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "problems"
-         render json: Report.problems(params[:start], params[:end]) and return
+         render json: Report.problems(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "categories"
          render json: Report.categories() and return
       elsif params[:type] == "rejections"

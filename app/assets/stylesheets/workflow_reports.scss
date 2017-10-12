@@ -20,6 +20,10 @@ div.panel.tracksys-report {
          box-shadow: 1px 1px 8px;
       }
    }
+   #total-assignments {
+      text-align: center;
+      margin-top: 10px;
+   }
    div.report-filter {
       text-align: center;
       border-bottom: 1px solid #ccc;
@@ -28,12 +32,20 @@ div.panel.tracksys-report {
       label {
          font-weight: bold;
          margin-right: 5px;
+         color: #666;
       }
       input {
-         margin-right: 10px;
+         margin: 0 5px;
+         width: 85px;
+         color: #777;
+         text-align: center;
+      }
+      select {
+         color: #777;
+         margin: 0 5px;
       }
       .mf-action-button {
-         padding: 1px 20px;
+         padding: 1px 15px;
          font-size: 80%;
          font-weight: 400;
       }

@@ -25,12 +25,17 @@ class Report
       totals = {}
       steps.each { |s| totals[s.id] = 0}
 
+      date_p = []
+      date_p << "assignments.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
+      date_p << "assignments.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
+      date_q = date_p.join(" and ")
+
 
       # Next, get all of the rejection assignments
       rejections = Assignment.joins(:step, :project)
-         .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i}")
+         .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i} and #{date_q}")
       total_assign = Assignment.joins(:project)
-         .where("projects.workflow_id=#{workflow_id.to_i}").count
+         .where("projects.workflow_id=#{workflow_id.to_i} and #{date_q}").count
 
       # figure out which QA step was rejected
       rejections.each do |r|
@@ -42,14 +47,15 @@ class Report
       chart[:data] = totals.values
       chart[:total_rejects] = rejections.count
       chart[:total_assigments] = total_assign
+      chart[:reject_percent] = ((chart[:total_rejects].to_f/total_assign.to_f)*100.0).ceil
 
       return chart
    end
 
    # Generate a json report of problems
    #
-   def self.problems(start_date, end_date)
-      date_p = []
+   def self.problems(workflow_id, start_date, end_date)
+      date_p = ["p.workflow_id=#{workflow_id.to_i}"]
       date_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
       date_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
       date_q = date_p.join(" and ")
@@ -73,7 +79,7 @@ class Report
 
    # Generate a JSON report of average time per page per workflow/category
    #
-   def self.avg_times(start_date, end_date)
+   def self.avg_times(workflow_id, start_date, end_date)
       date_p = []
       date_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
       date_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?

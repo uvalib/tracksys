@@ -18,7 +18,7 @@ $(function() {
       });
    };
 
-   var requestAvgTimeReport  = function(start, end) {
+   var requestAvgTimeReport  = function(workflowId, start, end) {
       $("#project-time-generating").show();
       $("#avg-time-raw table tbody tr.data").remove();
       var config = {
@@ -59,6 +59,7 @@ $(function() {
       };
 
       var params = [];
+      params.push("workflow="+workflowId);
       if (start) params.push("start="+start);
       if (end) params.push("end="+end);
       if (params.length == 0) {
@@ -87,7 +88,7 @@ $(function() {
       });
    };
 
-   var requestProblemsReport  = function(start, end) {
+   var requestProblemsReport  = function(workflowId, start, end) {
       $("#project-problems-generating").show();
       var config = {
          type: 'bar',
@@ -108,6 +109,7 @@ $(function() {
       };
 
       var params = [];
+      params.push("workflow="+workflowId);
       if (start) params.push("start="+start);
       if (end) params.push("end="+end);
       if (params.length == 0) {
@@ -130,15 +132,17 @@ $(function() {
       });
    };
 
+   var chartColors = [
+      "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231",
+      "#911eb4", "#808080", "#008080", "#e6beff", "#aaffc3"];
+
    var requestCategoriesReport = function() {
       $("#project-categories-generating").show();
       var config = {
          type: 'pie',
          data: {
             datasets: [{
-               backgroundColor: [
-                  "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231", "#911eb4", "#808080"
-               ]
+               backgroundColor: chartColors
             }],
          },
          options: {
@@ -164,20 +168,70 @@ $(function() {
       });
    };
 
+   var requestRejectionsReport = function(workflowId, start, end) {
+      $("#project-rejections-generating").show();
+      var config = {
+         type: 'pie',
+         data: {
+            datasets: [{
+               backgroundColor: chartColors
+            }],
+         },
+         options: {
+            responsive: true,
+            title: {
+               display: false,
+            },
+            legend: {
+               display: true
+            }
+         }
+      };
+      var params = [];
+      params.push("workflow="+workflowId);
+      if (start) params.push("start="+start);
+      if (end) params.push("end="+end);
+      if (params.length < 2) {
+         $("#project-problems-generating").hide();
+         alert("A workflow and end date are required");
+         return;
+      }
+      $.getJSON("/api/reports?type=rejections&"+params.join("&"), function ( data, textStatus, jqXHR ){
+         $("#project-rejections-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.data;
+            config.data.labels = data.labels;
+            var canvas = document.getElementById("rejections-chart");
+            var ctx = canvas.getContext("2d");
+            if ( window.rejectionsChart ) {
+               window.rejectionsChart.destroy();
+            }
+            window.rejectionsChart = new Chart(ctx, config);
+            var txt = "<b>Total Assignments:</b> "+data.total_assigments;
+            txt += ", <b>Total Rejections:</b> "+data.total_rejects+", <b>Rejection Percentage:</b> "+data.reject_percent+"%";
+            $("#total-assignments").html(txt);
+         }
+      });
+   };
+
    var requestReportsData  = function() {
-      requestAvgTimeReport(null, $(".avg-time.report-end").val());
+      requestAvgTimeReport(1, null, $(".avg-time.report-end").val());
       requestCategoriesReport();
-      requestProblemsReport(null, $(".problems.report-end").val());
+      requestProblemsReport(1, null, $(".problems.report-end").val());
+      requestRejectionsReport(1, null, $(".rejections.report-end").val());
    };
 
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
+      var wfId = $(".workflow."+id).val();
       if (id == "problems") {
-         requestProblemsReport(start,end);
+         requestProblemsReport(wfId, start, end);
+      } else if (id == "rejections") {
+         requestRejectionsReport(wfId, start, end);
       } else {
-         requestAvgTimeReport(start, end);
+         requestAvgTimeReport(wfId, start, end);
       }
    });
 

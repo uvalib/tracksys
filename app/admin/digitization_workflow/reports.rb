@@ -4,13 +4,7 @@ ActiveAdmin.register_page "Reports" do
    content :title => 'Digitization Reports' do
       div :class => 'two-column' do
          panel "Average Page Completion Time", class:"tracksys-report" do
-            div class: "report-filter" do
-               d = Date.today.strftime("%F")
-               s = '<label>Start Date:</label><input type="text" class="avg-time report-start query-datepicker">'
-               e = "<label>End Date:</label><input type='text' class='avg-time report-end query-datepicker' value='#{d}'>"
-               b = "<span id='avg-time' class='refresh-report mf-action-button'>Generate</span>"
-               raw("#{s}#{e}#{b}")
-            end
+            render partial: 'report_filter', locals: { report: "avg-time" }
 
             div id: "project-time-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
@@ -36,22 +30,25 @@ ActiveAdmin.register_page "Reports" do
                div class: "wait" do "Please wait..." end
             end
             canvas id: "categories-chart" do end
-               div id: "total-projects" do
-               end
+            div id: "total-projects" do
+            end
          end
 
          panel "Problem Statistics", class:"tracksys-report" do
-            div class: "report-filter" do
-               d = Date.today.strftime("%F")
-               s = '<label>Start Date:</label><input type="text" class="problems report-start query-datepicker">'
-               e = "<label>End Date:</label><input type='text' class='problems report-end query-datepicker' value='#{d}'>"
-               b = "<span id='problems' class='refresh-report mf-action-button'>Generate</span>"
-               raw("#{s}#{e}#{b}")
-            end
+            render partial: 'report_filter', locals: { report: "problems" }
             div id: "project-problems-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
             canvas id: "problems-chart" do end
+         end
+
+         panel "Rejection Statistics", class:"tracksys-report" do
+            render partial: 'report_filter', locals: { report: "rejections" }
+            div id: "project-rejections-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            canvas id: "rejections-chart" do end
+            div id: "total-assignments" do end
          end
       end
    end
