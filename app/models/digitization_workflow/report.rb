@@ -16,9 +16,39 @@ class Report
       return chart
    end
 
+   # Generate a json report of rejections / step / workflow
+   #
+   def self.rejections(workflow_id, start_date, end_date)
+      # first get all of the QA Steps for the workflow. These are the chart labels
+      steps = Workflow.find(workflow_id).steps.where("fail_step_id is not null")
+      chart = { labels: steps.pluck("name"), data: [] }
+      totals = {}
+      steps.each { |s| totals[s.id] = 0}
+
+
+      # Next, get all of the rejection assignments
+      rejections = Assignment.joins(:step, :project)
+         .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i}")
+      total_assign = Assignment.joins(:project)
+         .where("projects.workflow_id=#{workflow_id.to_i}").count
+
+      # figure out which QA step was rejected
+      rejections.each do |r|
+         reject_step_id = r.step_id
+         qa = steps.select { |s| s.fail_step_id == reject_step_id}
+         totals[qa.first.id] += 1
+      end
+
+      chart[:data] = totals.values
+      chart[:total_rejects] = rejections.count
+      chart[:total_assigments] = total_assign
+
+      return chart
+   end
+
    # Generate a json report of problems
    #
-   def self.rejections(start_date, end_date)
+   def self.problems(start_date, end_date)
       date_p = []
       date_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
       date_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
@@ -95,7 +125,6 @@ class Report
             end
          end
       end
-      puts "GOT #{cnt} HITS ================================="
 
       # massage raw data into chart.js format; each workflow is a new dataset
       data.each do |d|

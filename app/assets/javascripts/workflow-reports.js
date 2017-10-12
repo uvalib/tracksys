@@ -87,8 +87,8 @@ $(function() {
       });
    };
 
-   var requestRejectionsReport  = function(start, end) {
-      $("#project-rejections-generating").show();
+   var requestProblemsReport  = function(start, end) {
+      $("#project-problems-generating").show();
       var config = {
          type: 'bar',
          data: {
@@ -111,21 +111,21 @@ $(function() {
       if (start) params.push("start="+start);
       if (end) params.push("end="+end);
       if (params.length == 0) {
-         $("#project-rejections-generating").hide();
+         $("#project-problems-generating").hide();
          alert("At least an end date is required");
          return;
       }
-      url = "/api/reports?type=rejections&"+params.join("&");
+      url = "/api/reports?type=problems&"+params.join("&");
       $.getJSON(url, function ( data, textStatus, jqXHR ){
-         $("#project-rejections-generating").hide();
+         $("#project-problems-generating").hide();
          if (textStatus == "success" ) {
             config.data.datasets[0].data = data.data;
             config.data.labels = data.labels;
-            var ctx = document.getElementById("rejections").getContext("2d");
-            if ( window.rejectsChart ) {
-               window.rejectsChart.destroy();
+            var ctx = document.getElementById("problems-chart").getContext("2d");
+            if ( window.problemsChart ) {
+               window.problemsChart.destroy();
             }
-            window.rejectsChart = new Chart(ctx, config);
+            window.problemsChart = new Chart(ctx, config);
          }
       });
    };
@@ -167,15 +167,15 @@ $(function() {
    var requestReportsData  = function() {
       requestAvgTimeReport(null, $(".avg-time.report-end").val());
       requestCategoriesReport();
-      requestRejectionsReport(null, $(".rejects.report-end").val());
+      requestProblemsReport(null, $(".problems.report-end").val());
    };
 
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
-      if (id == "rejects") {
-         requestRejectionsReport(start,end);
+      if (id == "problems") {
+         requestProblemsReport(start,end);
       } else {
          requestAvgTimeReport(start, end);
       }

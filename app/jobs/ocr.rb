@@ -46,7 +46,9 @@ class Ocr < BaseJob
          on_error("Source #{mf.filename} could not be found")
       end
 
-      dest = File.join(Finder.finalization_dir(mf.unit, :in_process),  "OCR_"+mf.filename)
+      dest_dir = Finder.finalization_dir(mf.unit, :in_process)
+      FileUtils.mkdir_p dest_dir if !Dir.exist?(dest_dir)
+      dest = File.join(dest_dir,  "OCR_"+mf.filename)
       logger().info("Preprocess #{src} to #{dest}")
       conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
       `#{conv_cmd}`
