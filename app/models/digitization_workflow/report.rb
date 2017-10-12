@@ -18,7 +18,32 @@ class Report
 
    # Generate a json report of rejections / step / workflow
    #
-   def self.rejections(workflow, start_date, end_date)
+   def self.rejections(workflow_id, start_date, end_date)
+      # first get all of the QA Steps for the workflow. These are the chart labels
+      steps = Workflow.find(workflow_id).steps.where("fail_step_id is not null")
+      chart = { labels: steps.pluck("name"), data: [] }
+      totals = {}
+      steps.each { |s| totals[s.id] = 0}
+
+
+      # Next, get all of the rejection assignments
+      rejections = Assignment.joins(:step, :project)
+         .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i}")
+      total_assign = Assignment.joins(:project)
+         .where("projects.workflow_id=#{workflow_id.to_i}").count
+
+      # figure out which QA step was rejected
+      rejections.each do |r|
+         reject_step_id = r.step_id
+         qa = steps.select { |s| s.fail_step_id == reject_step_id}
+         totals[qa.first.id] += 1
+      end
+
+      chart[:data] = totals.values
+      chart[:total_rejects] = rejections.count
+      chart[:total_assigments] = total_assign
+
+      return chart
    end
 
    # Generate a json report of problems
