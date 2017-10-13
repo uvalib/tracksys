@@ -17,6 +17,36 @@ $(function() {
       }
    };
 
+   var populateRawRejectionsTable = function(data) {
+      var template = "<tr class='data'><td>STEP</td><td>CNT</td><td>MIN</td><td>AVG</td></tr>";
+      var table = $("#rejections-raw tbody");
+      $("#rejections-raw table tbody tr.data").remove();
+      var rowData, row;
+      for (var key in data.raw) {
+         rowData = data.raw[key];
+         row = template.replace("STEP", key);
+         row = row.replace("CNT", rowData.rejections);
+         row = row.replace("MIN", rowData.time);
+         var avg = 0;
+         if (rowData.rejections > 0 )  avg = Math.round(rowData.time/rowData.rejections);
+         row = row.replace("AVG", avg);
+         table.append(row);
+      }
+
+      $("#top-rejectors .panel_contents, #most-rejected .panel_contents").empty();
+      var t2= "<div><span class='reject-name'>NAME:</span><span>CNT</span></div>";
+      for (key in data.top_rejectors) {
+         row = t2.replace("NAME", key);
+         row = row.replace("CNT", data.top_rejectors[key]);
+         $("#top-rejectors .panel_contents").append(row);
+      }
+      for (key in data.most_rejected) {
+         row = t2.replace("NAME", key);
+         row = row.replace("CNT", data.most_rejected[key]);
+         $("#most-rejected .panel_contents").append(row);
+      }
+   };
+
    var requestAvgTimeReport  = function(workflowId, start, end) {
       if (start.length == 0 || end.length == 0) {
          alert("Start and End dates are required");
@@ -212,6 +242,7 @@ $(function() {
             var txt = "<b>Total Assignments:</b> "+data.total_assigments;
             txt += ", <b>Total Rejections:</b> "+data.total_rejects+", <b>Rejection Percentage:</b> "+data.reject_percent+"%";
             $("#total-assignments").html(txt);
+            populateRawRejectionsTable(data);
          }
       });
    };

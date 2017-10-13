@@ -26,10 +26,14 @@ class Report
    #
    def self.rejections(workflow_id, start_date, end_date)
       # first get all of the QA Steps for the workflow. These are the chart labels
+      # They are also used to identify with QA step is associated with an error assignment
       steps = Workflow.find(workflow_id).steps.where("fail_step_id is not null")
-      chart = { labels: steps.pluck("name"), data: [] }
+      chart = { labels: steps.pluck("name"), data: [], raw: {} }
       totals = {}
-      steps.each { |s| totals[s.id] = 0}
+      steps.each do |s|
+         totals[s.id] = 0
+         chart[:raw][s.name] = {rejections: 0, time: 0}
+      end
 
       filter_p = []
       filter_p << "assignments.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
@@ -37,19 +41,45 @@ class Report
       filter_q = filter_p.join(" and ")
 
 
-      # Next, get all of the rejection assignments
-      rejections = Assignment.joins(:step, :project)
+      # Next, get all of the rejection assignments and the total of all assignments
+      # Note: step type 2 is an error step
+      rejections = Assignment.includes(:staff_member).joins(:step, :project)
          .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
       total_assign = Assignment.joins(:project)
          .where("projects.workflow_id=#{workflow_id.to_i} and #{filter_q}").count
 
       # figure out which QA step was rejected
+      users = {}
       rejections.each do |r|
          reject_step_id = r.step_id
          qa = steps.select { |s| s.fail_step_id == reject_step_id}
          totals[qa.first.id] += 1
+
+         # track some raw rejection data to display in a data table along with the chart
+         chart[:raw][qa.first.name][:rejections] += 1
+         chart[:raw][qa.first.name][:time] += r.duration_minutes if !r.duration_minutes.nil?
+
+         # the owner of the error step is always the original owner of the work
+         # use this to track how many times each staff member has had their work rejected
+         name =  r.staff_member.full_name
+         if !users.has_key? name
+            users[name] = 0
+         end
+         users[name] += 1
+      end
+      users = users.sort_by {|name, cnt| cnt}
+      users = users.reverse[0...5].to_h
+
+      top_rejectors = {}
+      raw = Assignment.includes(:staff_member).joins(:project)
+         .where("status=3 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
+         .group(:staff_member_id).select('staff_member_id, COUNT(assignments.id) as cnt').order("cnt desc").limit(5).to_a
+      raw.each do |r|
+         top_rejectors[r.staff_member.full_name] = r.cnt
       end
 
+      chart[:top_rejectors] = top_rejectors
+      chart[:most_rejected] = users
       chart[:data] = totals.values
       chart[:total_rejects] = rejections.count
       chart[:total_assigments] = total_assign

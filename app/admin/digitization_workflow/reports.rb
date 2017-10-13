@@ -50,6 +50,25 @@ ActiveAdmin.register_page "Reports" do
             end
             canvas id: "rejections-chart" do end
             div id: "total-assignments" do end
+            div id: "rejections-raw" do
+               table do
+                  tr do
+                     th do "Step Name" end
+                     th do "Rejection Count" end
+                     th do "Total Time" end
+                     th do "Avg. Mins / Rejection" end
+                  end
+               end
+            end
+            div :class => 'two-column' do
+               panel "Top Rejectors", id: "top-rejectors" do
+               end
+            end
+            div :class => 'two-column' do
+               panel "Most Rejected", id: "most-rejected" do
+               end
+            end
+            div  style:"clear:both" do end
          end
       end
    end

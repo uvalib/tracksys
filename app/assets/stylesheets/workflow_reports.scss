@@ -50,7 +50,15 @@ div.panel.tracksys-report {
          font-weight: 400;
       }
    }
-   #avg-time-raw {
+   #most-rejected, #top-rejectors {
+       background: white;
+       color: #555;
+       .reject-name {
+          font-weight: bold;
+          margin-right: 10px;
+       }
+   }
+   #avg-time-raw, #rejections-raw {
       background: white;
       border-radius: 2px;
       border: 1px solid #ccc;
