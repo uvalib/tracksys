@@ -14,7 +14,6 @@ ActiveAdmin.register_page "Reports" do
                table do
                   tr do
                      th do "Category" end
-                     th do "Workflow" end
                      th do "Units" end
                      th do "Total Mins" end
                      th do "Total Pages" end
@@ -23,9 +22,9 @@ ActiveAdmin.register_page "Reports" do
                end
             end
          end
-      end
-      div :class => 'two-column' do
+
          panel "Project Categories", class:"tracksys-report" do
+            render partial: 'report_filter', locals: { report: "categories" }
             div id: "project-categories-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
@@ -33,7 +32,9 @@ ActiveAdmin.register_page "Reports" do
             div id: "total-projects" do
             end
          end
+      end
 
+      div :class => 'two-column' do
          panel "Problem Statistics", class:"tracksys-report" do
             render partial: 'report_filter', locals: { report: "problems" }
             div id: "project-problems-generating", class: "generating" do

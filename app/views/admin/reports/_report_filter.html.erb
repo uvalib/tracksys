@@ -1,10 +1,9 @@
 <div class="report-filter">
-   <% if report == "rejections" || report == "problems" %>
-      <label>Workflow: </label>
-      <%= select_tag "workflow-#{report}", options_from_collection_for_select(Workflow.all, :id, :name), {class: "workflow #{report}"} %>
-   <% end %>
+   <label>Workflow: </label>
+   <%= select_tag "workflow-#{report}", options_from_collection_for_select(Workflow.all, :id, :name), {class: "workflow #{report}"} %>
    <% d = Date.today.strftime("%F") %>
-   <label>Start: <input type="text" class="<%= report %> report-start query-datepicker"></label>
+   <% d0 = (Date.today-3.months).strftime("%F") %>
+   <label>Start: <input type="text" class="<%= report %> report-start query-datepicker" value="<%= d0 %>"></label>
    <label>End: <input type="text" class="<%= report %> report-end query-datepicker" value="<%= d %>"></label>
    <span id="<%= report %>" class="refresh-report mf-action-button">Generate</span>
 </div>

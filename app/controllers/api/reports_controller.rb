@@ -8,7 +8,7 @@ class Api::ReportsController < ApplicationController
       elsif params[:type] == "problems"
          render json: Report.problems(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "categories"
-         render json: Report.categories() and return
+         render json: Report.categories(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "rejections"
          render json: Report.rejections(params[:workflow], params[:start], params[:end]) and return
       end
