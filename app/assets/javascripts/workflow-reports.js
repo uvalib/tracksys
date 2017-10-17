@@ -148,31 +148,6 @@ $(function() {
       });
    };
 
-   var requestCategoriesReport = function(workflowId, start, end) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
-      $("#project-categories-generating").show();
-      var config = getBasicChartCfg("pie");
-
-      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
-      $.getJSON("/api/reports?type=categories&"+qs, function ( data, textStatus, jqXHR ){
-         $("#project-categories-generating").hide();
-         if (textStatus == "success" ) {
-            config.data.datasets[0].data = data.data;
-            config.data.labels = data.labels;
-            var canvas = document.getElementById("categories-chart");
-            var ctx = canvas.getContext("2d");
-            if ( window.categoriesChart ) {
-               window.categoriesChart.destroy();
-            }
-            window.categoriesChart = new Chart(ctx, config);
-            $("#total-projects").text("Total projects: "+data.total);
-         }
-      });
-   };
-
    var requestRejectionsReport = function(workflowId, start, end) {
       if (start.length == 0 || end.length == 0) {
          alert("Start and End dates are required");
@@ -233,8 +208,6 @@ $(function() {
          requestProblemsReport(wfId, start, end);
       } else if (id == "rejections") {
          requestRejectionsReport(wfId, start, end);
-      } else if (id == "categories") {
-         requestCategoriesReport(wfId, start, end);
       } else if (id == "productivity") {
          requestProductivityReport(wfId, start, end);
       } else {
@@ -247,6 +220,5 @@ $(function() {
       requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
       requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
       requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val());
-      requestCategoriesReport(1, $(".categories.report-start").val(), $(".categories.report-end").val());
    }
 });
