@@ -11,6 +11,8 @@ class Api::ReportsController < ApplicationController
          render json: Report.categories(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "rejections"
          render json: Report.rejections(params[:workflow], params[:start], params[:end]) and return
+      elsif params[:type] == "productivity"
+         render json: Report.productivity(params[:workflow], params[:start], params[:end]) and return
       end
 
       render plain: "Unsupported report type", status: :error

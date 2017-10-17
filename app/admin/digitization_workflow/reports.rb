@@ -23,6 +23,16 @@ ActiveAdmin.register_page "Reports" do
             end
          end
 
+         panel "Productivity", class:"tracksys-report" do
+            render partial: 'report_filter', locals: { report: "productivity" }
+            div id: "project-productivity-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            canvas id: "productivity-chart" do end
+            div id: "total-productivity-projects" do
+            end
+         end
+
          panel "Project Categories", class:"tracksys-report" do
             render partial: 'report_filter', locals: { report: "categories" }
             div id: "project-categories-generating", class: "generating" do
