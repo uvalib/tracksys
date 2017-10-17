@@ -32,6 +32,14 @@ ActiveAdmin.register_page "Reports" do
             div id: "total-productivity-projects" do
             end
          end
+
+         panel "Deliveries", class:"tracksys-report" do
+            render partial: 'report_filter', locals: { report: "deliveries" }
+            div id: "project-deliveries-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            canvas id: "deliveries-chart" do end
+         end
       end
 
       div :class => 'two-column' do

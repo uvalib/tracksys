@@ -1,4 +1,29 @@
 class Report
+   # Generate data for on-time vs late deliveries for a year
+   #
+   def self.deliveries(year)
+      orders = Order.patron_requests.where("order_status=? and date_completed like '#{year.to_i}%'", "completed")
+      months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+      chart = { labels:months, ontime:[], late:[] }
+      data = {}
+      orders.each do |o|
+         month_num = o.date_completed.strftime("%m").to_i
+         if !data.has_key? month_num
+            data[month_num] = {ontime: 0, late: 0}
+         end
+         if o.date_completed > o.date_due
+            data[month_num][:late] += 1
+         else
+            data[month_num][:ontime] += 1
+         end
+      end
+      Hash[ data.sort_by { |key, val| key } ].each do |k,v|
+         chart[:ontime] <<  v[:ontime]
+         chart[:late] <<  v[:late]
+      end
+      return chart
+   end
+
    # Generate data for a productivity (units/masterfiles complete within timeframe per category)
    #
    def self.productivity(workflow_id, start_date, end_date)

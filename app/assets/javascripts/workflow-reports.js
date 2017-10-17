@@ -199,8 +199,39 @@ $(function() {
       });
    };
 
+   var requestDeliveriesReport = function(tgtYear) {
+      $("#project-deliveries-generating").show();
+      var config = getBasicChartCfg("line");
+      config.options.legend.display = true;
+      var qs = "year="+tgtYear;
+      $.getJSON("/api/reports?type=deliveries&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-deliveries-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.ontime;
+            config.data.datasets[0].fill = false;
+            config.data.datasets[0].label = "On-Time";
+            config.data.datasets[0].backgroundColor = "#44aacc";
+            config.data.datasets[0].borderColor = "#44aacc";
+            var errDataset = {data: data.late, backgroundColor: "#cc4444", fill: false, borderColor: "#cc4444", label: "Late"};
+            config.data.datasets.push(errDataset);
+            config.data.labels = data.labels;
+            var canvas = document.getElementById("deliveries-chart");
+            var ctx = canvas.getContext("2d");
+            if ( window.deliveriesChart ) {
+               window.deliveriesChart.destroy();
+            }
+            window.deliveriesChart = new Chart(ctx, config);
+         }
+      });
+   };
+
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
+      if (id == "deliveries") {
+         requestDeliveriesReport( $(".deliveries.report-year").val() );
+         return;
+      }
+
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
       var wfId = $(".workflow."+id).val();
@@ -220,5 +251,6 @@ $(function() {
       requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
       requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
       requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val());
+      requestDeliveriesReport($(".deliveries.report-year").val());
    }
 });
