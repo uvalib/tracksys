@@ -62,54 +62,91 @@ class Report
       end
 
       filter_p = []
-      filter_p << "assignments.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
-      filter_p << "assignments.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
+      filter_p << "projects.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
+      filter_p << "projects.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
       filter_q = filter_p.join(" and ")
 
 
-      # Next, get all of the rejection assignments and the total of all assignments
-      # Note: step type 2 is an error step
-      rejections = Assignment.includes(:staff_member).joins(:step, :project)
-         .where("steps.step_type=2 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
-      total_assign = Assignment.joins(:project)
-         .where("projects.workflow_id=#{workflow_id.to_i} and #{filter_q}").count
+      # Get all assigments matching filter criteria
+      assigns = Assignment.joins(:project).includes(:step)
+         .where("projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
+
 
       # figure out which QA step was rejected
       users = {}
-      rejections.each do |r|
-         reject_step_id = r.step_id
-         qa = steps.select { |s| s.fail_step_id == reject_step_id}
-         totals[qa.first.id] += 1
+      rejectors = {}
+      total_rejects = 0
+      prior_state = {}
+      assigns.each do |a|
+         next if a.reassigned?
+         if a.step.error?
+            qa = prior_state[a.project_id]
+            total_rejects += 1
+            totals[qa.step_id] += 1
+            chart[:raw][qa.step.name][:rejections] += 1
+            chart[:raw][qa.step.name][:time] += a.duration_minutes if !a.duration_minutes.nil?
 
-         # track some raw rejection data to display in a data table along with the chart
-         chart[:raw][qa.first.name][:rejections] += 1
-         chart[:raw][qa.first.name][:time] += r.duration_minutes if !r.duration_minutes.nil?
+            if qa.staff_member_id == a.staff_member_id
+               puts "Skipping self reject #{a.id}"
+               next
+            end
 
-         # the owner of the error step is always the original owner of the work
-         # use this to track how many times each staff member has had their work rejected
-         name =  r.staff_member.full_name
-         if !users.has_key? name
-            users[name] = 0
+            # the owner of the error step is always the original owner of the work
+            # use this to track how many times each staff member has had their work rejected
+            name =  a.staff_member.full_name
+            if !users.has_key? name
+               users[name] = 0
+            end
+            users[name] += 1
+
+            name =  qa.staff_member.full_name
+            if !rejectors.has_key? name
+               rejectors[name] = 0
+            end
+            rejectors[name] += 1
          end
-         users[name] += 1
+         prior_state[a.project_id] = a
       end
       users = users.sort_by {|name, cnt| cnt}
       users = users.reverse[0...5].to_h
+      rejectors = rejectors.sort_by {|name, cnt| cnt}
+      rejectors = rejectors.reverse[0...5].to_h
 
-      top_rejectors = {}
-      raw = Assignment.includes(:staff_member).joins(:project)
-         .where("status=3 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
-         .group(:staff_member_id).select('staff_member_id, COUNT(assignments.id) as cnt').order("cnt desc").limit(5).to_a
-      raw.each do |r|
-         top_rejectors[r.staff_member.full_name] = r.cnt
-      end
+      # rejections.each do |r|
+      #    reject_step_id = r.step_id
+      #    qa = steps.select { |s| s.fail_step_id == reject_step_id}
+      #    totals[qa.first.id] += 1
+      #
+      #    # track some raw rejection data to display in a data table along with the chart
+      #    chart[:raw][qa.first.name][:rejections] += 1
+      #    chart[:raw][qa.first.name][:time] += r.duration_minutes if !r.duration_minutes.nil?
+      #
+      #    # the owner of the error step is always the original owner of the work
+      #    # use this to track how many times each staff member has had their work rejected
+      #    name =  r.staff_member.full_name
+      #    if !users.has_key? name
+      #       users[name] = 0
+      #    end
+      #    users[name] += 1
+      # end
+      # users = users.sort_by {|name, cnt| cnt}
+      # users = users.reverse[0...5].to_h
+      #
+      # top_rejectors = {}
+      # raw = Assignment.includes(:staff_member).joins(:project)
+      #    .where("status=3 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
+      #    .group(:staff_member_id).select('staff_member_id, COUNT(assignments.id) as cnt').order("cnt desc").limit(5).to_a
+      # raw.each do |r|
+      #    top_rejectors[r.staff_member.full_name] = r.cnt
+      # end
 
-      chart[:top_rejectors] = top_rejectors
+      chart[:top_rejectors] = rejectors
+      # chart[:top_rejectors] = top_rejectors
       chart[:most_rejected] = users
       chart[:data] = totals.values
-      chart[:total_rejects] = rejections.count
-      chart[:total_assigments] = total_assign
-      chart[:reject_percent] = ((chart[:total_rejects].to_f/total_assign.to_f)*100.0).ceil
+      chart[:total_rejects] = total_rejects
+      chart[:total_assigments] = assigns.count
+      chart[:reject_percent] = ((chart[:total_rejects].to_f/chart[:total_assigments].to_f)*100.0).ceil
 
       return chart
    end
