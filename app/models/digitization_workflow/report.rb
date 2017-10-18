@@ -48,107 +48,64 @@ class Report
       return chart
    end
 
-   # Generate a json report of rejections / step / workflow
+   # Generate a json report of rejections / student / workflow
    #
    def self.rejections(workflow_id, start_date, end_date)
-      # first get all of the QA Steps for the workflow. These are the chart labels
-      # They are also used to identify with QA step is associated with an error assignment
-      steps = Workflow.find(workflow_id).steps.where("fail_step_id is not null")
-      chart = { labels: steps.pluck("name"), data: [], raw: {} }
-      totals = {}
-      steps.each do |s|
-         totals[s.id] = 0
-         chart[:raw][s.name] = {rejections: 0, time: 0}
-      end
-
-      filter_p = []
-      filter_p << "projects.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
-      filter_p << "projects.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
+      filter_p = ["p.workflow_id=#{workflow_id.to_i}"]
+      filter_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
+      filter_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
       filter_q = filter_p.join(" and ")
 
-
-      # Get all assigments matching filter criteria
-      assigns = Assignment.joins(:project).includes(:step)
-         .where("projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
-
-
-      # figure out which QA step was rejected
-      users = {}
-      rejectors = {}
-      total_rejects = 0
-      prior_state = {}
-      assigns.each do |a|
-         next if a.reassigned?
-         if a.step.error?
-            qa = prior_state[a.project_id]
-            total_rejects += 1
-            totals[qa.step_id] += 1
-            chart[:raw][qa.step.name][:rejections] += 1
-            chart[:raw][qa.step.name][:time] += a.duration_minutes if !a.duration_minutes.nil?
-
-            if qa.staff_member_id == a.staff_member_id
-               puts "Skipping self reject #{a.id}"
-               next
-            end
-
-            # the owner of the error step is always the original owner of the work
-            # use this to track how many times each staff member has had their work rejected
-            name =  a.staff_member.full_name
-            if !users.has_key? name
-               users[name] = 0
-            end
-            users[name] += 1
-
-            name =  qa.staff_member.full_name
-            if !rejectors.has_key? name
-               rejectors[name] = 0
-            end
-            rejectors[name] += 1
+      raw = {}
+      q = "select p.id, a.staff_member_id, step_type, s.name, status from assignments a"
+      q << " inner join projects p ON p.id = a.project_id"
+      q << " inner join steps s on s.id = step_id"
+      q << " where a.status != 5 and (s.step_type = 0 or s.step_type = 3 and fail_step_id is not null)"
+      q << " and #{filter_q}"
+      curr = {}
+      staff = StaffMember.all
+      Project.connection.execute(q).each do |res|
+         project_id = res[0]
+         staff_id = res[1]
+         user = staff.select { |s| s.id == staff_id }.first
+         qa = (res[2] != 0)
+         step = res[3]
+         status = res[4]
+         # puts "P: #{project_id} #{step} by staff #{staff_id}"
+         if !raw.has_key? user.full_name
+            raw[user.full_name] = {scans: 0, scan_rejects: 0, qa: 0, qa_rejects: 0}
          end
-         prior_state[a.project_id] = a
+         if qa
+            raw[user.full_name][:qa] += 1
+            if status == 3
+               # puts "  REJECT: Staff #{staff_id} p #{project_id} vs CURR #{curr.to_json}"
+               raw[user.full_name][:qa_rejects] +=1
+               if curr[:project] == project_id
+                  raw[curr[:staff]][:scan_rejects] += 1
+                  # puts "      SCANNER #{curr[:staff]} gets a rejection"
+               end
+            end
+         else
+            # scan step. reset curr and add stats
+            # puts "=================================================="
+            # puts "  SCAN: Staff #{staff_id} p #{project_id}"
+            curr = {project: project_id, staff: user.full_name}
+            raw[user.full_name][:scans] += 1
+         end
       end
-      users = users.sort_by {|name, cnt| cnt}
-      users = users.reverse[0...5].to_h
-      rejectors = rejectors.sort_by {|name, cnt| cnt}
-      rejectors = rejectors.reverse[0...5].to_h
 
-      # rejections.each do |r|
-      #    reject_step_id = r.step_id
-      #    qa = steps.select { |s| s.fail_step_id == reject_step_id}
-      #    totals[qa.first.id] += 1
-      #
-      #    # track some raw rejection data to display in a data table along with the chart
-      #    chart[:raw][qa.first.name][:rejections] += 1
-      #    chart[:raw][qa.first.name][:time] += r.duration_minutes if !r.duration_minutes.nil?
-      #
-      #    # the owner of the error step is always the original owner of the work
-      #    # use this to track how many times each staff member has had their work rejected
-      #    name =  r.staff_member.full_name
-      #    if !users.has_key? name
-      #       users[name] = 0
-      #    end
-      #    users[name] += 1
-      # end
-      # users = users.sort_by {|name, cnt| cnt}
-      # users = users.reverse[0...5].to_h
-      #
-      # top_rejectors = {}
-      # raw = Assignment.includes(:staff_member).joins(:project)
-      #    .where("status=3 and projects.workflow_id=#{workflow_id.to_i} and #{filter_q}")
-      #    .group(:staff_member_id).select('staff_member_id, COUNT(assignments.id) as cnt').order("cnt desc").limit(5).to_a
-      # raw.each do |r|
-      #    top_rejectors[r.staff_member.full_name] = r.cnt
-      # end
+      raw.each do |k,v|
+         raw[k][:avg_scan_reject] = 0
+         if v[:scans] > 0
+            raw[k][:avg_scan_reject] ="#{(v[:scan_rejects].to_f/v[:scans].to_f*100).ceil}%"
+         end
+         raw[k][:avg_qa_reject] = 0
+         if v[:qa] > 0
+            raw[k][:avg_qa_reject] =  "#{(v[:qa_rejects].to_f/v[:qa].to_f*100).ceil}%"
+         end
+      end
 
-      chart[:top_rejectors] = rejectors
-      # chart[:top_rejectors] = top_rejectors
-      chart[:most_rejected] = users
-      chart[:data] = totals.values
-      chart[:total_rejects] = total_rejects
-      chart[:total_assigments] = assigns.count
-      chart[:reject_percent] = ((chart[:total_rejects].to_f/chart[:total_assigments].to_f)*100.0).ceil
-
-      return chart
+      return raw
    end
 
    # Generate a json report of problems

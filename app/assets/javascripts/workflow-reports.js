@@ -17,36 +17,6 @@ $(function() {
       }
    };
 
-   var populateRawRejectionsTable = function(data) {
-      var template = "<tr class='data'><td>STEP</td><td>CNT</td><td>MIN</td><td>AVG</td></tr>";
-      var table = $("#rejections-raw tbody");
-      $("#rejections-raw table tbody tr.data").remove();
-      var rowData, row;
-      for (var key in data.raw) {
-         rowData = data.raw[key];
-         row = template.replace("STEP", key);
-         row = row.replace("CNT", rowData.rejections);
-         row = row.replace("MIN", rowData.time);
-         var avg = 0;
-         if (rowData.rejections > 0 )  avg = Math.round(rowData.time/rowData.rejections);
-         row = row.replace("AVG", avg);
-         table.append(row);
-      }
-
-      $("#top-rejectors .panel_contents, #most-rejected .panel_contents").empty();
-      var t2= "<div><span class='reject-name'>NAME:</span><span>CNT</span></div>";
-      for (key in data.top_rejectors) {
-         row = t2.replace("NAME", key);
-         row = row.replace("CNT", data.top_rejectors[key]);
-         $("#top-rejectors .panel_contents").append(row);
-      }
-      for (key in data.most_rejected) {
-         row = t2.replace("NAME", key);
-         row = row.replace("CNT", data.most_rejected[key]);
-         $("#most-rejected .panel_contents").append(row);
-      }
-   };
-
    var getBasicChartCfg = function(type) {
       var chartColors = [
          "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231",
@@ -148,33 +118,6 @@ $(function() {
       });
    };
 
-   var requestRejectionsReport = function(workflowId, start, end) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
-      $("#project-rejections-generating").show();
-      var config = getBasicChartCfg("pie");
-      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
-      $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
-         $("#project-rejections-generating").hide();
-         if (textStatus == "success" ) {
-            config.data.datasets[0].data = data.data;
-            config.data.labels = data.labels;
-            var canvas = document.getElementById("rejections-chart");
-            var ctx = canvas.getContext("2d");
-            if ( window.rejectionsChart ) {
-               window.rejectionsChart.destroy();
-            }
-            window.rejectionsChart = new Chart(ctx, config);
-            var txt = "<b>Total Assignments:</b> "+data.total_assigments;
-            txt += ", <b>Total Rejections:</b> "+data.total_rejects+", <b>Rejection Percentage:</b> "+data.reject_percent+"%";
-            $("#total-assignments").html(txt);
-            populateRawRejectionsTable(data);
-         }
-      });
-   };
-
    var requestProductivityReport = function(workflowId, start, end) {
       if (start.length == 0 || end.length == 0) {
          alert("Start and End dates are required");
@@ -225,6 +168,36 @@ $(function() {
       });
    };
 
+   var requestRejectionsReport = function(workflowId, start, end) {
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
+         return;
+      }
+
+      var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>SR</td><td>SA</td>";
+      template += "<td class='left-bar'>QC</td><td>QR</td><td>QA</td></tr>";
+      var table = $("#rejection-stats tbody");
+      $("#rejection-stats tbody tr.data").remove();
+      $("#project-rejections-generating").show();
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-rejections-generating").hide();
+         if (textStatus == "success" ) {
+            for (var key in data) {
+               var rowData = data[key];
+               var row = template.replace("N", key);
+               row = row.replace("SC", rowData.scans);
+               row = row.replace("SR", rowData.scan_rejects);
+               row = row.replace("SA", rowData.avg_scan_reject);
+               row = row.replace("QC", rowData.qa);
+               row = row.replace("QR", rowData.qa_rejects);
+               row = row.replace("QA", rowData.avg_qa_reject);
+               table.append(row);
+            }
+         }
+      });
+   };
+
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
       if (id == "deliveries") {
@@ -237,10 +210,10 @@ $(function() {
       var wfId = $(".workflow."+id).val();
       if (id == "problems") {
          requestProblemsReport(wfId, start, end);
-      } else if (id == "rejections") {
-         requestRejectionsReport(wfId, start, end);
       } else if (id == "productivity") {
          requestProductivityReport(wfId, start, end);
+      } else if (id == "rejections") {
+         requestRejectionsReport(wfId, start, end);
       } else {
          requestAvgTimeReport(wfId, start, end);
       }
@@ -250,7 +223,7 @@ $(function() {
       requestAvgTimeReport(1, $(".avg-time.report-start").val(), $(".avg-time.report-end").val());
       requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
       requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
-      requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val());
       requestDeliveriesReport($(".deliveries.report-year").val());
+      requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val());
    }
 });
