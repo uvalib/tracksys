@@ -4,7 +4,7 @@ class Report
    def self.deliveries(year)
       orders = Order.patron_requests.where("order_status=? and date_completed like '#{year.to_i}%'", "completed")
       months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-      chart = { labels:months, ontime:[], late:[] }
+      chart = { labels:months, ontime:[], late:[], total: [] }
       data = {}
       orders.each do |o|
          month_num = o.date_completed.strftime("%m").to_i
@@ -20,6 +20,7 @@ class Report
       Hash[ data.sort_by { |key, val| key } ].each do |k,v|
          chart[:ontime] <<  v[:ontime]
          chart[:late] <<  v[:late]
+         chart[:total] <<  (v[:late]+v[:ontime])
       end
       return chart
    end

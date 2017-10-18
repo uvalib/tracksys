@@ -157,6 +157,9 @@ $(function() {
             config.data.datasets[0].borderColor = "#44aacc";
             var errDataset = {data: data.late, backgroundColor: "#cc4444", fill: false, borderColor: "#cc4444", label: "Late"};
             config.data.datasets.push(errDataset);
+            var totalDataset = {data: data.total, backgroundColor: "#44cc44", fill: false,
+            borderColor: "#44cc44", label: "Total"};
+            config.data.datasets.push(totalDataset);
             config.data.labels = data.labels;
             var canvas = document.getElementById("deliveries-chart");
             var ctx = canvas.getContext("2d");
