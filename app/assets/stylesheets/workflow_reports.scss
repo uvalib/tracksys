@@ -26,13 +26,37 @@ div.panel.tracksys-report {
       background: white;
       border: 1px solid #ccc;
       border-top: none;
+      border-collapse: collapse;
+
       td { border-bottom: 1px solid #eee;}
       th {
+         position: relative;
          background: #f5f5f5;
          padding-top:1px;
          text-transform: none;
          text-shadow: none;
          border-bottom: 1px solid #ddd;
+      }
+      th.sort-clicker {
+         cursor: pointer;
+      }
+      .sort {
+         width: 16px;
+         height: 16px;
+         background: image-url("updown.png");
+         display: inline-block;
+         background-repeat: no-repeat;
+         position: absolute;
+         top: 0;
+      }
+      .sort.none {
+         display:none;
+      }
+      .sort.asc {
+         background-position: 0 0;
+      }
+      .sort.desc {
+         background-position: 0 -16px;
       }
       .left-bar {
          border-left: 1px solid #ccc !important;

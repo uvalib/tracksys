@@ -171,7 +171,7 @@ $(function() {
       });
    };
 
-   var requestRejectionsReport = function(workflowId, start, end) {
+   var requestRejectionsReport = function(workflowId, start, end, sort, dir) {
       if (start.length == 0 || end.length == 0) {
          alert("Start and End dates are required");
          return;
@@ -183,6 +183,8 @@ $(function() {
       $("#rejection-stats tbody tr.data").remove();
       $("#project-rejections-generating").show();
       var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      if ( sort ) qs = qs + "&sort=" + sort;
+      if ( dir ) qs = qs + "&dir=" + dir;
       $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
          $("#project-rejections-generating").hide();
          if (textStatus == "success" ) {
@@ -207,6 +209,21 @@ $(function() {
          requestDeliveriesReport( $(".deliveries.report-year").val() );
          return;
       }
+      var sortBy = null;
+      var sortDir = null;
+      if (id == "rejections") {
+         $("#rejection-stats .sort").each(function() {
+            if ( $(this).hasClass("asc") ) {
+               sortBy = $(this).data("tgt");
+               sortDir = "asc";
+               return false;
+            } else if ( $(this).hasClass("desc") ) {
+               sortBy = $(this).data("tgt");
+               sortDir = "desc";
+               return false;
+            }
+         });
+      }
 
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
@@ -216,7 +233,7 @@ $(function() {
       } else if (id == "productivity") {
          requestProductivityReport(wfId, start, end);
       } else if (id == "rejections") {
-         requestRejectionsReport(wfId, start, end);
+         requestRejectionsReport(wfId, start, end, sortBy, sortDir);
       } else {
          requestAvgTimeReport(wfId, start, end);
       }
@@ -227,6 +244,23 @@ $(function() {
       requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
       requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
       requestDeliveriesReport($(".deliveries.report-year").val());
-      requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val());
+      requestRejectionsReport(1,
+         $(".rejections.report-start").val(),
+         $(".rejections.report-end").val(),null,null);
    }
+
+   $(".sort-clicker").on("click", function() {
+      var sort = $(this).find(".sort");
+      var newClass = "none";
+      if (sort.hasClass("none")) {
+         newClass="asc";
+      } else if (sort.hasClass("asc")) {
+         newClass="desc";
+      } else if (sort.hasClass("desc")) {
+         newClass="none";
+      }
+      $("#rejection-stats .sort").removeClass("none").removeClass("asc").removeClass("desc").addClass("none");
+      $(sort).removeClass("none").addClass(newClass);
+      $("#rejections").trigger("click");
+   });
 });

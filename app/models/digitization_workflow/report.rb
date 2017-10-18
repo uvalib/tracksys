@@ -51,7 +51,7 @@ class Report
 
    # Generate a json report of rejections / student / workflow
    #
-   def self.rejections(workflow_id, start_date, end_date)
+   def self.rejections(workflow_id, start_date, end_date, sort_by, sort_dir)
       filter_p = ["p.workflow_id=#{workflow_id.to_i}"]
       filter_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
       filter_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
@@ -69,18 +69,19 @@ class Report
          project_id = res[0]
          staff_id = res[1]
          user = staff.select { |s| s.id == staff_id }.first
+         username = "#{user.last_name}, #{user.first_name}"
          qa = (res[2] != 0)
          step = res[3]
          status = res[4]
          # puts "P: #{project_id} #{step} by staff #{staff_id}"
-         if !raw.has_key? user.full_name
-            raw[user.full_name] = {scans: 0, scan_rejects: 0, qa: 0, qa_rejects: 0}
+         if !raw.has_key? username
+            raw[username] = {scans: 0, scan_rejects: 0, qa: 0, qa_rejects: 0}
          end
          if qa
-            raw[user.full_name][:qa] += 1
+            raw[username][:qa] += 1
             if status == 3
                # puts "  REJECT: Staff #{staff_id} p #{project_id} vs CURR #{curr.to_json}"
-               raw[user.full_name][:qa_rejects] +=1
+               raw[username][:qa_rejects] +=1
                if curr[:project] == project_id
                   raw[curr[:staff]][:scan_rejects] += 1
                   # puts "      SCANNER #{curr[:staff]} gets a rejection"
@@ -90,15 +91,15 @@ class Report
             # scan step. reset curr and add stats
             # puts "=================================================="
             # puts "  SCAN: Staff #{staff_id} p #{project_id}"
-            curr = {project: project_id, staff: user.full_name}
-            raw[user.full_name][:scans] += 1
+            curr = {project: project_id, staff: username}
+            raw[username][:scans] += 1
          end
       end
 
       raw.each do |k,v|
          raw[k][:avg_scan_reject] = 0
          if v[:scans] > 0
-            raw[k][:avg_scan_reject] ="#{(v[:scan_rejects].to_f/v[:scans].to_f*100).ceil}%"
+            raw[k][:avg_scan_reject] ="#{(v[:scan_rejects].to_f/v[:scans].to_f).round(2)}"
          end
          raw[k][:avg_qa_reject] = 0
          if v[:qa] > 0

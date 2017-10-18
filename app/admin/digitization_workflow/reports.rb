@@ -56,22 +56,7 @@ ActiveAdmin.register_page "Reports" do
             div id: "project-rejections-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
-            table id: "rejection-stats" do
-               tr do
-                  th class: "top-header" do  end
-                  th class: "top-header left-bar", colspan:3 do "Scans" end
-                  th class: "top-header left-bar", colspan:3 do "QA" end
-               end
-               tr do
-                  th do "Staff" end
-                  th class: "left-bar" do "Projects" end
-                  th do "Rejections" end
-                  th do "Rate" end
-                  th class: "left-bar" do "Projects" end
-                  th do "Rejections" end
-                  th do "Rate" end
-               end
-           end
+            render partial: "rejections_table"
          end
       end
    end
