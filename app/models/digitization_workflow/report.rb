@@ -73,41 +73,43 @@ class Report
          qa = (res[2] != 0)
          step = res[3]
          status = res[4]
-         # puts "P: #{project_id} #{step} by staff #{staff_id}"
          if !raw.has_key? username
-            raw[username] = {scans: 0, scan_rejects: 0, qa: 0, qa_rejects: 0}
+            raw[username] = {scans: 0, scan_reject: 0, qa: 0, qa_reject: 0}
          end
          if qa
             raw[username][:qa] += 1
             if status == 3
-               # puts "  REJECT: Staff #{staff_id} p #{project_id} vs CURR #{curr.to_json}"
-               raw[username][:qa_rejects] +=1
+               raw[username][:qa_reject] +=1
                if curr[:project] == project_id
-                  raw[curr[:staff]][:scan_rejects] += 1
-                  # puts "      SCANNER #{curr[:staff]} gets a rejection"
+                  raw[curr[:staff]][:scan_reject] += 1
                end
             end
          else
             # scan step. reset curr and add stats
-            # puts "=================================================="
-            # puts "  SCAN: Staff #{staff_id} p #{project_id}"
             curr = {project: project_id, staff: username}
             raw[username][:scans] += 1
          end
       end
 
+      # Flatten results into array of objects and add rates
+      out = []
       raw.each do |k,v|
-         raw[k][:avg_scan_reject] = 0
+         scan_rate = 0
          if v[:scans] > 0
-            raw[k][:avg_scan_reject] ="#{(v[:scan_rejects].to_f/v[:scans].to_f).round(2)}"
+            scan_rate = (v[:scan_reject].to_f/v[:scans].to_f).round(2)
          end
-         raw[k][:avg_qa_reject] = 0
+         qa_rate = 0
          if v[:qa] > 0
-            raw[k][:avg_qa_reject] =  "#{(v[:qa_rejects].to_f/v[:qa].to_f*100).ceil}%"
+            qa_rate =  (v[:qa_reject].to_f/v[:qa].to_f*100).ceil
          end
+         out <<  {
+            staff: k, scan_count: v[:scans], scan_reject: v[:scan_reject], scan_rate: scan_rate,
+            qa_count: v[:qa], qa_reject: v[:qa_reject], qa_rate: qa_rate }
       end
 
-      return raw
+      return out if sort_by.nil? || sort_dir.nil?
+      return out.sort_by { |row| row[sort_by.to_sym] }.reverse! if sort_dir == "desc"
+      return out.sort_by { |row| row[sort_by.to_sym] }
    end
 
    # Generate a json report of problems

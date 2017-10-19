@@ -178,7 +178,7 @@ $(function() {
       }
 
       var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>SR</td><td>SA</td>";
-      template += "<td class='left-bar'>QC</td><td>QR</td><td>QA</td></tr>";
+      template += "<td class='left-bar'>QC</td><td>QR</td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();
       $("#project-rejections-generating").show();
@@ -188,17 +188,16 @@ $(function() {
       $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
          $("#project-rejections-generating").hide();
          if (textStatus == "success" ) {
-            for (var key in data) {
-               var rowData = data[key];
-               var row = template.replace("N", key);
-               row = row.replace("SC", rowData.scans);
-               row = row.replace("SR", rowData.scan_rejects);
-               row = row.replace("SA", rowData.avg_scan_reject);
-               row = row.replace("QC", rowData.qa);
-               row = row.replace("QR", rowData.qa_rejects);
-               row = row.replace("QA", rowData.avg_qa_reject);
+            $.each(data, function(idx, rowData) {
+               var row = template.replace("N", rowData.staff);
+               row = row.replace("SC", rowData.scan_count);
+               row = row.replace("SR", rowData.scan_reject);
+               row = row.replace("SA", rowData.scan_rate);
+               row = row.replace("QC", rowData.qa_count);
+               row = row.replace("QR", rowData.qa_reject);
+               row = row.replace("QA", rowData.qa_rate);
                table.append(row);
-            }
+            });
          }
       });
    };
@@ -209,9 +208,14 @@ $(function() {
          requestDeliveriesReport( $(".deliveries.report-year").val() );
          return;
       }
-      var sortBy = null;
-      var sortDir = null;
+
+      var start = $(".report-start."+id).val();
+      var end = $(".report-end."+id).val();
+      var wfId = $(".workflow."+id).val();
+
       if (id == "rejections") {
+         var sortBy = null;
+         var sortDir = null;
          $("#rejection-stats .sort").each(function() {
             if ( $(this).hasClass("asc") ) {
                sortBy = $(this).data("tgt");
@@ -223,17 +227,14 @@ $(function() {
                return false;
             }
          });
+         requestRejectionsReport(wfId, start, end, sortBy, sortDir);
+         return;
       }
 
-      var start = $(".report-start."+id).val();
-      var end = $(".report-end."+id).val();
-      var wfId = $(".workflow."+id).val();
       if (id == "problems") {
          requestProblemsReport(wfId, start, end);
       } else if (id == "productivity") {
          requestProductivityReport(wfId, start, end);
-      } else if (id == "rejections") {
-         requestRejectionsReport(wfId, start, end, sortBy, sortDir);
       } else {
          requestAvgTimeReport(wfId, start, end);
       }
