@@ -58,8 +58,10 @@ class Report
       filter_q = filter_p.join(" and ")
 
       raw = {}
-      q = "select p.id, a.staff_member_id, step_type, s.name, status from assignments a"
+      mf_cnt_sql = "select unit_id,count(id) as cnt from master_files group by unit_id"
+      q = "select p.id, a.staff_member_id, step_type, s.name, status, m.cnt from assignments a"
       q << " inner join projects p ON p.id = a.project_id"
+      q << " left join (#{mf_cnt_sql}) m on m.unit_id = p.unit_id"
       q << " inner join steps s on s.id = step_id"
       q << " where a.status != 5 and (s.step_type = 0 or s.step_type = 3 and fail_step_id is not null)"
       q << " and #{filter_q}"
@@ -73,8 +75,9 @@ class Report
          qa = (res[2] != 0)
          step = res[3]
          status = res[4]
+         mf_cnt = res[5]
          if !raw.has_key? username
-            raw[username] = {scans: 0, scan_reject: 0, qa: 0, qa_reject: 0}
+            raw[username] = {scans: 0, mf_count: 0, scan_reject: 0, qa: 0, qa_reject: 0}
          end
          if qa
             raw[username][:qa] += 1
@@ -88,23 +91,28 @@ class Report
             # scan step. reset curr and add stats
             curr = {project: project_id, staff: username}
             raw[username][:scans] += 1
+            raw[username][:mf_count] += mf_cnt
          end
       end
 
       # Flatten results into array of objects and add rates
       out = []
       raw.each do |k,v|
-         scan_rate = 0
+         project_scan_rate = 0
          if v[:scans] > 0
-            scan_rate = (v[:scan_reject].to_f/v[:scans].to_f).round(2)
+            project_scan_rate = (v[:scan_reject].to_f/v[:scans].to_f).round(2)
+         end
+         image_scan_rate = 0
+         if v[:mf_count] > 0
+            image_scan_rate = (v[:scan_reject].to_f/v[:mf_count].to_f).round(2)
          end
          qa_rate = 0
          if v[:qa] > 0
             qa_rate =  (v[:qa_reject].to_f/v[:qa].to_f*100).ceil
          end
          out <<  {
-            staff: k, scan_count: v[:scans], scan_reject: v[:scan_reject], scan_rate: scan_rate,
-            qa_count: v[:qa], qa_reject: v[:qa_reject], qa_rate: qa_rate }
+            staff: k, scan_count: v[:scans], mf_count: v[:mf_count], scan_reject: v[:scan_reject], project_scan_rate: project_scan_rate,
+            image_scan_rate: image_scan_rate, qa_count: v[:qa], qa_reject: v[:qa_reject], qa_rate: qa_rate }
       end
 
       return out if sort_by.nil? || sort_dir.nil?

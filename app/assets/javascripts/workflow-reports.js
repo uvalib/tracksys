@@ -177,7 +177,7 @@ $(function() {
          return;
       }
 
-      var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>SR</td><td>SA</td>";
+      var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>MC</td><td>SR</td><td>PRR</td><td>IRR</td>";
       template += "<td class='left-bar'>QC</td><td>QR</td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();
@@ -191,8 +191,10 @@ $(function() {
             $.each(data, function(idx, rowData) {
                var row = template.replace("N", rowData.staff);
                row = row.replace("SC", rowData.scan_count);
+               row = row.replace("MC", rowData.mf_count);
                row = row.replace("SR", rowData.scan_reject);
-               row = row.replace("SA", rowData.scan_rate);
+               row = row.replace("PRR", rowData.project_scan_rate);
+               row = row.replace("IRR", rowData.image_scan_rate);
                row = row.replace("QC", rowData.qa_count);
                row = row.replace("QR", rowData.qa_reject);
                row = row.replace("QA", rowData.qa_rate);
