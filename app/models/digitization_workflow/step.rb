@@ -89,6 +89,7 @@ class Step < ApplicationRecord
       if !Dir.exists?(start_dir)
          if self.start_dir == self.finish_dir
             step_failed(project, "Filesystem", "<p>Start directory #{start_dir} does not exist</p>")
+            return false
          else
             Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
             return true
