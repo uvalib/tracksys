@@ -100,11 +100,11 @@ class Report
       raw.each do |k,v|
          project_scan_rate = 0
          if v[:scans] > 0
-            project_scan_rate = (v[:scan_reject].to_f/v[:scans].to_f).round(2)
+            project_scan_rate = (v[:scan_reject].to_f/v[:scans].to_f).round(3)
          end
          image_scan_rate = 0
          if v[:mf_count] > 0
-            image_scan_rate = (v[:scan_reject].to_f/v[:mf_count].to_f).round(2)
+            image_scan_rate = (v[:scan_reject].to_f/v[:mf_count].to_f).round(3)
          end
          qa_rate = 0
          if v[:qa] > 0
