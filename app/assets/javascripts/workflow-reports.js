@@ -254,10 +254,10 @@ $(function() {
       var sort = $(this).find(".sort");
       var newClass = "none";
       if (sort.hasClass("none")) {
-         newClass="asc";
-      } else if (sort.hasClass("asc")) {
          newClass="desc";
       } else if (sort.hasClass("desc")) {
+         newClass="asc";
+      } else if (sort.hasClass("asc")) {
          newClass="none";
       }
       $("#rejection-stats .sort").removeClass("none").removeClass("asc").removeClass("desc").addClass("none");
