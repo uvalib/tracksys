@@ -176,12 +176,11 @@ class Order < ApplicationRecord
       q = nil
       if Time.now.to_date == timespan.to_date
          where("date_due = ?", Date.today).in_progress.patron_requests
-      elsif Time.now > timespan
-         where("date_due < ?", Date.today).where("date_due > ?", timespan).in_progress.patron_requests
       else
-         where("date_due > ?", Date.today).where("date_due < ?", timespan).in_progress.patron_requests
+         where("date_due >= ?", Date.today).where("date_due <= ?", timespan).in_progress.patron_requests
       end
    end
+
    def self.overdue
       date=0.days.ago
       where("date_request_submitted > ?", date - 1.years ).where("date_due < ?", date).in_progress

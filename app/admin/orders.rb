@@ -54,6 +54,7 @@ ActiveAdmin.register Order do
    end
 
    scope :active, :default => true
+   scope :all, :show_count => true
    scope :awaiting_approval
    scope :in_process
    scope :deferred

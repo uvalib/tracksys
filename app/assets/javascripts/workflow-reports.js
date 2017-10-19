@@ -1,100 +1,33 @@
 $(function() {
 
    var populateRawAvgTimeTable = function(data) {
-      var template = "<tr class='data'><td>CAT</td><td>WF</td><td>U</td><td>MIN</td><td>CNT</td><td>AVG</td></tr>";
+      var template = "<tr class='data'><td>CAT</td><td>U</td><td>MIN</td><td>CNT</td><td>AVG</td></tr>";
       var table = $("#avg-time-raw table tbody");
-      $.each(data, function(idx, val) {
-         $.each(val.workflows, function(idx, wfv) {
-            var row = template.replace("CAT", val.category);
-            row = row.replace("WF", wfv.name);
-            row = row.replace("U", wfv.units);
-            row = row.replace("MIN", wfv.mins);
-            row = row.replace("CNT", wfv.mf);
-            var avg = 0;
-            if (wfv.mf > 0 )  avg = Math.round(wfv.mins/wfv.mf);
-            row = row.replace("AVG", avg);
-            table.append(row);
-         });
-      });
-   };
-
-   var requestAvgTimeReport  = function(start, end) {
-      $("#project-time-generating").show();
-      $("#avg-time-raw table tbody tr.data").remove();
-      var config = {
-         type: 'bar',
-         data: {
-            datasets: [{
-               data: [],
-               borderWidth: 1,
-               backgroundColor: "#44aacc"
-            }],
-            labels: []
-         },
-         options: {
-            responsive: true,
-            title: {
-               display: false,
-            },
-            scales: {
-               yAxes: [{
-                  ticks: {
-                     callback: function(value, index, values) {
-                        return value + ' mins';
-                     }
-                  }
-               }]
-            },
-            tooltips: {
-               callbacks: {
-                  title: function(tooltipItem, data) {
-                     return data.datasets[tooltipItem[0].datasetIndex].label;
-                  },
-                  label: function(tooltipItem, data) {
-                     return Number(tooltipItem.yLabel) + " mins / page";
-                  }
-               }
-            }
-         }
-      };
-
-      var params = [];
-      if (start) params.push("start="+start);
-      if (end) params.push("end="+end);
-      if (params.length == 0) {
-         $("#project-time-generating").hide();
-         alert("At least an end date is required");
-         return;
+      for (var key in data) {
+         var rowData = data[key];
+         var row = template.replace("CAT", key);
+         row = row.replace("WF", rowData.name);
+         row = row.replace("U", rowData.units);
+         row = row.replace("MIN", rowData.mins);
+         row = row.replace("CNT", rowData.mf);
+         var avg = 0;
+         if (rowData.mf > 0 )  avg = Math.round(rowData.mins/rowData.mf);
+         row = row.replace("AVG", avg);
+         table.append(row);
       }
-      url = "/api/reports?type=avg_time&"+params.join("&");
-      $.getJSON(url, function ( data, textStatus, jqXHR ){
-         $("#project-time-generating").hide();
-         if (textStatus == "success" ) {
-            var colors = ["#44aacc", "#cc4444", "#44cc44", "#ccaacc", "#ccaa44"];
-            $.each(data.datasets, function(idx, val) {
-               val.backgroundColor = colors[idx];
-               val.borderWidth = 0;
-            });
-            config.data.datasets = data.datasets;
-            config.data.labels = data.labels;
-            var ctx = document.getElementById("avg-times").getContext("2d");
-            if ( window.avgTime ) {
-               window.avgTime.destroy();
-            }
-            window.avgTime  = new Chart(ctx, config);
-            populateRawAvgTimeTable(data.raw);
-         }
-      });
    };
 
-   var requestProblemsReport  = function(start, end) {
-      $("#project-problems-generating").show();
-      var config = {
-         type: 'bar',
+   var getBasicChartCfg = function(type) {
+      var chartColors = [
+         "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231",
+         "#911eb4", "#808080", "#008080", "#e6beff", "#aaffc3"];
+
+      config = {
+         type: type,
          data: {
             datasets: [{
-               backgroundColor: "#cc4444"
-            }],
+               backgroundColor: "#44aacc"
+            }]
          },
          options: {
             responsive: true,
@@ -106,16 +39,77 @@ $(function() {
             }
          }
       };
+      if (type === "bar") {
+         config.data.datasets[0].backgroundColor = "#44aacc";
+      } else  {
+         config.data.datasets[0].backgroundColor = chartColors;
+      }
+      return config;
+   };
 
-      var params = [];
-      if (start) params.push("start="+start);
-      if (end) params.push("end="+end);
-      if (params.length == 0) {
-         $("#project-problems-generating").hide();
-         alert("At least an end date is required");
+   var requestAvgTimeReport  = function(workflowId, start, end) {
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
          return;
       }
-      url = "/api/reports?type=problems&"+params.join("&");
+      $("#project-time-generating").show();
+      $("#avg-time-raw table tbody tr.data").remove();
+      var config = getBasicChartCfg("bar");
+      config.options.scales =  {
+         yAxes: [{
+            ticks: {
+               callback: function(value, index, values) {
+                  return value + ' mins';
+               }
+            }
+         }]
+      };
+      config.options.tooltips = {
+         callbacks: {
+            title: function(tooltipItem, data) {
+               return data.datasets[0].label;
+            },
+            label: function(tooltipItem, data) {
+               return Number(tooltipItem.yLabel) + " mins / page";
+            }
+         }
+      };
+
+
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      url = "/api/reports?type=avg_time&"+qs;
+      $.getJSON(url, function ( data, textStatus, jqXHR ){
+         $("#project-time-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.data;
+            config.data.labels = data.labels;
+            var ctx = document.getElementById("avg-times").getContext("2d");
+            if ( window.avgTime ) {
+               window.avgTime.destroy();
+            }
+            window.avgTime  = new Chart(ctx, config);
+            populateRawAvgTimeTable(data.raw);
+         }
+      });
+   };
+
+   var requestProblemsReport  = function(workflowId, start, end) {
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
+         return;
+      }
+      $("#project-problems-generating").show();
+      var config = getBasicChartCfg("bar");
+      config.data.datasets[0].backgroundColor =  "#cc4444";
+      config.options.scales =  {
+         xAxes: [{
+            ticks: {
+               autoSkip: false
+            }
+         }]
+      };
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      url = "/api/reports?type=problems&"+qs;
       $.getJSON(url, function ( data, textStatus, jqXHR ){
          $("#project-problems-generating").hide();
          if (textStatus == "success" ) {
@@ -130,58 +124,152 @@ $(function() {
       });
    };
 
-   var requestCategoriesReport = function() {
-      $("#project-categories-generating").show();
-      var config = {
-         type: 'pie',
-         data: {
-            datasets: [{
-               backgroundColor: [
-                  "#e6194b", "#11aaff", "#ffe119", "#000080", "#f58231", "#911eb4", "#808080"
-               ]
-            }],
-         },
-         options: {
-            responsive: true,
-            title: {
-               display: false,
-            },
-            legend: {
-               display: true
-            }
-         }
-      };
-      $.getJSON("/api/reports?type=categories", function ( data, textStatus, jqXHR ){
-         $("#project-categories-generating").hide();
+   var requestProductivityReport = function(workflowId, start, end) {
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
+         return;
+      }
+      $("#project-productivity-generating").show();
+      var config = getBasicChartCfg("bar");
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      $.getJSON("/api/reports?type=productivity&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-productivity-generating").hide();
          if (textStatus == "success" ) {
             config.data.datasets[0].data = data.data;
             config.data.labels = data.labels;
-            var canvas = document.getElementById("categories-chart");
+            var canvas = document.getElementById("productivity-chart");
             var ctx = canvas.getContext("2d");
-            var pie = new Chart(ctx, config);
-            $("#total-projects").text("Total projects: "+data.total);
+            if ( window.productivityChart ) {
+               window.productivityChart.destroy();
+            }
+            window.productivityChart = new Chart(ctx, config);
+            $("#total-productivity-projects").html("<b>Total Completed Projects:</b> "+data.total);
          }
       });
    };
 
-   var requestReportsData  = function() {
-      requestAvgTimeReport(null, $(".avg-time.report-end").val());
-      requestCategoriesReport();
-      requestProblemsReport(null, $(".problems.report-end").val());
+   var requestDeliveriesReport = function(tgtYear) {
+      $("#project-deliveries-generating").show();
+      var config = getBasicChartCfg("line");
+      config.options.legend.display = true;
+      var qs = "year="+tgtYear;
+      $.getJSON("/api/reports?type=deliveries&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-deliveries-generating").hide();
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.ontime;
+            config.data.datasets[0].fill = false;
+            config.data.datasets[0].label = "On-Time";
+            config.data.datasets[0].backgroundColor = "#44aacc";
+            config.data.datasets[0].borderColor = "#44aacc";
+            var errDataset = {data: data.late, backgroundColor: "#cc4444", fill: false, borderColor: "#cc4444", label: "Late"};
+            config.data.datasets.push(errDataset);
+            var totalDataset = {data: data.total, backgroundColor: "#44cc44", fill: false,
+            borderColor: "#44cc44", label: "Total"};
+            config.data.datasets.push(totalDataset);
+            config.data.labels = data.labels;
+            var canvas = document.getElementById("deliveries-chart");
+            var ctx = canvas.getContext("2d");
+            if ( window.deliveriesChart ) {
+               window.deliveriesChart.destroy();
+            }
+            window.deliveriesChart = new Chart(ctx, config);
+         }
+      });
+   };
+
+   var requestRejectionsReport = function(workflowId, start, end, sort, dir) {
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
+         return;
+      }
+
+      var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>MC</td><td>SR</td><td>PRR</td><td>IRR</td>";
+      template += "<td class='left-bar'>QC</td><td>QR</td><td>QA%</td></tr>";
+      var table = $("#rejection-stats tbody");
+      $("#rejection-stats tbody tr.data").remove();
+      $("#project-rejections-generating").show();
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      if ( sort ) qs = qs + "&sort=" + sort;
+      if ( dir ) qs = qs + "&dir=" + dir;
+      $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-rejections-generating").hide();
+         if (textStatus == "success" ) {
+            $.each(data, function(idx, rowData) {
+               var row = template.replace("N", rowData.staff);
+               row = row.replace("SC", rowData.scan_count);
+               row = row.replace("MC", rowData.mf_count);
+               row = row.replace("SR", rowData.scan_reject);
+               row = row.replace("PRR", rowData.project_scan_rate);
+               row = row.replace("IRR", rowData.image_scan_rate);
+               row = row.replace("QC", rowData.qa_count);
+               row = row.replace("QR", rowData.qa_reject);
+               row = row.replace("QA", rowData.qa_rate);
+               table.append(row);
+            });
+         }
+      });
    };
 
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
+      if (id == "deliveries") {
+         requestDeliveriesReport( $(".deliveries.report-year").val() );
+         return;
+      }
+
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
+      var wfId = $(".workflow."+id).val();
+
+      if (id == "rejections") {
+         var sortBy = null;
+         var sortDir = null;
+         $("#rejection-stats .sort").each(function() {
+            if ( $(this).hasClass("asc") ) {
+               sortBy = $(this).data("tgt");
+               sortDir = "asc";
+               return false;
+            } else if ( $(this).hasClass("desc") ) {
+               sortBy = $(this).data("tgt");
+               sortDir = "desc";
+               return false;
+            }
+         });
+         requestRejectionsReport(wfId, start, end, sortBy, sortDir);
+         return;
+      }
+
       if (id == "problems") {
-         requestProblemsReport(start,end);
+         requestProblemsReport(wfId, start, end);
+      } else if (id == "productivity") {
+         requestProductivityReport(wfId, start, end);
       } else {
-         requestAvgTimeReport(start, end);
+         requestAvgTimeReport(wfId, start, end);
       }
    });
 
    if ( $("#avg-times").length > 0 ) {
-      requestReportsData();
+      requestAvgTimeReport(1, $(".avg-time.report-start").val(), $(".avg-time.report-end").val());
+      requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
+      requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
+      requestDeliveriesReport($(".deliveries.report-year").val());
+      requestRejectionsReport(1,
+         $(".rejections.report-start").val(),
+         $(".rejections.report-end").val(),null,null);
    }
+
+   $(".sort-clicker").on("click", function() {
+      var sort = $(this).find(".sort");
+      var newClass = "none";
+      if (sort.hasClass("none")) {
+         newClass="desc";
+      } else if (sort.hasClass("desc")) {
+         newClass="asc";
+      } else if (sort.hasClass("asc")) {
+         newClass="none";
+      }
+      $("#rejection-stats .sort").removeClass("none").removeClass("asc").removeClass("desc").addClass("none");
+      $(sort).removeClass("none").addClass(newClass);
+      $("#rejections").trigger("click");
+   });
 });

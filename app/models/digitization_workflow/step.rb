@@ -35,8 +35,9 @@ class Step < ApplicationRecord
    end
 
    private
-   def step_failed(project, msg)
-      prob = Problem.find(5) # Filesystem
+   def step_failed(project, problem_name, msg)
+      prob = Problem.find_by(label: problem_name)
+      prob = Problem.find_by(label: "Other") if prob.nil? # default to Other if problem not found
       Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, problem: prob, step: project.current_step )
       project.active_assignment.update(status: :error )
    end
@@ -67,7 +68,7 @@ class Step < ApplicationRecord
          # if we got here and a capture directory exists, it must not
          # include IIQ files. Fail the step
          if capture_exists
-            step_failed(project, "<p>No raw files found in Capture, Recto or Verso directories</p>")
+            step_failed(project, "Filesystem", "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
       end
@@ -87,7 +88,8 @@ class Step < ApplicationRecord
       # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
          if self.start_dir == self.finish_dir
-            step_failed(project, "<p>Start directory #{start_dir} does not exist</p>")
+            step_failed(project, "Filesystem", "<p>Start directory #{start_dir} does not exist</p>")
+            return false
          else
             Rails.logger.info "Start directory does not exist. Assuming it was manually moved by a user"
             return true
@@ -103,7 +105,7 @@ class Step < ApplicationRecord
 
       if !Dir.exists?(dest_dir)
          Rails.logger.error("Finish directory #{dest_dir} does not exist")
-         step_failed(project, "<p>Finish directory #{dest_dir} does not exist</p>")
+         step_failed(project, "Filesystem", "<p>Finish directory #{dest_dir} does not exist</p>")
          return false
       end
 
@@ -127,16 +129,16 @@ class Step < ApplicationRecord
          cnt += 1
          highest = num if num > highest
          if name.split("_")[0] != unit_dir
-            step_failed(project, "<p>Found incorrectly named image file #{f}.</p>")
+            step_failed(project, "Filename", "<p>Found incorrectly named image file #{f}.</p>")
             return false
          end
       end
       if cnt == 0
-         step_failed(project, "<p>No image files found in #{dir}</p>")
+         step_failed(project, "Filesystem", "<p>No image files found in #{dir}</p>")
          return false
       end
       if highest != cnt
-         step_failed(project, "<p>Number of image files does not match highest image sequence number #{highest}.</p>")
+         step_failed(project, "Filename", "<p>Number of image files does not match highest image sequence number #{highest}.</p>")
          return false
       end
 
@@ -145,13 +147,13 @@ class Step < ApplicationRecord
       Dir[File.join(dir, '*.mpcatalog')].each do |f|
          cnt += 1
          if cnt > 1
-            step_failed(project, "<p>Found more than one .mpcatalog file.</p>")
+            step_failed(project, "Metadata", "<p>Found more than one .mpcatalog file.</p>")
             return false
          end
 
          name = File.basename f,".mpcatalog"
          if name != unit_dir
-            step_failed(project, "<p>Found incorrectly named .mpcatalog file #{f}.</p>")
+            step_failed(project, "Filename", "<p>Found incorrectly named .mpcatalog file #{f}.</p>")
             return false
          end
       end
@@ -160,14 +162,14 @@ class Step < ApplicationRecord
       # fail current step if there is no mpcatalog
       next_step = project.current_step.next_step
       if cnt == 0 && !next_step.nil? && !next_step.fail_step.blank?
-         step_failed(project, "<p>Missing #{unit_dir}.mpcatalog file</p>")
+         step_failed(project, "Metadata", "<p>Missing #{unit_dir}.mpcatalog file</p>")
          return false
       end
 
       #  *.mpcatalog_* can be left over if the project was not saved. If any are
       # found, fail the step and prompt user to save changes and clean up
       if Dir[File.join(dir, '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
-         step_failed(project, "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
+         step_failed(project, "Unsaved", "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
          return false
       end
 
@@ -176,7 +178,7 @@ class Step < ApplicationRecord
       if self.end?
          Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
          if !File.exists? File.join(dir, "#{unit_dir}.xml")
-            step_failed(project, "<p>Missing #{unit_dir}.xml</p>")
+            step_failed(project, "Metadata", "<p>Missing #{unit_dir}.xml</p>")
             return false
          end
 
@@ -185,7 +187,7 @@ class Step < ApplicationRecord
             ext = File.extname f
             ext.downcase!
             if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
-               step_failed(project, "<p>Unexpected file or directory #{f} found</p>")
+               step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
                return false
             end
          end
@@ -213,7 +215,7 @@ class Step < ApplicationRecord
       # Both exist; something is wrong. Fail
       if Dir.exists?(src_dir) && Dir.exists?(dest_dir)
          Rails.logger.error("Both source dir #{src_dir} and destination dir #{dest_dir} exist")
-         step_failed(project, "<p>Both source dir #{src_dir} and destination dir #{dest_dir} exist</p>")
+         step_failed(project, "Filesystem", "<p>Both source dir #{src_dir} and destination dir #{dest_dir} exist</p>")
          return false
       end
 
@@ -226,7 +228,7 @@ class Step < ApplicationRecord
             dest_dir = alt_dest_dir
          else
             Rails.logger.error("Neither source nor destination directories exist")
-            step_failed(project, "<p>Neither start nor finsh directory exists</p>")
+            step_failed(project, "Filesystem", "<p>Neither start nor finsh directory exists</p>")
             return false
          end
       end
@@ -277,7 +279,7 @@ class Step < ApplicationRecord
          note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
          note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
          note << "<p><b>Error details:</b> #{e.to_s}</p>"
-         step_failed(project, note)
+         step_failed(project, "Filesystem", note)
          return false
       end
    end
