@@ -101,7 +101,13 @@ $(function() {
       $("#project-problems-generating").show();
       var config = getBasicChartCfg("bar");
       config.data.datasets[0].backgroundColor =  "#cc4444";
-
+      config.options.scales =  {
+         xAxes: [{
+            ticks: {
+               autoSkip: false
+            }
+         }]
+      };
       var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
       url = "/api/reports?type=problems&"+qs;
       $.getJSON(url, function ( data, textStatus, jqXHR ){

@@ -138,9 +138,12 @@ class Report
       chart = { labels:[], data:[]}
       problems = Problem.all.order(id: :asc)
       problems.each { |p| chart[:labels] << p.label }
+      raw = {}
+      problems.each { |p| raw[p.id] =0 }
       Project.connection.execute(q).each do |res|
-         chart[:data] << res[1]
+         raw[res[0]] = res[1]
       end
+      chart[:data] = raw.values
 
       return chart
    end
