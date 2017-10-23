@@ -198,7 +198,8 @@ class Project < ApplicationRecord
       msg = "<p>#{job.error}</p>"
       msg << "<p>Please manually correct the finalization problems. Once complete, press the Finish button for a final validation.</p>"
       msg << "<p>Error details <a href='/admin/job_statuses/#{job.id}'>here</a></p>"
-      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+      note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
+      note.problems << prob
    end
 
    def assignment_finish_available?
@@ -288,7 +289,8 @@ class Project < ApplicationRecord
    def fail_clone_validation(reason)
       prob = Problem.find(7) # Other
       msg = "<p>Validation of patron deliverables failed: #{reason}</p>"
-      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+      note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
+      note.problems << prob
       self.active_assignment.update(status: :error )
    end
 
@@ -377,16 +379,20 @@ class Project < ApplicationRecord
 
    private
    def manually_finalized?
-      # Finalization failure is detected by the presence of
-      # problem note with a cause of Finailzation
-      self.notes.joins(:problem).where("problems.id=6").count > 0
+      q = "select count(b.id) from notes n "
+      q << " inner join notes_problems np on np.note_id = n.id"
+      q << " inner join problems b on b.id = np.problem_id"
+      q << " where n.project_id=#{self.id} and b.id=6"
+      result = Project.connection.execute(q).first
+      return result[0] > 0
    end
 
    private
    def validation_failed(reason)
       prob = Problem.find(6) # Finalization
       msg = "<p>Validation of manual finalization failed: #{reason}</p>"
-      Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, problem: prob, step: self.current_step )
+      note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
+      note.problems << prob
       self.active_assignment.update(status: :error )
    end
 

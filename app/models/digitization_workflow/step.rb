@@ -38,7 +38,8 @@ class Step < ApplicationRecord
    def step_failed(project, problem_name, msg)
       prob = Problem.find_by(label: problem_name)
       prob = Problem.find_by(label: "Other") if prob.nil? # default to Other if problem not found
-      Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, problem: prob, step: project.current_step )
+      note = Note.create(staff_member: project.owner, project: project, note_type: :problem, note: msg, step: project.current_step )
+      note.problems << prob
       project.active_assignment.update(status: :error )
    end
 
