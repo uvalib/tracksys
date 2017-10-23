@@ -57,6 +57,8 @@ class Report
       filter_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
       filter_q = filter_p.join(" and ")
 
+      # NOTES: The student that was originally assigned to scan (step type = 0)
+      # is always the one responsible when QA steps (type=3) are rejected
       raw = {}
       mf_cnt_sql = "select unit_id,count(id) as cnt from master_files group by unit_id"
       q = "select p.id, a.staff_member_id, step_type, s.name, status, m.cnt from assignments a"

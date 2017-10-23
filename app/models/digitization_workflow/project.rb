@@ -127,20 +127,6 @@ class Project < ApplicationRecord
       return "#{'%02d' % h}:#{'%02d' % mins}"
    end
 
-   def total_wall_time
-      ordered = assignments.order(assigned_at: :asc)
-      return "00:00" if ordered.count == 0
-
-      t0 = ordered.first.assigned_at
-      t1 = DateTime.now
-      t1 = finished_at if finished?
-
-      del_mins = (t1.to_i-t0.to_i)/60
-      h = del_mins/60
-      del_mins -= (h*60)
-      return "#{'%02d' % h}:#{'%02d' % del_mins}"
-   end
-
    def clear_assignment(admin_user)
       msg = "<p>Admin user #{admin_user.full_name} canceled assignment to #{self.owner.full_name}</p>"
       Note.create(staff_member: admin_user, project: self, note_type: :comment, note: msg, step: self.current_step )

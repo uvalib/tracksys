@@ -138,20 +138,28 @@ ActiveAdmin.register Project do
    member_action :note, :method => :post do
       project = Project.find(params[:id])
       type = params[:note_type].to_i
-      prob_id = params[:problem]
-      prob = nil
-      if Note.note_types[:problem] == type
-         prob = Problem.find(prob_id)
+      problems = params[:problems]
+      if type == 2 && problems.nil? || (!problems.nil? && problems.length == 0)
+         render plain: "At least one problem must be selected.", status:  :error
+         return
       end
+
       begin
-        note = Note.create!(staff_member: current_user, project: project, note_type: type,
-                            note: params[:note], problem: prob, step: project.current_step )
-        html = render_to_string partial: "note", locals: {note: note}
-        render json: {html: html}
-     rescue Exception => e
-        Rails.logger.error e.to_s
-        render plain: "Create note FAILED: #{e.to_s}", status:  :error
-     end
+         note = Note.create!(staff_member: current_user, project: project, note_type: type,
+         note: params[:note], step: project.current_step )
+         if !problems.nil?
+            problems.each do |prob_id|
+               prob = Problem.find(prob_id.to_i)
+               note.problems << prob
+            end
+         end
+
+         html = render_to_string partial: "note", locals: {note: note}
+         render json: {html: html}
+      rescue Exception => e
+         Rails.logger.error e.to_s
+         render plain: "Create note FAILED: #{e.to_s}", status:  :error
+      end
    end
 
    member_action :settings, :method => :put do
@@ -185,7 +193,7 @@ ActiveAdmin.register Project do
 
       ocr_mf = params[:ocr_master_files] == "true"
       project.unit.update(ocr_master_files: ocr_mf)
-      
+
       if params[:ocr_hint_id]
          logger.info "Setting OCR hint to #{params[:ocr_hint_id]}"
          ocr_resp = project.unit.metadata.update( ocr_hint_id: params[:ocr_hint_id] )
