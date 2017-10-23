@@ -20,6 +20,9 @@ ActiveAdmin.register Problem do
    index do
       column :id
       column :name
+      column ("Short Name") do |p|
+         p.label
+      end
       column("Links") do |problem|
          if current_user.admin?
             div {link_to I18n.t('active_admin.edit'), edit_resource_path(problem), :class => "member_link edit_link"}
