@@ -130,6 +130,8 @@ class Report
       filter_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
       filter_q = filter_p.join(" and ")
       q = "select problem_id,count(n.id) as cnt from notes n"
+      q << " inner join notes_problems np on np.note_id = n.id"
+      q << " inner join problems pb on pb.id = np.problem_id"
       q << " inner join projects p on project_id = p.id"
       q << " where note_type=2"
       if !filter_q.blank?
