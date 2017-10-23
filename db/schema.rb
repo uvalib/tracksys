@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171011135508) do
+ActiveRecord::Schema.define(version: 20171020132311) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -363,16 +363,21 @@ ActiveRecord::Schema.define(version: 20171011135508) do
   create_table "notes", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "staff_member_id"
     t.integer "project_id"
-    t.integer "problem_id"
     t.text "note"
     t.integer "note_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "step_id"
-    t.index ["problem_id"], name: "index_notes_on_problem_id"
     t.index ["project_id"], name: "index_notes_on_project_id"
     t.index ["staff_member_id"], name: "index_notes_on_staff_member_id"
     t.index ["step_id"], name: "index_notes_on_step_id"
+  end
+
+  create_table "notes_problems", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "note_id"
+    t.bigint "problem_id"
+    t.index ["note_id"], name: "index_notes_problems_on_note_id"
+    t.index ["problem_id"], name: "index_notes_problems_on_problem_id"
   end
 
   create_table "ocr_hints", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -418,7 +423,6 @@ ActiveRecord::Schema.define(version: 20171011135508) do
 
   create_table "problems", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
-    t.integer "notes_count", default: 0
     t.string "label"
   end
 

@@ -13,7 +13,9 @@
    </div>
    <div class="note-text">
       <% if note.problem? %>
-         <h4><%= note.problem.name %></h4>
+         <h4>
+            <%=  note.problems.pluck(:name).join(", ") %>
+         </h4>
       <% end %>
       <%= raw(note.note) %>
    </div>

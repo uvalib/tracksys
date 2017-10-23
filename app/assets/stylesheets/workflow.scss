@@ -186,6 +186,7 @@ div.panel.notes, div.panel.history {
    background-color: #fcfcfc;
    border: 1px solid #aad;
    margin: 0;
+   border-collapse: collapse;
    tr.create td{
       background: #e5e5fa;
    }
@@ -234,7 +235,17 @@ div.panel.notes, div.panel.history {
       margin-bottom:10px;
    }
    .invisible {
-      visibility: hidden;
+      display: none;
+   }
+   label {
+      font-weight: bold;
+      color:#555;
+   }
+   label.cb {
+      font-weight:normal;
+   }
+   input[type=checkbox] {
+      margin-right: 10px;
    }
 }
 

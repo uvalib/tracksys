@@ -11,6 +11,8 @@
    </div>
 </div>
 
+<!--- STOPPED HERE! NEED TO MAKE THIS HAVE CHECKBOXES FOR MULTIPLE PROBLEMS. NEED BACK END SUPPORT FOR SAVING TOO -->
+
 <div id="dimmer">
    <div id="note-modal" class="modal">
       <h1>Note</h1>
@@ -19,7 +21,7 @@
             <div class="reject-instruct">
                Rejection requires the addition of a problem note that details the reason why it occurred
             </div>
-            <div class="two-column">
+            <div>
                <label>Note Type:</label>
                <select name="note_type" id="type-select">
                   <% Note.note_types.to_a.each do |nt| %>
@@ -27,13 +29,13 @@
                   <% end %>
                </select>
             </div>
-            <div class="two-column invisible" id="problem-select">
-               <label>Problem:</label>
-               <select name="problem">
+            <div class="invisible" id="problem-select">
+               <label>Problem (select all that apply):</label>
+               <div>
                   <% Problem.where("id <> 5 and name <> 6").each do |p| %>
-                  <option value="<%= p.id %>"><%= p.name %></option>
+                     <label class="cb"><input type="checkbox" name="problems[]" value="<%= p.id %>"/><%= p.name %></label>
                   <% end %>
-               </select>
+               </div>
             </div>
             <div>
                <label>Note Text:</label>

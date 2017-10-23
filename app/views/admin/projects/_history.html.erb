@@ -3,7 +3,7 @@
    <div class="panel_contents">
       <div class="time-summary">
          <span class="wall">
-            <label>Total Wall Time:</label><span><%= project.total_wall_time %></span>
+            <label>Date Started:</label><span><%= project.started_at.strftime("%F %r") %></span>
          </span>
          <span class="real">
             <label>Total Work Time:</label><span><%= project.total_work_time %></span>
