@@ -145,8 +145,7 @@ ActiveAdmin.register Project do
       end
 
       begin
-         note = Note.create!(staff_member: current_user, project: project, note_type: type,
-         note: params[:note], step: project.current_step )
+         note = Note.create!(staff_member: current_user, project: project, note_type: type, note: params[:note], step: project.current_step )
          if !problems.nil?
             problems.each do |prob_id|
                prob = Problem.find(prob_id.to_i)
