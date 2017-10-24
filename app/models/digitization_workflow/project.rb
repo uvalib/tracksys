@@ -40,6 +40,24 @@ class Project < ApplicationRecord
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant%" ')}
 
+   # Get a list of projects rejected by a user matching the params. Valid types are qa and scan
+   #
+   def self.rejections(type, staff_id, start_date, end_date)
+      projects = []
+      if type == "scan"
+         projects = Project.joins(:assignments).joins(:assignments=>:step)
+            .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
+            .where("assignments.staff_member_id=#{staff_id.to_i}")
+            .where(assignments:{steps:{step_type: 0}}).distinct
+      elsif type == "qa"
+         projects = Project.joins(:assignments).joins(:assignments=>:step)
+            .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
+            .where("assignments.staff_member_id=#{staff_id.to_i}")
+            .where.not(assignments:{steps:{fail_step_id: nil}}).distinct
+      end
+      return projects
+   end
+
    def self.has_error
       q = "inner join"
       q << " (select * from assignments where status = 4 order by assigned_at desc limit 1) "

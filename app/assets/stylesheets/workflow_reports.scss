@@ -1,3 +1,15 @@
+h4.rejection-header {
+   margin: 0 0 20px 0;
+   font-weight: bold;
+   color: #777;
+}
+div.rejects-list {
+   div.project-card {
+      width: 45%;
+      float: left;
+      margin: 0 10px 10px 0;
+   }
+}
 div.panel.tracksys-report {
    position: relative;
    div.generating {
