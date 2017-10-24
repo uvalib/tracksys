@@ -65,7 +65,7 @@ class Report
       q << " inner join projects p ON p.id = a.project_id"
       q << " left join (#{mf_cnt_sql}) m on m.unit_id = p.unit_id"
       q << " inner join steps s on s.id = step_id"
-      q << " where a.status != 5 and (s.step_type = 0 or s.step_type = 3 and fail_step_id is not null)"
+      q << " where a.status != 5 and (s.step_type = 0 or fail_step_id is not null)" # only QA and finalize have fail steps
       q << " and #{filter_q}"
       curr = {}
       staff = StaffMember.all
