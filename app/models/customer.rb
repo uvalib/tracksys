@@ -35,7 +35,8 @@ class Customer < ApplicationRecord
    # scopes
    #------------------------------------------------------------------
    default_scope {order('last_name ASC, first_name ASC')}
-   scope :has_unpaid_invoices, lambda{ where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).where('orders.fee_actual > 0').uniq }
+   scope :has_unpaid_invoices, ->{
+      where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).where('orders.fee_actual > 0').distinct }
 
    #------------------------------------------------------------------
    # public instance methods
