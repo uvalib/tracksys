@@ -11,8 +11,6 @@
    </div>
 </div>
 
-<!--- STOPPED HERE! NEED TO MAKE THIS HAVE CHECKBOXES FOR MULTIPLE PROBLEMS. NEED BACK END SUPPORT FOR SAVING TOO -->
-
 <div id="dimmer">
    <div id="note-modal" class="modal">
       <h1>Note</h1>
@@ -32,7 +30,7 @@
             <div class="invisible" id="problem-select">
                <label>Problem (select all that apply):</label>
                <div>
-                  <% Problem.where("id <> 5 and name <> 6").each do |p| %>
+                  <% Problem.qa.each do |p| %>
                      <label class="cb"><input type="checkbox" name="problems[]" value="<%= p.id %>"/><%= p.name %></label>
                   <% end %>
                </div>

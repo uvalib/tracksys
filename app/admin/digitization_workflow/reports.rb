@@ -33,7 +33,7 @@ ActiveAdmin.register_page "Reports" do
             end
          end
 
-         panel "Deliveries", class:"tracksys-report" do
+         panel "Patron Deliveries", class:"tracksys-report" do
             render partial: 'report_filter', locals: { report: "deliveries" }
             div id: "project-deliveries-generating", class: "generating" do
                div class: "wait" do "Please wait..." end

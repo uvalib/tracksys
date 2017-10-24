@@ -240,12 +240,15 @@ div.panel.notes, div.panel.history {
    label {
       font-weight: bold;
       color:#555;
+      margin-bottom: 5px;
    }
    label.cb {
       font-weight:normal;
+      margin-bottom: 0px;
    }
-   input[type=checkbox] {
+   input[type=checkbox], select {
       margin-right: 10px;
+      margin-left: 20px;
    }
 }
 
