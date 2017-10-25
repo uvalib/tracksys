@@ -72,28 +72,26 @@ class Report
       Project.connection.execute(q).each do |res|
          project_id = res[0]
          staff_id = res[1]
-         user = staff.select { |s| s.id == staff_id }.first
-         username = "#{user.last_name}, #{user.first_name}"
          qa = (res[2] != 0)
          step = res[3]
          status = res[4]
          mf_cnt = res[5]
-         if !raw.has_key? username
-            raw[username] = {scans: 0, mf_count: 0, scan_reject: 0, qa: 0, qa_reject: 0}
+         if !raw.has_key? staff_id
+            raw[staff_id] = {scans: 0, mf_count: 0, scan_reject: 0, qa: 0, qa_reject: 0}
          end
          if qa
-            raw[username][:qa] += 1
+            raw[staff_id][:qa] += 1
             if status == 3
-               raw[username][:qa_reject] +=1
+               raw[staff_id][:qa_reject] +=1
                if curr[:project] == project_id
                   raw[curr[:staff]][:scan_reject] += 1
                end
             end
          else
             # scan step. reset curr and add stats
-            curr = {project: project_id, staff: username}
-            raw[username][:scans] += 1
-            raw[username][:mf_count] += mf_cnt
+            curr = {project: project_id, staff: staff_id}
+            raw[staff_id][:scans] += 1
+            raw[staff_id][:mf_count] += mf_cnt
          end
       end
 
@@ -112,8 +110,13 @@ class Report
          if v[:qa] > 0
             qa_rate =  (v[:qa_reject].to_f/v[:qa].to_f*100).ceil
          end
+
+         user = staff.select { |s| s.id == k }.first
+         username = "#{user.last_name}, #{user.first_name}"
+
          out <<  {
-            staff: k, scan_count: v[:scans], mf_count: v[:mf_count], scan_reject: v[:scan_reject], project_scan_rate: project_scan_rate,
+            staff_id: k, staff: username, scan_count: v[:scans], mf_count: v[:mf_count],
+            scan_reject: v[:scan_reject], project_scan_rate: project_scan_rate,
             image_scan_rate: image_scan_rate, qa_count: v[:qa], qa_reject: v[:qa_reject], qa_rate: qa_rate }
       end
 

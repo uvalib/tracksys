@@ -45,7 +45,9 @@ ActiveAdmin.register Project do
    #
    index  as: :grid, :download_links => false, columns: 2 do |project|
       @first = true if @first.nil?
-      render partial: 'card', locals: {project: project, first: @first }
+      footer =  true
+      footer = false if params[:scope] && params[:scope] == "finished"
+      render partial: 'card', locals: {project: project, first: @first, footer: footer}
       @first = false
    end
 
@@ -249,6 +251,10 @@ ActiveAdmin.register Project do
       project = Project.find(params[:id])
       if !project.assignable?(current_user, nil)
          redirect_to url, :notice => "You don't have the required skills to claim this project"
+         return
+      end
+      if !project.owner.nil? && !(current_user.admin? || current_user.supervisor?)
+         redirect_to url, :notice => "#{project.owner.full_name} has already claimed project #{project.id}"
          return
       end
       begin
