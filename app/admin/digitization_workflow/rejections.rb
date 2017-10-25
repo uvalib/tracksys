@@ -12,7 +12,7 @@ ActiveAdmin.register_page "Rejections" do
       cnt = 0
       div class: "rejects-list" do
          projects.each do |project|
-            render partial: "/admin/projects/card", locals: {project: project, no_footer: "true", first: false}
+            render partial: "/admin/projects/card", locals: {project: project, footer: false, first: false}
             cnt +=1
             if cnt == 2
                cnt = 0
