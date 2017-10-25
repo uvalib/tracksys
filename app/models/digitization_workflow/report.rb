@@ -136,14 +136,14 @@ class Report
       q << " inner join notes_problems np on np.note_id = n.id"
       q << " inner join problems pb on pb.id = np.problem_id"
       q << " inner join projects p on project_id = p.id"
-      q << " where note_type=2"
+      q << " where note_type=2 and pb.label <> 'Filesystem' and pb.label <> 'Finalization'"
       if !filter_q.blank?
          q << " and #{filter_q}"
       end
       q << " group by problem_id"
 
       chart = { labels:[], data:[]}
-      problems = Problem.all.order(id: :asc)
+      problems = Problem.non_automation
       problems.each { |p| chart[:labels] << p.label }
       raw = {}
       problems.each { |p| raw[p.id] =0 }
