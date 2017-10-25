@@ -43,24 +43,40 @@ class Project < ApplicationRecord
    # Get a list of projects rejected by a user matching the params. Valid types are qa and scan
    #
    def self.rejections(type, staff_id, workflow, start_date, end_date)
+      q = "select a.* from assignments a"
+      q << " inner join projects p on a.project_id=p.id"
+      q << " inner join steps s on s.id=a.step_id"
+      q << " where p.workflow_id=#{workflow.to_i}"
+      q << " and p.finished_at >= #{sanitize(start_date)} and p.finished_at <= #{sanitize(end_date)}"
+      q << " and a.status != 5 and (s.step_type = 0 or fail_step_id is not null)"
       projects = []
-      if type == "scan"
-         projects = Project.joins(:assignments).joins(:assignments=>:step)
-            .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
-            .where("assignments.staff_member_id=#{staff_id.to_i}")
-            .where("assignments.status != 5")
-            .where(assignments:{steps:{step_type: 0}}).distinct
-      elsif type == "qa"
-         projects = Project.joins(:assignments).joins(:assignments=>:step)
-            .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
-            .where(workflow_id: workflow)
-            .where("assignments.staff_member_id=#{staff_id.to_i}")
-            .where("assignments.status = 3")
-            .where.not(assignments:{steps:{fail_step_id: nil}}).distinct
+      curr_project = nil
+      Assignment.find_by_sql(q).each do |a|
+         if type == "qa"
+            next if a.staff_member_id != staff_id
+            next if a.step.start?
+            next if !a.rejected?
+            projects << a.project
+         else
+            if a.step.start?
+               next if a.staff_member_id != staff_id
+               curr_project = a.project_id
+            else
+               if a.project_id == curr_project && a.rejected?
+                  projects << a.project
+               end
+            end
+         end
       end
-      return projects
+      return projects.uniq
    end
 
+   private
+   def self.sanitize(text)
+      return ActiveRecord::Base::connection.quote(text)
+   end
+
+   public
    def self.has_error
       q = "inner join"
       q << " (select * from assignments where status = 4 order by assigned_at desc limit 1) "
