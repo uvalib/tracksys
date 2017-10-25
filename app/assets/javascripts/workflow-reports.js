@@ -183,8 +183,13 @@ $(function() {
          return;
       }
 
-      var template = "<tr class='data'><td>N</td><td class='left-bar'>SC</td><td>MC</td><td>SR</td><td>PRR</td><td>IRR</td>";
-      template += "<td class='left-bar'>QC</td><td>QR</td><td>QA%</td></tr>";
+      var template = "<tr class='data'><td>N</td>";
+      var d0 = $(".rejections.report-start").val();
+      var d1 = $(".rejections.report-end").val();
+      var wfId = $("#workflow-rejections").val();
+      var href = "/admin/rejections?user=UID&workflow="+wfId+"&type=qa&d0="+d0+"&d1="+d1;
+      template += "<td class='left-bar'><a href='"+href+"'>SC</a></td><td>MC</td><td>SR</td><td>PRR</td><td>IRR</td>";
+      template += "<td class='left-bar'><a href='"+href+"'>QC</a></td><td>QR</td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();
       $("#project-rejections-generating").show();
@@ -196,6 +201,7 @@ $(function() {
          if (textStatus == "success" ) {
             $.each(data, function(idx, rowData) {
                var row = template.replace("N", rowData.staff);
+               row = row.replace(/UID/g, rowData.staff_id);
                row = row.replace("SC", rowData.scan_count);
                row = row.replace("MC", rowData.mf_count);
                row = row.replace("SR", rowData.scan_reject);

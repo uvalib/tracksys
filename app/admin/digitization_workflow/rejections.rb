@@ -5,7 +5,7 @@ ActiveAdmin.register_page "Rejections" do
       staff = StaffMember.find(params[:user])
       type = "QA"
       type = "Scannng" if  params[:type] == "scan"
-      projects = Project.rejections(params[:type], staff.id, params[:d0], params[:d1])
+      projects = Project.rejections(params[:type], staff.id, params[:workflow], params[:d0], params[:d1])
       h4 class:"rejection-header" do
          "#{type} Rejections for #{staff.full_name}"
       end

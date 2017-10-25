@@ -42,17 +42,20 @@ class Project < ApplicationRecord
 
    # Get a list of projects rejected by a user matching the params. Valid types are qa and scan
    #
-   def self.rejections(type, staff_id, start_date, end_date)
+   def self.rejections(type, staff_id, workflow, start_date, end_date)
       projects = []
       if type == "scan"
          projects = Project.joins(:assignments).joins(:assignments=>:step)
             .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
             .where("assignments.staff_member_id=#{staff_id.to_i}")
+            .where("assignments.status != 5")
             .where(assignments:{steps:{step_type: 0}}).distinct
       elsif type == "qa"
          projects = Project.joins(:assignments).joins(:assignments=>:step)
             .where("projects.finished_at>=? and projects.finished_at<=?", start_date, end_date)
+            .where(workflow_id: workflow)
             .where("assignments.staff_member_id=#{staff_id.to_i}")
+            .where("assignments.status = 3")
             .where.not(assignments:{steps:{fail_step_id: nil}}).distinct
       end
       return projects
