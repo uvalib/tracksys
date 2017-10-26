@@ -22,6 +22,17 @@
          <input type="text" name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>"/>
          <span id="find-metadata"></span>
       </li>
+
+      <% if !@master_file.location.nil? %>
+         <li class="select input optional stringish">
+            <label for="master_file_box" class="label">Box</label>
+            <input  name="master_file[box]" id="master_file_box" type="text" value="<%= @master_file.box %>"/>
+         </li>
+         <li class="select input optional stringish">
+            <label for="master_file_folder" class="label">Folder</label>
+            <input  name="master_file[folder]" id="master_file_folder" type="text" value="<%= @master_file.folder %>"/>
+         </li>
+      <% end %>
    <% end %>
    <%= render partial: "/admin/common/metadata_finder_modal" %>
 

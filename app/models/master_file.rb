@@ -23,9 +23,13 @@ class MasterFile < ApplicationRecord
    has_one :department, :through => :customer
    has_one :agency, :through => :order
 
+   has_one :master_file_location
+   has_one :location, through: :master_file_location
+
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
+   delegate :box, :folder, to: :location, allow_nil: true, prefix: false
    delegate :title, :use_right, :to => :metadata, :allow_nil => true, :prefix => true
 
    delegate :date_due, :date_order_approved, :date_request_submitted, :date_customer_notified, :id,

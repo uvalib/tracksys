@@ -7,11 +7,7 @@
          </tr>
          <tr class="row">
             <th>Box Number</th>
-            <td class="sirsi-data" id="box_id"><%= raw format_td(@sirsi_meta[:box_id]) %></td>
-         </tr>
-         <tr class="row">
-            <th>Folder Number</th>
-            <td class="sirsi-data" id="folder_id"><%= raw format_td(@sirsi_meta[:folder_id]) %></td>
+            <td class="sirsi-data" id="box"><%= raw format_td(@sirsi_meta[:box]) %></td>
          </tr>
       <% else %>
          <tr class="row">
@@ -24,15 +20,8 @@
          <tr class="row">
             <th>Box Number</th>
             <td>
-               <input class='sirsi-edit' maxlength="255" id="sirsi_metadata_box_id"
-                      type="text" value="<%= @sirsi_meta[:box_id] %>" name="sirsi_metadata[box_id]">
-            </td>
-         </tr>
-         <tr class="row">
-            <th>Folder Number</th>
-            <td>
-               <input class='sirsi-edit' maxlength="255" id="sirsi_metadata_folder_id"
-                      type="text" value="<%= @sirsi_meta[:folder_id] %>" name="sirsi_metadata[folder_id]">
+               <input class='sirsi-edit' maxlength="255" id="sirsi_metadata_box"
+                      type="text" value="<%= @sirsi_meta[:box] %>" name="sirsi_metadata[box]">
             </td>
          </tr>
       <% end %>

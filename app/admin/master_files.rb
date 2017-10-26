@@ -29,6 +29,8 @@ ActiveAdmin.register MasterFile do
    filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :metadata_title_starts_with, :label => "Metadata Title"
    filter :metadata_creator_name_starts_with, :label => "Author"
+   filter :location_metadata_box_starts_with, :label => "Box"
+   filter :location_folder_starts_with, :label => "Folder"
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
@@ -252,6 +254,17 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   sidebar "Location", :only => [:show],  if: proc{ !master_file.location.nil? } do
+      attributes_table_for master_file do
+         row "Box" do |mf|
+            mf.location.box
+         end
+         row "Folder" do |mf|
+            mf.location.folder
+         end
+      end
+   end
+
    sidebar "Related Information", :only => [:show] do
       attributes_table_for master_file do
          row "Metadata" do |unit|
@@ -308,5 +321,16 @@ ActiveAdmin.register MasterFile do
      column :creator_death_date
      column :creation_date
      column :primary_author
+   end
+
+   controller do
+      def update
+         mf = MasterFile.find(params[:id])
+         if !mf.location.nil?
+            mf.location.update(folder: params[:master_file][:folder])
+            mf.location.metadata.update(box: params[:master_file][:box])
+         end
+         super
+      end
    end
 end
