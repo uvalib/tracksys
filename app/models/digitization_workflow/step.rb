@@ -66,23 +66,33 @@ class Step < ApplicationRecord
             end
          end
 
-         # if we got here and a capture directory exists, it must not
-         # include IIQ files. Fail the step
+         # if we got here and a capture directory exists, it must not include IIQ files. Fail the step
          if capture_exists
             step_failed(project, "Filesystem", "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
-      end
-
-      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-      # directory present. Treat it as the start dir and validate.
-      if self.name == "Process"
+      elsif self.name == "Process"
+         # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
+         # directory present. Treat it as the start dir and validate.
          output_dir =  File.join(start_dir, "Output")
          if Dir.exists? output_dir
             start_dir = output_dir
             if Dir[File.join(start_dir, '*.tif')].count == 0
                Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
+               return true
             end
+         end
+      else
+         if self.workflow.name == "Manuscript"
+            # In all other steps of a manuscript workflow, require the presence
+            # of subdirectories in the start directory. No .tif files should be present
+            # outside of these subdirectories
+            if self.name == "Organize"
+               # handle the possibility of a base Output folder in the organize step
+               output_dir =  File.join(start_dir, "Output")
+               start_dir = output_dir if Dir.exists? output_dir
+            end
+            return validate_manuscript_directory_content(project, start_dir)
          end
       end
 
@@ -119,12 +129,72 @@ class Step < ApplicationRecord
    end
 
    private
+   def validate_manuscript_directory_content(project, dir)
+      # First, make sure mpcatalog is good
+      return false if !validate_mpcatalog(project, dir)
+
+      # No .tif files should reside in the base directory
+      if Dir.glob("#{step_dir}/*.tif").count > 0
+         step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
+         return false
+      end
+
+      # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
+      return false if !validate_tif_sequence(project, dir, File.join(dir, '/**/*.tif') )
+
+      # On the final step, be sure there is an XML file present that
+      # has a name matching the unit directory
+      if self.end?
+         return false if !validate_last_step_dir(project, dir)
+      end
+   end
+
+   private
    def validate_directory_content(project, dir)
       # Make sure the names match the unit & highest number is the same as the count
+      # (check in base dir only, not subdirs)
+      return false if !validate_tif_sequence(project, dir, File.join(dir, '*.tif') )
+
+      # validate mpcatalog & check for unsaved changes
+      return false if !validate_mpcatalog(project, dir)
+
+      # On the final step, be sure there is an XML file present that
+      # has a name matching the unit directory
+      if self.end?
+         return false if !validate_last_step_dir(project, dir)
+      end
+
+      return true
+   end
+
+   private
+   def validate_last_step_dir(project, dir)
+      Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
+      unit_dir = project.unit.directory
+      if !File.exists? File.join(dir, "#{unit_dir}.xml")
+         step_failed(project, "Metadata", "<p>Missing #{unit_dir}.xml</p>")
+         return false
+      end
+
+      # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
+      Dir[File.join(dir, '/**/*')].each do |f|
+         next if File.directory? f
+         ext = File.extname f
+         ext.downcase!
+         if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
+            step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
+            return false
+         end
+      end
+      return true
+   end
+
+   private
+   def validate_tif_sequence(project, base_dir, tif_path)
       highest = -1
       cnt = 0
       unit_dir = project.unit.directory
-      Dir[File.join(dir, '*.tif')].each do |f|
+      Dir[ tif_path ].each do |f|
          name = File.basename f,".tif" # get name minus extention
          num = name.split("_")[1].to_i
          cnt += 1
@@ -135,16 +205,21 @@ class Step < ApplicationRecord
          end
       end
       if cnt == 0
-         step_failed(project, "Filesystem", "<p>No image files found in #{dir}</p>")
+         step_failed(project, "Filesystem", "<p>No image files found in #{base_dir}</p>")
          return false
       end
       if highest != cnt
          step_failed(project, "Filename", "<p>Number of image files does not match highest image sequence number #{highest}.</p>")
          return false
       end
+      return true
+   end
 
+   private
+   def validate_mpcatalog(project, dir)
       # Make sure there is at most 1 mpcatalog file
       cnt = 0
+      unit_dir = project.unit.directory
       Dir[File.join(dir, '*.mpcatalog')].each do |f|
          cnt += 1
          if cnt > 1
@@ -172,26 +247,6 @@ class Step < ApplicationRecord
       if Dir[File.join(dir, '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
          step_failed(project, "Unsaved", "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
          return false
-      end
-
-      # On the final step, be sure there is an XML file present that
-      # has a name matching the unit directory
-      if self.end?
-         Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
-         if !File.exists? File.join(dir, "#{unit_dir}.xml")
-            step_failed(project, "Metadata", "<p>Missing #{unit_dir}.xml</p>")
-            return false
-         end
-
-         # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
-         Dir[File.join(dir, '*')].each do |f|
-            ext = File.extname f
-            ext.downcase!
-            if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
-               step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
-               return false
-            end
-         end
       end
 
       return true
