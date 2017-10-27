@@ -125,16 +125,22 @@ class Step < ApplicationRecord
       dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
-      return validate_directory_content(project, dest_dir)
+      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+         return validate_manuscript_directory_content(project, dest_dir)
+      else
+         return validate_directory_content(project, dest_dir)
+      end
    end
 
    private
    def validate_manuscript_directory_content(project, dir)
       # First, make sure mpcatalog is good
+      Rails.logger.info "Validate directory for manuscript workflow. Enforce directories"
       return false if !validate_mpcatalog(project, dir)
 
       # No .tif files should reside in the base directory
-      if Dir.glob("#{step_dir}/*.tif").count > 0
+      Rails.logger.info "Chaking for .tif files not in subdirectories of #{dir}"
+      if Dir.glob("#{dir}/*.tif").count > 0
          step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
          return false
       end
@@ -147,6 +153,7 @@ class Step < ApplicationRecord
       if self.end?
          return false if !validate_last_step_dir(project, dir)
       end
+      return true
    end
 
    private
@@ -191,6 +198,7 @@ class Step < ApplicationRecord
 
    private
    def validate_tif_sequence(project, base_dir, tif_path)
+      Rails.logger.info "Validate .tif count and sequence of #{base_dir}"
       highest = -1
       cnt = 0
       unit_dir = project.unit.directory
@@ -217,7 +225,7 @@ class Step < ApplicationRecord
 
    private
    def validate_mpcatalog(project, dir)
-      # Make sure there is at most 1 mpcatalog file
+      logger.info "Validate mpcatalog files in #{dir}"
       cnt = 0
       unit_dir = project.unit.directory
       Dir[File.join(dir, '*.mpcatalog')].each do |f|
