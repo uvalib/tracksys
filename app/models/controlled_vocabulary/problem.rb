@@ -14,4 +14,7 @@ class Problem < ApplicationRecord
       out << Problem.find_by(name: "Other")
       return out
    end
+   def self.non_automation
+      out = Problem.where("label <>'Filesystem' and label <>'Finalization'").order(id: :asc)
+   end
 end

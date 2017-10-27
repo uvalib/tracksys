@@ -10,7 +10,7 @@ class ImportRawImages < BaseJob
       in_proc_dir = Finder.finalization_dir(unit, :in_process)
 
       seq = 1
-      images.each do |image|
+      images.sort.each do |image|
          # create master file, but name it to tracksys standards. Save original file name in title field.
          src_file = File.join(in_proc_dir, image)
          seq_str = "%04d" % seq
