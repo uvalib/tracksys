@@ -10,7 +10,7 @@ class ImportRawImages < BaseJob
       in_proc_dir = File.join(IN_PROCESS_DIR, unit_dir)
 
       seq = 1
-      images.each do |image|
+      images.sort.each do |image|
          # create master file, but name it to tracksys standards. Save original file name in title field.
          src_file = File.join(in_proc_dir, image)
          seq_str = "%04d" % seq
