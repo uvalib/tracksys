@@ -67,10 +67,4 @@ if unit.date_archived
    div :class => 'workflow_button' do
       raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
    end
-else
-   if  unit.reorder == false
-      div do
-         "This unit cannot be downloaded because it is not archived."
-      end
-   end
 end
