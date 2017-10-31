@@ -7,7 +7,7 @@ ActiveAdmin.register ExternalMetadata do
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :dpla, :external_uri,
-      :collection_id, :box, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
+      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
    config.clear_action_items!
 
@@ -30,7 +30,6 @@ ActiveAdmin.register ExternalMetadata do
    filter :title_contains, label: "Title"
    filter :pid_starts_with, label: "PID"
    filter :collection_id_contains, label: "Collection ID"
-   filter :box_contains, label: "Box Number"
    filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
@@ -152,9 +151,6 @@ ActiveAdmin.register ExternalMetadata do
             attributes_table_for external_metadata do
                row("Collection ID") do |external_metadata|
                   external_metadata.collection_id
-               end
-               row ("Box Number") do |external_metadata|
-                  external_metadata.box
                end
                row "Approved?" do |external_metadata|
                   format_boolean_as_yes_no(external_metadata.is_approved)

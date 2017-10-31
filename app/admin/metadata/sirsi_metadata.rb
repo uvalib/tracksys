@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :collection_id, :box,
+      :collection_facet, :use_right_id, :collection_id,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
   config.clear_action_items!
@@ -37,7 +37,6 @@ ActiveAdmin.register SirsiMetadata do
   filter :catalog_key_starts_with, label: "Catalog key"
   filter :pid_starts_with, label: "PID"
   filter :collection_id_contains, label: "Collection ID"
-  filter :box_contains, label: "Box Number"
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'
@@ -75,7 +74,6 @@ ActiveAdmin.register SirsiMetadata do
       end
     end
     column :barcode, :class => 'sortable_short'
-    column :box, :class => 'sortable_short'
     column ("Digital Library?") do |sirsi_metadata|
       div do
         format_boolean_as_yes_no(sirsi_metadata.in_dl?)
@@ -273,7 +271,6 @@ ActiveAdmin.register SirsiMetadata do
          else
             resource.update(collection_id: @sirsi_meta[:collection_id])
          end
-         @sirsi_meta[:box] = resource.box
       end
 
       before_action :blank_sirsi, except: [:show,:edit ]

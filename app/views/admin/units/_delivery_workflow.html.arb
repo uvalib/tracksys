@@ -11,9 +11,9 @@ if !current_user.viewer? && !current_user.student?
             button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put
          end
 
-         # Digital collection buliding?
          deliverables_ready = false
          if unit.intended_use.id == 110
+            # Digital colection building
             if unit.date_dl_deliverables_ready.blank?
                div :class => 'workflow_button' do
                   button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
@@ -22,7 +22,7 @@ if !current_user.viewer? && !current_user.student?
                deliverables_ready = true
             end
          else
-            # patron order
+            # Patron order
             if unit.date_patron_deliverables_ready.blank?
                div :class => 'workflow_button' do
                   button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
@@ -70,11 +70,5 @@ if unit.date_archived
    end
    div :class => 'workflow_button' do
       raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
-   end
-else
-   if  unit.reorder == false
-      div do
-         "This unit cannot be downloaded because it is not archived."
-      end
    end
 end

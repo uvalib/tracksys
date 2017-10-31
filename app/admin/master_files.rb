@@ -16,7 +16,6 @@ ActiveAdmin.register MasterFile do
    scope :in_digital_library, :show_count => true
    scope :not_in_digital_library, :show_count => true
 
-
    filter :filename_starts_with, label: "filename"
    filter :title_or_description_contains, label: "Title / Description"
    filter :description_contains, label: "Description"
@@ -29,8 +28,8 @@ ActiveAdmin.register MasterFile do
    filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :metadata_title_starts_with, :label => "Metadata Title"
    filter :metadata_creator_name_starts_with, :label => "Author"
-   filter :location_metadata_box_starts_with, :label => "Box"
-   filter :location_folder_starts_with, :label => "Folder"
+   filter :location_container_id_starts_with, :label => "Box"
+   filter :location_folder_id_starts_with, :label => "Folder"
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
@@ -106,13 +105,15 @@ ActiveAdmin.register MasterFile do
       column :description do |mf|
          truncate_words(mf.description)
       end
+      column ("Box") do |mf|
+         mf.container_id
+      end
       column :date_archived do |mf|
          format_date(mf.date_archived)
       end
       column :date_dl_ingest do |mf|
          format_date(mf.date_dl_ingest)
       end
-      column :pid
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
@@ -256,11 +257,14 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Location", :only => [:show],  if: proc{ !master_file.location.nil? } do
       attributes_table_for master_file do
-         row "Box" do |mf|
-            mf.location.box
+         row "Type" do |mf|
+            mf.location.container_type.name
+         end
+         row "Name" do |mf|
+            mf.container_id
          end
          row "Folder" do |mf|
-            mf.location.folder
+            mf.folder_id
          end
       end
    end
@@ -327,8 +331,9 @@ ActiveAdmin.register MasterFile do
       def update
          mf = MasterFile.find(params[:id])
          if !mf.location.nil?
-            mf.location.update(folder: params[:master_file][:folder])
-            mf.location.metadata.update(box: params[:master_file][:box])
+            mf.location.update(folder_id: params[:master_file][:folder_id])
+            mf.location.update(container_id: params[:master_file][:container_id])
+            mf.location.update(container_type_id: params[:master_file][:container_type_id])
          end
          super
       end
