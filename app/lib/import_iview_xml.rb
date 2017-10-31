@@ -25,12 +25,11 @@ module ImportIviewXml
       # QA the file before importing (LFF Shouldn't this have been done in prior QA steps???)
       job_logger.info "QA XML file..."
       error_list = qa_iview_xml(doc, unit)
-      if error_list != [] && error_list != nil
+      if error_list != [] && !error_list.nil?
          raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
       end
 
-      # Flag if the XML contains a SetList. If so, it will be used
-      # to linke to components
+      # Flag if the XML contains a SetList. If so, it will be used to link to components
       has_set_list = !(root.xpath('//SetList').empty? || root.xpath('//SetList//UniqueID').empty?)
 
       # Check for processing instruction indicating software name and version
@@ -56,9 +55,6 @@ module ImportIviewXml
                raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
             end
 
-            # instantiate MasterFile object in memory
-            master_file = new_master_file(item, unit)
-
             # if a MasterFile with this filename already exists for this Unit, don't overwrite it
             existing_mf = MasterFile.find_by(unit_id: unit.id, filename: master_file.filename)
             if !existing_mf.nil?
@@ -71,16 +67,7 @@ module ImportIviewXml
                next
             end
 
-            # if there are .txt files in folder matching MasterFile filenames, add them as transcriptions
-            if ImportIviewXml.get_transcription_text(master_file)
-               job_logger.debug "ImportIvewXML: getting transcription for #{master_file.filename}"
-            end
-
-            # Save and generate tech metadata
-            if !master_file.save
-               raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\" and <Filename> \"#{master_file.filename}\": #{master_file.errors.full_messages}"
-            end
-            create_image_tech_meta(item, master_file.id)
+            master_file = new_master_file(item, unit)
             @master_file_count += 1
 
             # Only attempt to link MasterFiles with Components if the MasterFile's metadata record is a manuscript item
@@ -212,17 +199,28 @@ module ImportIviewXml
    end
    private_class_method :create_image_tech_meta
 
-   #-----------------------------------------------------------------------------
-
-   # Instantiates a new MasterFile object (in memory, without saving it to the
-   # database) and populates it with data from a particular iView XML
+   # Create a new MasterFile object and populates it with data from a particular iView XML
    # +MediaItem+ element.
    #
    def self.new_master_file(item, unit)
-      master_file = MasterFile.new(:unit_id => unit.id, :metadata_id=>unit.metadata_id)
+      # get the filename and find it on the filesystem. If it is in a subfolder
+      # use this info to create a location record for the masterfile
+      tgt_filename = get_element_value(item.xpath('AssetProperties/Filename').first)
+      unit_dir = "%09d" % unit.id
+      in_proc = File.join(IN_PROCESS_DIR, unit_dir)
+      full_path = Dir[File.join(in_proc, "/**/#{tgt_filename}")].first
+      if full_path.nil?
+         raise ImportError, "Missing master file #{tgt_filename}"
+      end
 
-      # filename
-      master_file.filename = get_element_value(item.xpath('AssetProperties/Filename').first)
+      # get the directory of the tgt file and strip off the base
+      # in_process dir. The remaining bit will be the subdirectory - or nothign
+      # use this info to know if there is box/folder info encoded in the filename
+      subdir = File.dirname(full_path)[in_proc.length..-1]
+
+      # Create the masterfile and fill in data from the XML metadata:
+      master_file = MasterFile.new(
+         filename: tgt_filename, unit_id: unit.id, :metadata_id: unit.metadata_id)
 
       # filesize
       element = item.xpath('AssetProperties/FileSize').first
@@ -231,12 +229,24 @@ module ImportIviewXml
          master_file.filesize = value unless value.to_i == 0
       end
 
-      # title
-      # In newer iView XML files, title value is in <Headline>
       master_file.title = get_element_value(item.xpath('AnnotationFields/Headline').first)
-
-      # notes
       master_file.description = get_element_value(item.xpath('AnnotationFields/Caption').first)
+
+      if !master_file.save
+         raise ImportError, "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
+      end
+
+      if !subdir.blank?
+         location = Location.find_by(metadata_id: unit.metadata_id, folder: subdir)
+         if location.nil?
+            location = Location.create(metadata_id: unit.metadata_id, folder: subdir)
+         end
+         master_file.location = location
+      end
+
+      # Get tech metadata and transcriptions
+      create_image_tech_meta(item, master_file.id)
+      get_transcription_text(master_file)
 
       return master_file
    end
@@ -257,8 +267,8 @@ module ImportIviewXml
    end
    private_class_method :get_element_value
 
-   # Reads text file (if present) matching MF filename and adds it as
-   # transcription text
+   # Reads text file (if present) matching MF filename and adds it as transcription text
+   #
    def self.get_transcription_text(master_file, dir=nil)
       unit_dir = sprintf('%09d', master_file.unit.id)
       dir ||= "#{IN_PROCESS_DIR}/#{unit_dir}"
@@ -271,9 +281,7 @@ module ImportIviewXml
          rescue
             text = "" unless text
          end
-         master_file.transcription_text = text
-      else
-         nil
+         master_file.update(transcription_text: text)
       end
    end
 
