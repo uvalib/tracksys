@@ -145,6 +145,9 @@ class Step < ApplicationRecord
          return false
       end
 
+      # validate box/folder/*.tif structure
+      return false if !validate_structure(project, dir)
+
       # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
       return false if !validate_tif_sequence(project, dir, File.join(dir, '/**/*.tif') )
 
@@ -152,6 +155,41 @@ class Step < ApplicationRecord
       # has a name matching the unit directory
       if self.end?
          return false if !validate_last_step_dir(project, dir)
+      end
+      return true
+   end
+
+   private
+   def validate_structure(project, dir)
+      # top level contains one directory for box
+      # box contains only directories; one per folder
+      tree = {}
+      Dir.glob("#{dir}/**/*").each do |entry|
+         if File.directory? (entry)
+            # just get the directories
+            subs = entry[dir.length+1..-1]
+            depth = subs.split("/").count
+            if depth > 2
+               step_failed(project, "Filesystem", "<p>Too many subdirectories</p>")
+               return false
+            elsif depth == 1
+               tree[subs] = []
+               if tree.keys.length > 1
+                  step_failed(project, "Filesystem", "<p>There can only be one box directory</p>")
+                  return false
+               end
+            else
+               bits = subs.split("/")
+               tree[bits[0]] << bits[1]
+            end
+         else
+            subs = File.dirname(entry)[dir.length+1..-1]
+            next if subs.blank?
+            if subs.split("/").count == 1
+               step_failed(project, "Filesystem", "<p>Files found in box directory</p>")
+               return false
+            end
+         end
       end
       return true
    end
