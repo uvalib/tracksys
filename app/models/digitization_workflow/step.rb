@@ -161,8 +161,9 @@ class Step < ApplicationRecord
 
    private
    def validate_structure(project, dir)
-      # top level contains one directory for box
+      # top level contains one directory for box and has a name like: [box|oversize|tray].{name}
       # box contains only directories; one per folder
+      types = ["box", "oversize", "tray"]
       tree = {}
       folders_found = false
       Dir.glob("#{dir}/**/*").each do |entry|
@@ -174,6 +175,16 @@ class Step < ApplicationRecord
                step_failed(project, "Filesystem", "<p>Too many subdirectories</p>")
                return false
             elsif depth == 1
+               # this is a container directory. It should have the format type.name. Validate
+               if subs.split(".").length != 2
+                  step_failed(project, "Filesystem", "<p>Incorrectly named box directory #{subs}</p>")
+                  return false
+               end
+               type = subs.split(".")[0].downcase
+               if !types.include?(type)
+                  step_failed(project, "Filesystem", "<p>Unsupported box type #{type} in directory #{subs}</p>")
+                  return false
+               end
                tree[subs] = []
                if tree.keys.length > 1
                   step_failed(project, "Filesystem", "<p>There can only be one box directory</p>")
