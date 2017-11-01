@@ -261,10 +261,8 @@ module ImportIviewXml
    # transcription text
    def self.get_transcription_text(master_file)
       in_proc = Finder.finalization_dir(master_file.unit, :in_process)
-      unit_dir = sprintf('%09d', master_file.unit.id)
-      dir = "#{in_proc}/#{unit_dir}"
       text_file = master_file.filename.gsub(/\..*$/, '.txt')
-      text_file_fqn = "#{dir}/#{text_file}"
+      text_file_fqn = File.join(in_proc, text_file)
       if File.exist?(text_file_fqn)
          text = nil
          begin
@@ -273,8 +271,6 @@ module ImportIviewXml
             text = "" unless text
          end
          master_file.transcription_text = text
-      else
-         nil
       end
    end
 
