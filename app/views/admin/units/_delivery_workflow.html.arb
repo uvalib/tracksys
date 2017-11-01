@@ -10,32 +10,38 @@ if !current_user.viewer? && !current_user.student?
          div :class => 'workflow_button' do
             button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put
          end
-         div :class => 'workflow_button' do
-            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, :method => :put
-         end
-      end
-      if unit.intended_use != 'Digital Collection Buidling'
-         if !unit.date_patron_deliverables_ready
-            div :class => 'workflow_button' do
-               button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
-            end
-            if unit.reorder && unit.order.all_reorders_ready? && unit.order.units.count > 1
-               div do
-                  hr :class=>'sidebar-sep'
-               end
+
+         deliverables_ready = false
+         if unit.intended_use.id  == 110
+            # Digital Connection Building
+            if unit.date_dl_deliverables_ready.blank?
                div :class => 'workflow_button' do
-                  button_to "Generate All Deliverables", generate_all_deliverables_admin_unit_path, :method => :put
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
                end
-               div do
-                  "Generate deliverables for all units in this order."
-               end
+            else
+               deliverables_ready = true
             end
          else
-            div :class => 'workflow_button' do
-               button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+            # Patron Order
+            if !unit.date_patron_deliverables_ready
+               div :class => 'workflow_button' do
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+               end
+            else
+               deliverables_ready = true
+               div :class => 'workflow_button' do
+                  button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
+               end
             end
          end
+
+         div :class => 'workflow_button' do
+            clazz = "disabled"
+            clazz = "" if deliverables_ready && unit.date_archived.blank?
+            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
+         end
       end
+
    else
       if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
          if unit.date_patron_deliverables_ready
@@ -45,10 +51,6 @@ if !current_user.viewer? && !current_user.student?
          end
       else
          if unit.date_archived.nil?
-            div :class => 'workflow_button' do
-               button_to "Manual Upload to Archive",
-               start_manual_upload_to_archive_admin_unit_path, :method => :get
-            end
             div :class => 'workflow_button' do
                button_to "Finalize Raw Images",
                finalize_raw_images_admin_unit_path, :method => :get
@@ -64,11 +66,5 @@ if unit.date_archived
    end
    div :class => 'workflow_button' do
       raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
-   end
-else
-   if  unit.reorder == false
-      div do
-         "This unit cannot be downloaded because it is not archived."
-      end
    end
 end

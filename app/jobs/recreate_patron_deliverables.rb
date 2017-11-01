@@ -7,12 +7,12 @@ class RecreatePatronDeliverables < BaseJob
    def do_workflow(message)
 
       # first, try to locate the original files for the unit.
-      # if they are not in IN_PROCESS_DIR, put them there
+      # if they are not in the in process directory, put them there
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
-      in_proc_dir = File.join(IN_PROCESS_DIR, unit_dir)
-      del_finalized = File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir)
-      del_delivered_orders = File.join(DELETE_DIR_DELIVERED_ORDERS, "order_#{unit.order_id}", unit.id.to_s)
+      in_proc_dir = Finder.finalization_dir(unit, :in_process)
+      del_finalized = Finder.finalization_dir(unit, :delete_from_finalization)
+      del_delivered_orders = Finder.finalization_dir(unit, :delete_from_delivered)
       archive_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
 
       if Dir.exist? in_proc_dir
@@ -28,7 +28,7 @@ class RecreatePatronDeliverables < BaseJob
          else
             # In this case, deliverbles already exist. Move them into the assemble dir for packaging
             logger.info "Moving deliverables from data in the ready to delete delivered orders directory"
-            assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+            assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
             copy_files(unit, del_delivered_orders, assemble_dir)
 
             # since deliverables already exist, just zip them up

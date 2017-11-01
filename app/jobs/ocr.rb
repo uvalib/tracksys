@@ -30,9 +30,11 @@ class Ocr < BaseJob
 
    def ocr_master_file( mf, language )
       unit_dir = "%09d" % mf.unit_id
-      srcs = [File.join(IN_PROCESS_DIR, unit_dir, mf.filename),
-         File.join(DELETE_DIR_FROM_FINALIZATION, unit_dir, mf.filename),
-         File.join(ARCHIVE_DIR, unit_dir, mf.filename)]
+      srcs = [
+         File.join(Finder.finalization_dir(mf.unit, :in_process), mf.filename),
+         File.join(Finder.finalization_dir(mf.unit, :delete_from_finalization), mf.filename),
+         File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+      ]
       src = nil
       srcs.each do |f|
          if File.exist? f
@@ -44,7 +46,7 @@ class Ocr < BaseJob
          on_error("Source #{mf.filename} could not be found")
       end
 
-      dest_dir = File.join(IN_PROCESS_DIR, "%09d" % mf.unit_id)
+      dest_dir = Finder.finalization_dir(mf.unit, :in_process)
       FileUtils.mkdir_p dest_dir if !Dir.exist?(dest_dir)
       dest = File.join(dest_dir,  "OCR_"+mf.filename)
       logger().info("Preprocess #{src} to #{dest}")

@@ -10,8 +10,7 @@ class BulkDownloadXml < BaseJob
 
       user = message[:user]
       unit = Unit.find(message[:unit_id])
-      unit_dir = "%09d" % unit.id
-      xml_dir = File.join(XML_PICKUP_DIR, "#{unit_dir}")
+      xml_dir = Finder.xml_directory(unit, :pickup)
       if Dir.exist? xml_dir
          logger.info "Removing old XML pickup directory #{xml_dir}"
          FileUtils.rm_rf(xml_dir)
@@ -32,6 +31,6 @@ class BulkDownloadXml < BaseJob
       end
 
       NotificationsMailer.xml_download_complete(user, unit, xml_dir).deliver_now
-      logger.info "Downloaded XML Metadata from #{cnt} masterfiles"
+      logger.info "Downloaded XML Metadata from #{cnt} masterfiles to #{xml_dir}"
    end
 end

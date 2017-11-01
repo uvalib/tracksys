@@ -108,11 +108,11 @@ class Metadata < ApplicationRecord
    end
 
    def physical_virgo_url
-      return "#{VIRGO_URL}/#{self.catalog_key}"
+      return "#{Settings.virgo_url}/#{self.catalog_key}"
    end
 
    def dl_virgo_url
-      return "#{VIRGO_URL}/#{self.pid}"
+      return "#{Settings.virgo_url}/#{self.pid}"
    end
 
    def agency_links

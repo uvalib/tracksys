@@ -97,7 +97,7 @@ class Unit < ApplicationRecord
    # public instance methods
    #------------------------------------------------------------------
    def has_in_process_files?
-      in_proc_dir = File.join(IN_PROCESS_DIR, "%09d" % self.id)
+      in_proc_dir = Finder.finalization_dir(self, :in_process)
       return false if !File.exist?(in_proc_dir)
       return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
    end
@@ -180,7 +180,7 @@ class Unit < ApplicationRecord
 
    def patron_deliverables_available?
       return false if self.date_patron_deliverables_ready.nil?
-      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{self.order.id}", self.id.to_s)
+      assemble_dir = Finder.finalization_dir(self, :assemble_deliverables)
       return false if !Dir.exist? assemble_dir
       return Dir["#{assemble_dir}/*"].length >= self.master_files.count
    end

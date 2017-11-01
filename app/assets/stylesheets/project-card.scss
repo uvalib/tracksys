@@ -135,6 +135,17 @@ div.project-card.clone {
       border-color: #dad;
    }
 }
+div.project-card.medium-rare {
+   background: #aee;
+   border-color: #7aa;
+   h3 {
+      background: #8cc;
+      border-color: #7aa;
+   }
+   .project-footer {
+      border-color: #8cc;
+   }
+}
 div.project-card {
    border: 1px solid #bbb;
    font-size: 0.9em;

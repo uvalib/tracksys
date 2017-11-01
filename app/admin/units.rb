@@ -276,13 +276,6 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}"
    end
 
-   member_action :start_manual_upload_to_archive do
-      unit = Unit.find(params[:id])
-      StartManualUploadToArchive.exec( {unit_id: params[:id], :user_id => current_user.id} )
-      flash[:notice] = "Archiving items to #{MANUAL_UPLOAD_TO_ARCHIVE_DIR_PRODUCTION}/#{unit.directory}."
-      redirect_to "/admin/units/#{params[:id]}"
-   end
-
    member_action :download, :method => :get do
       unit = Unit.find(params[:id])
       att = Attachment.find(params[:attachment])
@@ -340,12 +333,6 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :generate_all_deliverables, :method=>:put do
-      unit = Unit.find(params[:id])
-      GenerateAllReorderDeliverables.exec({order_id: unit.order_id})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Generating deliverables for all units in the order."
-   end
-
    member_action :regenerate_deliverables, :method=>:put do
       RecreatePatronDeliverables.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
@@ -369,12 +356,13 @@ ActiveAdmin.register Unit do
 
    member_action :copy_from_archive, :method => :put do
       CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR} under your username."
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
    end
 
    member_action :import_unit_iview_xml, :method => :put do
       unit_dir = "%09d" % params[:id].to_i
-      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{IN_PROCESS_DIR}/#{unit_dir}/#{unit_dir}.xml"})
+      unit = Unit.find(params[:id])
+      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{Finder.finalization_dir(unit, :in_process)}/#{unit_dir}.xml"})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
    end
 

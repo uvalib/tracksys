@@ -8,8 +8,6 @@ class QueuePatronDeliverables < BaseJob
 
       unit = message[:unit]
       source = message[:source]
-      # NOTES: in this case source is File.join(PROCESS_DELIVERABLES_DIR, 'patron', unit_dir)
-      # where unit_dir is the 9-digit, 0-padded unit ID
 
       call_number = nil
       location = nil
@@ -20,7 +18,7 @@ class QueuePatronDeliverables < BaseJob
       end
 
       # if a prior set of deliveranbles is in the assembly dir, remove them
-      assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+      assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
       if Dir.exist? assemble_dir
          logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
          FileUtils.rm_rf(assemble_dir)

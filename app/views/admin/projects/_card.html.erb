@@ -8,6 +8,8 @@
       tc << " green"
    elsif project.workflow.name == "Clone"
       tc << " clone"
+   elsif project.workflow.name == "Medium Rare"
+      tc << " medium-rare"
    end
    tc << " overdue" if project.overdue?
    tc << " finished" if project.finished? %>

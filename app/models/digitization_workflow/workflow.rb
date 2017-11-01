@@ -11,6 +11,7 @@
 
 class Workflow < ApplicationRecord
    validates :name, :uniqueness => true, :presence => true
+   validates :base_directory, :presence => true
    has_many :steps
 
    def first_step
