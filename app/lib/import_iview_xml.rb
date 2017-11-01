@@ -216,11 +216,11 @@ module ImportIviewXml
       # get the directory of the tgt file and strip off the base
       # in_process dir. The remaining bit will be the subdirectory - or nothign
       # use this info to know if there is box/folder info encoded in the filename
-      subdir = File.dirname(full_path)[in_proc.length..-1]
+      subdir_str = File.dirname(full_path)[in_proc.length+1..-1]
 
       # Create the masterfile and fill in data from the XML metadata:
       master_file = MasterFile.new(
-         filename: tgt_filename, unit_id: unit.id, :metadata_id: unit.metadata_id)
+         filename: tgt_filename, unit_id: unit.id, metadata_id: unit.metadata_id)
 
       # filesize
       element = item.xpath('AssetProperties/FileSize').first
@@ -236,7 +236,12 @@ module ImportIviewXml
          raise ImportError, "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
       end
 
-      if !subdir.blank?
+      if !subdir_str.blank?
+         # FIXME there is no way to determine cotainer type from this!
+         # maybe naming convention like - box.name, oversize.name, tray.name
+         # Awaiting answer from christina
+         bits =subdir_str.split("/")
+         logger.info "Subdirs: #{subdir_str}"
          location = Location.find_by(metadata_id: unit.metadata_id, folder: subdir)
          if location.nil?
             location = Location.create(metadata_id: unit.metadata_id, folder: subdir)

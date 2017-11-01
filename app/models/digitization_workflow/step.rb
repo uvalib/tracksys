@@ -164,6 +164,7 @@ class Step < ApplicationRecord
       # top level contains one directory for box
       # box contains only directories; one per folder
       tree = {}
+      folders_found = false
       Dir.glob("#{dir}/**/*").each do |entry|
          if File.directory? (entry)
             # just get the directories
@@ -181,6 +182,7 @@ class Step < ApplicationRecord
             else
                bits = subs.split("/")
                tree[bits[0]] << bits[1]
+               folders_found = true
             end
          else
             subs = File.dirname(entry)[dir.length+1..-1]
@@ -190,6 +192,11 @@ class Step < ApplicationRecord
                return false
             end
          end
+      end
+
+      if folders_found == false
+         step_failed(project, "Filesystem", "<p>No folder directories found</p>")
+         return false
       end
       return true
    end

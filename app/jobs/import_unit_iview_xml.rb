@@ -30,6 +30,7 @@ class ImportUnitIviewXML < BaseJob
       unit.order.update_attribute(:date_finalization_begun, Time.now)
       logger().info("Date Finalization Begun updated for order #{unit.order.id}")
 
-      CheckUnitDeliveryMode.exec_now({ :unit_id => unit.id }, self)
+on_error("Stop early again")
+      # CheckUnitDeliveryMode.exec_now({ :unit_id => unit.id }, self)
    end
 end
