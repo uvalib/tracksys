@@ -61,9 +61,9 @@ class QaFilesystemAndIviewXml < BaseJob
    def check_content_files
       logger.info "Check content files..."
       # Checking for:
-      # 1. Existence of TIF/JPEG2000 files.
+      # 1. Existence of TIF files.
       # 2. The number of content files in the directory equals the sequence number of the last file.
-      # 3. All TIF/JPEG2000 files conform to the naming convention.
+      # 3. All TIF files conform to the naming convention.
       # 4. No file is less than 1MB (1MB being a size arbitrarily determined to represent a "too small" file)
       minimum_size=2048
 

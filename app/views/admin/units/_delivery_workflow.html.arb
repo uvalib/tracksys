@@ -16,7 +16,9 @@ if !current_user.viewer? && !current_user.student?
             # Digital colection building
             if unit.date_dl_deliverables_ready.blank?
                div :class => 'workflow_button' do
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  clazz = "disabled"
+                  clazz = "" if unit.master_files.count > 0
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
                end
             else
                deliverables_ready = true
@@ -25,7 +27,9 @@ if !current_user.viewer? && !current_user.student?
             # Patron order
             if unit.date_patron_deliverables_ready.blank?
                div :class => 'workflow_button' do
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  clazz = "disabled"
+                  clazz = ""  if unit.master_files.count > 0
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
                end
             else
                deliverables_ready = true

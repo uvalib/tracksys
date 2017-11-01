@@ -11,39 +11,13 @@ module ImportIviewXml
    def self.import_iview_xml(file, unit, job_logger)
       @master_file_count = 0
 
-      # Read XML file
-      begin
-         job_logger.info "Reading XML file..."
-         doc = Nokogiri.XML(file)
-      rescue Exception => e
-         raise ImportError, "Can't read file as XML: #{e.message}"
-      end
-
-      # "root" returns the root element, in this case <CatalogType>, not the document root preceding any elements
+      # Read XML file and get the root node ( <CatalogType> )
+      job_logger.info "Reading XML file..."
+      doc = Nokogiri.XML(file)
       root = doc.root
-
-      # QA the file before importing (LFF Shouldn't this have been done in prior QA steps???)
-      job_logger.info "QA XML file..."
-      error_list = qa_iview_xml(doc, unit)
-      if error_list != [] && !error_list.nil?
-         raise ImportError, "qa_iview_xml found errors: #{error_list.to_s}"
-      end
 
       # Flag if the XML contains a SetList. If so, it will be used to link to components
       has_set_list = !(root.xpath('//SetList').empty? || root.xpath('//SetList//UniqueID').empty?)
-
-      # Check for processing instruction indicating software name and version
-      format_software = 'iview'
-      format_version = nil
-      doc.xpath('//processing-instruction()').each do |pi|
-         if pi.name == 'iview' or pi.name == 'expression'
-            format_software = pi.name
-            matches = pi.text.match(/exportversion=["']([^"']*)["']/)
-            if matches
-               format_version = matches[1]
-            end
-         end
-      end
 
       # Create one MasterFile record for each iView <MediaItem>
       job_logger.info "Creating master files..."
@@ -55,19 +29,7 @@ module ImportIviewXml
                raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
             end
 
-            # if a MasterFile with this filename already exists for this Unit, don't overwrite it
-            existing_mf = MasterFile.find_by(unit_id: unit.id, filename: master_file.filename)
-            if !existing_mf.nil?
-               # be sure image meta was created
-               if existing_mf.image_tech_meta.nil?
-                  create_image_tech_meta(item, existing_mf.id)
-               end
-               @master_file_count += 1
-               job_logger.info "Master File with filename '#{master_file.filename}' already exists for this Unit"
-               next
-            end
-
-            master_file = new_master_file(item, unit)
+            master_file = create_master_file(item, unit, job_logger)
             @master_file_count += 1
 
             # Only attempt to link MasterFiles with Components if the MasterFile's metadata record is a manuscript item
@@ -202,60 +164,71 @@ module ImportIviewXml
    # Create a new MasterFile object and populates it with data from a particular iView XML
    # +MediaItem+ element.
    #
-   def self.new_master_file(item, unit)
+   def self.create_master_file(item, unit, logger)
       # get the filename and find it on the filesystem. If it is in a subfolder
       # use this info to create a location record for the masterfile
       tgt_filename = get_element_value(item.xpath('AssetProperties/Filename').first)
-      unit_dir = "%09d" % unit.id
-      in_proc = File.join(IN_PROCESS_DIR, unit_dir)
+      in_proc = Finder.finalization_dir(unit, :in_process)
       full_path = Dir[File.join(in_proc, "/**/#{tgt_filename}")].first
       if full_path.nil?
          raise ImportError, "Missing master file #{tgt_filename}"
       end
 
       # get the directory of the tgt file and strip off the base
-      # in_process dir. The remaining bit will be the subdirectory - or nothign
+      # in_process dir. The remaining bit will be the subdirectory - or nothing.
       # use this info to know if there is box/folder info encoded in the filename
       subdir_str = File.dirname(full_path)[in_proc.length+1..-1]
 
-      # Create the masterfile and fill in data from the XML metadata:
-      master_file = MasterFile.new(
-         filename: tgt_filename, unit_id: unit.id, metadata_id: unit.metadata_id)
+      # See if this masterfile has already been created...
+      master_file = MasterFile.find_by(unit_id: unit.id, filename: tgt_filename )
+      if master_file.nil?
+         # Nope... create a new one and fill in properties with data from xml
+         logger.info "Create new master file #{tgt_filename}"
+         master_file = MasterFile.new(filename: tgt_filename,
+            unit_id: unit.id, metadata_id: unit.metadata_id)
 
-      # filesize
-      element = item.xpath('AssetProperties/FileSize').first
-      if element and element['unit'] and element['unit'].match(/^bytes$/i)
-         value = get_element_value(element)
-         master_file.filesize = value unless value.to_i == 0
+         element = item.xpath('AssetProperties/FileSize').first
+         if element && element['unit'] && element['unit'].match(/^bytes$/i)
+            value = get_element_value(element)
+            master_file.filesize = value.to_i
+         else
+            master_file.filesize = File.size(full_path)
+         end
+
+         master_file.title = get_element_value(item.xpath('AnnotationFields/Headline').first)
+         master_file.description = get_element_value(item.xpath('AnnotationFields/Caption').first)
+
+         if !master_file.save
+            raise ImportError, "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
+         end
+      else
+         logger.info "Master file #{tgt_filename} already exists"
       end
 
-      master_file.title = get_element_value(item.xpath('AnnotationFields/Headline').first)
-      master_file.description = get_element_value(item.xpath('AnnotationFields/Caption').first)
+      if !subdir_str.blank? && master_file.location.nil?
+         # subdir structure: [box|oversize|tray].{box_name}/{folder_name}
+         logger.info "Creating location metadata based on subdirs [#{subdir_str}]"
+         bits = subdir_str.split("/")
+         folder = bits[1]
+         box_info = bits[0].split(".")
+         type = box_info[0]
+         box_id = box_info[1]
+         ct = ContainerType.where("name like ?", type).first
 
-      if !master_file.save
-         raise ImportError, "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
-      end
-
-      if !subdir_str.blank?
-         # FIXME there is no way to determine cotainer type from this!
-         # maybe naming convention like - box.name, oversize.name, tray.name
-         # Awaiting answer from christina
-         bits =subdir_str.split("/")
-         logger.info "Subdirs: #{subdir_str}"
-         location = Location.find_by(metadata_id: unit.metadata_id, folder: subdir)
+         location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
          if location.nil?
-            location = Location.create(metadata_id: unit.metadata_id, folder: subdir)
+            location = Location.create(container_type_id: ct.id, container_id: box_id, folder_id: folder)
          end
          master_file.location = location
       end
 
       # Get tech metadata and transcriptions
-      create_image_tech_meta(item, master_file.id)
+      create_image_tech_meta(item, master_file.id) if master_file.image_tech_meta.nil?
       get_transcription_text(master_file)
 
       return master_file
    end
-   private_class_method :new_master_file
+   private_class_method :create_master_file
 
    #-----------------------------------------------------------------------------
 
