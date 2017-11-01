@@ -3,7 +3,7 @@ require_relative 'application'
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '5.3.1'
+TRACKSYS_VERSION = '5.4.0'
 
 # Setup logger for all jobs processors
 #
