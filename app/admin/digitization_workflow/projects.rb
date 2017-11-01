@@ -21,6 +21,7 @@ ActiveAdmin.register Project do
    scope :film, if: proc { current_user.can_process? Category.find(3) }
    scope :oversize, if: proc { current_user.can_process? Category.find(4) }
    scope :special, if: proc { current_user.can_process? Category.find(5) }
+   scope :medium_rare
    scope :patron
    scope :digital_collection_building
    scope :grant
@@ -81,7 +82,7 @@ ActiveAdmin.register Project do
             if project.finished_at
                "Finished"
             else
-               project.current_step.name
+               raw("<b class='step'>#{project.current_step.name} :</b> #{project.current_step.description}")
             end
          end
          if !project.finished?
@@ -94,12 +95,12 @@ ActiveAdmin.register Project do
             end
             if !project.current_step.start_dir.blank?
                row ("Working Directory") do |project|
-                  project.current_step.start_dir
+                  File.join(project.workflow.base_directory, project.current_step.start_dir)
                end
             end
             if project.current_step.start_dir != project.current_step.finish_dir
                row ("Finish Directory") do |project|
-                  str = "<span>#{project.current_step.finish_dir}</span>"
+                  str = "<span>#{File.join(project.workflow.base_directory, project.current_step.finish_dir)}</span>"
                   if project.current_step.manual
                      str << "<p class='manual-move-note'>Manual move required</p>"
                   end

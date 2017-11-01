@@ -14,7 +14,7 @@ class Step < ApplicationRecord
    def finish( project )
       # For manual steps, just validate the finish directory
       if self.manual
-         dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, project.unit.directory)
+         dest_dir =  File.join(self.workflow.base_directory, self.finish_dir, project.unit.directory)
          return validate_finish_dir( project, dest_dir )
       end
 
@@ -50,7 +50,7 @@ class Step < ApplicationRecord
       return true if self.error?
 
       # get the base start directory
-      start_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
+      start_dir =  File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
 
       # In the first Scan step, there may be a CaptureOne session in progress. If this is
       # the case, there will be a Capture directory present that is filled with IIQ files.
@@ -316,8 +316,8 @@ class Step < ApplicationRecord
    # the server, the default location is still available to process and save the .tifs. All other
    # contents of the unit subfolder in 10_raw/(unit subfolder) should remain where they are in 10_raw.
    def move_files( project )
-      src_dir =  File.join("#{PRODUCTION_MOUNT}", self.start_dir, project.unit.directory)
-      dest_dir =  File.join("#{PRODUCTION_MOUNT}", self.finish_dir, project.unit.directory)
+      src_dir =  File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
+      dest_dir =  File.join(self.workflow.base_directory, self.finish_dir, project.unit.directory)
 
       Rails.logger.info("Moving working files from #{src_dir} to #{dest_dir}")
 
@@ -330,7 +330,7 @@ class Step < ApplicationRecord
 
       # Neither directory exists, this is generally a failure, but a special case exists.
       # Files may be 20_in_process if a prior finalization failed. Accept this.
-      alt_dest_dir = File.join(IN_PROCESS_DIR,  project.unit.directory)
+      alt_dest_dir = File.join(self.workflow.base_directory,  project.unit.directory)
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
          if self.end? && Dir.exists?(alt_dest_dir)
             Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"

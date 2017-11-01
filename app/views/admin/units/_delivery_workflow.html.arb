@@ -37,10 +37,11 @@ if !current_user.viewer? && !current_user.student?
 
          div :class => 'workflow_button' do
             clazz = "disabled"
-            clazz="" if deliverables_ready && unit.date_archived.blank?
-            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path,class: clazz, :method => :put
+            clazz = "" if deliverables_ready && unit.date_archived.blank?
+            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
          end
       end
+
    else
       # NO in-process files....
       if unit.date_patron_deliverables_ready && unit.intended_use.id != 110
@@ -51,10 +52,6 @@ if !current_user.viewer? && !current_user.student?
          end
       else
          if unit.date_archived.nil?
-            div :class => 'workflow_button' do
-               button_to "Manual Upload to Archive",
-               start_manual_upload_to_archive_admin_unit_path, :method => :get
-            end
             div :class => 'workflow_button' do
                button_to "Finalize Raw Images",
                finalize_raw_images_admin_unit_path, :method => :get

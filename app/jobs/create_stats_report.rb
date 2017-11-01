@@ -48,7 +48,7 @@ class CreateStatsReport < BaseJob
       # Save the entire workbook
       t = DateTime.now
       filename = "#{query_year}_Report_#{t.year}-#{t.month}-#{t.day}-#{t.hour}-#{t.min}-#{t.sec}"
-      report_path = "#{PRODUCTION_MOUNT}/administrative/stats_reports/#{filename}.xlsx"
+      report_path = "#{Settings.production_mount}/administrative/stats_reports/#{filename}.xlsx"
       logger.info("Writing stats report to: #{report_path}")
       pkg.serialize(report_path)
       staff_member = StaffMember.find_by(id: message[:user_id] )

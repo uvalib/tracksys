@@ -308,7 +308,7 @@ ActiveAdmin.register MasterFile do
       mf = MasterFile.find(params[:id])
       CopyArchivedFilesToProduction.exec_now( {:unit_id => mf.unit_id, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
       redirect_to "/admin/master_files/#{params[:id]}",
-         :notice => "Master File downloaded to #{PRODUCTION_SCAN_FROM_ARCHIVE_DIR}/#{current_user.computing_id}/#{mf.filename}."
+         :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
    csv do

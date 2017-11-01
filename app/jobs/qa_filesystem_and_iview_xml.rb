@@ -12,8 +12,8 @@ class QaFilesystemAndIviewXml < BaseJob
 
       # Set unit variables
       @unit = Unit.find(message[:unit_id])
-      logger.info "Source Unit: #{@unit.to_json}"
       @unit_dir = "%09d" % @unit.id
+      @in_proc_dir = Finder.finalization_dir(@unit, :in_process)
 
       # Create error message holder array
       @error_messages = Array.new
@@ -29,7 +29,7 @@ class QaFilesystemAndIviewXml < BaseJob
       # NOTE: the final step of the project automation ensures that no garbage files
       # get through to this stage. Most of the original filtering code that was
       # present here is no longer needed (see Step::validate_last_step_dir )
-      Dir.glob(File.join(IN_PROCESS_DIR, @unit_dir, "**/*")).each do |dir_entry|
+      Dir.glob(File.join(@in_proc_dir, "**/*")).each do |dir_entry|
          next if File.directory? dir_entry  # skip the directory names
          if (dir_entry =~ /.tif$/)
             @content_files.push(dir_entry)
@@ -87,8 +87,8 @@ class QaFilesystemAndIviewXml < BaseJob
          @error_messages.push("The number of tif files in directory (#{@number_content_files}) does not equal the sequence number of the last file (#{sequence_number}).")
       end
 
-      # Define regex to ensure the file ends with an _, followed by four digits followed by .tif or .jp2
-      regex_content_file = Regexp.new('_\d{4}.(tif|jp2)$')
+      # Define regex to ensure the file ends with an _, followed by four digits followed by .tif
+      regex_content_file = Regexp.new('_\d{4}.(tif)$')
 
       @content_files.each do |content_file_path|
          content_file = File.basename(content_file_path)
@@ -97,7 +97,7 @@ class QaFilesystemAndIviewXml < BaseJob
          if content_file !~ /^#{@unit_dir}/
             @error_messages.push("#{content_file} does not start with the correct unit #{@unit_dir}")
          end
-         # Check the fila part of the tif/jp2 file
+         # Check the file part of the tif file
          if regex_content_file.match(content_file).nil?
             @error_messages.push("#{content_file} has an incorrectly formatted sequence number or extension.")
          end

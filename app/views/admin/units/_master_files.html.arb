@@ -4,12 +4,14 @@ div :class => "columns-none" do
   panel "Master Files", :toggle => 'show' do
      if unit.master_files.count == 0
         div id: "masterfile-list" do
-           "No master files are ssociated with this unit."
+           "No master files are associated with this unit."
         end
         if unit.intended_use.id != 110 # Digital Collection Building
            div :class=>'panel-buttons' do
               if unit.unit_status != "approved"
                 div do "Master files cannot be aded to unapproved units." end
+              elsif unit.project.nil?
+                div do "Master files cannot be aded to units without a project." end
               else
                  add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
                  raw("#{add_btn}")

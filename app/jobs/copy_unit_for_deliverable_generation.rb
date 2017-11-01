@@ -21,7 +21,8 @@ class CopyUnitForDeliverableGeneration < BaseJob
 
       # For each mode specified, move files into processing dir and kick of processing
       modes.each do |mode|
-         destination_dir = File.join(PROCESS_DELIVERABLES_DIR, mode, unit_dir)
+         # NOTE: mode has been retired from dir name, not useful
+         destination_dir = Finder.finalization_dir(unit, :process_deliverables)
          FileUtils.mkdir_p(destination_dir)
 
          # copy all of the master files for this unit to the processing directory based on MODE
@@ -51,6 +52,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
          # If the copy was successful, start processing for this batch based on mode
          if mode == 'patron'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so patron deliverables can be made."
+            # Writes out files to ASSEMBLY dir, but leavs processing in place
             QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
             if message[:skip_delivery_check].nil?
                CreateUnitZip.exec_now( { unit: unit }, self)
@@ -60,6 +62,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
             end
          elsif mode == 'dl'
             logger.info "Unit #{unit.id} has been successfully copied to #{destination_dir} so Digital Library deliverables can be made."
+            # makes deliverables, then deletes processing_dir (destination_dir)
             CreateDlDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)
          end
 
@@ -72,7 +75,7 @@ class CopyUnitForDeliverableGeneration < BaseJob
          SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
       elsif unit.reorder == true
          logger.info "Cleaning up in_process files for completed re-order"
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ :unit_id => unit.id, :source_dir => IN_PROCESS_DIR}, self)
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: source_dir}, self)
       end
    end
 end

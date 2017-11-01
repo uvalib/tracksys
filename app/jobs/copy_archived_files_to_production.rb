@@ -20,7 +20,7 @@ class CopyArchivedFilesToProduction < BaseJob
       failure_messages = Array.new
 
       source_dir = File.join(ARCHIVE_DIR, unit_dir)
-      destination_dir = File.join(PRODUCTION_SCAN_FROM_ARCHIVE_DIR, computing_id)
+      destination_dir = File.join(Finder.scan_from_archive_dir, computing_id)
       FileUtils.mkdir_p(destination_dir)
       FileUtils.chmod 0775, "#{destination_dir}"
 

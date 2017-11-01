@@ -33,6 +33,7 @@ class Project < ApplicationRecord
    scope :oversize, ->{active.where(category_id: 4).reorder(due_on: :asc) }
    scope :special, ->{active.where(category_id: 5).reorder(due_on: :asc) }
    scope :unassigned, ->{active.where(owner: nil).reorder(due_on: :asc) }
+   scope :medium_rare, ->{active.joins(:workflow).where("workflows.name=?","Medium Rare").reorder(due_on: :asc) }
    scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).reorder(due_on: :asc) }
    scope :patron, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id <> 110")}
    scope :digital_collection_building, ->{active.joins("inner join units u on u.id=unit_id").where("u.intended_use_id = 110")}
@@ -211,8 +212,10 @@ class Project < ApplicationRecord
       Rails.logger.info("Project [#{self.project_name}] completed finalization")
       self.update(finished_at: Time.now, owner: nil, current_step: nil)
       processing_mins = ((Time.now - job.started_at)/60.0).round
-      self.active_assignment.update(finished_at: Time.now, status: :finished,
-         duration_minutes: processing_mins)
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: (processing_mins+qa_mins) )
    end
 
    # Finalzation of the associated unit failed
@@ -222,7 +225,10 @@ class Project < ApplicationRecord
 
       # Fail the step and increase time spent
       processing_mins = ((job.ended_at - job.started_at)/60.0).round
-      self.active_assignment.update(duration_minutes: processing_mins, status: :error )
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(duration_minutes: (processing_mins+qa_mins), status: :error )
 
       # Add a problem note with a summary of the issue
       prob = Problem.find(6) # Finalization
@@ -288,7 +294,7 @@ class Project < ApplicationRecord
          else
             self.active_assignment.update(status: :finalizing)
             Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
-            FinalizeUnit.exec({project_id: self.id, unit_id: self.unit_id})
+            FinalizeUnit.exec({unit_id: self.unit_id})
             return
          end
       end
