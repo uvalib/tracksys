@@ -69,7 +69,7 @@ class CheckUnitDeliveryMode < BaseJob
       end
 
       if unit.intended_use.description != "Digital Collection Building" && unit.include_in_dl == false
-         create_patron_deliverables(unit, message[:skip_delivery_check])
+         create_patron_deliverables(unit)
       end
 
       logger.info "Processing complete; removing processing diectory: #{processing_dir}"
@@ -85,14 +85,10 @@ class CheckUnitDeliveryMode < BaseJob
       end
    end
 
-   def create_patron_deliverables(unit, skip_delivery_check)
+   def create_patron_deliverables(unit)
       logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
       CreatePatronDeliverables.exec_now({ unit: unit }, self)
-      if skip_delivery_check.nil?
-         CreateUnitZip.exec_now( { unit: unit }, self)
-         CheckOrderReadyForDelivery.exec_now( { order_id: unit.order_id}, self  )
-      else
-         CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
-      end
+      CreateUnitZip.exec_now( { unit: unit }, self)
+      CheckOrderReadyForDelivery.exec_now( { order_id: unit.order_id}, self  )
    end
 end
