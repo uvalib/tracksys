@@ -4,19 +4,44 @@ class CreatePatronDeliverables < BaseJob
    require 'rmagick'
    require 'digest/md5'
 
+   #
+   # Note: this should always be called with masterfiles in the PROCESSING directory
+   #
    def do_workflow(message)
-
-      raise "Parameter 'source' is required" if message[:source].blank?
-      raise "Parameter 'unit' is required" if message[:unit].blank?
-      raise "Parameter 'master_file' is required" if message[:master_file].blank?
-
-      source = message[:source]
       unit = message[:unit]
+
+      # if a prior set of deliveranbles is in the assembly dir, remove them
+      # Note: this dir includes order_####
+      assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
+      if Dir.exist? assemble_dir
+         logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
+         FileUtils.rm_rf(assemble_dir)
+      end
+      FileUtils.mkdir_p(assemble_dir)
+
+      processing_dir = Finder.finalization_dir(unit, :process_deliverables)
+      unit.master_files.each do |master_file|
+         file_source = File.join(processing_dir, master_file.filename)
+         create_deliverable(unit, master_file, file_source, assemble_dir)
+      end
+
+      unit.update(date_patron_deliverables_ready: Time.now)
+      logger.info("All patron deliverables created")
+   end
+
+   def create_deliverable(unit, master_file, source, dest_dir)
       order_id = unit.order_id
-      master_file_id = message[:master_file].id
-      actual_res = message[:master_file].image_tech_meta.resolution
+      master_file_id = master_file.id
+      actual_res = master_file.image_tech_meta.resolution
       desired_res = unit.intended_use.deliverable_resolution
       add_legal_notice = false
+      call_number = nil
+      location = nil
+      if unit.metadata.type == "SirsiMetadata"
+         sm = unit.metadata.becomes(SirsiMetadata)
+         call_number = sm.call_number
+         location = sm.get_full_metadata[:location]
+      end
 
       # Die if source is not tif or doesn't refer to a file
       if !(source.match(/\.tiff?$/) and File.file? source )
@@ -29,8 +54,9 @@ class CreatePatronDeliverables < BaseJob
          suffix = '.jpg'
          add_legal_notice = true
          use_id = unit.intended_use_id
+
          # New from Brandon; web publication and online exhibits don't need watermarks
-         if message[:personal_item] || unit.remove_watermark || use_id == 103 || use_id == 109
+         if unit.metadata.is_personal_item || unit.remove_watermark || use_id == 103 || use_id == 109
             add_legal_notice = false
          end
       elsif format =~ /^tiff?$/i
@@ -40,8 +66,6 @@ class CreatePatronDeliverables < BaseJob
       end
 
       # format output path so it includes order number and unit number, like so: .../order123/54321/...
-      dest_dir = Finder.finalization_dir(unit, :assemble_deliverables)
-      FileUtils.mkdir_p(dest_dir)
       dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
 
       # Simple case; just a copy of tif at full resolution. No imagemagick needed
@@ -78,18 +102,18 @@ class CreatePatronDeliverables < BaseJob
          logger().debug "Add legal notice"
          notice = String.new
 
-         if message[:title].length < 145
-            notice << "Title: #{message[:title]}\n"
+         if unit.metadata.title.length < 145
+            notice << "Title: #{unit.metadata.title}\n"
          else
-            notice << "Title: #{message[:title][0,145]}... \n"
+            notice << "Title: #{unit.metadata.title[0,145]}... \n"
          end
 
-         if message[:call_number]
-            notice << "Call Number: #{message[:call_number]}\n"
+         if call_number
+            notice << "Call Number: #{call_number}\n"
          end
 
-         if message[:location]
-            notice << "Location: #{message[:location]}\n\n"
+         if location
+            notice << "Location: #{location}\n\n"
          end
 
          # notice for personal research or presentation
@@ -133,6 +157,6 @@ class CreatePatronDeliverables < BaseJob
       new_tiff.destroy!
       tiff.destroy!
 
-      on_success "Deliverable image for MasterFile #{master_file_id} at #{dest_path}."
+      logger.info "Deliverable image for MasterFile #{master_file_id} at #{dest_path}."
    end
 end

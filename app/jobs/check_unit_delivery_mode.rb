@@ -63,18 +63,13 @@ class CheckUnitDeliveryMode < BaseJob
          # flagged for DL and policy set. Send to DL
          logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
          PublishToDL.exec_now({unit_id: unit.id}, self)
+         if unit.intended_use.description != "Digital Collection Building"
+            create_patron_deliverables(unit, message[:skip_delivery_check])
+         end
       end
 
       if unit.intended_use.description != "Digital Collection Building" && unit.include_in_dl == false
-         # Not flagged for DL and intended use is for a patron
-         logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
-         QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)  # TODO Stopped here
-         if message[:skip_delivery_check].nil?
-            CreateUnitZip.exec_now( { unit: unit }, self)
-            CheckOrderReadyForDelivery.exec_now( { :order_id => unit.order_id}, self  )
-         else
-            CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
-         end
+         create_patron_deliverables(unit, message[:skip_delivery_check])
       end
 
       logger.info "Processing complete; removing processing diectory: #{processing_dir}"
@@ -87,6 +82,17 @@ class CheckUnitDeliveryMode < BaseJob
       else
          logger.info "Cleaning up in_process files for completed re-order"
          MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: Finder.finalization_dir(unit, :in_process)}, self)
+      end
+   end
+
+   def create_patron_deliverables(unit, skip_delivery_check)
+      logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
+      CreatePatronDeliverables.exec_now({ unit: unit }, self)
+      if skip_delivery_check.nil?
+         CreateUnitZip.exec_now( { unit: unit }, self)
+         CheckOrderReadyForDelivery.exec_now( { order_id: unit.order_id}, self  )
+      else
+         CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
       end
    end
 end
