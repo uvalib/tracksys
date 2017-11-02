@@ -5,28 +5,23 @@ class CheckUnitDeliveryMode < BaseJob
    end
 
    def do_workflow(message)
-
-      # Validate incoming messages
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
-
       unit = Unit.find(message[:unit_id])
       logger.info "Source Unit: #{unit.to_json}"
-      unit.id = unit.id
-      source_dir = Finder.finalization_dir(unit, :in_process)
-      has_deliverables = false
 
       # First, check if this unit is a candidate for Autopublish to Virgo
       if unit.include_in_dl == false && unit.reorder == false
          CheckAutoPublish.exec_now({:unit => unit}, self)
       end
 
+      # Reorders can't got to DL. Update flag accordingly
       if unit.reorder? && unit.include_in_dl
          on_failure("Reorders can not be sent to DL. resetting include_in_dl to false")
          unit.update(include_in_dl: false)
       end
 
+      # Stop processing if availability policy is not set
       if unit.include_in_dl && unit.metadata.availability_policy_id.blank?
-         # stop processing if availability policy is not set
          on_error("Availability policy must be set for all units flagged for inclusion in the DL")
       end
 
@@ -47,37 +42,51 @@ class CheckUnitDeliveryMode < BaseJob
          end
       end
 
-      # Figure out if this unit has any deliverables, and of what type...
-      if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description == "Digital Collection Building"
-         has_deliverables = true
-         mode = "dl"
-         on_success("Unit #{unit.id} requires the creation of repository deliverables.")
-         CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
+      # Copy all masterfiles to processing and flatten directories if they exist.
+      # This gives a common start point for all further processing
+      CopyUnitForProcessing.exec_now({ :unit => unit}, self)
+      processing_dir = Finder.finalization_dir(unit, :process_deliverables)
+
+      # Regardless of the use, ALL masterfiles coming into tracksys must be sent to IIIF.
+      # Exception: reorders. These masterfile are already in IIIF and shouldn't be re-added.
+      if unit.reorder == false
+         unit.master_files.each do |master_file|
+            file_source = File.join(processing_dir, master_file.filename)
+            PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
+         end
+      end
+
+      # TODO OCR
+
+      # Figure out if this unit has any deliverables, and of what type:
+      if unit.include_in_dl && unit.metadata.availability_policy_id?
+         # flagged for DL and policy set. Send to DL
+         logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
+         PublishToDL.exec_now({unit_id: unit.id}, self)
       end
 
       if unit.intended_use.description != "Digital Collection Building" && unit.include_in_dl == false
-         has_deliverables = true
-         mode = "patron"
-         on_success("Unit #{unit.id} requires the creation of patron deliverables.")
-         CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
-      end
-
-      if unit.include_in_dl && unit.metadata.availability_policy_id? && unit.intended_use.description != "Digital Collection Building"
-         has_deliverables = true
-         mode = "both"
-         on_success("Unit #{unit.id} requires the creation of patron and DL deliverables.")
-         CopyUnitForDeliverableGeneration.exec_now({ :unit => unit, :mode => mode, :source_dir => source_dir }, self)
-      end
-
-      # All units with no deliverables (either patron or DL) get sent to IIIF and the archive now
-      # ...unless the unit is a re-order. These never go to IIIF or archive
-      if has_deliverables == false && unit.reorder == false
-         on_success "Unit #{unit.id} has no deliverables so is being sent directly to IIIF and the archive."
-         unit.master_files.each do |master_file|
-            file_source = File.join(source_dir, master_file.filename)
-            PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
+         # Not flagged for DL and intended use is for a patron
+         logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
+         QueuePatronDeliverables.exec_now({ :unit => unit, :source => destination_dir }, self)  # TODO Stopped here
+         if message[:skip_delivery_check].nil?
+            CreateUnitZip.exec_now( { unit: unit }, self)
+            CheckOrderReadyForDelivery.exec_now( { :order_id => unit.order_id}, self  )
+         else
+            CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
          end
+      end
+
+      logger.info "Processing complete; removing processing diectory: #{processing_dir}"
+      FileUtils.rm_rf(processing_dir)
+
+      # All units except re-orders go to archive
+      if unit.reorder == false
+         # Archive the unit and move in_process files to ready_to_delete
          SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
+      else
+         logger.info "Cleaning up in_process files for completed re-order"
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: Finder.finalization_dir(unit, :in_process)}, self)
       end
    end
 end

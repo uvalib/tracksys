@@ -44,7 +44,7 @@ class RecreatePatronDeliverables < BaseJob
       end
 
       # files are in the correct directory. now regenerate
-      CopyUnitForDeliverableGeneration.exec_now({unit: unit, source_dir: in_proc_dir, mode: "patron", skip_delivery_check: true}, self)
+      CopyUnitForDeliverableGeneration.exec_now({unit: unit, mode: "patron", skip_delivery_check: true}, self)
    end
 
    def did_deliverable_format_change(unit, deliverable_dir )

@@ -1,15 +1,12 @@
 class SendUnitToArchive < BaseJob
 
-   require 'find'
    require 'digest/md5'
-   require 'pathname'
 
    def set_originator(message)
       @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id])
    end
 
    def do_workflow(message)
-
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       unit = Unit.find(message[:unit_id])
       unit_dir = "%09d" % unit.id
@@ -21,72 +18,41 @@ class SendUnitToArchive < BaseJob
          return
       end
 
-      # Create array to hold all created directories so they can be removed after the process is complete
-      created_dirs = Array.new
-      error_count = 0
+      in_proc = Finder.finalization_dir(unit, :in_process)
+      unit_dir = File.basename in_proc
+      unit_archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      FileUtils.makedirs(unit_archive_dir)
+      FileUtils.chmod(0775, unit_archive_dir)
+      errors = 0
 
-      unit_in_proc = Finder.finalization_dir(unit, :in_process)
-      in_proc = unit_in_proc.split('/')[0...-1].join('/') # toss the unit dir
-      Dir.chdir(in_proc)
-      Find.find( unit_dir ) do |f|
-         case
-         when File.file?(f)
-            # Get pertinent information for creating dirs in REVIEW and DELETE dirs
-            p = Pathname.new(f)
-            parent = p.parent.to_s
-            basename = p.basename.to_s
+      Dir.glob(File.join(in_proc, "**/*")).each do |f|
+         # if we run into any subdirs here, it is becase teh source files
+         # were nested to indicate location info. This hs been captured in location metadata
+         # and is no longer required. Flatten.
+         next if File.directory? f
 
-            # Ignore files that begin with .
-            if /^\./ =~ basename
-            else
-               FileUtils.copy(f, File.join(ARCHIVE_DIR, parent, basename))
-               FileUtils.chmod(0664, File.join(ARCHIVE_DIR, parent, basename))
-               # Calculate information for checksums
+         filename = File.basename f
+         archive_file = File.join(unit_archive_dir, filename)
+         FileUtils.copy(f, archive_file)
+         FileUtils.chmod(0664, archive_file)
 
-               # Get source MD5
-               source_md5 = Digest::MD5.new
-               File.open(f, 'r') do |file|
-                  source_md5.update(file.read(16384)) until file.eof
-               end
+         src_md5 = Digest::MD5.hexdigest(File.read(f) )
+         dest_md5 = Digest::MD5.hexdigest(File.read(archive_file) )
 
-               # Get copy MD5
-               copy_md5 = Digest::MD5.new
-               File.open(File.join(ARCHIVE_DIR, parent, basename), 'r') do |file|
-                  copy_md5.update(file.read(16384)) until file.eof
-               end
-
-               # Run checksum tests
-               if copy_md5.hexdigest != source_md5.hexdigest
-                  on_failure("** Warning ** - File #{f} has failed checksum test")
-                  error_count += 1
-               else
-                  # While we've got the md5 available, add to MasterFile object.  Record the md5 is a new feature
-                  # added in Summer 2012.
-                  #
-                  # TODO: We need a way to discriminate between those files being archived that are managed directly by
-                  # Tracksys (i.e. those that are "MasterFile" objects) and those that are not (i.e .ivc files).  The following
-                  # rescue condition is a hack but is easiest to institute at the time.
-                  mf = MasterFile.find_by(filename: basename)
-                  if !mf.nil?
-                     mf.update_attributes(:md5 => source_md5.hexdigest)
-                  end
-               end
-            end
-         when File.directory?(f)
-            FileUtils.makedirs(File.join(ARCHIVE_DIR, f))
-            FileUtils.chmod(0775, File.join(ARCHIVE_DIR, f))
-            created_dirs << f
+         if src_md5 != dest_md5
+            on_failure("** Warning ** - File #{f} has failed checksum test")
+            errors += 1
          else
-            on_failure("Unknown file #{f} in #{parent}/#{basename}")
+            mf = MasterFile.find_by(filename: filename)
+            if !mf.nil?
+               mf.update(md5: src_md5, date_archived: Time.now)
+            end
          end
       end
 
-      if error_count == 0
+      if errors == 0
          logger.info "The directory #{unit_dir} has been successfully archived."
          unit.update(date_archived: Time.now)
-         unit.master_files.each do |mf|
-            mf.update(date_archived: Time.now)
-         end
          logger.info "Date Archived set to #{unit.date_archived} for for unit #{unit.id}"
 
          CheckOrderDateArchivingComplete.exec_now({ :order_id => unit.order_id }, self)
