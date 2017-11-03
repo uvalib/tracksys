@@ -10,8 +10,6 @@ div :class => "columns-none" do
            div :class=>'panel-buttons' do
               if unit.unit_status != "approved"
                 div do "Master files cannot be aded to unapproved units." end
-              elsif unit.project.nil?
-                div do "Master files cannot be aded to units without a project." end
               else
                  add_btn = "<span id='copy-existing' class='mf-action-button'>Use Existing Masterfiles</a>"
                  raw("#{add_btn}")
