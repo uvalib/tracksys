@@ -208,17 +208,7 @@ module ImportIviewXml
       if !subdir_str.blank? && master_file.location.nil?
          # subdir structure: [box|oversize|tray].{box_name}/{folder_name}
          logger.info "Creating location metadata based on subdirs [#{subdir_str}]"
-         bits = subdir_str.split("/")
-         folder = bits[1]
-         box_info = bits[0].split(".")
-         type = box_info[0]
-         box_id = box_info[1]
-         ct = ContainerType.where("name like ?", type).first
-
-         location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
-         if location.nil?
-            location = Location.create(container_type_id: ct.id, container_id: box_id, folder_id: folder)
-         end
+         location = Location.find_or_create_from_path(in_proc, full_path)
          master_file.location = location
       end
 
