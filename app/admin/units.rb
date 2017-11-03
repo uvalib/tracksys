@@ -381,11 +381,6 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
-   member_action :start_ingest_from_archive, :method => :put do
-      StartIngestFromArchive.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
-   end
-
    member_action :publish_to_test, :method => :put do
       PublishToDL.exec({unit_id: params[:id], mode: :test})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
@@ -393,7 +388,7 @@ ActiveAdmin.register Unit do
 
    member_action :publish, :method => :put do
       PublishToDL.exec({unit_id: params[:id], mode: :production})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit published to DL. It will be available tomorrow."
    end
 
    member_action :bulk_upload_xml, :method => :put do

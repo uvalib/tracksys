@@ -1,6 +1,6 @@
 if unit.ready_for_repo?
    div :class => 'workflow_button' do
-      button_to "Put into Digital Library", start_ingest_from_archive_admin_unit_path(), :method => :put
+      button_to "Put into Digital Library", publish_admin_unit_path(), :method => :put
    end
 elsif unit.in_dl?
    div :class => 'workflow_button' do
