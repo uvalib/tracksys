@@ -193,7 +193,7 @@ ActiveAdmin.register Unit do
       render "approval_workflow", :context=>self
    end
 
-   sidebar "Delivery Workflow", :only => [:show] do
+   sidebar "Delivery Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
    end
 

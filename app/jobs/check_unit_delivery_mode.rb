@@ -64,7 +64,7 @@ class CheckUnitDeliveryMode < BaseJob
          logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
          PublishToDL.exec_now({unit_id: unit.id}, self)
          if unit.intended_use.description != "Digital Collection Building"
-            create_patron_deliverables(unit, message[:skip_delivery_check])
+            create_patron_deliverables(unit)
          end
       end
 

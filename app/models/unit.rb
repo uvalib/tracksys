@@ -107,19 +107,11 @@ class Unit < ApplicationRecord
    end
 
    def approved?
-      if self.unit_status == "approved"
-         return true
-      else
-         return false
-      end
+      return self.unit_status == "approved"
    end
 
    def canceled?
-      if self.unit_status == "canceled"
-         return true
-      else
-         return false
-      end
+      return self.unit_status == "canceled"
    end
 
    def ingested?
