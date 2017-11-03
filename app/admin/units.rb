@@ -110,7 +110,7 @@ ActiveAdmin.register Unit do
       column ("Metadata Record") do |unit|
          div do
             if !unit.metadata.nil?
-               link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
+               link_to "#{unit.metadata.title.truncate(50, separator: ' ')}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
             end
          end
       end

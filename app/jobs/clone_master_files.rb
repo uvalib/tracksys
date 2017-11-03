@@ -92,6 +92,10 @@ class CloneMasterFiles < BaseJob
          creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
          metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
 
+      if !src_mf.location.nil?
+         mf.location = src_mf.location
+      end
+
       tm = src_mf.image_tech_meta
       ImageTechMeta.create(master_file_id: mf.id,
          image_format: tm.image_format, width: tm.width, height: tm.height,

@@ -23,7 +23,9 @@ div :class => 'columns-none' do
             end
          end
       end
-      render "equipment"
+      if project.workflow.name != "Reorder"
+         render "equipment"
+      end
    end
 
    div :class => 'two-column' do
