@@ -40,6 +40,12 @@ if !current_user.viewer? && !current_user.student?
             clazz = "" if deliverables_ready && unit.date_archived.blank?
             button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
          end
+      else
+         if unit.reorder && unit.master_files.count > 0 && unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
+            div :class => 'workflow_button' do
+               button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+            end
+         end
       end
 
    else
@@ -47,12 +53,6 @@ if !current_user.viewer? && !current_user.student?
          if unit.date_patron_deliverables_ready
             div :class => 'workflow_button' do
                button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
-            end
-         else
-            if unit.reorder && unit.master_files.count > 0
-               div :class => 'workflow_button' do
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
-               end
             end
          end
       else
