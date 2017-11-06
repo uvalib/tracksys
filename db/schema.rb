@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171020132311) do
+ActiveRecord::Schema.define(version: 20171106161113) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -158,6 +158,10 @@ ActiveRecord::Schema.define(version: 20171020132311) do
     t.index ["pid"], name: "index_components_on_pid"
   end
 
+  create_table "container_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name", null: false
+  end
+
   create_table "customers", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "department_id"
     t.integer "academic_status_id", default: 0, null: false
@@ -277,6 +281,20 @@ ActiveRecord::Schema.define(version: 20171020132311) do
     t.index ["originator_type", "originator_id"], name: "index_job_statuses_on_originator_type_and_originator_id"
   end
 
+  create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "container_type_id"
+    t.string "container_id", null: false
+    t.string "folder_id", null: false
+    t.index ["container_type_id"], name: "index_locations_on_container_type_id"
+  end
+
+  create_table "master_file_locations", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "location_id"
+    t.bigint "master_file_id"
+    t.index ["location_id"], name: "index_master_file_locations_on_location_id"
+    t.index ["master_file_id"], name: "index_master_file_locations_on_master_file_id"
+  end
+
   create_table "master_files", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "unit_id", default: 0, null: false
     t.integer "component_id"
@@ -343,8 +361,6 @@ ActiveRecord::Schema.define(version: 20171020132311) do
     t.integer "genre_id"
     t.integer "resource_type_id"
     t.string "collection_id"
-    t.string "box_id"
-    t.string "folder_id"
     t.integer "ocr_hint_id"
     t.string "ocr_language_hint"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
@@ -567,6 +583,8 @@ ActiveRecord::Schema.define(version: 20171020132311) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "base_directory", default: "/Users/lf6f/dev/tracksys-dev/sandbox/digiserv-production"
+    t.boolean "active", default: true
   end
 
   create_table "workstation_equipment", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
