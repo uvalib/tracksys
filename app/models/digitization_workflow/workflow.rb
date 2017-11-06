@@ -14,6 +14,9 @@ class Workflow < ApplicationRecord
    validates :base_directory, :presence => true
    has_many :steps
 
+   scope :active, ->{where("active = ?", 1)}
+   scope :inactive, ->{where("active = ?", 0)}
+
    def first_step
       return steps.find_by(step_type: "start")
    end
