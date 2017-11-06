@@ -79,8 +79,7 @@ class CloneMasterFiles < BaseJob
       FileUtils.cp( archived_mf, dest_file)
       md5 = Digest::MD5.hexdigest(File.read(dest_file) )
       if md5 != src_mf.md5
-         on_failure "Checksum mismatch for master file with ID #{src_mf.id}. Skipping."
-         return false
+         on_failure "WARNING: Checksum mismatch for master file with ID #{src_mf.id}."
       end
 
       mf = MasterFile.create(

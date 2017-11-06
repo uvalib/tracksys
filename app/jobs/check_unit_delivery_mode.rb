@@ -56,7 +56,10 @@ class CheckUnitDeliveryMode < BaseJob
          end
       end
 
-      # TODO OCR
+      if unit.ocr_master_files
+         Ocr.exec_now({object_class: "Unit", object_id: unit.id,
+            language: unit.metadata.ocr_language_hint, exclude: []}, self)
+      end
 
       # Figure out if this unit has any deliverables, and of what type:
       if unit.include_in_dl && unit.metadata.availability_policy_id?

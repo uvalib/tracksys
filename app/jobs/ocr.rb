@@ -29,31 +29,18 @@ class Ocr < BaseJob
    end
 
    def ocr_master_file( mf, language )
-      unit_dir = "%09d" % mf.unit_id
-      srcs = [
-         File.join(Finder.finalization_dir(mf.unit, :in_process), mf.filename),
-         File.join(Finder.finalization_dir(mf.unit, :delete_from_finalization), mf.filename),
-         File.join(ARCHIVE_DIR, unit_dir, mf.filename)
-      ]
-      src = nil
-      srcs.each do |f|
-         if File.exist? f
-            src = f
-            break
-         end
-      end
-      if src.nil?
-         on_error("Source #{mf.filename} could not be found")
-      end
-
-      dest_dir = Finder.finalization_dir(mf.unit, :in_process)
+      # Curl command to get image from IIIF:
+      # curl -o OUT.jpg https://iiif.lib.virginia.edu/iiif/uva-lib:837970/full/full/0/grey.jpg -H  "referer: lib.virginia.edu"
+      dest_dir = Finder.finalization_dir(mf.unit, :process_deliverables)
       FileUtils.mkdir_p dest_dir if !Dir.exist?(dest_dir)
+
       dest = File.join(dest_dir,  "OCR_"+mf.filename)
-      logger().info("Preprocess #{src} to #{dest}")
-      conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
-      `#{conv_cmd}`
+      iiif_url = "#{Settings.iiif_url}/#{mf.pid}/full/full/0/grey.jpg -H  \"referer: lib.virginia.edu\""
+      cmd = "curl -o #{dest} #{iiif_url}"
+      logger().info("Get working file: #{cmd}")
+      `#{cmd}`
       if !File.exist? dest
-         on_error("Preprocessed file #{dest} was not generated")
+         on_error("#{dest} was not downloaded")
       end
 
       lang_param = ""
