@@ -60,7 +60,6 @@ class Ocr < BaseJob
       end
       file = File.open(trans_file, "r")
       mf.transcription_text = file.read
-      mf.transcription_text.gsub!(/\s+/, "\s")
       file.close
       mf.save!
       mf.ocr!  # flag the text type as OCR
