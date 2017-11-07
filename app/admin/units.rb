@@ -223,10 +223,11 @@ ActiveAdmin.register Unit do
          raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
       end
    end
-   # TODO Fix me
-   # action_item :ocr, only: :show do
-   #    link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
-   # end
+   action_item :ocr, only: :show do
+      if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
+         link_to "OCR", "/admin/units/#{unit.id}/ocr?all=true", method: :post
+      end
+   end
 
    # MEMBER ACTIONS ============================================================
    #
@@ -306,7 +307,11 @@ ActiveAdmin.register Unit do
    member_action :ocr, :method => :post do
       mf_ids = params[:ids]
       Ocr.exec(object_class: "Unit", object_id: params[:id], only: mf_ids)
-      render plain: "OK"
+      if params[:all]
+         redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
+      else
+         render plain: "OK"
+      end
    end
 
    member_action :attachment, :method => :post do

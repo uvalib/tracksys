@@ -21,9 +21,9 @@ class Ocr < BaseJob
    end
 
    def ocr_unit(unit, language, only)
-      logger().info("OCR Masterfiles from unit #{unit.id}")
+      logger().info("OCR Masterfiles from unit #{unit.id} - ONLY [#{only}]")
       unit.master_files.each do |mf|
-         next if !only.blank? && !only.include?(mf.id)
+         next if !only.blank? && !only.include?(mf.id.to_s)
          ocr_master_file(mf, language)
       end
    end
