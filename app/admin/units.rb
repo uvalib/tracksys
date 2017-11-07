@@ -223,9 +223,10 @@ ActiveAdmin.register Unit do
          raw("<a href='#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}' target='_blank'>Download PDF</a>")
       end
    end
-   action_item :ocr, only: :show do
-      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
-   end
+   # TODO Fix me
+   # action_item :ocr, only: :show do
+   #    link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
+   # end
 
    # MEMBER ACTIONS ============================================================
    #
@@ -300,6 +301,12 @@ ActiveAdmin.register Unit do
       end
       att.destroy
       redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+   end
+
+   member_action :ocr, :method => :post do
+      mf_ids = params[:ids]
+      Ocr.exec(object_class: "Unit", object_id: params[:id], only: mf_ids)
+      render plain: "OK"
    end
 
    member_action :attachment, :method => :post do

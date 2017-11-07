@@ -8,29 +8,33 @@ div id: "masterfile-list" do
    end
 
    div class: "unit-mf-action-panel" do
-      all_btn = "<a href='/admin/units/#{unit.id}?page_size=#{unit.master_files.size}' class='mf-action-button'>View All</a>"
-      all_btn = "" if page_size.to_i >= unit.master_files.count
-      sel_all_btn = "<span id='sel-all' class='mf-action-button'>Select All</span>"
-
-      replace_btn = ""
-      add_btn = ""
-      del_btn = ""
-      renumber_btn = "<span id='renumber-pages' class='mf-action-button disabled'>Renumber Selected</span>"
-      if !unit.reorder && current_user.admin?
-         replace_btn = "<span id='replace-pages' class='mf-action-button'>Replace</span>"
-         add_btn = "<span id='add-pages' class='mf-action-button'>Add</span>"
+      if page_size.to_i >= unit.master_files.count
+         span do
+            link_to "View All", "/admin/units/#{unit.id}?page_size=#{unit.master_files.size}", class: "mf-action-button"
+         end
       end
-      if current_user.admin? && (unit.date_archived.blank? || !unit.in_dl? || unit.reorder)
-         del_btn = "<span id='del-pages' class='mf-action-button disabled'>Delete Selected</span>"
-      end
+      span id: 'sel-all', class: 'mf-action-button' do "Select All" end
+      span id: "updates" do
+         if !unit.reorder && current_user.admin?
+            span id: "add-pages", class: 'mf-action-button' do "Add" end
+            span id: "replace-pages", class: 'mf-action-button' do "Replace" end
+         end
 
-      if !unit.metadata.nil? && !unit.date_archived.blank?
-         token =  Time.now.to_i
-         url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
-         pdf_btn = "<a id='download-select-pdf' href='#{url}' target='_blank' class='mf-action-button disabled'>Download Selection as PDF</a>"
-      end
+         if current_user.admin? && (unit.date_archived.blank? || !unit.in_dl? || unit.reorder)
+            span id: 'del-pages', class: 'mf-action-button disabled' do "Delete Selected" end
+         end
 
-      raw("#{all_btn}#{sel_all_btn}<span id='updates'>#{add_btn}#{replace_btn}#{del_btn}#{renumber_btn}#{pdf_btn}</span>")
+         span id: "renumber-pages", class: 'mf-action-button disabled' do "Renumber Selected" end
+
+         if !unit.metadata.nil? && !unit.date_archived.blank?
+            token =  Time.now.to_i
+            url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
+            span do
+               link_to "PDF of Selected", url, target: "_blank", id:"pdf-pages", class: "mf-action-button disabled"
+            end
+            span id: 'ocr-pages', class: 'mf-action-button disabled' do "OCR Selected" end
+         end
+      end
    end
 
    div class: "update-confirm" do

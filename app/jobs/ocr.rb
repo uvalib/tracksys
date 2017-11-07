@@ -13,38 +13,44 @@ class Ocr < BaseJob
          ocr_master_file(object, language)
          on_success("OCR complete")
       elsif object_class == "Unit"
-         ocr_unit(object, language, message[:exclude] )
+         ocr_unit(object, language, message[:only] )
          on_success("OCR complete")
       else
          raise "OCR can only be performed on units or master files"
       end
    end
 
-   def ocr_unit(unit, language, exclude)
-      logger().info("OCR Masterfiles from unit #{unit.id}, EXCEPT #{exclude}")
+   def ocr_unit(unit, language, only)
+      logger().info("OCR Masterfiles from unit #{unit.id}")
       unit.master_files.each do |mf|
-         next if exclude.include? mf.id
+         next if !only.blank? && !only.include? mf.id
          ocr_master_file(mf, language)
       end
    end
 
    def ocr_master_file( mf, language )
+      srcs = [
+         File.join(Finder.finalization_dir(mf.unit, :in_process), mf.filename),
+         File.join(ARCHIVE_DIR, "%09d" % mf.unit_id, mf.filename)
+      ]
+      src = nil
+      srcs.each do |f|
+         if File.exist? f
+            src = f
+            break
+         end
+      end
+      if src.nil?
+         on_error("Source #{mf.filename} could not be found")
+      end
+
       dest_dir = Finder.finalization_dir(mf.unit, :process_deliverables)
       FileUtils.mkdir_p dest_dir if !Dir.exist?(dest_dir)
       dest = File.join(dest_dir,  "OCR_"+mf.filename)
 
-      # Curl command to get image from IIIF:
-      iiif_url = "#{Settings.iiif_url}/#{mf.pid}/full/full/0/default.jpg -H  \"referer: lib.virginia.edu\""
-      cmd = "curl -o #{dest} #{iiif_url}"
-      logger().info("Get working file from IIIF server: #{cmd}")
-      `#{cmd}`
-      if !File.exist? dest
-         on_error("#{dest} was not downloaded")
-      end
-
       # Process to make it get better OCR results....
-      conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{dest} #{dest} 2>/dev/null"
-      puts "Convert image: #{conv_cmd}"
+      conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
+      logger.info "Convert image: #{conv_cmd}"
       `#{conv_cmd}`
 
       # OCR....
