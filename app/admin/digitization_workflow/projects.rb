@@ -32,6 +32,7 @@ ActiveAdmin.register Project do
    filter :priority, :as => :select, :collection => Project.priorities
    filter :order_id_equals, :label => "Order ID"
    filter :unit_id_equals, :label => "Unit ID"
+   filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
    filter :workstation, :as => :select
    filter :due_on
    filter :added_at
