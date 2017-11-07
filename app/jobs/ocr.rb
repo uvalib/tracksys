@@ -29,18 +29,40 @@ class Ocr < BaseJob
    end
 
    def ocr_master_file( mf, language )
-      # Curl command to get image from IIIF:
-      # curl -o OUT.jpg https://iiif.lib.virginia.edu/iiif/uva-lib:837970/full/full/0/grey.jpg -H  "referer: lib.virginia.edu"
+      srcs = [
+         File.join(Finder.finalization_dir(mf.unit, :in_process), mf.filename),
+         File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+      ]
+      src = nil
+      srcs.each do |f|
+         if File.exist? f
+            src = f
+            break
+         end
+      end
+      if src.nil?
+         on_error("Source #{mf.filename} could not be found")
+      end
+
       dest_dir = Finder.finalization_dir(mf.unit, :process_deliverables)
       FileUtils.mkdir_p dest_dir if !Dir.exist?(dest_dir)
-
       dest = File.join(dest_dir,  "OCR_"+mf.filename)
-      iiif_url = "#{Settings.iiif_url}/#{mf.pid}/full/full/0/grey.jpg -H  \"referer: lib.virginia.edu\""
-      cmd = "curl -o #{dest} #{iiif_url}"
-      logger().info("Get working file: #{cmd}")
-      `#{cmd}`
+
+      # # Curl command to get image from IIIF:
+      # # curl -o OUT.jpg https://iiif.lib.virginia.edu/iiif/uva-lib:837970/full/full/0/grey.jpg -H  "referer: lib.virginia.edu"
+      # iiif_url = "#{Settings.iiif_url}/#{mf.pid}/full/full/0/grey.jpg -H  \"referer: lib.virginia.edu\""
+      # cmd = "curl -o #{dest} #{iiif_url}"
+      # logger().info("Get working file: #{cmd}")
+      # `#{cmd}`
+      # if !File.exist? dest
+      #    on_error("#{dest} was not downloaded")
+      # end
+
+      conv_cmd = "convert -density 300 -units PixelsPerInch -type Grayscale +compress #{src} #{dest} 2>/dev/null"
+      puts "Convert image: #{conv_cmd}"
+      `#{conv_cmd}`
       if !File.exist? dest
-         on_error("#{dest} was not downloaded")
+         on_error("Preprocessed file #{dest} was not generated")
       end
 
       lang_param = ""
