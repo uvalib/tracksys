@@ -1,6 +1,6 @@
 class CheckOrderReadyForDelivery < BaseJob
    include BuildOrderPDF
-   
+
    def set_originator(message)
       @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id] )
    end
@@ -57,11 +57,14 @@ class CheckOrderReadyForDelivery < BaseJob
 
       # QA was successful, generate PDF and email
       create_pdf(order)
+
+      # Email can be created from this job or from UI. For this
+      # reason, it remain its own standalone job
       CreateOrderEmail.exec_now({:order => order}, self)
    end
 
    private
-   def create_pdf
+   def create_pdf(order)
       logger.info("Create order PDF...")
       pdf = generate_invoice_pdf(order)
       order_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
