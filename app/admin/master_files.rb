@@ -316,9 +316,11 @@ ActiveAdmin.register MasterFile do
    member_action :save_transcription, :method => :post do
       mf = MasterFile.find(params[:id])
       src = mf.text_source
-      if src.nil? || src == 2
+      if src.nil?
+         # no prior text, set type to transcription
          src = 2
       elsif src = 0
+         # Corrected OCR
          src = 1
       end
       if mf.update(transcription_text: params[:transcription], text_source: src)

@@ -65,10 +65,8 @@ class Ocr < BaseJob
          on_error("OCR output file #{trans_file} was not generated")
       end
       file = File.open(trans_file, "r")
-      mf.transcription_text = file.read
+      mf.update!(transcription_text: file.read, text_source: 0) # OCR source
       file.close
-      mf.save!
-      mf.ocr!  # flag the text type as OCR
 
       logger().info("OCR Results added to master file #{mf.id}")
       logger().info("Cleaning up #{trans_file} and #{dest}")
