@@ -315,7 +315,13 @@ ActiveAdmin.register MasterFile do
 
    member_action :save_transcription, :method => :post do
       mf = MasterFile.find(params[:id])
-      if mf.update(transcription_text: params[:transcription])
+      src = mf.text_source
+      if src.nil? || src == 2
+         src = 2
+      elsif src = 0
+         src = 1
+      end
+      if mf.update(transcription_text: params[:transcription], text_source: src)
          render plain: "OK"
       else
          render plain: mf.errors.full_messages.to_sentence, status: :error
