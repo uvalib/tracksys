@@ -15,10 +15,11 @@ $(function() {
       });
    }
 
-   $(".ocr-button.transcription").on("click", function() {
+   $("#save-transcription").on("click", function() {
       var url = window.location.href;
       var id = url.split("=")[1];
       var data = {transcription: $("textarea.transcription").val() };
+      var btn = $(this);
       btn.addClass("disabled");
       $.ajax({
          url: "/admin/master_files/"+id+"/save_transcription",
