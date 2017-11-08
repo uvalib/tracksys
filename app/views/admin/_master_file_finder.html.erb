@@ -1,0 +1,16 @@
+<%= form_tag(admin_dashboard_location_lookup_path, :method => 'get') do %>
+   <p class="pid-note">Find master files by Box and/or folder</p>
+   <table>
+      <tr>
+         <td><%= label_tag(:box, "Box:") %></td>
+         <td><%= text_field_tag(:box) %></td>
+      </tr>
+      <tr>
+         <td><%= label_tag(:folder, "Folder:") %></td>
+         <td><%= text_field_tag(:folder) %></td>
+      </tr>
+   </table>
+   <div style="text-align:right">
+      <%= submit_tag("Lookup") %>
+   </div>
+<% end %>
