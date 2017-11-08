@@ -15,7 +15,7 @@ class CreateUnitZip < BaseJob
       # IF OCR was requested, generate a single text file containing all of the page OCR results
       ocr_file = nil
       if unit.ocr_master_files
-         assemble_dir = File.join(ASSEMBLE_DELIVERY_DIR, "order_#{unit.order.id}", unit.id.to_s)
+         assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
          ocr_file_name = File.join(assemble_dir, "#{unit.id}.txt")
          logger.info "OCR was requeseted for this unit; generate text file with OCR resuls here: #{ocr_file_name}"
          ocr_file = File.open(ocr_file_name, "w")  # truncate existing and open for write
