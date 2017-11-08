@@ -30,7 +30,7 @@ class Ocr < BaseJob
 
    def ocr_master_file( mf, language )
       srcs = [
-         File.join(Finder.finalization_dir(mf.unit, :in_process), mf.filename),
+         File.join(Finder.finalization_dir(mf.unit, :process_deliverables), mf.filename),
          File.join(ARCHIVE_DIR, "%09d" % mf.unit_id, mf.filename)
       ]
       src = nil

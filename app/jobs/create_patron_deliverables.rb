@@ -1,8 +1,6 @@
 class CreatePatronDeliverables < BaseJob
 
-   require 'rubygems'
    require 'rmagick'
-   require 'digest/md5'
 
    #
    # Note: this should always be called with masterfiles in the PROCESSING directory

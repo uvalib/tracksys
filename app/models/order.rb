@@ -287,7 +287,7 @@ class Order < ApplicationRecord
    end
 
    def generate_notice
-       generate_invoice_pdf(self, self.fee_actual)
+       generate_invoice_pdf(self)
    end
 
    def self.upaid_customer_report

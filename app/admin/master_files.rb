@@ -319,7 +319,7 @@ ActiveAdmin.register MasterFile do
       if src.nil?
          # no prior text, set type to transcription
          src = 2
-      elsif src = 0
+      elsif src == 0
          # Corrected OCR
          src = 1
       end
