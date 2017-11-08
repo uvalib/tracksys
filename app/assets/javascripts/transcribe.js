@@ -18,15 +18,10 @@ $(function() {
    $(".ocr-button.transcription").on("click", function() {
       var url = window.location.href;
       var id = url.split("=")[1];
-      var btn = $(this);
-      var textType = "transcription";
-      if (btn.hasClass("ocr")) {
-         textType = "ocr";
-      }
-      var data = {id: id, type: textType, transcription: $("textarea.transcription").val() };
+      var data = {transcription: $("textarea.transcription").val() };
       btn.addClass("disabled");
       $.ajax({
-         url: "/admin/ocr/save",
+         url: "/admin/master_files/"+id+"/save_transcription",
          data: data,
          method: "POST",
          complete: function( jqXHR, textStatus ) {

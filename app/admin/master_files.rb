@@ -313,6 +313,15 @@ ActiveAdmin.register MasterFile do
          :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
+   member_action :save_transcription, :method => :post do
+      mf = MasterFile.find(params[:id])
+      if mf.update(transcription_text: params[:transcription])
+         render plain: "OK"
+      else
+         render plain: mf.errors.full_messages.to_sentence, status: :error
+      end
+   end
+
    csv do
      column :id
      column :pid
