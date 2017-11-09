@@ -11,8 +11,8 @@ namespace :workflow do
 
    desc "Create new workflow for manuscript projects"
    task :create_manuscript  => :environment do
-      # wf = Workflow.create(name: 'Manuscript', description: "Workflow for manuscripts. Subfolders required.")
-      wf = Workflow.find(5)
+      wf = Workflow.create(name: 'Manuscript', description: "Workflow for manuscripts. Subfolders required.")
+      # wf = Workflow.find(5)
 
       scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials",
          step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
