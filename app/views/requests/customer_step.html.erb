@@ -1,0 +1,49 @@
+<div class="container-fluid">
+   <div class="step-header">
+      <span>Digital Production Group Request</span>
+      <span class="step-info">Section 1 of 3</span>
+   </div>
+   <% if !@errors.blank? %>
+      <div class="flash flash_type_error">
+         <p>The following errors have occured:</p>
+         <ul>
+            <% @errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+            <% end %>
+         </ul>
+      </div>
+   <% end %>
+
+   <div class="request-step">
+      <%= form_tag("/requests/customer", method: "post") do %>
+         <legend class="form">Customer Information</legend>
+
+         <div class="form-group">
+            <%= label_tag(:first_name, "First Name") %>
+            <%= text_field_tag(:first_name, @customer.first_name, {class: "form-control"} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:last_name, "Last Name") %>
+            <%= text_field_tag(:last_name, @customer.last_name, {class: "form-control"}) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:email, "Email") %>
+            <% if @customer.email.blank? %>
+               <%= text_field_tag(:email, nil, {class: "form-control"}) %>
+            <% else %>
+               <%= text_field_tag(:email, @customer.email, {class: "form-control", readonly: true}) %>
+            <% end %>
+         </div>
+         <% hidden = ""
+            hidden = "hidden" if @customer.academic_status_id == 1 %>
+         <div class="form-group <%= hidden %>">
+            <%= label_tag(:academic_status_id, "Academic Status") %>
+            <%= select_tag(:academic_status_id, options_from_collection_for_select(AcademicStatus.all, :id, :name, @customer.academic_status_id), {class: "form-control"} ) %>
+         </div>
+         <div class="form-actions">
+            <a href="/" class='btn btn-primary'>Cancel</a>
+            <%= submit_tag("Next", class: "btn btn-primary") %>
+         </div>
+      <% end %>
+   </div>
+</div>

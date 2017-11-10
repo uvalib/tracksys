@@ -72,7 +72,6 @@ GEM
       railties (>= 3.0)
       sass-rails (>= 3.2)
     chronic (0.10.2)
-    cocoon (1.2.11)
     coffee-rails (4.2.2)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0)
@@ -275,7 +274,6 @@ DEPENDENCIES
   bootstrap-datepicker-rails
   byebug
   chosen-rails
-  cocoon
   country-select
   daemons
   delayed_job_active_record

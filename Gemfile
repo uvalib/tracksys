@@ -19,7 +19,6 @@ gem 'delayed_job_active_record'
 gem 'daemons'
 
 # for patron request forms
-gem 'cocoon'
 gem 'bootstrap-datepicker-rails'
 
 gem 'whenever', :require => false   # to age off job status records

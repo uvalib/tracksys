@@ -1,0 +1,73 @@
+<div class="container-fluid">
+   <div class="step-header">
+      <span>Digital Production Group Request</span>
+      <span class="step-info">Section 2 of 3</span>
+   </div>
+   <% if !@errors.blank? %>
+      <div class="flash flash_type_error">
+         <p>The following errors have occured:</p>
+         <ul>
+            <% @errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+            <% end %>
+         </ul>
+      </div>
+   <% end %>
+
+   <div class="request-step">
+      <%= form_tag("/requests/address", method: "post") do %>
+         <% if @address.address_type == "billable_address" %>
+            <legend class="form">Billable Address Information</legend>
+         <% else %>
+            <legend class="form">Primary Address Information</legend>
+         <% end %>
+         <%= hidden_field_tag(:address_type, @address.address_type  ) %>
+         <%= hidden_field_tag(:customer_id, @address.addressable_id  ) %>
+         <% if @address.address_type == "billable_address" %>
+            <div class="form-group">
+               <%= label_tag(:first_name, "First Name") %>
+               <%= text_field_tag(:first_name, @address.first_name, {class: "form-control"} ) %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:last_name, "Last Name") %>
+               <%= text_field_tag(:last_name, @address.last_name, {class: "form-control"} ) %>
+            </div>
+         <% end %>
+         <div class="form-group">
+            <%= label_tag(:address_1, "Address Line 1") %>
+            <%= text_field_tag(:address_1, @address.address_1, {class: "form-control"} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:address_2, "Address Line 2") %>
+            <%= text_field_tag(:address_2, @address.address_2, {class: "form-control"} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:city, "City") %>
+            <%= text_field_tag(:city, @address.city, {class: "form-control"} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:state, "State") %>
+            <%= text_field_tag(:state, @address.state, {class: "form-control"} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:country, "Country") %>
+            <%= select_tag(:country, country_options_for_select(@address.country, ['United States', 'Canada']),
+                  {class: "form-control", include_blank: false} ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:phone, "Phone") %>
+            <%= text_field_tag(:phone, @address.phone, {class: "form-control"} ) %>
+         </div>
+         <% if @address.address_type != "billable_address" %>
+            <div class="form-group">
+               <%= label_tag(:has_billing_address, "Do you have a different billing address?") %>
+               <label><%= check_box_tag(:has_billing_address, true, false) %>Yes</label>
+            </div>
+         <% end %>
+         <div class="form-actions">
+            <a href="/" class='btn btn-primary'>Cancel</a>
+            <%= submit_tag("Next", class: "btn btn-primary") %>
+         </div>
+      <% end %>
+   </div>
+</div>

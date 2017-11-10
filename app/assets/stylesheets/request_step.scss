@@ -1,0 +1,69 @@
+#main #content {
+   .container-fluid {
+      div.step-header {
+         color: #51822F;
+         font-size: 1.5em;
+         margin-bottom: 10px;
+         position: relative;
+         border-bottom: 1px solid #51822F;
+         padding-bottom: 5px;
+         .step-info {
+            font-size: 0.6em;
+            position: absolute;
+            right: 0px;
+            top: 10;
+         }
+      }
+      div.flash_type_error {
+         display: inline-block;
+         padding: 10px 20px;
+         background: #b55;
+         color: white;
+         border: 1px solid #500;
+         p {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+         }
+         ul, li    {
+            margin: 0
+         }
+      }
+   }
+
+   div.request-step {
+      color: #666;
+      min-height: 550px;
+
+      legend {
+         color: #666;
+         padding: 10px 0px 20px 0;
+         border: 0;
+         text-align: right;
+         font-weight: 500;
+      }
+      form {
+         width: 50%;
+         margin: 0 auto;
+      }
+      input[type=text] {
+         width: 100%;
+         box-sizing: border-box;
+         padding: 2px 4px;
+         outline: none;
+      }
+      input[type=checkbox] {
+         width: 14px;
+         height: 14px;
+         margin: 0 15px;
+      }
+      label {
+         display: block;
+         color: #666;
+      }
+
+      .form-actions {
+         margin-top: 30px;
+      }
+   }
+}
