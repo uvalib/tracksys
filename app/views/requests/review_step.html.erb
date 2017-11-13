@@ -1,0 +1,66 @@
+<div class="container-fluid">
+   <div class="step-header">
+      <span>Digital Production Group Request</span>
+      <span class="step-info">Section 4 of 4</span>
+   </div>
+
+   <div class="request-step">
+      <%= form_tag("/requests", method: "post") do %>
+         <legend class="form">Review Order</legend>
+         <%= hidden_field_tag(:customer_id, @customer.id  ) %>
+         <%= hidden_field_tag(:date_due, @date_due  ) %>
+         <%= hidden_field_tag(:special_instructions, @special_instructions  ) %>
+         <%= hidden_field_tag(:intended_use_id, @intended_use.id  ) %>
+         <%= hidden_field_tag(:order_items, @items.to_json  ) %>
+
+         <div class="review">
+            <h3>Request Information</h3>
+            <div><label>Date Due:</label><span><%= @date_due %></span></div>
+            <div><label>Intended Use:</label><span><%= @intended_use.name %></span></div>
+            <% if !@special_instructions.blank? %>
+               <div>
+                  <label>Special Instructions:</label>
+                  <p class="special-instructions"><%= @special_instructions %></p>
+               </div>
+            <% end %>
+         </div>
+
+         <div class="review">
+            <h3>Item Information</h3>
+            <% @items.each_with_index do |item,idx| %>
+               <div class="item-review">
+                  <h4><span>Item #<%= idx + 1 %></span>
+                     <span class="ctls" data-item-idx="<%=idx%>">
+                        <span class="action edit">Edit</span>
+                        <span class="sep">|</span>
+                        <span class="action delete">Delete</span>
+                     </span>
+                  </h4>
+                  <div><label>Title:</label><span><%= item['title'] %></span></div>
+                  <div><label>Pages:</label><span><%= item['pages'] %></span></div>
+                  <% if !item['callNumber'].blank? %>
+                     <div><label>Call Number:</label><span><%= item['callNumber'] %></span></div>
+                  <% end %>
+                  <% if !item['author'].blank? %>
+                     <div><label>Author:</label><span><%= item['author'] %></span></div>
+                  <% end %>
+                  <% if !item['year'].blank? %>
+                     <div><label>Year Published:</label><span><%= item['year'] %></span></div>
+                  <% end %>
+                  <% if !item['location'].blank? %>
+                     <div><label>Location</label><span><%= item['location'] %></span></div>
+                  <% end %>
+                  <% if !item['description'].blank? %>
+                     <div><label>Additional Description:</label><p class="special-instructions"><%= item['description'] %></p></div>
+                  <% end %>
+               </div>
+            <% end %>
+         </div>
+
+         <div class="form-actions">
+            <a href="/" class='btn btn-primary'>Cancel</a>
+            <%= submit_tag("Submit Order", class: "btn btn-primary") %>
+         </div>
+      <% end %>
+   </div>
+</div>

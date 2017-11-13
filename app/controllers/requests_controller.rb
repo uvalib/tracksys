@@ -129,6 +129,21 @@ class RequestsController < ApplicationController
       @customer_id = params[:customer_id]
    end
 
+   # POST request to submit order and items and generate a review screen
+   #
+   def review_step
+      @customer = Customer.find(params[:customer_id])
+      @items = JSON.parse(params[:order_items])
+      @date_due = params[:date_due]
+      @special_instructions = params[:special_instructions]
+      @intended_use = IntendedUse.find(params[:intended_use_id])
+   end
+
+   # POST request to create an order and associated order items
+   #
+   def submit
+   end
+
    def address_params
       params.permit(:address_type, :first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone)
    end

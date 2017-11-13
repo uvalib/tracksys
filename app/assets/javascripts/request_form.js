@@ -51,7 +51,7 @@ $(document).ready(function () {
       $("#order-item").show();
       $("#request-next").hide();
       $("#request-add").show();
-      $("#submit-order").show();
+      $("#request-complete").show();
       $("#request_title").focus();
    });
 
@@ -102,8 +102,23 @@ $(document).ready(function () {
       $("#request_title").focus();
    });
 
-   $("#submit-order").on("click", function() {
+   $("#request-complete").on("click", function() {
       if (validateItem() === false) return;
+      $("#order-form").submit();
+   });
 
+   $(".item-review .action.delete").on("click", function() {
+      var itemIndex = $(this).closest(".ctls").data("item-idx");
+      var items = JSON.parse($("#order_items").val());
+      if (items.length === 1) {
+         alert("An order must have at least one item.");
+         return;
+      }
+      resp = confirm("Remove item "+(itemIndex+1)+" from your order?");
+      if (rep ) {
+         items.splice(itemIndex,1);
+         $("#order_items").val( JSON.stringify(items) );
+         $(this).closest(".item-review").remove();
+      }
    });
 });

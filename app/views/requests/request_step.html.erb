@@ -1,23 +1,24 @@
 <div class="container-fluid">
    <div class="step-header">
       <span>Digital Production Group Request</span>
-      <span class="step-info">Section 3 of 3</span>
+      <span class="step-info">Section 3 of 4</span>
    </div>
    <div class="request-error" style="display:none">
    </div>
 
    <div class="request-step">
-      <%= form_tag("/requests/request", method: "post") do %>
+      <%= form_tag("/requests/review", method: "post", id:"order-form") do %>
          <%= hidden_field_tag(:customer_id, @customer_id  ) %>
          <%= hidden_field_tag(:order_items, ""  ) %>
 
          <%= render partial: "request_info" %>
       <% end %>
       <%= render partial: "order_item" %>
+      <%= render partial: "order_item" %>
       <div class="items form-actions">
          <a href="/" class='btn btn-primary'>Cancel</a>
          <span id="request-next" class='btn btn-primary'>Next</span>
          <span id="request-add" class='btn btn-success' style="display: none">Add Item</span>
-         <span id="submit-order" class='btn btn-primary' style="display: none">Submit Order</span>
+         <span id="request-complete" class='btn btn-primary' style="display: none">Complete Order</span>
       </div>
    </div>
