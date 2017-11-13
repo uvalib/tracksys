@@ -3,84 +3,21 @@
       <span>Digital Production Group Request</span>
       <span class="step-info">Section 3 of 3</span>
    </div>
-   <% if !@errors.blank? %>
-      <div class="flash flash_type_error">
-         <p>The following errors have occured:</p>
-         <ul>
-            <% @errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-            <% end %>
-         </ul>
-      </div>
-   <% end %>
+   <div class="request-error" style="display:none">
+   </div>
 
    <div class="request-step">
       <%= form_tag("/requests/request", method: "post") do %>
-         <legend class="form">General Request Information</legend>
-
          <%= hidden_field_tag(:customer_id, @customer_id  ) %>
-         <div class="form-group">
-            <%= label_tag(:date_due, "Date Due") %>
-            <%= text_field_tag(:first_name, "", {class: "form-control", id: 'datepicker'} ) %>
-            <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
-               <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
-            </p>
-         </div>
-         <div class="form-group">
-            <%= label_tag(:special_instructions, "Special_instructions") %>
-            <%= text_area_tag(:special_instructions, "", {class: "form-control"} ) %>
-            <p class="help-block">
-               Include any additional information required to fulfill this request.
-            </p>
-         </div>
-         <div class="form-group">
-            <%= label_tag(:intended_use_id, "How do you intend to use items in this order?") %>
-            <p class="help-block">
-               (Note: This helps us determine a digital format and watermark appropriate to your ultimate intended use.
-               We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
-               apply to use for purposes other than private study, scholarship, or research.
-               Please see our <a href="https://small.library.virginia.edu/services/publishing/">Permissions and Publishing</a> page for more information.)
-            </p>
-            <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.external_use, :id, :name, nil),
-               {class: "form-control", prompt: "Select an intended use"} ) %>
+         <%= hidden_field_tag(:order_items, ""  ) %>
 
-            <!-- Notes about copyright and watermarks. These appear based on selection of intended use above -->
-            <div id="intended-use-watermarked-jpg" class="intended-use-info" style="display: none;">
-               <p>
-                  For this use Digital Production Group will deliver <strong>300dpi JPEG</strong> images suitable for your needs.
-                  These images will include a copyright statment within a surrounding gray border that states:</p>
-               <blockquote class="classroom copyright-note" style="display:none">
-                  <p>This single copy was produced for the purposes of classroom teaching pursuant to 17 USC § 107 (fair use).
-                     Copyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library.</p>
-               </blockquote>
-               <blockquote class="research copyright-note" style="display:none">
-                  <p>This single copy was produced for the purposes of private study, scholarship, or research pursuant to 17 USC § 107 and/or 108.
-                     Copyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library.</p>
-               </blockquote>
-               <p>If you require special formats such as TIFF or higher resolutions, please add a note in the Special Instructions field (above.)</p>
-            </div>
-
-            <div class="intended-use-info" id="intended-use-non-watermarked-jpg" style="display: none;">
-               <p>For this use Digital Production Group will deliver <strong>300dpi JPEG</strong> images suitable for your needs.</p>
-            </div>
-
-            <div class="intended-use-info"  id="intended-use-tif" style="display: none;">
-               <p>For this use Digital Production Group will deliver <strong>Highest possible dpi TIFF</strong>
-                  images suitable for your needs.  The resolution of the images is dependent on the size of the physical object.
-                  Generally, if the item is smaller than 11" on the longest side, the resolution will be 600dpi.
-                  If the item is between 11" and 14" on the longest side, the resolution will be 400dpi.
-                  Any item larger than 14" on the long side will generally have a resolution of 300dpi.
-               </p>
-            </div>
-         </div>
-
-         <div class="form-group instructions">
-               Use the next screens to add items to your order. Please add one item for each individual collection or book you would like digitized.
-         </div>
-
-         <div class="form-actions">
-            <a href="/" class='btn btn-primary'>Cancel</a>
-            <%= submit_tag("Next", class: "btn btn-primary") %>
-         </div>
+         <%= render partial: "request_info" %>
       <% end %>
+      <%= render partial: "order_item" %>
+      <div class="items form-actions">
+         <a href="/" class='btn btn-primary'>Cancel</a>
+         <span id="request-next" class='btn btn-primary'>Next</span>
+         <span id="request-add" class='btn btn-success' style="display: none">Add Item</span>
+         <span id="submit-order" class='btn btn-primary' style="display: none">Submit Order</span>
+      </div>
    </div>

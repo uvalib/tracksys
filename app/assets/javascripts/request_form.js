@@ -32,4 +32,78 @@ $(document).ready(function () {
         $("#intended-use-tif").show();
       }
    });
+
+   $("#request-next").on("click", function() {
+      var due = $("input[name=date_due]").val();
+      var use = $("#intended_use_id").val();
+      $("div.request-error").hide();
+      if ( due.length == 0 ) {
+         $("div.request-error").text("Due date is required");
+         $("div.request-error").show();
+         return;
+      }
+      if ( !use ) {
+         $("div.request-error").text("Intended Use is required");
+         $("div.request-error").show();
+         return;
+      }
+      $("#general-info").hide();
+      $("#order-item").show();
+      $("#request-next").hide();
+      $("#request-add").show();
+      $("#submit-order").show();
+      $("#request_title").focus();
+   });
+
+   var validateItem = function() {
+      var item = {
+         title: $("#request_title").val(),
+         pages: $("#request_pages_to_digitize").val(),
+         callNumber:  $("#request_call_number").val(),
+         author:  $("#request_author").val(),
+         year:  $("#request_year").val(),
+         location:  $("#request_location").val(),
+         description:  $("#request_description").val()
+      };
+      if ( item.title.length === 0 ) {
+         $("div.request-error").text("Title is required");
+         $("div.request-error").show();
+         return false;
+      }
+      if ( item.pages.length === 0 ) {
+         $("div.request-error").text("Image or page numbers are required");
+         $("div.request-error").show();
+         return false;
+      }
+
+      var items = $("#order_items").val();
+      if (items.length === 0) {
+         items = [];
+      } else {
+         items = JSON.parse(items);
+      }
+      items.push(item);
+      $("#order_items").val( JSON.stringify(items));
+      return true;
+   };
+
+   $("#request-add").on("click", function() {
+      if (validateItem() === false) return;
+      var num = parseInt($("#item-number").text(), 10);
+      num += 1;
+      $("#item-number").text(num);
+      $("#request_title").val("");
+      $("#request_pages_to_digitize").val("");
+      $("#request_call_number").val("");
+      $("#request_author").val("");
+      $("#request_year").val("");
+      $("#request_location").val("");
+      $("#request_description").val("");
+      $("#request_title").focus();
+   });
+
+   $("#submit-order").on("click", function() {
+      if (validateItem() === false) return;
+
+   });
 });

@@ -14,7 +14,7 @@
             top: 10;
          }
       }
-      div.flash_type_error {
+      div.flash_type_error, div.request-error {
          display: inline-block;
          padding: 10px 20px;
          background: #b55;
@@ -93,6 +93,10 @@
 
       .form-actions {
          margin-top: 30px;
+      }
+      .items.form-actions, #order-item {
+         width: 50%;
+          margin: 0 auto;
       }
    }
 }
