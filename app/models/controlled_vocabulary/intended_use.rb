@@ -16,12 +16,6 @@ class IntendedUse < ApplicationRecord
   default_scope {order('description') }
 
   #------------------------------------------------------------------
-  # aliases
-  #------------------------------------------------------------------
-  # Necessary for Active Admin to poplulate pulldown menu
-  alias_attribute :name, :description
-
-  #------------------------------------------------------------------
   # callbacks
   #------------------------------------------------------------------
   before_destroy :destroyable?
@@ -37,7 +31,7 @@ class IntendedUse < ApplicationRecord
      res = "highest possible resolution" if self.deliverable_resolution == "Highest Possible" || self.deliverable_resolution.blank?
      fmt = self.deliverable_format
      fmt = "tif" if fmt.blank?
-     return "#{self.description} : #{res} #{fmt}"
+     return "#{self.description} : #{res.capitalize} #{fmt.upcase}"
   end
 
   # Returns a boolean value indicating whether it is safe to delete this record

@@ -11,6 +11,7 @@ Tracksys::Application.routes.draw do
       post 'customer' => "requests#customer_update"
       get 'address' => "requests#address_step"
       post 'address' => "requests#address_update"
+      get 'request' => "requests#request_step"
     end
   end
   ActiveAdmin.routes(self)

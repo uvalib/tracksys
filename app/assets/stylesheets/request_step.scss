@@ -35,6 +35,13 @@
       color: #666;
       min-height: 550px;
 
+      .help-block {
+         line-height: 1.4em;
+         margin: 10px 5px 15px 5px;
+         font-size: 0.95em;
+         font-style: italic;
+      }
+
       legend {
          color: #666;
          padding: 10px 0px 20px 0;
@@ -60,6 +67,28 @@
       label {
          display: block;
          color: #666;
+      }
+
+      div.intended-use-info {
+         font-size: 0.85em;
+         margin: 1px 0;
+         border: 1px solid #ccc;
+         padding: 10px 20px;
+         border-radius: 5px;
+         p {
+            margin: 0 0 5px;
+         }
+         blockquote {
+            border:0;
+            font-size: 1.25em;
+            margin: 0;
+         }
+      }
+
+      .form-group.instructions {
+         margin-top:25px;
+         padding-top:10px;
+         border-top:1px solid #ccc;
       }
 
       .form-actions {

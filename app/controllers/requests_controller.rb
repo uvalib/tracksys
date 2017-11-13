@@ -106,7 +106,6 @@ class RequestsController < ApplicationController
          @address.addressable_id = params[:customer_id]
          @address.addressable_type = "Customer"
          @address.save
-         puts "ADDRESS #{@address.to_json}"
       else
          @address.update(address_params)
       end
@@ -117,13 +116,18 @@ class RequestsController < ApplicationController
          return
       end
 
-      if params[:has_billing_address]
+      if @address.address_type == "primary" && params[:has_billing_address]
          redirect_to controller: 'requests', action: 'address_step', customer_id: @address.addressable_id, type: "billable_address"
       else
-         raise("Not yet")
+         redirect_to controller: 'requests', action: 'request_step', customer_id: @address.addressable_id
       end
    end
 
+   # GET request to show general request info step
+   #
+   def request_step
+      @customer_id = params[:customer_id]
+   end
 
    def address_params
       params.permit(:address_type, :first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone)

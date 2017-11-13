@@ -5,69 +5,31 @@ $(document).ready(function () {
       daysOfWeekDisabled: "0,6",
       title: "Select Due Date",
       format: "yyyy-mm-dd",
-      });
-
-   $(".btn.btn-success.add_fields").on("click", function() {
-      var cnt = $(".btn.btn-success.add_fields").data("items");
-      if ( !cnt ) {
-         cnt = 0;
-      }
-      cnt++;
-      $(".btn.btn-success.add_fields").data("items", cnt);
-      $("div.item-required").hide();
-   });
-   $("#new_order").on("click", ".btn.btn-danger.remove_fields", function() {
-      var cnt = $(".btn.btn-success.add_fields").data("items");
-      cnt--;
-      if ( cnt <=0 ) {
-         cnt = 0;
-         $("div.item-required").show();
-      }
-      $(".btn.btn-success.add_fields").data("items", cnt);
+      orientation: "bottom"
    });
 
-   $("form").bind("nested:fieldAdded", function(event) {
-      $('.intended_use_select').change(function() {
-         var sel = $(this).closest('.intended_use_select');
-         var parentDiv = sel.parent().parent();
-         var val =  sel.val();
-         if ( val.length === 0) {
-            parentDiv.find('.intended_use_watermarked_jpg').hide();
-            parentDiv.find('.intended_use_highest_tif').hide();
-            parentDiv.find('.intended_use_non_watermarked_jpg').hide();
-         }
-         var intended_use_id = parseInt(sel.val(), 10);
+   $("#intended_use_id").on("change", function() {
+      var useId = parseInt( $(this).val(), 10);
+      $("div.intended-use-info").hide();
 
-         // Watermarked JPEGs?
-         if ( intended_use_id == 100 ||  intended_use_id == 104 || intended_use_id == 106 ) {
-            parentDiv.find('.intended_use_watermarked_jpg').show();
-            parentDiv.find('.intended_use_highest_tif').hide();
-            parentDiv.find('.intended_use_non_watermarked_jpg').hide();
-            if(intended_use_id == 100 ) {
-               parentDiv.find('.intended_use_watermarked_jpg .classroom').show();
-               parentDiv.find('.intended_use_watermarked_jpg .research').hide();
-            } else {
-               parentDiv.find('.intended_use_watermarked_jpg .classroom').hide();
-               parentDiv.find('.intended_use_watermarked_jpg .research').show();
-            }
-         } else if ( intended_use_id == 103 || intended_use_id == 109) {
-            // NON-watermarked jpegs, per Brandon, online exhibit and web publication images
-            // don't need a watermark
-            parentDiv.find('.intended_use_watermarked_jpg').hide();
-            parentDiv.find('.intended_use_highest_tif').hide();
-            parentDiv.find('.intended_use_non_watermarked_jpg').show();
-         } else if( intended_use_id == 101 || intended_use_id == 102 || intended_use_id == 105 ||
-                    intended_use_id == 107 || intended_use_id == 108 || intended_use_id == 110 || intended_use_id >= 112) {
-            // TIF Intended Use Values
-            parentDiv.find('.intended_use_watermarked_jpg').hide();
-            parentDiv.find('.intended_use_highest_tif').show();
-            parentDiv.find('.intended_use_non_watermarked_jpg').hide();
+      // Watermarked JPEGs?
+      if ( useId == 100 ||  useId == 104 || useId == 106 ) {
+         $("#intended-use-watermarked-jpg").show();
+         $("blockquote.copyright-note").hide();
+         if(useId == 100 ) {
+            $("blockquote.classroom").show();
          } else {
-            // Shouldn't get here. If somethow we do, just don't show anything
-            parentDiv.find('.intended_use_watermarked_jpg').hide();
-            parentDiv.find('.intended_use_highest_tif').hide();
-            parentDiv.find('.intended_use_non_watermarked_jpg').hide();
+            $("blockquote.research").show();
          }
-      });
+      } else if ( useId == 103 || useId == 109) {
+         // NON-watermarked jpegs: per Brandon, online exhibit and web publication images
+         // don't need a watermark
+         $("#intended-use-non-watermarked-jpg").show();
+
+      } else if( useId == 101 || useId == 102 || useId == 105 ||
+                 useId == 107 || useId == 108 || useId == 110 || useId >= 112) {
+        // TIF Intended Use Values
+        $("#intended-use-tif").show();
+      }
    });
 });
