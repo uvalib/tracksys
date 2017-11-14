@@ -62,12 +62,6 @@ class RequestsController < ApplicationController
       redirect_to :action => :new
    end
 
-   # Last step of order wizard complete and submit clicked. Create the order and items
-   #
-   def create
-      raise "not implemented"
-   end
-
    # POST customer info from step 1 of the request process; update existing record or create new
    #
    def customer_update
@@ -148,12 +142,37 @@ class RequestsController < ApplicationController
       @intended_use = IntendedUse.find(params[:intended_use_id])
    end
 
-   # POST request to create an order and associated order items
+   # Last step of order wizard complete and submit clicked. Create the order and items
    #
-   def submit
+   def create
+      @customer = Customer.find(params[:customer_id])
+      use = IntendedUse.find(params[:intended_use_id])
+      @request = Order.new( order_params )
+      @request.date_request_submitted = DateTime.now
+      @request.order_status = "requested"
+      @request.save!
+      JSON.parse(params[:order_items]).each do | req |
+         OrderItem.create!( order: @request, title: req["title"], pages: req["pages"],
+            call_number: req["callNumber"], author: req["author"], year: req["year"],
+            location: req["location:"], description: req["description"],
+            intended_use: use
+         )
+      end
+
+      # send confirmation email
+     begin
+        OrderMailer.request_confirmation(@request).deliver unless @customer.email.blank?
+     rescue Exception => e
+        logger.error "Mailer-related error: #{e.inspect}"
+     end
+
+     render :thank_you
    end
 
    def address_params
       params.permit(:address_type, :first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone)
+   end
+   def order_params
+      params.permit(:customer_id, :date_due, :special_instructions)
    end
 end

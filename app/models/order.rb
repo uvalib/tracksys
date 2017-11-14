@@ -31,6 +31,10 @@ class Order < ApplicationRecord
    has_one :primary_address, :through => :customer
    has_one :billable_address, :through => :customer
 
+   # These are the placeholder records received directly from the patron
+   # order form. These are converted to units and discarded
+   has_many :order_items
+
    accepts_nested_attributes_for :units
    accepts_nested_attributes_for :customer
 

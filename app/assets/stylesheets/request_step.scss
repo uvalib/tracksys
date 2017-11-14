@@ -49,9 +49,15 @@
                font-weight: 200;
                .action {
                   cursor: pointer;
-                  padding: 2px 10px;
+                  padding: 2px 15px;
+                  border: 1px solid #2e6da4;
+                  border-radius: 5px;
+                  color: #fff;
+                  background-color: #337ab7;
+                  font-size: 0.85em;
+                  font-weight: 400;
                   &:hover {
-                     text-decoration: underline;
+                     background-color: #2e6da4;
                   }
                }
             }
@@ -133,7 +139,7 @@
       }
       .items.form-actions, #order-item {
          width: 50%;
-          margin: 0 auto;
+         margin: 0 auto;
       }
    }
 }

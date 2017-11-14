@@ -77,21 +77,17 @@
 
    <div class="row indented">
       <h3>Item Information</h3>
-      <% @request.units.each do |unit| %>
-      <h4>Item #<%= @request.units.index(unit) + 1 %></h4>
+      <% @request.order_items.each do |item| %>
+      <h4>Item #<%= @request.order_items.index(item) + 1 %></h4>
       <dl class="dl-horizontal">
          <dt>Description</dt>
-         <dd><%= empty2nbsp(raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))) %></dd>
-         <% if not unit.patron_source_url.blank? %>
-         <dt>Web Link</dt>
-         <dd><%= empty2nbsp(unit.patron_source_url) %></dd>
-         <% end %>
+         <dd><%= empty2nbsp(raw(item.description.to_s.gsub(/\n/, '<br/>'))) %></dd>
          <dt>Intended Use</dt>
-         <dd><%= empty2nbsp(unit.intended_use.description) %></dd>
+         <dd><%= empty2nbsp(item.intended_use.description) %></dd>
          <dt>Format</dt>
-         <dd><%= empty2nbsp(unit.intended_use.deliverable_format) %></dd>
+         <dd><%= empty2nbsp(item.intended_use.deliverable_format) %></dd>
          <dt>Resolution</dt>
-         <dd><%= empty2nbsp(unit.intended_use.deliverable_resolution) %></dd>
+         <dd><%= empty2nbsp(item.intended_use.deliverable_resolution) %></dd>
       </dl>
       <% end %>
    </div>
