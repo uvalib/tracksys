@@ -22,6 +22,9 @@ class RequestsController < ApplicationController
       end
    end
 
+   # A new request is been started. Confirm/get customer info and render the first step in the
+   # order process: customer information
+   #
    def new
       Rails.logger.info "Creating new request for #{session[:computing_id]}. Agreed? #{session[:agree_to_copyright]}"
       @customer = Customer.new(academic_status_id: 1)
@@ -57,6 +60,12 @@ class RequestsController < ApplicationController
       end
       session[:computing_id] = cid
       redirect_to :action => :new
+   end
+
+   # Last step of order wizard complete and submit clicked. Create the order and items
+   #
+   def create
+      raise "not implemented"
    end
 
    # POST customer info from step 1 of the request process; update existing record or create new

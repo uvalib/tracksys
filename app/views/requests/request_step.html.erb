@@ -13,8 +13,7 @@
 
          <%= render partial: "request_info" %>
       <% end %>
-      <%= render partial: "order_item" %>
-      <%= render partial: "order_item" %>
+      <%= render partial: "order_item", locals: {mode: :add} %>
       <div class="items form-actions">
          <a href="/" class='btn btn-primary'>Cancel</a>
          <span id="request-next" class='btn btn-primary'>Next</span>

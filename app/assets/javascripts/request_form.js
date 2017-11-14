@@ -55,7 +55,7 @@ $(document).ready(function () {
       $("#request_title").focus();
    });
 
-   var validateItem = function() {
+   var validateItem = function(index) {
       var item = {
          title: $("#request_title").val(),
          pages: $("#request_pages_to_digitize").val(),
@@ -82,13 +82,25 @@ $(document).ready(function () {
       } else {
          items = JSON.parse(items);
       }
-      items.push(item);
+      if (index < 0) {
+         items.push(item);
+      } else {
+         items[index] = item;
+         var itemReview = $("div.item-review[data-item-idx='"+index+"']");
+         itemReview.find(".item-title").text( item.title );
+         itemReview.find(".item-pages").text( item.pages );
+         itemReview.find(".item-call-number").text( item.callNumber );
+         itemReview.find(".item-author").text( item.author );
+         itemReview.find(".item-year").text( item.year );
+         itemReview.find(".item-location").text( item.location );
+         itemReview.find(".special-instructions").text( item.description );
+      }
       $("#order_items").val( JSON.stringify(items));
       return true;
    };
 
    $("#request-add").on("click", function() {
-      if (validateItem() === false) return;
+      if (validateItem(-1) === false) return;
       var num = parseInt($("#item-number").text(), 10);
       num += 1;
       $("#item-number").text(num);
@@ -103,19 +115,72 @@ $(document).ready(function () {
    });
 
    $("#request-complete").on("click", function() {
-      if (validateItem() === false) return;
+      if (validateItem(-1) === false) return;
       $("#order-form").submit();
    });
 
+   $("#submit-order").on("click", function() {
+      $("#order-review").submit();
+   });
+
+   var toggleItemUpdate = function( update ) {
+      if ( update ) {
+         // show item fields / buttons
+         $("#update-item").show();
+         $("#order-item").show();
+         $("#cancel-update").show();
+
+         // hide order review form and buttons
+         $("#order-review").hide();
+         $("#cancel-order").hide();
+         $("#submit-order").hide();
+      } else {
+         $("#update-item").hide();
+         $("#order-item").hide();
+         $("#cancel-update").hide();
+         $("#order-review").show();
+         $("#cancel-order").show();
+         $("#submit-order").show();
+      }
+   };
+
+   $(".item-review .action.edit").on("click", function() {
+      var itemIndex = $(this).closest(".item-review").data("item-idx");
+      $("#update-item").data("item-idx", itemIndex);
+      var items = JSON.parse($("#order_items").val());
+      var item = items[itemIndex];
+
+      // populate update item form
+      $("#request_title").val(item.title);
+      $("#request_pages_to_digitize").val(item.pages);
+      $("#request_call_number").val(item.callNumber);
+      $("#request_author").val(item.author);
+      $("#request_year").val(item.year);
+      $("#request_location").val(item.location);
+      $("#request_description").val(item.description);
+
+      // show it...
+      toggleItemUpdate(true);
+   });
+
+   $("#cancel-update").on("click", function() {
+      toggleItemUpdate(false);
+   });
+   $("#update-item").on("click", function() {
+      var idx = $("#update-item").data("item-idx");
+      if ( validateItem(idx) === false) return;
+      toggleItemUpdate(false);
+   });
+
    $(".item-review .action.delete").on("click", function() {
-      var itemIndex = $(this).closest(".ctls").data("item-idx");
+      var itemIndex = $(this).closest(".item-review").data("item-idx");
       var items = JSON.parse($("#order_items").val());
       if (items.length === 1) {
          alert("An order must have at least one item.");
          return;
       }
       resp = confirm("Remove item "+(itemIndex+1)+" from your order?");
-      if (rep ) {
+      if (resp ) {
          items.splice(itemIndex,1);
          $("#order_items").val( JSON.stringify(items) );
          $(this).closest(".item-review").remove();
