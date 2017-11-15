@@ -1,0 +1,58 @@
+div.order-items, div.order-info {
+   p {
+      margin: 2px 0;
+   }
+   label {
+      font-weight: bold;
+      margin-right: 10px;
+      width: 100px;
+      text-align: right;
+      display: inline-block;
+   }
+   div.order-item {
+      margin: 0px 0 15px 0px;
+      background: white;
+      padding: 5px 15px;
+      border: 1px solid #ccc;
+      position: relative;
+      p.description {
+         margin-left: 15px;
+      }
+      .item-controls {
+         position: absolute;
+         right: 8px;
+         top: 10px;
+      }
+   }
+
+   .btn {
+      margin-left: 5px;
+      border: 1px solid #ccc;
+      padding: 4px 10px;
+      font-size: 0.9em;
+      cursor: pointer;
+      color: white;
+      background: #999;
+   }
+   .btn.discard-item {
+      background: #d25050;
+      border-color: #800;
+      &:hover {
+         background: #a00;
+      }
+   }
+   .btn.create-unit {
+      background: #41a541;
+      border-color: #070;
+      &:hover {
+         background: #080;
+      }
+   }
+}
+div.order-items-header {
+   padding: 5px 10px 3px 10px;
+   background: #ddd;
+   margin: 0 0 20px 0;
+   font-size: 1.1em;
+   color: #444;
+}
