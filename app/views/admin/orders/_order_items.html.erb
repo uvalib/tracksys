@@ -14,10 +14,10 @@
          <% order.order_items.each do |item| %>
             <div class="order-item">
                <div class="item-controls">
-                  <span class="btn discard-item" data-item-id="<% item.id %>">Discard</span>
-                  <span class="btn create-unit" data-item-id="<% item.id %>">Create Unit</span>
+                  <span class="btn discard-item" data-item-id="<%= item.id %>">Discard</span>
+                  <span class="btn create-unit" data-item-id="<%= item.id %>">Create Unit</span>
                </div>
-               <p><label>Title:</label><span><%= item.title %></span></p>
+               <p><label>Title:</label><span class="item-title"><%= item.title %></span></p>
                <p><label>Pages:</label><span><%= item.pages %></span></p>
                <% if !item.call_number.blank? %>
                   <p><label>Call Number:</label><span><%= item.call_number %></span></p>

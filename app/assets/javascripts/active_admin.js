@@ -6,6 +6,7 @@
 //= require jquery.autocomplete
 //= require autocomplete
 //= require ocr
+//= require order-items
 //= require statistics
 //= require update-unit
 //= require clone-masterfiles

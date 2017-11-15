@@ -28,6 +28,7 @@ Tracksys::Application.routes.draw do
      # to handle these requests. Routes registerd here
      resources :workstations, only: [:create, :update, :destroy]
      delete "workstations/:id/equipment" => "workstations#clear_equipment"
+     delete "items/:id" => "items#destroy"
 
      # Weird. The file /admin/equipment is made with register_page so it
      # has none of the basic CRUD actions defined automatically. Add them
