@@ -21,9 +21,6 @@ namespace :workflow do
          description: "Crop, rotate and process raw scans into subdirs named to match physical folders", owner_type: :prior_owner,
          start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
-      organize = Step.create( workflow: wf, name: "Organize", description: "Organize files into subdirs named to match physical folders", owner_type: :prior_owner,
-         start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
-
       catalog = Step.create( workflow: wf, name: "Build Catalog", description: "Build catalog file from organized images", owner_type: :prior_owner,
          start_dir: "scan/40_first_QA", finish_dir: "scan/40_first_QA")
 
