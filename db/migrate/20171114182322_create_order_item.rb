@@ -9,6 +9,7 @@ class CreateOrderItem < ActiveRecord::Migration[5.1]
         t.string :author
         t.string :year
         t.string :location
+        t.string :source_url
         t.text :description
         t.timestamps
      end

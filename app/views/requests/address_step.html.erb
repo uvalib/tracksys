@@ -61,7 +61,8 @@
          <% if @address.address_type != "billable_address" %>
             <div class="form-group">
                <%= label_tag(:has_billing_address, "Do you have a different billing address?") %>
-               <label><%= check_box_tag(:has_billing_address, true, false) %>Yes</label>
+               <% checked = @has_billable == true %>
+               <label><%= check_box_tag(:has_billing_address, true, checked) %>Yes</label>
             </div>
          <% end %>
          <div class="form-actions">

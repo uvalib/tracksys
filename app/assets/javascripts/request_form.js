@@ -8,6 +8,9 @@ $(document).ready(function () {
       orientation: "bottom"
    });
 
+   /**
+    * Show correct copyright notice when intended use changes
+    */
    $("#intended_use_id").on("change", function() {
       var useId = parseInt( $(this).val(), 10);
       $("div.intended-use-info").hide();
@@ -33,6 +36,10 @@ $(document).ready(function () {
       }
    });
 
+   /**
+    * NEXT clicked on initial request info screen. Verify date and intended use,
+    * then progress to order item screens
+    */
    $("#request-next").on("click", function() {
       var due = $("input[name=date_due]").val();
       var use = $("#intended_use_id").val();
@@ -55,6 +62,12 @@ $(document).ready(function () {
       $("#request_title").focus();
    });
 
+   /**
+    * Pull data from the order item fields into an order object. Validate
+    * necessary fields. If successful, add the object to an array of order order items
+    * and return true. If non-negative index is passed, this is an edit to an
+    * existing item. In this case, replace the item at the specified array index.
+    */
    var validateItem = function(index) {
       var item = {
          title: $("#request_title").val(),
@@ -63,6 +76,7 @@ $(document).ready(function () {
          author:  $("#request_author").val(),
          year:  $("#request_year").val(),
          location:  $("#request_location").val(),
+         sourceUrl:  $("#request_source_url").val(),
          description:  $("#request_description").val()
       };
       if ( item.title.length === 0 ) {
@@ -93,6 +107,7 @@ $(document).ready(function () {
          itemReview.find(".item-author").text( item.author );
          itemReview.find(".item-year").text( item.year );
          itemReview.find(".item-location").text( item.location );
+         itemReview.find(".source-url").text( item.sourceUrl );
          itemReview.find(".special-instructions").text( item.description );
       }
       $("#order_items").val( JSON.stringify(items));
@@ -110,6 +125,7 @@ $(document).ready(function () {
       $("#request_author").val("");
       $("#request_year").val("");
       $("#request_location").val("");
+      $("#request_source_url").val("");
       $("#request_description").val("");
       $("#request_title").focus();
    });
@@ -157,6 +173,7 @@ $(document).ready(function () {
       $("#request_author").val(item.author);
       $("#request_year").val(item.year);
       $("#request_location").val(item.location);
+      $("#request_source_url").val(item.sourceUrl);
       $("#request_description").val(item.description);
 
       // show it...

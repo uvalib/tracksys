@@ -410,6 +410,7 @@ ActiveRecord::Schema.define(version: 20171114182322) do
     t.string "author"
     t.string "year"
     t.string "location"
+    t.string "source_url"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

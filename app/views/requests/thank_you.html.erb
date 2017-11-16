@@ -107,6 +107,10 @@
             <dt>Location</dt>
             <dd><%= empty2nbsp(item.location) %></dd>
          <% end %>
+         <% if !item.source_url.blank? %>
+            <dt>Web Link</dt>
+            <dd><%= empty2nbsp(item.source_url) %></dd>
+         <% end %>
          <% if !item.description.blank?  %>
             <dt>Description</dt>
             <dd><%= empty2nbsp(raw(item.description.to_s.gsub(/\n/, '<br/>'))) %></dd>

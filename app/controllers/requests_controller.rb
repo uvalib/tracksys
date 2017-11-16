@@ -97,6 +97,10 @@ class RequestsController < ApplicationController
       if @address.nil?
          @address =  Address.new(addressable_id: params[:customer_id],
             addressable_type:"Customer", address_type: params[:type])
+      else
+         if params[:type] == "primary" && !Address.find_by(addressable_id: params[:customer_id], address_type: "billable_address").nil?
+            @has_billable = true
+         end
       end
    end
 
@@ -155,7 +159,7 @@ class RequestsController < ApplicationController
          OrderItem.create!( order: @request, title: req["title"], pages: req["pages"],
             call_number: req["callNumber"], author: req["author"], year: req["year"],
             location: req["location:"], description: req["description"],
-            intended_use: use
+            source_url: req["sourceUrl"], intended_use: use
          )
       end
 
