@@ -80,13 +80,6 @@ class Step < ApplicationRecord
          end
       end
 
-      # After the inital scanning of a manuscript workflow, require the presence
-      # of subdirectories in the start directory. No .tif files should be present
-      # outside of these subdirectories
-      if self.workflow.name == "Manuscript" && self.name != "Scan"
-         return validate_manuscript_directory_content(project, start_dir)
-      end
-
       # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
          # Special case: if there is no file movement on this step, fail
@@ -100,7 +93,15 @@ class Step < ApplicationRecord
          end
       end
 
-      return validate_directory_content(project, start_dir)
+      # After the inital scanning of a manuscript workflow, require the presence
+      # of subdirectories in the start directory. No .tif files should be present
+      # outside of these subdirectories
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
+         return validate_manuscript_directory_content(project, start_dir)
+      else
+         # Normal, flat directory validations
+         return validate_directory_content(project, start_dir)
+      end
    end
 
    private
@@ -118,7 +119,7 @@ class Step < ApplicationRecord
       dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
-      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
          return validate_manuscript_directory_content(project, dest_dir)
       else
          return validate_directory_content(project, dest_dir)
@@ -132,7 +133,7 @@ class Step < ApplicationRecord
       return false if !validate_mpcatalog(project, dir)
 
       # No .tif files should reside in the base directory
-      Rails.logger.info "Chaking for .tif files not in subdirectories of #{dir}"
+      Rails.logger.info "Checking for .tif files not in subdirectories of #{dir}"
       if Dir.glob("#{dir}/*.tif").count > 0
          step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
          return false
