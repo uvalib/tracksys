@@ -56,3 +56,11 @@ div.order-items-header {
    font-size: 1.1em;
    color: #444;
 }
+
+body.active_admin #dimmer #create-unit-modal {
+   display: block;
+   width:450px;
+   .form-group {
+      margin-bottom: 10px;
+   }
+}

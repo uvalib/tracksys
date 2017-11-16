@@ -20,8 +20,8 @@ if order.order_status == 'await_fee'
       end
    end
 else
-   # Non-Await-Fee workflow....
-   # Only external customers require fee:
+
+   # Only external customers require fee...
    if order.customer.external?
       div :class => 'workflow_button' do
          # Only enable send estimate when estimate is populated, fee has not been sent and actual is blank
@@ -42,7 +42,7 @@ else
    div :class => 'workflow_button' do
       approve_disabled = order.order_status == 'approved' || order.customer.external? || !order.date_order_approved.nil?
       approve_disabled = false if order.customer.external? && !order.fee_estimated.nil? && !order.fee_actual.nil? && order.order_status != 'approved'
-      approve_disabled = true if order.has_approved_units == false || !order.order_items.blank? 
+      approve_disabled = true if order.has_approved_units == false
       button_to "Approve Order", approve_order_admin_order_path(order.id), :disabled => approve_disabled, :method => :put
    end
 

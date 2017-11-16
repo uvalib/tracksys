@@ -4,7 +4,7 @@
       <div class="panel_contents">
          <p class="note">
             The following is all of the raw data submitted by the patron. Use it to create units or discard it.
-            Once all items have been used and/or discarded, the order can be approved.
+            Once all units have been created and the order approved, this data will be deleted.
          </p>
          <div class="order-info">
             <% use = order.order_items.first.intended_use %>
@@ -46,3 +46,4 @@
       </div>
    </div>
 </div>
+<%= render partial: "unit_modal" %>

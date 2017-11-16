@@ -12,7 +12,7 @@
       <div class="throw-away-note">Note: Throw away scans will not be sent to preservation. They are one-time scans made for a single patron.</div>
    <% end %>
 
-   <%= f.inputs "Patron Request", :class => 'panel three-column' do %>
+   <%= f.inputs "Digitization Information", :class => 'panel three-column' do %>
       <%= f.input :intended_use, :as => :select, :collection => IntendedUse.where(is_approved: 1) %>
       <%= f.input :ocr_master_files, :as => :radio %>
       <%= f.input :remove_watermark, :as => :radio %>

@@ -1,0 +1,40 @@
+<div id="dimmer">
+   <div id="create-unit-modal" class="modal">
+      <h1>Create Unit</h1>
+      <div class="content">
+         <%= form_tag("/items/convert", method: "post") do %>
+            <div class="form-group">
+               <%= label_tag(:intended_use_id, "Intended Use") %>
+               <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.external_use, :id, :name, nil)) %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:patron_source_url, "Source URL") %>
+               <%= text_area_tag(:patron_source_url, "" ) %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:special_instructions, "Special Instructions") %>
+               <%= text_area_tag(:special_instructions, "" ) %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:staff_notes, "Staff Notes") %>
+               <%= text_area_tag(:staff_notes, "" ) %>
+            </div>
+
+            <div class="form-group">
+               <%= label_tag(:complete_scan, "Complete Scan") %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:throw_away, "Throw Away") %>
+            </div>
+            <div class="form-group">
+               <%= label_tag(:include_in_dl, "Include In Digital Library") %>
+            </div>
+
+            <div class="buttons">
+               <input type="button" id="cancel-unit-create" value="Cancel"/>
+               <input type="button" id="ok-unt-create" value="Create Unit"/>
+            </div>
+         <% end %>
+      </div>
+   </div>
+</div>

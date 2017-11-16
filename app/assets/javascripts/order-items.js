@@ -18,4 +18,16 @@ $(function() {
          });
       }
    });
+
+   $(".btn.create-unit").on("click", function() {
+      $("#dimmer").show();
+   });
+
+   $("#cancel-unit-create").on("click", function() {
+      $("#dimmer").hide();
+   });
+
+   $("#ok-unit-create").on("click", function() {
+
+   });
 });
