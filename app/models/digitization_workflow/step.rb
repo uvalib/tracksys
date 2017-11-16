@@ -244,6 +244,11 @@ class Step < ApplicationRecord
          next if File.directory? f
          ext = File.extname f
          ext.downcase!
+         if ext == ".noindex"
+            Rails.logger.info("Deleting tmp file #{f}")
+            FileUtils.rm(f)
+            next
+         end
          if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
             step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
             return false
