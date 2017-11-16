@@ -72,32 +72,25 @@ class Step < ApplicationRecord
             return false
          end
       elsif self.name == "Process"
-         # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-         # directory present. Treat it as the start dir and validate.
+         # In the Process step a CaptureOne session may exist. If this is the case, there will be
+         # an Output directory present. Treat it as the start dir.
          output_dir =  File.join(start_dir, "Output")
          if Dir.exists? output_dir
             start_dir = output_dir
-            if Dir[File.join(start_dir, '*.tif')].count == 0
-               Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
-               return true
-            end
          end
-      else
-         if self.workflow.name == "Manuscript"
-            # In all other steps of a manuscript workflow, require the presence
-            # of subdirectories in the start directory. No .tif files should be present
-            # outside of these subdirectories
-            if self.name == "Organize"
-               # handle the possibility of a base Output folder in the organize step
-               output_dir =  File.join(start_dir, "Output")
-               start_dir = output_dir if Dir.exists? output_dir
-            end
-            return validate_manuscript_directory_content(project, start_dir)
-         end
+      end
+
+      # After the inital scanning of a manuscript workflow, require the presence
+      # of subdirectories in the start directory. No .tif files should be present
+      # outside of these subdirectories
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
+         return validate_manuscript_directory_content(project, start_dir)
       end
 
       # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
+         # Special case: if there is no file movement on this step, fail
+         # if the start directory is not present
          if self.start_dir == self.finish_dir
             step_failed(project, "Filesystem", "<p>Start directory #{start_dir} does not exist</p>")
             return false
@@ -145,7 +138,7 @@ class Step < ApplicationRecord
          return false
       end
 
-      # validate box/folder/*.tif structure
+      # validate [box|oversize|tray].name/folder/*.tif structure
       return false if !validate_structure(project, dir)
 
       # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
@@ -168,8 +161,15 @@ class Step < ApplicationRecord
       folders_found = false
       Dir.glob("#{dir}/**/*").each do |entry|
          if File.directory? (entry)
-            # just get the directories
+            # just get the subdirectories...
+            # entry is the full path. Strip off the base dir, leaving just the subdirectories
             subs = entry[dir.length+1..-1]
+
+            # ...there may be a CaptureOne folder here. Ignore it
+            next if subs.include? "CaptureOne"
+
+            # Split on path seperator. The size of the resulting array is the depth
+            # of subfolders present. Only support 2...  box/folder
             depth = subs.split("/").count
             if depth > 2
                step_failed(project, "Filesystem", "<p>Too many subdirectories</p>")
@@ -341,8 +341,8 @@ class Step < ApplicationRecord
 
       # Neither directory exists, this is generally a failure, but a special case exists.
       # Files may be 20_in_process if a prior finalization failed. Accept this.
-      alt_dest_dir = File.join(self.workflow.base_directory,  project.unit.directory)
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
+         alt_dest_dir = Finder.finalization_dir(unit, :20_in_process)
          if self.end? && Dir.exists?(alt_dest_dir)
             Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
             dest_dir = alt_dest_dir

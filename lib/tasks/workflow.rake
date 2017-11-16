@@ -17,8 +17,9 @@ namespace :workflow do
       scan = Step.create( workflow: wf, name: "Scan", description: "Scan all materials",
          step_type: :start, start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
 
-      process = Step.create( workflow: wf, name: "Process", description: "Crop, rotate and process raw scans", owner_type: :prior_owner,
-         start_dir: "scan/10_raw", finish_dir: "scan/10_raw")
+      process = Step.create( workflow: wf, name: "Process",
+         description: "Crop, rotate and process raw scans into subdirs named to match physical folders", owner_type: :prior_owner,
+         start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
 
       organize = Step.create( workflow: wf, name: "Organize", description: "Organize files into subdirs named to match physical folders", owner_type: :prior_owner,
          start_dir: "scan/10_raw", finish_dir: "scan/40_first_QA")
@@ -55,8 +56,7 @@ namespace :workflow do
          owner_type: :original_owner, step_type: :error, manual: true, finish_dir: "scan/80_final_QA")
 
       scan.update(next_step_id: process.id)
-      process.update(next_step_id: organize.id)
-      organize.update(next_step_id: catalog.id)
+      process.update(next_step_id: catalog.id)
       catalog.update(next_step_id: metdata.id)
       metdata.update(next_step_id: qa1.id)
 
