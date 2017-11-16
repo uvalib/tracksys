@@ -2,6 +2,10 @@
    <div class="panel">
       <h3>Order Details</h3>
       <div class="panel_contents">
+         <p class="note">
+            The following is all of the raw data submitted by the patron. Use it to create units or discard it.
+            Once all items have been used and/or discarded, the order can be approved.
+         </p>
          <div class="order-info">
             <% use = order.order_items.first.intended_use %>
             <p><label>Intended Use:</label><span><%= use.description %></span></p>
@@ -30,6 +34,9 @@
                <% end %>
                <% if !item.location.blank? %>
                   <p><label>Location:</label><span><%= item.location %></span></p>
+               <% end %>
+               <% if !item.source_url.blank? %>
+                  <p><label>Web Link:</label><span><%= item.source_url %></span></p>
                <% end %>
                <% if !item.description.blank? %>
                   <p><label>Description:</label><span><%= item.description %></span></p>
