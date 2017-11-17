@@ -59,8 +59,29 @@ div.order-items-header {
 
 body.active_admin #dimmer #create-unit-modal {
    display: block;
-   width:450px;
+   width:500px;
+   margin: 5% auto;
    .form-group {
       margin-bottom: 10px;
+   }
+   label.inline {
+      display: inline-block;
+      margin-left: 10px;
+   }
+   input[type=checkbox] {
+      width: 14px;
+      height: 14px;
+   }
+   .btn {
+      border: 1px solid #2e6da4;
+      padding: 4px 15px;
+      font-size: 0.9em;
+      cursor: pointer;
+      color: white;
+      background: #337ab7;
+      border-radius: 4px;
+      &:hover {
+         background-color: #2e6da4;
+      }
    }
 }

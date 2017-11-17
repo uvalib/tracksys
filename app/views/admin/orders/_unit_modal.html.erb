@@ -1,19 +1,24 @@
 <div id="dimmer">
    <div id="create-unit-modal" class="modal">
       <h1>Create Unit</h1>
-      <div class="content">
+      <div class="content" id="create-unit-panel">
          <%= form_tag("/items/convert", method: "post") do %>
+            <div class="form-group">
+               <%= label_tag(:metadata_id, "Metadata ID") %>
+               <%= text_field_tag(:metadata_id, "" ) %>
+               <span class="btn" id="lookup-metadata">Lookup</span>
+            </div>
             <div class="form-group">
                <%= label_tag(:intended_use_id, "Intended Use") %>
                <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.external_use, :id, :name, nil)) %>
             </div>
             <div class="form-group">
                <%= label_tag(:patron_source_url, "Source URL") %>
-               <%= text_area_tag(:patron_source_url, "" ) %>
+               <%= text_area_tag(:patron_source_url, "", rows: "1" ) %>
             </div>
             <div class="form-group">
                <%= label_tag(:special_instructions, "Special Instructions") %>
-               <%= text_area_tag(:special_instructions, "" ) %>
+               <%= text_area_tag(:special_instructions, "", rows: "5" ) %>
             </div>
             <div class="form-group">
                <%= label_tag(:staff_notes, "Staff Notes") %>
@@ -21,13 +26,16 @@
             </div>
 
             <div class="form-group">
-               <%= label_tag(:complete_scan, "Complete Scan") %>
+               <%= check_box_tag(:complete_scan ) %>
+               <%= label_tag(:complete_scan, "Complete Scan?", class:"inline") %>
             </div>
             <div class="form-group">
-               <%= label_tag(:throw_away, "Throw Away") %>
+               <%= check_box_tag(:throw_away ) %>
+               <%= label_tag(:throw_away, "Throw Away?", class:"inline") %>
             </div>
             <div class="form-group">
-               <%= label_tag(:include_in_dl, "Include In Digital Library") %>
+               <%= check_box_tag(:include_in_dl ) %>
+               <%= label_tag(:include_in_dl, "Include In Digital Library?", class:"inline") %>
             </div>
 
             <div class="buttons">
@@ -35,6 +43,14 @@
                <input type="button" id="ok-unt-create" value="Create Unit"/>
             </div>
          <% end %>
+      </div>
+      <div id="metadata-finder" class="contet" style="display:none">
+         <%= render partial: "/admin/common/metadata_finder_panel" %>
+         <div class="buttons">
+            <span class="mf-action-button metadata-finder select-metadata">Select</span>
+            <span class="mf-action-button metadata-finder cancel-metadata">Cancel</span>
+            <span class="mf-action-button metadata-finder find">Find</span>
+         </div>
       </div>
    </div>
 </div>

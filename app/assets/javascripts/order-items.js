@@ -30,4 +30,27 @@ $(function() {
    $("#ok-unit-create").on("click", function() {
 
    });
+
+   $("#lookup-metadata").on("click", function() {
+      $("#create-unit-panel").hide();
+      $("#metadata-finder").show();
+   });
+   $("span.cancel-metadata").on("click", function() {
+      $("#create-unit-panel").show();
+      $("#metadata-finder").hide();
+   });
+   $("span.select-metadata").on("click", function() {
+      $("p.error").hide();
+      if ( $("tr.selected").length === 0) {
+         $("p.error").text("Please select a metadata record.");
+         $("p.error").show();
+         return;
+      }
+
+      var id = $("tr.selected").data("metadata-id");
+      $("#metadata_id").val(id);
+
+      $("#create-unit-panel").show();
+      $("#metadata-finder").hide();
+   });
 });
