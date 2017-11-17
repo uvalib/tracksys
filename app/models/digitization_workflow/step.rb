@@ -398,7 +398,7 @@ class Step < ApplicationRecord
             File.chmod(0775, src_dir)
             orig_src = File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
             scan_dir = self.start_dir.split("/")[1] # remove the scan/ drom start dir and get 10_raw
-            ready_to_delete = ready_to_delete_from_scan(project.unit, scan_dir)
+            ready_to_delete = Finder.ready_to_delete_from_scan(project.unit, scan_dir)
             Rails.logger.info("Moving #{orig_src} to #{ready_to_delete}")
             FileUtils.mv(orig_src, ready_to_delete)
          end
