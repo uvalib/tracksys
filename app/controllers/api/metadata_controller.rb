@@ -32,22 +32,17 @@ class Api::MetadataController < ApplicationController
 
    include ActionView::Helpers::TextHelper
    def search
-      call_number = params[:cn]
-      if !call_number.blank?
-         metadata = Metadata.find_by(call_number: call_number)
-      else
-         q = params[:q]
-         out = []
-         Metadata.where("title like ? or barcode like ? or pid like ? or call_number like ?",
-            "%#{q}%", "#{q}%", "#{q}%", "%#{q}%").each do |h|
-            bc = h.barcode
-            bc = "N/A" if bc.nil?
-            cn = h.call_number
-            cn = "N/A" if cn.nil?
-            out << {id: h.id, pid: h.pid, title: truncate(h.title, length: 35, separator: ' '),
-               barcode: bc, call_number: cn}
-         end
-         render json: out
+      q = params[:q]
+      out = []
+      Metadata.where("title like ? or barcode like ? or pid like ? or call_number like ?",
+         "%#{q}%", "#{q}%", "#{q}%", "%#{q}%").each do |h|
+         bc = h.barcode
+         bc = "N/A" if bc.nil?
+         cn = h.call_number
+         cn = "N/A" if cn.nil?
+         out << {id: h.id, pid: h.pid, title: truncate(h.title, length: 35, separator: ' '),
+            barcode: bc, call_number: cn, full: h.title}
       end
+      render json: out
    end
 end

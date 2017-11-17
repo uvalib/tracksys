@@ -25,6 +25,8 @@ $(function() {
       $("#intended_use_id").val( $("#item-intended-use-id").text() );
       if ( itemDiv.find(".item-source-url").length > 0 ) {
          $("#patron_source_url").val(itemDiv.find(".item-source-url").text());
+      } else {
+         $("#patron_source_url").val("");
       }
       var metadata = null;
       var si = "Title: "+itemDiv.find(".item-title").text();
@@ -50,6 +52,8 @@ $(function() {
       $("#special_instructions").val(si);
 
       // ajax call to lookup metadata by callnumber
+      $("#metadata_id").val("");
+      $("#metadata-title").text("");
       $.getJSON("/api/metadata/search?q="+query, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             var val = data[0];
@@ -84,7 +88,9 @@ $(function() {
       }
 
       var id = $("tr.selected").data("metadata-id");
+      var title = $("tr.selected").data("full-title");
       $("#metadata_id").val(id);
+      $("#metadata-title").text("Metadata Title: "+title);
 
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
