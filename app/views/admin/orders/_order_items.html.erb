@@ -8,6 +8,7 @@
          </p>
          <div class="order-info">
             <% use = order.order_items.first.intended_use %>
+            <span id="item-intended-use-id" style="display:none"><%= use.id %></span>
             <p><label>Intended Use:</label><span><%= use.description %></span></p>
             <p><label>Format:</label><span><%= use.deliverable_format %></span></p>
             <p><label>Resolution:</label><span><%= use.deliverable_resolution %></span></p>
@@ -22,24 +23,24 @@
                   <span class="btn create-unit" data-item-id="<%= item.id %>">Create Unit</span>
                </div>
                <p><label>Title:</label><span class="item-title"><%= item.title %></span></p>
-               <p><label>Pages:</label><span><%= item.pages %></span></p>
+               <p><label>Pages:</label><span class="item-pages"><%= item.pages %></span></p>
                <% if !item.call_number.blank? %>
-                  <p><label>Call Number:</label><span><%= item.call_number %></span></p>
+                  <p><label>Call Number:</label><span class="item-call-number"><%= item.call_number %></span></p>
                <% end %>
                <% if !item.author.blank? %>
-                  <p><label>Author:</label><span><%= item.author %></span></p>
+                  <p><label>Author:</label><span class="item-author"><%= item.author %></span></p>
                <% end %>
                <% if !item.year.blank? %>
-                  <p><label>Year Published:</label><span><%= item.year %></span></p>
+                  <p><label>Year Published:</label><span class="item-year"><%= item.year %></span></p>
                <% end %>
                <% if !item.location.blank? %>
-                  <p><label>Location:</label><span><%= item.location %></span></p>
+                  <p><label>Location:</label><span class="item-location"><%= item.location %></span></p>
                <% end %>
                <% if !item.source_url.blank? %>
-                  <p><label>Web Link:</label><span><%= item.source_url %></span></p>
+                  <p><label>Web Link:</label><span class="item-source-url"><%= item.source_url %></span></p>
                <% end %>
                <% if !item.description.blank? %>
-                  <p><label>Description:</label><span><%= item.description %></span></p>
+                  <p><label>Description:</label><span class="item-description"><%= item.description %></span></p>
                <% end %>
             </div>
          <% end %>

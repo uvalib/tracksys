@@ -21,6 +21,42 @@ $(function() {
 
    $(".btn.create-unit").on("click", function() {
       $("#dimmer").show();
+      var itemDiv = $(this).closest(".order-item");
+      $("#intended_use_id").val( $("#item-intended-use-id").text() );
+      if ( itemDiv.find(".item-source-url").length > 0 ) {
+         $("#patron_source_url").val(itemDiv.find(".item-source-url").text());
+      }
+      var metadata = null;
+      var si = "Title: "+itemDiv.find(".item-title").text();
+      var query = itemDiv.find(".item-title").text();
+      si += "\nPages to Digitize: "+itemDiv.find(".item-pages").text();
+      if ( itemDiv.find(".item-call-number").length > 0 ) {
+         var cn = itemDiv.find(".item-call-number").text();
+         si += "\nCall Number: "+cn;
+         query = cn; // prefer callnumber lookups over title
+      }
+      if ( itemDiv.find(".item-author").length > 0 ) {
+         si += "\nAuthor: "+itemDiv.find(".item-author").text();
+      }
+      if ( itemDiv.find(".item-year").length > 0 ) {
+         si += "\nYear: "+itemDiv.find(".item-year").text();
+      }
+      if ( itemDiv.find(".item-location").length > 0 ) {
+         si += "\nLocation: "+itemDiv.find(".item-location").text();
+      }
+      if ( itemDiv.find(".item-description").length > 0 ) {
+         si += "\nDescription: "+itemDiv.find(".item-description").text();
+      }
+      $("#special_instructions").val(si);
+
+      // ajax call to lookup metadata by callnumber
+      $.getJSON("/api/metadata/search?q="+query, function ( data, textStatus, jqXHR ){
+         if (textStatus == "success" ) {
+            var val = data[0];
+            $("#metadata_id").val(val.id);
+            $("#metadata-title").text("Metadata Title: "+val.title);
+         }
+      });
    });
 
    $("#cancel-unit-create").on("click", function() {
