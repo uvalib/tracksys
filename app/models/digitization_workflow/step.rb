@@ -66,28 +66,24 @@ class Step < ApplicationRecord
             end
          end
 
-         # if we got here and a capture directory exists, it must not
-         # include IIQ files. Fail the step
+         # if we got here and a capture directory exists, it must not include IIQ files. Fail the step
          if capture_exists
             step_failed(project, "Filesystem", "<p>No raw files found in Capture, Recto or Verso directories</p>")
             return false
          end
-      end
-
-      # In the Process step, a CaptureOne session may also exist. In this case, there will be an Output
-      # directory present. Treat it as the start dir and validate.
-      if self.name == "Process"
+      elsif self.name == "Process"
+         # In the Process step a CaptureOne session may exist. If this is the case, there will be
+         # an Output directory present. Treat it as the start dir.
          output_dir =  File.join(start_dir, "Output")
          if Dir.exists? output_dir
             start_dir = output_dir
-            if Dir[File.join(start_dir, '*.tif')].count == 0
-               Rails.logger.info "Start directory is empty. Assuming content manually moved by a user."
-            end
          end
       end
 
       # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
+         # Special case: if there is no file movement on this step, fail
+         # if the start directory is not present
          if self.start_dir == self.finish_dir
             step_failed(project, "Filesystem", "<p>Start directory #{start_dir} does not exist</p>")
             return false
@@ -97,7 +93,15 @@ class Step < ApplicationRecord
          end
       end
 
-      return validate_directory_content(project, start_dir)
+      # After the inital scanning of a manuscript workflow, require the presence
+      # of subdirectories in the start directory. No .tif files should be present
+      # outside of these subdirectories
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
+         return validate_manuscript_directory_content(project, start_dir)
+      else
+         # Normal, flat directory validations
+         return validate_directory_content(project, start_dir)
+      end
    end
 
    private
@@ -115,16 +119,152 @@ class Step < ApplicationRecord
       dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
-      return validate_directory_content(project, dest_dir)
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
+         return validate_manuscript_directory_content(project, dest_dir)
+      else
+         return validate_directory_content(project, dest_dir)
+      end
+   end
+
+   private
+   def validate_manuscript_directory_content(project, dir)
+      # First, make sure mpcatalog is good
+      Rails.logger.info "Validate directory for manuscript workflow. Enforce directories"
+      return false if !validate_mpcatalog(project, dir)
+
+      # No .tif files should reside in the base directory
+      Rails.logger.info "Checking for .tif files not in subdirectories of #{dir}"
+      if Dir.glob("#{dir}/*.tif").count > 0
+         step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
+         return false
+      end
+
+      # validate [box|oversize|tray].name/folder/*.tif structure
+      return false if !validate_structure(project, dir)
+
+      # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
+      return false if !validate_tif_sequence(project, dir, File.join(dir, '/**/*.tif') )
+
+      # On the final step, be sure there is an XML file present that
+      # has a name matching the unit directory
+      if self.end?
+         return false if !validate_last_step_dir(project, dir)
+      end
+      return true
+   end
+
+   private
+   def validate_structure(project, dir)
+      # top level contains one directory for box and has a name like: [box|oversize|tray].{name}
+      # box contains only directories; one per folder
+      types = ["box", "oversize", "tray"]
+      tree = {}
+      folders_found = false
+      Dir.glob("#{dir}/**/*").each do |entry|
+         if File.directory? (entry)
+            # just get the subdirectories...
+            # entry is the full path. Strip off the base dir, leaving just the subdirectories
+            subs = entry[dir.length+1..-1]
+
+            # ...there may be a CaptureOne folder here. Ignore it
+            next if subs.include? "CaptureOne"
+
+            # Split on path seperator. The size of the resulting array is the depth
+            # of subfolders present. Only support 2...  box/folder
+            depth = subs.split("/").count
+            if depth > 2
+               step_failed(project, "Filesystem", "<p>Too many subdirectories</p>")
+               return false
+            elsif depth == 1
+               # this is a container directory. It should have the format type.name. Validate
+               if subs.split(".").length != 2
+                  step_failed(project, "Filesystem", "<p>Incorrectly named box directory #{subs}</p>")
+                  return false
+               end
+               type = subs.split(".")[0].downcase
+               if !types.include?(type)
+                  step_failed(project, "Filesystem", "<p>Unsupported box type #{type} in directory #{subs}</p>")
+                  return false
+               end
+               tree[subs] = []
+               if tree.keys.length > 1
+                  step_failed(project, "Filesystem", "<p>There can only be one box directory</p>")
+                  return false
+               end
+            else
+               bits = subs.split("/")
+               tree[bits[0]] << bits[1]
+               folders_found = true
+            end
+         else
+            subs = File.dirname(entry)[dir.length+1..-1]
+            next if subs.blank?
+            if subs.split("/").count == 1
+               step_failed(project, "Filesystem", "<p>Files found in box directory</p>")
+               return false
+            end
+         end
+      end
+
+      if folders_found == false
+         step_failed(project, "Filesystem", "<p>No folder directories found</p>")
+         return false
+      end
+      return true
    end
 
    private
    def validate_directory_content(project, dir)
       # Make sure the names match the unit & highest number is the same as the count
+      # (check in base dir only, not subdirs)
+      return false if !validate_tif_sequence(project, dir, File.join(dir, '*.tif') )
+
+      # validate mpcatalog & check for unsaved changes
+      return false if !validate_mpcatalog(project, dir)
+
+      # On the final step, be sure there is an XML file present that
+      # has a name matching the unit directory
+      if self.end?
+         return false if !validate_last_step_dir(project, dir)
+      end
+
+      return true
+   end
+
+   private
+   def validate_last_step_dir(project, dir)
+      Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
+      unit_dir = project.unit.directory
+      if !File.exists? File.join(dir, "#{unit_dir}.xml")
+         step_failed(project, "Metadata", "<p>Missing #{unit_dir}.xml</p>")
+         return false
+      end
+
+      # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
+      Dir[File.join(dir, '/**/*')].each do |f|
+         next if File.directory? f
+         ext = File.extname f
+         ext.downcase!
+         if ext == ".noindex"
+            Rails.logger.info("Deleting tmp file #{f}")
+            FileUtils.rm(f)
+            next
+         end
+         if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
+            step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
+            return false
+         end
+      end
+      return true
+   end
+
+   private
+   def validate_tif_sequence(project, base_dir, tif_path)
+      Rails.logger.info "Validate .tif count and sequence of #{base_dir}"
       highest = -1
       cnt = 0
       unit_dir = project.unit.directory
-      Dir[File.join(dir, '*.tif')].each do |f|
+      Dir[ tif_path ].each do |f|
          name = File.basename f,".tif" # get name minus extention
          num = name.split("_")[1].to_i
          cnt += 1
@@ -135,16 +275,21 @@ class Step < ApplicationRecord
          end
       end
       if cnt == 0
-         step_failed(project, "Filesystem", "<p>No image files found in #{dir}</p>")
+         step_failed(project, "Filesystem", "<p>No image files found in #{base_dir}</p>")
          return false
       end
       if highest != cnt
          step_failed(project, "Filename", "<p>Number of image files does not match highest image sequence number #{highest}.</p>")
          return false
       end
+      return true
+   end
 
-      # Make sure there is at most 1 mpcatalog file
+   private
+   def validate_mpcatalog(project, dir)
+      logger.info "Validate mpcatalog files in #{dir}"
       cnt = 0
+      unit_dir = project.unit.directory
       Dir[File.join(dir, '*.mpcatalog')].each do |f|
          cnt += 1
          if cnt > 1
@@ -172,31 +317,6 @@ class Step < ApplicationRecord
       if Dir[File.join(dir, '*.mpcatalog_*')].count { |file| File.file?(file) } > 0
          step_failed(project, "Unsaved", "<p>Found *.mpcatalog_* files in #{start_dir}. Please ensure that you have no unsaved changes and delete these files.</p>")
          return false
-      end
-
-      # On the final step, be sure there is an XML file present that
-      # has a name matching the unit directory
-      if self.end?
-         Rails.logger.info("Final step validations; look for unit.xml file and ensure no unexpected files exist")
-         if !File.exists? File.join(dir, "#{unit_dir}.xml")
-            step_failed(project, "Metadata", "<p>Missing #{unit_dir}.xml</p>")
-            return false
-         end
-
-         # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
-         Dir[File.join(dir, '*')].each do |f|
-            ext = File.extname f
-            ext.downcase!
-            if ext == ".noindex"
-               Rails.logger.info("Deleting tmp file #{f}")
-               FileUtils.rm(f)
-               next
-            end
-            if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
-               step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
-               return false
-            end
-         end
       end
 
       return true
@@ -227,8 +347,8 @@ class Step < ApplicationRecord
 
       # Neither directory exists, this is generally a failure, but a special case exists.
       # Files may be 20_in_process if a prior finalization failed. Accept this.
-      alt_dest_dir = File.join(self.workflow.base_directory,  project.unit.directory)
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
+         alt_dest_dir = Finder.finalization_dir(unit, :in_process)
          if self.end? && Dir.exists?(alt_dest_dir)
             Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
             dest_dir = alt_dest_dir
@@ -269,10 +389,18 @@ class Step < ApplicationRecord
          # Move the source directly to destination directory
          FileUtils.mv(src_dir, dest_dir)
 
-         # put back the original src/Ouput folder in case student needs to recreate scans later
+         # put back the original src/Ouput folder and move the whole unit dir
+         # to ready to delete. This leaves the structure present should rescans need
+         # to be made and clears out the current start_dir so it doesn't cause failures
+         # should the move validation fails and the step needs to be re-done
          if has_output_dir
             FileUtils.mkdir src_dir
             File.chmod(0775, src_dir)
+            orig_src = File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
+            scan_dir = self.start_dir.split("/")[1] # remove the scan/ drom start dir and get 10_raw
+            ready_to_delete = Finder.ready_to_delete_from_scan(project.unit, scan_dir)
+            Rails.logger.info("Moving #{orig_src} to #{ready_to_delete}")
+            FileUtils.mv(orig_src, ready_to_delete)
          end
 
          # One last validation of final directory contents, then done

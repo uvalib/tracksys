@@ -55,7 +55,7 @@ class QaUnitData < BaseJob
                failure_messages << "Unit is flagged to perform OCR, but the metadata setting indicates OCR is not possible. "
             end
             if unit.metadata.ocr_language_hint.nil?
-               failure_messages << "Unit is flagged to perform OCR, but the required language hint for metadata #{unit.metadata.id} is not set" 
+               failure_messages << "Unit is flagged to perform OCR, but the required language hint for metadata #{unit.metadata.id} is not set"
             end
          end
       end

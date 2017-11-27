@@ -110,7 +110,7 @@ ActiveAdmin.register Unit do
       column ("Metadata Record") do |unit|
          div do
             if !unit.metadata.nil?
-               link_to "#{unit.metadata.title}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
+               link_to "#{unit.metadata.title.truncate(50, separator: ' ')}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
             end
          end
       end
@@ -193,7 +193,7 @@ ActiveAdmin.register Unit do
       render "approval_workflow", :context=>self
    end
 
-   sidebar "Delivery Workflow", :only => [:show] do
+   sidebar "Delivery Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
    end
 
@@ -224,7 +224,9 @@ ActiveAdmin.register Unit do
       end
    end
    action_item :ocr, only: :show do
-      link_to "OCR", "/admin/ocr?u=#{unit.id}"  if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
+      if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
+         link_to "OCR", "/admin/units/#{unit.id}/ocr?all=true", method: :post
+      end
    end
 
    # MEMBER ACTIONS ============================================================
@@ -300,6 +302,16 @@ ActiveAdmin.register Unit do
       end
       att.destroy
       redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+   end
+
+   member_action :ocr, :method => :post do
+      mf_ids = params[:ids]
+      Ocr.exec(object_class: "Unit", object_id: params[:id], only: mf_ids)
+      if params[:all]
+         redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
+      else
+         render plain: "OK"
+      end
    end
 
    member_action :attachment, :method => :post do
@@ -381,11 +393,6 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
-   member_action :start_ingest_from_archive, :method => :put do
-      StartIngestFromArchive.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit being put into digital library."
-   end
-
    member_action :publish_to_test, :method => :put do
       PublishToDL.exec({unit_id: params[:id], mode: :test})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
@@ -393,7 +400,7 @@ ActiveAdmin.register Unit do
 
    member_action :publish, :method => :put do
       PublishToDL.exec({unit_id: params[:id], mode: :production})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit flagged for Publication"
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit published to DL. It will be available tomorrow."
    end
 
    member_action :bulk_upload_xml, :method => :put do

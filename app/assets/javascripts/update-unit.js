@@ -39,14 +39,14 @@ $(function() {
    $(".mf-checkbox").on("change", function() {
       // default to enabling all buttons. This will be updated based
       // on the status of checked checkboxes below
-      $("#download-select-pdf, #del-pages, #renumber-pages").removeClass("disabled");
+      $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages").removeClass("disabled");
 
-      var pdfButtonExists = $("#download-select-pdf").length > 0;
+      var pdfButtonExists = $("#pdf-pages").length > 0;
       var url = "";
 
       if ( pdfButtonExists ) {
          // Grab the current base URL of the PDF service (withiout the token)
-         url = $("#download-select-pdf").attr("href");
+         url = $("#pdf-pages").attr("href");
          url = url.split("&token")[0];
       }
 
@@ -65,14 +65,25 @@ $(function() {
             // generate a new timestamp token to identify this new set of pages
             var token = "&token=" + Math.floor((new Date()).getTime() / 1000);
             url = url + token + "&pages=" + ids.join(",");
-            $("#download-select-pdf").attr("href", url);
+            $("#pdf-pages").attr("href", url);
          }
       } else {
          // nothing selected; disable all buttons
-         $("#download-select-pdf, #del-pages, #renumber-pages").addClass("disabled");
+         $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages").addClass("disabled");
       }
       $("#del-pages").data("filenames", filenames);
       $("#renumber-pages").data("filenames", filenames);
+      if ( $("#ocr-pages").length > 0 ) {
+         $("#ocr-pages").data("ids", ids);
+      }
+   });
+
+   $("#ocr-pages").on("click", function() {
+      var msg = "OCR all selected master files?";
+      $("#confirm-msg").html(msg);
+      $("#confirm-update").data("action", "ocr");
+      $("div.update-confirm").show();
+      $("div.unit-mf-action-panel").hide();
    });
 
    $("#del-pages").on("click", function() {
@@ -123,6 +134,9 @@ $(function() {
       if (action === "delete") {
          data = { filenames: $("#del-pages").data("filenames") };
       }
+      if (action === "ocr") {
+         data = { ids: $("#ocr-pages").data("ids") };
+      }
       $.ajax({
          url: origUrl + "/" + action,
          method: "POST",
@@ -133,7 +147,13 @@ $(function() {
                $("#working-message").hide();
                $("div.unit-mf-action-panel").show();
             } else {
-               awaitUpdateComplete(jqXHR.responseText);
+               if (action === "ocr") {
+                  alert("OCR has been started on the selected master files. Check the Job Status page for updates.");
+                  $("#working-message").hide();
+                  $("div.unit-mf-action-panel").show();
+               } else {
+                  awaitUpdateComplete(jqXHR.responseText);
+               }
             }
          }
       });

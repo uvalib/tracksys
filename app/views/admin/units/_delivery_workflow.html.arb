@@ -12,20 +12,24 @@ if !current_user.viewer? && !current_user.student?
          end
 
          deliverables_ready = false
-         if unit.intended_use.id  == 110
-            # Digital Connection Building
+         if unit.intended_use.id == 110
+            # Digital colection building
             if unit.date_dl_deliverables_ready.blank?
                div :class => 'workflow_button' do
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  clazz = "disabled"
+                  clazz = "" if unit.master_files.count > 0
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
                end
             else
                deliverables_ready = true
             end
          else
-            # Patron Order
-            if !unit.date_patron_deliverables_ready
+            # Patron order
+            if unit.date_patron_deliverables_ready.blank?
                div :class => 'workflow_button' do
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
+                  clazz = "disabled"
+                  clazz = ""  if unit.master_files.count > 0
+                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
                end
             else
                deliverables_ready = true
@@ -49,14 +53,15 @@ if !current_user.viewer? && !current_user.student?
       end
 
    else
-      if unit.date_patron_deliverables_ready && unit.intended_use != 'Digital Collection Buidling'
+      # NO in-process files....
+      if unit.date_patron_deliverables_ready && unit.intended_use.id != 110
          if unit.date_patron_deliverables_ready
             div :class => 'workflow_button' do
                button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
             end
          end
       else
-         if unit.date_archived.nil?
+         if unit.date_archived.nil? && unit.project.nil?
             div :class => 'workflow_button' do
                button_to "Finalize Raw Images",
                finalize_raw_images_admin_unit_path, :method => :get

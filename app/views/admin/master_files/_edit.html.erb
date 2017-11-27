@@ -22,6 +22,30 @@
          <input type="text" name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>"/>
          <span id="find-metadata"></span>
       </li>
+
+      <% if !@master_file.location.nil? %>
+         <li class="select input optional">
+            <label class="label">Container</label>
+            <select name="master_file[container_type_id]" id="master_file_container_type_id" >
+               <option value="" disabled selected>Select a type</option>
+               <% ContainerType.all.order(name: :asc).each do |c| %>
+                  <% selected = ""
+                     selected = "selected='selected'" if c.id == @master_file.location.container_type_id %>
+                  <option value="<%= c.id %>" <%= selected %> ><%= c.name %></option>
+               <% end %>
+            </select>
+         </li>
+         <li class="select input optional stringish">
+            <label class="label">Box</label>
+            <input  name="master_file[container_id]" id="master_file_container_id"
+                    type="text" value="<%= @master_file.container_id %>"/>
+         </li>
+         <li class="select input optional stringish">
+            <label class="label">Folder</label>
+            <input  name="master_file[folder_id]" id="master_file_folder_id"
+                    type="text" value="<%= @master_file.folder_id %>"/>
+         </li>
+      <% end %>
    <% end %>
    <%= render partial: "/admin/common/metadata_finder_modal" %>
 

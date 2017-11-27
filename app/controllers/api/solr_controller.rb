@@ -60,7 +60,12 @@ class Api::SolrController < ApplicationController
       if metadata.nil?
          render :plain=>"PID is invalid", status: :bad_request and return if metadata.nil?
       else
-         render :xml=> Hydra.solr(metadata, params[:no_external])
+         if metadata.type == "SirsiMetadata"
+            Rails.logger.warn "Invalid request for solr index record for SirsiMetadata #{metadata.pid}"
+            render plain: "Tracksys cannot generate Solr index records for SirsiMetadata", status: :error
+         else
+            render :xml=> Hydra.solr(metadata, params[:no_external])
+         end
       end
    end
 end
