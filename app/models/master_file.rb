@@ -23,9 +23,13 @@ class MasterFile < ApplicationRecord
    has_one :department, :through => :customer
    has_one :agency, :through => :order
 
+   has_one :master_file_location
+   has_one :location, through: :master_file_location
+
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
+   delegate :container_id, :folder_id, to: :location, allow_nil: true, prefix: false
    delegate :title, :use_right, :to => :metadata, :allow_nil => true, :prefix => true
 
    delegate :date_due, :date_order_approved, :date_request_submitted, :date_customer_notified, :id,
@@ -129,24 +133,6 @@ class MasterFile < ApplicationRecord
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/0/default.jpg") if image_size == :medium
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/0/default.jpg") if image_size == :large
       raise "Invalid size" if iiif_url.nil?
-
-      # test_path = iiif_path(image_pid)
-      # if File.exists?(test_path) == false
-      #    if Settings.create_missing_kp2k == "true"
-      #       Rails.logger.info "CREATE JP2 for #{image_pid}"
-      #       unit_id = self.unit.id.to_s
-      #       src = File.join(Settings.archive_mount, unit_id.rjust(9, "0") )
-      #       PublishToIiif.exec({source: "#{src}/#{self.filename}", master_file_id: self.id})
-      #    else
-      #       thumbnail_name = self.filename.gsub(/(tif|jp2)/, 'jpg')
-      #       unit_dir = "%09d" % self.unit_id
-      #       min_range = self.unit_id / 1000 * 1000    # round unit to thousands
-      #       max_range = min_range + 999               # add 999 for a 1000 span range, like 33000-33999
-      #       range_sub_dir = "#{min_range}-#{max_range}"
-      #       return "/metadata/#{range_sub_dir}/#{unit_dir}/Thumbnails_(#{unit_dir})/#{thumbnail_name}"
-      #    end
-      # end
-
       return iiif_url.to_s
    end
 end

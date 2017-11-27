@@ -2,7 +2,8 @@ module BuildOrderPDF
    require 'prawn'
    require 'prawn/table'
 
-   def generate_invoice_pdf(order, fee)
+   def generate_invoice_pdf(order)
+      fee = order.fee_actual
       customer = order.customer
       units_in_pdf = Array.new
       order.units.each do |unit|

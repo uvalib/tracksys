@@ -16,7 +16,6 @@ ActiveAdmin.register MasterFile do
    scope :in_digital_library, :show_count => true
    scope :not_in_digital_library, :show_count => true
 
-
    filter :filename_starts_with, label: "filename"
    filter :title_or_description_contains, label: "Title / Description"
    filter :description_contains, label: "Description"
@@ -29,6 +28,8 @@ ActiveAdmin.register MasterFile do
    filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :metadata_title_starts_with, :label => "Metadata Title"
    filter :metadata_creator_name_starts_with, :label => "Author"
+   filter :location_container_id_starts_with, :label => "Box"
+   filter :location_folder_id_starts_with, :label => "Folder"
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
@@ -43,14 +44,6 @@ ActiveAdmin.register MasterFile do
       if !master_file.metadata.nil? && !master_file.unit.date_archived.blank? && !master_file.deaccessioned?
          raw("<a href='#{Settings.pdf_url}/#{master_file.pid}' target='_blank'>Download PDF</a>")
       end
-   end
-
-   action_item :ocr, only: :show do
-      link_to "OCR", "/admin/ocr?mf=#{master_file.id}"  if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
-   end
-
-   action_item :transcribe, only: :show do
-      link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}"  if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
    end
 
    action_item :previous, :only => :show do
@@ -104,13 +97,15 @@ ActiveAdmin.register MasterFile do
       column :description do |mf|
          truncate_words(mf.description)
       end
+      column ("Box") do |mf|
+         mf.container_id
+      end
       column :date_archived do |mf|
          format_date(mf.date_archived)
       end
       column :date_dl_ingest do |mf|
          format_date(mf.date_dl_ingest)
       end
-      column :pid
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
@@ -139,9 +134,6 @@ ActiveAdmin.register MasterFile do
          if !current_user.viewer? && !current_user.student? && !mf.deaccessioned?
             div do
                link_to I18n.t('active_admin.edit'), edit_resource_path(mf), :class => "member_link edit_link"
-            end
-            div do
-               link_to "OCR", "/admin/ocr?mf=#{mf.id}"
             end
          end
          if mf.date_archived && !mf.deaccessioned?
@@ -250,6 +242,26 @@ ActiveAdmin.register MasterFile do
             "#{master_file.link_to_image(:large)}",
             :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
       end
+      if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
+         div style: "margin-top:10px; text-align: center;" do
+            span { link_to "OCR", "/admin/master_files/#{master_file.id}/ocr", method: :post, class: "mf-action-button" }
+            span { link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}", class: "mf-action-button" }
+         end
+      end
+   end
+
+   sidebar "Location", :only => [:show],  if: proc{ !master_file.location.nil? } do
+      attributes_table_for master_file do
+         row "Type" do |mf|
+            mf.location.container_type.name
+         end
+         row "Name" do |mf|
+            mf.container_id
+         end
+         row "Folder" do |mf|
+            mf.folder_id
+         end
+      end
    end
 
    sidebar "Related Information", :only => [:show] do
@@ -277,6 +289,13 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   member_action :ocr, :method => :post do
+      mf = MasterFile.find(params[:id])
+      Ocr.exec({ object_class: "MasterFile", object_id: mf.id, language: mf.metadata.ocr_language_hint, exclude: [] })
+      redirect_to "/admin/master_files/#{mf.id}",
+         :notice => "OCR on master file #{mf.filename} has begun. Check the job status page for updates."
+   end
+
    member_action :deaccession, :method => :post do
       mf = MasterFile.find(params[:id])
       begin
@@ -294,6 +313,23 @@ ActiveAdmin.register MasterFile do
          :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
+   member_action :save_transcription, :method => :post do
+      mf = MasterFile.find(params[:id])
+      src = mf.text_source
+      if src.nil?
+         # no prior text, set type to transcription
+         src = 2
+      elsif src == 0
+         # Corrected OCR
+         src = 1
+      end
+      if mf.update(transcription_text: params[:transcription], text_source: src)
+         render plain: "OK"
+      else
+         render plain: mf.errors.full_messages.to_sentence, status: :error
+      end
+   end
+
    csv do
      column :id
      column :pid
@@ -308,5 +344,17 @@ ActiveAdmin.register MasterFile do
      column :creator_death_date
      column :creation_date
      column :primary_author
+   end
+
+   controller do
+      def update
+         mf = MasterFile.find(params[:id])
+         if !mf.location.nil?
+            mf.location.update(folder_id: params[:master_file][:folder_id])
+            mf.location.update(container_id: params[:master_file][:container_id])
+            mf.location.update(container_type_id: params[:master_file][:container_type_id])
+         end
+         super
+      end
    end
 end

@@ -119,6 +119,9 @@ ActiveAdmin.register_page "Dashboard" do
          panel "PID Finder" do
             render 'admin/pid_finder'
          end
+         panel "Master File Finder" do
+            render 'admin/master_file_finder'
+         end
       end
 
       div :class => 'three-column' do
@@ -204,6 +207,22 @@ ActiveAdmin.register_page "Dashboard" do
       CreateStatsReport.exec( {:user_id=>current_user.id, :year => params[:year]} )
       flash[:notice] = "Stats Report Being Created. You will receive an email when report is ready."
       redirect_to "/admin/dashboard"
+   end
+
+   page_action :location_lookup do
+      if params[:box].blank? && params[:folder].blank?
+         flash[:notice] = "Box or folder is required!"
+         redirect_to "/admin/dashboard"
+      end
+      # q%5Blocation_container_id_starts_with%5D=boxy&q%5Blocation_folder_id_starts_with%5D=xxx
+      qp = []
+      if !params[:box].blank?
+         qp << "q[location_container_id_starts_with]=#{params[:box]}"
+      end
+      if !params[:folder].blank?
+         qp << "q[location_folder_id_starts_with]=#{params[:folder]}"
+      end
+      redirect_to "/admin/master_files?#{qp.join('&')}"
    end
 
    page_action :pid_lookup do

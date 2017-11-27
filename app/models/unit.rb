@@ -37,7 +37,10 @@ class Unit < ApplicationRecord
    # scopes
    #------------------------------------------------------------------
    scope :in_repo, ->{where("date_dl_deliverables_ready IS NOT NULL").order("date_dl_deliverables_ready DESC") }
-   scope :ready_for_repo, ->{joins(:metadata).where("metadata.availability_policy_id is not null").where(:include_in_dl => true).where(:date_dl_deliverables_ready => nil).where("date_archived is not null") }
+   scope :ready_for_repo, ->{
+      joins(:metadata).where("metadata.availability_policy_id is not null")
+      .where(:include_in_dl => true).where(:date_dl_deliverables_ready => nil)
+      .where("date_archived is not null") }
    scope :awaiting_copyright_approval, ->{where(:unit_status => 'copyright') }
    scope :awaiting_condition_approval, ->{where(:unit_status => 'condition') }
    scope :approved, ->{where(:unit_status => 'approved') }
@@ -107,19 +110,11 @@ class Unit < ApplicationRecord
    end
 
    def approved?
-      if self.unit_status == "approved"
-         return true
-      else
-         return false
-      end
+      return self.unit_status == "approved"
    end
 
    def canceled?
-      if self.unit_status == "canceled"
-         return true
-      else
-         return false
-      end
+      return self.unit_status == "canceled"
    end
 
    def ingested?

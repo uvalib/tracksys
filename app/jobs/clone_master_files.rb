@@ -79,8 +79,7 @@ class CloneMasterFiles < BaseJob
       FileUtils.cp( archived_mf, dest_file)
       md5 = Digest::MD5.hexdigest(File.read(dest_file) )
       if md5 != src_mf.md5
-         on_failure "Checksum mismatch for master file with ID #{src_mf.id}. Skipping."
-         return false
+         on_failure "WARNING: Checksum mismatch for master file with ID #{src_mf.id}."
       end
 
       mf = MasterFile.create(
@@ -91,6 +90,10 @@ class CloneMasterFiles < BaseJob
          md5: src_mf.md5, creator_death_date: src_mf.creator_death_date,
          creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
          metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
+
+      if !src_mf.location.nil?
+         mf.location = src_mf.location
+      end
 
       tm = src_mf.image_tech_meta
       ImageTechMeta.create(master_file_id: mf.id,

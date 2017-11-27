@@ -5,8 +5,8 @@
 //= require jquery.form.min
 //= require jquery.autocomplete
 //= require autocomplete
-//= require ocr
 //= require order-items
+//= require transcribe
 //= require statistics
 //= require update-unit
 //= require clone-masterfiles
