@@ -4,7 +4,7 @@
       <label>Year: <input type="text" class="<%= report %> report-year" value="<%= year %>"></label>
    <% else %>
       <label>Workflow: </label>
-      <%= select_tag "workflow-#{report}", options_from_collection_for_select(Workflow.all, :id, :name), {class: "workflow #{report}"} %>
+      <%= select_tag "workflow-#{report}", options_from_collection_for_select(Workflow.active, :id, :name), {class: "workflow #{report}"} %>
       <% d = Date.today.strftime("%F") %>
       <% d0 = (Date.today-3.months).strftime("%F") %>
       <label>Start: <input type="text" class="<%= report %> report-start query-datepicker" value="<%= d0 %>"></label>
