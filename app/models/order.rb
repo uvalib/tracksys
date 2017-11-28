@@ -268,6 +268,9 @@ class Order < ApplicationRecord
       self.order_status = 'approved'
       self.date_order_approved = Time.now
       self.save!
+
+      # purge the transient order items that may exist
+      self.order_items.destroy_all
    end
 
    def cancel_order(user)
