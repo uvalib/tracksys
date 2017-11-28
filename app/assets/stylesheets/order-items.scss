@@ -61,6 +61,12 @@ body.active_admin #dimmer #create-unit-modal {
    display: block;
    width:550px;
    margin: 5% auto;
+   div.flash_type_error {
+      color: #922;
+      font-weight: bold;
+      font-style: italic;
+      text-align: center;
+   }
    .form-group {
       margin-bottom: 10px;
    }
@@ -71,6 +77,10 @@ body.active_admin #dimmer #create-unit-modal {
    input[type=checkbox] {
       width: 14px;
       height: 14px;
+      margin-left: 15px;
+   }
+   div.buttons.create-unit {
+      margin: 0;
    }
    .btn {
       border: 1px solid #2e6da4;
@@ -82,6 +92,18 @@ body.active_admin #dimmer #create-unit-modal {
       border-radius: 4px;
       &:hover {
          background-color: #2e6da4;
+      }
+   }
+   #metadata-title {
+      margin: 5px 10px 15px 10px;
+      font-weight: 500;
+      color: #555;
+   }
+   .btn.disabled {
+      opacity: 0.5;
+      cursor: default;
+      &:hover {
+         background: #337ab7;
       }
    }
 }

@@ -1,27 +1,35 @@
 $(function() {
+   var discardItem = function(itemDiv) {
+      var itemId = itemDiv.data("item-id");
+      $.ajax({
+         url: "/admin/items/"+itemId,
+         method: "DELETE",
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               var title = itemDiv.find(".item-title").text();
+               alert("Unable to delete '"+title+"'. Please try again later");
+            } else {
+               itemDiv.remove();
+            }
+         }
+      });
+   };
+
    $(".btn.discard-item").on("click", function() {
-      var itemId = $(this).data("item-id");
       var item = $(this).closest(".order-item");
-      var title = $(this).closest(".order-item").find(".item-title").text();
+      var title = item.find(".item-title").text();
       resp = confirm("Discard item '"+title+"'? It will be permanently removed from the system. Are you sure?");
       if (resp) {
-         $.ajax({
-            url: "/admin/items/"+itemId,
-            method: "DELETE",
-            complete: function(jqXHR, textStatus) {
-               if (textStatus != "success") {
-                  alert("Unable to delete '"+title+"'. Please try again later");
-               } else {
-                  item.remove();
-               }
-            }
-         });
+         discardItem(item);
       }
    });
 
    $(".btn.create-unit").on("click", function() {
       $("#dimmer").show();
       var itemDiv = $(this).closest(".order-item");
+      var itemId = itemDiv.data("item-id");
+
+      $("#source_item_id").val( itemId );
       $("#intended_use_id").val( $("#item-intended-use-id").text() );
       if ( itemDiv.find(".item-source-url").length > 0 ) {
          $("#patron_source_url").val(itemDiv.find(".item-source-url").text());
@@ -51,15 +59,23 @@ $(function() {
       }
       $("#special_instructions").val(si);
 
-      // ajax call to lookup metadata by callnumber
+      // ajax call to lookup metadata by callnumber or title
       $("#metadata_id").val("");
-      $("#metadata-title").text("");
+      $("#metadata_id").attr("disabled", "disabled");
+      $("#lookup-metadata").addClass("disabled");
+      $("#metadata-title").text("Searching...");
       $.getJSON("/api/metadata/search?q="+query, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
-            var val = data[0];
-            $("#metadata_id").val(val.id);
-            $("#metadata-title").text("Metadata Title: "+val.title);
+            if ( data.length > 0 ) {
+               var val = data[0];
+               $("#metadata_id").val(val.id);
+               $("#metadata-title").text("Metadata Title: "+val.title);
+            } else {
+               $("#metadata-title").text("Automated metadata lookup was unsuccessful");
+            }
          }
+         $("#metadata_id").removeAttr("disabled");
+         $("#lookup-metadata").removeClass("disabled");
       });
    });
 
@@ -67,18 +83,16 @@ $(function() {
       $("#dimmer").hide();
    });
 
-   $("#ok-unit-create").on("click", function() {
-
-   });
-
    $("#lookup-metadata").on("click", function() {
       $("#create-unit-panel").hide();
       $("#metadata-finder").show();
    });
+
    $("span.cancel-metadata").on("click", function() {
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
    });
+
    $("span.select-metadata").on("click", function() {
       $("p.error").hide();
       if ( $("tr.selected").length === 0) {
@@ -95,4 +109,30 @@ $(function() {
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
    });
+
+
+   // Ajax form submission hooks; handle before submit, success and error
+   //
+   $("form#convert_item").bind('ajax:before', function(){
+      $("#ok-unit-create").addClass("disabled");
+      $("div.flash_type_error").text("");
+   });
+   $("form#convert_item").bind('ajax:error', function(event, jqxhr){
+      $("div.flash_type_error").text(jqxhr.responseJSON.message);
+      $("#ok-unit-create").removeClass("disabled");
+   });
+   $("form#convert_item").bind('ajax:success', function(event, jqxhr) {
+      var cnt = parseInt($("#order-units-link").text(),10);
+      $("#order-units-link").text(cnt+1);
+      $("#dimmer").hide();
+      $("#ok-unit-create").removeClass("disabled");
+      if (jqxhr.responseJSON.approve_enabled) {
+         $("#approve-order-btn").removeClass("disabled");
+      }
+   });
+
+   // HACK: This class is getting added to the label by rails (I think). It conflicts
+   // with the colorbox js library causing a click on the lable to bring up a
+   // blank colorbox window. Remove the class to prevent.
+   $("#create-unit-modal label.inline").removeClass("cboxElement");
 });

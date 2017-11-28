@@ -17,10 +17,10 @@
       <div class="order-items-header">Items</div>
       <div class="order-items panel_contents">
          <% order.order_items.each do |item| %>
-            <div class="order-item">
+            <div class="order-item" data-item-id="<%= item.id %>">
                <div class="item-controls">
-                  <span class="btn discard-item" data-item-id="<%= item.id %>">Discard</span>
-                  <span class="btn create-unit" data-item-id="<%= item.id %>">Create Unit</span>
+                  <span class="btn discard-item">Discard</span>
+                  <span class="btn create-unit">Create Unit</span>
                </div>
                <p><label>Title:</label><span class="item-title"><%= item.title %></span></p>
                <p><label>Pages:</label><span class="item-pages"><%= item.pages %></span></p>
@@ -47,4 +47,4 @@
       </div>
    </div>
 </div>
-<%= render partial: "unit_modal" %>
+<%= render partial: "unit_modal", locals: {order: order} %>

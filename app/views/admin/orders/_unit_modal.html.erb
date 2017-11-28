@@ -2,7 +2,11 @@
    <div id="create-unit-modal" class="modal">
       <h1>Create Unit</h1>
       <div class="content" id="create-unit-panel">
-         <%= form_tag("/items/convert", method: "post") do %>
+         <div class="flash_type_error">
+         </div>
+         <%= form_tag("/admin/items/convert", method: "post", remote: true, id: "convert_item") do %>
+            <%= hidden_field_tag(:source_item_id, "" ) %>
+            <%= hidden_field_tag(:order_id, "#{order.id}" ) %>
             <div class="form-group">
                <%= label_tag(:metadata_id, "Metadata ID") %>
                <%= text_field_tag(:metadata_id, "" ) %>
@@ -11,7 +15,7 @@
             </div>
             <div class="form-group">
                <%= label_tag(:intended_use_id, "Intended Use") %>
-               <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.external_use, :id, :name, nil)) %>
+               <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.where(is_approved: 1), :id, :name, nil)) %>
             </div>
             <div class="form-group">
                <%= label_tag(:patron_source_url, "Source URL") %>
@@ -39,9 +43,9 @@
                <%= label_tag(:include_in_dl, "Include In Digital Library?", class:"inline") %>
             </div>
 
-            <div class="buttons">
+            <div class="buttons create-unit">
                <input type="button" id="cancel-unit-create" value="Cancel"/>
-               <input type="button" id="ok-unt-create" value="Create Unit"/>
+               <input type="submit" id="ok-unit-create" value="Create Unit"/>
             </div>
          <% end %>
       </div>
