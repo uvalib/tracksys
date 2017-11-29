@@ -22,7 +22,12 @@
                   <span class="btn discard-item">Discard</span>
                   <span class="btn create-unit">Create Unit</span>
                </div>
-               <p><label>Title:</label><span class="item-title"><%= item.title %></span></p>
+               <% hidden = ""
+                   hidden = "hidden" if item.converted == false %>
+               <p>
+                  <span class="item-used <%= hidden %>"></span>
+                  <label>Title:</label><span class="item-title"><%= item.title %></span>
+               </p>
                <p><label>Pages:</label><span class="item-pages"><%= item.pages %></span></p>
                <% if !item.call_number.blank? %>
                   <p><label>Call Number:</label><span class="item-call-number"><%= item.call_number %></span></p>

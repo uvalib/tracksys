@@ -9,7 +9,7 @@
             <%= hidden_field_tag(:order_id, "#{order.id}" ) %>
             <div class="form-group">
                <%= label_tag(:metadata_id, "Metadata ID") %>
-               <%= text_field_tag(:metadata_id, "" ) %>
+               <%= text_field_tag(:metadata_id, "", {readonly: "readonly"} ) %>
                <span class="btn" id="lookup-metadata">Lookup</span>
                <p id="metadata-title"></p>
             </div>

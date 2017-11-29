@@ -121,14 +121,22 @@ $(function() {
       $("div.flash_type_error").text(jqxhr.responseJSON.message);
       $("#ok-unit-create").removeClass("disabled");
    });
-   $("form#convert_item").bind('ajax:success', function(event, jqxhr) {
+   $("form#convert_item").bind('ajax:success', function(event, resp) {
+      // increase the unit count for the order
       var cnt = parseInt($("#order-units-link").text(),10);
       $("#order-units-link").text(cnt+1);
+
+      // hide popup and restore buttons
       $("#dimmer").hide();
       $("#ok-unit-create").removeClass("disabled");
-      if (jqxhr.responseJSON.approve_enabled) {
-         $("#approve-order-btn").removeClass("disabled");
+      if (resp.approve_enabled) {
+         $("#approve-order-btn").removeAttr("disabled");
       }
+
+      // find and show the used marker on the item div
+      var id = resp.item_id;
+      var itemDiv = $("div.order-item[data-item-id='"+id+"']");
+      itemDiv.find(".item-used").removeClass("hidden");
    });
 
    // HACK: This class is getting added to the label by rails (I think). It conflicts

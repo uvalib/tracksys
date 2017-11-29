@@ -2,6 +2,15 @@ div.order-items, div.order-info {
    p {
       margin: 2px 0;
    }
+   span.item-used {
+      width: 20px;
+      height: 20px;
+      background-image: image_url("checked.png");
+      display: inline-block;
+      position: absolute;
+      left: 5px;
+      top: 5px;
+   }
    label {
       font-weight: bold;
       margin-right: 10px;
@@ -60,12 +69,17 @@ div.order-items-header {
 body.active_admin #dimmer #create-unit-modal {
    display: block;
    width:550px;
-   margin: 5% auto;
+   margin: 15px auto;
    div.flash_type_error {
       color: #922;
       font-weight: bold;
       font-style: italic;
       text-align: center;
+   }
+   #metadata_id {
+      border: 1px solid #ccc;
+      outline: none;
+      box-shadow: none;
    }
    .form-group {
       margin-bottom: 10px;

@@ -11,7 +11,7 @@ class CreateOrderItem < ActiveRecord::Migration[5.1]
         t.string :location
         t.string :source_url
         t.text :description
-        t.timestamps
+        t.boolean :converted, default: false
      end
   end
 end

@@ -26,6 +26,13 @@ $(function() {
          if (textStatus == "success" ) {
             $("tr.hit").remove();
             $("span.metadata-finder.find").removeClass("disabled");
+            $("p.error").text("");
+            if ( data.length > 0) {
+               $("p.error").hide();
+            } else {
+               $("p.error").text("No matching metadata records found");
+               $("p.error").show();
+            }
             var template = "<tr class='hit' data-full-title=\"FULL\" data-metadata-id='MID'><td>MID</td><td>PID</td><td>BARCODE</td><td>CALL</td><td>TITLE</td></tr>";
             $.each(data, function(idx,val) {
                var line = template.replace(/MID/g, val.id);

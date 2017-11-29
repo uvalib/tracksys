@@ -412,8 +412,7 @@ ActiveRecord::Schema.define(version: 20171114182322) do
     t.string "location"
     t.string "source_url"
     t.text "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.boolean "converted", default: false
     t.index ["intended_use_id"], name: "index_order_items_on_intended_use_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
   end
