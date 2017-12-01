@@ -6,15 +6,17 @@ module TechMetadata
    # Create image tech metadata
    def self.create(master_file, image_path)
       # Open Rmagick and EXIFR objects for extraction of technical metadata.
-      image = Magick::Image.read(image_path).first
-      image_exif = EXIFR::TIFF.new(image_path)
+      image = Magick::Image.ping(image_path).first
+      image_exif = nil
+      if File.extname(image_path) == ".tif"
+         image_exif = EXIFR::TIFF.new(image_path)
+      elsif File.extname(image_path) == ".jpg"
+         image_exif = EXIFR::JPEG.new(image_path)
+      end
 
       image_tech_meta = ImageTechMeta.new
       image_tech_meta.master_file = master_file
-      image_tech_meta.image_format = image.format if image.format
-      image_tech_meta.width = image_exif.width if image_exif.width
-      image_tech_meta.height = image_exif.height if image_exif.height
-      image_tech_meta.resolution = image_exif.x_resolution.to_i if image_exif.x_resolution
+      image_tech_meta.image_format = image.format 
 
       if image.colorspace.to_s == 'RGBColorspace'
          image_tech_meta.color_space = 'RGB'
@@ -27,22 +29,27 @@ module TechMetadata
          image_tech_meta.compression = 'Compressed'
       end
 
-      image_tech_meta.equipment = image_exif.make if image_exif.make
-      image_tech_meta.software = image_exif.software if image_exif.software
-      image_tech_meta.model = image_exif.model if image_exif.model
-      image_tech_meta.capture_date = image_exif.date_time_original if image_exif.date_time_original
-      image_tech_meta.iso = image_exif.iso_speed_ratings if image_exif.iso_speed_ratings
-      image_tech_meta.exposure_bias = image_exif.exposure_bias_value.to_i if image_exif.exposure_bias_value
-      image_tech_meta.exposure_time = image_exif.exposure_time.to_s if image_exif.exposure_time
-      image_tech_meta.aperture = image_exif.f_number.to_i if image_exif.f_number
-      image_tech_meta.focal_length = image_exif.focal_length.to_s if image_exif.focal_length
-      image_tech_meta.exif_version = image.get_exif_by_entry('ExifVersion')[0][1] if image.get_exif_by_entry('ExifVersion')[0][1]
-
       # Pass the RMagick output of the 'color_profile' method so that it may be analyzed,
       # unpacked and queried for the color profile name.  Since this is a binary data
       # structure, the process is rather complicated
       if image.color_profile
          image_tech_meta.color_profile = get_color_profile_name(image.color_profile)
+      end
+
+      if !image_exif.nil?
+         image_tech_meta.width = image_exif.width if image_exif.width
+         image_tech_meta.height = image_exif.height if image_exif.height
+         image_tech_meta.resolution = image_exif.x_resolution.to_i if image_exif.x_resolution
+         image_tech_meta.equipment = image_exif.make if image_exif.make
+         image_tech_meta.software = image_exif.software if image_exif.software
+         image_tech_meta.model = image_exif.model if image_exif.model
+         image_tech_meta.capture_date = image_exif.date_time_original if image_exif.date_time_original
+         image_tech_meta.iso = image_exif.iso_speed_ratings if image_exif.iso_speed_ratings
+         image_tech_meta.exposure_bias = image_exif.exposure_bias_value.to_i if image_exif.exposure_bias_value
+         image_tech_meta.exposure_time = image_exif.exposure_time.to_s if image_exif.exposure_time
+         image_tech_meta.aperture = image_exif.f_number.to_i if image_exif.f_number
+         image_tech_meta.focal_length = image_exif.focal_length.to_s if image_exif.focal_length
+         image_tech_meta.exif_version = image.get_exif_by_entry('ExifVersion')[0][1] if image.get_exif_by_entry('ExifVersion')[0][1]
       end
 
       image_tech_meta.save!
