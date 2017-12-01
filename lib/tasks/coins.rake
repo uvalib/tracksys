@@ -145,15 +145,15 @@ namespace :coins do
             archive_coins_file(unit_archive_dir, mf, dest_fn)
 
             # delete tmp file
-            # puts "Cleaning up temp files"
+            puts "Cleaning up temp files"
             FileUtils.rm(dest_fn)
             FileUtils.rm(jpg_dest_fn)
 
             file_num +=1
          end
-
-         abort("STOP AFTER ONE")
       end
+      unit.update(master_files_count: file_num-1)
+      puts "DONE. #{file_num-1} files ingested."
    end
 
    def archive_coins_file(archive_dir, master_file, src_img_path)
