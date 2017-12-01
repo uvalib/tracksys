@@ -102,11 +102,19 @@ namespace :coins do
 
             puts "Downloading #{side} image from ./#{side_uri}..."
             num_str = "%04d" % file_num
-            filename = "#{unit_fn}_#{num_str}.jpg"
-            dest_fn = File.join(tmp_dir, filename)
-            open(dest_fn, 'wb') do |file|
+            jpg_filename = "#{unit_fn}_#{num_str}.jpg"
+            filename = jpg_filename.gsub(/.jpg/, ".tif")
+            jpg_dest_fn = File.join(tmp_dir, jpg_filename)
+            open(jpg_dest_fn, 'wb') do |file|
               file << open("#{SITE_ROOT}/#{side_uri}").read
             end
+
+            # make jpg into a tif. This makes the coins collection consistent
+            # with other collections and makes it easier to send to IIIF
+            puts "Convert source .jpg to .tif..."
+            dest_fn = jpg_dest_fn.gsub(/.jpg/, ".tif")
+            cmd = "convert #{jpg_dest_fn} #{dest_fn}"
+            `#{cmd}`
 
             # Get some file stats
             md5 = Digest::MD5.hexdigest(File.read(dest_fn))
@@ -131,14 +139,15 @@ namespace :coins do
             end
 
             # send to IIIF server (converting to jp2k)
-            # TODO
+            publish_to_iiif(mf, dest_fn)
 
             # send to archive
             archive_coins_file(unit_archive_dir, mf, dest_fn)
 
             # delete tmp file
-            puts "Cleaning up temp file #{dest_fn}"
+            # puts "Cleaning up temp files"
             FileUtils.rm(dest_fn)
+            FileUtils.rm(jpg_dest_fn)
 
             file_num +=1
          end
