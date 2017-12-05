@@ -17,5 +17,6 @@
 //= require skills
 //= require metadata
 //= require codemirror
+//= require xml-editor
 //= require_tree ./mode/
 //= require_tree ./addon/

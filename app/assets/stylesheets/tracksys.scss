@@ -866,7 +866,7 @@ body.active_admin {
             border: none;
             background-color: steelblue;
             color: white;
-            padding: 3px 30px 1px 30px;
+            padding: 3px 30px 3px 30px;
             border-radius: 2px;
             margin: 5px 5px 0 0;
             cursor: pointer;
@@ -874,6 +874,13 @@ body.active_admin {
 
             &:hover {
                background-color: cornflowerblue;
+            }
+         }
+         .xml-button.disabled {
+            opacity: 0.5;
+            cursor: default;
+            &:hover {
+               background-color: steelblue;
             }
          }
 

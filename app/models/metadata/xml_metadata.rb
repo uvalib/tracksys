@@ -62,7 +62,7 @@ class XmlMetadata < Metadata
    end
 
    def url_fragment
-      return "xml_metadata" 
+      return "xml_metadata"
    end
 
    # Validate XML against all schemas. Returns an array of errors
@@ -70,6 +70,13 @@ class XmlMetadata < Metadata
    def self.validate( xml )
       doc = Nokogiri.XML( xml )
       errors = []
+      doc.errors.each do |e|
+         errors << e.message
+      end
+      if errors.length > 0
+         return errors
+      end
+
       # schemas are held in the root; iterate over all included
       schema_info = doc.root.each do |schema_info|
 
