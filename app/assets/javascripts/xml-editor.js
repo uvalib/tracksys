@@ -59,6 +59,7 @@ $(function() {
       cm.on("change", function(cm, change) {
          var btn = $(".xml-submit input");
          btn.prop('disabled', true);
+         $("div.validate-msg").removeClass("success");
          $("div.validate-msg").css("visibility", "visible");
          $("div.validate-msg").text("XML has changed and must be validated before saving");
          if (btn.hasClass("disabled") === false ) {
@@ -104,6 +105,8 @@ $(function() {
          var id = $("#record-id").attr("id");
          var xml = cm.doc.getValue();
          $("div.validate-msg").text("Validating...");
+         $("div.validate-msg").removeClass("success");
+         $("div.validate-msg").css("visibility", "visible");
          $.ajax({
             method: "POST",
             url: "/api/xml/validate",
@@ -118,11 +121,15 @@ $(function() {
                   }
                   $("div.validate-msg").text("Failed validation; must be corrected before saving.");
                } else {
-                  alert("Validation succeeded");
                   subBtn.prop('disabled', false);
                   subBtn.removeClass("disabled");
                   $("#tracksys_xml_editor").removeClass("edited");
-                  $("div.validate-msg").css("visibility", "hidden");
+                  $("div.validate-msg").text("Validation succeeded!");
+                  $("div.validate-msg").addClass("success");
+                  setTimeout( function() {
+                     $("div.validate-msg").removeClass("success");
+                     $("div.validate-msg").css("visibility", "hidden");
+                  }, 3000);
                }
             }
          });

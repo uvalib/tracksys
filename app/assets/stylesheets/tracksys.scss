@@ -833,6 +833,9 @@ body.active_admin {
       color: #DB0000;
       visibility: hidden;
    }
+   div.validate-msg.success {
+      color: #0a0;
+   }
 
    #tracksys_xml_editor.edited {
       border: 1px solid #DB0000;
