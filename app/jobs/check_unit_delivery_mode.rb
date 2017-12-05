@@ -28,10 +28,13 @@ class CheckUnitDeliveryMode < BaseJob
       # Make sure an exemplar is picked if flagged for DL
       if unit.include_in_dl == true && unit.metadata.type == "SirsiMetadata" && unit.metadata.exemplar.blank?
          logger.info "Exemplar is blank; looking for a default"
-         exemplar = nil
+         # default to first MF. This will be replaced below if a
+         # suitable candidate is found. Preference: Front Cover, Title-page or 1
+         exemplar = unit.master_files.first.filename
          unit.master_files.each do |mf|
-            exemplar = mf.filename if exemplar.nil?
-            if !mf.title.blank? && mf.title.strip == "1"
+            next if mf.title.blank?
+            title = mf.title.strip
+            if title == "Front Cover" || title == "Title-page" || title == "1"
                exemplar = mf.filename
                break
             end
