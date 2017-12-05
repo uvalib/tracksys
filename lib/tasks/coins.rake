@@ -77,6 +77,11 @@ namespace :coins do
       Dir.glob( File.join(base_dir, "coins_xml", "*.xml")).each do |xml_file|
          puts "Processing #{File.basename(xml_file)}..."
          doc = Nokogiri.XML( File.open(xml_file))
+
+         # nokogiri doesn't like the way the nuds namespace is defined, and xpath with
+         # namespaces wont't work. Strip them, but save the namespaced xml string for
+         # the XML metadata record
+         xml_str = doc.root.to_s
          doc.remove_namespaces!
          xml = doc.root
          title = xml.xpath("/nuds/descMeta/title").text
@@ -86,7 +91,7 @@ namespace :coins do
          if md.nil?
             puts "Creating XML Metadata record for #{title}..."
             md = XmlMetadata.create!(
-               title: title, desc_metadata: xml.to_s, is_approved: 1, discoverability: 1, availability_policy_id: 1,
+               title: title, desc_metadata: xml_str, is_approved: 1, discoverability: 1, availability_policy_id: 1,
                dpla: 0, resource_type_id: 7, ocr_hint_id: 2, use_right_id: 2
             )
          else
