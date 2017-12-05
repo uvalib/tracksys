@@ -113,6 +113,11 @@ class MasterFile < ApplicationRecord
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
+   def ocr_candidate?
+      return false if metadata.nil?
+      return metadata.ocr_hint.ocr_candidate
+   end
+
    def self.iiif_path(pid)
       pid_parts = pid.split(":")
       base = pid_parts[1]

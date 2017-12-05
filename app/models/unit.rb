@@ -105,6 +105,11 @@ class Unit < ApplicationRecord
       return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
    end
 
+   def ocr_candidate?
+      return false if metadata.nil?
+      return metadata.ocr_hint.ocr_candidate
+   end
+
    def directory
       return "%09d" % self.id
    end
