@@ -11,6 +11,7 @@
                <%= label_tag(:metadata_id, "Metadata ID") %>
                <%= text_field_tag(:metadata_id, "", {readonly: "readonly"} ) %>
                <span class="btn" id="lookup-metadata">Lookup</span>
+               <span class="btn" id="create-metadata">Create</span>
                <p id="metadata-title"></p>
             </div>
             <div class="form-group">
@@ -49,13 +50,14 @@
             </div>
          <% end %>
       </div>
-      <div id="metadata-finder" class="contet" style="display:none">
+      <div id="metadata-finder" class="content" style="display:none">
          <%= render partial: "/admin/common/metadata_finder_panel" %>
          <div class="buttons">
-            <span class="mf-action-button metadata-finder select-metadata">Select</span>
             <span class="mf-action-button metadata-finder cancel-metadata">Cancel</span>
+            <span class="mf-action-button metadata-finder select-metadata">Select</span>
             <span class="mf-action-button metadata-finder find">Find</span>
          </div>
       </div>
+      <%= render partial: "/admin/orders/metadata_builder_panel" %>
    </div>
 </div>

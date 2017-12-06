@@ -29,6 +29,26 @@ class Admin::ItemsController < ApplicationController
       render json: {success: true, item_id: item.id, approve_enabled: approve_enabled}
    end
 
+   def create_metadata
+      md = SirsiMetadata.create( metadata_params )
+      if !md.valid?
+         render plain: md.errors.full_messages.to_sentence, status: :bad_request
+         return
+      end
+      md.update(is_approved: 1)
+
+      render plain: md.id
+   end
+
+   def metadata_params
+      params.permit(
+         :title, :creator_name, :call_number,
+         :catalog_key, :barcode, :use_right_id, :availability_policy_id,
+         :resource_type_id, :genre_id, :discoverability, :is_personal_item,
+         :is_manuscript
+      )
+   end
+
    def unit_params
       params.permit(
          :metadata_id, :intended_use_id, :patron_source_url, :special_instructions,

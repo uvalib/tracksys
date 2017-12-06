@@ -80,6 +80,7 @@ body.active_admin #dimmer #create-unit-modal {
       border: 1px solid #ccc;
       outline: none;
       box-shadow: none;
+      width:65%;
    }
    .form-group {
       margin-bottom: 10px;
@@ -118,6 +119,33 @@ body.active_admin #dimmer #create-unit-modal {
       cursor: default;
       &:hover {
          background: #337ab7;
+      }
+   }
+   div.admin-info {
+      select {
+         width: 100%;
+         margin-bottom:5px;
+      }
+   }
+   div.sirsi-info {
+      table {
+         margin-bottom: 10px;
+         td  {
+            padding: 0;
+         }
+         td.label {
+            width: 80px;
+            text-align: right;
+            padding-right:10px;
+         }
+         input[type=text] {
+            width: 95%;
+            box-sizing: border-box;
+         }
+         span.btn {
+            position: relative;
+            top: 3px;
+         }
       }
    }
 }

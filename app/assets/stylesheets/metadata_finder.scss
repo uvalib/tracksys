@@ -12,10 +12,6 @@ form.formtastic label, div.attributes_table th {
    div.buttons {
       margin: 15px 10px;
       position: relative;
-      .select, .select-metadata {
-         position: absolute;
-         left: 0;
-      }
    }
    div.find {
       padding: 15px 15px 0 15px;

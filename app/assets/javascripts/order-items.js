@@ -88,9 +88,55 @@ $(function() {
       $("#metadata-finder").show();
    });
 
+   $("#create-metadata").on("click", function() {
+      $("#create-unit-panel").hide();
+      $("#metadata-builder").show();
+   });
+
+   $("#sirsi-lookup").on("click", function() {
+      var btn = $(this);
+      if (btn.hasClass("disabled")) return;
+      btn.addClass("disabled");
+
+      var err = $(".flash_type_error.sirsi");
+      err.text("");
+      var sirsi_catalog_key = $('#catalog_key').val();
+      var sirsi_barcode = $('#barcode').val();
+      var new_url = "/admin/sirsi_metadata/external_lookup?catalog_key=" + sirsi_catalog_key + "&barcode=" + sirsi_barcode;
+      $.ajax({
+         url: new_url,
+         method: "GET",
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            if ( textStatus != "success" ) {
+               err.text("No matches. Check that the catalog key and/or barcode are correct");
+            } else {
+               md = jqXHR.responseJSON;
+               var currCK = $("#catalog_key").val();
+               var currBC = $("#barcode").val();
+               if (currBC.length > 0 && md.barcode != currBC ||
+                   currCK.length > 0 && md.catalog_key != currCK) {
+                  err.text("Barcode / catalog key mismatch. Clear one or the other and retry");
+                  return;
+               }
+               $("#call_number").val(md.call_number);
+               var title = md.title;
+               if ( title.length > 50) {
+                  title = title.substr(0,50)+"...";
+               }
+               $("#title").val(title);
+               $("#catalog_key").val(md.catalog_key);
+               $("#barcode").val(md.barcode);
+               $("#creator_name").val(md.creator_name);
+            }
+         }
+      });
+   });
+
    $("span.cancel-metadata").on("click", function() {
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
+      $("#metadata-builder").hide();
    });
 
    $("span.select-metadata").on("click", function() {
@@ -110,8 +156,25 @@ $(function() {
       $("#metadata-finder").hide();
    });
 
+   // Ajax METADATA form submission hooks; handle before submit, success and error
+   //
+   $("form#create_metadata").bind('ajax:before', function(){
+      $("#ok-metadata-create").addClass("disabled");
+      $("div.flash_type_error.sirsi").text("");
+   });
+   $("form#create_metadata").bind('ajax:error', function(event, jqxhr){
+      $("div.flash_type_error.sirsi").text(jqxhr.responseText);
+      $("#ok-metadata-create").removeClass("disabled");
+   });
+   $("form#create_metadata").bind('ajax:success', function(event, resp) {
+      var title = $("#title").val();
+      $("#metadata-title").text("Metadata Title: "+title);
+      $("#metadata_id").val(resp);
+      $("#create-unit-panel").show();
+      $("#metadata-builder").hide();
+   });
 
-   // Ajax form submission hooks; handle before submit, success and error
+   // Ajax CONVERT form submission hooks; handle before submit, success and error
    //
    $("form#convert_item").bind('ajax:before', function(){
       $("#ok-unit-create").addClass("disabled");
