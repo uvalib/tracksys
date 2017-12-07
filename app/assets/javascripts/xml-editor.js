@@ -68,72 +68,75 @@ $(function() {
          }
       });
       cm.setSize("100%", "auto");
-
-      $("span.xml-button.generate").on("click", function() {
-         var btn = $(this);
-         if (btn.hasClass("disabled")) return;
-         if ( !confirm("This will replace all XML data currently present. Continue?") ) return;
-         btn.addClass("disabled");
-         var data = {
-            title: $("#xml_metadata_title").val(),
-            creator:  $("#xml_metadata_creator_name").val(),
-            genre: $("#xml_metadata_genre").val(),
-            type: $("#xml_metadata_resource_type").val()
-         };
-
-         $.ajax({
-            method: "POST",
-            url: "/api/xml/generate",
-            data: data,
-            complete: function(jqXHR, textStatus) {
-               btn.removeClass("disabled");
-               if ( textStatus != "success" ) {
-                  alert("Validation failed: \n\n"+jqXHR.responseText);
-               } else {
-                  cm.doc.setValue(jqXHR.responseText);
-               }
-            }
-         });
-      });
-
-      $("span.xml-button.validate").on("click", function() {
-         var btn = $(this);
-         var itemUrl = "xml_metadata";
-         if (btn.hasClass("disabled")) return;
-         btn.addClass("disabled");
-         var subBtn = $(".xml-submit input");
-         var id = $("#record-id").attr("id");
-         var xml = cm.doc.getValue();
-         $("div.validate-msg").text("Validating...");
-         $("div.validate-msg").removeClass("success");
-         $("div.validate-msg").css("visibility", "visible");
-         $.ajax({
-            method: "POST",
-            url: "/api/xml/validate",
-            data: { id: id, xml: xml},
-            complete: function(jqXHR, textStatus) {
-               btn.removeClass("disabled");
-               if ( textStatus != "success" ) {
-                  alert("Validation failed: \n\n"+jqXHR.responseText);
-                  subBtn.prop('disabled', true);
-                  if (subBtn.hasClass("disabled") === false ) {
-                     subBtn.addClass("disabled");
-                  }
-                  $("div.validate-msg").text("Failed validation; must be corrected before saving.");
-               } else {
-                  subBtn.prop('disabled', false);
-                  subBtn.removeClass("disabled");
-                  $("#tracksys_xml_editor").removeClass("edited");
-                  $("div.validate-msg").text("Validation succeeded!");
-                  $("div.validate-msg").addClass("success");
-                  setTimeout( function() {
-                     $("div.validate-msg").removeClass("success");
-                     $("div.validate-msg").css("visibility", "hidden");
-                  }, 3000);
-               }
-            }
-         });
-
-      });
    }
+
+   $("span.xml-button.generate").on("click", function() {
+      var btn = $(this);
+      if (btn.hasClass("disabled")) return;
+      if ( !confirm("This will replace all XML data currently present. Continue?") ) return;
+      btn.addClass("disabled");
+      var data = {
+         title: $("#xml_metadata_title").val(),
+         creator:  $("#xml_metadata_creator_name").val(),
+         genre: $("#xml_metadata_genre").val(),
+         type: $("#xml_metadata_resource_type").val()
+      };
+
+      $.ajax({
+         method: "POST",
+         url: "/api/xml/generate",
+         data: data,
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            if ( textStatus != "success" ) {
+               alert("Validation failed: \n\n"+jqXHR.responseText);
+            } else {
+               cm.doc.setValue(jqXHR.responseText);
+            }
+         }
+      });
+   });
+
+   $("span.xml-button.validate").on("click", function() {
+      var btn = $(this);
+      var itemUrl = "xml_metadata";
+      if (btn.hasClass("disabled")) return;
+
+      $("#xml-validation-errors").text("");
+      $("#xml-validation-errors").hide();
+      btn.addClass("disabled");
+      var subBtn = $(".xml-submit input");
+      var id = $("#record-id").attr("id");
+      var xml = cm.doc.getValue();
+      $("div.validate-msg").text("Validating...");
+      $("div.validate-msg").removeClass("success");
+      $("div.validate-msg").css("visibility", "visible");
+      $.ajax({
+         method: "POST",
+         url: "/api/xml/validate",
+         data: { id: id, xml: xml},
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            if ( textStatus != "success" ) {
+               subBtn.prop('disabled', true);
+               if (subBtn.hasClass("disabled") === false ) {
+                  subBtn.addClass("disabled");
+               }
+               $("div.validate-msg").text("Failed validation; XML must be corrected before saving.");
+               $("#xml-validation-errors").text(jqXHR.responseText);
+               $("#xml-validation-errors").show();
+            } else {
+               subBtn.prop('disabled', false);
+               subBtn.removeClass("disabled");
+               $("#tracksys_xml_editor").removeClass("edited");
+               $("div.validate-msg").text("Validation succeeded!");
+               $("div.validate-msg").addClass("success");
+               setTimeout( function() {
+                  $("div.validate-msg").removeClass("success");
+                  $("div.validate-msg").css("visibility", "hidden");
+               }, 3000);
+            }
+         }
+      });
+   });
 });
