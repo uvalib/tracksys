@@ -179,6 +179,34 @@ class Unit < ApplicationRecord
       return false if !Dir.exist? assemble_dir
       return Dir["#{assemble_dir}/*"].length >= self.master_files.count
    end
+
+   def pick_exemplar
+      # Find exemplar. Preference: Front Cover, Title-page or 1
+      master_files.each do |mf|
+         next if mf.title.blank?
+         title = mf.title.strip
+         if title == "Front Cover" || title == "Title-page" || title == "1"
+            return mf.filename
+         end
+      end
+
+      # if we got here, an exemplar with matching name was not found
+      # try to make sure it is not a spine or egde
+      master_files.each do |mf|
+         next if mf.title == "Spine" || mf.title == "Head" || mf.title == "Tail" || mf.title == "Fore-edge"
+         w = mf.image_tech_meta.width
+         h = mf.image_tech_meta.height
+         ratio = w.to_f / h.to_f
+
+         # look for something kinda square-ish
+         if ratio > 0.4 && ratio < 1.4
+            return mf.filename
+         end
+      end
+
+      # nothing else found, just go with first
+      return master_files.first.filename
+   end
 end
 
 # == Schema Information
