@@ -115,6 +115,7 @@ class MasterFile < ApplicationRecord
 
    def ocr_candidate?
       return false if metadata.nil?
+      return false if metadata.ocr_hint.nil?
       return metadata.ocr_hint.ocr_candidate
    end
 
