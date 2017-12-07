@@ -124,7 +124,7 @@ class Unit < ApplicationRecord
    end
 
    def ingested?
-      return !date_dl_deliverables_ready.nil? || !date_patron_deliverables_ready.nil? || !date_archived.nil?
+      return !date_dl_deliverables_ready.nil? || !date_patron_deliverables_ready.nil? || !date_archived.nil? || master_files.count > 0
    end
 
    def in_dl?
