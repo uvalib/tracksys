@@ -29,7 +29,6 @@ gem 'prawn'
 gem 'prawn-table'
 gem 'net-ldap'
 gem 'country-select'
-gem 'axlsx', '~> 2.1.0.pre'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
