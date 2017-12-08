@@ -40,7 +40,7 @@ class PublishToDL < BaseJob
          end
 
          # if master file has its own metadata, set it too
-         if mf.metadata.id == unit.metadata.id
+         if mf.metadata.id != unit.metadata.id
             if mf.metadata.date_dl_ingest.blank?
                if mf.metadata.date_dl_update.blank?
                   mf.metadata.update(date_dl_ingest: Time.now)
