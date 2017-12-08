@@ -170,7 +170,7 @@ ActiveAdmin.register Order do
 
    collection_action :overdue, :method=>:get do
       report = Order.upaid_customer_report
-      send_file(report.path)
+      send_file(report.path,{filename: "unpaid_customers.csv"})
    end
 
    # BATCH ACTIONS ============================================================
