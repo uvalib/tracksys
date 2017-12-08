@@ -102,9 +102,6 @@ ActiveAdmin.register_page "Dashboard" do
             div :class => 'workflow_button border-bottom' do
                render 'admin/stats_report'
             end
-            div :class => 'workflow_button border-bottom' do
-               button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
-            end
             table :style=>"margin-bottom: 0" do
                tr do
                   td do "Total unpaid invoices:" end
@@ -196,11 +193,6 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
       end
-   end
-
-   page_action :create_dl_manifest do
-      CreateDlManifest.exec( {:staff_member => current_user } )
-      redirect_to "/admin/dashboard", :notice => "Digital library manifest creation started.  Check your email in a few minutes."
    end
 
    page_action :get_yearly_stats do

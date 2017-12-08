@@ -1,4 +1,16 @@
 body.active_admin {
+
+   #stats-button, #pid-find-button, #find-mf-button {
+      width: auto;
+      float: right;
+      padding: 5px 20px;
+      font-size: 0.8em;
+      margin-left: 10px;
+   }
+   #find-mf-button {
+      float: none;
+   }
+
    form fieldset select {
        max-width: 65%;
    }
@@ -796,12 +808,6 @@ body.active_admin {
          label {
             margin-right: 15px;
          }
-      }
-
-      input[type=submit] {
-         width: auto;
-         float: right;
-         margin-top: 2px;
       }
    }
 
