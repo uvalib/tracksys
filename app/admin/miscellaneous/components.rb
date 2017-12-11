@@ -269,8 +269,6 @@ ActiveAdmin.register Component do
    end
 
    member_action :tree, :method => :get do
-      respond_to do |format|
-         format.json { render :formats => [:json], :partial => "tree", root: false, object: Component.find(params[:id]) }
-      end
+      render json:  Component.find(params[:id]).descendants_hash.to_json
    end
 end

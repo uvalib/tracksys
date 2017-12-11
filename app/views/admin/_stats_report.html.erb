@@ -1,8 +1,0 @@
-<%= form_tag(admin_dashboard_get_yearly_stats_path, :method => 'get', :id=>"stats-form") do %>
-   <%= submit_tag("Create", id:"stats-button") %>
-   <div class="year-input">
-      <%= label_tag(:year, "Year:") %>
-      <%= text_field_tag(:year) %>
-   </div>
-   <div style="clear:both"></div>
-<% end %>
