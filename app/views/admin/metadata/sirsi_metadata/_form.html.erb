@@ -2,12 +2,12 @@
 
 <fieldset class="three-column panel">
    <legend><span>Basic Information</span></legend>
-  <%= render :partial=>'sirsi_meta', locals: {edit: true} %>
+  <%= render :partial=>'/admin/metadata/sirsi_metadata/sirsi_meta', locals: {edit: true} %>
 </fieldset>
 
   <fieldset class="three-column panel">
      <legend><span>Detailed Information</span></legend>
-    <%= render :partial=>'sirsi_detail', locals: {edit: true}  %>
+    <%= render :partial=>'/admin/metadata/sirsi_metadata/sirsi_detail', locals: {edit: true}  %>
   </fieldset>
 
   <%= f.inputs "Administrative Information", :class => 'three-column panel meta-admin-info' do %>

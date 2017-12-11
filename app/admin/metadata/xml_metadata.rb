@@ -142,14 +142,14 @@ ActiveAdmin.register XmlMetadata do
 
       div :class => 'columns-none' do
          panel "XML Metadata" do
-            render 'xml_meta'
+            render '/admin/metadata/xml_metadata/xml_meta'
          end
       end
    end
 
    # EDIT page ================================================================
    #
-   form :partial => "edit_xml"
+   form :partial => "/admin/metadata/xml_metadata/edit_xml"
 
    # Sidebars =================================================================
    #
@@ -222,7 +222,7 @@ ActiveAdmin.register XmlMetadata do
          if !xml_metadata.children.blank?
             row "child metadata records" do |xml_metadata|
                map = xml_metadata.typed_children
-               render partial: 'children_links', locals: {map: map, parent_id: xml_metadata.id}
+               render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: xml_metadata.id}
             end
          end
       end

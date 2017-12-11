@@ -108,13 +108,13 @@ ActiveAdmin.register SirsiMetadata do
   show :title => proc { truncate(@sirsi_meta[:title], :length => 60) } do
     div :class => 'three-column' do
       panel "Basic Metadata" do
-        render 'sirsi_meta'
+        render '/admin/metadata/sirsi_metadata/sirsi_meta'
       end
     end
 
     div :class => 'three-column' do
       panel "Detailed Metadata" do
-        render 'sirsi_detail'
+        render '/admin/metadata/sirsi_metadata/sirsi_detail'
       end
     end
 
@@ -210,7 +210,7 @@ ActiveAdmin.register SirsiMetadata do
         if sirsi_metadata.children.count > 0
           row "child metadata records" do |sirsi_metadata|
             map = sirsi_metadata.typed_children
-            render partial: 'children_links', locals: {map: map, parent_id: sirsi_metadata.id}
+            render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: sirsi_metadata.id}
           end
         end
     end
@@ -226,7 +226,7 @@ ActiveAdmin.register SirsiMetadata do
      end
   end
 
-  form :partial => "form"
+  form :partial => "/admin/metadata/sirsi_metadata/form"
 
   collection_action :external_lookup
 

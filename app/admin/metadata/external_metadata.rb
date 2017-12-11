@@ -175,7 +175,7 @@ ActiveAdmin.register ExternalMetadata do
 
    # EDIT page ================================================================
    #
-   form :partial => "edit"
+   form :partial => "/admin/metadata/external_metadata/edit"
 
    # Sidebars =================================================================
    #
@@ -248,7 +248,7 @@ ActiveAdmin.register ExternalMetadata do
          if !external_metadata.children.blank?
             row "child metadata records" do |external_metadata|
                map = external_metadata.typed_children
-               render partial: 'children_links', locals: {map: map, parent_id: external_metadata.id}
+               render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: external_metadata.id}
             end
          end
       end
