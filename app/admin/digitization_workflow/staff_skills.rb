@@ -2,7 +2,7 @@ ActiveAdmin.register_page "Staff Skills" do
    menu :parent => "Digitization Workflow", :priority => 3, if: proc{ current_user.admin? || current_user.supervisor? }
 
    content do
-      render partial: 'skills_matrix'
+      render partial: '/admin/digitization_workflow/staff_skills/skills_matrix'
    end
 
    page_action :staff, :method => :get do

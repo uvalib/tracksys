@@ -4,30 +4,30 @@ ActiveAdmin.register_page "Equipment" do
    content do
       div :class => 'workstation-container' do
          div :class => 'block' do
-            render partial: "workstation", locals: { workstations: workstations}
+            render partial: "/admin/digitization_workflow/equipment/workstation", locals: { workstations: workstations}
          end
       end
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Camera Bodies", equipment: bodies, type: 'CameraBody'}
+            render partial: "/admin/digitization_workflow/equipment/equipment_list", locals: {title:"Camera Bodies", equipment: bodies, type: 'CameraBody'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Lenses", equipment: lenses, type: 'Lens'}
+            render partial: "/admin/digitization_workflow/equipment/equipment_list", locals: {title:"Lenses", equipment: lenses, type: 'Lens'}
          end
       end
 
       div :class => 'columns-none' do
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Digital Backs", equipment: backs, type: 'DigitalBack'}
+            render partial: "/admin/digitization_workflow/equipment/equipment_list", locals: {title:"Digital Backs", equipment: backs, type: 'DigitalBack'}
          end
 
          div :class => 'two-column' do
-            render partial: "equipment_list", locals: {title:"Scanners", equipment: scanners, type: 'Scanner'}
+            render partial: "/admin/digitization_workflow/equipment/equipment_list", locals: {title:"Scanners", equipment: scanners, type: 'Scanner'}
          end
       end
-      render partial: "modal"
+      render partial: "/admin/digitization_workflow/equipment/modal"
    end
 
    page_action :assign, method: :post do

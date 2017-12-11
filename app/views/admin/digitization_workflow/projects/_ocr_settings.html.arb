@@ -2,13 +2,13 @@ if !project.active_assignment.nil? && project.active_assignment.step.name == "Fi
    panel "OCR Settings" do
       attributes_table_for project do
          row ("OCR Hint") do |project|
-            render partial: "ocr_hint", locals: {project: project}
+            render partial: "/admin/digitization_workflow/projects/ocr_hint", locals: {project: project}
          end
          row ("OCR Language Hint") do |project|
-            render partial: "ocr_language_hint", locals: {project: project}
+            render partial: "/admin/digitization_workflow/projects/ocr_language_hint", locals: {project: project}
          end
          row ("OCR Master Files") do |project|
-            render partial: "ocr_master_files", locals: {project: project}
+            render partial: "/admin/digitization_workflow/projects/ocr_master_files", locals: {project: project}
          end
       end
       if current_user == project.owner

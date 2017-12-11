@@ -48,14 +48,14 @@ ActiveAdmin.register Project do
       @first = true if @first.nil?
       footer =  true
       footer = false if params[:scope] && params[:scope] == "finished"
-      render partial: 'card', locals: {project: project, first: @first, footer: footer}
+      render partial: '/admin/digitization_workflow/projects/card', locals: {project: project, first: @first, footer: footer}
       @first = false
    end
 
    # DETAILS page ===============================================================
    #
    show :title => proc {|project| "Project ##{project.id}"} do
-      render "details", :context => self
+      render "/admin/digitization_workflow/projects/details", :context => self
    end
 
    sidebar "Related Information", :only => [:show] do
@@ -113,7 +113,7 @@ ActiveAdmin.register Project do
    end
 
    sidebar "Assignment Workflow", :only => [:show], if: proc{ !project.finished? } do
-      render "assignment_workflow", :context => self
+      render "/admin/digitization_workflow/projects/assignment_workflow", :context => self
    end
 
    # MEMBER ACTIONS  ==========================================================
@@ -157,7 +157,7 @@ ActiveAdmin.register Project do
             end
          end
 
-         html = render_to_string partial: "note", locals: {note: note}
+         html = render_to_string partial: "/admin/digitization_workflow/projects/note", locals: {note: note}
          render json: {html: html}
       rescue Exception => e
          Rails.logger.error e.to_s
@@ -179,7 +179,7 @@ ActiveAdmin.register Project do
          if !ok
             render json: {status: "fail", enable_finish: false, error: project.errors.full_messages.to_sentence}, status: :error
          else
-            html = render_to_string partial: "project_equipment", locals: {equipment: project.equipment}
+            html = render_to_string partial: "/admin/digitization_workflow/projects/project_equipment", locals: {equipment: project.equipment}
             render json: {html: html, enable_finish: project.assignment_finish_available?}, status: :ok
          end
          return

@@ -4,7 +4,7 @@
    <% while !step.nil? do %>
       <% final_fail = (!step.fail_step.nil? && step.fail_step.next_step != step.next_step) %>
       <div class="workflow-row">
-         <%= render partial: "step", locals: {step: step, error: false, final_error: final_fail, readonly: true} %>
+         <%= render partial: "/admin/digitization_workflow/workflows/step", locals: {step: step, error: false, final_error: final_fail, readonly: true} %>
          <% if !step.fail_step.nil? %>
             <div class="fail-arrow">
                <div class="horiz-line"></div><div class="right-arrow"></div>
@@ -13,7 +13,7 @@
                <% end %>
             </div>
 
-            <%= render partial: "step", locals: {step: step.fail_step, error: true, final_error: final_fail, readonly: true} %>
+            <%= render partial: "/admin/digitization_workflow/workflows/step", locals: {step: step.fail_step, error: true, final_error: final_fail, readonly: true} %>
          <% end %>
       </div>
       <% step = step.next_step %>

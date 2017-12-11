@@ -23,7 +23,7 @@ if project.workflow.name != "Clone"
             raw("#{disp}#{sel}")
          end
          row ("setup") do |project|
-            render partial: "project_equipment", locals: {equipment: project.equipment}
+            render partial: "/admin/digitization_workflow/projects/project_equipment", locals: {equipment: project.equipment}
          end
          row :capture_resolution do |project|
             v = project.capture_resolution

@@ -101,7 +101,7 @@
                  </span>
                </div>
             <% end %>
-            <%= render :partial=>"status", :locals=>{ project: project} %>
+            <%= render :partial=>"/admin/digitization_workflow/projects/status", :locals=>{ project: project} %>
          </div>
          <div class="owner-dd">
             <% if project.owner.nil? || (!project.owner.nil?  && current_user.admin? || current_user.supervisor?) %>
@@ -117,5 +117,5 @@
    <% end %>
 </div>
 <% if first %>
-   <%= render partial: "assign_staff", locals: {project: project} %>
+   <%= render partial: "/admin/digitization_workflow/projects/assign_staff", locals: {project: project} %>
 <% end %>

@@ -24,7 +24,7 @@ div :class => 'columns-none' do
          end
       end
       if project.workflow.name != "Reorder"
-         render "equipment"
+         render "/admin/digitization_workflow/projects/equipment"
       end
    end
 
@@ -32,7 +32,7 @@ div :class => 'columns-none' do
       panel "Item Information" do
          attributes_table_for project do
             row :category do |p|
-               render partial: "category", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
+               render partial: "/admin/digitization_workflow/projects/category", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
             end
             if project.unit.metadata.type=="SirsiMetadata"
                row("Call Number") do |project|
@@ -58,7 +58,7 @@ div :class => 'columns-none' do
                raw("#{si.join('<br/>')}")
             end
             row :item_condition do |project|
-               render partial: "condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
+               render partial: "/admin/digitization_workflow/projects/condition", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
             end
             row ("Condition Notes") do |project|
                div do
@@ -81,17 +81,17 @@ div :class => 'columns-none' do
             end
          end
       end
-      render "ocr_settings"
+      render "/admin/digitization_workflow/projects/ocr_settings"
    end
 end
 
 div :class => 'columns-none' do
    div :class => 'two-column' do
-      render partial: "history", locals: {project: project}
+      render partial: "/admin/digitization_workflow/projects/history", locals: {project: project}
    end
    div :class => 'two-column' do
-      render partial: "notes", locals: {project: project}
+      render partial: "/admin/digitization_workflow/projects/notes", locals: {project: project}
    end
 end
 
-render partial: "assign_staff", locals: {project: project}
+render partial: "/admin/digitization_workflow/projects/assign_staff", locals: {project: project}

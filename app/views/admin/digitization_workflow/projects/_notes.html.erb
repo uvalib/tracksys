@@ -5,7 +5,7 @@
          <p>There are no notes associated with this project</p>
       <% else %>
          <% project.notes.order(created_at: :desc).each do |n| %>
-            <%= render partial: "note", locals: {note: n} %>
+            <%= render partial: "/admin/digitization_workflow/projects/note", locals: {note: n} %>
          <% end %>
       <% end %>
    </div>

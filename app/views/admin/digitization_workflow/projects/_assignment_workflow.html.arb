@@ -52,7 +52,7 @@ if current_user == project.owner
       end
    end
 
-   render partial: 'time_entry', locals: {project: project}
+   render partial: '/admin/digitization_workflow/projects/time_entry', locals: {project: project}
 
    if project.workflow.name != "Clone"
       if project.current_step.name == "Scan" && project.workstation.nil?

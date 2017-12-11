@@ -6,7 +6,7 @@
          <div class="scroller">
             <table class="workstations">
                <% workstations.each do |ws| %>
-                  <%= render partial: "workstation_row", locals: {ws: ws} %>
+                  <%= render partial: "/admin/digitization_workflow/equipment/workstation_row", locals: {ws: ws} %>
                <% end %>
             </table>
          </div>
