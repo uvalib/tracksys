@@ -28,7 +28,15 @@
          color: white;
          border: 1px solid #36a;
       }
-
+      div.summary {
+         font-size: 1.1em;
+         padding: 10px 0 0 20px;
+         color: #666;
+         label {
+            font-weight: 500;
+            margin-right: 5px;
+         }
+      }
       table tr {
          td, th {
             text-align: right;

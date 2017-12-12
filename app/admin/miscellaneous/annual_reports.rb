@@ -15,7 +15,7 @@ ActiveAdmin.register_page "Annual Reports" do
       elsif params[:type] == "agency_year"
          html = agency_year(params[:year])
       elsif params[:type] == "current"
-         html = current_orders(params[:year])
+         html = current_orders
       else
          render json: {success: false, message: "Invalid report type"}, status: :bad_request
          return
@@ -157,9 +157,12 @@ ActiveAdmin.register_page "Annual Reports" do
             locals: {year: year} )
       end
 
-      def current_orders(year)
+      def current_orders
+         data =  {'Orders Currently in Process': Order.in_process.count}
+         data['Orders Currently Pending Approval'] = Order.awaiting_approval.count
+         data['Orders Currently Deferred'] = Order.deferred.count
          return render_to_string(partial: "/admin/miscellaneous/annual_reports/current",
-            locals: {today: Date.today, data: []} )
+            locals: {today: Date.today, data: data} )
       end
    end
 end
