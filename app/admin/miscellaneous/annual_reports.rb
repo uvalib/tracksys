@@ -26,7 +26,8 @@ ActiveAdmin.register_page "Annual Reports" do
 
    controller do
       def category_report(year)
-         columns = [ 'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July',
+         columns = [
+            'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July',
             'August', 'September', 'October', 'November', 'December', '1st Quarter',
             '2nd Quarter', '3rd Quarter', '4th Quarter', 'Year-To-Date']
 
@@ -36,32 +37,41 @@ ActiveAdmin.register_page "Annual Reports" do
          ["date_request_submitted", "date_customer_notified"].each do |term|
             stats = submitted
             stats = delivered if term == "date_customer_notified"
+
+            # each entry in totals array corresponds to columns entry from above
             totals = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
             AcademicStatus.order(:name).each do |status|
-               stats[status.name] = []
+               stats[status.name] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+               # Get all dates for the year
+               status.orders.where("cast(#{term} as date) between '#{year}-01-01' and '#{year}-12-31'").pluck(term).sort.each do |d|
+                  # parse out month and tally up results
+                  month = d.month
+                  stats[status.name][month-1] += 1
+                  totals[month-1] += 1
 
-               # monthly orders submitted
-               for i in 1..12 do
-                  cnt = status.orders.where("#{term} between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
-                  stats[status.name] << cnt
-                  totals[i-1] += cnt
-               end
-
-               # quarterly orders submitted
-               [1,4,7,10,12].each_with_index do |month,idx|
-                  ed = "31"
-                  if month == 12
-                     sm = "01"
-                     em = "12"
+                  # Using parsed month, tally quarters counts
+                  if month <= 3
+                     # first quarter
+                     stats[status.name][12] += 1
+                     totals[12] += 1
+                  elsif month <= 6
+                     # second quarter
+                     stats[status.name][13] += 1
+                     totals[13] += 1
+                  elsif month <= 9
+                     # Third quarter
+                     stats[status.name][14] += 1
+                     totals[14] += 1
                   else
-                     sm = "%02d" % month
-                     em = "%02d" % (month + 2)
-                     ed = "30" if month == 4 || month == 7
+                     # fourth quarter
+                     stats[status.name][15] += 1
+                     totals[15] += 1
                   end
-                  cnt = status.orders.where("#{term} between '#{year}-#{sm}-01' and '#{year}-#{em}-#{ed}'").count
-                  stats[status.name] << cnt
-                  totals[12+idx] += cnt
+
+                  # year to date
+                  stats[status.name][16] += 1
+                  totals[16] += 1
                end
             end
             stats["Total"] = totals
@@ -74,8 +84,64 @@ ActiveAdmin.register_page "Annual Reports" do
       def orders_report(year)
          columns = [ 'Statistic', 'January', 'February', 'March', 'April', 'May',
             'June', 'July', 'August', 'September', 'October', 'November',
-            'December', 'Year-To-Date', 'Average per month']
-         data = []
+            'December', 'Year-to-Date', 'Monthly Average']
+
+         # define table with 9 arrays, one for each row in the work book. Start each row with a name.
+         # the remaining data will be filled in below...
+         data = [
+            ['Orders Submitted'], ['Orders Delivered'], ['Orders Approved'],
+            ['Orders Deferred'], ['Orders Canceled'], ['Units Archived'],
+            ['Master Files Archived'], ['Size of Master Files Archived (GB)'], ['Units Delivered to DL'],
+            ['Master Files Delivered to DL']
+         ]
+
+         # Append monthly stats to each row in the table structure defined above
+         for i in 1..12 do
+            data[0] << Order.where("date_request_submitted between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[1] << Order.where("date_customer_notified between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[2] << Order.where("date_order_approved between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[3] << Order.where("date_deferred between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[4] << Order.where("date_canceled between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[5] << Unit.where("date_archived between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[6] << MasterFile.where("master_files.date_archived between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            arch_size = MasterFile.where("master_files.date_archived between '#{year}-#{i}-01' and '#{year}-#{i}-31'").map(&:filesize).inject(:+)
+            if !arch_size.nil?
+               data[7] << ( arch_size / 1024000000 )
+            else
+               data[7] << 0
+            end
+            data[8] << Unit.where("date_dl_deliverables_ready between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+            data[9] << MasterFile.where("date_dl_ingest between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
+         end
+         #
+         #    # Year to Date Stats
+         #    data[0] << Order.where("date_request_submitted between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[1] << Order.where("date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[2] << Order.where("date_order_approved between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[3] << Order.where("date_deferred between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[4] << Order.where("date_canceled between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[5] << Unit.where("date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[6] << MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+         #    arch_size = MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").map(&:filesize).inject(:+)
+         #    if !arch_size.nil?
+         #       data[7] << ( arch_size / 1024000000 )
+         #    else
+         #       data[7] << 0
+         #    end
+         #    data[8] << Unit.where("date_dl_deliverables_ready between '#{year}-01-01' and '#{year}-12-31'").count
+         #    data[9] << MasterFile.where("date_dl_ingest between '#{year}-01-01' and '#{year}-12-31'").count
+         #
+         #    # AVG Stats
+         #    data[0] << data[0].last.to_i / query_month
+         #    data[1] << data[1].last.to_i / query_month
+         #    data[2] << data[2].last.to_i / query_month
+         #    data[3] << data[3].last.to_i / query_month
+         #    data[4] << data[4].last.to_i / query_month
+         #    data[5] << data[5].last.to_i / query_month
+         #    data[6] << data[6].last.to_i / query_month
+         #    data[7] << data[7].last.to_i / query_month
+         #    data[8] << data[8].last.to_i / query_month
+         #    data[9] << data[9].last.to_i / query_month
 
          return render_to_string(partial: "/admin/miscellaneous/annual_reports/orders",
             locals: {year: year, columns: columns, data: data} )
