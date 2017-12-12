@@ -13,6 +13,7 @@
 //= require bulk_dl_settings
 //= require workflows
 //= require workflow-reports
+//= require annual-reports
 //= require equipment
 //= require skills
 //= require metadata

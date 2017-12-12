@@ -8,7 +8,9 @@ namespace :coins do
    desc "Publish all to DL"
    task :publish => :environment do
       order = Order.find_by(order_title: COLLECTION_TITLE)
-      Metadata md = nil
+      abort("No order found") if order.nil?
+
+      md = nil
       order.units.first.update(include_in_dl: 1)
       order.units.first.master_files.each do |mf|
          # flag master file
@@ -20,6 +22,7 @@ namespace :coins do
 
          # flag metadata
          if mf.metadata != md
+            puts "Publish metadata #{mf.metadata.id}: #{mf.metadata.title}"
             md = mf.metadata
             if md.date_dl_ingest.blank?
                md.update(date_dl_ingest: Time.now)

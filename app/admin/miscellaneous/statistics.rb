@@ -4,26 +4,26 @@ ActiveAdmin.register_page "Statistics" do
    content do
       div :class => 'two-column' do
          panel "Image Statictics" do
-            render partial: 'statistics', locals: { stat_group: "image"}
-            render partial: 'image_query'
+            render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "image"}
+            render partial: '/admin/miscellaneous/statistics/image_query'
          end
          panel "Unit Statictics" do
-            render partial: 'statistics', locals: { stat_group: "unit"}
-            render partial: 'unit_query'
+            render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "unit"}
+            render partial: '/admin/miscellaneous/statistics/unit_query'
          end
          panel "Orders Processed Statictics" do
-            render partial: 'processed_query'
+            render partial: '/admin/miscellaneous/statistics/processed_query'
          end
       end
 
       div :class => 'two-column' do
          panel "Storage Statictics" do
-            render partial: 'statistics', locals: { stat_group: "size"}
-            render partial: 'size_query'
+            render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "size"}
+            render partial: '/admin/miscellaneous/statistics/size_query'
          end
          panel "Metadata Statictics" do
-            render partial: 'statistics', locals: { stat_group: "metadata"}
-            render partial: 'metadata_query'
+            render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "metadata"}
+            render partial: '/admin/miscellaneous/statistics/metadata_query'
          end
       end
    end
