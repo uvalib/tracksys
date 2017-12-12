@@ -8,6 +8,14 @@ ActiveAdmin.register_page "Annual Reports" do
    page_action :generate, method: :get do
       if params[:type] == "category"
          html = category_report(params[:year])
+      elsif params[:type] == "orders"
+         html = orders_report(params[:year])
+      elsif params[:type] == "agency_month"
+         html = agency_month(params[:year])
+      elsif params[:type] == "agency_year"
+         html = agency_year(params[:year])
+      elsif params[:type] == "current"
+         html = current_orders(params[:year])
       else
          render json: {success: false, message: "Invalid report type"}, status: :bad_request
          return
@@ -18,7 +26,6 @@ ActiveAdmin.register_page "Annual Reports" do
 
    controller do
       def category_report(year)
-         puts "CATEGORY #{year}"
          columns = [ 'Category', 'January', 'February', 'March', 'April', 'May', 'June', 'July',
             'August', 'September', 'October', 'November', 'December', '1st Quarter',
             '2nd Quarter', '3rd Quarter', '4th Quarter', 'Year-To-Date']
@@ -65,19 +72,28 @@ ActiveAdmin.register_page "Annual Reports" do
       end
 
       def orders_report(year)
-         puts "ORDERS"
+         columns = [ 'Statistic', 'January', 'February', 'March', 'April', 'May',
+            'June', 'July', 'August', 'September', 'October', 'November',
+            'December', 'Year-To-Date', 'Average per month']
+         data = []
+
+         return render_to_string(partial: "/admin/miscellaneous/annual_reports/orders",
+            locals: {year: year, columns: columns, data: data} )
       end
 
       def agency_month(year)
-         puts "MONTHLY AGENCY"
+         return render_to_string(partial: "/admin/miscellaneous/annual_reports/monthly_agency",
+            locals: {year: year} )
       end
 
       def agency_year(year)
-         puts "YEAR TO DATE AGENCY"
+         return render_to_string(partial: "/admin/miscellaneous/annual_reports/agency_year",
+            locals: {year: year} )
       end
 
       def current_orders(year)
-         puts "CURRENT ORDERS"
+         return render_to_string(partial: "/admin/miscellaneous/annual_reports/current",
+            locals: {today: Date.today, data: []} )
       end
    end
 end
