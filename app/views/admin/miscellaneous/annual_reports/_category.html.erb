@@ -24,8 +24,14 @@
 <div class="report-header">Orders Delivered <%= year %></div>
 <table>
    <tr>
+      <% first = true %>
       <% columns.each do |h| %>
-      <th><%= h %></th>
+         <% if first %>
+            <th class="left-border"><%= h %></th>
+            <% first = false %>
+         <% else %>
+            <th><%= h %></th>
+         <% end %>
       <% end %>
    </tr>
    <% delivered.each do |category, data| %>
