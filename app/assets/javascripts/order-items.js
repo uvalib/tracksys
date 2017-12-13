@@ -63,15 +63,18 @@ $(function() {
       $("#metadata_id").val("");
       $("#metadata_id").attr("disabled", "disabled");
       $("#lookup-metadata").addClass("disabled");
-      $("#metadata-title").text("Searching...");
+      $("#metadata-status").text("Searching...");
       $.getJSON("/api/metadata/search?q="+query, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             if ( data.length > 0 ) {
                var val = data[0];
                $("#metadata_id").val(val.id);
-               $("#metadata-title").text("Metadata Title: "+val.title);
+               $("#metadata-title").text(val.title);
+               $("#metadata-status").text("");
             } else {
-               $("#metadata-title").text("Automated metadata lookup was unsuccessful");
+               $("#metadata_id").val("");
+               $("#metadata-title").text("");
+               $("#metadata-status").text("Automated metadata lookup was unsuccessful");
             }
          }
          $("#metadata_id").removeAttr("disabled");
@@ -150,8 +153,8 @@ $(function() {
       var id = $("tr.selected").data("metadata-id");
       var title = $("tr.selected").data("full-title");
       $("#metadata_id").val(id);
-      $("#metadata-title").text("Metadata Title: "+title);
-
+      $("#metadata-title").text(title);
+      $("#metadata-status").text("");
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
    });
@@ -165,10 +168,12 @@ $(function() {
    $("form#create_metadata").bind('ajax:error', function(event, jqxhr){
       $("div.flash_type_error.sirsi").text(jqxhr.responseText);
       $("#ok-metadata-create").removeClass("disabled");
+      $("#metadata-status").text("Lookup error");
    });
    $("form#create_metadata").bind('ajax:success', function(event, resp) {
       var title = $("#title").val();
-      $("#metadata-title").text("Metadata Title: "+title);
+      $("#metadata-title").text(title);
+      $("#metadata-status").text("");
       $("#metadata_id").val(resp);
       $("#create-unit-panel").show();
       $("#metadata-builder").hide();

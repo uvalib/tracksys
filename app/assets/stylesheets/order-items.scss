@@ -76,11 +76,27 @@ body.active_admin #dimmer #create-unit-modal {
       font-style: italic;
       text-align: center;
    }
+   div.form-group.metadata {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+   }
+   #metadata-controls {
+      position: relative;
+      .buttons {
+         position: absolute;
+         right: 0;
+         bottom: 0;
+      }
+   }
    #metadata_id {
-      border: 1px solid #ccc;
+      color: #555;
       outline: none;
       box-shadow: none;
-      width:65%;
+      padding: 0;
+      margin: 0;
+   }
+   #metadata-title {
+      color: #555;
    }
    .form-group {
       margin-bottom: 10px;
@@ -109,11 +125,6 @@ body.active_admin #dimmer #create-unit-modal {
          background-color: #2e6da4;
       }
    }
-   #metadata-title {
-      margin: 5px 10px 15px 10px;
-      font-weight: 500;
-      color: #555;
-   }
    .btn.disabled {
       opacity: 0.5;
       cursor: default;
@@ -126,6 +137,12 @@ body.active_admin #dimmer #create-unit-modal {
          width: 100%;
          margin-bottom:5px;
       }
+   }
+   td.buttons, td.label {
+      text-align: right;
+   }
+   td.label {
+         width: 90px;
    }
    div.sirsi-info {
       table {

@@ -7,12 +7,24 @@
          <%= form_tag("/admin/items/convert", method: "post", remote: true, id: "convert_item") do %>
             <%= hidden_field_tag(:source_item_id, "" ) %>
             <%= hidden_field_tag(:order_id, "#{order.id}" ) %>
-            <div class="form-group">
-               <%= label_tag(:metadata_id, "Metadata ID") %>
-               <%= text_field_tag(:metadata_id, "", {readonly: "readonly"} ) %>
-               <span class="btn" id="lookup-metadata">Lookup</span>
-               <span class="btn" id="create-metadata">Create</span>
-               <p id="metadata-title"></p>
+            <div class="form-group metadata">
+               <table>
+                  <tr>
+                     <td class="label"><label>Metadata ID:</label></td>
+                     <td><%= text_field_tag(:metadata_id, "", {readonly: "readonly"} ) %></td>
+                  </tr>
+                  <tr>
+                     <td class="label">Metadata Title:</td>
+                     <td><span id="metadata-title"></span></td>
+                  </tr>
+               </table>
+               <div id="metadata-controls">
+                  <span id="metadata-status"></span>
+                  <span class="buttons">
+                     <span class="btn" id="lookup-metadata">Manual Lookup</span>
+                     <span class="btn" id="create-metadata">Create</span>
+                  </span>
+               </div>
             </div>
             <div class="form-group">
                <%= label_tag(:intended_use_id, "Intended Use") %>

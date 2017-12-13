@@ -86,6 +86,13 @@ ActiveAdmin.register_page "Annual Reports" do
             'June', 'July', 'August', 'September', 'October', 'November',
             'December', 'Year-to-Date', 'Monthly Average']
 
+         today = Date.today
+         if year.to_s == today.year.to_s
+            query_month = today.month
+         else
+            query_month = 12
+         end
+
          # define table with 9 arrays, one for each row in the work book. Start each row with a name.
          # the remaining data will be filled in below...
          data = [
