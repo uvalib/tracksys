@@ -1,3 +1,27 @@
 <div class="report-header">Total Orders by Agency - Year-to-Date (<%= year %>) </div>
 <table>
+   <tr>
+      <% first = true %>
+      <% columns.each do |h| %>
+         <% if first %>
+            <th class="left-border"><%= h %></th>
+            <% first = false %>
+         <% else %>
+            <th><%= h %></th>
+         <% end %>
+      <% end %>
+   </tr>
+   <% data.each do |row| %>
+      <tr>
+         <% first = true %>
+         <% row.each do |val| %>
+            <% if first %>
+               <td class="left-border"><%= val %></td>
+               <% first = false %>
+            <% else %>
+               <td><%= val %></td>
+            <% end %>
+         <% end %>
+      </tr>
+   <% end %>
 </table>

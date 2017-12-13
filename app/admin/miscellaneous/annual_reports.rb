@@ -185,8 +185,35 @@ ActiveAdmin.register_page "Annual Reports" do
       end
 
       def agency_year(year)
+         columns = [
+            'Agencies', 'Orders in Process', 'Orders Submitted', 'Orders Deferred',
+            'Orders Approved', 'Orders Canceled', 'Orders Archived', 'Orders Delivered',
+            'Units Delivered', 'Master Files Delivered', 'Units Archived', 'Master Files Archived' ]
+
+         data = []
+         Agency.order(:name).each do |agency|
+            r = [agency.name]
+            r << agency.orders.in_process.count
+            r << agency.orders.where("date_request_submitted between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.orders.where("date_deferred between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.orders.where("date_order_approved between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.orders.where("date_canceled between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.orders.where("date_archiving_complete between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.orders.where("date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.units.joins(:order).where("`orders`.date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.master_files.joins(:order).where("`orders`.date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.units.where("date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+            r << agency.master_files.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+            sum = 0
+            r.each { |v| sum+=v if v.is_a? Integer }
+
+            if sum > 0
+               data << r
+            end
+         end
+
          return render_to_string(partial: "/admin/miscellaneous/annual_reports/agency_year",
-            locals: {year: year} )
+            locals: {year: year, columns: columns, data: data} )
       end
 
       def current_orders
