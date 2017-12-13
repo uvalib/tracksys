@@ -1,7 +1,9 @@
 <div class="report-header">Current Orders as of <%= today %></div>
-<% data.each do |key, val| %>
-   <div class="summary">
-      <label><%= key %>:</label>
-      <span><%= val %></span>
-   </div>
-<% end %>
+<div id="summary-report">
+   <% data.each do |key, val| %>
+      <div class="summary">
+         <label><%= key %>:</label>
+         <span><%= val %></span>
+      </div>
+   <% end %>
+</div>

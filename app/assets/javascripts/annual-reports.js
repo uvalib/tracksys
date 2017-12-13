@@ -17,4 +17,14 @@ $(function() {
    $("#generate-annual-report").on("click", function() {
       requestAnnualReport();
    });
+
+   $("#report-type").on("change", function() {
+      if ( $(this).val() === "current") {
+         $("#report-year").attr("disabled", "disabled");
+         $("#report-year").val("");
+      } else {
+         $("#report-year").removeAttr("disabled");
+         $("#report-year").val((new Date()).getFullYear());
+      }
+   });
 });

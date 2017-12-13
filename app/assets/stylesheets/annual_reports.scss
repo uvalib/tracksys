@@ -9,6 +9,18 @@
          padding: 5px 20px;
       }
    }
+   #summary-report {
+      margin:15px;
+   }
+
+   div.month-header {
+      font-size: 1.1em;
+      padding: 4px 10px;
+      background: #f0f0f0;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid #ccc;
+   }
 
    div.generating-report {
       font-size: 2em;
