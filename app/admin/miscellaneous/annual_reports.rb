@@ -113,35 +113,35 @@ ActiveAdmin.register_page "Annual Reports" do
             data[8] << Unit.where("date_dl_deliverables_ready between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
             data[9] << MasterFile.where("date_dl_ingest between '#{year}-#{i}-01' and '#{year}-#{i}-31'").count
          end
-         #
-         #    # Year to Date Stats
-         #    data[0] << Order.where("date_request_submitted between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[1] << Order.where("date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[2] << Order.where("date_order_approved between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[3] << Order.where("date_deferred between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[4] << Order.where("date_canceled between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[5] << Unit.where("date_archived between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[6] << MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").count
-         #    arch_size = MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").map(&:filesize).inject(:+)
-         #    if !arch_size.nil?
-         #       data[7] << ( arch_size / 1024000000 )
-         #    else
-         #       data[7] << 0
-         #    end
-         #    data[8] << Unit.where("date_dl_deliverables_ready between '#{year}-01-01' and '#{year}-12-31'").count
-         #    data[9] << MasterFile.where("date_dl_ingest between '#{year}-01-01' and '#{year}-12-31'").count
-         #
-         #    # AVG Stats
-         #    data[0] << data[0].last.to_i / query_month
-         #    data[1] << data[1].last.to_i / query_month
-         #    data[2] << data[2].last.to_i / query_month
-         #    data[3] << data[3].last.to_i / query_month
-         #    data[4] << data[4].last.to_i / query_month
-         #    data[5] << data[5].last.to_i / query_month
-         #    data[6] << data[6].last.to_i / query_month
-         #    data[7] << data[7].last.to_i / query_month
-         #    data[8] << data[8].last.to_i / query_month
-         #    data[9] << data[9].last.to_i / query_month
+
+         # Year to Date Stats
+         data[0] << Order.where("date_request_submitted between '#{year}-01-01' and '#{year}-12-31'").count
+         data[1] << Order.where("date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
+         data[2] << Order.where("date_order_approved between '#{year}-01-01' and '#{year}-12-31'").count
+         data[3] << Order.where("date_deferred between '#{year}-01-01' and '#{year}-12-31'").count
+         data[4] << Order.where("date_canceled between '#{year}-01-01' and '#{year}-12-31'").count
+         data[5] << Unit.where("date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+         data[6] << MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").count
+         arch_size = MasterFile.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").map(&:filesize).inject(:+)
+         if !arch_size.nil?
+            data[7] << ( arch_size / 1024000000 )
+         else
+            data[7] << 0
+         end
+         data[8] << Unit.where("date_dl_deliverables_ready between '#{year}-01-01' and '#{year}-12-31'").count
+         data[9] << MasterFile.where("date_dl_ingest between '#{year}-01-01' and '#{year}-12-31'").count
+
+         # AVG Stats
+         data[0] << data[0].last.to_i / query_month
+         data[1] << data[1].last.to_i / query_month
+         data[2] << data[2].last.to_i / query_month
+         data[3] << data[3].last.to_i / query_month
+         data[4] << data[4].last.to_i / query_month
+         data[5] << data[5].last.to_i / query_month
+         data[6] << data[6].last.to_i / query_month
+         data[7] << data[7].last.to_i / query_month
+         data[8] << data[8].last.to_i / query_month
+         data[9] << data[9].last.to_i / query_month
 
          return render_to_string(partial: "/admin/miscellaneous/annual_reports/orders",
             locals: {year: year, columns: columns, data: data} )
