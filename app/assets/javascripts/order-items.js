@@ -168,10 +168,10 @@ $(function() {
       var id = tr.data("metadata-id");
       var title = tr.data("full-title");
       $("#metadata_id").val(id);
-      $("#metadata-title").text(title);
+      $("#metadata-title").text(title.substring(0,255)+"...");
       $("#metadata-status").text("");
       $("#metadata-pid").text( tr.find("td:first-child").text() );
-      $("#metadata-call-number").text( tr.find("td:nth-child(2)").text() );
+      $("#metadata-call-number").text( tr.find("td:nth-child(3)").text() );
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
    });
