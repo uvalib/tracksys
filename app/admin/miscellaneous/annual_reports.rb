@@ -197,30 +197,44 @@ ActiveAdmin.register_page "Annual Reports" do
             'Orders Approved', 'Orders Canceled', 'Orders Archived', 'Orders Delivered',
             'Units Delivered', 'Master Files Delivered', 'Units Archived', 'Master Files Archived' ]
 
-         data = []
-         Agency.order(:name).each do |agency|
-            r = [agency.name]
-            r << agency.orders.in_process.count
-            r << agency.orders.where("date_request_submitted between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.orders.where("date_deferred between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.orders.where("date_order_approved between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.orders.where("date_canceled between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.orders.where("date_archiving_complete between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.orders.where("date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.units.joins(:order).where("`orders`.date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.master_files.joins(:order).where("`orders`.date_customer_notified between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.units.where("date_archived between '#{year}-01-01' and '#{year}-12-31'").count
-            r << agency.master_files.where("`master_files`.date_archived between '#{year}-01-01' and '#{year}-12-31'").count
-            sum = 0
-            r.each { |v| sum+=v if v.is_a? Integer }
+         d0 = "#{year}-01-01"
+         d1 = "#{year}-12-31"
+         q = []
+         dates = [
+            "date_request_submitted", "date_deferred", "date_order_approved",
+            "date_archiving_complete", "date_customer_notified"]
+         dates.each do |d|
+            q << "(cast(#{d} as date) between '#{d0}' and '#{d1}')"
+         end
+         q << "order_status = 'approved'"
+         out = {}
+         Order.joins(:agency).where( q.join(" or ")).each do |o|
+            if !out.has_key? o.agency.name
+               out[o.agency.name] = [0,0,0,0,0,0,0,0,0,0,0]
+               out[o.agency.name][9] = o.agency.units.where("date_archived between '#{d0}' and '#{d1}'").count
+               out[o.agency.name][10] = o.agency.master_files.where("master_files.date_archived between '#{d0}' and '#{d1}'").count
+            end
 
-            if sum > 0
-               data << r
+            out[o.agency.name][0] += 1 if o.order_status == 'approved'
+            out[o.agency.name][1] += 1 if in_range(o.date_request_submitted, d0, d1)
+            out[o.agency.name][2] += 1 if in_range(o.date_deferred, d0, d1)
+            out[o.agency.name][3] += 1 if in_range(o.date_order_approved, d0, d1)
+            out[o.agency.name][4] += 1 if in_range(o.date_canceled, d0, d1)
+            out[o.agency.name][5] += 1 if in_range(o.date_archiving_complete, d0, d1)
+            if in_range(o.date_customer_notified, d0, d1)
+               out[o.agency.name][6] += 1
+               out[o.agency.name][7] += o.units.count
+               out[o.agency.name][8] += o.master_files.count
             end
          end
 
          return render_to_string(partial: "/admin/miscellaneous/annual_reports/agency_year",
-            locals: {year: year, columns: columns, data: data} )
+            locals: {year: year, columns: columns, data: out} )
+      end
+
+      def in_range(date, d0, d1)
+         return false if date.nil?
+         return date.strftime("%F") >= d0 && date.strftime("%F") <= d1
       end
 
       def current_orders

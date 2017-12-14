@@ -11,16 +11,11 @@
          <% end %>
       <% end %>
    </tr>
-   <% data.each do |row| %>
+   <% data.each do |agency,row| %>
       <tr>
-         <% first = true %>
+         <td class="left-border"><%= agency %></td>
          <% row.each do |val| %>
-            <% if first %>
-               <td class="left-border"><%= val %></td>
-               <% first = false %>
-            <% else %>
-               <td><%= val %></td>
-            <% end %>
+            <td><%= val %></td>
          <% end %>
       </tr>
    <% end %>
