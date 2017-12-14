@@ -40,7 +40,7 @@ class Api::MetadataController < ApplicationController
          bc = "N/A" if bc.nil?
          cn = h.call_number
          cn = "N/A" if cn.nil?
-         out << {id: h.id, pid: h.pid, title: truncate(h.title, length: 35, separator: ' '),
+         out << {id: h.id, pid: h.pid, title: truncate(h.title, length: 50, separator: ' '),
             barcode: bc, call_number: cn, full: h.title}
       end
       render json: out

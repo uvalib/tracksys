@@ -70,6 +70,13 @@ body.active_admin #dimmer #create-unit-modal {
    display: block;
    width:550px;
    margin: 15px auto;
+   h4 {
+      font-size: 1.1em;
+      font-weight: 500;
+      padding: 0 0 4px 0;
+      margin: 0 0 10px 0;
+      border-bottom: 1px solid #ccc;
+   }
    div.flash_type_error {
       color: #922;
       font-weight: bold;
@@ -79,6 +86,12 @@ body.active_admin #dimmer #create-unit-modal {
    div.form-group.metadata {
       padding-bottom: 20px;
       border-bottom: 1px solid #ccc;
+      table td {
+         padding: 0 10px 0 0;
+      }
+      table td.label {
+         font-weight: 500;
+      }
    }
    #metadata-controls {
       position: relative;

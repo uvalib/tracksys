@@ -31,7 +31,6 @@ gem 'net-ldap'
 gem 'country-select'
 
 gem 'jquery-rails'
-gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'
 gem "chosen-rails"
 

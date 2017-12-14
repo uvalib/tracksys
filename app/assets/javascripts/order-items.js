@@ -60,22 +60,28 @@ $(function() {
       $("#special_instructions").val(si);
 
       // ajax call to lookup metadata by callnumber or title
-      $("#metadata_id").val("");
-      $("#metadata_id").attr("disabled", "disabled");
       $("#lookup-metadata").addClass("disabled");
       $("#metadata-status").text("Searching...");
+      $("#metadata_id").val("");
+      $("#metadata-pid").text("");
+      $("#metadata-call-number").text("");
+      $("#metadata-title").text("");
       $.getJSON("/api/metadata/search?q="+query, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
-            if ( data.length > 0 ) {
+            if ( data.length === 0 ) {
+               $("#metadata-status").text("Automated metadata lookup was unsuccessful");
+            } else if ( data.length === 1 ) {
                var val = data[0];
                $("#metadata_id").val(val.id);
+               $("#metadata-pid").text(val.pid);
+               $("#metadata-call-number").text(val.call_number);
                $("#metadata-title").text(val.title);
                $("#metadata-status").text("");
             } else {
-               $("#metadata_id").val("");
-               $("#metadata-title").text("");
-               $("#metadata-status").text("Automated metadata lookup was unsuccessful");
+               $("#metadata-status").text("Automated metadata lookup found multiple matches");
             }
+         } else {
+            $("#metadata-status").text("Automated metadata lookup error");
          }
          $("#metadata_id").removeAttr("disabled");
          $("#lookup-metadata").removeClass("disabled");
@@ -87,6 +93,14 @@ $(function() {
    });
 
    $("#lookup-metadata").on("click", function() {
+      var q = "";
+      $.each($("#special_instructions").val().split("\n"), function(idx,val) {
+         if (val.indexOf("Title:") > -1 || val.indexOf("Call Number:") > -1 ) {
+            q = val.split(":")[1].trim();
+         }
+      });
+
+      $("#search-text").val(q);
       $("#create-unit-panel").hide();
       $("#metadata-finder").show();
    });
@@ -150,11 +164,14 @@ $(function() {
          return;
       }
 
-      var id = $("tr.selected").data("metadata-id");
-      var title = $("tr.selected").data("full-title");
+      var tr = $("tr.selected");
+      var id = tr.data("metadata-id");
+      var title = tr.data("full-title");
       $("#metadata_id").val(id);
       $("#metadata-title").text(title);
       $("#metadata-status").text("");
+      $("#metadata-pid").text( tr.find("td:first-child").text() );
+      $("#metadata-call-number").text( tr.find("td:nth-child(2)").text() );
       $("#create-unit-panel").show();
       $("#metadata-finder").hide();
    });
