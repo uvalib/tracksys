@@ -105,6 +105,9 @@ $(function() {
       });
 
       $("#search-text").val(q);
+      if (q.length > 0  ) {
+         $(".metadata-finder.find").trigger("click");
+      }
       $("#create-unit-panel").hide();
       $("#metadata-finder").show();
    });
