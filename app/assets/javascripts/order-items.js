@@ -75,7 +75,11 @@ $(function() {
                $("#metadata_id").val(val.id);
                $("#metadata-pid").text(val.pid);
                $("#metadata-call-number").text(val.call_number);
-               $("#metadata-title").text(val.title);
+               var title = val.full;
+               if ( title.length > 255 ) {
+                  title = title.substring(0,255)+"...";
+               }
+               $("#metadata-title").text( title );
                $("#metadata-status").text("");
             } else {
                $("#metadata-status").text("Automated metadata lookup found multiple matches");
@@ -137,9 +141,9 @@ $(function() {
                   return;
                }
                $("#call_number").val(md.call_number);
-               var title = md.full;
+               var title = md.title;
                if ( title.length > 50) {
-                  title = title.substr(0,255)+"...";
+                  title = title.substr(0,50)+"...";
                }
                $("#title").val(title);
                $("#catalog_key").val(md.catalog_key);
@@ -167,8 +171,11 @@ $(function() {
       var tr = $("tr.selected");
       var id = tr.data("metadata-id");
       var title = tr.data("full-title");
+      if ( title.length > 255 ) {
+         title = title.substring(0,255)+"...";
+      }
       $("#metadata_id").val(id);
-      $("#metadata-title").text(title.substring(0,255)+"...");
+      $("#metadata-title").text(title);
       $("#metadata-status").text("");
       $("#metadata-pid").text( tr.find("td:first-child").text() );
       $("#metadata-call-number").text( tr.find("td:nth-child(3)").text() );
