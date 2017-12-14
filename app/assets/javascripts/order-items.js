@@ -137,9 +137,9 @@ $(function() {
                   return;
                }
                $("#call_number").val(md.call_number);
-               var title = md.title;
+               var title = md.full;
                if ( title.length > 50) {
-                  title = title.substr(0,50)+"...";
+                  title = title.substr(0,255)+"...";
                }
                $("#title").val(title);
                $("#catalog_key").val(md.catalog_key);
