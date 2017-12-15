@@ -1,0 +1,10 @@
+<% if !@errors.blank? %>
+   <div class="flash flash_type_error" role="region" aria-live="alert">
+      <p>The following errors have occured:</p>
+      <ul>
+         <% @errors.full_messages.each do |msg| %>
+         <li><%= msg %></li>
+         <% end %>
+      </ul>
+   </div>
+<% end %>

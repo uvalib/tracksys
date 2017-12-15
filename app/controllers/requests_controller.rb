@@ -84,7 +84,17 @@ class RequestsController < ApplicationController
             return
          end
       else
-         customer.update!(last_name: params[:last_name], first_name: params[:first_name], academic_status_id: params[:academic_status_id])
+         if !customer.update(last_name: params[:last_name], first_name: params[:first_name], academic_status_id: params[:academic_status_id])
+            @errors = customer.errors
+            @customer =  Customer.new(
+               email: params[:email],
+               first_name: params[:first_name],
+               last_name: params[:last_name],
+               academic_status_id: params[:academic_status_id]
+            )
+            render :customer_step
+            return
+         end
       end
 
       redirect_to controller: 'requests', action: 'address_step', customer_id: customer.id, type: "primary"

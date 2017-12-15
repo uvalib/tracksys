@@ -16,8 +16,8 @@
       <%= render partial: "order_item", locals: {mode: :add} %>
       <div class="items form-actions">
          <a href="/" class='btn btn-primary'>Cancel</a>
-         <span id="request-next" class='btn btn-primary'>Next</span>
-         <span id="request-add" class='btn btn-success' style="display: none">Add Item</span>
-         <span id="request-complete" class='btn btn-primary' style="display: none">Complete Order</span>
+         <span id="request-next" class='btn btn-primary' tabindex=0>Next</span>
+         <span id="request-add" class='btn btn-success' style="display: none" tabindex=0>Add Item</span>
+         <span id="request-complete" class='btn btn-primary' style="display: none" tabindex=0>Complete Order</span>
       </div>
    </div>

@@ -3,16 +3,8 @@
       <span>Digital Production Group Request</span>
       <span class="step-info">Section 1 of 4</span>
    </div>
-   <% if !@errors.blank? %>
-      <div class="flash flash_type_error">
-         <p>The following errors have occured:</p>
-         <ul>
-            <% @errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-            <% end %>
-         </ul>
-      </div>
-   <% end %>
+
+   <%= render partial: "step_errors" %>
 
    <div class="request-step">
       <%= form_tag("/requests/customer", method: "post") do %>
