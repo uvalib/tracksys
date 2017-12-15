@@ -1,3 +1,7 @@
+#skipToMenu {
+   left: 5px;
+   top: 5px;
+}
 #main #content {
    .container-fluid {
       div.step-header {
@@ -92,6 +96,13 @@
          border: 0;
          text-align: right;
          font-weight: 500;
+      }
+      legend.billing-question {
+         font-size: 14px;
+         text-align: left;
+         font-weight: 700;
+         padding: 0;
+         margin: 0;
       }
       form {
          width: 50%;
