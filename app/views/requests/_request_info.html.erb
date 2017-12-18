@@ -3,31 +3,31 @@
       <legend class="form">General Request Information</legend>
 
       <div class="form-group">
-         <%= label_tag(:date_due, "Date Due") %>
-         <p class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
+         <label for="date_due" id="due-label">Date Due</label>
+         <p id="due-help" class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
             <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
          </p>
-         <%= text_field_tag(:date_due, "", {class: "form-control", id: 'datepicker'} ) %>
+         <%= text_field_tag(:date_due, "", {class: "form-control", id: 'datepicker', "aria-labeledby": "due-label due-help"} ) %>
       </div>
 
       <div class="form-group">
-         <%= label_tag(:special_instructions, "Special Instructions") %>
-         <p class="help-block">
+         <label for="special_instructions" id="si-label">Special Instructions</label>
+         <p class="help-block" id="si-help">
             Include any additional information required to fulfill this request.
          </p>
-         <%= text_area_tag(:special_instructions, "", {class: "form-control"} ) %>
+         <%= text_area_tag(:special_instructions, "", {class: "form-control", "aria-labeledby": "si-label si-help"} ) %>
       </div>
 
       <div class="form-group">
-         <%= label_tag(:intended_use_id, "How do you intend to use items in this order?") %>
-         <p class="help-block">
+         <label for="intended_use_id" id="use-label">How do you intend to use items in this order?</label>
+         <p class="help-block" id="use-help">
             (Note: This helps us determine a digital format and watermark appropriate to your ultimate intended use.
             We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
             apply to use for purposes other than private study, scholarship, or research.
             Please see our <a href="https://small.library.virginia.edu/services/publishing/">Permissions and Publishing</a> page for more information.)
          </p>
          <%= select_tag(:intended_use_id, options_from_collection_for_select(IntendedUse.external_use, :id, :name, nil),
-            {class: "form-control", prompt: "Select an intended use"} ) %>
+            {class: "form-control", prompt: "Select an intended use", "aria-labeledby": "use-label use-help"} ) %>
 
          <!-- Notes about copyright and watermarks. These appear based on selection of intended use above -->
          <div id="intended-use-watermarked-jpg" class="intended-use-info" style="display: none;" tabindex=0 >
