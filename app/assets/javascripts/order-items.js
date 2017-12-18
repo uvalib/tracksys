@@ -26,6 +26,13 @@ $(function() {
 
    $(".btn.create-unit").on("click", function() {
       $("#dimmer").show();
+
+      // clear any prior data from fields
+      $("span.metadata-display").text("");
+      $("#metadata-status").text("");
+      $("#create-unit-panel textarea").val("");
+      $("#create-unit-panel input[type=checkbox]").prop("checked", false);
+
       var itemDiv = $(this).closest(".order-item");
       var itemId = itemDiv.data("item-id");
 
