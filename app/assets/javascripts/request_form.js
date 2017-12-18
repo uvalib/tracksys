@@ -5,7 +5,9 @@ $(document).ready(function () {
       daysOfWeekDisabled: "0,6",
       title: "Select Due Date",
       format: "yyyy-mm-dd",
-      orientation: "bottom"
+      orientation: "bottom",
+      forceParse: false,
+      autoclose: true
    });
 
    /**
@@ -133,6 +135,14 @@ $(document).ready(function () {
    $("#request-complete").on("click", function() {
       if (validateItem(-1) === false) return;
       $("#order-form").submit();
+   });
+
+   // prevent enter key from submitting form when datepicker has focus
+   $("#datepicker").keydown(function(event){
+      if(event.keyCode == 13) {
+         event.preventDefault();
+         return false;
+      }
    });
 
    $("#submit-order").on("click", function() {

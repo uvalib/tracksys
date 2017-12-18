@@ -3,11 +3,12 @@
       <legend class="form">General Request Information</legend>
 
       <div class="form-group">
-         <label for="date_due" id="due-label">Date Due</label>
+         <label for="date_due" id="due-label">Date Due (required)</label>
          <p id="due-help" class="help-block">Normal delivery time is 4 weeks from today. We make every effort to honor earlier delivery if requested, but we cannot guarantee it.
             <span class="important">Starting mid-November through mid-January additional turnaround time is required due to the holiday season.</span>
          </p>
-         <%= text_field_tag(:date_due, "", {class: "form-control", id: 'datepicker', "aria-labeledby": "due-label due-help"} ) %>
+         <%= text_field_tag(:date_due, "",
+               {class: "form-control", id: 'datepicker', "aria-labeledby": "due-label due-help", placeholder:"YYYY-MM-DD"} ) %>
       </div>
 
       <div class="form-group">
@@ -19,7 +20,7 @@
       </div>
 
       <div class="form-group">
-         <label for="intended_use_id" id="use-label">How do you intend to use items in this order?</label>
+         <label for="intended_use_id" id="use-label">How do you intend to use items in this order? (required)</label>
          <p class="help-block" id="use-help">
             (Note: This helps us determine a digital format and watermark appropriate to your ultimate intended use.
             We do not grant permissions for specific uses, nor offer legal advice. Copyright and other legal restrictions may
