@@ -13,6 +13,7 @@ Tracksys::Application.routes.draw do
       post 'address' => "requests#address_update"
       get 'request' => "requests#request_step"
       post 'review' => "requests#review_step"
+      post 'add_item' => "requests#add_item"
       post 'submit' => "requests#submit"
     end
   end

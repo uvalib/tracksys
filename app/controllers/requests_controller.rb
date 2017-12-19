@@ -156,6 +156,28 @@ class RequestsController < ApplicationController
       @intended_use = IntendedUse.find(params[:intended_use_id])
    end
 
+   # POST to validate addition of an item to an order. Returns JSON with an HTML
+   # snippet of the item for a review screen
+   #
+   def add_item
+      item = params[:item]
+      if item['title'].blank?
+         render json: { success: false, message: "Title is required"}, status: :bad_request
+         return
+      end
+      if item['pages'].blank?
+         render json: { success: false, message: "Image or page numbers are required"}, status: :bad_request
+         return
+      end
+
+      oi = OrderItem.new( title: item["title"], pages: item["pages"],
+         call_number: item["callNumber"], author: item["author"], year: item["year"],
+         location: item["location:"], description: item["description"],
+         source_url: item["sourceUrl"] )
+      html = render_to_string partial: "review_item", locals: {item: oi, idx: params['index'].to_i }
+      render json: {success: true, html: html}
+   end
+
    # Last step of order wizard complete and submit clicked. Create the order and items
    #
    def create

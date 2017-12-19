@@ -1,4 +1,4 @@
-<div class="container-fluid" role="main">
+<div class="container-fluid">
    <div class="step-header">
       <span>Digital Production Group Request</span>
       <span class="step-info">Section 4 of 4</span>
@@ -30,23 +30,7 @@
          <div class="review">
             <h3>Item Information</h3>
             <% @items.each_with_index do |item,idx| %>
-               <div class="item-review" data-item-idx="<%= idx %>">
-                  <h4><span>Item #<%= idx + 1 %></span>
-                     <span class="ctls">
-                        <span class="action edit">Edit</span>
-                        <span class="sep">|</span>
-                        <span class="action delete">Delete</span>
-                     </span>
-                  </h4>
-                  <div><label>Title:</label><span class="item-title"><%= item['title'] %></span></div>
-                  <div><label>Pages:</label><span class="item-pages"><%= item['pages'] %></span></div>
-                  <div><label>Call Number:</label><span class="item-call-number"><%= item['callNumber'] %></span></div>
-                  <div><label>Author:</label><span class="item-author"><%= item['author'] %></span></div>
-                  <div><label>Year Published:</label><span class="item-year"><%= item['year'] %></span></div>
-                  <div><label>Location:</label><span class="item-location"><%= item['location'] %></span></div>
-                  <div><label>Web Link:</label><span class="source-url"><%= item['sourceUrl'] %></span></div>
-                  <div><label>Additional Info:</label><span class="special-instructions"><%= item['description'] %></span></div>
-               </div>
+                  <%= render partial: "review_item", locals: {idx: idx, item: item} %>
             <% end %>
          </div>
       <% end %>
@@ -55,7 +39,9 @@
 
       <div class="items form-actions">
          <a href="/" class='btn btn-primary' id="cancel-order">Cancel</a>
-         <span id="cancel-update" class='btn btn-primary' style="display: none">Cancel</span>
+         <span id="cancel-update" data-mode="update" class='btn btn-primary' style="display: none">Cancel</span>
+         <span id="review-add-item" class='btn btn-success' tabindex=0>Add Item</span>
+         <span id="create-item" data-item-idx="0" class='btn btn-primary' style="display: none">Add</span>
          <span id="update-item" data-item-idx="0" class='btn btn-primary' style="display: none">Update</span>
          <span id="submit-order" class='btn btn-primary'>Submit Order</span>
       </div>

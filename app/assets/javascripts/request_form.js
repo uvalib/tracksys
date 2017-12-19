@@ -70,17 +70,21 @@ $(document).ready(function () {
     * and return true. If non-negative index is passed, this is an edit to an
     * existing item. In this case, replace the item at the specified array index.
     */
-   var validateItem = function(index) {
-      var item = {
-         title: $("#request_title").val(),
-         pages: $("#request_pages_to_digitize").val(),
-         callNumber:  $("#request_call_number").val(),
-         author:  $("#request_author").val(),
-         year:  $("#request_year").val(),
-         location:  $("#request_location").val(),
-         sourceUrl:  $("#request_source_url").val(),
-         description:  $("#request_description").val()
+   var getItemData = function() {
+      return {
+          title: $("#request_title").val(),
+          pages: $("#request_pages_to_digitize").val(),
+          callNumber:  $("#request_call_number").val(),
+          author:  $("#request_author").val(),
+          year:  $("#request_year").val(),
+          location:  $("#request_location").val(),
+          sourceUrl:  $("#request_source_url").val(),
+          description:  $("#request_description").val()
       };
+   };
+
+   var validateItem = function(index) {
+      item = getItemData();
       if ( item.title.length === 0 ) {
          $("div.request-error").text("Title is required");
          $("div.request-error").show();
@@ -116,6 +120,46 @@ $(document).ready(function () {
       return true;
    };
 
+   // For adding new items from the review screen...
+   $("#create-item").on("click", function() {
+      var items = JSON.parse($("#order_items").val());
+      var item = getItemData();
+      $.ajax({
+         url: "/requests/add_item",
+         method: "POST",
+         data: { item: item, index:  items.length },
+         complete: function(jqXHR, textStatus) {
+            if (textStatus == "success") {
+               items.push(item);
+               $(jqXHR.responseJSON.html).insertAfter($("div.review .item-review").last());
+               toggleItemUpdate(false);
+               $("#order_items").val( JSON.stringify(items) );
+            } else {
+               $("div.request-error").text(jqXHR.responseJSON.message);
+               $("div.request-error").show();
+            }
+         }
+      });
+   });
+
+   // For viewing the add/update item from the review screen
+   $("#review-add-item").on("click", function() {
+      var items = JSON.parse($("#order_items").val());
+      $("#item-number").text(items.length+1);
+      $("#request_title").val("");
+      $("#request_pages_to_digitize").val("");
+      $("#request_call_number").val("");
+      $("#request_author").val("");
+      $("#request_year").val("");
+      $("#request_location").val("");
+      $("#request_source_url").val("");
+      $("#request_description").val("");
+      $("#request_title").focus();
+
+      $("#cancel-update").data("mode", "add");
+      toggleItemUpdate(true);
+   });
+
    $("#request-add").on("click", function() {
       if (validateItem(-1) === false) return;
       var num = parseInt($("#item-number").text(), 10);
@@ -149,8 +193,9 @@ $(document).ready(function () {
       $("#order-review").submit();
    });
 
-   var toggleItemUpdate = function( update ) {
-      if ( update ) {
+   var toggleItemUpdate = function( show ) {
+      var mode = $("#cancel-update").data("mode");
+      if ( show ) {
          // show item fields / buttons
          $("#update-item").show();
          $("#order-item").show();
@@ -160,17 +205,26 @@ $(document).ready(function () {
          $("#order-review").hide();
          $("#cancel-order").hide();
          $("#submit-order").hide();
+         $("#review-add-item").hide();
+
+         if ( mode === "add") {
+            $("#create-item").show();
+            $("#update-item").hide();
+         }
       } else {
          $("#update-item").hide();
          $("#order-item").hide();
          $("#cancel-update").hide();
+         $("#create-item").hide();
+         $("#hide-item").show();
          $("#order-review").show();
          $("#cancel-order").show();
          $("#submit-order").show();
+         $("#review-add-item").show();
       }
    };
 
-   $(".item-review .action.edit").on("click", function() {
+   $("div.review").on("click", ".action.edit", function() {
       var itemIndex = $(this).closest(".item-review").data("item-idx");
       $("#update-item").data("item-idx", itemIndex);
       var items = JSON.parse($("#order_items").val());
@@ -186,7 +240,8 @@ $(document).ready(function () {
       $("#request_source_url").val(item.sourceUrl);
       $("#request_description").val(item.description);
 
-      // show it...
+      // show it (in update mode)...
+      $("#cancel-update").data("mode", "update");
       toggleItemUpdate(true);
    });
 
@@ -199,7 +254,7 @@ $(document).ready(function () {
       toggleItemUpdate(false);
    });
 
-   $(".item-review .action.delete").on("click", function() {
+   $("div.review").on("click", ".action.delete", function() {
       var itemIndex = $(this).closest(".item-review").data("item-idx");
       var items = JSON.parse($("#order_items").val());
       if (items.length === 1) {
