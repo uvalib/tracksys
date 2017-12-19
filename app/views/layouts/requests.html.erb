@@ -14,7 +14,7 @@
   <script type="text/javascript">var access_analytics={base_url:"https://analytics.ssbbartgroup.com/api/",instance_id:"AA-58bdcc11cee35"};(function(a,b,c){var d=a.createElement(b);a=a.getElementsByTagName(b)[0];d.src=c.base_url+"access.js?o="+c.instance_id+"&v=2";a.parentNode.insertBefore(d,a)})(document,"script",access_analytics);</script>
 </head>
 <body>
-   <header>
+   <header role="banner">
       <a href="http://www.lib.virginia.edu/"><img src="http://www.library.virginia.edu/wp-content/themes/libweb/img/liblogo.png"/></a>
       <form role="search" id="search" method="get" action="http://search.lib.virginia.edu/catalog">
          <input type="text" value="" placeholder="Search Virgo for books, articles, digital materials, and more." name="q" id="SI" class="search-home">
@@ -36,7 +36,7 @@
    </header>
 
    <div id="main">
-     <div id="content">
+     <div id="content" role="main">
          <%= yield %>
      </div>
   </div>
@@ -48,7 +48,7 @@
         </div>
      </div>
 
-    <footer id="content-info">
+    <footer id="content-info" role="contentinfo">
       <div class="address">
          <a href="http://www.library.virginia.edu/">University of Virginia Library</a><br>
          PO Box 400113, Charlottesville, VA 22904-4113<br>

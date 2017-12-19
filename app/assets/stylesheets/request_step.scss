@@ -40,14 +40,17 @@
       min-height: 550px;
 
       div.review {
+         padding-bottom:10px;
          h4 {
+            color: #66a;
             position: relative;
-            border-bottom: 1px solid #ddd;
-            border-top: 1px solid #ddd;
             padding: 5px;
+            border-bottom: 1px solid #dde;
+            border-top: 1px solid #dde;
+            background: #f9f9ff;
             span.ctls {
                position: absolute;
-               right: 0;
+               right: 5px;
                top: 7px;
                font-size: 0.8em;
                font-weight: 200;
@@ -74,10 +77,9 @@
             margin-left: 30px;
          }
          .item-review {
-            margin-left: 15px;
             label {
                margin-left: 0;
-               width: 160px;
+               width: 110px;
                text-align: right;
             }
          }
@@ -150,6 +152,7 @@
       .items.form-actions, #order-item {
          width: 50%;
          margin: 0 auto;
+         margin-top: 20px;
       }
    }
 }

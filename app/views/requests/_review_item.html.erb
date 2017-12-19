@@ -1,9 +1,8 @@
-<div class="item-review" data-item-idx="<%= idx %>">
+<div class="item-review" data-item-idx="<%= idx %>"  tabindex="0">
    <h4><span>Item #<%= idx + 1 %></span>
       <span class="ctls">
-         <span class="action edit">Edit</span>
-         <span class="sep">|</span>
-         <span class="action delete">Delete</span>
+         <span class="action edit" tabindex="0">Edit</span>
+         <span class="action delete" tabindex="0">Delete</span>
       </span>
    </h4>
    <div><label>Title:</label><span class="item-title"><%= item['title'] %></span></div>

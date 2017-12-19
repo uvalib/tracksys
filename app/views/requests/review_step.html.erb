@@ -8,42 +8,42 @@
 
    <div class="request-step">
       <%= form_tag("/requests", method: "post", id: "order-review") do %>
-         <legend class="form">Review Order</legend>
-         <%= hidden_field_tag(:customer_id, @customer.id  ) %>
-         <%= hidden_field_tag(:date_due, @date_due  ) %>
-         <%= hidden_field_tag(:special_instructions, @special_instructions  ) %>
-         <%= hidden_field_tag(:intended_use_id, @intended_use.id  ) %>
-         <%= hidden_field_tag(:order_items, @items.to_json  ) %>
+         <fieldset>
+            <legend class="form">Review Order</legend>
+            <%= hidden_field_tag(:customer_id, @customer.id  ) %>
+            <%= hidden_field_tag(:date_due, @date_due  ) %>
+            <%= hidden_field_tag(:special_instructions, @special_instructions  ) %>
+            <%= hidden_field_tag(:intended_use_id, @intended_use.id  ) %>
+            <%= hidden_field_tag(:order_items, @items.to_json  ) %>
 
-         <div class="review">
-            <h3>Request Information</h3>
-            <div><label>Date Due:</label><span><%= @date_due %></span></div>
-            <div><label>Intended Use:</label><span><%= @intended_use.name %></span></div>
-            <% if !@special_instructions.blank? %>
-               <div>
-                  <label>Special Instructions:</label>
-                  <p class="special-instructions"><%= @special_instructions %></p>
-               </div>
-            <% end %>
-         </div>
+            <div class="review" tabindex="0">
+               <div><label>Date Due:</label><span><%= @date_due %></span></div>
+               <div><label>Intended Use:</label><span><%= @intended_use.name %></span></div>
+               <% if !@special_instructions.blank? %>
+                  <div>
+                     <label>Special Instructions:</label>
+                     <p class="special-instructions"><%= @special_instructions %></p>
+                  </div>
+               <% end %>
+            </div>
 
-         <div class="review">
-            <h3>Item Information</h3>
-            <% @items.each_with_index do |item,idx| %>
-                  <%= render partial: "review_item", locals: {idx: idx, item: item} %>
-            <% end %>
-         </div>
-      <% end %>
+            <div class="review">
+               <% @items.each_with_index do |item,idx| %>
+                     <%= render partial: "review_item", locals: {idx: idx, item: item} %>
+               <% end %>
+            </div>
+         <% end %>
+      </fieldset>
 
       <%= render partial: "order_item", locals: {mode: :edit} %>
 
       <div class="items form-actions">
          <a href="/" class='btn btn-primary' id="cancel-order">Cancel</a>
-         <span id="cancel-update" data-mode="update" class='btn btn-primary' style="display: none">Cancel</span>
+         <span id="cancel-update" data-mode="update" class='btn btn-primary' style="display: none" tabindex="0">Cancel</span>
          <span id="review-add-item" class='btn btn-success' tabindex=0>Add Item</span>
-         <span id="create-item" data-item-idx="0" class='btn btn-primary' style="display: none">Add</span>
-         <span id="update-item" data-item-idx="0" class='btn btn-primary' style="display: none">Update</span>
-         <span id="submit-order" class='btn btn-primary'>Submit Order</span>
+         <span id="create-item" data-item-idx="0" class='btn btn-primary' style="display: none" tabindex="0">Add</span>
+         <span id="update-item" data-item-idx="0" class='btn btn-primary' style="display: none" tabindex="0">Update</span>
+         <span id="submit-order" class='btn btn-primary' tabindex="0">Submit Order</span>
       </div>
    </div>
 </div>
