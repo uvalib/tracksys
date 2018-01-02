@@ -242,7 +242,7 @@ ActiveAdmin.register MasterFile do
             "#{master_file.link_to_image(:large)}",
             :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
       end
-      if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned?
+      if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned? && master_file.ocr_candidate?
          div style: "margin-top:10px; text-align: center;" do
             span { link_to "OCR", "/admin/master_files/#{master_file.id}/ocr", method: :post, class: "mf-action-button" }
             span { link_to "Transcribe", "/admin/transcribe?mf=#{master_file.id}", class: "mf-action-button" }

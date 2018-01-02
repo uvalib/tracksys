@@ -1,0 +1,71 @@
+<div id="metadata-builder" class="content" style="display:none">
+   <div class="flash_type_error sirsi">
+   </div>
+   <%= form_tag("/admin/items/metadata", method: "post", remote: true, id: "create_metadata") do %>
+      <div class="sirsi-info">
+         <table>
+            <tr>
+               <td><label>Catalog Key</label></td>
+               <td><label>Barcode</label></td>
+               <td/>
+            </tr>
+            <tr>
+               <td><%= text_field_tag(:catalog_key, "" ) %></td>
+               <td><%= text_field_tag(:barcode, "" ) %></td>
+               <td><span class="btn" id="sirsi-lookup">Find</span></td>
+            </tr>
+         </table>
+         <table>
+            <tr>
+               <td class="label"><label>Title: </label></td>
+               <td><%= text_field_tag(:title, "", {readonly: "readonly"} ) %></td>
+            </tr>
+            <tr>
+               <td class="label"><label>Call Number: </label></td>
+               <td ><%= text_field_tag(:call_number, "", {readonly: "readonly"} ) %></span></td>
+            </tr>
+         </table>
+         <%= hidden_field_tag(:creator_name, "" ) %>
+      </div>
+      <div class="admin-info">
+         <div class="form-group">
+            <%= label_tag(:use_right_id, "Right Statement") %>
+            <%= select_tag(:use_right_id, options_from_collection_for_select(UseRight.all, :id, :name, nil),
+                  {prompt: 'Select Right Statement' } ) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:availability_policy_id, "Availability Policy") %>
+            <%= select_tag(:availability_policy_id,
+                  options_from_collection_for_select(AvailabilityPolicy.all, :id, :name, nil)) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:resource_type_id, "Resource Type") %>
+            <%= select_tag(:resource_type_id,
+                  options_from_collection_for_select(ResourceType.all.order(name: :asc), :id, :name, nil),
+                  {prompt: 'Select Resource Type' }) %>
+         </div>
+         <div class="form-group">
+            <%= label_tag(:genre_id, "Genre") %>
+            <%= select_tag(:genre_id,
+                  options_from_collection_for_select(Genre.all.order(name: :asc), :id, :name, nil),
+                  {prompt: 'Select Genre' }) %>
+         </div>
+         <div class="form-group">
+            <%= check_box_tag(:discoverability ) %>
+            <%= label_tag(:discoverability, "Discoverable?", class:"inline") %>
+         </div>
+         <div class="form-group">
+            <%= check_box_tag(:is_personal_item ) %>
+            <%= label_tag(:is_personal_item, "Personal Item?", class:"inline") %>
+         </div>
+         <div class="form-group">
+            <%= check_box_tag(:is_manuscript ) %>
+            <%= label_tag(:is_manuscript, "Manuscript?", class:"inline") %>
+         </div>
+      </div>
+      <div class="buttons">
+         <span class="mf-action-button metadata-builder cancel-metadata">Cancel</span>
+         <input type="submit" id="ok-metadata-create" value="Create Metadata"/>
+      </div>
+   <% end %>
+</div>

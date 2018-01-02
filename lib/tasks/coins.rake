@@ -5,6 +5,34 @@ namespace :coins do
    SITE_ROOT = "http://coins.lib.virginia.edu"
    COLLECTION_TITLE = "Fralin Numismatic Collection"
 
+   desc "Publish all to DL"
+   task :publish => :environment do
+      order = Order.find_by(order_title: COLLECTION_TITLE)
+      abort("No order found") if order.nil?
+
+      md = nil
+      order.units.first.update(include_in_dl: 1)
+      order.units.first.master_files.each do |mf|
+         # flag master file
+         if mf.date_dl_ingest.blank?
+            mf.update(date_dl_ingest: Time.now)
+         else
+            mf.update(date_dl_update: Time.now)
+         end
+
+         # flag metadata
+         if mf.metadata != md
+            puts "Publish metadata #{mf.metadata.id}: #{mf.metadata.title}"
+            md = mf.metadata
+            if md.date_dl_ingest.blank?
+               md.update(date_dl_ingest: Time.now)
+            else
+               md.update(date_dl_update: Time.now)
+            end
+         end
+      end
+   end
+
    desc "Setup for ingest; create order,unit and metadata"
    task :setup => :environment do
       customer = Customer.find_by(email: "lf6f@virginia.edu")

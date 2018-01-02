@@ -1,0 +1,121 @@
+<% # default no class = patron rquest. white
+   tc = "project-card"
+   if project.grant_funded?
+      tc << " special"
+   elsif project.film?
+      tc << " slide"
+   elsif project.unit.intended_use.id == 110 #digital collection building
+      tc << " green"
+   elsif project.workflow.name == "Clone"
+      tc << " clone"
+   elsif project.workflow.name == "Medium Rare"
+      tc << " medium-rare"
+   end
+   tc << " overdue" if project.overdue?
+   tc << " finished" if project.finished? %>
+<div class="<%= tc %>">
+   <h3>
+      <div class="project-info">
+      <a href="/admin/projects/<%=project.id%>">
+         <%= image_tag "info2.png" %>
+         <span class="project" title="<%= project.project_name %>">
+            <%= truncate(project.project_name, length: 50, separator: ' ') %>
+         </span>
+      </a>
+      <span class="priority">
+         <% if project.finished? %>
+            FINISHED
+         <% elsif project.overdue? %>
+            <span class="overdue">OVERDUE</span>
+         <% else %>
+            <%= project.priority.capitalize %> Priority
+         <% end %>
+      </span>
+      </div>
+      <div class="due-date">
+         <span class="label">Date Due:</span><span><%= project.due_on %></span>
+         <% if project.finished? %>
+            <span class="label">| Date Finished:</span><span><%= project.finished_at.strftime("%Y-%m-%d") %></span>
+         <% end %>
+      </div>
+   </h3>
+   <div class="project-body">
+      <div class="left">
+         <table>
+            <tr>
+               <td class="label">Order:</td><td><a href="/admin/orders/<%=project.unit.order.id%>"><%= project.unit.order.id %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Unit:</td><td><a href="/admin/units/<%=project.unit.id%>"><%= project.unit.id %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Workflow:</td><td><a href="/admin/workflows/<%=project.workflow.id%>"><%= project.workflow.name %></a></td>
+            </tr>
+            <tr>
+               <td class="label">Category:</td><td><%= project.category.name if !project.category.blank? %></td>
+            </tr>
+            <tr>
+               <td class="label">Intended Use:</td><td><%= project.unit.intended_use.description %></td>
+            </tr>
+         </table>
+      </div>
+      <div class="right">
+         <table>
+            <tr>
+               <td class="label">Customer:</td><td><a href="/admin/customers/<%=project.customer.id%>"><%= project.customer.full_name %></a></td>
+            </tr>
+            <tr>
+               <% url = "sirsi_metadata"
+                  url = "xml_metadata" if project.unit.metadata.type=="XmlMetadata" %>
+               <td class="label">Title:</td>
+               <td><a href="/admin/<%= url %>/<%=project.unit.metadata.id%>"><%= project.unit.metadata.title.truncate(50, separator: ' ') %></a></td>
+            </tr>
+            <% if project.unit.metadata.type=="SirsiMetadata" %>
+               <tr>
+                  <td class="label">Call #:</td><td><%= project.unit.metadata.call_number %></td>
+               </tr>
+               <tr>
+                  <td class="label">ViU #:</td><td><%= project.viu_number %></td>
+               </tr>
+               <tr>
+                  <td class="label">Location:</td><td><%= project.unit.metadata.location %></td>
+               </tr>
+            <% end %>
+
+         </table>
+      </div>
+   </div>
+   <% if footer %>
+      <div class="project-footer">
+         <div class="progress-info">
+            <% if !project.finished? %>
+               <div class="owner<% if (current_user.student? || current_user.viewer?) && !project.owner.nil? %> disabled<% end %>">
+                 <%= image_tag "owner.png" %>
+                 <span class="owner-name" data-project="<%= project.id %>" >
+                     <% if project.owner.nil? %>
+                        Unassigned
+                     <% else %>
+                        <% owner = project.owner %>
+                        <a href='/admin/staff_members/<%= owner.id %>'><%= owner.full_name %> (<%= owner.computing_id%>)</a>
+                     <% end %>
+                 </span>
+               </div>
+            <% end %>
+            <%= render :partial=>"/admin/digitization_workflow/projects/status", :locals=>{ project: project} %>
+         </div>
+         <div class="owner-dd">
+            <% if project.owner.nil? || (!project.owner.nil?  && current_user.admin? || current_user.supervisor?) %>
+              <div class="owner-act"><a rel="nofollow" data-method="put" href="/admin/projects/<%=project.id%>/claim">Claim</a></div>
+            <% else %>
+              <div class="owner-act disabled">Claim</div>
+            <% end %>
+            <% if current_user.admin? || current_user.supervisor? %>
+               <div class="owner-act assign-menu" data-project="<%= project.id %>">Assign</div>
+            <% end %>
+         </div>
+      </div>
+   <% end %>
+</div>
+<% if first %>
+   <%= render partial: "/admin/digitization_workflow/projects/assign_staff", locals: {project: project} %>
+<% end %>

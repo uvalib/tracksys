@@ -5,7 +5,7 @@ if !current_user.viewer?
            raw("<p>There are no notes associated with this unit</p>")
         else
            unit.notes.order(created_at: :desc).each do |n|
-              render partial: "/admin/projects/note", locals: {note: n}
+              render partial: "/admin/digitization_workflow/projects/note", locals: {note: n}
            end
         end
      end

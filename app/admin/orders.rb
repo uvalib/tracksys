@@ -84,7 +84,9 @@ ActiveAdmin.register Order do
    #
    index :id => 'orders' do
       selectable_column
-      column :id, :class => 'sortable_short'
+      column :id, :class => 'sortable_short' do |order|
+         link_to order.id, resource_path(order), :class => "member_link view_link"
+      end
       column ("Status") do |order|
          status_tag(order.order_status)
       end
@@ -168,7 +170,7 @@ ActiveAdmin.register Order do
 
    collection_action :overdue, :method=>:get do
       report = Order.upaid_customer_report
-      send_file(report.path)
+      send_file(report.path,{filename: "unpaid_customers.csv"})
    end
 
    # BATCH ACTIONS ============================================================

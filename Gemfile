@@ -19,7 +19,6 @@ gem 'delayed_job_active_record'
 gem 'daemons'
 
 # for patron request forms
-gem 'cocoon'
 gem 'bootstrap-datepicker-rails'
 
 gem 'whenever', :require => false   # to age off job status records
@@ -30,10 +29,8 @@ gem 'prawn'
 gem 'prawn-table'
 gem 'net-ldap'
 gem 'country-select'
-gem 'axlsx', '~> 2.1.0.pre'
 
 gem 'jquery-rails'
-gem 'jquery-ui-rails'
 gem 'jquery-colorbox-rails'
 gem "chosen-rails"
 

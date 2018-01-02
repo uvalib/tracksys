@@ -50,14 +50,10 @@ ActiveAdmin.register Workflow do
                 "Base Directory: #{workflow.base_directory}"
              end
           end
-           render partial: "workflow_steps", locals: { workflow: workflow}
+           render partial: "/admin/digitization_workflow/workflows/workflow_steps", locals: { workflow: workflow}
         end
      end
    end
-
-   # EDIT page ================================================================
-   #
-   form :partial => "edit"
 
    member_action :activate, :method => :post do
       workflow = Workflow.find(params[:id])

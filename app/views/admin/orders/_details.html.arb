@@ -45,31 +45,8 @@ div :class => 'two-column' do
    end
 end
 
-div :class => 'columns-none' do
-   panel "Delivery Information" do
-      attributes_table_for order do
-         row :date_finalization_begun do |order|
-            format_date(order.date_finalization_begun)
-         end
-         row :date_archiving_complete do |order|
-            format_date(order.date_archiving_complete)
-         end
-         row :date_patron_deliverables_complete do |order|
-            format_date(order.date_patron_deliverables_complete)
-         end
-         row :date_customer_notified do |order|
-            format_date(order.date_customer_notified)
-         end
-         row :email do |order|
-            raw( strip_email(order.email) )
-         end
-      end
-      if (current_user.admin? || current_user.supervisor?) &&
-         (!order.date_finalization_begun.blank? || !order.date_archiving_complete.blank?
-          !order.date_patron_deliverables_complete.blank? )
-         div class: "mini-button-bar" do
-            span class: "order mf-action-button reset-btn" do "Reset Dates" end
-         end
-      end
-   end
+if order.order_items.count > 0
+   render partial: "order_items", locals: {order: order}
+else
+   render "delivery_information", :context=>self
 end

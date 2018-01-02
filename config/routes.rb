@@ -8,6 +8,13 @@ Tracksys::Application.routes.draw do
       get 'details'
       get 'thank_you'
       get 'uva'
+      post 'customer' => "requests#customer_update"
+      get 'address' => "requests#address_step"
+      post 'address' => "requests#address_update"
+      get 'request' => "requests#request_step"
+      post 'review' => "requests#review_step"
+      post 'add_item' => "requests#add_item"
+      post 'submit' => "requests#submit"
     end
   end
   ActiveAdmin.routes(self)
@@ -22,6 +29,9 @@ Tracksys::Application.routes.draw do
      # to handle these requests. Routes registerd here
      resources :workstations, only: [:create, :update, :destroy]
      delete "workstations/:id/equipment" => "workstations#clear_equipment"
+     delete "items/:id" => "items#destroy"
+     post "items/convert" => "items#convert"
+     post "items/metadata" => "items#create_metadata"
 
      # Weird. The file /admin/equipment is made with register_page so it
      # has none of the basic CRUD actions defined automatically. Add them

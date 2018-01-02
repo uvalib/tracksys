@@ -1,0 +1,55 @@
+<div class="columns-none">
+   <div class="panel">
+      <h3>Order Details</h3>
+      <div class="panel_contents">
+         <p class="note">
+            The following is all of the raw data submitted by the patron. Use it to create units or discard it.
+            Once all units have been created and the order approved, this data will be deleted.
+         </p>
+         <div class="order-info">
+            <% use = order.order_items.first.intended_use %>
+            <span id="item-intended-use-id" style="display:none"><%= use.id %></span>
+            <p><label>Intended Use:</label><span><%= use.description %></span></p>
+            <p><label>Format:</label><span><%= use.deliverable_format %></span></p>
+            <p><label>Resolution:</label><span><%= use.deliverable_resolution %></span></p>
+         </div>
+      </div>
+      <div class="order-items-header">Items</div>
+      <div class="order-items panel_contents">
+         <% order.order_items.each do |item| %>
+            <div class="order-item" data-item-id="<%= item.id %>">
+               <div class="item-controls">
+                  <span class="btn discard-item">Discard</span>
+                  <span class="btn create-unit">Create Unit</span>
+               </div>
+               <% hidden = ""
+                   hidden = "hidden" if item.converted == false %>
+               <p>
+                  <span class="item-used <%= hidden %>"></span>
+                  <label>Title:</label><span class="item-title"><%= item.title %></span>
+               </p>
+               <p><label>Pages:</label><span class="item-pages"><%= item.pages %></span></p>
+               <% if !item.call_number.blank? %>
+                  <p><label>Call Number:</label><span class="item-call-number"><%= item.call_number %></span></p>
+               <% end %>
+               <% if !item.author.blank? %>
+                  <p><label>Author:</label><span class="item-author"><%= item.author %></span></p>
+               <% end %>
+               <% if !item.year.blank? %>
+                  <p><label>Year Published:</label><span class="item-year"><%= item.year %></span></p>
+               <% end %>
+               <% if !item.location.blank? %>
+                  <p><label>Location:</label><span class="item-location"><%= item.location %></span></p>
+               <% end %>
+               <% if !item.source_url.blank? %>
+                  <p><label>Web Link:</label><span class="item-source-url"><%= item.source_url %></span></p>
+               <% end %>
+               <% if !item.description.blank? %>
+                  <p><label>Description:</label><span class="item-description"><%= item.description %></span></p>
+               <% end %>
+            </div>
+         <% end %>
+      </div>
+   </div>
+</div>
+<%= render partial: "unit_modal", locals: {order: order} %>

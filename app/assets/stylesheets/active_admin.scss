@@ -18,6 +18,7 @@
 @import "show-hint";
 @import "stats";
 @import "ocr";
+@import "order-items";
 @import "jobs";
 @import "workflow";
 @import "project-card";
@@ -26,6 +27,7 @@
 @import "icons";
 @import "metadata_finder";
 @import "workflow_reports";
+@import "annual_reports";
 
 body.active_admin.logged_in .flash.flash_error {
    border-top: 1px solid #e0c2c0;

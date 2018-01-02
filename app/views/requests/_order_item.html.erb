@@ -1,0 +1,52 @@
+<div id="order-item" style="display:none">
+   <legend class="form">Item <span id="item-number">1</span> Information</legend>
+   <% if mode ==  :add %>
+      <p class="help-block" tabindex="0">
+         In the boxes below, include the item, image, or page numbers to be scanned. If possible, include
+         any additional descriptive information such as, item call number, box number, and folder or item description.
+         Please add one item for each individual collection or book you would like digitized.
+      </p>
+   <% end %>
+
+   <div class="form-group">
+      <%= label_tag(:request_title, "Title (required)")%>
+      <%= text_field_tag(:request_title, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag(:request_pages_to_digitize, "Image or page numbers (required)") %>
+      <%= text_area_tag(:request_pages_to_digitize, "", {class: 'form-control'}) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag( :request_call_number, "Call Number")%>
+      <%= text_field_tag( :request_call_number, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag( :request_author, "Author") %>
+      <%= text_field_tag( :request_author, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag( :request_year, "Year Published")%>
+      <%= text_field_tag( :request_year, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag( :request_location, "Location")%>
+      <%= text_field_tag( :request_location, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <%= label_tag( :request_source_url, "Web link for item (if available)")%>
+      <%= text_field_tag( :request_source_url, "", {class: "form-control"} ) %>
+   </div>
+   <div class="form-group">
+      <label for="request_description" id="desc-label">Additional Description</label>
+      <p class="help-block" id="desc-help">If the provided fields were insufficient to describe the item, include supplemental information above.</p>
+      <%= text_area_tag(:request_description, "", {class: 'form-control', "aria-labeledby": "desc-label desc-help"} ) %>
+   </div>
+
+   <% if mode ==  :add %>
+      <div class="form-group instructions" tabindex="0">
+         <strong>
+            Use the Add Item button to add addtional items to your order. When complete, click Complete Order to review and submit your order.
+         </strong>
+      </div>
+   <% end %>
+</div>

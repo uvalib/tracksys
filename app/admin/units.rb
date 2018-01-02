@@ -147,7 +147,7 @@ ActiveAdmin.register Unit do
             div do
                link_to I18n.t('active_admin.edit'), edit_resource_path(unit), :class => "member_link edit_link"
             end
-            if unit.master_files_count > 0 && unit.reorder == false
+            if unit.master_files_count > 0 && unit.reorder == false && unit.ocr_candidate?
                div do
                   link_to "OCR", "/admin/ocr?u=#{unit.id}"
                end

@@ -70,6 +70,13 @@
       <dl class="dl-horizontal">
          <dt>Due Date</dt>
          <dd><%= empty2nbsp(@request.date_due) %></dd>
+         <% intended_use = @request.order_items.first.intended_use %>
+         <dt>Intended Use</dt>
+         <dd><%= empty2nbsp(intended_use.description) %></dd>
+         <dt>Format</dt>
+         <dd><%= empty2nbsp(intended_use.deliverable_format) %></dd>
+         <dt>Resolution</dt>
+         <dd><%= empty2nbsp(intended_use.deliverable_resolution) %></dd>
          <dt>Special Instructions</dt>
          <dd><%= empty2nbsp(@request.special_instructions) %></dd>
       </dl>
@@ -77,21 +84,37 @@
 
    <div class="row indented">
       <h3>Item Information</h3>
-      <% @request.units.each do |unit| %>
-      <h4>Item #<%= @request.units.index(unit) + 1 %></h4>
+      <% @request.order_items.each do |item| %>
+      <h4>Item #<%= @request.order_items.index(item) + 1 %></h4>
       <dl class="dl-horizontal">
-         <dt>Description</dt>
-         <dd><%= empty2nbsp(raw(unit.special_instructions.to_s.gsub(/\n/, '<br/>'))) %></dd>
-         <% if not unit.patron_source_url.blank? %>
-         <dt>Web Link</dt>
-         <dd><%= empty2nbsp(unit.patron_source_url) %></dd>
+         <dt>Title</dt>
+         <dd><%= empty2nbsp(item.title) %></dd>
+         <dt>Pages to Digitize</dt>
+         <dd><%= empty2nbsp(item.pages) %></dd>
+         <% if !item.call_number.blank? %>
+            <dt>Call Number</dt>
+            <dd><%= empty2nbsp(item.call_number) %></dd>
          <% end %>
-         <dt>Intended Use</dt>
-         <dd><%= empty2nbsp(unit.intended_use.description) %></dd>
-         <dt>Format</dt>
-         <dd><%= empty2nbsp(unit.intended_use.deliverable_format) %></dd>
-         <dt>Resolution</dt>
-         <dd><%= empty2nbsp(unit.intended_use.deliverable_resolution) %></dd>
+         <% if !item.author.blank? %>
+            <dt>Author</dt>
+            <dd><%= empty2nbsp(item.author) %></dd>
+         <% end %>
+         <% if !item.year.blank? %>
+            <dt>Year Published</dt>
+            <dd><%= empty2nbsp(item.year) %></dd>
+         <% end %>
+         <% if !item.location.blank? %>
+            <dt>Location</dt>
+            <dd><%= empty2nbsp(item.location) %></dd>
+         <% end %>
+         <% if !item.source_url.blank? %>
+            <dt>Web Link</dt>
+            <dd><%= empty2nbsp(item.source_url) %></dd>
+         <% end %>
+         <% if !item.description.blank?  %>
+            <dt>Description</dt>
+            <dd><%= empty2nbsp(raw(item.description.to_s.gsub(/\n/, '<br/>'))) %></dd>
+         <% end %>
       </dl>
       <% end %>
    </div>

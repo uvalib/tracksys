@@ -1,0 +1,69 @@
+#annual-reports-container {
+   div.settings {
+      label {
+         margin: 0 5px 0 10px;
+      }
+      input[type=button] {
+         margin-left: 15px;
+         font-size: 0.9em;
+         padding: 5px 20px;
+      }
+   }
+   #summary-report {
+      margin:15px;
+   }
+
+   div.month-header {
+      font-size: 1.1em;
+      padding: 4px 10px;
+      background: #f0f0f0;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid #ccc;
+   }
+
+   div.generating-report {
+      font-size: 2em;
+      margin: 5% 0;
+      text-align: center;
+      color: #888;
+   }
+
+   div.report-data {
+      padding-top: 15px;
+
+      div.report-header {
+         margin-top: 10px;
+         padding: 4px 10px;
+         font-size: 1.2em;
+         background-color: #36a;
+         color: white;
+         border: 1px solid #36a;
+      }
+      div.summary {
+         font-size: 1.1em;
+         padding: 10px 0 0 20px;
+         color: #666;
+         label {
+            font-weight: 500;
+            margin-right: 5px;
+         }
+      }
+      table tr {
+         td, th {
+            text-align: right;
+            padding: 2px 5px 2px 0;
+            color: #666;
+            border-bottom: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+         }
+         td.left-border, th.left-border {
+            border-left: 1px solid #ccc;
+         }
+      }
+      table tr.total {
+         background: #efefff;
+         font-weight: bold;
+      }
+   }
+}

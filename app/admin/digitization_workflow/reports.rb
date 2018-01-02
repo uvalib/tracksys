@@ -4,7 +4,7 @@ ActiveAdmin.register_page "Reports" do
    content :title => 'Digitization Reports' do
       div :class => 'two-column' do
          panel "Average Page Completion Time", class:"tracksys-report" do
-            render partial: 'report_filter', locals: { report: "avg-time" }
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "avg-time" }
 
             div id: "project-time-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
@@ -24,7 +24,7 @@ ActiveAdmin.register_page "Reports" do
          end
 
          panel "Productivity", class:"tracksys-report" do
-            render partial: 'report_filter', locals: { report: "productivity" }
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "productivity" }
             div id: "project-productivity-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
@@ -34,7 +34,7 @@ ActiveAdmin.register_page "Reports" do
          end
 
          panel "Patron Deliveries", class:"tracksys-report" do
-            render partial: 'report_filter', locals: { report: "deliveries" }
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "deliveries" }
             div id: "project-deliveries-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
@@ -44,7 +44,7 @@ ActiveAdmin.register_page "Reports" do
 
       div :class => 'two-column' do
          panel "Problem Statistics", class:"tracksys-report" do
-            render partial: 'report_filter', locals: { report: "problems" }
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "problems" }
             div id: "project-problems-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
@@ -52,11 +52,11 @@ ActiveAdmin.register_page "Reports" do
          end
 
          panel "Rejection Statistics", class:"tracksys-report" do
-            render partial: 'report_filter', locals: { report: "rejections" }
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "rejections" }
             div id: "project-rejections-generating", class: "generating" do
                div class: "wait" do "Please wait..." end
             end
-            render partial: "rejections_table"
+            render partial: "/admin/digitization_workflow/reports/rejections_table"
          end
       end
    end

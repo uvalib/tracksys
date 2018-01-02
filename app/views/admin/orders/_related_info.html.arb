@@ -1,6 +1,6 @@
 attributes_table_for order do
   row :units do |order|
-    link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id})
+    link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id}), {id: "order-units-link"}
   end
   row :master_files do |order|
     link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})

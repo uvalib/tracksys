@@ -177,66 +177,18 @@ div.container-fluid.thanks {
       font-family: "prenton", "Helvetica Neue", Arial, sans-serif;
       font-weight: normal;
       text-rendering: optimizeLegibility;
-      .flash.flash_type_error {
-         background: #f5e4e4;
-          padding: 15px 15px 5px 15px;
-          border: 1px solid #b33c33;
-          color: #b33c33 !important;
-          margin-bottom: 10px;
-          border-radius: 6px;
-          box-shadow: 1px 1px 3px #666;
-          li {
-             margin-bottom: 2px;
-          }
+      .flashes {
           p {
-             font-weight: bold;
-             margin-bottom: 5px;
-             color: #b33c33
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #b33c33;
+            text-align: center;
+            font-size: 1.25em;
+            border-bottom: 1px solid;
+            padding-bottom: 15px;
           }
       }
-      .span4 {
-         float:left;
-      }
-      input:invalid, textarea:invalid {
-          background-color: #f0dddd;
-      }
-      label.required {
-         color: #DB0000;
-      }
-      div.inset {
-         padding: 0 40px;
-      }
-      #datepicker {
-         width: auto;
-         display: inline-block;
-         margin-left: 10px;
-         cursor:pointer;
-      }
-      .help-block {
-         line-height: 1.4em;
-         margin: 10px 0 25px;
-         font-size: 0.95em;
-         font-style: italic;
-      }
-      div.row.add-item {
-         text-align: left;
-         padding: 0 60px;
-      }
-      div.form-group {
-         font-weight: normal;
-         margin: 0 0 10px 0;
-         label {
-            font-weight: normal;
-         }
-         .form-control {
-            height: 26px;
-            padding: 2px 8px;
-            margin-top:4px;
-         }
-         textarea.form-control {
-            height: auto;
-         }
-      }
+
       div.narrow {
          padding: 0 15%;
       }
@@ -272,7 +224,7 @@ div.container-fluid.thanks {
       }
 
       div.control-group.index {
-             margin-bottom: 18px;
+         margin-bottom: 18px;
          div.controls {
             margin: 0 60px;
          }

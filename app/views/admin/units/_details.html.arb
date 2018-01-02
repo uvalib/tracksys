@@ -20,7 +20,7 @@ div :class => 'two-column' do
 end
 
 div :class => 'two-column' do
-  panel "Patron Request" do
+  panel "Digitization Information" do
     attributes_table_for unit do
       if !unit.intended_use.nil?
          row :intended_use do |unit|

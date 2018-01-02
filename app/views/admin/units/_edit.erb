@@ -4,6 +4,7 @@
       <%= f.input :unit_status, :as => :select, :collection => Unit::UNIT_STATUSES %>
       <%= f.input :unit_extent_estimated  %>
       <%= f.input :unit_extent_actual %>
+      <%= f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 } %>
       <%= f.input :special_instructions, :as => :text, :input_html => { :rows => 5 } %>
       <%= f.input :staff_notes, :as => :text, :input_html => { :rows => 5 } %>
       <%= f.input :complete_scan, :as => :radio %>
@@ -11,7 +12,7 @@
       <div class="throw-away-note">Note: Throw away scans will not be sent to preservation. They are one-time scans made for a single patron.</div>
    <% end %>
 
-   <%= f.inputs "Patron Request", :class => 'panel three-column' do %>
+   <%= f.inputs "Digitization Information", :class => 'panel three-column' do %>
       <%= f.input :intended_use, :as => :select, :collection => IntendedUse.where(is_approved: 1) %>
       <%= f.input :ocr_master_files, :as => :radio %>
       <%= f.input :remove_watermark, :as => :radio %>
@@ -21,7 +22,6 @@
          <%= f.input :date_archived, :as => :string, :input_html => {:class => :datepicker} %>
       <% end %>
       <%= f.input :date_patron_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
-      <%= f.input :patron_source_url,  :as => :text, :input_html => { :rows => 1 } %>
    <% end %>
 
    <%= f.inputs "Related Information", :class => 'panel three-column' do %>

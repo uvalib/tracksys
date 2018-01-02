@@ -4,13 +4,17 @@ form.formtastic label, div.attributes_table th {
 #unit_metadata_id {
    width: 55%;
 }
-#dimmer .modal#metadata-finder {
-width: 500px;
-table {
-       border-collapse: collapse;
-}
+#dimmer .modal#metadata-finder, #dimmer .modal#create-unit-modal {
+   width: 500px;
+   table {
+          border-collapse: collapse;
+   }
+   div.buttons {
+      margin: 15px 10px;
+      position: relative;
+   }
    div.find {
-      padding: 15px;
+      padding: 15px 15px 0 15px;
       p.note {
          color: #999;
          font-size: 0.9em;
@@ -57,13 +61,6 @@ table {
          }
          tr.hit.selected {
             background: #cef;
-         }
-      }
-      div.buttons {
-         position: relative;
-         .select {
-            position: absolute;
-            left: 0;
          }
       }
    }

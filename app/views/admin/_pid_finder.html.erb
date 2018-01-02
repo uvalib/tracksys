@@ -1,6 +1,6 @@
 <%= form_tag(admin_dashboard_pid_lookup_path, :method => 'get', :id=>"stats-form") do %>
    <p class="pid-note">Enter a complete PID below to find the item it represents</p>
-   <%= submit_tag("Lookup") %>
+   <%= submit_tag("Lookup", id:"pid-find-button") %>
    <div class="year-input">
       <%= label_tag(:pid, "PID:") %>
       <%= text_field_tag(:pid) %>

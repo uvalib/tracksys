@@ -5,6 +5,7 @@
 //= require jquery.form.min
 //= require jquery.autocomplete
 //= require autocomplete
+//= require order-items
 //= require transcribe
 //= require statistics
 //= require update-unit
@@ -12,9 +13,11 @@
 //= require bulk_dl_settings
 //= require workflows
 //= require workflow-reports
+//= require annual-reports
 //= require equipment
 //= require skills
 //= require metadata
 //= require codemirror
+//= require xml-editor
 //= require_tree ./mode/
 //= require_tree ./addon/

@@ -1,4 +1,4 @@
-if unit.project.nil?
+if unit.project.nil? && unit.master_files.count == 0
    approved = unit.unit_status == 'approved' && unit.order.order_status == 'approved'
    div :class => 'workflow_button' do
       cn = "admin-button"

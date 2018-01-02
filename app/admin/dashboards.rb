@@ -58,6 +58,13 @@ ActiveAdmin.register_page "Dashboard" do
                   td do "Customers with unpaid orders" end
                   td do link_to "#{Customer.has_unpaid_invoices.count}", admin_customers_path(:customer => 'id_desc', :page => '1', :scope => 'has_unpaid_invoices')  end
                end
+               tr do
+                  td do "Total unpaid invoices" end
+                  td do
+                     link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
+                        admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                  end
+               end
             end
          end
 
@@ -94,24 +101,6 @@ ActiveAdmin.register_page "Dashboard" do
                tr do
                   td do "Orders Ready for Delivery" end
                   td do link_to "#{Order.ready_for_delivery.count}", admin_orders_path( :order => 'id_desc', :page => '1', :scope => 'ready_for_delivery') end
-               end
-            end
-         end
-
-         panel "Statistics", :toggle => 'show' do
-            div :class => 'workflow_button border-bottom' do
-               render 'admin/stats_report'
-            end
-            div :class => 'workflow_button border-bottom' do
-               button_to "Generate DL Manifest", "/admin/dashboard/create_dl_manifest", :method => :get
-            end
-            table :style=>"margin-bottom: 0" do
-               tr do
-                  td do "Total unpaid invoices:" end
-                  td do
-                     link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
-                        admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
-                  end
                end
             end
          end
@@ -196,11 +185,6 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
       end
-   end
-
-   page_action :create_dl_manifest do
-      CreateDlManifest.exec( {:staff_member => current_user } )
-      redirect_to "/admin/dashboard", :notice => "Digital library manifest creation started.  Check your email in a few minutes."
    end
 
    page_action :get_yearly_stats do
