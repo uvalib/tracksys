@@ -187,14 +187,23 @@ class Unit < ApplicationRecord
    end
 
    def pick_exemplar
-      # Find exemplar. Preference: Front Cover, Title-page or 1
+      # Find exemplar. Preference: Title-page/title page (best), Front Cover (2nd), or 1 (last)
+      tgts = ["title-page", "title page", "front cover", "front board", "1"]
+      exemplar = nil
       master_files.each do |mf|
          next if mf.title.blank?
-         title = mf.title.strip
-         if title == "Front Cover" || title == "Title-page" || title == "1"
-            return mf.filename
+         title = mf.title.strip.downcase
+         if tgts.include? title
+            if exemplar.nil?
+               exemplar = {title: mf.title, file: mf.filename, weight: tgts.index(title) }
+            else
+               if tgts.index(title) < exemplar[:weight]
+                  exemplar = {title: mf.title, file: mf.filename, weight: tgts.index(title) }
+               end
+            end
          end
       end
+      return exemplar[:file] if !exemplar.blank?
 
       # if we got here, an exemplar with matching name was not found
       # try to make sure it is not a spine or egde
