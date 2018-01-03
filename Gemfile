@@ -4,7 +4,12 @@ gem 'rails', '5.1.4'
 gem 'uglifier', '>= 1.3.0'
 gem 'sass-rails', '~> 5.0'
 
-gem 'activeadmin', '~> 1.0'
+# NOTE: active admin 1.2.0 has a bug that is preventing
+# the ID attribute from being set inside of attribute table
+# rows. This breaks a bunch of stuff. Need to stick with 1.1.0
+#gem 'activeadmin', '~> 1.0'
+gem 'activeadmin', '1.1.0'
+
 gem 'passenger', '5.1.5'
 gem 'figaro'
 
