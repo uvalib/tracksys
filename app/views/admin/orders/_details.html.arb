@@ -50,3 +50,4 @@ if order.order_items.count > 0
 else
    render "delivery_information", :context=>self
 end
+render partial: "unit_modal", locals: {order: order}

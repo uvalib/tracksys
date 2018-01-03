@@ -24,7 +24,7 @@ $(function() {
       }
    });
 
-   $(".btn.create-unit").on("click", function() {
+   var showUnitCreate = function() {
       $("#dimmer").show();
 
       // clear any prior data from fields
@@ -32,6 +32,14 @@ $(function() {
       $("#metadata-status").text("");
       $("#create-unit-panel textarea").val("");
       $("#create-unit-panel input[type=checkbox]").prop("checked", false);
+   };
+
+   $(".btn.add-unit").on("click", function() {
+      showUnitCreate();
+   });
+
+   $(".btn.create-unit").on("click", function() {
+      showUnitCreate();
 
       var itemDiv = $(this).closest(".order-item");
       var itemId = itemDiv.data("item-id");
@@ -235,10 +243,12 @@ $(function() {
          $("#approve-order-btn").removeAttr("disabled");
       }
 
-      // find and show the used marker on the item div
+      // find and show the used marker on the item div (if id is present)
       var id = resp.item_id;
-      var itemDiv = $("div.order-item[data-item-id='"+id+"']");
-      itemDiv.find(".item-used").removeClass("hidden");
+      if (id.length > 0) {
+         var itemDiv = $("div.order-item[data-item-id='"+id+"']");
+         itemDiv.find(".item-used").removeClass("hidden");
+      }
    });
 
    // HACK: This class is getting added to the label by rails (I think). It conflicts

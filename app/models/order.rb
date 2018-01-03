@@ -125,6 +125,10 @@ class Order < ApplicationRecord
       return order_status == 'approved'
    end
 
+   def in_progress?
+      return order_status != "completed" && order_status != "deferred" && order_status != "canceled"
+   end
+
    def canceled?
       return if order_status == 'canceled'
    end

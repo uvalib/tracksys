@@ -17,8 +17,12 @@ class Admin::ItemsController < ApplicationController
       end
       unit.update(unit_status: "approved")
 
-      item = OrderItem.find(params[:source_item_id])
-      item.update(converted: 1)
+      # this method may be called to create a unit without a source item.
+      # in this case, the item id will be blank, and there is nothing to do
+      if !params[:source_item_id].blank?
+         item = OrderItem.find(params[:source_item_id])
+         item.update(converted: 1)
+      end
 
       # once a unit has been created, the order can be approved.
       # Exception id for external customers - a fee is required.
@@ -26,7 +30,7 @@ class Admin::ItemsController < ApplicationController
       approve_enabled = true
       approve_enabled = false if order.customer.external? && (order.fee_estimated.nil? || order.fee_actual.nil?)
 
-      render json: {success: true, item_id: item.id, approve_enabled: approve_enabled}
+      render json: {success: true, item_id: params[:source_item_id], approve_enabled: approve_enabled}
    end
 
    def create_metadata

@@ -1,6 +1,10 @@
 attributes_table_for order do
   row :units do |order|
-    link_to "#{order.units.size}", admin_units_path(:q => {:order_id_eq => order.id}), {id: "order-units-link"}
+    html = "<a id='order-units-link' href='/admin/units?q%5Border_id_eq%5D=#{order.id}'>#{order.units.size}</a>"
+    if order.order_items.size == 0 && order.in_progress?
+      html << "<span class='btn add-unit'>Add</span>"
+   end
+    raw(html)
   end
   row :master_files do |order|
     link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
