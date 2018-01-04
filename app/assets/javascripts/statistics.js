@@ -18,7 +18,7 @@ $(function() {
          complete: function( jqXHR, textStatus ) {
             dimmer.hide();
             if ( jqXHR.status == 200) {
-               $("#"+type+"-result").text( jqXHR.responseText )
+               $("#"+type+"-result").text( jqXHR.responseText );
             } else {
                alert("Query failed: "+jqXHR.responseText);
             }
@@ -43,8 +43,32 @@ $(function() {
       issueStatsQuery(type, params, dimmer);
    };
 
+   $("#archived-query").on("click", function() {
+      $("#dates-required").hide();
+      var query = $(this).closest(".query-panel");
+      var dimmer = query.find(".query-dimmer");
+      var params = ["type=archived"];
+      params.push("category="+$("#archived-query-category").val());
+      var date = $("#archived-query-start-date").val();
+      if ( date.length > 0) {
+         params.push("start_date="+date);
+      } else {
+         $("#dates-required").show();
+         return;
+      }
+      date = $("#archived-query-end-date").val();
+      if ( date.length > 0) {
+         params.push("end_date="+date);
+      } else {
+         $("#dates-required").show();
+         return;
+      }
+      dimmer.show();
+      issueStatsQuery("archived", params, dimmer);
+   });
+
    $("#processed-query").on("click", function() {
-      var query = $(this).closest(".stats-query");
+      var query = $(this).closest(".query-panel");
       var dimmer = query.find(".query-dimmer");
       dimmer.show();
       var params = ["type=processed"];

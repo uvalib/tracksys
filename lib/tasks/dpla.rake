@@ -4,6 +4,14 @@ include DplaHelper
 namespace :dpla do
    desc "Generate DPLA METS/MODS for a parent metadata ID"
    task :generate_all  => :environment do
+      # FIXME: instead of the hardcoded list, do this:
+      # Get all parent metadata records that are published to virgo and flagged for Dpla...
+      #
+      # select distinct mp.id,mp.type,mp.dpla,mp.date_dl_ingest from metadata mc
+      # inner join metadata mp on mc.parent_metadata_id = mp.id
+      # where mc.parent_metadata_id <> '' and mp.dpla = 1 and mp.date_dl_ingest is not null
+      # order by mp.id asc;
+      #
       ids = ["3002", "3009", "3109", "6405", "15784"]
       overwrite = (ENV['force'] == "1" || ENV['force'] == "yes" || ENV['force'] == "true")
       id.each do |id|

@@ -25,6 +25,9 @@ ActiveAdmin.register_page "Statistics" do
             render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "metadata"}
             render partial: '/admin/miscellaneous/statistics/metadata_query'
          end
+         panel "Archived Item Statictics" do
+            render partial: '/admin/miscellaneous/statistics/archived_query'
+         end
       end
    end
 
@@ -49,6 +52,12 @@ ActiveAdmin.register_page "Statistics" do
          resp = Statistic.metadata_count(  params[:metadata].to_sym, params[:location].to_sym, params[:start_date], params[:end_date])
          render plain: resp, status: :ok and return
       end
+      if params[:type] == "archived"
+         if params[:category] == "bound"
+            resp = archived_bound_volumes(  params[:start_date], params[:end_date])
+            render plain: resp, status: :ok and return
+         end
+      end
 
       render plain: "Invalid query type", :status=>:error
    end
@@ -58,6 +67,15 @@ ActiveAdmin.register_page "Statistics" do
       def get_stats
          @stats = Statistic.get
          @users = StaffMember.where("role <= 1")   # admins and supervisors
+      end
+
+      def archived_bound_volumes(start_date, end_date)
+         conditions = ["title='Spine'"]
+         conditions << "date_archived >= '#{start_date}'"
+         conditions << "date_archived <= '#{end_date}'"
+         q = "select count(*) from master_files where "
+         q << conditions.join(" and ")
+         return Statistic.connection.execute( q ).first.first.to_i
       end
    end
 end

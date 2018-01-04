@@ -1,0 +1,25 @@
+<div class="archived-query query-panel">
+   <div class="params">
+      <div class="row">
+         <label>Type:</label>
+         <select id="archived-query-category">
+            <option value="bound">Bound Volumes</option>
+         </select>
+      </div>
+      <div class="row">
+         <label>Start Date:</label>
+         <input id="archived-query-start-date" type="text"  class="query-datepicker">
+         <label>End Date:</label>
+         <input id="archived-query-end-date" type="text" class="query-datepicker">
+         <p id="dates-required">Both Start and End dates are required.</span>
+      </div>
+      <div class="controls">
+         <label>Result:</label>
+         <span id="archived-result"></span>
+         <div id="archived-query" class="mf-action-button">Query</div>
+      </div>
+   </div>
+   <div class="query-dimmer">
+      <%= image_tag("loading.gif") %>
+   </div>
+</div>

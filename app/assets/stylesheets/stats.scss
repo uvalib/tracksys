@@ -1,7 +1,14 @@
-div.processed-query {
+div.processed-query,  div.archived-query {
     border: none;
 }
-div.stats-query, .processed-query {
+#dates-required {
+   color: #b44;
+   font-style: italic;
+   display: none;
+   text-align: center;
+   margin: 15px 0;
+}
+div.stats-query, .processed-query,  .archived-query {
    .query-dimmer {
       position: absolute;
       left: 0;

@@ -1,8 +1,8 @@
-<div class="processed-query">
+<div class="processed-query query-panel">
    <div class="params">
       <div class="row">
          <label>User:</label>
-         <select id="processed-query-user" prompt="poo">
+         <select id="processed-query-user">
             <option value=""></option>
             <% @users.each do |u| %>
                <option value="<%= u.id %>"><%= u.full_name %></option>
