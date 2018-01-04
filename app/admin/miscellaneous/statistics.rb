@@ -57,6 +57,14 @@ ActiveAdmin.register_page "Statistics" do
             resp = archived_bound_volumes(  params[:start_date], params[:end_date])
             render plain: resp, status: :ok and return
          end
+         if params[:category] == "mss"
+            resp = archived_manuscript_pages(  params[:start_date], params[:end_date])
+            render plain: resp, status: :ok and return
+         end
+         if params[:category] == "photo"
+            resp = archived_photos(  params[:start_date], params[:end_date])
+            render plain: resp, status: :ok and return
+         end
       end
 
       render plain: "Invalid query type", :status=>:error
@@ -67,6 +75,22 @@ ActiveAdmin.register_page "Statistics" do
       def get_stats
          @stats = Statistic.get
          @users = StaffMember.where("role <= 1")   # admins and supervisors
+      end
+
+      def archived_manuscript_pages(start_date, end_date)
+         conditions = []
+         conditions << "date_archived >= '#{start_date}'"
+         conditions << "date_archived <= '#{end_date}'"
+
+         return 0
+      end
+
+      def archived_photos(start_date, end_date)
+         conditions = []
+         conditions << "date_archived >= '#{start_date}'"
+         conditions << "date_archived <= '#{end_date}'"
+
+         return 0
       end
 
       def archived_bound_volumes(start_date, end_date)
