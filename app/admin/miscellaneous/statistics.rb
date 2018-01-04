@@ -78,11 +78,14 @@ ActiveAdmin.register_page "Statistics" do
       end
 
       def archived_manuscript_pages(start_date, end_date)
-         conditions = []
-         conditions << "date_archived >= '#{start_date}'"
-         conditions << "date_archived <= '#{end_date}'"
-
-         return 0
+         q = "select  count(f.id) from master_files f "
+         q << "inner join metadata m on f.metadata_id = m.id where"
+         q << "   (m.call_number like 'MSS%' or m.call_number like 'RG-%') and"
+         q << "   f.title not like '%verso' and"
+         q << "   (f.title regexp '^[[:digit:]]+' or f.title like 'front%' or f.title like 'rear%'"
+         q << "    or f.title like 'back%' or f.title like 'title%' or f.title like 'index%' ) and"
+         q << "   f.date_archived >= '#{start_date}' and f.date_archived <= '#{end_date}'"
+         return Statistic.connection.execute( q ).first.first.to_i
       end
 
       def archived_photos(start_date, end_date)
