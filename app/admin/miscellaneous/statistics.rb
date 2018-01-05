@@ -95,24 +95,38 @@ ActiveAdmin.register_page "Statistics" do
          q << "    or f.title like 'table%' or f.title like 'blank%'"
          q << "    or f.title regexp '^(IX|IV|V?I{0,3})$') and"
 
-         # No visual history stuff
-         q << "   m.id != 3009 and"
-
          # No Bound stuff
          q << "   m.id not in (#{bound_q}) and "
 
+         # No visual history stuff
+         q << "   m.id != 3009 and"
+
          # only date rage specified
          q << "   #{date_clause}"
-
-         puts "[#{q}]"
 
          return Statistic.connection.execute( q ).first.first.to_i
       end
 
       def archived_photos(start_date, end_date)
-         # not MSS and not BOUND
+         date_clause = "f.date_archived >= '#{start_date}' and f.date_archived <= '#{end_date}'"
+         q = "select count(f.id) from master_files f"
+         q << " inner join metadata m on f.metadata_id = m.id"
+         q << " inner join units u on u.id = f.unit_id inner join orders o on o.id = u.order_id"
+         q << " inner join agencies a on a.id = o.agency_id"
 
-         return 0
+         # Negatives orders and Fine arts agency
+         q << " where ( o.id = 8126 or o.id = 8125 or agency_id = 37) and"
+
+         # Not unbound sheets. Note the ugly null / no null grouping because
+         # mysql like does not deal correctly with null data
+         q << " (m.call_number is null or (m.call_number is not null and m.call_number not like 'RG-%'))"
+
+         # in date range
+         q << " and #{date_clause}"
+
+         puts "====> #{q} <===="
+
+         return Statistic.connection.execute( q ).first.first.to_i
       end
 
       def archived_bound_volumes(start_date, end_date)
