@@ -92,6 +92,7 @@ ActiveAdmin.register_page "Statistics" do
          # only take numbered pages, or pages that look like standard parts of MSS
          q << "   (f.title regexp '^[[:digit:]]+' or f.title like 'front%' or f.title like 'rear%'"
          q << "    or f.title like 'back%' or f.title like 'title%'"
+         q << "    or f.title like 'table%' or f.title like 'blank%'"
          q << "    or f.title regexp '^(IX|IV|V?I{0,3})$') and"
 
          # No visual history stuff
