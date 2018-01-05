@@ -3,29 +3,29 @@ ActiveAdmin.register_page "Statistics" do
 
    content do
       div :class => 'two-column' do
-         panel "Image Statictics" do
+         panel "Image Statistics" do
             render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "image"}
             render partial: '/admin/miscellaneous/statistics/image_query'
          end
-         panel "Unit Statictics" do
+         panel "Unit Statistics" do
             render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "unit"}
             render partial: '/admin/miscellaneous/statistics/unit_query'
          end
-         panel "Orders Processed Statictics" do
+         panel "Orders Processed Statistics" do
             render partial: '/admin/miscellaneous/statistics/processed_query'
          end
       end
 
       div :class => 'two-column' do
-         panel "Storage Statictics" do
+         panel "Storage Statistics" do
             render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "size"}
             render partial: '/admin/miscellaneous/statistics/size_query'
          end
-         panel "Metadata Statictics" do
+         panel "Metadata Statistics" do
             render partial: '/admin/miscellaneous/statistics/statistics', locals: { stat_group: "metadata"}
             render partial: '/admin/miscellaneous/statistics/metadata_query'
          end
-         panel "Archived Item Statictics" do
+         panel "Archived Item Statistics" do
             render partial: '/admin/miscellaneous/statistics/archived_query'
          end
       end
@@ -123,7 +123,7 @@ ActiveAdmin.register_page "Statistics" do
 
          # in date range
          q << " and #{date_clause}"
-         
+
          return Statistic.connection.execute( q ).first.first.to_i
       end
 
