@@ -123,9 +123,7 @@ ActiveAdmin.register_page "Statistics" do
 
          # in date range
          q << " and #{date_clause}"
-
-         puts "====> #{q} <===="
-
+         
          return Statistic.connection.execute( q ).first.first.to_i
       end
 
