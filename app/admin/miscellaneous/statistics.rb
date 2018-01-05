@@ -78,20 +78,38 @@ ActiveAdmin.register_page "Statistics" do
       end
 
       def archived_manuscript_pages(start_date, end_date)
+         date_clause = "f.date_archived >= '#{start_date}' and f.date_archived <= '#{end_date}'"
+         bound_q = "select m.id from master_files f inner join metadata m on m.id = f.metadata_id"
+         bound_q << " where f.title = 'Spine' and #{date_clause}"
+
          q = "select  count(f.id) from master_files f "
          q << "inner join metadata m on f.metadata_id = m.id where"
          q << "   (m.call_number like 'MSS%' or m.call_number like 'RG-%') and"
+
+         # Skip back sides of pages
          q << "   f.title not like '%verso' and"
+
+         # only take numbered pages, or pages that look like standard parts of MSS
          q << "   (f.title regexp '^[[:digit:]]+' or f.title like 'front%' or f.title like 'rear%'"
-         q << "    or f.title like 'back%' or f.title like 'title%' or f.title like 'index%' ) and"
-         q << "   f.date_archived >= '#{start_date}' and f.date_archived <= '#{end_date}'"
+         q << "    or f.title like 'back%' or f.title like 'title%'"
+         q << "    or f.title regexp '^(IX|IV|V?I{0,3})$') and"
+
+         # No visual history stuff
+         q << "   m.id != 3009 and"
+
+         # No Bound stuff
+         q << "   m.id not in (#{bound_q}) and "
+
+         # only date rage specified
+         q << "   #{date_clause}"
+
+         puts "[#{q}]"
+
          return Statistic.connection.execute( q ).first.first.to_i
       end
 
       def archived_photos(start_date, end_date)
-         conditions = []
-         conditions << "date_archived >= '#{start_date}'"
-         conditions << "date_archived <= '#{end_date}'"
+         # not MSS and not BOUND
 
          return 0
       end
