@@ -68,6 +68,9 @@ class PublishToIiif < BaseJob
             logger().debug("Compressing #{source} to #{jp2k_path}...")
             `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
             logger().debug("...compression complete")
+            if !File.exist?(jp2k_path) || File.size(jp2k_path) == 0
+               raise "Destination #{jp2k_path} does not exist or is zero length"
+            end
          else
             logger().warn("#{executable} not found, using ImageMagick instead")
             `/usr/local/bin/convert #{source} -quiet -compress JPEG2000 -quality 75 -define jp2:rate=1.5 #{jp2k_path}`
