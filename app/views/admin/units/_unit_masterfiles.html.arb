@@ -26,7 +26,7 @@ div id: "masterfile-list" do
 
          span id: "renumber-pages", class: 'mf-action-button disabled' do "Renumber Selected" end
 
-         if !unit.metadata.nil? && !unit.date_archived.blank?
+         if !unit.metadata.nil? && (!unit.date_archived.blank? || unit.reorder )
             token =  Time.now.to_i
             url = "#{Settings.pdf_url}/#{unit.metadata.pid}?unit=#{unit.id}&token=#{token}"
             span do
