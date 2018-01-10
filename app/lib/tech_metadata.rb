@@ -16,7 +16,7 @@ module TechMetadata
 
       image_tech_meta = ImageTechMeta.new
       image_tech_meta.master_file = master_file
-      image_tech_meta.image_format = image.format 
+      image_tech_meta.image_format = image.format
 
       if image.colorspace.to_s == 'RGBColorspace'
          image_tech_meta.color_space = 'RGB'
@@ -50,6 +50,19 @@ module TechMetadata
          image_tech_meta.aperture = image_exif.f_number.to_i if image_exif.f_number
          image_tech_meta.focal_length = image_exif.focal_length.to_s if image_exif.focal_length
          image_tech_meta.exif_version = image.get_exif_by_entry('ExifVersion')[0][1] if image.get_exif_by_entry('ExifVersion')[0][1]
+      else
+         if File.extname(image_path) == ".jp2"
+            # The RMagick ping results contain some very basic (but necessary) metadata
+            # grab it from there if possible
+            #
+            # inspect gives:
+            #    /lib_content38/jp2k/tsm/15/84/18/6/1584186.jp2 JP2 1365x2197 1365x2197+0+0 DirectClass 8-bit 233kb
+            # parse out dimensions
+            dims = image.inspect.split(" ")[2]
+            image_tech_meta.width = dims.split("x")[0]
+            image_tech_meta.height = dims.split("x")[1]
+            image_tech_meta.resolution = image.x_resolution
+         end
       end
 
       image_tech_meta.save!

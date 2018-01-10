@@ -13,7 +13,10 @@ namespace :gannon do
 
    desc "ingest all books"
    task :ingest_all  => :environment do
-      excel_dir = File.join(Rails.root, "gannon-excel")
+      name = ENV['name']
+      abort("Name is required") if name.nil?
+
+      excel_dir = File.join(Rails.root, "gannon-#{name}")
       if !Dir.exists? excel_dir
          abort "Excel dir #{excel_dir} does not exist"
       end
@@ -28,16 +31,20 @@ namespace :gannon do
    desc "ingest a single book"
    task :ingest  => :environment do
       bc = ENV['barcode']
+      name = ENV['name']
+      abort("Name is required") if name.nil?
       abort "barcode is required" if bc.nil?
 
-      excel_file = File.join("gannon-excel", "#{bc}.xlsx")
+      excel_file = File.join("gannon-#{name}", "#{bc}.xlsx")
       image_dir = File.join("gannon-content", bc)
 
       if !Dir.exists? image_dir
-         abort "Image dir #{image_dir} does not exist"
+         puts "ERROR: Image dir #{image_dir} does not exist"
+         next
       end
       if !File.exists? excel_file
-         abort "Excel file #{excel_file} does not exist"
+         puts "ERROR: Excel file #{excel_file} does not exist"
+         next
       end
 
       # get rights - no copyright US and collection_facet
@@ -75,7 +82,7 @@ namespace :gannon do
       end
 
      if unit.master_files.count > 0
-        puts "This unit already has master files. SKIPPING"
+#        puts "This unit already has master files. SKIPPING"
         next
      end
 
@@ -206,6 +213,24 @@ namespace :gannon do
       unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
       unit.metadata.update(exemplar: exemplar)
+   end
+
+   desc "Fix ALL missing jp2 dimensions metadata"
+   task :fix_missing_size  => :environment do
+      o = Order.find_by(order_title: "Gannon Digitization Project")
+      o.units.where("created_at > ?", "2018-01-01").each do |unit|
+         unit.metadata.update(date_dl_update: Time.now)
+         puts "CHECK UNIT #{unit.id}..."
+         unit.master_files.joins(:image_tech_meta).where("image_tech_meta.width is null").each do |mf|
+           img_path = MasterFile.iiif_path(mf.pid)
+           puts "   MF #{mf.id} missing dimensions"
+           image = Magick::Image.ping(img_path).first
+           dims = image.inspect.split(" ")[2]
+           mf.image_tech_meta.update(width: dims.split("x")[0], height: dims.split("x")[1])
+           mf.update(date_dl_update: Time.now)
+           puts "     updated to #{mf.image_tech_meta.width}x#{mf.image_tech_meta.height}"
+         end
+      end
    end
 
    desc "Fix missing jp2 metadata"
