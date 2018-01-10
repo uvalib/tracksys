@@ -1,6 +1,7 @@
 ActiveAdmin.register Department do
   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
-
+  config.per_page = [30, 50, 100, 250]
+  
   # strong paramters handling
   permit_params :name
 

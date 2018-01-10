@@ -2,6 +2,7 @@ ActiveAdmin.register Customer do
    # menu :priority => 3
    menu :parent => "Miscellaneous"
    config.batch_actions = false
+   config.per_page = [30, 50, 100, 250]
 
    # strong paramters handling
    permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,
@@ -222,7 +223,7 @@ ActiveAdmin.register Customer do
             ca = params[:customer]
             @customer.update(first_name: ca[:first_name], last_name: ca[:last_name],
                academic_status_id: ca[:academic_status_id], department_id: ca[:department_id])
-               
+
             addr = params[:customer][:primary_address_attributes]
             if !@customer.primary_address.nil?
                @customer.primary_address.update( address_1: addr[:address_1], address_2: addr[:address_s],

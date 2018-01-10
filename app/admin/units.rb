@@ -1,5 +1,6 @@
 ActiveAdmin.register Unit do
    menu :priority => 5
+   config.per_page = [30, 50, 100, 250]
 
    # eager load to preven n+1 queries, and improve performance
    includes :metadata, :order, :department, :agency

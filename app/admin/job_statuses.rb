@@ -1,6 +1,7 @@
 ActiveAdmin.register JobStatus do
    menu :priority => 8, if: proc{ !current_user.viewer? }
    actions :all, :except => [:edit, :new]
+   config.per_page = [30, 50, 100, 250, 500]
 
    filter :name_starts_with, :label=>"Job Type"
    filter :originator_type, :as => :select, :collection => ['Metadata', 'MasterFile', 'Project', 'Order', 'Unit'], :label => "Object"

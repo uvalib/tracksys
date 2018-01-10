@@ -3,6 +3,7 @@ ActiveAdmin.register Order do
 
    actions :all, :except => [:destroy]
    config.clear_action_items!
+   config.per_page = [30, 50, 100, 250]
 
    # strong paramters handling
    permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,

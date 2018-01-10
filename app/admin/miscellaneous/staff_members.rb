@@ -1,5 +1,6 @@
 ActiveAdmin.register StaffMember do
   config.sort_order = 'last_name_dsc'
+  config.per_page = [30, 50, 100, 250]
 
   menu :parent => "Miscellaneous"
 

@@ -1,6 +1,7 @@
 ActiveAdmin.register Agency do
   menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
   config.batch_actions = false
+  config.per_page = [30, 50, 100, 250]
 
   # strong paramters handling
   permit_params :name, :description, :parent_id
