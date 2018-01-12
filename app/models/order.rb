@@ -157,6 +157,17 @@ class Order < ApplicationRecord
       units_beings_prepared = Unit.where(:order_id => self.id).where('unit_status = "unapproved" or unit_status = "condition" or unit_status = "copyright"')
       return units_beings_prepared
    end
+   def unit_status_summary
+      cnt_un = 0
+      cnt_cr = 0
+      cnt_cond = 0
+      Unit.where(order_id: id).each do |u|
+         cnt_un += 1 if u.unit_status == "unapproved"
+         cnt_cr += 1 if u.unit_status == "copyright"
+         cnt_cond += 1 if u.unit_status == "condition"
+      end
+      return "There are currently #{cnt_un} unapproved, #{cnt_cr} pending copyright review and #{cnt_cond} pending condition review."
+   end
 
    def has_approved_units
       return Unit.where(:order_id => self.id).where('unit_status = "approved"').count > 0

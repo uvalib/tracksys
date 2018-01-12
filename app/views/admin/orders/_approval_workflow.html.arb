@@ -15,7 +15,8 @@ if order.order_status == 'await_fee'
    else
       if order.has_units_being_prepared.any?
          div do
-            "You must approve or cancel this order's units before clicking Customer Accepts Fee."
+            span do "You must approve or cancel this order's units before clicking Customer Accepts Fee. " end
+            span do order.unit_status_summary end
          end
       end
    end
@@ -62,7 +63,8 @@ else
       end
    elsif order.has_units_being_prepared.any?
       div do
-         "You must approve or cancel this order's units before approving."
+         span do "You must approve or cancel this order's units before approving. " end
+         span do order.unit_status_summary end
       end
    end
 end
