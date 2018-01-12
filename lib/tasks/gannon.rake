@@ -56,7 +56,7 @@ namespace :gannon do
       # find or create SirsiMetadata record
       sm = SirsiMetadata.find_by(barcode: bc)
       if sm.nil?
-         puts "Siri metadata record not found, creating..."
+         puts "Siri metadata record for #{bc} not found, creating..."
          meta =  nil
          begin
             meta = Virgo.external_lookup(nil, bc)
@@ -70,6 +70,8 @@ namespace :gannon do
             availability_policy: avail, use_right: rights,
             parent_metadata_id: 15784, dpla: 1, discoverability: 1,
             collection_facet: facet.name, ocr_hint: hint, date_dl_ingest: DateTime.now)
+      else
+         puts "Using existing SirsiMetadata #{sm.id} for barcode #{bc}"
       end
 
       if sm.units.count == 0
@@ -78,6 +80,7 @@ namespace :gannon do
          unit = Unit.create(order: o, metadata: sm, intended_use_id: 110, include_in_dl: 1, unit_status: "approved")
          puts "Created new unit #{unit.as_json}"
       else
+         puts "Using existing unit"
          unit = sm.units.first
       end
 
@@ -95,7 +98,6 @@ namespace :gannon do
       CSV.parse(csv_data, headers: true) do |row|
          next if row[0].blank?
          filename = row[0]
-         exemplar = filename if exemplar.nil?
 
          title = row[1]
          img_file = File.join(image_dir, filename)
@@ -212,6 +214,7 @@ namespace :gannon do
 
       unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
+      exemplar = unit.master_files.first.filename if exemplar.nil?
       unit.metadata.update(exemplar: exemplar)
    end
 
@@ -230,6 +233,15 @@ namespace :gannon do
            mf.update(date_dl_update: Time.now)
            puts "     updated to #{mf.image_tech_meta.width}x#{mf.image_tech_meta.height}"
          end
+      end
+   end
+
+   desc "Fix bad exemplar"
+   task :fix_exemplar  => :environment do
+      Metadata.where(exemplar: "00000001.jp2").each do |m|
+         e = m.units.first.master_files.first.filename
+         puts "Update #{m.id}: #{m.barcode} exemplar to #{e}"
+         m.update(exemplar: e, date_dl_update: Time.now)
       end
    end
 
