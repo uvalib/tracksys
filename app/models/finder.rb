@@ -91,6 +91,12 @@ class Finder
       del_dir = "#{unit_dir}_from_#{scan_dir}"
       base_dir = base_dir(unit)
       ready_to_del_dir = File.join(base_dir, "ready_to_delete", "from_scan", del_dir)
+      if Dir.exists? ready_to_del_dir
+         ts = Time.now.to_i
+         del_dir << ".#{ts}"
+         ready_to_del_dir = File.join(base_dir, "ready_to_delete", "from_scan", del_dir)
+      end
+      return ready_to_del_dir
     end
 
     def self.base_dir(unit)
