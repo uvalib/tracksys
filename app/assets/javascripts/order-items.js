@@ -129,6 +129,14 @@ $(function() {
 
    $("#create-metadata").on("click", function() {
       $("#create-unit-panel").hide();
+      $("#create_metadata input, select").each(function() {
+         if ( $(this).attr("id") != "ok-metadata-create" ) {
+            $(this).val("");
+            $(this).prop("checked", false);
+         }
+      });
+      $("#ok-metadata-create").removeClass("disabled");
+      $("#availability_policy_id").val("1");
       $("#metadata-builder").show();
    });
 
