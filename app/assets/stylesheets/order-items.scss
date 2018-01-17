@@ -7,6 +7,24 @@ span.btn.add-unit {
    border-radius: 4px;
    float: right;
 }
+div.unpaid-customer {
+   border: 1px solid #eed;
+   background: #ffc;
+   padding: 10px 20px;
+   position: relative;
+   span.warn-icon {
+      background-image: image_url("warn.png");
+      width:48px;
+      height:48px;
+      display: inline-block;
+      position: absolute;
+      right: 8px;
+      top: 8px;
+   }
+   p {
+      margin:2px;
+   }
+}
 div.order-items, div.order-info {
    p {
       margin: 2px 0;

@@ -1,3 +1,13 @@
+if order.customer.unpaid_invoices? && order.awaiting_approval?
+   div class: "unpaid-customer" do
+      msg = "<p>Customer #{order.customer.full_name} has prior unpaid invoices. "
+      msg << "This should be resolved before approving the order.</p><p><b>Contact information:</b> "
+      msg << "<a href='mailto:#{order.customer.email}'>#{order.customer.email}</a>, "
+      msg << "#{order.customer.primary_address.phone}</p>"
+      msg << "<span class='warn-icon'></span>"
+      raw("#{msg}")
+   end
+end
 div :class => 'two-column' do
    panel "Basic Information" do
       attributes_table_for order do

@@ -119,6 +119,10 @@ class Order < ApplicationRecord
       return true
    end
 
+   def awaiting_approval?
+      return (order_status == 'requested' || order_status == 'await_fee')
+   end
+
    # Returns a boolean value indicating whether the Order is approved
    # for digitization ("order") or not ("request").
    def approved?

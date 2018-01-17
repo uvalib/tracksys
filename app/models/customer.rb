@@ -66,6 +66,10 @@ class Customer < ApplicationRecord
       self.orders.where('order_status = ?', 'requested')
    end
 
+   def unpaid_invoices?
+      return invoices.where("date_fee_paid is null and orders.fee_actual > 0").count > 0
+   end
+
 end
 
 # == Schema Information
