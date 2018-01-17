@@ -11,6 +11,159 @@ namespace :gannon do
          date_request_submitted: DateTime.now, order_status: "approved",  date_due: (Date.today+1.year))
    end
 
+   desc "ingest RAW books"
+   task :ingest_raw  => :environment do
+      info = {
+         rights: UseRight.find(10),
+         facet: CollectionFacet.find_by(name: "Gannon Collection"),
+         avail: AvailabilityPolicy.find(1), # public
+         hint: OcrHint.find(1), # text
+         order: Order.find_by(order_title: "Gannon Digitization Project")
+      }
+
+      max = 100
+      cnt = 0
+      Dir.glob("/digiserv-production/Gannon-Final/X*").each do |dir|
+         next if File.basename(dir).size > 10
+         barcode = File.basename(dir)
+
+         # First; metadata
+         sm = SirsiMetadata.find_by(barcode: barcode)
+         if sm.nil?
+            sm = create_metadata(barcode, info)
+            next if sm.nil?
+         else
+            puts "Using existing SirsiMetadata #{sm.id} for barcode #{barcode}"
+         end
+
+         # Second - UNIT
+         if sm.units.count == 0
+            unit = Unit.create(order: info[:order], metadata: sm, intended_use_id: 110, include_in_dl: 1, unit_status: "approved")
+            puts "Created new unit #{unit.as_json}"
+         else
+            puts "Using existing unit #{sm.units.first.id}"
+            unit = sm.units.first
+         end
+
+        if unit.master_files.count > 0
+           puts "Unit #{unit.id} already has master files. SKIPPING"
+           next
+        end
+
+        ingest_raw_files(sm, unit, dir)
+        cnt +=1 
+        if cnt >= max
+           puts "INGEST #{cnt} BARCODES; STOPPING"
+           break
+        end
+      end
+   end
+
+   def create_metadata(bc, info)
+      puts "Creating SiriMetadata record for #{bc}"
+      meta =  nil
+      begin
+         meta = Virgo.external_lookup(nil, bc)
+      rescue Exception=>e
+         puts "ERROR: Unable to find barcode #{bc}; skipping"
+         return nil
+      end
+      sm = SirsiMetadata.create(is_approved: true,
+         barcode: bc, catalog_key: meta[:catalog_key], call_number: meta[:call_number],
+         title: meta[:title], creator_name: meta[:creator_name],
+         availability_policy: info[:avail], use_right: info[:rights],
+         parent_metadata_id: 15784, dpla: 1, discoverability: 1,
+         collection_facet: info[:facet].name, ocr_hint: info[:hint], date_dl_ingest: DateTime.now)
+      return sm
+   end
+
+   def ingest_raw_files(sm, unit, dir)
+      images = [".tif", ".jp2"]
+      unit_dir = "%09d" % unit.id
+
+      Dir["#{dir}/*"].sort.each do |file|
+         next if !images.include? File.extname(file)
+         puts "Processing #{file}..."
+
+         # convert filename from source folder to tracksys scheme
+         img_file = File.basename(file)
+         fn_page = "%04d" % img_file.to_i
+         ts_filename = "#{unit_dir}_#{fn_page}.#{img_file.split('.')[1]}"
+         ts_txt_filename = "#{unit_dir}_#{fn_page}.txt"
+
+         # if masterfile with this filename already exists, skip it
+         if !MasterFile.find_by(filename: ts_filename).nil?
+            print "."
+            next
+         end
+
+         # Before anything else happens, run identify on the file to see if it is valid
+         cmd = "identify #{file}"
+         if !system(cmd)
+            puts "ERROR: File #{file} is invalid. Skipping"
+            next
+         end
+
+         md5 = Digest::MD5.hexdigest(File.read(file))
+         mf = MasterFile.create!(unit: unit, filename: ts_filename, filesize: File.size(file),
+            title: "#{img_file.to_i}", md5: md5, metadata: sm)
+         TechMetadata.create(mf, file)
+
+         file_type = "TIFF"
+         if img_file.include? ".jp2"
+            pth = iiif_path(mf.pid)
+            FileUtils.copy(file, pth)
+            file_type = "JP2"
+         else
+            publish_to_iiif(mf, file)
+         end
+
+         # Update MF with OCR text
+         txt_file = "#{file.split('.')[0]}.txt"
+         tf = File.open(txt_file, "rb")
+         ocr_txt = tf.read
+         tf.close
+         mf.update!(transcription_text: ocr_txt, text_source: 0)
+
+         # Archive!
+         dest_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
+         FileUtils.makedirs(dest_dir) if !Dir.exists? dest_dir
+
+         dest_file = File.join(dest_dir, ts_txt_filename )
+         FileUtils.copy(txt_file, dest_file)
+
+         dest_file = File.join(dest_dir, ts_filename )
+         FileUtils.copy(file, dest_file)
+         dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
+         mf.update!(date_archived: DateTime.now, date_dl_ingest: DateTime.now)
+         if dest_md5 != md5
+            puts "ERROR: MD5 does not match for #{ts_filename}"
+         end
+      end
+
+      unit.reload # up to date with newly added MF
+      unit.update(master_files_count: unit.master_files.count, date_dl_deliverables_ready: DateTime.now,
+         date_archived: DateTime.now, complete_scan: 1)
+      unit.metadata.update(exemplar:  unit.master_files.first.filename)
+   end
+
+   desc "ingest all books"
+   task :ingest_all  => :environment do
+      name = ENV['name']
+      abort("Name is required") if name.nil?
+
+      excel_dir = File.join(Rails.root, "gannon-#{name}")
+      if !Dir.exists? excel_dir
+         abort "Excel dir #{excel_dir} does not exist"
+      end
+
+      Dir.foreach(excel_dir) do |f|
+         next if !f.include? ".xlsx"
+         ENV['barcode'] = f.split(".")[0]
+         Rake::Task['gannon:ingest'].execute
+      end
+   end 
+
    desc "ingest all books"
    task :ingest_all  => :environment do
       name = ENV['name']
