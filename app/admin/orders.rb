@@ -274,6 +274,22 @@ ActiveAdmin.register Order do
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
    end
 
+   member_action :send_order_alt_email, :method => :put do
+      order = Order.find(params[:id])
+      msg = OrderMailer.web_delivery(order, ['holding'])
+      msg.body = order.email.to_s
+      msg.to = [params[:email]]
+      msg.date = Time.now
+      msg.deliver
+
+      sn = order.staff_notes
+      sn << " " if !sn.blank?
+      sn << "Order notification sent to alternate email address: #{params[:email]}."
+      order.update(staff_notes: sn)
+      
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
+   end
+
    member_action :generate_pdf_notice, :method => :put do
       order = Order.find(params[:id])
       pdf = order.generate_notice

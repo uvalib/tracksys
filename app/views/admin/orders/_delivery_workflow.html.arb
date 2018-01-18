@@ -12,6 +12,9 @@ if order.order_status == 'approved' || order.order_status == 'completed'
             button_to "Send Email to Customer", send_order_email_admin_order_path(order.id), :method => :put
          end
       end
+      div :class => 'workflow_button' do
+         button_to "Send Email to Alternate", send_order_alt_email_admin_order_path(order.id), id: "alt-email",:method => :put
+      end
    else
       if order.order_status == 'completed'
          div :class => 'workflow_button' do

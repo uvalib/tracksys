@@ -1,4 +1,14 @@
 $(function() {
+   $("#alt-email").on("click", function(e)  {
+      e.preventDefault();
+      var f = $(this).closest("form");
+      var act = f.attr("action");
+      var email = prompt("Enter the email address that will receive the order notification: ");
+      if (email) {
+         f.attr("action", act+"?email="+email);
+         f.submit();
+      }
+   });
    var discardItem = function(itemDiv) {
       var itemId = itemDiv.data("item-id");
       $.ajax({
