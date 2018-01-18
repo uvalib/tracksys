@@ -6,7 +6,7 @@ div :class => "columns-none" do
         div id: "masterfile-list" do
            "No master files are associated with this unit."
         end
-        if unit.intended_use.id != 110 # Digital Collection Building
+        if !unit.intended_use.nil? && unit.intended_use.id != 110 # Digital Collection Building
            div :class=>'panel-buttons' do
               if unit.unit_status != "approved"
                 div do "Master files cannot be aded to unapproved units." end
