@@ -89,7 +89,7 @@ Tracksys::Application.configure do
    Rails.application.config.middleware.use ExceptionNotification::Rack,
       :email => {
          :ignore_crawlers => %w{Googlebot bingbot},
-         :sender_address => "noreply@virginia.edu"
+         :sender_address => "noreply@virginia.edu",
          :exception_recipients => "lf6f@virginia.edu"
       }
 
