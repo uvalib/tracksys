@@ -81,7 +81,16 @@ Tracksys::Application.configure do
    # Do not dump schema after migrations.
    config.active_record.dump_schema_after_migration = false
 
-   # Provide path for CSS for Roadie.
+   # mailer and exception mailer setup
    config.action_mailer.default_url_options = {:host => 'tracksys.lib.virginia.edu'}
+
+   # this is the default, be needs to be explicitly set for the exception notifier
+   config.action_mailer.delivery_method = :smtp
+   Rails.application.config.middleware.use ExceptionNotification::Rack,
+      :email => {
+         :ignore_crawlers => %w{Googlebot bingbot},
+         :sender_address => "noreply@virginia.edu"
+         :exception_recipients => "lf6f@virginia.edu"
+      }
 
 end

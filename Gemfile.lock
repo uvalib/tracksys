@@ -87,6 +87,9 @@ GEM
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     erubi (1.7.0)
+    exception_notification (4.2.2)
+      actionmailer (>= 4.0, < 6)
+      activesupport (>= 4.0, < 6)
     execjs (2.7.0)
     exifr (1.3.3)
     ffi (1.9.18)
@@ -269,6 +272,7 @@ DEPENDENCIES
   country-select
   daemons
   delayed_job_active_record
+  exception_notification
   exifr
   figaro
   jquery-colorbox-rails
