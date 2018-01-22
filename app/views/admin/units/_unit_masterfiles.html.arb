@@ -8,7 +8,7 @@ div id: "masterfile-list" do
    end
 
    div class: "unit-mf-action-panel" do
-      if page_size.to_i >= unit.master_files.count
+      if unit.master_files.count > page_size.to_i
          span do
             link_to "View All", "/admin/units/#{unit.id}?page_size=#{unit.master_files.size}", class: "mf-action-button"
          end
