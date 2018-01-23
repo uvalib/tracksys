@@ -1,6 +1,5 @@
 ActiveAdmin.register SirsiMetadata do
   menu :parent => "Metadata"
-  config.batch_actions = false
   config.per_page = [30, 50, 100, 250]
 
   # strong paramters handling
@@ -10,12 +9,20 @@ ActiveAdmin.register SirsiMetadata do
       :collection_facet, :use_right_id, :collection_id,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
+  actions :all, :except => [:destroy]
   config.clear_action_items!
 
   action_item :new, :only => :index do
      raw("<a href='/admin/sirsi_metadata/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
 
+  action_item :checkout, only: :show do
+     if !current_user.viewer? && !current_user.student? && !resource.checked_out?
+        raw("<a href='/admin/sirsi_metadata/#{resource.id}/checkout' rel='nofollow' data-method='put'>Checkout Materials</a>")
+     else
+        raw("<a href='/admin/sirsi_metadata/#{resource.id}/checkin' rel='nofollow' data-method='put'>Return Materials</a>")
+     end
+  end
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
   end
@@ -30,6 +37,7 @@ ActiveAdmin.register SirsiMetadata do
   scope :in_digital_library
   scope :not_in_digital_library
   scope :dpla
+  scope :checked_out
 
   filter :barcode_starts_with, label: "Barcode"
   filter :call_number_starts_with, label: "Call Number"
@@ -56,6 +64,19 @@ ActiveAdmin.register SirsiMetadata do
     column("In digital library?") {|sirsi_metadata| format_boolean_as_yes_no(sirsi_metadata.in_dl?)}
   end
 
+  batch_action :checkout do |selection|
+     SirsiMetadata.find(selection).each { |s| s.checkout }
+     flash[:notice] = "Metadata #{selection.join(", ")} are now checked out to DigiServ."
+     redirect_to "/admin/sirsi_metadata"
+  end
+
+  batch_action :return do |selection|
+     SirsiMetadata.find(selection).each { |s| s.checkin }
+     flash[:notice] = "Metadata #{selection.join(", ")} are now checked in from DigiServ."
+     redirect_to "/admin/sirsi_metadata"
+  end
+
+
   index :id => 'sirsi_metadata' do
     selectable_column
     column :id
@@ -75,6 +96,9 @@ ActiveAdmin.register SirsiMetadata do
       end
     end
     column :barcode, :class => 'sortable_short'
+    column ("Checked Out?") do |sirsi_metadata|
+      format_boolean_as_yes_no(sirsi_metadata.checked_out?)
+    end
     column ("Digital Library?") do |sirsi_metadata|
       div do
         format_boolean_as_yes_no(sirsi_metadata.in_dl?)
@@ -107,6 +131,11 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   show :title => proc { truncate(@sirsi_meta[:title], :length => 60) } do
+     if sirsi_metadata.checked_out?
+      div class: "columns-none checkout-notice" do
+         "- Checked out on #{sirsi_metadata.checked_out_out_on} -"
+      end
+    end
     div :class => 'three-column' do
       panel "Basic Metadata" do
         render '/admin/metadata/sirsi_metadata/sirsi_meta'
@@ -138,6 +167,9 @@ ActiveAdmin.register SirsiMetadata do
           row :ocr_language_hint
           row ("Date Created") do |sirsi_metadata|
             sirsi_metadata.created_at
+          end
+          row ("Checked Out?") do |sirsi_metadata|
+             render partial: "/admin/metadata/sirsi_metadata/checkout_log", locals: {metadata: sirsi_metadata}
           end
         end
       end
@@ -230,6 +262,15 @@ ActiveAdmin.register SirsiMetadata do
   form :partial => "/admin/metadata/sirsi_metadata/form"
 
   collection_action :external_lookup
+
+   member_action :checkout, :method => :put do
+      SirsiMetadata.find(params[:id]).checkout
+      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials marked as checked out"
+   end
+   member_action :checkin, :method => :put do
+      SirsiMetadata.find(params[:id]).checkin
+      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials marked as returned"
+   end
 
   # Flag for publication  overnight
   #

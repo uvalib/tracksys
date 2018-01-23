@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171114182322) do
+ActiveRecord::Schema.define(version: 20180119152029) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -110,6 +110,13 @@ ActiveRecord::Schema.define(version: 20171114182322) do
   create_table "categories", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
     t.integer "projects_count", default: 0
+  end
+
+  create_table "checkouts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "metadata_id"
+    t.date "checkout_date"
+    t.date "return_date"
+    t.index ["metadata_id"], name: "index_checkouts_on_metadata_id"
   end
 
   create_table "collection_facets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

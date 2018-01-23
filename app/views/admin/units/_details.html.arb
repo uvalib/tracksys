@@ -32,18 +32,19 @@ div :class => 'two-column' do
       row :ocr_master_files
       row :remove_watermark
       if unit.reorder == false
-         row("Date Delivered to DigiServ") do |unit|
-           format_date(unit.date_materials_received)
-         end
-         row("Date Returned from DigiServ") do |unit|
-           format_date(unit.date_materials_returned)
-         end
          row :date_archived do |unit|
            format_datetime(unit.date_archived)
          end
       end
       row :date_patron_deliverables_ready do |unit|
         format_datetime(unit.date_patron_deliverables_ready)
+      end
+      row ("Materials Checked Out?") do |unit|
+        if unit.metadata.checked_out?
+           span class:"status_tag yes" do "Yes" end
+        else
+           span class:"status_tag no" do "No" end
+        end
       end
     end
   end

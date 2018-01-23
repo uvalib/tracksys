@@ -1,0 +1,18 @@
+<span><%= format_boolean_as_yes_no(metadata.checked_out?) %></span>
+   <% if metadata.checkouts.count > 0 %>
+      <span class="audit-button"></span>
+      <div class="audit-log">
+         <table>
+            <tr><th>Checkout Date</th><th>Return Date</th></tr>
+            <% metadata.checkouts.each do |ae | %>
+            <tr>
+               <td><%= ae.checkout_date.strftime('%F') %></td>
+               <% returned = "N/A"
+                  returned = ae.return_date.strftime('%F') if !ae.return_date.blank? %>
+               <td><%= returned %></td>
+            </tr>
+            <% end %>
+         </table>
+      </div>
+   <% end %>
+</span>

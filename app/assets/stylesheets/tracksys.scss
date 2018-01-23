@@ -37,7 +37,19 @@ body.active_admin {
       background-image: none;
       text-shadow: none;
       box-shadow: none;
-      border:none;
+      border-right: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+   }
+   table.index_table td {
+      border-right: 1px solid #eee;
+      border-left: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+   }
+   table.index_table tr.selected td {
+      border-right: 1px solid #c9d4dc;
+      border-left: 1px solid #c9d4dc;
+      border-bottom: 1px solid #c9d4dc;
    }
    table.index_table th.sorted-desc, table.index_table th.sorted-asc {
       background-color: #ddd;
@@ -45,7 +57,16 @@ body.active_admin {
    div.section, div.panel {
       box-shadow: none;
       border-radius: 0;
-      border: none;
+      border:none;
+   }
+   div.columns-none.checkout-notice {
+      background: cornflowerblue;
+      color: white;
+      padding: 5px 0 5px 15px;
+      border-radius: 15px;
+      text-align: center;
+      margin-top: -15px;
+      position: relative;
    }
    #header {
       background-color: #405056;
