@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180119152029) do
+ActiveRecord::Schema.define(version: 20180123190130) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -560,8 +560,6 @@ ActiveRecord::Schema.define(version: 20180119152029) do
     t.integer "order_id", default: 0, null: false
     t.integer "metadata_id"
     t.string "unit_status"
-    t.datetime "date_materials_received"
-    t.datetime "date_materials_returned"
     t.integer "unit_extent_estimated"
     t.integer "unit_extent_actual"
     t.text "patron_source_url"
@@ -575,7 +573,6 @@ ActiveRecord::Schema.define(version: 20180119152029) do
     t.boolean "include_in_dl", default: false
     t.datetime "date_dl_deliverables_ready"
     t.boolean "remove_watermark", default: false
-    t.boolean "checked_out", default: false
     t.integer "master_files_count", default: 0
     t.boolean "complete_scan", default: false
     t.boolean "reorder", default: false

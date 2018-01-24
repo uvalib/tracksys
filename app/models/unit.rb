@@ -46,8 +46,6 @@ class Unit < ApplicationRecord
    scope :approved, ->{where(:unit_status => 'approved') }
    scope :unapproved, ->{where(:unit_status => 'unapproved') }
    scope :canceled, ->{where(:unit_status => 'canceled') }
-   scope :overdue_materials, ->{where("date_materials_received IS NOT NULL AND date_archived IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
-   scope :checkedout_materials, ->{where("date_materials_received IS NOT NULL AND date_materials_returned IS NULL").where('date_materials_received >= "2012-03-01"') }
 
    def self.uncompleted_units_of_partially_completed_orders
       Unit.where(unit_status: 'approved', date_patron_deliverables_ready: nil, date_archived: nil)
@@ -232,8 +230,6 @@ end
 #  order_id                       :integer          default(0), not null
 #  metadata_id                    :integer
 #  unit_status                    :string(255)
-#  date_materials_received        :datetime
-#  date_materials_returned        :datetime
 #  unit_extent_estimated          :integer
 #  unit_extent_actual             :integer
 #  patron_source_url              :text(65535)
@@ -247,7 +243,6 @@ end
 #  include_in_dl                  :boolean          default(FALSE)
 #  date_dl_deliverables_ready     :datetime
 #  remove_watermark               :boolean          default(FALSE)
-#  checked_out                    :boolean          default(FALSE)
 #  master_files_count             :integer          default(0)
 #  complete_scan                  :boolean          default(FALSE)
 #  reorder                        :boolean          default(FALSE)
