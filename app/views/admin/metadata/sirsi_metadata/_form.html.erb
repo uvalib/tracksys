@@ -1,5 +1,5 @@
 <%= semantic_form_for([:admin, @sirsi_metadata], :url=>"/admin/sirsi_metadata/#{@sirsi_metadata.id}") do |f| %>
-
+<%= f.semantic_errors *f.object.errors.keys %>
 <fieldset class="three-column panel">
    <legend><span>Basic Information</span></legend>
   <%= render :partial=>'/admin/metadata/sirsi_metadata/sirsi_meta', locals: {edit: true} %>
