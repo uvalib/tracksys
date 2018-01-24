@@ -122,6 +122,7 @@ class SirsiMetadata < Metadata
    validates :desc_metadata, :presence=>false
    validates :external_system, :presence=>false
    validates :external_uri, :presence=>false
+   validates :barcode, :presence=>true, :uniqueness=>true
    validates :title, :presence => {:message => "Title is required" }
 
    #------------------------------------------------------------------

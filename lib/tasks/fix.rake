@@ -195,4 +195,56 @@ namespace :fix do
          publish_to_iiif(mf, "#{src}/#{mf.filename}" )
       end
    end
+
+   desc "fix duplicate barcodes"
+   task :duplicate_barcodes => :environment do
+      q = "select id,barcode from metadata m "
+      q << " where type = 'SirsiMetadata' and barcode <> '' "
+      q << " GROUP BY barcode "
+      q << " HAVING ( COUNT(barcode) = 2 ) order by cnt asc"
+      Statistic.connection.execute(q).each do |resp|
+         bc = resp[1]
+         dup_id = resp[0]
+         SirsiMetadata.where("barcode=?", bc).each do |sm|
+            if sm.units.count == 0
+               if sm.master_files.count == 0
+                  puts "#{sm.id}: #{bc} is an UNUSED DUPLICATE"
+                  sm.destroy
+               else
+                  puts "#{sm.id} : #{bc} HAS NO UNITS but used #{resp[5]} times"
+                  mf = sm.master_files.first
+                  md  = mf.unit.metadata
+                  puts "...but MF belong to a unit with metadata #{md.id}, #{md.barcode}"
+                  puts "... SKIPPING ODD CASE"
+                  break
+               end
+            else
+               if sm.units.count > max_unit
+                  max_unit = sm.units.count
+                  tgt_md_id = sm.id
+               end
+            end
+            if tgt_md_id > -1
+               puts "BARCODE #{bc} should consolidate to MD #{tgt_md_id} with #{max_unit} units"
+            end
+         end
+      end
+   end
+
+   desc "fix UNUSED duplicate barcodes"
+   task :unused_duplicate_barcodes => :environment do
+      q = "select id,barcode from metadata m "
+      q << " where type = 'SirsiMetadata' and barcode <> '' "
+      q << " GROUP BY barcode "
+      q << " HAVING ( COUNT(barcode) >1 )"
+      Statistic.connection.execute(q).each do |resp|
+         bc = resp[1]
+         SirsiMetadata.where("barcode=?", bc).each do |sm|
+            if sm.units.count == 0 &&  sm.master_files.count == 0
+               puts "#{sm.id}: #{bc} is an UNUSED DUPLICATE"
+               sm.destroy
+            end
+         end
+      end
+   end
 end

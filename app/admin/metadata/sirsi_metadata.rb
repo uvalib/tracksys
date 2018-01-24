@@ -1,5 +1,5 @@
 ActiveAdmin.register SirsiMetadata do
-  menu :parent => "Metadata"
+  menu :parent => "Metadata", :priority => 1
   config.batch_actions = false
   config.per_page = [30, 50, 100, 250]
 
