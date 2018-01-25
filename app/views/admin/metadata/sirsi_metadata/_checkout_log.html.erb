@@ -6,9 +6,9 @@
             <tr><th>Checkout Date</th><th>Return Date</th></tr>
             <% metadata.checkouts.each do |ae | %>
             <tr>
-               <td><%= ae.checkout_date.strftime('%F') %></td>
+               <td><%= ae.checkout_at.strftime('%F %r') %></td>
                <% returned = "N/A"
-                  returned = ae.return_date.strftime('%F') if !ae.return_date.blank? %>
+                  returned = ae.return_at.strftime('%F %r') if !ae.return_at.blank? %>
                <td><%= returned %></td>
             </tr>
             <% end %>

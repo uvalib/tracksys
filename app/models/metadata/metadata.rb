@@ -30,7 +30,7 @@ class Metadata < ApplicationRecord
    scope :need_exemplars,  ->{ where("exemplar is NULL") }
    scope :dpla, ->{where(:dpla => true) }
    scope :checked_out, ->{
-      joins(:checkouts).where("checkouts.return_date is null")
+      joins(:checkouts).where("checkouts.return_at is null")
    }
 
    #------------------------------------------------------------------
@@ -92,20 +92,20 @@ class Metadata < ApplicationRecord
 
    def checked_out?
       return false if checkouts.count == 0
-      return checkouts.order("checkout_date desc").first.return_date.nil?
+      return checkouts.order("checkout_at desc").first.return_at.nil?
    end
-   def checked_out_out_on
+   def last_checkout
       return "" if !checked_out?
-      return checkouts.order("checkout_date desc").first.checkout_date.strftime("%F")
+      return checkouts.order("checkout_at desc").first.checkout_at.strftime("%F %r")
    end
 
    def checkout
       return if checked_out?
-      Checkout.create(metadata: self, checkout_date: Date.today)
+      Checkout.create(metadata: self, checkout_at: DateTime.now)
    end
    def checkin
       return if !checked_out?
-      checkouts.order("checkout_date desc").first.update(return_date: Date.today)
+      checkouts.order("checkout_at desc").first.update(return_at: DateTime.now)
    end
 
    # Returns an array of MasterFile objects that are in units to be included in the DL

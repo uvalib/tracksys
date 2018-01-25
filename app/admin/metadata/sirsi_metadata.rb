@@ -59,20 +59,19 @@ ActiveAdmin.register SirsiMetadata do
     column :title
     column :creator_name
     column :call_number
-    #column :location  # Removed. This value needs to be looked up in solr for each record, causing large reports to fail (throttle or timeout)
     column("# of Images") {|sirsi_metadata| sirsi_metadata.master_files.count}
     column("In digital library?") {|sirsi_metadata| format_boolean_as_yes_no(sirsi_metadata.in_dl?)}
   end
 
   batch_action :checkout do |selection|
      SirsiMetadata.find(selection).each { |s| s.checkout }
-     flash[:notice] = "Metadata #{selection.join(", ")} are now checked out to DigiServ."
+     flash[:notice] = "#{selection.size} item(s) have been checked out to DigiServ."
      redirect_to "/admin/sirsi_metadata"
   end
 
   batch_action :return do |selection|
      SirsiMetadata.find(selection).each { |s| s.checkin }
-     flash[:notice] = "Metadata #{selection.join(", ")} are now checked in from DigiServ."
+     flash[:notice] = "#{selection.size} item(s) have been returned from DigiServ."
      redirect_to "/admin/sirsi_metadata"
   end
 
@@ -133,7 +132,7 @@ ActiveAdmin.register SirsiMetadata do
   show :title => proc { truncate(@sirsi_meta[:title], :length => 60) } do
      if sirsi_metadata.checked_out?
       div class: "columns-none checkout-notice" do
-         "- Checked out on #{sirsi_metadata.checked_out_out_on} -"
+         "- Checked out on #{sirsi_metadata.last_checkout} -"
       end
     end
     div :class => 'three-column' do
@@ -265,11 +264,11 @@ ActiveAdmin.register SirsiMetadata do
 
    member_action :checkout, :method => :put do
       SirsiMetadata.find(params[:id]).checkout
-      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials marked as checked out"
+      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials checked out to DigiServ."
    end
    member_action :checkin, :method => :put do
       SirsiMetadata.find(params[:id]).checkin
-      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials marked as returned"
+      redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials returned from DigiServ."
    end
 
   # Flag for publication  overnight

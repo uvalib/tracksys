@@ -1,4 +1,4 @@
 class Checkout < ApplicationRecord
    belongs_to :metadata
-   validates :checkout_date, presence: true
+   validates :checkout_at, presence: true
 end

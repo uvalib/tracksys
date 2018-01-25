@@ -114,8 +114,8 @@ ActiveRecord::Schema.define(version: 20180123190130) do
 
   create_table "checkouts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.bigint "metadata_id"
-    t.date "checkout_date"
-    t.date "return_date"
+    t.datetime "checkout_at"
+    t.datetime "return_at"
     t.index ["metadata_id"], name: "index_checkouts_on_metadata_id"
   end
 
