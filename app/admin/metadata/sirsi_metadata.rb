@@ -102,11 +102,6 @@ ActiveAdmin.register SirsiMetadata do
       div do
         format_boolean_as_yes_no(sirsi_metadata.in_dl?)
       end
-      if sirsi_metadata.in_dl?
-        div do
-          link_to "VIRGO", sirsi_metadata.dl_virgo_url, :target => "_blank"
-        end
-      end
     end
     column ("DPLA?") do |sirsi_metadata|
       format_boolean_as_yes_no(sirsi_metadata.dpla)
@@ -206,12 +201,7 @@ ActiveAdmin.register SirsiMetadata do
       row ("Catalog Record") do |sirsi_metadata|
         if sirsi_metadata.in_catalog?
           div do
-            link_to "VIRGO (Physical Record)", sirsi_metadata.physical_virgo_url, :target => "_blank"
-          end
-        end
-        if sirsi_metadata.in_dl? && sirsi_metadata.discoverability
-          div do
-            link_to "VIRGO (Digital Record)", sirsi_metadata.dl_virgo_url, :target => "_blank"
+            link_to "VIRGO", sirsi_metadata.physical_virgo_url, :target => "_blank"
           end
         end
       end

@@ -133,10 +133,6 @@ class Metadata < ApplicationRecord
       return "#{Settings.virgo_url}/#{self.catalog_key}"
    end
 
-   def dl_virgo_url
-      return "#{Settings.virgo_url}/#{self.pid}"
-   end
-
    def agency_links
       return "" if self.agencies.empty?
       out = ""
