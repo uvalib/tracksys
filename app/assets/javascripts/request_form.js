@@ -84,7 +84,7 @@ $(document).ready(function () {
    };
 
    var validateItem = function(index) {
-      item = getItemData();
+      var item = getItemData();
       if ( item.title.length === 0 ) {
          $("div.request-error").text("Title is required");
          $("div.request-error").show();
