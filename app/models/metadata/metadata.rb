@@ -17,6 +17,7 @@ class Metadata < ApplicationRecord
 
    has_many :agencies, :through => :orders
    has_many :customers, :through => :orders
+   has_many :checkouts
 
    #------------------------------------------------------------------
    # scopes
@@ -28,6 +29,9 @@ class Metadata < ApplicationRecord
    scope :has_exemplars,  ->{ where("exemplar is NOT NULL") }
    scope :need_exemplars,  ->{ where("exemplar is NULL") }
    scope :dpla, ->{where(:dpla => true) }
+   scope :checked_out, ->{
+      joins(:checkouts).where("checkouts.return_at is null")
+   }
 
    #------------------------------------------------------------------
    # validations
@@ -84,6 +88,24 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    def url_fragment
       return null
+   end
+
+   def checked_out?
+      return false if checkouts.count == 0
+      return checkouts.order("checkout_at desc").first.return_at.nil?
+   end
+   def last_checkout
+      return "" if !checked_out?
+      return checkouts.order("checkout_at desc").first.checkout_at.strftime("%F %r")
+   end
+
+   def checkout
+      return if checked_out?
+      Checkout.create(metadata: self, checkout_at: DateTime.now)
+   end
+   def checkin
+      return if !checked_out?
+      checkouts.order("checkout_at desc").first.update(return_at: DateTime.now)
    end
 
    # Returns an array of MasterFile objects that are in units to be included in the DL

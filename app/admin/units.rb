@@ -7,7 +7,7 @@ ActiveAdmin.register Unit do
 
    # strong paramters handling
    permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
-      :intended_use_id, :remove_watermark, :date_materials_received, :date_materials_returned, :date_archived,
+      :intended_use_id, :remove_watermark, :date_archived,
       :date_patron_deliverables_ready, :patron_source_url, :order_id, :metadata_id, :complete_scan,
       :include_in_dl, :date_dl_deliverables_ready, :throw_away, :ocr_master_files
 
@@ -51,18 +51,6 @@ ActiveAdmin.register Unit do
 
    actions :all, :except => [:destroy]
    config.clear_action_items!
-
-   batch_action :checkout_units_to_digiserv do |selection|
-      Unit.find(selection).each {|s| s.update(date_materials_received: Time.now) }
-      flash[:notice] = "Units #{selection.join(", ")} are now checked out to DigiServ."
-      redirect_to "/admin/units"
-   end
-
-   batch_action :checkin_units_from_digiserv do |selection|
-      Unit.find(selection).each {|s| s.update(date_materials_returned: Time.now) }
-      flash[:notice] = "Units #{selection.join(", ")} are now checked in from DigiServ."
-      redirect_to "/admin/units"
-   end
 
    batch_action :approve_units do |selection|
       Unit.find(selection).each {|s| s.update(unit_status: 'approved') }
@@ -190,11 +178,7 @@ ActiveAdmin.register Unit do
       render "bulk_actions", :context => self
    end
 
-   sidebar :approval_workflow, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && !unit.reorder && !unit.ingested? } do
-      render "approval_workflow", :context=>self
-   end
-
-   sidebar "Delivery Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
+   sidebar "Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
    end
 
@@ -412,16 +396,6 @@ ActiveAdmin.register Unit do
    member_action :bulk_download_xml, :method => :put do
       BulkDownloadXml.exec({unit_id: params[:id], user: current_user} )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Downloading XML for unit #{params[:id]}. When complete, you will receive an email."
-   end
-
-   member_action :checkout_to_digiserv, :method => :put do
-      Unit.find(params[:id]).update(date_materials_received: Time.now)
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now checked out to Digital Production Group."
-   end
-
-   member_action :checkin_from_digiserv, :method => :put do
-      Unit.find(params[:id]).update(date_materials_returned: Time.now)
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} has been returned from Digital Production Group."
    end
 
    member_action :add, :method => :post do

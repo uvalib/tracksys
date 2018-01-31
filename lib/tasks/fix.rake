@@ -196,6 +196,25 @@ namespace :fix do
       end
    end
 
+   desc "checkout"
+   task :checkout => :environment do
+      q = "date_materials_received is not null and metadata.type='SirsiMetadata'"
+      Unit.joins(:metadata).where(q).order("date_materials_received asc").find_each do |u|
+         print "."
+         if u.date_materials_returned.nil?
+            if u.date_materials_received.strftime("%F") < "2016"
+               # prior to 2016, assume item was checked in 3 months later
+               Checkout.create(metadata_id: u.metadata_id, checkout_at: u.date_materials_received, returned_at: u.date_materials_received+3.months)
+            else
+               # from 2016 on, leave item checked out
+               Checkout.create(metadata_id: u.metadata_id, checkout_at: u.date_materials_received)
+            end
+         else
+            Checkout.create(metadata_id: u.metadata_id, checkout_at: u.date_materials_received, returned_at: u.date_materials_returned)
+         end
+      end
+   end
+   
    desc "fix duplicate barcodes"
    task :duplicate_barcodes => :environment do
       q = "select id,barcode from metadata m "
