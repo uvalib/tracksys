@@ -51,7 +51,7 @@ namespace :gannon do
         end
 
         ingest_raw_files(sm, unit, dir)
-        cnt +=1 
+        cnt +=1
         if cnt >= max
            puts "INGEST #{cnt} BARCODES; STOPPING"
            break
@@ -75,6 +75,21 @@ namespace :gannon do
          parent_metadata_id: 15784, dpla: 1, discoverability: 1,
          collection_facet: info[:facet].name, ocr_hint: info[:hint], date_dl_ingest: DateTime.now)
       return sm
+   end
+
+   desc "ingest single RAW book by barcode"
+   task :ingest_raw_barcode  => :environment do
+      bc = ENV['barcode']
+      abort("Barcode is required") if bc.nil?
+      sm = SirsiMetadata.find_by(barcode: bc)
+      abort("Metadata for #{bc} not found") if sm.nil?
+      unit = sm.units.first
+      abort("Unit for #{bc} not found") if unit.nil?
+      dir = "/digiserv-production/Gannon-Final/#{bc}"
+      abort("#{dir} not found") if !Dir.exists?(dir)
+      puts "Ingest files for #{bc}..."
+      ingest_raw_files(sm, unit, dir)
+      puts "DONE"
    end
 
    def ingest_raw_files(sm, unit, dir)
@@ -162,7 +177,7 @@ namespace :gannon do
          ENV['barcode'] = f.split(".")[0]
          Rake::Task['gannon:ingest'].execute
       end
-   end 
+   end
 
    desc "ingest all books"
    task :ingest_all  => :environment do
