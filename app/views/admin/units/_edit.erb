@@ -17,8 +17,6 @@
       <%= f.input :ocr_master_files, :as => :radio %>
       <%= f.input :remove_watermark, :as => :radio %>
       <% if @unit.reorder == false %>
-         <%= f.input :date_materials_received, :as => :string, :input_html => {:class => :datepicker} %>
-         <%= f.input :date_materials_returned, :as => :string, :input_html => {:class => :datepicker} %>
          <%= f.input :date_archived, :as => :string, :input_html => {:class => :datepicker} %>
       <% end %>
       <%= f.input :date_patron_deliverables_ready, :as => :string, :input_html => {:class => :datepicker} %>
