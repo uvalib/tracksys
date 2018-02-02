@@ -213,8 +213,10 @@ $(function() {
          complete: function(jqXHR, textStatus) {
             btn.removeClass("disabled");
             if ( textStatus != "success" ) {
-               alert("Unable to refresh metadata. Check that the catalog key and/or barcode are correct");
+               $("p.sirsi-error").html(jqXHR.responseJSON.message);
+               $("p.sirsi-error").show();
             } else {
+               $("p.sirsi-error").hide();
                metadata = jqXHR.responseJSON;
                updateMetadataFields(metadata);
             }

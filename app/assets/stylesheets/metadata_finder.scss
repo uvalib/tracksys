@@ -4,6 +4,17 @@ form.formtastic label, div.attributes_table th {
 #unit_metadata_id {
    width: 55%;
 }
+p.sirsi-error {
+   text-align: left;
+   color: #b33;
+   font-weight: 500;
+   display: none;
+   margin-bottom: 7px;
+   a {
+      color: #b22;
+      font-weight: bold;
+   }
+}
 #dimmer .modal#metadata-finder, #dimmer .modal#create-unit-modal {
    width: 500px;
    table {
