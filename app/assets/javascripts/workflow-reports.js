@@ -48,10 +48,6 @@ $(function() {
    };
 
    var requestAvgTimeReport  = function(workflowId, start, end) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
       $("#project-time-generating").show();
       $("#avg-time-raw table tbody tr.data").remove();
       var config = getBasicChartCfg("bar");
@@ -94,10 +90,6 @@ $(function() {
    };
 
    var requestProblemsReport  = function(workflowId, start, end) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
       $("#project-problems-generating").show();
       var config = getBasicChartCfg("bar");
       config.data.datasets[0].backgroundColor =  "#cc4444";
@@ -125,10 +117,6 @@ $(function() {
    };
 
    var requestProductivityReport = function(workflowId, start, end) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
       $("#project-productivity-generating").show();
       var config = getBasicChartCfg("bar");
       var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
@@ -177,26 +165,32 @@ $(function() {
       });
    };
 
-   var requestRejectionsReport = function(workflowId, start, end, sort, dir) {
-      if (start.length == 0 || end.length == 0) {
-         alert("Start and End dates are required");
-         return;
-      }
+   var requestRejectionsReport = function(workflowId, start, end) {
+      var sortBy = null;
+      var sortDir = null;
+      $("#rejection-stats .sort").each(function() {
+         if ( $(this).hasClass("asc") ) {
+            sortBy = $(this).data("tgt");
+            sortDir = "asc";
+            return false;
+         } else if ( $(this).hasClass("desc") ) {
+            sortBy = $(this).data("tgt");
+            sortDir = "desc";
+            return false;
+         }
+      });
 
       var template = "<tr class='data'><td>N</td>";
-      var d0 = $(".rejections.report-start").val();
-      var d1 = $(".rejections.report-end").val();
-      var wfId = $("#workflow-rejections").val();
-      var scanUrl = "/admin/rejections?user=UID&workflow="+wfId+"&type=scan&d0="+d0+"&d1="+d1;
-      var qaUrl = "/admin/rejections?user=UID&workflow="+wfId+"&type=qa&d0="+d0+"&d1="+d1;
+      var scanUrl = "/admin/rejections?user=UID&workflow="+workflowId+"&type=scan&d0="+start+"&d1="+end;
+      var qaUrl = "/admin/rejections?user=UID&workflow="+workflowId+"&type=qa&d0="+start+"&d1="+end;
       template += "<td class='left-bar'>SC</td><td>MC</td><td><a href='"+scanUrl+"'>SR</a></td><td>PRR</td><td>IRR</td>";
       template += "<td class='left-bar'>QC</td><td><a href='"+qaUrl+"'>QR</a></td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();
       $("#project-rejections-generating").show();
       var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
-      if ( sort ) qs = qs + "&sort=" + sort;
-      if ( dir ) qs = qs + "&dir=" + dir;
+      if ( sortBy ) qs = qs + "&sort=" + sortBy;
+      if ( sortDir ) qs = qs + "&dir=" + sortDir;
       $.getJSON("/api/reports?type=rejections&"+qs, function ( data, textStatus, jqXHR ){
          $("#project-rejections-generating").hide();
          if (textStatus == "success" ) {
@@ -217,6 +211,47 @@ $(function() {
       });
    };
 
+   var requestStaffRatesReport = function(workflowId, start, end) {
+      var sortBy = null;
+      var sortDir = null;
+      $("#staff-rates-stats .sort").each(function() {
+         if ( $(this).hasClass("asc") ) {
+            sortBy = $(this).data("tgt");
+            sortDir = "asc";
+            return false;
+         } else if ( $(this).hasClass("desc") ) {
+            sortBy = $(this).data("tgt");
+            sortDir = "desc";
+            return false;
+         }
+      });
+
+      var template = "<tr class='data'><td>N</td>";
+      template += "<td class='left-bar'>SI</td><td>ST</td><td>SR</td>";
+      template += "<td class='left-bar'>QI</td><td>QT</td><td>QR</td>";
+      var table = $("#staff-rates-stats tbody");
+      $("#staff-rates-stats tbody tr.data").remove();
+      $("#project-staff-rates-generating").show();
+      var qs = "workflow="+workflowId+"&start="+start+"&end="+end;
+      if ( sortBy ) qs = qs + "&sort=" + sortBy;
+      if ( sortDir ) qs = qs + "&dir=" + sortDir;
+      $.getJSON("/api/reports?type=staff_rates&"+qs, function ( data, textStatus, jqXHR ){
+         $("#project-staff-rates-generating").hide();
+         if (textStatus == "success" ) {
+            $.each(data, function(idx, rowData) {
+               var row = template.replace("N", rowData.staff);
+               row = row.replace("SI", rowData.scan_images);
+               row = row.replace("ST", rowData.scan_time);
+               row = row.replace("SR", rowData.scan_rate);
+               row = row.replace("QI", rowData.qa_images);
+               row = row.replace("QT", rowData.qa_time);
+               row = row.replace("QR", rowData.qa_rate);
+               table.append(row);
+            });
+         }
+      });
+   };
+
    $(".refresh-report").on("click", function() {
       var id = $(this).attr("id");
       if (id == "deliveries") {
@@ -227,26 +262,16 @@ $(function() {
       var start = $(".report-start."+id).val();
       var end = $(".report-end."+id).val();
       var wfId = $(".workflow."+id).val();
-
-      if (id == "rejections") {
-         var sortBy = null;
-         var sortDir = null;
-         $("#rejection-stats .sort").each(function() {
-            if ( $(this).hasClass("asc") ) {
-               sortBy = $(this).data("tgt");
-               sortDir = "asc";
-               return false;
-            } else if ( $(this).hasClass("desc") ) {
-               sortBy = $(this).data("tgt");
-               sortDir = "desc";
-               return false;
-            }
-         });
-         requestRejectionsReport(wfId, start, end, sortBy, sortDir);
+      if (start.length == 0 || end.length == 0) {
+         alert("Start and End dates are required");
          return;
       }
 
-      if (id == "problems") {
+      if (id == "rejections") {
+         requestRejectionsReport(wfId, start, end);
+      } else if (id == "staff-rates") {
+         requestStaffRatesReport(wfId, start, end);
+      } else if (id == "problems") {
          requestProblemsReport(wfId, start, end);
       } else if (id == "productivity") {
          requestProductivityReport(wfId, start, end);
@@ -258,14 +283,16 @@ $(function() {
    if ( $("#avg-times").length > 0 ) {
       requestAvgTimeReport(1, $(".avg-time.report-start").val(), $(".avg-time.report-end").val());
       requestProblemsReport(1, $(".problems.report-start").val(), $(".problems.report-end").val());
-      requestRejectionsReport(1,
-         $(".rejections.report-start").val(),
-         $(".rejections.report-end").val(),null,null);
+      requestRejectionsReport(1, $(".rejections.report-start").val(), $(".rejections.report-end").val() );
+      requestStaffRatesReport(1, $(".staff-rates.report-start").val(), $(".staff-rates.report-end").val() );
       requestProductivityReport(1, $(".productivity.report-start").val(), $(".productivity.report-end").val());
       requestDeliveriesReport($(".deliveries.report-year").val());
    }
 
    $(".sort-clicker").on("click", function() {
+      var reportPanel = $(this).closest(".panel_contents");
+      var reportId = reportPanel.find("table").attr("id");
+      var btn = reportPanel.find(".report-filter .refresh-report");
       var sort = $(this).find(".sort");
       var newClass = "none";
       if (sort.hasClass("none")) {
@@ -275,8 +302,8 @@ $(function() {
       } else if (sort.hasClass("asc")) {
          newClass="none";
       }
-      $("#rejection-stats .sort").removeClass("none").removeClass("asc").removeClass("desc").addClass("none");
+      $("#"+reportId+" .sort").removeClass("none").removeClass("asc").removeClass("desc").addClass("none");
       $(sort).removeClass("none").addClass(newClass);
-      $("#rejections").trigger("click");
+      btn.trigger("click");
    });
 });

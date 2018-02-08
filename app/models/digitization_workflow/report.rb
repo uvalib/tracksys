@@ -51,6 +51,73 @@ class Report
 
    # Generate a json report of rejections / student / workflow
    #
+   def self.staff_rates(workflow_id, start_date, end_date, sort_by=nil, sort_dir=nil)
+      filter_p = ["p.workflow_id=#{workflow_id.to_i}"]
+      filter_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?
+      filter_p << "p.finished_at <= #{sanitize(end_date)}" if !end_date.blank?
+      filter_q = filter_p.join(" and ")
+
+      mf_cnt_sql = "select unit_id,count(id) as cnt from master_files group by unit_id"
+      q = "select a.step_id,s.owner_type,sm.last_name,sm.first_name,"
+      q << " duration_minutes, m.unit_id, m.cnt from assignments a"
+      q << " inner join steps s on s.id = a.step_id"
+      q << " inner join projects p on p.id = a.project_id"
+      q << " left join (#{mf_cnt_sql}) m on m.unit_id = p.unit_id"
+      q << " inner join staff_members sm on sm.id = staff_member_id where "
+      q << "#{filter_q}"
+      data = {}
+      Project.connection.execute(q).each do |res|
+         step = { id: res[0], owner_type: res[1] }
+         staff = "#{res[2]}, #{res[3]}"
+         dur = res[4]
+         dur = 5 if dur.nil?
+         unit_id = res[5]
+         pages = res[6]
+         if !data.has_key? staff
+            data[staff] = {
+               scan_units:[], scan_images: 0, scan_time: 0, scan_rate: 0,
+               qa_units:[], qa_images: 0, qa_time: 0, qa_rate: 0}
+         end
+
+         # user step & owner type to deterime if this is a QA step or a SCAN step
+         # All Scanning is done by either Any (0), prior (1) or the original (3) user
+         # QA is always done by a unique(2) or spervisor (4) user
+         if step[:owner_type] == 2 || step[:owner_type] == 4
+            # QA Step
+            if !data[staff][:qa_units].include? unit_id
+               data[staff][:qa_units] << unit_id
+               data[staff][:qa_images] += pages
+            end
+            data[staff][:qa_time] += dur
+            data[staff][:qa_rate] = (data[staff][:qa_images].to_f/data[staff][:qa_time].to_f).round(3)
+         else
+            # Scan Step
+            if !data[staff][:scan_units].include? unit_id
+               data[staff][:scan_units] << unit_id
+               data[staff][:scan_images] += pages
+            end
+            data[staff][:scan_time] += dur
+            data[staff][:scan_rate] = (data[staff][:scan_images].to_f/data[staff][:scan_time].to_f).round(3)
+         end
+      end
+
+      # flatten hash out to array of objects and filter out unnecessary data (unit info)
+      out = []
+      data.each do |k,v|
+         out << {
+            staff: k, scan_images: v[:scan_images], scan_time: v[:scan_time], scan_rate: v[:scan_rate],
+            qa_images: v[:qa_images], qa_time: v[:qa_time], qa_rate: v[:qa_rate]
+         }
+      end
+
+      # Return sorted results (if requested)
+      return out if sort_by.nil? || sort_dir.nil?
+      return out.sort_by { |row| row[sort_by.to_sym] }.reverse! if sort_dir == "desc"
+      return out.sort_by { |row| row[sort_by.to_sym] }
+   end
+
+   # Generate a json report of rejections / student / workflow
+   #
    def self.rejections(workflow_id, start_date, end_date, sort_by, sort_dir)
       filter_p = ["p.workflow_id=#{workflow_id.to_i}"]
       filter_p << "p.finished_at >= #{sanitize(start_date)}" if !start_date.blank?

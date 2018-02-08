@@ -58,6 +58,14 @@ ActiveAdmin.register_page "Reports" do
             end
             render partial: "/admin/digitization_workflow/reports/rejections_table"
          end
+
+         panel "Rate Statistics", class:"tracksys-report" do
+            render partial: '/admin/digitization_workflow/reports/report_filter', locals: { report: "staff-rates" }
+            div id: "project-staff-rates-generating", class: "generating" do
+               div class: "wait" do "Please wait..." end
+            end
+            render partial: "/admin/digitization_workflow/reports/staff_rates_table"
+         end
       end
    end
 end

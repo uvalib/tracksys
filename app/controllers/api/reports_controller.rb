@@ -11,6 +11,10 @@ class Api::ReportsController < ApplicationController
          render json: Report.rejections(
             params[:workflow], params[:start], params[:end],
             params[:sort], params[:dir]) and return
+      elsif params[:type] == "staff_rates"
+         render json: Report.staff_rates(
+            params[:workflow], params[:start], params[:end],
+            params[:sort], params[:dir]) and return
       elsif params[:type] == "productivity"
          render json: Report.productivity(params[:workflow], params[:start], params[:end]) and return
       elsif params[:type] == "deliveries"
