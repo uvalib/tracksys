@@ -40,7 +40,7 @@ div :class => 'two-column' do
         format_datetime(unit.date_patron_deliverables_ready)
       end
       row ("Materials Checked Out?") do |unit|
-        if unit.metadata.checked_out?
+        if !unit.metadata.nil? && unit.metadata.checked_out?
            span class:"status_tag yes" do "Yes" end
         else
            span class:"status_tag no" do "No" end
