@@ -35,7 +35,7 @@ gem 'country-select'
 
 gem 'jquery-rails'
 gem 'jquery-colorbox-rails'
-gem "chosen-rails"
+gem "chosen-rails", "1.8.2"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
