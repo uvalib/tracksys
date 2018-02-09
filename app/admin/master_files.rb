@@ -186,6 +186,9 @@ ActiveAdmin.register MasterFile do
                end
             end
          end
+         panel "Tags" do
+            render partial: "tags", :locals=>{ mf: master_file}
+         end
       end
       render :partial=>"deaccession", :locals=>{ mf: master_file}
 

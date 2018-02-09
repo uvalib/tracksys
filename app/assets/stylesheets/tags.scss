@@ -1,0 +1,29 @@
+div.mf-tags {
+   span.tag {
+      border: 1px solid #999;
+      padding: 2px 25px 2px 35px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      background: white;
+      color: #666;
+      font-weight: 500;
+      position: relative;
+      margin: 0 5px 0 0;
+   }
+   .del-tag {
+      border: 1px solid #999;
+      border-radius: 10px;
+      padding: 2px 5px;
+      background: #e5e5e5;
+      color: #999;
+      font-size: 0.8em;
+      position: absolute;
+      left: -1px;
+      font-weight: bold;
+      cursor: pointer;
+      &:hover {
+         color: #444;
+         background: #cacaca;
+      }
+   }
+}

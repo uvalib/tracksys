@@ -9,6 +9,9 @@ ActiveAdmin.register SirsiMetadata do
       :collection_facet, :use_right_id, :collection_id,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
+  # eager load to preven n+1 queries, and improve performance
+  includes :checkouts
+
   actions :all, :except => [:destroy]
   config.clear_action_items!
 

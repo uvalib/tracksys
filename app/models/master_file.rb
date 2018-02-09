@@ -4,6 +4,7 @@ class MasterFile < ApplicationRecord
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
+   has_and_belongs_to_many :tags, join_table: "master_file_tags"
    belongs_to :component, :counter_cache => true, optional: true
    belongs_to :unit
    belongs_to :metadata

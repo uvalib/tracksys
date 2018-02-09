@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180123190130) do
+ActiveRecord::Schema.define(version: 20180208193429) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -302,6 +302,13 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["master_file_id"], name: "index_master_file_locations_on_master_file_id"
   end
 
+  create_table "master_file_tags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "master_file_id"
+    t.bigint "tag_id"
+    t.index ["master_file_id"], name: "index_master_file_tags_on_master_file_id"
+    t.index ["tag_id"], name: "index_master_file_tags_on_tag_id"
+  end
+
   create_table "master_files", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "unit_id", default: 0, null: false
     t.integer "component_id"
@@ -554,6 +561,10 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["fail_step_id"], name: "index_steps_on_fail_step_id"
     t.index ["next_step_id"], name: "index_steps_on_next_step_id"
     t.index ["workflow_id"], name: "index_steps_on_workflow_id"
+  end
+
+  create_table "tags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "tag"
   end
 
   create_table "units", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
