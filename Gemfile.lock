@@ -63,7 +63,7 @@ GEM
       railties (>= 3.0)
     builder (3.2.3)
     byebug (10.0.0)
-    chosen-rails (1.8.3)
+    chosen-rails (1.8.2)
       coffee-rails (>= 3.2)
       railties (>= 3.0)
       sass-rails (>= 3.2)
@@ -268,7 +268,7 @@ DEPENDENCIES
   annotate
   bootstrap-datepicker-rails
   byebug
-  chosen-rails
+  chosen-rails (= 1.8.2)
   country-select
   daemons
   delayed_job_active_record
