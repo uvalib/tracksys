@@ -1,5 +1,18 @@
-<div class="mf-tags">
-<% mf.tags.each do |t| %>
-<span class="tag"><%= t.tag %><span title="Delete tag" class="del-tag">X</span></span>
-<% end %>
+<div class="panel">
+   <h3><span>Notes</span><span id="add-tag" class="add ts-icon"></span></h3>
+   <div class="panel_contents">
+      <div class="add-tags">
+         <select id="tag-finder">
+            <option value=""></option>
+            <% Tag.all.order(tag: :asc).each do |t| %>
+               <option value="<%= t.id %>"><%= t.tag %></option>
+            <% end %>
+         </select>
+      </div>
+      <div class="mf-tags">
+         <% mf.tags.each do |t| %>
+            <span class="tag"><%= t.tag %><span title="Delete tag" class="del-tag">X</span></span>
+         <% end %>
+      </div>
+   </div>
 </div>

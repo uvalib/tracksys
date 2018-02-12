@@ -27,3 +27,18 @@ div.mf-tags {
       }
    }
 }
+
+div.add-tags {
+   margin-bottom: 15px;
+}
+
+#tag_finder_chosen {
+   div.chosen-drop {
+      box-sizing: border-box;
+   }
+   div.chosen-search input.chosen-search-input {
+      box-sizing: border-box;
+      padding: 4px 0;
+      margin: 0;
+   }
+}

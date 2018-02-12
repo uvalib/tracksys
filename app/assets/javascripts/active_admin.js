@@ -16,6 +16,7 @@
 //= require annual-reports
 //= require equipment
 //= require skills
+//= require tags
 //= require metadata
 //= require codemirror
 //= require xml-editor
