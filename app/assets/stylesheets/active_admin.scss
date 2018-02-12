@@ -153,6 +153,7 @@ tr.odd, tr.even {
       td.col {
          background-color: #944;
          color: white;
+         border: 0;
       }
       a {
          color: white;
@@ -161,11 +162,13 @@ tr.odd, tr.even {
    &.warn {
       td.col {
          background-color: palegoldenrod;
+         border: 0;
       }
    }
    &.running {
       td.col {
          background-color: #cef;
+         border: 0;
       }
    }
 }
