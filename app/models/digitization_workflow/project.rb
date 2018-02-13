@@ -42,30 +42,46 @@ class Project < ApplicationRecord
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant%" ')}
 
-   # Get a list of projects rejected by a user matching the params. Valid types are qa and scan
+   # Get a list of projects per user/date/workflow/tyoe
    #
-   def self.rejections(type, staff_id, workflow, start_date, end_date)
+   def self.filter(type, staff_id, workflow, start_date, end_date, rejects_only)
       q = "select a.* from assignments a"
       q << " inner join projects p on a.project_id=p.id"
       q << " inner join steps s on s.id=a.step_id"
       q << " where p.workflow_id=#{workflow.to_i}"
       q << " and p.finished_at >= #{sanitize(start_date)} and p.finished_at <= #{sanitize(end_date)}"
       q << " and a.status != 5 and (s.step_type = 0 or fail_step_id is not null)"
+      # status 5 is reassignined, step types: [:start, :end, :error, :normal]
+      # step 0 = is the initial scan all of the following steps are also scan
+      # Steps with a fail step are QA
+
       projects = []
-      curr_project = nil
+      # curr_project = nil
+      scan_projects = []
       Assignment.find_by_sql(q).each do |a|
          if type == "qa"
             next if a.staff_member_id != staff_id
             next if a.step.start?
-            next if !a.rejected?
+            next if !a.rejected? && rejects_only
             projects << a.project
          else
             if a.step.start?
                next if a.staff_member_id != staff_id
-               curr_project = a.project_id
+               # track all of the projects this user scanned
+               scan_projects << a.project.id if !scan_projects.include? a.project.id
+               puts "scanned projects #{scan_projects}"
             else
-               if a.project_id == curr_project && a.rejected?
-                  projects << a.project
+               if scan_projects.include? a.project.id
+               # if a.project_id == curr_project
+                  if rejects_only == false
+                     puts "Not reject only; accept all"
+                     projects << a.project
+                  else
+                     if a.rejected?
+                        puts "rejects: #{rejects_only} status #{a.rejected?}: KEEP"
+                        projects << a.project
+                     end
+                  end
                end
             end
          end

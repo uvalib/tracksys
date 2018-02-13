@@ -180,11 +180,16 @@ $(function() {
          }
       });
 
+      var scanR = "/admin/subreports?user=UID&workflow="+workflowId+"&type=scan_reject&d0="+start+"&d1="+end;
+      var scanA = "/admin/subreports?user=UID&workflow="+workflowId+"&type=scan&d0="+start+"&d1="+end;
+      var qaR = "/admin/subreports?user=UID&workflow="+workflowId+"&type=qa_reject&d0="+start+"&d1="+end;
+      var qaA = "/admin/subreports?user=UID&workflow="+workflowId+"&type=qa&d0="+start+"&d1="+end;
+
       var template = "<tr class='data'><td>N</td>";
-      var scanUrl = "/admin/rejections?user=UID&workflow="+workflowId+"&type=scan&d0="+start+"&d1="+end;
-      var qaUrl = "/admin/rejections?user=UID&workflow="+workflowId+"&type=qa&d0="+start+"&d1="+end;
-      template += "<td class='left-bar'>SC</td><td>MC</td><td><a href='"+scanUrl+"'>SR</a></td><td>PRR</td><td>IRR</td>";
-      template += "<td class='left-bar'>QC</td><td><a href='"+qaUrl+"'>QR</a></td><td>QA%</td></tr>";
+      template +=    "<td class='left-bar'><a href='"+scanA+"'>SC</a></td><td>MC</td>";
+      template +=    "<td><a href='"+scanR+"'>SR</a></td><td>PRR</td><td>IRR</td>";
+      template +=    "<td class='left-bar'><a href='"+qaA+"'>QC</a></td>"
+      template +=    "<td><a href='"+qaR+"'>QR</a></td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();
       $("#project-rejections-generating").show();

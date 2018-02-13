@@ -39,14 +39,38 @@ class RecreatePatronDeliverables < BaseJob
             return
          end
       else
-         logger.info "Recreating deliverables from data in the archive"
-         copy_files(unit, archive_dir, in_proc_dir)
+         if unit.reorder
+            logger.info "Recreating deliverables for a reorder"
+            # in this case, each cloned masterfile will have a reference to the original.
+            # use this to get to the original unit and recalculate directories
+            copy_original_files_to_in_proc(unit, in_proc_dir)
+         else
+            logger.info "Recreating deliverables from data in the archive"
+            FileUtils.cp_r  archive_dir, in_proc_dir
+         end
       end
 
       # Found files; move to processsinng and recreate deliverables
       CopyUnitForProcessing.exec_now({ :unit => unit}, self)
       CreatePatronDeliverables.exec_now({ unit: unit }, self)
       CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
+   end
+
+   def copy_original_files_to_in_proc(unit, in_proc_dir)
+      orig_unit = unit.master_files.first.original.unit
+      archive_dir = File.join(ARCHIVE_DIR, "%09d" % orig_unit.id)
+
+      if !Dir.exists? in_proc_dir
+         logger.info "Creating dir #{in_proc_dir}"
+         FileUtils.mkdir_p(in_proc_dir)
+         FileUtils.chmod(0775, in_proc_dir)
+      end
+
+      logger.info "Copying files from #{archive_dir}..."
+      unit.master_files.each do |mf|
+         orig_archived_file = File.join(archive_dir, mf.original.filename)
+         FileUtils.cp(orig_archived_file, File.join(in_proc_dir, mf.filename))
+      end
    end
 
    def did_deliverable_format_change(unit, deliverable_dir )
