@@ -57,18 +57,20 @@ class RecreatePatronDeliverables < BaseJob
    end
 
    def copy_original_files_to_in_proc(unit, in_proc_dir)
-      orig_unit = unit.master_files.first.original.unit
-      archive_dir = File.join(ARCHIVE_DIR, "%09d" % orig_unit.id)
-
       if !Dir.exists? in_proc_dir
          logger.info "Creating dir #{in_proc_dir}"
          FileUtils.mkdir_p(in_proc_dir)
          FileUtils.chmod(0775, in_proc_dir)
       end
 
-      logger.info "Copying files from #{archive_dir}..."
       unit.master_files.each do |mf|
+         # Cloned files can come from many src units. Get original unit for
+         # the current master file and figure out where to find it in the archive
+         orig_unit = mf.original.unit
+         archive_dir = File.join(ARCHIVE_DIR, "%09d" % orig_unit.id)
          orig_archived_file = File.join(archive_dir, mf.original.filename)
+
+         logger.info "Copy original master file from #{orig_archived_file} to #{in_proc_dir}"
          FileUtils.cp(orig_archived_file, File.join(in_proc_dir, mf.filename))
       end
    end
