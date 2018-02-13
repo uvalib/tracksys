@@ -28,8 +28,48 @@ div.mf-tags {
    }
 }
 
-div.add-tags {
+#add-done {
+   font-size: 0.75em;
+   background: #888;
+   border: 0;
+   padding: 0px 8px;
+   border-radius: 10px;
+   float: right;
+   color: #f0f0f0;
+   height: 16px;
+   display:none;
+   cursor: pointer;
+   &:hover {
+      color: white;
+      background: #666;
+   }
+}
+
+table.add-tags {
    margin-bottom: 15px;
+   display: none;
+   tr td {
+      vertical-align: middle;
+      .mf-action-button {
+         width: 100px;
+         text-align: center;
+      }
+   }
+   div {
+      margin: 5px 0px;
+   }
+   input[type=text] {
+      width: 250px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      outline: 0;
+      border: 1px solid #bbb;
+      font-size: 14px;
+      height: 25px;
+      color: #444;
+      padding: 2px 6px;
+      box-shadow: 0 0 3px #fff inset, 0 1px 1px rgba(0, 0, 0, 0.1);
+   }
 }
 
 #tag_finder_chosen {
