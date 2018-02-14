@@ -46,14 +46,20 @@ div.mf-tags {
 }
 
 table.add-tags {
-   margin-bottom: 15px;
+   margin-bottom: 25px;
    display: none;
    tr td {
+      padding: 0;
       vertical-align: middle;
       .mf-action-button {
          width: 100px;
          text-align: center;
       }
+   }
+   td.hint {
+      color: #999;
+      font-style: italic;
+      padding-bottom: 8px;
    }
    div {
       margin: 5px 0px;
@@ -61,19 +67,18 @@ table.add-tags {
    input[type=text] {
       width: 250px;
       box-sizing: border-box;
-      border-radius: 4px;
       outline: 0;
-      border: 1px solid #bbb;
+      border: 1px solid #aaa;
       font-size: 14px;
-      height: 25px;
+      height: 29px;
       color: #444;
       padding: 2px 6px;
-      box-shadow: 0 0 3px #fff inset, 0 1px 1px rgba(0, 0, 0, 0.1);
    }
 }
 
 #tag_finder_chosen {
-   div.chosen-drop {
+   box-sizing: border-box;
+   div.chosen-drop, ul.chosen-choices {
       box-sizing: border-box;
    }
    div.chosen-search input.chosen-search-input {

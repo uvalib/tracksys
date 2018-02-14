@@ -314,6 +314,23 @@ ActiveAdmin.register MasterFile do
          :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
+   member_action :add_new_tag, :method => :post do
+      mf = MasterFile.find(params[:id])
+      render plain: mf.add_new_tag( params[:tag])
+   end
+   member_action :add_tags, :method => :post do
+      mf = MasterFile.find(params[:id])
+      tags = params[:tags]
+      added = mf.add_tags(tags)
+      render json: added.to_json
+   end
+   member_action :remove_tag, :method => :post do
+      mf = MasterFile.find(params[:id])
+      tag = Tag.find(params[:tag])
+      mf.tags.delete(tag)
+      render plain: "OK"
+   end
+
    member_action :save_transcription, :method => :post do
       mf = MasterFile.find(params[:id])
       src = mf.text_source

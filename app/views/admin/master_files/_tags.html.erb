@@ -1,10 +1,13 @@
 <div class="panel mf-tags">
-   <h3><span>Tags</span><span id="add-tag" class="add ts-icon"></span><span id="add-done">Done</span></h3>
+   <h3><span>Tags</span><span id="start-add-tag" class="add ts-icon"></span><span id="add-done">Done</span></h3>
    <div class="panel_contents">
       <table class="add-tags">
          <tr>
+            <td class="hint" colspan="2">Select existing or create new tags to add to this master file</td>
+         </tr>
+         <tr>
             <td>
-               <select id="tag-finder">
+               <select id="tag-finder" multiple>
                   <option value=""></option>
                   <% Tag.all.order(tag: :asc).each do |t| %>
                      <option value="<%= t.id %>"><%= t.tag %></option>
@@ -22,7 +25,9 @@
       </table>
       <div class="mf-tag-list">
          <% mf.tags.each do |t| %>
-            <span class="tag"><%= t.tag %><span title="Delete tag" class="del-tag">X</span></span>
+            <span class="tag"><%= t.tag %>
+               <span data-id="<%= t.id %>" title="Delete tag" class="del-tag">X</span>
+            </span>
          <% end %>
       </div>
    </div>

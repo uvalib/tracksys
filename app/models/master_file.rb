@@ -142,6 +142,31 @@ class MasterFile < ApplicationRecord
       raise "Invalid size" if iiif_url.nil?
       return iiif_url.to_s
    end
+
+   def add_new_tag(tag)
+      exist = Tag.find_by(tag: tag)
+      if exist.nil?
+         new_tag = Tag.create(tag: tag)
+         self.tags << new_tag
+         return new_tag.id
+      else
+         tags << exist
+         return exist.id
+      end
+   end
+
+   def add_tags(tag_ids)
+      added = []
+      tag_ids.each do |tag_id|
+         next if tag_id.blank?
+         t = Tag.find(tag_id)
+         if !self.tags.include? t
+            self.tags << t
+            added << t
+         end
+      end
+      return added
+   end
 end
 
 # == Schema Information
