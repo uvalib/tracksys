@@ -6,12 +6,12 @@ class Agency < ApplicationRecord
   # relationships
   #------------------------------------------------------------------
   has_many :orders
-  has_many :units, :through => :orders
-  has_many :master_files, :through => :units
+  has_many :units, -> { distinct }, :through => :orders
+  has_many :master_files, -> { distinct }, :through => :units
   has_one :primary_address, ->{where(address_type: "primary")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
   has_one :billable_address, ->{where(address_type: "billable_address")}, :class_name => 'Address', :as => :addressable, :dependent => :destroy
-  has_many :customers, :through => :orders
-  has_many :metadata, :through => :units
+  has_many :customers, -> { distinct }, :through => :orders
+  has_many :metadata, -> { distinct }, :through => :units
 
   #------------------------------------------------------------------
   # validations

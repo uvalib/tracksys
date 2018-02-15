@@ -8,11 +8,11 @@ class Customer < ApplicationRecord
    belongs_to :department, counter_cache: true, optional: true
 
    has_many :orders, :inverse_of => :customer
-   has_many :units, :through => :orders
-   has_many :master_files, :through => :units
-   has_many :metadata, :through => :units
-   has_many :invoices, :through => :orders
-   has_many :agencies, :through => :orders
+   has_many :units, -> { distinct }, :through => :orders
+   has_many :master_files, -> { distinct }, :through => :units
+   has_many :metadata, -> { distinct }, :through => :units
+   has_many :invoices, -> { distinct }, :through => :orders
+   has_many :agencies, -> { distinct }, :through => :orders
 
    has_one :primary_address, ->{ where(address_type: 'primary')},
       :class_name => 'Address', :as => :addressable, :dependent => :destroy, :autosave => true
