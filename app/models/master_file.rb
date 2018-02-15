@@ -148,10 +148,10 @@ class MasterFile < ApplicationRecord
       if exist.nil?
          new_tag = Tag.create(tag: tag)
          self.tags << new_tag
-         return new_tag.id
+         return new_tag
       else
          tags << exist
-         return exist.id
+         return exist
       end
    end
 

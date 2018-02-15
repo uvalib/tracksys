@@ -1,53 +1,53 @@
 div.mf-tags {
-   span.tag {
+   .tag {
       border: 1px solid #999;
       padding: 2px 25px 2px 35px;
       border-radius: 10px;
       font-size: 0.9em;
       background: white;
       color: #666;
-      font-weight: 500;
       position: relative;
       margin: 0 5px 0 0;
+      white-space: nowrap;
+      height:17px;
+      display: inline-block;
+      box-shadow: 2px 2px 4px #ccc;
+      .tag-text {
+         position: relative;
+         top: -6px;
+      }
    }
    .del-tag {
       border: 1px solid #999;
-      border-radius: 10px;
-      padding: 2px 5px;
+      border-radius: 20px;
       background: #e5e5e5;
-      color: #999;
-      font-size: 0.8em;
       position: absolute;
       left: -1px;
+      top: -2px;
       font-weight: bold;
+      background-repeat: no-repeat;
+      width: 22px;
+      height: 23px;
       cursor: pointer;
+      background-position: 3px 3px;
+      background-image: image_url("close.png");
+      opacity: 0.6;
+
       &:hover {
-         color: #444;
-         background: #cacaca;
+         opacity: 0.85;
       }
    }
 }
 
-#add-done {
-   font-size: 0.75em;
-   background: #888;
-   border: 0;
-   padding: 0px 8px;
-   border-radius: 10px;
-   float: right;
-   color: #f0f0f0;
-   height: 16px;
-   display:none;
-   cursor: pointer;
-   &:hover {
-      color: white;
-      background: #666;
-   }
+div.mf-tag-list {
+   border-top: 1px solid #ccc;
+   padding-top: 15px;
+   line-height: 30px;
+   text-align: center;
 }
 
 table.add-tags {
-   margin-bottom: 25px;
-   display: none;
+   margin-bottom: 15px;
    tr td {
       padding: 0;
       vertical-align: middle;
@@ -55,11 +55,6 @@ table.add-tags {
          width: 100px;
          text-align: center;
       }
-   }
-   td.hint {
-      color: #999;
-      font-style: italic;
-      padding-bottom: 8px;
    }
    div {
       margin: 5px 0px;

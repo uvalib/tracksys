@@ -316,13 +316,18 @@ ActiveAdmin.register MasterFile do
 
    member_action :add_new_tag, :method => :post do
       mf = MasterFile.find(params[:id])
-      render plain: mf.add_new_tag( params[:tag])
+      added = mf.add_new_tag( params[:tag])
+      html = render_to_string partial: "tag", locals: {t: added}
+      render json: {html: html}
    end
    member_action :add_tags, :method => :post do
       mf = MasterFile.find(params[:id])
       tags = params[:tags]
-      added = mf.add_tags(tags)
-      render json: added.to_json
+      html = ""
+      mf.add_tags(tags).each do |t|
+         html += render_to_string partial: "tag", locals: {t: t}
+      end
+      render json: {html: html}
    end
    member_action :remove_tag, :method => :post do
       mf = MasterFile.find(params[:id])
