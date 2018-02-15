@@ -117,7 +117,7 @@ class RequestsController < ApplicationController
    # POST address info from step 2 of the request process; primary/business address create/update
    #
    def address_update
-      @address = Address.find_by(addressable_id: params[:customer_id], address_type: params[:type])
+      @address = Address.find_by(addressable_id: params[:customer_id], address_type: params[:address_type])
       if @address.nil?
          @address = Address.new( address_params )
          @address.addressable_id = params[:customer_id]

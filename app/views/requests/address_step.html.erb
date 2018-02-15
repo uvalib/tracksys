@@ -43,6 +43,10 @@
                <%= text_field_tag(:state, @address.state, {class: "form-control"} ) %>
             </div>
             <div class="form-group">
+               <%= label_tag(:post_code, "Zip Code") %>
+               <%= text_field_tag(:post_code, @address.post_code, {class: "form-control"} ) %>
+            </div>
+            <div class="form-group">
                <%= label_tag(:country, "Country") %>
                <%= select_tag(:country, country_options_for_select(@address.country, ['United States', 'Canada']),
                      {class: "form-control", include_blank: false} ) %>
