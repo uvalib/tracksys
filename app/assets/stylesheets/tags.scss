@@ -7,15 +7,9 @@ div.mf-tags {
       background: white;
       color: #666;
       position: relative;
-      margin: 0 5px 0 0;
-      white-space: nowrap;
-      height:17px;
-      display: inline-block;
+      margin: 0 10px 10px 0;
       box-shadow: 2px 2px 4px #ccc;
-      .tag-text {
-         position: relative;
-         top: -6px;
-      }
+      display: inline-block;
    }
    .del-tag {
       border: 1px solid #999;
@@ -42,8 +36,9 @@ div.mf-tags {
 div.mf-tag-list {
    border-top: 1px solid #ccc;
    padding-top: 15px;
-   line-height: 30px;
-   text-align: center;
+   display: flex;
+   justify-content: center;
+   flex-wrap: wrap;
 }
 
 table.add-tags {

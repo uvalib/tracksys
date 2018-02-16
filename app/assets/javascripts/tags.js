@@ -61,6 +61,10 @@ $(function() {
       if ( $(this).hasClass("disabled")) return;
       var tag = $("#new-tag").val();
       if (tag.length == 0) return;
+      if (tag.length > 255 ) {
+         alert("Tags are limited to 255 characters. This one has "+tag.length+".");
+         return;
+      }
 
       enableTagControls(false);
       $.ajax({
