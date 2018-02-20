@@ -19,6 +19,7 @@ ActiveAdmin.register MasterFile do
    filter :filename_starts_with, label: "filename"
    filter :title_or_description_contains, label: "Title / Description"
    filter :description_contains, label: "Description"
+   filter :tags_tag_contains, :label => "Tag"
    filter :metadata_call_number_starts_with, :label => "Call Number"
    filter :pid_starts_with, label: "PID"
    filter :agency, :as => :select, collection: Agency.pluck(:name, :id)
