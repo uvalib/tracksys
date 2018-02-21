@@ -1,5 +1,27 @@
 #encoding: utf-8
 namespace :fix do
+
+   task :death_date_report =>:environment do
+      q = 'master_files.creator_death_date is not null and master_files.creator_death_date <> ""'
+      Metadata.joins(:master_files).where(q).distinct.each do |m|
+       dd= ""
+       bad = []
+        m.master_files.each do |mf|
+           next if mf.creator_death_date.blank?
+           next if mf.creator_death_date == "unknown"
+           if dd.blank?
+             puts "===> Metadata #{m.id} death date #{mf.creator_death_date}"
+             dd = mf.creator_death_date
+             next
+           end
+           if mf.creator_death_date.include?(",") ||  mf.creator_death_date.include?("and")
+              puts "   Metadata #{m.id}, MF #{mf.id} death_date badly formed #{mf.creator_death_date}"
+           elsif mf.creator_death_date != dd
+             puts "   Metadata #{m.id}, MF #{mf.id} death_date mismatch #{mf.creator_death_date}"
+           end
+        end
+     end
+   end
    desc "Fix missing dimensions in image metadata"
    task :blank_size  => :environment do
       puts "Fixing blank dimensions..."
@@ -214,7 +236,7 @@ namespace :fix do
          end
       end
    end
-   
+
    desc "fix duplicate barcodes"
    task :duplicate_barcodes => :environment do
       q = "select id,barcode from metadata m "

@@ -6,7 +6,7 @@ ActiveAdmin.register SirsiMetadata do
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :collection_id,
+      :collection_facet, :use_right_id, :collection_id, :creator_death_date, :use_right_rationale,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
   # eager load to preven n+1 queries, and improve performance
@@ -187,6 +187,8 @@ ActiveAdmin.register SirsiMetadata do
             link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
           end
           row('Right Statement'){ |r| r.use_right.name }
+          row('Rights Rationale'){ |r| r.use_right_rationale }
+          row :creator_death_date
           row :availability_policy
           row ("Discoverable?") do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.discoverability)

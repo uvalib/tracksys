@@ -37,6 +37,9 @@ class Metadata < ApplicationRecord
    # validations
    #------------------------------------------------------------------
    validates :type, presence: true
+   validates :creator_death_date, inclusion: { in: 1200..Date.today.year,
+      :message => 'must be a 4 digit year.', allow_blank: true 
+   }
 
    #------------------------------------------------------------------
    # callbacks

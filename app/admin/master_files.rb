@@ -9,7 +9,7 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-      :creator_death_date, :date_archived, :md5, :filesize, :unit_id,
+      :date_archived, :md5, :filesize, :unit_id,
       :transcription_text, :pid, :metadata_id, :date_dl_update, :date_dl_ingest
 
    scope :all, :show_count => true, :default => true
@@ -169,13 +169,6 @@ ActiveAdmin.register MasterFile do
                row :filename
                row :title
                row :description
-               row :intellectual_property_notes do |master_file|
-                  if master_file.creation_date or master_file.primary_author or master_file.creator_death_date
-                     "Event Creation Date: #{master_file.creation_date} ; Author: #{master_file.primary_author} ; Author Death Date: #{master_file.creator_death_date}"
-                  else
-                     "no data"
-                  end
-               end
                row :date_archived do |master_file|
                   format_date(master_file.date_archived)
                end
@@ -365,7 +358,6 @@ ActiveAdmin.register MasterFile do
      column("Date Archived") {|master_file| format_date(master_file.date_archived)}
      column("Date DL Ingest") {|master_file| format_date(master_file.date_dl_ingest)}
      column("Date DL Update") {|master_file| format_date(master_file.date_dl_update)}
-     column :creator_death_date
      column :creation_date
      column :primary_author
    end

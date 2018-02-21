@@ -188,7 +188,6 @@ end
 #  md5                 :string(255)
 #  date_dl_ingest      :datetime
 #  date_dl_update      :datetime
-#  creator_death_date  :string(255)
 #  creation_date       :string(255)
 #  primary_author      :string(255)
 #  metadata_id         :integer
