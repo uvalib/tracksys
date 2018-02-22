@@ -59,7 +59,7 @@ if !current_user.viewer? && !current_user.student?
 
          div :class => 'workflow_button' do
             clazz = "disabled"
-            clazz = "" if deliverables_ready && unit.date_archived.blank?
+            clazz = "" if (deliverables_ready && unit.date_archived.blank?) || (unit.intended_use.id == 110 && unit.date_archived.blank?)
             button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
          end
       else
