@@ -15,7 +15,8 @@ class RecreatePatronDeliverables < BaseJob
       del_delivered_orders = Finder.finalization_dir(unit, :delete_from_delivered)
       archive_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
 
-      if Dir.exist? in_proc_dir
+      # See if in proc exists, and has a tif for each master file in the unit
+      if in_proc_complete?(unit, in_proc_dir)
          logger.info "Recreating deliverables from data in the in process directory"
       elsif Dir.exist? del_finalized
          logger.info "Recreating deliverables from data in the ready to delete from finalization directory"
@@ -54,6 +55,11 @@ class RecreatePatronDeliverables < BaseJob
       CopyUnitForProcessing.exec_now({ :unit => unit}, self)
       CreatePatronDeliverables.exec_now({ unit: unit }, self)
       CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
+   end
+
+   def in_proc_complete? (unit, in_proc_dir)
+      return false if !Dir.exist? in_proc_dir
+      return Dir[File.join(in_proc_dir, '*.tif')].count == unit.master_files.count
    end
 
    def copy_original_files_to_in_proc(unit, in_proc_dir)
