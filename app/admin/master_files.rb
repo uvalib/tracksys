@@ -110,7 +110,7 @@ ActiveAdmin.register MasterFile do
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
-               link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
+               link_to "#{mf.metadata_title.truncate(50, separator: ' ')}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
             end
          end
       end
