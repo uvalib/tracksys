@@ -2,6 +2,7 @@ $(function() {
    $(".do-viewer-enabled").on("click", function() {
       $("#dimmer").show();
       $("#do-viewer-modal").show();
+      window.embedScriptIncluded = false;
       var clickedPage = parseInt($(this).data("page"),10);
       var mfId = $(this).attr("id");
       var url = "/admin/master_files/"+mfId+"/viewer?page="+clickedPage;

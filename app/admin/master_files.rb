@@ -229,9 +229,11 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Thumbnail", :only => [:show],  if: proc{ !master_file.deaccessioned? } do
       div :style=>"text-align:center" do
-         link_to image_tag(master_file.link_to_image(:medium)),
-            "#{master_file.link_to_image(:large)}",
-            :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+         image_tag(
+            master_file.link_to_image(:medium),
+            class: "do-viewer-enabled", id: master_file.id,
+            data: {page: master_file.filename.split("_")[1].split(".")[0].to_i,
+                   metadata_pid: master_file.metadata.pid})
       end
       if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned? && master_file.ocr_candidate?
          div style: "margin-top:10px; text-align: center;" do
@@ -355,7 +357,7 @@ ActiveAdmin.register MasterFile do
             page -= 1
          end
       end
-      
+
       html = render_to_string partial: "/admin/common/viewer",
          locals: {page: page, pid: mf.metadata.pid, unit_id: mf.unit_id}
       render json: {html: html}
