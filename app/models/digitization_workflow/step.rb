@@ -348,7 +348,7 @@ class Step < ApplicationRecord
       # Neither directory exists, this is generally a failure, but a special case exists.
       # Files may be 20_in_process if a prior finalization failed. Accept this.
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         alt_dest_dir = Finder.finalization_dir(unit, :in_process)
+         alt_dest_dir = Finder.finalization_dir(project.unit, :in_process)
          if self.end? && Dir.exists?(alt_dest_dir)
             Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
             dest_dir = alt_dest_dir

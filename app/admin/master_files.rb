@@ -347,6 +347,13 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   member_action :viewer, :method => :get do
+      mf = MasterFile.find(params[:id])
+      html = render_to_string partial: "/admin/master_files/viewer",
+         locals: {page: params[:page], pid: mf.metadata.pid, unit_id: mf.unit_id}
+      render json: {html: html}
+   end
+
    csv do
      column :id
      column :pid

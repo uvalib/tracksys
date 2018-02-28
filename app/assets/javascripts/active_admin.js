@@ -17,6 +17,7 @@
 //= require equipment
 //= require skills
 //= require tags
+//= require do_viewer
 //= require metadata
 //= require codemirror
 //= require xml-editor

@@ -1,0 +1,6 @@
+<% if mf.deaccessioned? %>
+   <span class="deaccessioned">Deaccessioned</span>
+<% else %>
+   <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled", id: mf.id,
+         data: {page: mf.filename.split("_")[1].split(".")[0].to_i}) %>
+<% end %>
