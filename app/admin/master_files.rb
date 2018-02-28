@@ -345,8 +345,19 @@ ActiveAdmin.register MasterFile do
 
    member_action :viewer, :method => :get do
       mf = MasterFile.find(params[:id])
+
+      # accept 1-based page number from front-end and convert
+      # to 0-based canvas index for embedding the UV
+      page = params[:page]
+      if !page.nil?
+         page = page.to_i
+         if page > 0
+            page -= 1
+         end
+      end
+      
       html = render_to_string partial: "/admin/common/viewer",
-         locals: {page: params[:page], pid: mf.metadata.pid, unit_id: mf.unit_id}
+         locals: {page: page, pid: mf.metadata.pid, unit_id: mf.unit_id}
       render json: {html: html}
    end
 

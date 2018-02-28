@@ -56,12 +56,6 @@ $(function() {
       $(".audit-log").hide();
    });
 
-   // Colorbox
-   $("a[rel='colorbox']").colorbox({width:"100%", maxHeight:"100%"});
-
-   // Inline HTML via colorbox
-   $('.inline').colorbox({inline:true, width:"50%"});
-
    // Chosen javascript library
    $('.chosen-select').chosen();
 
