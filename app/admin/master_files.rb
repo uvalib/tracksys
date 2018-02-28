@@ -116,12 +116,7 @@ ActiveAdmin.register MasterFile do
       end
       column :unit
       column("Thumbnail") do |mf|
-         if mf.deaccessioned?
-            span class: "deaccessioned" do "Deaccessioned" end
-         else
-            link_to image_tag(mf.link_to_image(:small)),
-               "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-         end
+         render partial: "/admin/common/master_file_thumb", locals: {mf: mf}
       end
       column("") do |mf|
          div do
@@ -143,6 +138,7 @@ ActiveAdmin.register MasterFile do
             end
          end
       end
+      render partial: "modals"
    end
 
    # Show =====================================================================
@@ -349,7 +345,7 @@ ActiveAdmin.register MasterFile do
 
    member_action :viewer, :method => :get do
       mf = MasterFile.find(params[:id])
-      html = render_to_string partial: "/admin/master_files/viewer",
+      html = render_to_string partial: "/admin/common/viewer",
          locals: {page: params[:page], pid: mf.metadata.pid, unit_id: mf.unit_id}
       render json: {html: html}
    end
