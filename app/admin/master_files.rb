@@ -358,6 +358,13 @@ ActiveAdmin.register MasterFile do
          end
       end
 
+      # this page index is not valid if the master file has different metadata
+      # than the unit. In this case, the metadata is xml and describes that
+      # specific master file. Set page to 0 in this case
+      if mf.metadata_id != mf.unit.metadata_id
+         page = 0
+      end
+
       html = render_to_string partial: "/admin/common/viewer",
          locals: {page: page, pid: mf.metadata.pid, unit_id: mf.unit_id}
       render json: {html: html}
