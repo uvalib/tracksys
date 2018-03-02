@@ -9,6 +9,7 @@ class Metadata < ApplicationRecord
    belongs_to :ocr_hint, optional: true
    belongs_to :genre, optional: true
    belongs_to :resource_type, optional: true
+   belongs_to :preservation_tier, optional: true
 
    has_many :master_files
    has_many :units
@@ -38,7 +39,7 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    validates :type, presence: true
    validates :creator_death_date, inclusion: { in: 1200..Date.today.year,
-      :message => 'must be a 4 digit year.', allow_blank: true 
+      :message => 'must be a 4 digit year.', allow_blank: true
    }
 
    #------------------------------------------------------------------

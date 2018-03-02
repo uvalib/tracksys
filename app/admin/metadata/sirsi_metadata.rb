@@ -168,6 +168,13 @@ ActiveAdmin.register SirsiMetadata do
           row ("Checked Out?") do |sirsi_metadata|
              render partial: "/admin/metadata/sirsi_metadata/checkout_log", locals: {metadata: sirsi_metadata}
           end
+          row ("Preservation Tier") do |sm|
+             if sm.preservation_tier.blank?
+                "Undefined"
+             else
+                "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
+             end
+          end
         end
       end
     end
