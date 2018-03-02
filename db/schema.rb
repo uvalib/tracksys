@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180220164356) do
+ActiveRecord::Schema.define(version: 20180302182046) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 20180220164356) do
     t.string "ocr_language_hint"
     t.string "use_right_rationale"
     t.integer "creator_death_date"
+    t.bigint "preservation_tier_id"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"
@@ -387,6 +388,7 @@ ActiveRecord::Schema.define(version: 20180220164356) do
     t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
     t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
     t.index ["pid"], name: "index_metadata_on_pid"
+    t.index ["preservation_tier_id"], name: "index_metadata_on_preservation_tier_id"
     t.index ["resource_type_id"], name: "index_metadata_on_resource_type_id"
     t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
   end
@@ -466,6 +468,11 @@ ActiveRecord::Schema.define(version: 20180220164356) do
     t.index ["date_order_approved"], name: "index_orders_on_date_order_approved"
     t.index ["date_request_submitted"], name: "index_orders_on_date_request_submitted"
     t.index ["order_status"], name: "index_orders_on_order_status"
+  end
+
+  create_table "preservation_tiers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "description"
   end
 
   create_table "problems", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
