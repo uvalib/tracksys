@@ -1,10 +1,10 @@
 class CreatePreservationTier < ActiveRecord::Migration[5.1]
   def up
-    # create_table :preservation_tiers do |t|
-    #   t.string :name
-    #   t.string :description
-    # end
-    #
+    create_table :preservation_tiers do |t|
+      t.string :name
+      t.string :description
+    end
+    
     # add_reference :metadata, :preservation_tier, index: true
     PreservationTier.create([
       {name: "Tier 1", description: "Backed-up"},
