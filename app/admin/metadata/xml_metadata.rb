@@ -139,6 +139,13 @@ ActiveAdmin.register XmlMetadata do
                row ("Date Created") do |xml_metadata|
                   xml_metadata.created_at
                end
+               row ("Preservation Tier") do |sm|
+                  if sm.preservation_tier.blank?
+                     "Undefined"
+                  else
+                     "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
+                  end
+               end
             end
          end
       end

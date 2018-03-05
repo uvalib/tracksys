@@ -171,6 +171,13 @@ ActiveAdmin.register ExternalMetadata do
                row ("Date Created") do |external_metadata|
                   external_metadata.created_at
                end
+               row ("Preservation Tier") do |sm|
+                  if sm.preservation_tier.blank?
+                     "Undefined"
+                  else
+                     "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
+                  end
+               end
             end
          end
       end

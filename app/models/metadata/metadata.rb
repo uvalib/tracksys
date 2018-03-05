@@ -58,6 +58,15 @@ class Metadata < ApplicationRecord
          cne = UseRight.find_by(name: "Copyright Not Evaluated")
          self.use_right = cne
       end
+
+      if preservation_tier.blank?
+         units.each do |u|
+            if u.intended_use_id == 110
+               preservation_tier = 2 # duplicated
+               break
+            end
+         end
+      end
    end
 
    before_destroy :destroyable?
