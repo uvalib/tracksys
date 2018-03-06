@@ -12,7 +12,6 @@ gem 'figaro'
 gem 'exception_notification'
 
 gem 'turnout'           # Maintence page
-gem "roo", "~> 2.7.0"   # to parse excel sheets for importing Gannon project
 
 gem 'annotate'
 gem 'mysql2'
@@ -34,7 +33,6 @@ gem 'net-ldap'
 gem 'country-select'
 
 gem 'jquery-rails'
-gem 'jquery-colorbox-rails'
 gem "chosen-rails", "1.8.2"
 
 group :development, :test do

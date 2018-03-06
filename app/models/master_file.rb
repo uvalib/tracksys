@@ -4,6 +4,7 @@ class MasterFile < ApplicationRecord
    #------------------------------------------------------------------
    # relationships
    #------------------------------------------------------------------
+   has_and_belongs_to_many :tags, join_table: "master_file_tags"
    belongs_to :component, :counter_cache => true, optional: true
    belongs_to :unit
    belongs_to :metadata
@@ -141,6 +142,31 @@ class MasterFile < ApplicationRecord
       raise "Invalid size" if iiif_url.nil?
       return iiif_url.to_s
    end
+
+   def add_new_tag(tag)
+      exist = Tag.find_by(tag: tag)
+      if exist.nil?
+         new_tag = Tag.create(tag: tag)
+         self.tags << new_tag
+         return new_tag
+      else
+         tags << exist
+         return exist
+      end
+   end
+
+   def add_tags(tag_ids)
+      added = []
+      tag_ids.each do |tag_id|
+         next if tag_id.blank?
+         t = Tag.find(tag_id)
+         if !self.tags.include? t
+            self.tags << t
+            added << t
+         end
+      end
+      return added
+   end
 end
 
 # == Schema Information
@@ -162,7 +188,6 @@ end
 #  md5                 :string(255)
 #  date_dl_ingest      :datetime
 #  date_dl_update      :datetime
-#  creator_death_date  :string(255)
 #  creation_date       :string(255)
 #  primary_author      :string(255)
 #  metadata_id         :integer

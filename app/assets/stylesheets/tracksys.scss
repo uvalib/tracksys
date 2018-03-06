@@ -1,5 +1,11 @@
 body.active_admin {
-
+   min-width:1200px;
+   .do-viewer-enabled {
+      cursor: pointer;
+      &:hover {
+         box-shadow: 1px 1px 7px #333;
+      }
+   }
    #stats-button, #pid-find-button, #find-mf-button {
       width: auto;
       float: right;
@@ -654,6 +660,16 @@ body.active_admin {
 
          .buttons {
             margin: 20px 10px 10px;
+         }
+      }
+
+      #do-viewer-modal {
+         width: 820px;
+         height: 650px;
+         margin: 1% auto;
+         .buttons {
+            padding: 0 10px 0 0;
+            margin:0;
          }
       }
 

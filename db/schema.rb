@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180123190130) do
+ActiveRecord::Schema.define(version: 20180302182046) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -302,6 +302,13 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["master_file_id"], name: "index_master_file_locations_on_master_file_id"
   end
 
+  create_table "master_file_tags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "master_file_id"
+    t.bigint "tag_id"
+    t.index ["master_file_id"], name: "index_master_file_tags_on_master_file_id"
+    t.index ["tag_id"], name: "index_master_file_tags_on_tag_id"
+  end
+
   create_table "master_files", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "unit_id", default: 0, null: false
     t.integer "component_id"
@@ -317,7 +324,6 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.string "md5"
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
-    t.string "creator_death_date"
     t.string "creation_date"
     t.string "primary_author"
     t.integer "metadata_id"
@@ -370,6 +376,9 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.string "collection_id"
     t.integer "ocr_hint_id"
     t.string "ocr_language_hint"
+    t.string "use_right_rationale"
+    t.integer "creator_death_date"
+    t.bigint "preservation_tier_id"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"
@@ -379,6 +388,7 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
     t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
     t.index ["pid"], name: "index_metadata_on_pid"
+    t.index ["preservation_tier_id"], name: "index_metadata_on_preservation_tier_id"
     t.index ["resource_type_id"], name: "index_metadata_on_resource_type_id"
     t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
   end
@@ -458,6 +468,11 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["date_order_approved"], name: "index_orders_on_date_order_approved"
     t.index ["date_request_submitted"], name: "index_orders_on_date_request_submitted"
     t.index ["order_status"], name: "index_orders_on_order_status"
+  end
+
+  create_table "preservation_tiers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "description"
   end
 
   create_table "problems", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -554,6 +569,10 @@ ActiveRecord::Schema.define(version: 20180123190130) do
     t.index ["fail_step_id"], name: "index_steps_on_fail_step_id"
     t.index ["next_step_id"], name: "index_steps_on_next_step_id"
     t.index ["workflow_id"], name: "index_steps_on_workflow_id"
+  end
+
+  create_table "tags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "tag"
   end
 
   create_table "units", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

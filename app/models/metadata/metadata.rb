@@ -9,6 +9,7 @@ class Metadata < ApplicationRecord
    belongs_to :ocr_hint, optional: true
    belongs_to :genre, optional: true
    belongs_to :resource_type, optional: true
+   belongs_to :preservation_tier, optional: true
 
    has_many :master_files
    has_many :units
@@ -37,6 +38,9 @@ class Metadata < ApplicationRecord
    # validations
    #------------------------------------------------------------------
    validates :type, presence: true
+   validates :creator_death_date, inclusion: { in: 1200..Date.today.year,
+      :message => 'must be a 4 digit year.', allow_blank: true
+   }
 
    #------------------------------------------------------------------
    # callbacks
@@ -53,6 +57,15 @@ class Metadata < ApplicationRecord
       if self.use_right.blank?
          cne = UseRight.find_by(name: "Copyright Not Evaluated")
          self.use_right = cne
+      end
+
+      if preservation_tier.blank?
+         units.each do |u|
+            if u.intended_use_id == 110
+               preservation_tier = 2 # duplicated
+               break
+            end
+         end
       end
    end
 

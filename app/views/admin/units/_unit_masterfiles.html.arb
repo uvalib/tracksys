@@ -66,12 +66,7 @@ div id: "masterfile-list" do
          end
          column :pid, :sortable => false
          column("Thumbnail") do |mf|
-            if mf.deaccessioned?
-               span class: "deaccessioned" do "Deaccessioned" end
-            else
-               link_to image_tag(mf.link_to_image(:small)), "#{mf.link_to_image(:large)}",
-                  :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-            end
+            render partial: "/admin/common/master_file_thumb", locals: {mf: mf}
          end
          column("") do |mf|
            div do

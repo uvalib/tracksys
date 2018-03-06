@@ -1,0 +1,29 @@
+<div class="panel mf-tags">
+   <h3>Tags</h3>
+   <div class="panel_contents">
+      <table class="add-tags">
+         <tr>
+            <td>
+               <select id="tag-finder" multiple>
+                  <option value=""></option>
+                  <% Tag.all.order(tag: :asc).each do |t| %>
+                     <option value="<%= t.id %>"><%= t.tag %></option>
+                  <% end %>
+               </select>
+            </td>
+            <td>
+               <span id="add-tag" class="mf-action-button">Add Selected Tags</span>
+            </td>
+         </tr>
+         <tr>
+            <td><input type="text" id="new-tag"/></td>
+            <td><span id="add-new-tag" class="mf-action-button">Add New Tag</span></td>
+         </tr>
+      </table>
+      <div class="mf-tag-list">
+         <% mf.tags.each do |t| %>
+            <%= render partial: "tag", locals: {t: t} %>
+         <% end %>
+      </div>
+   </div>
+</div>

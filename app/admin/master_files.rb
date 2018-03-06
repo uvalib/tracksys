@@ -9,7 +9,7 @@ ActiveAdmin.register MasterFile do
 
    # strong paramters handling
    permit_params :filename, :title, :description, :creation_date, :primary_author,
-      :creator_death_date, :date_archived, :md5, :filesize, :unit_id,
+      :date_archived, :md5, :filesize, :unit_id,
       :transcription_text, :pid, :metadata_id, :date_dl_update, :date_dl_ingest
 
    scope :all, :show_count => true, :default => true
@@ -19,6 +19,7 @@ ActiveAdmin.register MasterFile do
    filter :filename_starts_with, label: "filename"
    filter :title_or_description_contains, label: "Title / Description"
    filter :description_contains, label: "Description"
+   filter :tags_tag_contains, :label => "Tag"
    filter :metadata_call_number_starts_with, :label => "Call Number"
    filter :pid_starts_with, label: "PID"
    filter :agency, :as => :select, collection: Agency.pluck(:name, :id)
@@ -109,18 +110,13 @@ ActiveAdmin.register MasterFile do
       column ("Metadata Record") do |mf|
          if !mf.metadata.nil?
             div do
-               link_to "#{mf.metadata_title}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
+               link_to "#{mf.metadata_title.truncate(50, separator: ' ')}", "/admin/#{mf.metadata.url_fragment}/#{mf.metadata.id}"
             end
          end
       end
       column :unit
       column("Thumbnail") do |mf|
-         if mf.deaccessioned?
-            span class: "deaccessioned" do "Deaccessioned" end
-         else
-            link_to image_tag(mf.link_to_image(:small)),
-               "#{mf.link_to_image(:large)}", :rel => 'colorbox', :title => "#{mf.filename} (#{mf.title} #{mf.description})"
-         end
+         render partial: "/admin/common/master_file_thumb", locals: {mf: mf}
       end
       column("") do |mf|
          div do
@@ -142,6 +138,7 @@ ActiveAdmin.register MasterFile do
             end
          end
       end
+      render partial: "modals"
    end
 
    # Show =====================================================================
@@ -168,13 +165,6 @@ ActiveAdmin.register MasterFile do
                row :filename
                row :title
                row :description
-               row :intellectual_property_notes do |master_file|
-                  if master_file.creation_date or master_file.primary_author or master_file.creator_death_date
-                     "Event Creation Date: #{master_file.creation_date} ; Author: #{master_file.primary_author} ; Author Death Date: #{master_file.creator_death_date}"
-                  else
-                     "no data"
-                  end
-               end
                row :date_archived do |master_file|
                   format_date(master_file.date_archived)
                end
@@ -186,6 +176,7 @@ ActiveAdmin.register MasterFile do
                end
             end
          end
+         render partial: "tags", :locals=>{ mf: master_file}
       end
       render :partial=>"deaccession", :locals=>{ mf: master_file}
 
@@ -238,9 +229,11 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Thumbnail", :only => [:show],  if: proc{ !master_file.deaccessioned? } do
       div :style=>"text-align:center" do
-         link_to image_tag(master_file.link_to_image(:medium)),
-            "#{master_file.link_to_image(:large)}",
-            :rel => 'colorbox', :title => "#{master_file.filename} (#{master_file.title} #{master_file.description})"
+         image_tag(
+            master_file.link_to_image(:medium),
+            class: "do-viewer-enabled", id: master_file.id,
+            data: {page: master_file.filename.split("_")[1].split(".")[0].to_i,
+                   metadata_pid: master_file.metadata.pid})
       end
       if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned? && master_file.ocr_candidate?
          div style: "margin-top:10px; text-align: center;" do
@@ -313,6 +306,28 @@ ActiveAdmin.register MasterFile do
          :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
+   member_action :add_new_tag, :method => :post do
+      mf = MasterFile.find(params[:id])
+      added = mf.add_new_tag( params[:tag])
+      html = render_to_string partial: "tag", locals: {t: added}
+      render json: {html: html}
+   end
+   member_action :add_tags, :method => :post do
+      mf = MasterFile.find(params[:id])
+      tags = params[:tags]
+      html = ""
+      mf.add_tags(tags).each do |t|
+         html += render_to_string partial: "tag", locals: {t: t}
+      end
+      render json: {html: html}
+   end
+   member_action :remove_tag, :method => :post do
+      mf = MasterFile.find(params[:id])
+      tag = Tag.find(params[:tag])
+      mf.tags.delete(tag)
+      render plain: "OK"
+   end
+
    member_action :save_transcription, :method => :post do
       mf = MasterFile.find(params[:id])
       src = mf.text_source
@@ -330,6 +345,31 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   member_action :viewer, :method => :get do
+      mf = MasterFile.find(params[:id])
+
+      # accept 1-based page number from front-end and convert
+      # to 0-based canvas index for embedding the UV
+      page = params[:page]
+      if !page.nil?
+         page = page.to_i
+         if page > 0
+            page -= 1
+         end
+      end
+
+      # this page index is not valid if the master file has different metadata
+      # than the unit. In this case, the metadata is xml and describes that
+      # specific master file. Set page to 0 in this case
+      if mf.metadata_id != mf.unit.metadata_id
+         page = 0
+      end
+
+      html = render_to_string partial: "/admin/common/viewer",
+         locals: {page: page, pid: mf.metadata.pid, unit_id: mf.unit_id}
+      render json: {html: html}
+   end
+
    csv do
      column :id
      column :pid
@@ -341,7 +381,6 @@ ActiveAdmin.register MasterFile do
      column("Date Archived") {|master_file| format_date(master_file.date_archived)}
      column("Date DL Ingest") {|master_file| format_date(master_file.date_dl_ingest)}
      column("Date DL Update") {|master_file| format_date(master_file.date_dl_update)}
-     column :creator_death_date
      column :creation_date
      column :primary_author
    end

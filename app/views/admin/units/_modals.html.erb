@@ -1,4 +1,6 @@
 <div id="dimmer">
+   <%= render partial: "/admin/common/viewer_modal" %>
+
    <div id="attachment-modal" class="modal">
       <h1>Add Attachment</h1>
       <form id="upload-attachment" method="post" action="/admin/units/<%= unit.id %>/attachment" enctype="multipart/form-data">

@@ -193,9 +193,9 @@ ActiveAdmin.register_page "Dashboard" do
       redirect_to "/admin/dashboard"
    end
 
-   page_action :location_lookup do
-      if params[:box].blank? && params[:folder].blank?
-         flash[:notice] = "Box or folder is required!"
+   page_action :master_file_lookup do
+      if params[:box].blank? && params[:folder].blank? && params[:tag].blank?
+         flash[:notice] = "Box, folder or tag is required!"
          redirect_to "/admin/dashboard"
       end
       # q%5Blocation_container_id_starts_with%5D=boxy&q%5Blocation_folder_id_starts_with%5D=xxx
@@ -205,6 +205,9 @@ ActiveAdmin.register_page "Dashboard" do
       end
       if !params[:folder].blank?
          qp << "q[location_folder_id_starts_with]=#{params[:folder]}"
+      end
+      if !params[:tag].blank?
+         qp << "q[tags_tag_contains]=#{params[:tag]}"
       end
       redirect_to "/admin/master_files?#{qp.join('&')}"
    end

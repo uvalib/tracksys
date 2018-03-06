@@ -10,6 +10,8 @@
        <%= f.input :availability_policy %>
        <%= f.input :discoverability, :as => :select %>
        <%= f.input :use_right, label: "Right Statement" %>
+       <%= f.input :use_right_rationale %>
+       <%= f.input :creator_death_date, label: "Creator Death Date (Year)", placeholder: "YYYY" %>
        <%= f.input :dpla, :as => :radio %>
 
        <!-- Only allow single level heirarchy; if metadata has children, it can't also be a child -->

@@ -1,0 +1,79 @@
+div.mf-tags {
+   .tag {
+      border: 1px solid #999;
+      padding: 2px 25px 2px 35px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      background: white;
+      color: #666;
+      position: relative;
+      margin: 0 10px 10px 0;
+      box-shadow: 2px 2px 4px #ccc;
+      display: inline-block;
+   }
+   .del-tag {
+      border: 1px solid #999;
+      border-radius: 20px;
+      background: #e5e5e5;
+      position: absolute;
+      left: -1px;
+      top: -2px;
+      font-weight: bold;
+      background-repeat: no-repeat;
+      width: 22px;
+      height: 23px;
+      cursor: pointer;
+      background-position: 3px 3px;
+      background-image: image_url("close.png");
+      opacity: 0.6;
+
+      &:hover {
+         opacity: 0.85;
+      }
+   }
+}
+
+div.mf-tag-list {
+   border-top: 1px solid #ccc;
+   padding-top: 15px;
+   display: flex;
+   justify-content: center;
+   flex-wrap: wrap;
+}
+
+table.add-tags {
+   margin-bottom: 15px;
+   tr td {
+      padding: 0;
+      vertical-align: middle;
+      .mf-action-button {
+         width: 100px;
+         text-align: center;
+      }
+   }
+   div {
+      margin: 5px 0px;
+   }
+   input[type=text] {
+      width: 250px;
+      box-sizing: border-box;
+      outline: 0;
+      border: 1px solid #aaa;
+      font-size: 14px;
+      height: 29px;
+      color: #444;
+      padding: 2px 6px;
+   }
+}
+
+#tag_finder_chosen {
+   box-sizing: border-box;
+   div.chosen-drop, ul.chosen-choices {
+      box-sizing: border-box;
+   }
+   div.chosen-search input.chosen-search-input {
+      box-sizing: border-box;
+      padding: 4px 0;
+      margin: 0;
+   }
+}

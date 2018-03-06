@@ -1,8 +1,5 @@
 ## TRACKSYS CONFIGURATION
 ##
-# I left most of the settings that don't change between environments
-# at the top of this file; consider them defaults. To override, add
-# an entry in the target config section below.
 
 # URLS
 #
@@ -38,34 +35,17 @@ deaccession_users: lf6f,cmm2t
 as_user: as_user
 as_pass: as_pass
 
-production:
-   archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
-   production_mount: /digiserv-production
-   delivery_dir: /digiserv-delivery/patron
-   solr_url: http://solr.lib.virginia.edu:8082/solr      # Virgo solr instance
-   iiif_mount: /iiif/jp2k                                # storage mount for iiif images
-   iiif_manifest_url: http://localhost:8080/iiif         # IIIF presentation metadata base URL
-   iiif_url: http://iiif.lib.virginia.edu/iiif           # IIIF image server base URL
-   rights_wrapper_url:                                   # rights-wrapper service base URL
-   tracksys_url: http://tracksysdev.lib.virginia.edu/
-   index_destintion: "virgo"
-   pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
-   rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
-   archives_space_url: https://archivesspace01.lib.virginia.edu
-   as_api_url: https://archivesspace01.lib.virginia.edu:8089
-development:
-   dev_user_compute_id: lf6f
-   archive_mount: /home/user/tracksys-dev/sandbox/lib_content44/RMDS_archive/CheckSummed_archive
-   production_mount: /home/user/tracksys-dev/sandbox/digiserv-production # Override default mount with local
-   delivery_dir:  /home/user/tracksys-dev/sandbox/digiserv-delivery/patron
-   solr_url: http://solr.lib.virginia.edu:8082/solr         # Virgo solr instance
-   iiif_mount: /home/user/tracksys-dev/sandbox/jp2k         # storage mount for iiif images
-   iiif_manifest_url: http://localhost:8080/iiif            # IIIF presentation metadata base URL
-   iiif_url: http://iiif.lib.virginia.edu/iiif              # IIIF image server base URL
-   rights_wrapper_url:                                      # rights-wrapper service base URL
-   tracksys_url: http://tracksysdev.lib.virginia.edu/
-   index_destintion: "localhost"
-   pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
-   rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
-   archives_space_url: https://archives-test.lib.virginia.edu
-   as_api_url: https://archives-test.lib.virginia.edu:8089
+archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
+production_mount: /digiserv-production
+delivery_dir: /digiserv-delivery/patron
+solr_url: http://solr.lib.virginia.edu:8082/solr                                 # Virgo solr instance
+iiif_mount: /iiif/jp2k                                                           # storage mount for iiif images
+iiif_manifest_url: http://localhost:8080/iiif                                    # IIIF presentation metadata base URL
+iiif_url: http://iiif.lib.virginia.edu/iiif                                      # IIIF image server base URL
+doviewer_url: https://doviewer.lib.virginia.edu                                  # Digital object viewer URL
+tracksys_url: http://tracksysdev.lib.virginia.edu/
+index_destintion: "virgo"
+pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
+rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
+archives_space_url: https://archivesspace01.lib.virginia.edu
+as_api_url: https://archivesspace01.lib.virginia.edu:8089
