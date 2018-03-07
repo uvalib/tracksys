@@ -2,6 +2,11 @@ require 'fileutils'
 
 namespace :rights do
 
+   desc "Fix Jackson Davis rights info"
+   task :fix_jd  => :environment do
+      Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 10, creator_death_date: 1947, use_right_rationale: "Jackson Davis died in 1947")
+   end
+
    desc "initialize all bibls to CNE"
    task :init_cne  => :environment do
       cne = UseRight.find_by(name: "Copyright Not Evaluated")

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://dplava.lib.virginia.edu/dplava.xsd"
+    type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mdRecord xmlns="http://dplava.lib.virginia.edu/dplava/v1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:edm="http://www.europeana.eu/schemas/edm/"
+    xsi:schemaLocation="http://dplava.lib.virginia.edu/dplava/v1 http://dplava.lib.virginia.edu/dplava.xsd">
+    <dcterms:identifier>PID</dcterms:identifier>
+    <dcterms:title>TITLE</dcterms:title>
+    <dcterms:provenance>University of Virginia Libraries</dcterms:provenance>
+    <dcterms:creator>CREATOR</dcterms:creator>
+    TERMS
+    <dcterms:isReferencedBy>http://search.lib.virginia.edu/catalog/PID/iiif/manifest.json</dcterms:isReferencedBy>
+    <dcterms:rights>RIGHTS</dcterms:rights>
+    <edm:isShownAt>http://search.lib.virginia.edu/catalog/PID</edm:isShownAt>
+    <edm:preview>https://iiif.lib.virginia.edu/iiif/PID/full/!300,300/0/default.jpg</edm:preview>
+</mdRecord>

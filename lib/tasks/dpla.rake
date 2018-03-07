@@ -22,6 +22,115 @@ namespace :dpla do
       end
    end
 
+   task test: :environment do
+      qdc_dir = "tmp/dpla/qdc"
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      overwrite = (ENV['force'] == "1" || ENV['force'] == "yes" || ENV['force'] == "true")
+      puts "Overwrite existing records? #{overwrite}"
+
+      # Metadata.find(3009).children.each do |meta|
+      Metadata.where(pid: "uva-lib:1051234").each do |meta|
+         next if !meta.dpla
+         puts "Process #{meta.pid}..."
+
+         # determine where to put output file (split pid up into 3 digit segments to avoid massive directory listing)
+         relative_pid_path = relative_pid_path(meta.pid)
+         pid_path = File.join(qdc_dir, relative_pid_path)
+         FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
+         qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
+         if !overwrite && File.exists?(qdc_fn)
+            puts "File #{qdc_fn} exists and not in overwrite mode. Skipping."
+            next
+         end
+
+         # ingest into an XML document and do a manual crosswalk to get data
+         doc = Nokogiri::XML( Hydra.desc(meta) )
+         doc.remove_namespaces!
+         cw_data = {}
+         cw_data['TITLE'] = meta.title
+         cw_data['RIGHTS'] = meta.use_right.uri
+         cw_data['TERMS'] = []
+
+         # Creator Name
+         # in this order: usage=primary, personal, first one
+         cn  = doc.at_xpath("//name[@usage='primary']")
+         cn = doc.at_xpath("//name[@type='personal']") if cn.blank?
+         cn = doc.at_xpath("//name") if cn.blank?
+         if !cn.blank?
+            cw_data['CREATOR'] = ""
+            cn.xpath("namePart").each do |n|
+               cw_data['CREATOR'] << " " if cw_data['CREATOR'].length > 0
+               cw_data['CREATOR'] << n.text
+            end
+         end
+
+         # Date Created
+         n = doc.at_xpath("//originInfo/dateCreated[@keyDate='yes']")
+         n = doc.at_xpath("//originInfo/mods:dateIssued") if n.nil?
+         if !n.nil?
+            cw_data['TERMS'] << "<dcterms:created>#{n.text}</dcterms:created>" if n.text != "undated"
+         end
+
+         cw_data['TERMS'] << crosswalk(doc, "//identifier[@type='accessionNumber']", "identifier")
+         cw_data['TERMS'] << crosswalk(doc, "//abstract", "description")
+         cw_data['TERMS'] << crosswalk(doc, "//physicalDescription/form", "medium")
+         cw_data['TERMS'] << crosswalk(doc, "//physicalDescription/extent", "extent")
+         cw_data['TERMS'] << crosswalk(doc, "//language/languageTerm", "language")
+         cw_data['TERMS'] << crosswalk(doc, "//originInfo/publisher", "publisher")
+         cw_data['TERMS'] << crosswalk(doc, "//subject/topic", "subject")
+         cw_data['TERMS'] << crosswalk(doc, "//subject/name", "subject")
+         cw_data['TERMS'] << crosswalk(doc, "//typeOfResource", "type")
+         cw_data['TERMS'] << crosswalk(doc, "//relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "isPartOf")
+
+         # <subject><hierarchicalGeographic> -> dcterms:spatial
+         nd = doc.at_xpath("//subject/hierarchicalGeographic")
+         if !nd.nil?
+            out = ""
+            ["country", "state", "city"].each do |t|
+               p = doc.at_xpath("//subject/hierarchicalGeographic/#{t}")
+               if !p.nil?
+                  out << ", " if out.length > 0
+                  out << p.text
+               end
+            end
+            if out.length > 0
+               cw_data['TERMS'] << "<dcterms:spatial>#{out}</dcterms:spatial>"
+            end
+         end
+
+         cw_data['TERMS'].compact!
+         qdc = qdc_tpl.gsub(/PID/, meta.pid)
+         cw_data.each do |k,v|
+            if k == "TERMS"
+               qdc.gsub!(/#{k}/, v.join("\n    "))
+            else
+               qdc.gsub!(/#{k}/, v)
+            end
+         end
+
+         # write QDC file to filesystem
+
+         out = File.open(qdc_fn, "w")
+         out.write(qdc)
+         out.close
+
+         abort("ONE")
+      end
+   end
+
+   def crosswalk(doc, xpath, qdc_ele)
+      n = doc.at_xpath(xpath)
+      if !n.nil?
+         return "<dcterms:#{qdc_ele}>#{n.text.strip}</dcterms:#{qdc_ele}>"
+      end
+      return nil
+   end
+
    desc "Generate DPLA METS/MODS for a parent metadata ID"
    task :generate  => :environment do
       id = ENV['id']
