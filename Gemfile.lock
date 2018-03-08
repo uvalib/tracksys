@@ -86,7 +86,7 @@ GEM
       delayed_job (>= 3.0, < 5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    erubi (1.7.0)
+    erubi (1.7.1)
     exception_notification (4.2.2)
       actionmailer (>= 4.0, < 6)
       activesupport (>= 4.0, < 6)
