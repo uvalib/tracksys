@@ -87,7 +87,7 @@ class CloneMasterFiles < BaseJob
          component_id: src_mf.component_id,
          title: new_title, description: src_mf.description,
          transcription_text: src_mf.transcription_text,
-         md5: src_mf.md5, creator_death_date: src_mf.creator_death_date,
+         md5: src_mf.md5,
          creation_date: src_mf.creation_date, primary_author: src_mf.primary_author,
          metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
 
