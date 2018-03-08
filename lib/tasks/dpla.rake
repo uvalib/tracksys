@@ -54,7 +54,7 @@ namespace :dpla do
 
          exemplar_pid = meta.master_files.first.pid
          if !meta.exemplar.blank?
-            exemplar = meta.master_files.where(filename: meta.exemplar)
+            exemplar = meta.master_files.find_by(filename: meta.exemplar)
             if !exemplar.nil?
                exemplar_pid = exemplar.pid
             end
@@ -148,7 +148,7 @@ namespace :dpla do
    def clean_xml_text(val)
       clean = val.strip
       clean = clean.gsub(/&/, "&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")
-      clean = clean.gsub(/"/,"&quot;").gsub(/'/,"&apos;")
+      # clean = clean.gsub(/"/,"&quot;").gsub(/'/,"&apos;")
       return clean
    end
 
