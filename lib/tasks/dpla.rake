@@ -23,7 +23,9 @@ namespace :dpla do
    end
 
    task test: :environment do
-      qdc_dir = "tmp/dpla/qdc"
+#      qdc_dir = "tmp/dpla/qdc"
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
 
       puts "Reading QDC xml template..."
       file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
@@ -34,7 +36,9 @@ namespace :dpla do
       puts "Overwrite existing records? #{overwrite}"
 
       # Metadata.find(3009).children.each do |meta|
-      Metadata.where(pid: "uva-lib:1051234").each do |meta|
+#      Metadata.where(pid: "uva-lib:1051234").each do |meta|
+      cnt = 0
+      Metadata.find(15784).children.each do |meta|
          next if !meta.dpla
          puts "Process #{meta.pid}..."
 
@@ -65,15 +69,16 @@ namespace :dpla do
             cw_data['CREATOR'] = ""
             cn.xpath("namePart").each do |n|
                cw_data['CREATOR'] << " " if cw_data['CREATOR'].length > 0
-               cw_data['CREATOR'] << n.text
+               cw_data['CREATOR'] << clean_xml_text(n.text)
             end
          end
 
          # Date Created
          n = doc.at_xpath("//originInfo/dateCreated[@keyDate='yes']")
-         n = doc.at_xpath("//originInfo/mods:dateIssued") if n.nil?
+         n = doc.at_xpath("//originInfo/dateIssued") if n.nil?
          if !n.nil?
-            cw_data['TERMS'] << "<dcterms:created>#{n.text}</dcterms:created>" if n.text != "undated"
+            cw_data['TERMS'] <<
+               "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>" if n.text != "undated"
          end
 
          cw_data['TERMS'] << crosswalk(doc, "//identifier[@type='accessionNumber']", "identifier")
@@ -95,7 +100,7 @@ namespace :dpla do
                p = doc.at_xpath("//subject/hierarchicalGeographic/#{t}")
                if !p.nil?
                   out << ", " if out.length > 0
-                  out << p.text
+                  out << clean_xml_text(p.text)
                end
             end
             if out.length > 0
@@ -114,21 +119,28 @@ namespace :dpla do
          end
 
          # write QDC file to filesystem
-
          out = File.open(qdc_fn, "w")
          out.write(qdc)
          out.close
 
-         abort("ONE")
+         cnt += 1
+         abort("stop early") if cnt == 5
       end
    end
 
    def crosswalk(doc, xpath, qdc_ele)
       n = doc.at_xpath(xpath)
       if !n.nil?
-         return "<dcterms:#{qdc_ele}>#{n.text.strip}</dcterms:#{qdc_ele}>"
+         return "<dcterms:#{qdc_ele}>#{clean_xml_text(n.text)}</dcterms:#{qdc_ele}>"
       end
       return nil
+   end
+
+   def clean_xml_text(val)
+      clean = val.strip
+      clean = clean.gsub(/&/, "&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")
+      clean = clean.gsub(/"/,"&quot;").gsub(/'/,"&apos;")
+      return clean
    end
 
    desc "Generate DPLA METS/MODS for a parent metadata ID"
