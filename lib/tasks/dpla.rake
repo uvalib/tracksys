@@ -52,10 +52,19 @@ namespace :dpla do
             next
          end
 
+         exemplar_pid = meta.master_files.first.pid
+         if !meta.exemplar.blank?
+            exemplar = meta.master_files.where(filename: meta.exemplar)
+            if !exemplar.nil?
+               exemplar_pid = exemplar.pid
+            end
+         end
+
          # ingest into an XML document and do a manual crosswalk to get data
          doc = Nokogiri::XML( Hydra.desc(meta) )
          doc.remove_namespaces!
          cw_data = {}
+         cw_data['EXEMPLAR'] = exemplar_pid
          cw_data['TITLE'] = meta.title
          cw_data['RIGHTS'] = meta.use_right.uri
          cw_data['TERMS'] = []
