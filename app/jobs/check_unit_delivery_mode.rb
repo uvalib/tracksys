@@ -44,9 +44,16 @@ class CheckUnitDeliveryMode < BaseJob
       # Regardless of the use, ALL masterfiles coming into tracksys must be sent to IIIF.
       # Exception: reorders. These masterfile are already in IIIF and shouldn't be re-added.
       if unit.reorder == false
+         logger.info("Publishing #{unit.master_files.count} to IIIF...")
+         cnt = 0
          unit.master_files.each do |master_file|
             file_source = File.join(processing_dir, master_file.filename)
             PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
+            cnt += 1
+         end
+         logger.debug("#{cnt} master files published to IIIF")
+         if cnt != unit.master_files.count
+            on_error "Mismatch in count of master files published to IIIF"
          end
       end
 
