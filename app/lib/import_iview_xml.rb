@@ -26,7 +26,7 @@ module ImportIviewXml
             element = item.xpath('AssetProperties/UniqueID').first
             iview_id = element.nil? ? nil : element.text
             if iview_id.blank?
-               raise ImportError, "Missing or empty <UniqueID> for <MediaItem>"
+               on_error "Missing or empty <UniqueID> for <MediaItem>"
             end
 
             master_file = create_master_file(item, unit, job_logger)
@@ -43,7 +43,7 @@ module ImportIviewXml
                pid = setname[/pid=([-a-z]+:[0-9]+)/, 1]
                job_logger.info "Link manuscript to PID #{pid}"
                if pid.nil?
-                  raise ImportError, "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
+                  on_error "Setname '#{setname}' does not contain a PID, therefore preventing assignment of Component to MasterFile"
                else
                   link_to_component(master_file.id, pid)
                end
@@ -156,7 +156,8 @@ module ImportIviewXml
 
       # save ImageTechMeta to database, raising any error that occurs
       if !image_tech_meta.save
-         raise ImportError, "<MediaItem> with <UniqueID> \"#{iview_id}\": #{image_tech_meta.errors.full_messages}"
+         on_error
+            "Unable to create/update tech metadata for #{image_tech_meta.master_file_id}: #{image_tech_meta.errors.full_messages}"
       end
    end
    private_class_method :create_image_tech_meta
@@ -171,7 +172,7 @@ module ImportIviewXml
       in_proc = Finder.finalization_dir(unit, :in_process)
       full_path = Dir[File.join(in_proc, "/**/#{tgt_filename}")].first
       if full_path.nil?
-         raise ImportError, "Missing master file #{tgt_filename}"
+         on_error "Missing master file #{tgt_filename}"
       end
 
       # get the directory of the tgt file and strip off the base
@@ -199,7 +200,7 @@ module ImportIviewXml
          master_file.description = get_element_value(item.xpath('AnnotationFields/Caption').first)
 
          if !master_file.save
-            raise ImportError, "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
+            on_error "<MediaItem> with <Filename> '#{master_file.filename}': #{master_file.errors.full_messages}"
          end
       else
          logger.info "Master file #{tgt_filename} already exists"
@@ -320,14 +321,4 @@ module ImportIviewXml
          nil
       end
    end
-
-   #-----------------------------------------------------------------------------
-   # private supporting classes
-   #-----------------------------------------------------------------------------
-
-   private
-
-   class ImportError < RuntimeError  #:nodoc:
-   end
-
 end
