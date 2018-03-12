@@ -1,6 +1,3 @@
-require "#{Rails.root}/app/helpers/dpla_helper"
-include DplaHelper
-
 namespace :dpla do
    desc "Generate DPLA QDC for all collection records"
    task :generate_all  => :environment do
@@ -48,7 +45,7 @@ namespace :dpla do
          puts "Process #{meta.id}:#{meta.pid}..."
 
          # determine where to put output file (split pid up into 3 digit segments to avoid massive directory listing)
-         relative_pid_path = relative_pid_path(meta.pid)
+         relative_pid_path = QDC.relative_pid_path(meta.pid)
          pid_path = File.join(qdc_dir, relative_pid_path)
          FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
          qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
@@ -83,7 +80,7 @@ namespace :dpla do
             cw_data['CREATOR'] = ""
             cn.xpath("namePart").each do |n|
                cw_data['CREATOR'] << " " if cw_data['CREATOR'].length > 0
-               cw_data['CREATOR'] << clean_xml_text(n.text)
+               cw_data['CREATOR'] << QDC.clean_xml_text(n.text)
             end
          end
 
@@ -92,19 +89,19 @@ namespace :dpla do
          n = doc.at_xpath("//originInfo/dateIssued") if n.nil?
          if !n.nil?
             cw_data['TERMS'] <<
-               "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>" if n.text != "undated"
+               "<dcterms:created>#{QDC.clean_xml_text(n.text)}</dcterms:created>" if n.text != "undated"
          end
 
-         cw_data['TERMS'] << crosswalk(doc, "//identifier[@type='accessionNumber']", "identifier")
-         cw_data['TERMS'] << crosswalk(doc, "//abstract", "description")
-         cw_data['TERMS'] << crosswalk(doc, "//physicalDescription/form", "medium")
-         cw_data['TERMS'] << crosswalk(doc, "//physicalDescription/extent", "extent")
-         cw_data['TERMS'] << crosswalk(doc, "//language/languageTerm", "language")
-         cw_data['TERMS'] << crosswalk(doc, "//originInfo/publisher", "publisher")
-         cw_data['TERMS'] << crosswalk(doc, "//subject/topic", "subject")
-         cw_data['TERMS'] << crosswalk(doc, "//subject/name", "subject")
-         cw_data['TERMS'] << crosswalk(doc, "//typeOfResource", "type")
-         cw_data['TERMS'] << crosswalk(doc, "//relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "isPartOf")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//identifier[@type='accessionNumber']", "identifier")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//abstract", "description")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/form", "medium")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/extent", "extent")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//language/languageTerm", "language")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//originInfo/publisher", "publisher")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//subject/topic", "subject")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//subject/name", "subject")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//typeOfResource", "type")
+         cw_data['TERMS'] << QDC.crosswalk(doc, "//relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "isPartOf")
 
          # <subject><hierarchicalGeographic> -> dcterms:spatial
          nd = doc.at_xpath("//subject/hierarchicalGeographic")
@@ -114,7 +111,7 @@ namespace :dpla do
                p = doc.at_xpath("//subject/hierarchicalGeographic/#{t}")
                if !p.nil?
                   out << ", " if out.length > 0
-                  out << clean_xml_text(p.text)
+                  out << QDC.clean_xml_text(p.text)
                end
             end
             if out.length > 0
@@ -138,23 +135,10 @@ namespace :dpla do
          out.close
 
          cnt += 1
-         abort("stop early") if max_cnt > -1 && cnt == max_cnt
+         if max_cnt > -1 && cnt == max_cnt
+            puts "Stopping after #{cnt}"
+            break
+         end
       end
    end
-
-   def crosswalk(doc, xpath, qdc_ele)
-      n = doc.at_xpath(xpath)
-      if !n.nil?
-         return "<dcterms:#{qdc_ele}>#{clean_xml_text(n.text)}</dcterms:#{qdc_ele}>"
-      end
-      return nil
-   end
-
-   def clean_xml_text(val)
-      clean = val.strip
-      clean = clean.gsub(/&/, "&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")
-      # clean = clean.gsub(/"/,"&quot;").gsub(/'/,"&apos;")
-      return clean
-   end
-
 end

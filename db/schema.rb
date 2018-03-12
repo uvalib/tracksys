@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180302182046) do
+ActiveRecord::Schema.define(version: 20180312144550) do
 
   create_table "academic_statuses", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -379,6 +379,7 @@ ActiveRecord::Schema.define(version: 20180302182046) do
     t.string "use_right_rationale"
     t.integer "creator_death_date"
     t.bigint "preservation_tier_id"
+    t.datetime "qdc_generated_at"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"

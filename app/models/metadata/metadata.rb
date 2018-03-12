@@ -45,29 +45,7 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
-   before_save do
-      self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
-      self.is_approved = false if self.is_approved.nil?
-      self.is_manuscript = false if self.is_manuscript.nil?
-      self.is_personal_item = false if self.is_personal_item.nil?
-      self.discoverability = true if self.discoverability.nil?
-      self.collection_facet = nil if !self.collection_facet.nil? && self.collection_facet.downcase == "none"
-
-      # default right statement to not Evaluated
-      if self.use_right.blank?
-         cne = UseRight.find_by(name: "Copyright Not Evaluated")
-         self.use_right = cne
-      end
-
-      if preservation_tier.blank?
-         units.each do |u|
-            if u.intended_use_id == 110
-               preservation_tier = 2 # duplicated
-               break
-            end
-         end
-      end
-   end
+   before_save :before_save_handler
 
    before_destroy :destroyable?
    def destroyable?
@@ -99,6 +77,41 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
+   def before_save_handler
+      self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
+      self.is_approved = false if self.is_approved.nil?
+      self.is_manuscript = false if self.is_manuscript.nil?
+      self.is_personal_item = false if self.is_personal_item.nil?
+      self.discoverability = true if self.discoverability.nil?
+      self.collection_facet = nil if !self.collection_facet.nil? && self.collection_facet.downcase == "none"
+
+      # default right statement to not Evaluated
+      if self.use_right.blank?
+         cne = UseRight.find_by(name: "Copyright Not Evaluated")
+         self.use_right = cne
+      end
+
+      if preservation_tier.blank?
+         units.each do |u|
+            if u.intended_use_id == 110
+               preservation_tier = 2 # duplicated
+               break
+            end
+         end
+      end
+
+      # trigger an asynchronus update to the QDC file
+      schedule_qdc_publish()
+   end
+
+   def schedule_qdc_publish
+      if dpla && discoverability && (!date_dl_ingest.blank? || !date_dl_update.blank?)
+         QDC.generate(self)
+         QDC.publish(self)
+      end
+   end
+   handle_asynchronously :schedule_qdc_publish
+
    def url_fragment
       return null
    end
