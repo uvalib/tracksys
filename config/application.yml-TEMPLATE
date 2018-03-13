@@ -51,7 +51,7 @@ archives_space_url: https://archivesspace01.lib.virginia.edu
 as_api_url: https://archivesspace01.lib.virginia.edu:8089
 
 # DPLAVA settings
-dpla_auto_publish: false
-dpla_git_repo: https://github.com/uvalib/dpla_test
-dpla_git_email: GIT_USER_EMAIL
-dpla_git_user: GIT_USER
+dpla_qdc_auto_publish: false
+dpla_qdc_git_repo: https://github.com/uvalib/dpla_test
+dpla_qdc_git_email: user@email.com
+dpla_qdc_git_user: "User Name"

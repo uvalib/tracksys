@@ -113,7 +113,7 @@ class PublishQDC < BaseJob
 
       logger.info("Publishing changes to git...")
       msg = "Update to #{meta.pid}"
-      usr = "-c \"user.name=#{Settings.qdc_git_user}\" -c \"user.email=#{Settings.qdc_git_email}\""
+      usr = "-c \"user.name=#{Settings.dpla_qdc_git_user}\" -c \"user.email=#{Settings.dpla_qdc_git_email}\""
       cmd = "cd #{qdc_dir}; git add .; git commit -m '#{msg}'; git push"
       `#{cmd}`
 

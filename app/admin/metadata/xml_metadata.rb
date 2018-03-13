@@ -317,7 +317,7 @@ ActiveAdmin.register XmlMetadata do
             metadata.creator_name = creator.join(" ")
          end
 
-         if metadata.in_dpla? && Settings.dpla_auto_publish
+         if metadata.in_dpla? && Settings.dpla_qdc_auto_publish
             PublishQDC.exec({metadata_id: metadata.id})
          end
    end
