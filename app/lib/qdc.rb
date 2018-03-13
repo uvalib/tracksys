@@ -100,13 +100,19 @@ module QDC
       out.write(qdc)
       out.close
 
-      meta.update(qdc_generated_at: DateTime.now)
+      # TAKE THIS OUT! Causes loop of update
+      #meta.update(qdc_generated_at: DateTime.now)
    end
 
    # Publish a QDC record to the DPLAVA github repo
    #
    def self.publish(metadata)
       Delayed::Worker.logger.debug("====> Publish QDC for #{metadata.pid}")
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      msg = "Update to #{metadata.pid}"
+      usr = "-c \"user.name=#{Settings.qdc_git_user}\" -c \"user.email=#{Settings.qdc_git_email}\""
+      cmd = "cd #{qdc_dir}; git add .; git commit -m '#{msg}'; git push"
+      `#{cmd}`
    end
 
    private
