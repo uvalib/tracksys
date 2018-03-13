@@ -341,5 +341,13 @@ ActiveAdmin.register SirsiMetadata do
                barcode: params[:barcode], message: "No matching Sirsi record found"}, status: :bad_reqeust
          end
       end
+
+      def update
+         super
+         metadata = Metadata.find(params[:id])
+         if metadata.in_dpla? && Settings.dpla_auto_publish
+            PublishQDC.exec({metadata_id: metadata.id})
+         end
+      end
    end
 end

@@ -99,18 +99,7 @@ class Metadata < ApplicationRecord
             end
          end
       end
-
-      # trigger an asynchronus update to the QDC file
-      schedule_qdc_publish()
    end
-
-   def schedule_qdc_publish
-      if dpla && discoverability && (!date_dl_ingest.blank? || !date_dl_update.blank?)
-         QDC.generate(self)
-         QDC.publish(self)
-      end
-   end
-   handle_asynchronously :schedule_qdc_publish
 
    def url_fragment
       return null
@@ -149,6 +138,10 @@ class Metadata < ApplicationRecord
 
    def in_dl?
       return self.date_dl_ingest?
+   end
+
+   def in_dpla?
+      return dpla && discoverability && (!date_dl_ingest.blank? || !date_dl_update.blank?)
    end
 
    def personal_item?
