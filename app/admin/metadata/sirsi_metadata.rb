@@ -345,7 +345,7 @@ ActiveAdmin.register SirsiMetadata do
       def update
          super
          metadata = Metadata.find(params[:id])
-         if metadata.in_dpla? && Settings.dpla_qdc_auto_publish
+         if metadata.in_dpla? && Settings.dpla_qdc_auto_publish == "true"
             PublishQDC.exec({metadata_id: metadata.id})
          end
       end
