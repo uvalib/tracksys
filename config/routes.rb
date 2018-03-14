@@ -52,5 +52,6 @@ Tracksys::Application.routes.draw do
      post "xml/generate" => "xml#generate"
      get "stylesheet/:id" => "stylesheet#show"
      get "reports" => "reports#generate"
+     post "qdc/:id" => "qdc#generate"
   end
 end

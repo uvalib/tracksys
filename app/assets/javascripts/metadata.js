@@ -6,7 +6,20 @@ $(function() {
    });
 
    $(".btn.generate-qdc").on("click", function() {
-      // TODO
+      var metaID = $(this).data("metadata");
+      $.ajax({
+         url: "/api/qdc/"+metaID,
+         method: "POST",
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               var tgt = $("span.qdc-date");
+               tgt.removeClass("empty");
+               tgt.text( jqXHR.responseText );
+            } else {
+               alert("Unable to generate QDC: "+jqXHR.responseText);
+            }
+         }
+      });
    });
 
    $("span.metadata-finder.cancel").on("click", function() {
