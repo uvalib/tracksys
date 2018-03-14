@@ -70,6 +70,12 @@ class CheckUnitDeliveryMode < BaseJob
          if unit.intended_use.description != "Digital Collection Building"
             create_patron_deliverables(unit)
          end
+
+         # If this unit is also slated for DPLA, publish the QDC
+         if unit.metadata.in_dpla?
+            logger.info "This unit is to be available in DPLA. Generate and publish QDC."
+            PublishQDC.exec_now({metadata_id: unit.metadata_id})
+         end
       end
 
       if unit.intended_use.description != "Digital Collection Building" && unit.include_in_dl == false
