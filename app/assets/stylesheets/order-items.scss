@@ -10,6 +10,12 @@ span.btn.add-unit,  span.btn.generate-qdc {
       background: #539ad7;
    }
 }
+span.btn.generate-qdc.disabled {
+   opacity: 0.5;
+   &:hover {
+      background: #337ab7;
+   }
+}
 div.unpaid-customer {
    border: 1px solid #eed;
    background: #ffc;

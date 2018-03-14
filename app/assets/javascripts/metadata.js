@@ -6,17 +6,24 @@ $(function() {
    });
 
    $(".btn.generate-qdc").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
+
+      var btn = $(this);
+      btn.addClass("disabled");
+      btn.text("Generating...");
       var metaID = $(this).data("metadata");
       $.ajax({
          url: "/api/qdc/"+metaID,
          method: "POST",
          complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            btn.text("Generate QDC");
             if (textStatus != "success") {
+               alert("Unable to generate QDC: "+jqXHR.responseText);
+            } else {
                var tgt = $("span.qdc-date");
                tgt.removeClass("empty");
                tgt.text( jqXHR.responseText );
-            } else {
-               alert("Unable to generate QDC: "+jqXHR.responseText);
             }
          }
       });
