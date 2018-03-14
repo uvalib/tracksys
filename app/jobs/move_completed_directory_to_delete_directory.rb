@@ -18,8 +18,8 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
          return
       end
 
-      # Unit update?
-      if /unit_update/ =~ source_dir
+      # Unit update or xml upload?
+      if /unit_update/ =~ source_dir || /xml_metadata/ =~ source_dir
          del_dir = Finder.finalization_dir(unit, :delete_from_update)
          if Dir.exists? del_dir
             del_dir = del_dir.chomp("/")        # remove the trailing slash if present

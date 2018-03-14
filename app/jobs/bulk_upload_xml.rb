@@ -50,6 +50,7 @@ class BulkUploadXml < BaseJob
       orig_metadata = unit.metadata
       logger.info "Ingesting XML files from #{xml_dir}"
       cnt = 0
+      has_errors = false
       Dir.glob("#{xml_dir}/*.xml").sort.each do |xf|
          # Read the XML file
          f = File.open(xf, "r")
@@ -58,6 +59,7 @@ class BulkUploadXml < BaseJob
 
          errors = XmlMetadata.validate( xml_str )
          if errors.length > 0
+            has_errors = true
             on_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
             next
          end
@@ -67,6 +69,7 @@ class BulkUploadXml < BaseJob
          tif_name = xml_name.split(".")[0] + ".tif"
          mf = unit.master_files.find_by(filename: tif_name)
          if mf.nil?
+            has_errors = true
             on_failure("Unable to find master file for xml file #{xml_name}")
          else
             cnt += 1
@@ -114,6 +117,12 @@ class BulkUploadXml < BaseJob
             end
          end
       end
-      logger.info "Updated #{cnt} masterfiles with XML metadata"
+      logger.info "Updated #{cnt} masterfiles with XML metadata."
+
+      # if no errors were encountered, move the upload dir to ready to delete
+      if has_errors == false
+         logger.info "No errors were encountered; moving files to ready_to_delete"
+         MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: xml_dir}, self)
+      end
    end
 end
