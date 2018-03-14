@@ -1,0 +1,7 @@
+
+<% if meta.qdc_generated_at.blank? %>
+   <span class="empty">Empty</span>
+<% else %>
+   <%= meta.qdc_generated_at.strftime('%F %r') %>
+<% end %>
+<span class="btn generate-qdc">Generate QDC</span>

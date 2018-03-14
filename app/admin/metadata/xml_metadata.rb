@@ -100,6 +100,11 @@ ActiveAdmin.register XmlMetadata do
                   format_boolean_as_yes_no(xml_metadata.in_dl?)
                end
                row :dpla
+               if xml_metadata.dpla
+                  row('QDC Generated') do |r|
+                     render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
+                  end
+               end
                row :exemplar do |xml_metadata|
                   link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
                end

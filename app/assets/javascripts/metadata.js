@@ -5,6 +5,10 @@ $(function() {
       $("#search-text").focus();
    });
 
+   $(".btn.generate-qdc").on("click", function() {
+      // TODO
+   });
+
    $("span.metadata-finder.cancel").on("click", function() {
       $("#dimmer").hide();
       $("#metadata-finder").hide();

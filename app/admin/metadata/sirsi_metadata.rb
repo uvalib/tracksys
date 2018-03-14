@@ -188,7 +188,9 @@ ActiveAdmin.register SirsiMetadata do
           end
           row :dpla
           if sirsi_metadata.dpla
-             row('Parent Metadata ID'){ |r| r.parent_metadata_id }
+             row('QDC Generated') do |r|
+                render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
+             end
           end
           row :exemplar do |sirsi_metadata|
             link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
@@ -232,8 +234,8 @@ ActiveAdmin.register SirsiMetadata do
       row "Agencies Requesting Resource" do |sirsi_metadata|
         raw(sirsi_metadata.agency_links)
       end
-        if sirsi_metadata.parent
-          row("Parent Metadata Record") do |sirsi_metadata|
+      if !sirsi_metadata.parent.blank?
+        row("Parent Metadata Record") do |sirsi_metadata|
           if sirsi_metadata.parent.type == "SirsiMetadata"
              link_to "#{sirsi_metadata.parent.title}", "/admin/sirsi_metadata/#{sirsi_metadata.parent.id}"
           elsif sirsi_metadata.parent.type == "XmlMetadata"
@@ -241,12 +243,12 @@ ActiveAdmin.register SirsiMetadata do
           end
         end
       end
-        if sirsi_metadata.children.count > 0
-          row "child metadata records" do |sirsi_metadata|
-            map = sirsi_metadata.typed_children
-            render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: sirsi_metadata.id}
-          end
+      if sirsi_metadata.children.count > 0
+        row "child metadata records" do |sirsi_metadata|
+          map = sirsi_metadata.typed_children
+          render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: sirsi_metadata.id}
         end
+      end
     end
   end
 

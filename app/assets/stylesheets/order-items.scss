@@ -1,4 +1,4 @@
-span.btn.add-unit {
+span.btn.add-unit,  span.btn.generate-qdc {
    padding: 2px 10px;
    font-size: 0.8em;
    cursor: pointer;
@@ -6,6 +6,9 @@ span.btn.add-unit {
    background: #337ab7;
    border-radius: 4px;
    float: right;
+   &:hover {
+      background: #539ad7;
+   }
 }
 div.unpaid-customer {
    border: 1px solid #eed;
