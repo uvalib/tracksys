@@ -114,7 +114,7 @@ class PublishQDC < BaseJob
       logger.info("Publishing changes to git...")
       msg = "Update to #{meta.pid}"
       usr = "-c \"user.name=#{Settings.dpla_qdc_git_user}\" -c \"user.email=#{Settings.dpla_qdc_git_email}\""
-      cmd = "cd #{qdc_dir}; git add .; git commit -m '#{msg}'; git push"
+      cmd = "cd #{qdc_dir}; git add .; git #{usr} commit -m '#{msg}'; git #{usr} push"
       `#{cmd}`
 
       # set timestamp when this QDC was most recently updated
