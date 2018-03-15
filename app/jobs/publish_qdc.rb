@@ -37,6 +37,8 @@ class PublishQDC < BaseJob
       logger.info("Collect metadata...")
       doc = Nokogiri::XML( Hydra.desc(meta) )
       doc.remove_namespaces!
+
+      # Populate data that is common between XML/Sirsi metadat first
       cw_data = {}
       cw_data['EXEMPLAR'] = exemplar_pid
       cw_data['TITLE'] = meta.title
@@ -64,7 +66,6 @@ class PublishQDC < BaseJob
             "<dcterms:created>#{QDC.clean_xml_text(n.text)}</dcterms:created>" if n.text != "undated"
       end
 
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//identifier[@type='accessionNumber']", "identifier")
       cw_data['TERMS'] << QDC.crosswalk(doc, "//abstract", "description")
       cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/form", "medium")
       cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/extent", "extent")
@@ -114,15 +115,16 @@ class PublishQDC < BaseJob
       out.write(qdc)
       out.close
 
-      logger.info("Publishing changes to git...")
-      git.add(qdc_fn)
-      git.commit( "Update to #{meta.pid}" )
-      git.push
-      # usr = "-c \"user.name=#{Settings.dpla_qdc_git_user}\" -c \"user.email=#{Settings.dpla_qdc_git_email}\""
-      # cmd = "cd #{qdc_dir}; git add .; git #{usr} commit -m '#{msg}'; git #{usr} push"
-      # `#{cmd}`
+      if git.diff.size > 0
+         logger.info("Publishing changes to git...")
+         git.add(qdc_fn)
+         git.commit( "Update to #{meta.pid}" )
+         git.push
 
-      # set timestamp when this QDC was most recently updated
-      meta.update(qdc_generated_at: DateTime.now)
+         # set timestamp when this QDC was most recently updated
+         meta.update(qdc_generated_at: DateTime.now)
+      else
+         logger.info "Publication resulted in no changes from prior version. Nothing more to do."
+      end
    end
 end

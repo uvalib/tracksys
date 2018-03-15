@@ -4,4 +4,6 @@
 <% else %>
    <span class="qdc-date"><%= meta.qdc_generated_at.strftime('%F %r') %></span>
 <% end %>
-<span class="btn generate-qdc" data-metadata="<%= meta.id %>">Generate QDC</span>
+<% if meta.discoverability %>
+   <span class="btn generate-qdc" data-metadata="<%= meta.id %>">Generate QDC</span>
+<% end %>

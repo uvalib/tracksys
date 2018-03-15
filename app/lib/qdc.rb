@@ -11,7 +11,10 @@ module QDC
    def self.crosswalk(doc, xpath, qdc_ele)
       n = doc.at_xpath(xpath)
       if !n.nil?
-         return "<dcterms:#{qdc_ele}>#{clean_xml_text(n.text)}</dcterms:#{qdc_ele}>"
+         txt = clean_xml_text(n.text)
+         txt = "Image" if txt == "still image"
+         txt = "Text" if txt == "text"
+         return "<dcterms:#{qdc_ele}>#{txt}</dcterms:#{qdc_ele}>"
       end
       return nil
    end

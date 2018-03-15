@@ -10,7 +10,7 @@
     xsi:schemaLocation="http://dplava.lib.virginia.edu/dplava/v1 http://dplava.lib.virginia.edu/dplava.xsd">
     <dcterms:identifier>PID</dcterms:identifier>
     <dcterms:title>TITLE</dcterms:title>
-    <dcterms:provenance>University of Virginia Libraries</dcterms:provenance>
+    <dcterms:provenance>University of Virginia Library</dcterms:provenance>
     <dcterms:creator>CREATOR</dcterms:creator>
     TERMS
     <dcterms:isReferencedBy>http://search.lib.virginia.edu/catalog/PID/iiif/manifest.json</dcterms:isReferencedBy>
