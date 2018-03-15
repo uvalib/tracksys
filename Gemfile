@@ -20,6 +20,9 @@ gem 'ancestry'
 gem 'delayed_job_active_record'
 gem 'daemons'
 
+# For publishing QDC
+gem 'git'
+
 # for patron request forms
 gem 'bootstrap-datepicker-rails'
 

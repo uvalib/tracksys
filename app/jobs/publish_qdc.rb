@@ -104,18 +104,23 @@ class PublishQDC < BaseJob
       end
 
       # Ensure files are up to date from git, then write QDC file to filesystem
-      cmd = "cd #{qdc_dir}; git pull"
-      `#{cmd}`
+      logger.info("Pull latest version from git to #{qdc_dir}...")
+      git = Git.open(qdc_dir, :log => logger )
+      git.config('user.name', Settings.dpla_qdc_git_user )
+      git.config('user.email', Settings.dpla_qdc_git_email )
+      git.pull
       logger.info("Write QDC file to #{qdc_fn}...")
       out = File.open(qdc_fn, "w")
       out.write(qdc)
       out.close
 
       logger.info("Publishing changes to git...")
-      msg = "Update to #{meta.pid}"
-      usr = "-c \"user.name=#{Settings.dpla_qdc_git_user}\" -c \"user.email=#{Settings.dpla_qdc_git_email}\""
-      cmd = "cd #{qdc_dir}; git add .; git #{usr} commit -m '#{msg}'; git #{usr} push"
-      `#{cmd}`
+      git.add(qdc_fn)
+      git.commit( "Update to #{meta.pid}" )
+      git.push
+      # usr = "-c \"user.name=#{Settings.dpla_qdc_git_user}\" -c \"user.email=#{Settings.dpla_qdc_git_email}\""
+      # cmd = "cd #{qdc_dir}; git add .; git #{usr} commit -m '#{msg}'; git #{usr} push"
+      # `#{cmd}`
 
       # set timestamp when this QDC was most recently updated
       meta.update(qdc_generated_at: DateTime.now)
