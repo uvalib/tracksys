@@ -18,13 +18,38 @@ class PublishQDC < BaseJob
       qdc_tpl = file.read
       file.close
 
+      logger.info("Pull latest version from git to #{qdc_dir}...")
+      git = Git.open(qdc_dir, :log => logger )
+      git.config('user.name', Settings.dpla_qdc_git_user )
+      git.config('user.email', Settings.dpla_qdc_git_email )
+      git.pull
+
+      # Generate QDC and write it to delivery directory. The full path
+      # to the QDC file created is returned.
+      qdc_fn = PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl, logger)
+
+      if git.diff.size > 0
+         logger.info("Publishing changes to git...")
+         git.add(qdc_fn)
+         git.commit( "Update to #{meta.pid}" )
+         git.push
+         meta.update(qdc_generated_at: DateTime.now)
+      else
+         logger.info "Publication resulted in no changes from prior version. Nothing more to do."
+      end
+   end
+
+   # Generate the QDC; return the full path to the QDC file generated
+   #
+   def self.generate_qdc(meta, qdc_dir, qdc_tpl, log = Logger.new(STDOUT) )
+
       # determine where to put output file (split pid up into 3 digit segments to avoid massive directory listing)
       relative_pid_path = QDC.relative_pid_path(meta.pid)
       pid_path = File.join(qdc_dir, relative_pid_path)
       FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
       qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
 
-      logger.info("Select exemplar...")
+      log.info("Select exemplar...")
       exemplar_pid = meta.master_files.first.pid
       if !meta.exemplar.blank?
          exemplar = meta.master_files.find_by(filename: meta.exemplar)
@@ -34,7 +59,7 @@ class PublishQDC < BaseJob
       end
 
       # ingest into an XML document and do a manual crosswalk to get data
-      logger.info("Collect metadata...")
+      log.info("Collect metadata...")
       doc = Nokogiri::XML( Hydra.desc(meta) )
       doc.remove_namespaces!
 
@@ -45,55 +70,28 @@ class PublishQDC < BaseJob
       cw_data['RIGHTS'] = meta.use_right.uri
       cw_data['TERMS'] = []
 
-      # Creator Name
-      # in this order: usage=primary, personal, first one
-      cn  = doc.at_xpath("//name[@usage='primary']")
-      cn = doc.at_xpath("//name[@type='personal']") if cn.blank?
-      cn = doc.at_xpath("//name") if cn.blank?
-      if !cn.blank?
-         cw_data['CREATOR'] = ""
-         cn.xpath("namePart").each do |n|
-            cw_data['CREATOR'] << " " if cw_data['CREATOR'].length > 0
-            cw_data['CREATOR'] << QDC.clean_xml_text(n.text)
-         end
-      end
+      cw_data['TERMS'].concat( QDC.crosswalk_creator(doc) )
+      cw_data['TERMS'].concat( QDC.crosswalk_date_created(doc, meta.type) )
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/abstract", "description")
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/physicalDescription/form", "dcterms", "medium") )
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/physicalDescription/extent", "extent")
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/originInfo/publisher", "publisher")
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/topic", "dcterms", "subject") )
+      cw_data['TERMS'].concat( QDC.crosswalk_subject_name(doc, meta.type) )
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/typeOfResource", "type")
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
+      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/county", "spatial")
 
-      # Date Created
-      n = doc.at_xpath("//originInfo/dateCreated[@keyDate='yes']")
-      n = doc.at_xpath("//originInfo/dateIssued") if n.nil?
-      if !n.nil?
-         cw_data['TERMS'] <<
-            "<dcterms:created>#{QDC.clean_xml_text(n.text)}</dcterms:created>" if n.text != "undated"
-      end
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/language/languageTerm", "dcterms", "language") )
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "dcterms", "isPartOf") )
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/genre", "edm", "hasType") )
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/temporal", "dcterms", "temporal") )
 
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//abstract", "description")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/form", "medium")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//physicalDescription/extent", "extent")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//language/languageTerm", "language")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//originInfo/publisher", "publisher")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//subject/topic", "subject")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//subject/name", "subject")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//typeOfResource", "type")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "//relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "isPartOf")
-
-      # <subject><hierarchicalGeographic> -> dcterms:spatial
-      nd = doc.at_xpath("//subject/hierarchicalGeographic")
-      if !nd.nil?
-         out = ""
-         ["country", "state", "city"].each do |t|
-            p = doc.at_xpath("//subject/hierarchicalGeographic/#{t}")
-            if !p.nil?
-               out << ", " if out.length > 0
-               out << QDC.clean_xml_text(p.text)
-            end
-         end
-         if out.length > 0
-            cw_data['TERMS'] << "<dcterms:spatial>#{out}</dcterms:spatial>"
-         end
-      end
 
       # Clean up data and populate XML template...
-      logger.info("Populate QDC XML template...")
+      log.info("Populate QDC XML template...")
       cw_data['TERMS'].compact!
       qdc = qdc_tpl.gsub(/PID/, meta.pid)
       cw_data.each do |k,v|
@@ -104,27 +102,12 @@ class PublishQDC < BaseJob
          end
       end
 
-      # Ensure files are up to date from git, then write QDC file to filesystem
-      logger.info("Pull latest version from git to #{qdc_dir}...")
-      git = Git.open(qdc_dir, :log => logger )
-      git.config('user.name', Settings.dpla_qdc_git_user )
-      git.config('user.email', Settings.dpla_qdc_git_email )
-      git.pull
-      logger.info("Write QDC file to #{qdc_fn}...")
+      # Write QDC file to filesystem
+      log.info("Write QDC file to #{qdc_fn}...")
       out = File.open(qdc_fn, "w")
       out.write(qdc)
       out.close
 
-      if git.diff.size > 0
-         logger.info("Publishing changes to git...")
-         git.add(qdc_fn)
-         git.commit( "Update to #{meta.pid}" )
-         git.push
-
-         # set timestamp when this QDC was most recently updated
-         meta.update(qdc_generated_at: DateTime.now)
-      else
-         logger.info "Publication resulted in no changes from prior version. Nothing more to do."
-      end
+      return qdc_fn
    end
 end

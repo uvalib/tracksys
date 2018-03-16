@@ -3,6 +3,7 @@ class Api::QdcController < ApplicationController
       begin
          PublishQDC.exec_now({metadata_id: params[:id]})
          meta = Metadata.find( params[:id] )
+         puts "meta date: [#{meta.qdc_generated_at}]"
          render plain: meta.qdc_generated_at.strftime('%F %r'), status: :ok
       rescue Exception=>e
          logger.error("Generate QDC FAILED: #{e.class.name} - #{e.message}}")
