@@ -38,7 +38,7 @@ namespace :dpla do
 
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
       cnt = 0
-      Metadata.find(metadata_id).children.each do |meta|
+      Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla
          puts "Process #{meta.id}:#{meta.pid}..."
 
