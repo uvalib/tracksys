@@ -13,11 +13,21 @@ namespace :dpla do
       q << " inner join metadata mp on mc.parent_metadata_id = mp.id"
       q << " where mc.parent_metadata_id <> '' and mp.dpla = 1 and mp.date_dl_ingest is not null"
       q << " order by mp.id asc"
+      total = 0
+      colls = 0
+      total_time = 0
       Metadata.find_by_sql(q).each do |m|
-         puts "===> Processing #{m.id}: #{m.title}"
-         max_cnt = 1
-         generate_collection_qdc(m.id, qdc_tpl, max_cnt)
+         puts "===> Processing collection #{m.id}: #{m.title}"
+         max_cnt = 2
+         colls +=1
+         ts0 = Time.now
+         total += generate_collection_qdc(m.id, qdc_tpl, max_cnt)
+         dur = (Time.now-ts0).round(2)
+         total_time += dur
+         puts "===> DONE. Elapsed seconds: #{dur}"
       end
+      puts
+      puts "FINISHED! Generated #{total} QDC records from #{colls} collections in #{(total_time/60).round(3)} minutes"
    end
 
    def generate_collection_qdc(metadata_id, qdc_tpl, max_cnt=-1)
@@ -40,5 +50,6 @@ namespace :dpla do
             break
          end
       end
+      return cnt
    end
 end
