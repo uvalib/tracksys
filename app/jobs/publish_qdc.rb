@@ -50,11 +50,14 @@ class PublishQDC < BaseJob
       qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
 
       log.info("Select exemplar...")
-      exemplar_pid = meta.master_files.first.pid
-      if !meta.exemplar.blank?
+      if meta.exemplar.blank?
+         exemplar_pid = meta.master_files.first.pid
+      else
          exemplar = meta.master_files.find_by(filename: meta.exemplar)
          if !exemplar.nil?
             exemplar_pid = exemplar.pid
+         else
+            exemplar_pid = meta.master_files.first.pid
          end
       end
 
