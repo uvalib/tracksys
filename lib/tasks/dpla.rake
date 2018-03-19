@@ -44,6 +44,8 @@ namespace :dpla do
 
          PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
 
+         meta.update(qdc_generated_at: DateTime.now)
+
          cnt += 1
          if max_cnt > -1 && cnt == max_cnt
             puts "Stopping after #{cnt}"
