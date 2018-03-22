@@ -11,48 +11,65 @@ module QDC
       return File.join(pid_parts[0], pid_dirs)
    end
 
-   def self.crosswalk_creator(doc)
+   def self.crosswalk_creator(doc, metadata_type)
       out = []
       concat_names = []
       curr_name = {}
-      doc.xpath("/mods/name/namePart").each do |n|
-         if n.attribute("type") == "primary" || n.attribute("nameTitleGroup") == "1"
-            return ["<dcterms:creator>#{clean_xml_text(n.text)}</dcterms:creator>"]
+      if metadata_type == "SirsiMetadata"
+         doc.xpath("/mods/name").each do |node|
+            if QDC.get_attribute(node, "type") == "primary" ||
+               QDC.get_attribute(node, "usage") == "primary" ||
+               QDC.get_attribute(node, "nameTitleGroup") == "1"
+               # PROCESS ONLY THIS NODEs nameParts
+               name = ""
+               node.xpath("namePart").each do |np|
+                  name << ", " if name.length > 0
+                  name << clean_xml_text(np.text)
+               end
+               out << "<dcterms:creator>#{name}</dcterms:creator>"
+               break
+            end
          end
+         return out
+      end
 
-         if n.attribute("type") == "family"
+      doc.xpath("/mods/name/namePart").each do |node|
+
+         if QDC.get_attribute(node, "type") == "family"
             if curr_name.has_key? :family
                concat_names << curr_name
-               curr_name = {family: clean_xml_text(n.text) }
+               curr_name = {family: clean_xml_text(node.text) }
             else
-               curr_name[:family] = clean_xml_text(n.text)
+               curr_name[:family] = clean_xml_text(node.text)
             end
-         elsif  n.attribute("type") == "given"
+         elsif  QDC.get_attribute(node, "type") == "given"
             if curr_name.has_key? :given
                concat_names << curr_name
-               curr_name = {given: clean_xml_text(n.text) }
+               curr_name = {given: clean_xml_text(node.text) }
             else
-               curr_name[:given] = clean_xml_text(n.text)
+               curr_name[:given] = clean_xml_text(node.text)
             end
-         elsif n.attribute("type") == "date"
+         elsif QDC.get_attribute(node, "type") == "date"
             if curr_name.has_key? :date
                concat_names << curr_name
-               curr_name = {date: clean_xml_text(n.text) }
+               curr_name = {date: clean_xml_text(node.text) }
             else
-               curr_name[:date] = clean_xml_text(n.text)
+               curr_name[:date] = clean_xml_text(node.text)
             end
          else
-            if curr_name.keys.size > 0
-               concat_names << curr_name
-               curr_name = {}
-            end
-            out << "<dcterms:creator>#{clean_xml_text(n.text)}</dcterms:creator>"
+            out << "<dcterms:creator>#{clean_xml_text(node.text)}</dcterms:creator>"
+         end
+
+         # a complete name has family, given and date.
+         # if we have al 3 add it to the list of names
+         if curr_name.keys.size == 3
+            concat_names << curr_name
+            curr_name = {}
          end
       end
 
       if curr_name.keys.size > 0
          concat_names << curr_name
-         curr_name = {}
       end
 
       concat_names.each do |n|
@@ -77,7 +94,7 @@ module QDC
 
       # first, check if this xpath is one of those that should check for valueURI
       include_value = false
-      ["namePart", "hierarchicalGeographic", "subject/topic", "subject/name"].each do |k|
+      ["namePart", "hierarchicalGeographic", "subject/name"].each do |k|
          if xpath.include?(k)
             include_value = true
             break
@@ -89,9 +106,10 @@ module QDC
          txt = clean_xml_text(n.text)
          txt = "Image" if txt == "still image"
          txt = "Text" if txt == "text"
+         txt = "PhysicalObject" if txt == "three dimensional object"
          val = n.attribute("valueURI")
          if !val.blank? && include_value
-            return "<dcterms:#{qdc_ele} valueURI=\"#{val}\">#{txt}</dcterms:#{qdc_ele}>"
+            return "<dcterms:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</dcterms:#{qdc_ele}>"
          end
 
          return "<dcterms:#{qdc_ele}>#{txt}</dcterms:#{qdc_ele}>"
@@ -109,11 +127,14 @@ module QDC
          next if !n.attribute("objectPart").blank?
          txt = clean_xml_text(n.text)
          val = n.attribute("valueURI")
-         if val.blank?  || xpath.include?("genre") == false
+         if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
+            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+         else
            out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
-        else
-           out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
         end
+
+        # only need the first subject/topic
+        return out if  xpath.include?("subject") && out.size == 1
       end
       return out
    end
@@ -126,9 +147,11 @@ module QDC
       if metadata_type == "SirsiMetadata"
          # Per Jeremy for SIRSI sources, just return dateCreated and dateIssued
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
+            next if n.text == "undated"
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          doc.xpath("/mods/originInfo/datedateIssued ").each do |n|
+            next if n.text == "undated"
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          return out
@@ -138,17 +161,21 @@ module QDC
          #   and point="end", map both to a single date like start/end. If not, use the
          #   one with attribute keyDate="yes"
          dates = []
-         start_date = end_date = ""
+         start_date = end_date = key_date = ""
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            if n.attribute("keyDate") == "yes"
-               # key date short-circuits and returns immediately
-               out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
-               return out
-            elsif n.attribute("point") == "start"
+            next if n.text == "undated"
+
+            # hold on to specific dates. decide which to use later
+            if QDC.get_attribute(n, "keyDate") == "yes"
+               key_date = clean_xml_text(n.text)
+            end
+            if QDC.get_attribute(n, "point")  == "start"
                start_date = clean_xml_text(n.text)
-            elsif n.attribute("point") == "end"
+            end
+            if QDC.get_attribute(n, "point")  == "end"
                end_date = clean_xml_text(n.text)
             end
+
             # track all dates found
             dates << clean_xml_text(n.text)
          end
@@ -156,6 +183,8 @@ module QDC
 
       if !start_date.blank? && !end_date.blank?
          out << "<dcterms:created>#{start_date}/#{end_date}</dcterms:created>"
+      elsif !key_date.blank?
+         out << "<dcterms:created>#{key_date}</dcterms:created>"
       else
          dates.each { |d| out << "<dcterms:created>#{d}</dcterms:created>" }
       end
@@ -167,6 +196,7 @@ module QDC
       if metadata_type == "XmlMetadata"
          return QDC.crosswalk_multi(doc, "/mods/subject/name", "dcterms", "subject")
       end
+
       out = []
       curr = ""
       doc.xpath("/mods/subject/name/namePart").each do |n|
@@ -190,6 +220,11 @@ module QDC
       clean = val.strip
       clean = clean.gsub(/&/, "&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")
       return clean
+   end
+
+   def self.get_attribute(node, name)
+      return nil if node.attribute(name).nil?
+      return node.attribute(name).value()
    end
 
 end

@@ -73,7 +73,7 @@ class PublishQDC < BaseJob
       cw_data['RIGHTS'] = meta.use_right.uri
       cw_data['TERMS'] = []
 
-      cw_data['TERMS'].concat( QDC.crosswalk_creator(doc) )
+      cw_data['TERMS'].concat( QDC.crosswalk_creator(doc, meta.type) )
       cw_data['TERMS'].concat( QDC.crosswalk_date_created(doc, meta.type) )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/abstract", "description")
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/physicalDescription/form", "dcterms", "medium") )
