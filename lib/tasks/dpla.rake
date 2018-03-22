@@ -1,4 +1,23 @@
 namespace :dpla do
+   desc "Generate DPLA QDC a single record"
+   task :generate  => :environment do
+      id = ENV['id']
+      abort("ID is required") if id.nil?
+
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      meta = Metadata.find(id)
+      PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+      meta.update(qdc_generated_at: DateTime.now)
+
+   end
+
    desc "Generate DPLA QDC for all collection records"
    task :generate_all  => :environment do
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
@@ -40,6 +59,7 @@ namespace :dpla do
       cnt = 0
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla
+         next if meta.unit.count == 1 && meta.unit.unit_status == "canceled"
          puts "Process #{meta.id}:#{meta.pid}..."
 
          PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
