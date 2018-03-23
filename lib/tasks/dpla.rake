@@ -59,7 +59,7 @@ namespace :dpla do
       cnt = 0
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
-         next if meta.unit.count == 1 && meta.unit.unit_status == "canceled"
+         next if meta.units.count == 1 && meta.units.unit_status == "canceled"
          puts "Process #{meta.id}:#{meta.pid}..."
 
          PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
