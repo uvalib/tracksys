@@ -58,7 +58,7 @@ namespace :dpla do
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
       cnt = 0
       Metadata.find(metadata_id).children.find_each do |meta|
-         next if !meta.dpla
+         next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
          next if meta.unit.count == 1 && meta.unit.unit_status == "canceled"
          puts "Process #{meta.id}:#{meta.pid}..."
 
