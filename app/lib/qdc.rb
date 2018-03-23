@@ -26,7 +26,12 @@ module QDC
                   name << ", " if name.length > 0
                   name << clean_xml_text(np.text)
                end
-               out << "<dcterms:creator>#{name}</dcterms:creator>"
+               val = n.attribute("valueURI")
+               if val.blank?
+                  out << "<dcterms:creator>#{name}</dcterms:creator>"
+               else
+                  out << "<dcterms:creator valueURI=\"#{val.value()}\">#{name}</dcterms:creator>"
+               end
                break
             end
          end
@@ -34,35 +39,39 @@ module QDC
       end
 
       doc.xpath("/mods/name/namePart").each do |node|
-
+         value_uri = QDC.get_attribute(node.parent,"valueURI")
          if QDC.get_attribute(node, "type") == "family"
             if curr_name.has_key? :family
                concat_names << curr_name
-               curr_name = {family: clean_xml_text(node.text) }
+               curr_name = {family: clean_xml_text(node.text), value_uri: value_uri }
             else
                curr_name[:family] = clean_xml_text(node.text)
             end
          elsif  QDC.get_attribute(node, "type") == "given"
             if curr_name.has_key? :given
                concat_names << curr_name
-               curr_name = {given: clean_xml_text(node.text) }
+               curr_name = {given: clean_xml_text(node.text), value_uri: value_uri }
             else
                curr_name[:given] = clean_xml_text(node.text)
             end
          elsif QDC.get_attribute(node, "type") == "date"
             if curr_name.has_key? :date
                concat_names << curr_name
-               curr_name = {date: clean_xml_text(node.text) }
+               curr_name = {date: clean_xml_text(node.text), value_uri: value_uri }
             else
                curr_name[:date] = clean_xml_text(node.text)
             end
          else
-            out << "<dcterms:creator>#{clean_xml_text(node.text)}</dcterms:creator>"
+            if value_uri.blank?
+               out << "<dcterms:creator>#{clean_xml_text(node.text)}</dcterms:creator>"
+            else
+               out << "<dcterms:creator valueURI=\"#{value_uri}\">#{node.text}</dcterms:creator>"
+            end
          end
 
          # a complete name has family, given and date.
          # if we have al 3 add it to the list of names
-         if curr_name.keys.size == 3
+         if curr_name.keys.size >= 3
             concat_names << curr_name
             curr_name = {}
          end
@@ -80,7 +89,11 @@ module QDC
          if !n[:date].blank?
             name << ", #{n[:date]}"
          end
-         out << "<dcterms:creator>#{name}</dcterms:creator>"
+         if n[:value_uri].blank?
+            out << "<dcterms:creator>#{name}</dcterms:creator>"
+         else
+            out << "<dcterms:creator valueURI=\"#{value_uri}\">#{name}</dcterms:creator>"
+         end
       end
 
       return out
@@ -132,9 +145,6 @@ module QDC
          else
            out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
         end
-
-        # only need the first subject/topic
-        return out if  xpath.include?("subject") && out.size == 1
       end
       return out
    end

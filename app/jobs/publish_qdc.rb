@@ -79,7 +79,7 @@ class PublishQDC < BaseJob
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/physicalDescription/form", "dcterms", "medium") )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/physicalDescription/extent", "extent")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/originInfo/publisher", "publisher")
-      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/topic", "dcterms", "subject") )
+      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/topic[1]", "dcterms", "subject") )
       cw_data['TERMS'].concat( QDC.crosswalk_subject_name(doc, meta.type) )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/typeOfResource", "type")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
