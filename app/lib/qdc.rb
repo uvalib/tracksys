@@ -119,7 +119,7 @@ module QDC
          txt = clean_xml_text(n.text)
          txt = "Image" if txt == "still image"
          txt = "Text" if txt == "text"
-         txt = "PhysicalObject" if txt == "three dimensional object"
+         txt = "Physical Object" if txt == "three dimensional object"
          val = n.attribute("valueURI")
          if !val.blank? && include_value
             return "<dcterms:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</dcterms:#{qdc_ele}>"
@@ -137,7 +137,9 @@ module QDC
    def self.crosswalk_multi(doc, xpath, qdc_ns, qdc_ele)
       out = []
       doc.xpath(xpath).each do |n|
-         next if !n.attribute("objectPart").blank?
+         # Per Jeremy, don't include language if objectPart is present
+         next if  xpath.include?("languageTerm") && !n.attribute("objectPart").blank?
+
          txt = clean_xml_text(n.text)
          val = n.attribute("valueURI")
          if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
@@ -203,11 +205,27 @@ module QDC
    end
 
    def self.crosswalk_subject_name(doc, metadata_type)
+      out = []
       if metadata_type == "XmlMetadata"
-         return QDC.crosswalk_multi(doc, "/mods/subject/name", "dcterms", "subject")
+         # return multiple, but join multiple nameParts with a comma
+         # If valueURI is present, include it
+         doc.xpath("/mods/subject/name").each do |node|
+            ele_txt = ""
+            val_uri = QDC.get_attribute(node, "valueURI")
+            node.xpath("namePart").each do |np|
+               ele_txt << ", " if ele_txt.length > 0
+               ele_txt << clean_xml_text(np.text)
+            end
+            if val_uri.blank?
+               out << "<dcterms:subject>#{ele_txt}</dcterms:subject>"
+            else
+               out << "<dcterms:subject valueURI=\"#{val_uri}\">#{ele_txt}/</dcterms:subject>"
+            end
+         end
+         return out
       end
 
-      out = []
+      # SIRSI: Only return a SINGE element, but join text, date and termsOfAddress with a comma
       curr = ""
       doc.xpath("/mods/subject/name/namePart").each do |n|
          txt = clean_xml_text(n.text)
@@ -220,7 +238,7 @@ module QDC
             curr << ", #{txt}"
          end
       end
-      out << "<dcterms:subject>#{curr}/</dcterms:subject>" if !curr.blank?
+      out << "<dcterms:subject>#{curr}</dcterms:subject>" if !curr.blank?
       return out
    end
 
