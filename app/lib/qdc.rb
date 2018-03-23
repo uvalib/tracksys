@@ -26,7 +26,7 @@ module QDC
                   name << ", " if name.length > 0
                   name << clean_xml_text(np.text)
                end
-               val = n.attribute("valueURI")
+               val = node.attribute("valueURI")
                if val.blank?
                   out << "<dcterms:creator>#{name}</dcterms:creator>"
                else
