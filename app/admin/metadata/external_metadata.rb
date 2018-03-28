@@ -290,15 +290,19 @@ ActiveAdmin.register ExternalMetadata do
              end
 
              # find the top level container in the ancestors
-             coll_json = nil
-             ao_json['ancestors'].each do |anc|
-                if anc['level'] == 'collection'
-                   url = "#{Settings.as_api_url}#{anc['ref']}"
-                   coll = RestClient.get url, as_hdr
-                   coll_json = JSON.parse(coll.body)
-                   break
-                end
-             end
+             # coll_json = nil
+             # ao_json['ancestors'].each do |anc|
+             #    if anc['level'] == 'collection'
+             #       url = "#{Settings.as_api_url}#{anc['ref']}"
+             #       coll = RestClient.get url, as_hdr
+             #       coll_json = JSON.parse(coll.body)
+             #       break
+             #    end
+             # end
+             anc = ao_json['ancestors'].last
+             url = "#{Settings.as_api_url}#{anc['ref']}"
+             coll = RestClient.get url, as_hdr
+             coll_json = JSON.parse(coll.body)
 
              @as_info[:collection_title] = coll_json['finding_aid_title']
              @as_info[:id] = coll_json['id_0']
@@ -310,7 +314,6 @@ ActiveAdmin.register ExternalMetadata do
              url = "#{Settings.as_api_url}#{repo}"
              resp = RestClient.get url, as_hdr
              repo_detail = JSON.parse(resp.body)
-             puts "======\n#{repo_detail}"
              @as_info[:repo] = repo_detail['name']
           rescue Exception => e
              logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
