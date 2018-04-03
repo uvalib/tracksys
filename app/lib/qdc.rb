@@ -155,15 +155,16 @@ module QDC
    # to QDC dcterms:created.
    #
    def self.crosswalk_date_created(doc, metadata_type)
+      ignore_dates = ["undated", "unknown date", "unknown"]
       out = []
       if metadata_type == "SirsiMetadata"
          # Per Jeremy for SIRSI sources, just return dateCreated and dateIssued
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            next if n.text == "undated"
+            next if ignore_dates.inclide? n.text.strip.downcase
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          doc.xpath("/mods/originInfo/datedateIssued ").each do |n|
-            next if n.text == "undated"
+            next if ignore_dates.inclide? n.text.strip.downcase
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          return out
@@ -175,7 +176,7 @@ module QDC
          dates = []
          start_date = end_date = key_date = ""
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            next if n.text == "undated"
+            next if ignore_dates.inclide? n.text.strip.downcase
 
             # hold on to specific dates. decide which to use later
             if QDC.get_attribute(n, "keyDate") == "yes"
