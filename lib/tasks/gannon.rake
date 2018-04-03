@@ -1,6 +1,28 @@
 require 'fileutils'
 
 namespace :gannon do
+   desc "fix revered pages"
+   task :fix_transcriptions => :environment do
+      unit_dir = "%09d" % 50542
+      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      txt_dir = "/digiserv-production/scan/01_from_archive/lf6f/reversed"
+      Unit.find(50542).master_files.each do |mf|
+        txt =  "#{mf.filename.split(".")[0]}.txt"
+        fn = File.join(txt_dir, txt)
+        next if !File.exist? fn
+
+        puts "Updating transcription for #{mf.id}"
+        f = File.open(fn, "r")
+        trans = f.read
+        f.close
+        mf.update( transcription_text: trans)
+
+        dest = File.join(archive_dir, txt)
+        puts "Archive text file to: #{dest}"
+        FileUtils.copy(fn, dest)
+        FileUtils.chmod(0664, dest) 
+      end  
+   end 
 
    desc "Setup order/agency"
    task :setup  => :environment do
