@@ -12,7 +12,7 @@ namespace :law do
    task :ingest  => :environment do
       bits = ARCHIVE_DIR.split("/")
       base_dir = bits[0..bits.length-3].join("/")
-      base_dir = File.join(base_dir, "1828 Master Scans")
+      base_dir = File.join(base_dir, "1828_Master_Scans")
       json = JSON.parse(File.read('data/lawbooks.json'))
       missing = []
       cnt = 0
