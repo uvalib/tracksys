@@ -1,4 +1,27 @@
 namespace :dpla do
+   desc "Fix a batch of bad pids"
+   task :fix  => :environment do
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      File.open(File.join(Rails.root, "data/qdcfixpids.txt"), "r").each_line do |pid|
+         begin
+            meta = Metadata.find_by(pid: )
+            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+            meta.update(qdc_generated_at: DateTime.now)
+         rescue Exception=>e
+            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+            puts e.backtrace
+            puts "==============================================================================="
+         end
+      end
+   end
+
    desc "Generate DPLA QDC a single record"
    task :generate  => :environment do
       id = ENV['id']
