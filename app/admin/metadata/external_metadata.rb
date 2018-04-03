@@ -280,8 +280,10 @@ ActiveAdmin.register ExternalMetadata do
              ao_json = JSON.parse(ao_detail.body)
 
              # build a data struct to represent the AS data
+             title = ao_json['display_string']
+             title = ao_json['title'] if title.blank?
              @as_info = {
-                title: ao_json['display_string'], created_by: ao_json['created_by'],
+                title: title, created_by: ao_json['created_by'],
                 create_time: ao_json['create_time'], level: ao_json['level'],
              }
              dates = ao_json['dates'].first
@@ -289,32 +291,35 @@ ActiveAdmin.register ExternalMetadata do
                 @as_info[:dates] = dates['expression']
              end
 
-             # find the top level container in the ancestors
-             # coll_json = nil
-             # ao_json['ancestors'].each do |anc|
-             #    if anc['level'] == 'collection'
-             #       url = "#{Settings.as_api_url}#{anc['ref']}"
-             #       coll = RestClient.get url, as_hdr
-             #       coll_json = JSON.parse(coll.body)
-             #       break
-             #    end
-             # end
-             anc = ao_json['ancestors'].last
-             url = "#{Settings.as_api_url}#{anc['ref']}"
-             coll = RestClient.get url, as_hdr
-             coll_json = JSON.parse(coll.body)
+             if !ao_json['ancestors'].nil?
+                anc = ao_json['ancestors'].last
+                url = "#{Settings.as_api_url}#{anc['ref']}"
+                coll = RestClient.get url, as_hdr
+                coll_json = JSON.parse(coll.body)
 
-             @as_info[:collection_title] = coll_json['finding_aid_title']
-             @as_info[:id] = coll_json['id_0']
-             @as_info[:language] = coll_json['language']
-             uri = coll_json['collection_management']['parent']['ref']
-             @as_info[:uri] = uri
+                @as_info[:collection_title] = coll_json['finding_aid_title']
+                @as_info[:id] = coll_json['id_0']
+                @as_info[:language] = coll_json['language']
+                uri = coll_json['collection_management']['parent']['ref']
+                @as_info[:uri] = uri
 
-             repo = coll_json['collection_management']['repository']['ref']
-             url = "#{Settings.as_api_url}#{repo}"
-             resp = RestClient.get url, as_hdr
-             repo_detail = JSON.parse(resp.body)
-             @as_info[:repo] = repo_detail['name']
+                repo = coll_json['collection_management']['repository']['ref']
+                url = "#{Settings.as_api_url}#{repo}"
+                resp = RestClient.get url, as_hdr
+                repo_detail = JSON.parse(resp.body)
+                @as_info[:repo] = repo_detail['name']
+             else
+                @as_info[:collection_title] = ao_json['finding_aid_title']
+                @as_info[:id] = ao_json['id_0']
+                @as_info[:language] = ao_json['language']
+                uri = ao_json['collection_management']['parent']['ref']
+                @as_info[:uri] = uri
+                repo = ao_json['collection_management']['repository']['ref']
+                url = "#{Settings.as_api_url}#{repo}"
+                resp = RestClient.get url, as_hdr
+                repo_detail = JSON.parse(resp.body)
+                @as_info[:repo] = repo_detail['name']
+             end
           rescue Exception => e
              logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
              @as_info = nil
