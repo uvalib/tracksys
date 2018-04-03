@@ -21,6 +21,7 @@ namespace :dpla do
          puts e.backtrace
          puts "==============================================================================="
       end
+
    end
 
    desc "Generate DPLA QDC for all collection records"
@@ -42,7 +43,8 @@ namespace :dpla do
       total_time = 0
       Metadata.find_by_sql(q).each do |m|
          puts "===> Processing collection #{m.id}: #{m.title}"
-         max_cnt = 2
+         #max_cnt = 2
+         max_cnt = -1
          colls +=1
          ts0 = Time.now
          total += generate_collection_qdc(m.id, qdc_tpl, max_cnt)
