@@ -65,7 +65,7 @@ module QDC
             if value_uri.blank?
                out << "<dcterms:creator>#{clean_xml_text(node.text)}</dcterms:creator>"
             else
-               out << "<dcterms:creator valueURI=\"#{value_uri}\">#{node.text}</dcterms:creator>"
+               out << "<dcterms:creator valueURI=\"#{value_uri}\">#{clean_xml_text(node.text)}</dcterms:creator>"
             end
          end
 

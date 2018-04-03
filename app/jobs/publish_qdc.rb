@@ -69,7 +69,7 @@ class PublishQDC < BaseJob
       # Populate data that is common between XML/Sirsi metadat first
       cw_data = {}
       cw_data['EXEMPLAR'] = exemplar_pid
-      cw_data['TITLE'] = meta.title
+      cw_data['TITLE'] = QDC.clean_xml_text(meta.title)
       cw_data['RIGHTS'] = meta.use_right.uri
       cw_data['TERMS'] = []
 
