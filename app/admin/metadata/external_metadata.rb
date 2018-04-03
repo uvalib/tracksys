@@ -319,7 +319,6 @@ ActiveAdmin.register ExternalMetadata do
              logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
              @as_info = nil
           end
-          puts "====> GOT AS_INFO #{@as_info.to_json}"
        end
 
        before_action :get_tesseract_langs, only: [:edit, :new]
