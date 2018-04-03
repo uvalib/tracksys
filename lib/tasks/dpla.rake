@@ -55,11 +55,12 @@ namespace :dpla do
 
       puts "Generate QDC for metadata that is not part of a collecion..."
       # Now get stand-along DPLA flagged metadata and generate the records
-      q = "select distinct m.id, m.type, m.title from metadata m"
+      q = "select distinct m.id from metadata m"
       q << " inner join units u on u.metadata_id = m.id"
       q << " where parent_metadata_id = '' and dpla = 1 and date_dl_ingest is not null"
       q << " and u.include_in_dl=1 and discoverability=1"
-      Metadata.find_by_sql(q).each do |meta|
+      Metadata.find_by_sql(q).each do |resp|
+         meta = Metadata.find(resp.id)
          puts "Process #{meta.id}: #{meta.pid}..."
          begin
             ts0 = Time.now
@@ -90,7 +91,7 @@ namespace :dpla do
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
          next if meta.units.count == 1 && meta.units.first.unit_status == "canceled"
-         puts "Process #{meta.id}: #{meta.pid}..."
+         puts "Process #{meta.id}:#{meta.pid}..."
 
          begin
             PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
