@@ -12,10 +12,15 @@ namespace :dpla do
       qdc_tpl = file.read
       file.close
 
-      meta = Metadata.find(id)
-      PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
-      meta.update(qdc_generated_at: DateTime.now)
-
+      begin
+         meta = Metadata.find(id)
+         PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+         meta.update(qdc_generated_at: DateTime.now)
+      rescue Exception=>e
+         puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+         puts e.backtrace
+         puts "==============================================================================="
+      end
    end
 
    desc "Generate DPLA QDC for all collection records"
@@ -45,6 +50,29 @@ namespace :dpla do
          total_time += dur
          puts "===> DONE. Elapsed seconds: #{dur}"
       end
+
+      puts "Generate QDC for metadata that is not part of a collecion..."
+      # Now get stand-along DPLA flagged metadata and generate the records
+      q = "select distinct m.id, m.type, m.title from metadata m"
+      q << " inner join units u on u.metadata_id = m.id"
+      q << " where parent_metadata_id = '' and dpla = 1 and date_dl_ingest is not null"
+      q << " and u.include_in_dl=1 and discoverability=1"
+      Metadata.find_by_sql(q).each do |meta|
+         puts "Process #{meta.id}: #{meta.pid}..."
+         begin
+            ts0 = Time.now
+            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+            meta.update(qdc_generated_at: DateTime.now)
+            dur = (Time.now-ts0).round(2)
+            total_time += dur
+            total += 1
+         rescue Exception=>e
+            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+            puts e.backtrace
+            puts "==============================================================================="
+         end
+      end
+
       puts
       puts "FINISHED! Generated #{total} QDC records from #{colls} collections in #{(total_time/60).round(3)} minutes"
    end
@@ -60,16 +88,20 @@ namespace :dpla do
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
          next if meta.units.count == 1 && meta.units.first.unit_status == "canceled"
-         puts "Process #{meta.id}:#{meta.pid}..."
+         puts "Process #{meta.id}: #{meta.pid}..."
 
-         PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
-
-         meta.update(qdc_generated_at: DateTime.now)
-
-         cnt += 1
-         if max_cnt > -1 && cnt == max_cnt
-            puts "Stopping after #{cnt}"
-            break
+         begin
+            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+            meta.update(qdc_generated_at: DateTime.now)
+            cnt += 1
+            if max_cnt > -1 && cnt == max_cnt
+               puts "Stopping after #{cnt}"
+               break
+            end
+         rescue Exception=>e
+            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+            puts e.backtrace
+            puts "==============================================================================="
          end
       end
       return cnt
