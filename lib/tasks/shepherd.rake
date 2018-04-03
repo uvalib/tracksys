@@ -31,7 +31,7 @@ namespace :shepherd do
          src_fn = File.basename(tif, ".*")
          pg = src_fn.split("_")[0].to_i
          ts_page = "%04d" % pg
-         desc = src+fn.split("_")[1]
+         desc = src_fn.split("_")[1]
          ts_filename = "#{unit_dir}_#{ts_page}.tif"
          puts "Processing #{tif} as #{ts_filename}"
 
