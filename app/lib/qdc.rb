@@ -117,6 +117,7 @@ module QDC
       n = doc.at_xpath(xpath)
       if !n.nil?
          txt = clean_xml_text(n.text)
+         return nil if txt.blank?
          txt = "Image" if txt == "still image"
          txt = "Text" if txt == "text"
          txt = "Physical Object" if txt == "three dimensional object"
@@ -160,11 +161,11 @@ module QDC
       if metadata_type == "SirsiMetadata"
          # Per Jeremy for SIRSI sources, just return dateCreated and dateIssued
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            next if ignore_dates.inclide? n.text.strip.downcase
+            next if ignore_dates.include? n.text.strip.downcase
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          doc.xpath("/mods/originInfo/datedateIssued ").each do |n|
-            next if ignore_dates.inclide? n.text.strip.downcase
+            next if ignore_dates.include? n.text.strip.downcase
             out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
          end
          return out
@@ -176,7 +177,7 @@ module QDC
          dates = []
          start_date = end_date = key_date = ""
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            next if ignore_dates.inclide? n.text.strip.downcase
+            next if ignore_dates.include? n.text.strip.downcase
 
             # hold on to specific dates. decide which to use later
             if QDC.get_attribute(n, "keyDate") == "yes"
