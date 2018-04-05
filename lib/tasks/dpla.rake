@@ -13,7 +13,6 @@ namespace :dpla do
          puts "Generate QDC for #{pid}"
          begin
             meta = Metadata.find_by(pid: pid)
-abort("GOT #{meta.to_json}"
             PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
             meta.update(qdc_generated_at: DateTime.now)
          rescue Exception=>e
