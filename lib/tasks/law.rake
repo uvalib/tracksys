@@ -109,6 +109,32 @@ namespace :law do
       return out
    end
 
+   desc "add barcodes"
+   task :add_barcode  => :environment do
+      json = JSON.parse(File.read('data/lawbooks.json'))
+      mapping = JSON.parse(File.read('data/law_dir_barcode.json'))
+      json['resources'].each do |res|
+         book = res['book']
+         virgo = book["Virgo"]
+         next if virgo.blank?
+
+         catalog_key = virgo.split("/").last
+         dir = book['Directory']
+
+         # look for prior metadata
+         meta = SirsiMetadata.where(catalog_key: catalog_key).first
+         break if meta.nil?
+
+         if meta.barcode.blank?
+            puts "Metadata #{meta.catalog_key} does not have barcode. Looking up..."
+            bc = mapping[dir]
+            puts "Found barcode: #{bc}"
+         else
+            puts "Metadata #{meta.catalog_key} already has barcode. Skip."
+         end
+      end
+   end
+
    desc "Ingest all law books"
    task :ingest  => :environment do
       bits = ARCHIVE_DIR.split("/")
