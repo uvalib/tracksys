@@ -31,6 +31,94 @@ namespace :law do
       puts out.to_json
    end
 
+   desc 'renumber pages in a unit'
+   task :renumber => :environment do
+      id = ENV['id']
+      unit = Unit.find(id)
+      pg = unit.master_files.count
+      unit_dir = "%09d" % unit.id
+      archive_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
+      unit.master_files.reverse.each do |mf|
+         orig_fn = mf.filename
+         pg_str = "%04d" % pg
+         new_fn = "#{unit_dir}_#{pg_str}.tif"
+         puts "MF #{mf.id} page: #{mf.title} filename: #{mf.filename}"  
+         puts "  UPDATE page: #{pg} filename: #{new_fn}"
+         mf.update(title: pg, filename: new_fn)
+
+         orig_arch_path = File.join(archive_dir, orig_fn) 
+         new_arch_path = File.join(archive_dir, new_fn) 
+         puts "  RENAME: #{orig_arch_path} => #{new_arch_path}"
+         File.rename(orig_arch_path, new_arch_path)
+
+         pg -= 1
+      end
+
+      unit.reload
+      unit.metadata.update(exemplar: unit.master_files.first.filename)
+   end
+
+   desc 'Fix a single book, referenced by catalog key'
+   task :fix => :environment do
+     key = ENV['key']
+     meta = SirsiMetadata.find_by(catalog_key: key)
+     abort("Metadata not found") if meta.nil?
+     json = JSON.parse(File.read('data/lawalt.json'))
+     dirs = json[key]
+     abort("not a single dir key") if dirs.length > 1
+     dir = dirs.first
+     unit = meta.units.first
+     abort("No Unit") if unit.nil?
+
+     bits = ARCHIVE_DIR.split("/")
+     base_dir = bits[0..bits.length-3].join("/")
+     base_dir = File.join(base_dir, "1828_Master_Scans")
+     src_dir = File.join(base_dir, dir)
+     puts "Ingesting tif from #{src_dir}..."
+
+     unit_dir = "%09d" % unit.id
+     Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
+        src_fn = File.basename(tif, ".*")
+        ts_page = src_fn.split("_").last
+        abort("bad page number") if ts_page.to_i.blank?
+        ts_filename = "#{unit_dir}_#{ts_page}.tif"
+
+        # if masterfile with this filename already exists, skip it
+        if !MasterFile.find_by(filename: ts_filename).nil?
+           puts "   #{ts_filename} already exists; skipping"
+           next
+        end
+
+        puts "   adding #{tif} as #{ts_filename}"
+
+        # Create MF and tech metadata
+        md5 = Digest::MD5.hexdigest(File.read(tif))
+        mf = MasterFile.create!(
+           unit: unit, filename: ts_filename, filesize: File.size(tif),
+           title: ts_page.to_i, md5: md5, metadata: meta)
+        TechMetadata.create(mf, tif)
+
+        # Publish and archive
+        publish_to_iiif(mf, tif)
+        dest_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
+        FileUtils.makedirs(dest_dir) if !Dir.exists? dest_dir
+        dest_file = File.join(dest_dir, ts_filename )
+        FileUtils.copy(tif, dest_file)
+        dest_md5 = Digest::MD5.hexdigest(File.read(dest_file))
+        mf.update!(date_archived: DateTime.now, date_dl_ingest: DateTime.now)
+        if dest_md5 != md5
+           puts "ERROR: MD5 does not match for #{filename}"
+        end
+     end
+     # Update metadata (exemplar, date published)
+     unit.reload # up to date with newly added MF
+     unit.update(master_files_count: unit.master_files.count, date_dl_deliverables_ready: DateTime.now,
+        date_archived: DateTime.now, complete_scan: 1)
+     exemplar = unit.master_files.first.filename
+     unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
+     puts "DONE!"
+   end
+
    desc "Generate a barcode json file for multivolume"
    task :barcode_map  => :environment do
       json = JSON.parse(File.read('data/lawalt.json'))
@@ -94,6 +182,11 @@ namespace :law do
       puts "==================================================================================================="
       puts "#{out.to_json}"
    end
+ 
+   task :key_barcodes => :environment do
+     ck = ENV['key']
+     puts "BC: #{get_barcodes(ck)}"
+   end
 
    def get_barcodes(catalog_key)
       marc = Virgo.get_marc_doc(catalog_key)
@@ -123,14 +216,19 @@ namespace :law do
 
          # look for prior metadata
          meta = SirsiMetadata.where(catalog_key: catalog_key).first
-         break if meta.nil?
+         next if meta.nil?
+         puts "====> Checking MD:#{meta.id} #{catalog_key} in directory: #{dir} .... "
 
          if meta.barcode.blank?
-            puts "Metadata #{meta.catalog_key} does not have barcode. Looking up..."
             bc = mapping[dir]
-            puts "Found barcode: #{bc}"
-         else
-            puts "Metadata #{meta.catalog_key} already has barcode. Skip."
+            if !bc.blank?
+               if meta.date_dl_ingest.blank?
+                  meta.update(barcode: bc)
+               else
+                  meta.update(barcode: bc, date_dl_update: Time.now)
+               end
+               puts "   Metadata #{meta.id}: updated barcode to #{bc}"
+            end
          end
       end
    end
