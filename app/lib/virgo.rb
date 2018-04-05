@@ -204,6 +204,13 @@ module Virgo
      return Nokogiri::XML(el.text).to_xml
   end
 
+  def self.get_marc_doc(catalog_key)
+     xml_doc = query_metadata_server(catalog_key)
+     doc = xml_doc.xpath(xml_doc, "/response/result/doc").first
+     el = doc.xpath( "str[@name='marc_display']" ).first
+     return Nokogiri::XML(el.text)
+  end
+
 
   #-----------------------------------------------------------------------------
   # private methods
@@ -280,7 +287,7 @@ module Virgo
     end
     barcodes
   end
-  private_class_method :build_barcode_hash
+  # private_class_method :build_barcode_hash
 
   #-----------------------------------------------------------------------------
 

@@ -8,6 +8,107 @@ namespace :law do
          date_request_submitted: DateTime.now, order_status: "approved",  date_due: (Date.today+1.year))
    end
 
+   desc "Convert to alternate structure"
+   task :convert  => :environment do
+      json = JSON.parse(File.read('data/lawbooks.json'))
+      out = {}
+      json['resources'].each do |res|
+         book = res['book']
+         virgo = book["Virgo"]
+         next if virgo.blank?
+
+         # convert structue to a map that has key=catalog_key, each having
+         # an array of accociated directory names. Makes it easy to identify
+         # multi-volume books
+         dir = book['Directory']
+         catalog_key = virgo.split("/").last
+         if !out.has_key? catalog_key
+            out[catalog_key] = [dir]
+         else
+            out[catalog_key] << dir
+         end
+      end
+      puts out.to_json
+   end
+
+   desc "Generate a barcode json file for multivolume"
+   task :barcode_map  => :environment do
+      json = JSON.parse(File.read('data/lawalt.json'))
+      out = {}
+
+      puts "GENERATE MAPPING----------------------"
+      json.each do |catalog_key,dirs|
+         if dirs.length > 1
+            barcodes = get_barcodes(catalog_key)
+            # puts "#{catalog_key} BARCODES: #{barcodes}"
+            dirs.each do |dir|
+               # hardcode an outlier; part 1 and 2 with unique barcodes
+               if dir == "UK_362_1680_V543_1806_v_2_pt_1"
+                  out[dir] = "3220693-2001"
+                  next
+               end
+               if dir == "UK_362_1680_V543_1806_v_2_pt_2"
+                  out[dir] = "3220693-3001"
+                  next
+               end
+               if barcodes.length == 1
+                  puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
+                  puts "        DETAIL: #{barcodes}"
+                  out[dir] = barcodes.first[:barcode]
+                  next
+               end
+
+               working_dir = dir
+               working_dir << "_vol_1" if dir == "Cage_TrialsB_B968r"
+               working_dir = working_dir.gsub(/_c_*1/,"")
+               working_dir = working_dir.gsub(/_pt_\d/i,"")
+
+               dir_ver = /(v_\d+$|v\d+$|vol_\d+$|book_\d+$)/i.match(working_dir).to_s
+               if dir_ver.blank?
+                  puts "ERROR: Weird dir name #{dir}"
+                  next
+               end
+               ver_num = dir_ver.gsub(/book/i,"").gsub(/vol/i,"").gsub(/v/i,"").gsub(/_/,"").to_i
+               matched = false
+               barcodes.each do |info|
+                  if (ver_num == 3 || ver_num == 4) && info[:call_number] == "U.K. .46 .G4647E 1795 3-4"
+                     matched = true
+                     out[dir] = info[:barcode]
+                     puts "    MATCH: #{dir} : #{info}"
+                     break
+                  end
+                  hit = /v.\s*#{ver_num}(\s|$)/i.match(info[:call_number]).to_s
+                  if !hit.blank?
+                     matched = true
+                     out[dir] = info[:barcode]
+                     puts "    MATCH: #{dir} : #{info}"
+                     break
+                  end
+               end
+               if matched == false
+                  puts "ERROR: No call number match for key #{catalog_key}, dir #{dir}: #{barcodes}"
+               end
+            end
+         end
+      end
+      puts "==================================================================================================="
+      puts "#{out.to_json}"
+   end
+
+   def get_barcodes(catalog_key)
+      marc = Virgo.get_marc_doc(catalog_key)
+      marc.remove_namespaces!
+      out = []
+      marc.xpath("//datafield[@tag='999']").each do |n999|
+         cn = n999.at_xpath("subfield[@code='a']")
+         next if cn.blank?
+         bc = n999.at_xpath("subfield[@code='i']")
+         next if bc.blank?
+         out << {call_number: cn.text, barcode: bc.text}
+      end
+      return out
+   end
+
    desc "Ingest all law books"
    task :ingest  => :environment do
       bits = ARCHIVE_DIR.split("/")
