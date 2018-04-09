@@ -280,7 +280,7 @@ namespace :law do
                next
             end
             puts "Ingest dir #{dir} to #{catalog_key} : #{barcode}"
-            # do_ingest(order, src_dir, catalog_key, barcode)
+            do_ingest(order, src_dir, catalog_key, barcode)
          end
       end
       puts "DONE. #{cnt} books processed. #{missing.length} missing directories."
@@ -288,7 +288,7 @@ namespace :law do
 
    def do_ingest(order, src_dir, catalog_key, barcode)
       # look for prior metadata
-      meta = SirsiMetadata.where(catalog_key: catalog_key).first
+      meta = SirsiMetadata.where(catalog_key: catalog_key, barcode: barcode).first
       if meta.nil?
          puts "Creating new SirsiMetadata record for #{catalog_key}:#{barcode}"
          begin
@@ -301,7 +301,7 @@ namespace :law do
             )
          rescue Exception=>e
             puts "ERROR: Unable to find catalog key #{catalog_key}; skipping"
-            next
+            return
          end
       else
          puts "Using existing SirsiMetadata #{meta.id} record for #{catalog_key}"
@@ -319,7 +319,7 @@ namespace :law do
       # Add master Files
       if unit.master_files.count > 0
          puts "This unit already has master files. SKIPPING"
-         next
+         return
       end
 
       unit_dir = "%09d" % unit.id

@@ -11,6 +11,8 @@ module QDC
       return File.join(pid_parts[0], pid_dirs)
    end
 
+   # Crosswalk Creator info from MODS to QDC
+   #
    def self.crosswalk_creator(doc, metadata_type)
       out = []
       concat_names = []
@@ -158,24 +160,52 @@ module QDC
    def self.crosswalk_date_created(doc, metadata_type)
       ignore_dates = ["undated", "unknown date", "unknown"]
       out = []
+
       if metadata_type == "SirsiMetadata"
          # Per Jeremy for SIRSI sources, just return dateCreated and dateIssued
-         doc.xpath("/mods/originInfo/dateCreated").each do |n|
-            next if ignore_dates.include? n.text.strip.downcase
-            out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
+         # Further: If dateIssued with encoding="marc" or dateCreated with encoding="marc" is
+         #          present, select that value. Account for  point="start" and point="end" attributes too
+         dates = {}
+         nodes1 = doc.xpath("/mods/originInfo/dateCreated")
+         nodes2 = doc.xpath("/mods/originInfo/dateIssued")
+         nodes = nodes1+nodes2
+         nodes.each do |node|
+            next if ignore_dates.include? node.text.strip.downcase
+
+            if QDC.get_attribute(node, "encoding") == "marc"
+               if QDC.get_attribute(node, "point") == "start"
+                  dates[:start] = clean_xml_text(node.text)
+               elsif QDC.get_attribute(node, "point") == "end"
+                  dates[:end] = clean_xml_text(node.text)
+               else
+                  dates[:marc] = clean_xml_text(node.text)
+               end
+            else
+               if dates[:general].nil?
+                  dates[:general] = []
+               end
+               dates[:general] << clean_xml_text(node.text)
+            end
          end
-         doc.xpath("/mods/originInfo/datedateIssued ").each do |n|
-            next if ignore_dates.include? n.text.strip.downcase
-            out << "<dcterms:created>#{clean_xml_text(n.text)}</dcterms:created>"
+
+         if !dates[:start].blank? && !dates[:end].blank?
+            out << "<dcterms:created>#{dates[:start]}/#{dates[:end]}</dcterms:created>"
+         elsif !dates[:marc].blank?
+            out << "<dcterms:created>#{dates[:marc]}</dcterms:created>"
+         else
+            dates[:general].each do |date|
+               out << "<dcterms:created>#{date}</dcterms:created>"
+            end
          end
+
          return out
       elsif metadata_type == "XmlMetadata"
+         dates = []
+         start_date = end_date = key_date = ""
          # Notes from Jeremy for XML sources:
          #   if there are multiple dateCreated and attributes point="start"
          #   and point="end", map both to a single date like start/end. If not, use the
          #   one with attribute keyDate="yes"
-         dates = []
-         start_date = end_date = key_date = ""
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
             next if ignore_dates.include? n.text.strip.downcase
 
