@@ -2,11 +2,13 @@
    <span class="deaccessioned">Deaccessioned</span>
 <% else %>
    <% mf_id = mf.id
+      meta_pid = ""
+      meta_pid = mf.metadata.pid if !mf.metadata.nil?
       page = mf.filename.split("_")[1].split(".")[0].to_i
       if mf.is_clone?
          mf_id = mf.original_mf_id
          page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
       end %>
    <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled", id: mf_id,
-         data: {page: page, metadata_pid: mf.metadata.pid}) %>
+         data: {page: page, metadata_pid: meta_pid}) %>
 <% end %>
