@@ -171,6 +171,7 @@ module QDC
          nodes = nodes1+nodes2
          nodes.each do |node|
             next if ignore_dates.include? node.text.strip.downcase
+            next if node.text.strip.include?("?") || node.text.strip.include?("[") || node.text.strip.include?("]")
 
             if QDC.get_attribute(node, "encoding") == "marc"
                if QDC.get_attribute(node, "point") == "start"
@@ -192,7 +193,7 @@ module QDC
             out << "<dcterms:created>#{dates[:start]}/#{dates[:end]}</dcterms:created>"
          elsif !dates[:marc].blank?
             out << "<dcterms:created>#{dates[:marc]}</dcterms:created>"
-         else
+         elsif !dates[:general].nil?
             dates[:general].each do |date|
                out << "<dcterms:created>#{date}</dcterms:created>"
             end
