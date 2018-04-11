@@ -195,8 +195,8 @@ namespace :law do
                   next
                end
                if barcodes.length == 1 && dirs.length > 1
-                  puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
-                  puts "        DETAIL: #{barcodes}"
+                  # puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
+                  # puts "        DETAIL: #{barcodes}"
                   out[dir] = barcodes.first[:barcode]
                   next
                end
@@ -310,6 +310,8 @@ namespace :law do
       cnt = 0
       order = Order.find_by(order_title: "Law Library 1828 Master Scans")
 
+      skip_me = ['UK_362_1757_E22_v_1', 'UK_362_1757_E22_v_2', 'T_S7993r_1824', 'UK_46_T843_1797']
+
       puts "Ingesting files from #{base_dir}"
       json.each do |catalog_key, dirs|
          dirs.each do |dir|
@@ -320,6 +322,10 @@ namespace :law do
             if !File.exist? src_dir
             #   puts "#{src_dir} NOT FOUND"
                missing << dir
+               next
+            end
+            if skip_me.include? dir
+               puts "Skipping #{dir}. Multiple books tied to single catalog key"
                next
             end
 
@@ -376,13 +382,12 @@ namespace :law do
       unit_dir = "%09d" % unit.id
       Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
          src_fn = File.basename(tif, ".*")
-
          ts_page = src_fn.split(//).last(4).join("")
          if ts_page.to_i.blank?
             ts_page = src_fn.split("_").last
             abort("Coundn't determine page from #{tif}") if ts_page.to_i.blank?
          end
-         ts_page="0001" if ts_page == "0000"
+         ts_page="0001" if ts_page.to_i == 0
 
          ts_filename = "#{unit_dir}_#{ts_page}.tif"
          puts "   adding #{tif} as #{ts_filename}"
@@ -416,12 +421,17 @@ namespace :law do
          date_archived: DateTime.now, complete_scan: 1)
       exemplar = unit.master_files.first.filename
       unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
-
    end
 
    desc "Generate an IIIF manifest report"
    task :report  => :environment do
       # generate a report mapping catalog key to IIIF manifest URL...
+      o = Order.find(10274)
+      puts "CatalogKey, Barcode, Manifest"
+      o.units.each do |u|
+         iiif = "#{Settings.virgo_url}/#{u.metadata.pid}/iiif/manifest.json"
+         puts "#{u.metadata.catalog_key}, #{u.metadata.barcode}, #{iiif}"
+      end
       # either:  http://search.lib.virginia.edu/catalog/tsb:65850/iiif/manifest.json
       # or: https://tracksys.lib.virginia.edu:8080/tsb:65850
    end
