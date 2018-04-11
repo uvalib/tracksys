@@ -1,12 +1,12 @@
 module QDC
    # To avoid a single directory with tens of thousands of files, break
-   # up the PID into 3 digit sub directories.
+   # up the PID into 2 digit sub directories.
    #
    def self.relative_pid_path( pid )
       pid_parts = pid.split(":")
       base = pid_parts[1]
-      parts = base.scan(/.../) # break up into 3 digit sections, but this can leave off last digit
-      parts << base.last if parts.length * 3 !=  base.length  # get last digit if necessary
+      parts = base.scan(/../) # break up into 2 digit sections, but this can leave off last digit
+      parts << base.last if parts.length * 2 !=  base.length  # get last digit if necessary
       pid_dirs = parts.join("/")
       return File.join(pid_parts[0], pid_dirs)
    end
@@ -139,16 +139,23 @@ module QDC
    #
    def self.crosswalk_multi(doc, xpath, qdc_ns, qdc_ele)
       out = []
+      hack = {"basketball": "http://id.loc.gov/vocabulary/graphicMaterials/tgm000841",
+              "fraternities & sororities": "http://id.loc.gov/vocabulary/graphicMaterials/tgm004278"}
       doc.xpath(xpath).each do |n|
          # Per Jeremy, don't include language if objectPart is present
          next if  xpath.include?("languageTerm") && !n.attribute("objectPart").blank?
 
          txt = clean_xml_text(n.text)
-         val = n.attribute("valueURI")
-         if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
-            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+         hack_val = hack[txt.downcase]
+         if !hack_val.blank?
+            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{hack_val}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
          else
-           out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
+            val = n.attribute("valueURI")
+            if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
+               out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+            else
+              out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
+           end
         end
       end
       return out
