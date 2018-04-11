@@ -31,6 +31,33 @@ namespace :law do
       puts out.to_json
    end
 
+   desc 'renumber 0 pages in a unit'
+   task :fix_zero => :environment do
+      id = ENV['id']
+      unit = Unit.find(id)
+      pg = 1
+      unit_dir = "%09d" % unit.id
+      archive_dir = File.join(ARCHIVE_DIR, "%09d" % unit.id)
+      unit.master_files.each do |mf|
+         orig_fn = mf.filename
+         pg_str = "%04d" % pg
+         new_fn = "#{unit_dir}_#{pg_str}.tif"
+         puts "MF #{mf.id} page: #{mf.title} filename: #{mf.filename}"
+         puts "  UPDATE page: #{pg} filename: #{new_fn}"
+         mf.update(title: pg, filename: new_fn)
+
+         orig_arch_path = File.join(archive_dir, orig_fn)
+         new_arch_path = File.join(archive_dir, new_fn)
+         puts "  RENAME: #{orig_arch_path} => #{new_arch_path}"
+         File.rename(orig_arch_path, new_arch_path)
+
+         pg += 1
+      end
+
+      unit.reload
+      unit.metadata.update(exemplar: unit.master_files.first.filename)
+   end
+
    desc 'renumber pages in a unit'
    task :renumber => :environment do
       id = ENV['id']
@@ -61,12 +88,28 @@ namespace :law do
    desc 'Fix a single book, referenced by catalog key'
    task :fix => :environment do
      key = ENV['key']
-     meta = SirsiMetadata.find_by(catalog_key: key)
+     id = ENV['id']
+     abort("Key or ID required") if key.blank? && id.blank?
+     tgt = ENV['dir']
+     if !key.blank?
+        meta = SirsiMetadata.find_by(catalog_key: key)
+     else
+        meta = SirsiMetadata.find(id)
+        key = meta.catalog_key
+     end
      abort("Metadata not found") if meta.nil?
+     puts "Metadata #{meta.id} #{meta.call_number}"
+
      json = JSON.parse(File.read('data/lawalt.json'))
      dirs = json[key]
-     abort("not a single dir key") if dirs.length > 1
-     dir = dirs.first
+     if tgt.blank?
+        abort("not a single dir key") if dirs.length > 1
+        dir = dirs.first
+     else
+        abort("#{tgt} nat part of this key") if !dirs.include? tgt
+        dir = tgt
+     end
+
      unit = meta.units.first
      abort("No Unit") if unit.nil?
 
@@ -79,8 +122,14 @@ namespace :law do
      unit_dir = "%09d" % unit.id
      Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
         src_fn = File.basename(tif, ".*")
-        ts_page = src_fn.split("_").last
-        abort("bad page number") if ts_page.to_i.blank?
+
+        ts_page = src_fn.split(//).last(4).join("")
+        if ts_page.to_i.blank?
+           ts_page = src_fn.split("_").last
+           abort("Coundn't determine page from #{tif}") if ts_page.to_i.blank?
+        end
+        ts_page="0001" if ts_page == "0000"
+
         ts_filename = "#{unit_dir}_#{ts_page}.tif"
 
         # if masterfile with this filename already exists, skip it
@@ -109,6 +158,7 @@ namespace :law do
         if dest_md5 != md5
            puts "ERROR: MD5 does not match for #{filename}"
         end
+
      end
      # Update metadata (exemplar, date published)
      unit.reload # up to date with newly added MF
@@ -145,8 +195,8 @@ namespace :law do
                   next
                end
                if barcodes.length == 1 && dirs.length > 1
-                  # puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
-                  # puts "        DETAIL: #{barcodes}"
+                  puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
+                  puts "        DETAIL: #{barcodes}"
                   out[dir] = barcodes.first[:barcode]
                   next
                end
@@ -299,6 +349,7 @@ namespace :law do
                title: virgo[:title], creator_name: virgo[:creator_name], catalog_key: catalog_key,
                barcode: virgo[:barcode], call_number: virgo[:call_number], ocr_hint_id: 1
             )
+            puts "   created ID:#{meta.id}"
          rescue Exception=>e
             puts "ERROR: Unable to find catalog key #{catalog_key}; skipping"
             return
@@ -325,15 +376,16 @@ namespace :law do
       unit_dir = "%09d" % unit.id
       Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
          src_fn = File.basename(tif, ".*")
-         ts_page = src_fn.split("_").last
+
+         ts_page = src_fn.split(//).last(4).join("")
+         if ts_page.to_i.blank?
+            ts_page = src_fn.split("_").last
+            abort("Coundn't determine page from #{tif}") if ts_page.to_i.blank?
+         end
+         ts_page="0001" if ts_page == "0000"
+
          ts_filename = "#{unit_dir}_#{ts_page}.tif"
          puts "   adding #{tif} as #{ts_filename}"
-
-         cmd = "identify '#{tif}'"
-         if !system(cmd)
-            puts "ERROR: File #{tif} is invalid. Skipping"
-            next
-         end
 
          # if masterfile with this filename already exists, skip it
          next if !MasterFile.find_by(filename: ts_filename).nil?
@@ -364,5 +416,13 @@ namespace :law do
          date_archived: DateTime.now, complete_scan: 1)
       exemplar = unit.master_files.first.filename
       unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
+
+   end
+
+   desc "Generate an IIIF manifest report"
+   task :report  => :environment do
+      # generate a report mapping catalog key to IIIF manifest URL...
+      # either:  http://search.lib.virginia.edu/catalog/tsb:65850/iiif/manifest.json
+      # or: https://tracksys.lib.virginia.edu:8080/tsb:65850
    end
 end
