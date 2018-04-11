@@ -1,4 +1,47 @@
 namespace :dpla do
+   desc "add University of Virginia Printing Services"
+   task :add_printing_service_images  => :environment do
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      cnt = 0
+      Metadata.where("title like ?", "University of Virginia Printing Services%").each do |m|
+         if m.dpla == false && m.in_dl?
+            puts "*** #{m.id} - #{m.title} #{m.call_number} flag for DPLA"
+            m.update(dpla: true)
+         end
+         if m.in_dl?
+            puts "Generate QDC for collection #{m.id}:#{m.title} - #{m.call_number}"
+            cnt += generate_collection_qdc(m.id, qdc_tpl, -1)
+         end
+      end
+      puts "DONE. Generated #{cnt} QDC records"
+   end
+
+   desc "Remove untitied metadata form QDC repo"
+   task :remove_untitled  => :environment do
+      cnt = 0
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      Metadata.where(title: "untitled").each do |m|
+         puts "#{m.id}: is untitled"
+         pid_path = QDC.relative_pid_path(m.pid)
+         del_path = File.join(qdc_dir, pid_path, "#{m.pid}.xml")
+         puts "   remove #{del_path}"
+         m.update(dpla: false, qdc_generated_at: nil)
+         if File.exist?(del_path)
+            File.delete(del_path)
+         else
+            puts "ERROR: Not found #{del_path}"
+         end
+         cnt +=1
+      end
+      puts "Removed #{cnt} untitled records"
+   end
+
    desc "Fix a batch of bad pids"
    task :fix  => :environment do
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
@@ -10,9 +53,9 @@ namespace :dpla do
       file.close
 
       File.open(File.join(Rails.root, "data/qdcfixpids.txt"), "r").each_line do |pid|
-         puts "Generate QDC for #{pid}"
+         puts "Generate QDC for #{pid.strip}"
          begin
-            meta = Metadata.find_by(pid: pid)
+            meta = Metadata.find_by(pid: pid.strip)
             PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
             meta.update(qdc_generated_at: DateTime.now)
          rescue Exception=>e
