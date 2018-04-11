@@ -165,7 +165,7 @@ module QDC
    # to QDC dcterms:created.
    #
    def self.crosswalk_date_created(doc, metadata_type)
-      ignore_dates = ["undated", "unknown date", "unknown"]
+      ignore_dates = ["undated", "unknown date", "unknown", "n.d."]
       out = []
 
       if metadata_type == "SirsiMetadata"
