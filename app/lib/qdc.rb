@@ -177,27 +177,39 @@ module QDC
          nodes2 = doc.xpath("/mods/originInfo/dateIssued")
          nodes = nodes1+nodes2
          nodes.each do |node|
-            next if ignore_dates.include? node.text.strip.downcase
-            next if node.text.strip.include?("?") || node.text.strip.include?("[") || node.text.strip.include?("]")
+            clean_txt = clean_xml_text(node.text)
+            next if ignore_dates.include? clean_txt.downcase
+            next if clean_txt.include?("?") || clean_txt.include?("[") || clean_txt.include?("]")
+            next if clean_txt == "uuuu"
+
+            # handle merged create/copyright
+            if clean_text.length == 8
+               next if /[\d]{8}/.match(clean_text).nil?
+               clean_text = clean_text[0...4] # just take the first 4 chars
+            end
 
             if QDC.get_attribute(node, "encoding") == "marc"
                if QDC.get_attribute(node, "point") == "start"
-                  dates[:start] = clean_xml_text(node.text)
+                  dates[:start] = clean_txt
                elsif QDC.get_attribute(node, "point") == "end"
-                  dates[:end] = clean_xml_text(node.text)
+                  dates[:end] = clean_txt
                else
-                  dates[:marc] = clean_xml_text(node.text)
+                  dates[:marc] = clean_txt
                end
             else
                if dates[:general].nil?
                   dates[:general] = []
                end
-               dates[:general] << clean_xml_text(node.text)
+               dates[:general] << clean_txt
             end
          end
 
-         if !dates[:start].blank? && !dates[:end].blank?
-            out << "<dcterms:created>#{dates[:start]}/#{dates[:end]}</dcterms:created>"
+         if !dates[:start].blank?
+            if !dates[:end].blank?
+               out << "<dcterms:created>#{dates[:start]}/#{dates[:end]}</dcterms:created>"
+            else
+               out << "<dcterms:created>#{dates[:start]}</dcterms:created>"
+            end
          elsif !dates[:marc].blank?
             out << "<dcterms:created>#{dates[:marc]}</dcterms:created>"
          elsif !dates[:general].nil?
