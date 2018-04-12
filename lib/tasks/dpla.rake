@@ -32,8 +32,8 @@ namespace :dpla do
       puts "Set Holsinger (negatives from c'ville photo studio) to UND..."
       Metadata.where(parent_metadata_id: 3002).update_all(use_right_id: 11)
 
-      puts "Set Jackson Davis to UND..."
-      Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 11)
+      # puts "Set Jackson Davis to UND..."
+      # Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 11)
 
       puts "Set Online Artifacts to InC-NC..."
       Metadata.where(parent_metadata_id: 16585).update_all(use_right_id: 5)
