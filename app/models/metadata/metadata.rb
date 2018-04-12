@@ -61,17 +61,17 @@ class Metadata < ApplicationRecord
    end
 
    after_update do
-      if parent.nil?
-         children.each do |child|
-            if child.dpla != self.dpla
-               if child.ocr_hint_id.nil?
-                  child.update(dpla: self.dpla, ocr_hint_id: self.ocr_hint_id)
-               else
-                  child.update(dpla: self.dpla)
-               end
-            end
-         end
-      end
+      # if parent.nil?
+      #    children.each do |child|
+      #       if child.dpla != self.dpla
+      #          if child.ocr_hint_id.nil?
+      #             child.update(dpla: self.dpla, ocr_hint_id: self.ocr_hint_id)
+      #          else
+      #             child.update(dpla: self.dpla)
+      #          end
+      #       end
+      #    end
+      # end
    end
 
    #------------------------------------------------------------------
