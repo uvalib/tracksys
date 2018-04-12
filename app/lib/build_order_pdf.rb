@@ -5,7 +5,7 @@ module BuildOrderPDF
    def generate_invoice_pdf(order)
       fee = order.fee_actual
       customer = order.customer
-      units_in_pdf = Array.new
+      units_in_pdf = []
       order.units.each do |unit|
          if unit.unit_status == 'approved'
             units_in_pdf.push(unit)
@@ -87,16 +87,7 @@ module BuildOrderPDF
             @pdf.text "\n"
          end
 
-         # Create special tables to hold component information
-         # if unit.components.any?
-         #    unit.components.each do |component|
-         #       # Output information for this unit using the Component template
-         #       output_component_data(component, unit.id)
-         #    end
-         # else
-            # Output information using the MasterFile only template.
-            output_masterfile_data(unit.master_files.order(:filename))
-         # end
+         output_master_file_data(unit)
       end
 
       # Page numbering
@@ -111,30 +102,30 @@ module BuildOrderPDF
       return @pdf
    end
 
-   # Physical Component Methods
-   def output_component_data(component, unit_id)
-      @pdf.text "Collection Information\n", :style => :bold
-      component.path_ids.each do |component_id|
-         c = Component.find(component_id)
+   def output_master_file_data(unit)
+      curr_component = nil
+      data = [["Filename", "Title", "Description"]]
 
-         # pdf document has a width of 540 at this point, so use that and subtract from there.
-         @pdf.span(540 - component.path_ids.index(component_id) * 10, :position => :right) do
-            @pdf.text"#{c.component_type.name.titleize}: #{c.name}"
+      unit.master_files.order(:component_id).order(:filename).each do |mf|
+         if mf.component != nil
+            if curr_component != mf.component
+               if data.size > 1
+                  write_mf_table(data)
+               end
+               curr_component = mf.component
+               @pdf.text "#{curr_component.component_type.name.titleize}: #{curr_component.name}\n\n", :font_size => 14
+               data = [["Filename", "Title", "Description"]]
+            end
          end
-
-         @pdf.start_new_page if @pdf.cursor < 30
+         data += [["#{mf.filename}", "#{mf.title}", "#{mf.description}"]]
       end
 
-      output_masterfile_data(component.master_files.where(:unit_id => unit_id).order(:filename))
+      if data.size > 1
+         write_mf_table(data)
+      end
    end
 
-   # Methods used by both Component and EAD Ref methods
-   def output_masterfile_data(sorted_master_files)
-      data = Array.new
-      data = [["Filename", "Title", "Description"]]
-      sorted_master_files.each {|master_file|
-         data += [["#{master_file.filename}", "#{master_file.title}", "#{master_file.description}"]]
-      }
+   def write_mf_table(data)
       @pdf.table(data, :column_widths => [140,200,200], :header => true, :row_colors => ["F0F0F0", "FFFFCC"])
       @pdf.text "\n"
 
