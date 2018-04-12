@@ -1,4 +1,56 @@
 namespace :dpla do
+   desc "Visual history cleanup"
+   task :clean_visual_history  => :environment do
+      q = "parent_metadata_id = 3009 and not ( "
+      q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
+      q << " or desc_metadata like '%namePart>Skinner, David M%' "
+      q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
+      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
+      puts "Removing DPLA flag from Visual History records..."
+      Metadata.where(q).update_all(dpla: 0, qdc_generated_at: nil)
+
+      puts "Setting rights CNE for skinner, thompson and UVA news.."
+      q = "parent_metadata_id = 3009 and ( "
+      q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
+      q << " or desc_metadata like '%namePart>Skinner, David M%' "
+      q << " or desc_metadata like '%namePart>University of Virginia. News Office%') "
+      Metadata.where(q).update_all(use_right_id: 1)
+
+      puts "Setting rights UND for Holsinger.."
+      q = "parent_metadata_id = 3009 and desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      Metadata.where(q).update_all(use_right_id: 11)
+   end
+
+   desc "Set use rights"
+   task :update_rights  => :environment do
+      puts "Set text collection to NoC-US..."
+      Metadata.where(parent_metadata_id: 15784).update_all(use_right_id: 10)
+
+      puts "Set Frances Benjamin Johnston to NoC-US..."
+      Metadata.where(parent_metadata_id: 16315).update_all(use_right_id: 10)
+
+      puts "Set Holsinger (negatives from c'ville photo studio) to UND..."
+      Metadata.where(parent_metadata_id: 3002).update_all(use_right_id: 11)
+
+      puts "Set Jackson Davis to UND..."
+      Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 11)
+
+      puts "Set Online Artifacts to InC-NC..."
+      Metadata.where(parent_metadata_id: 16585).update_all(use_right_id: 5)
+
+      puts "Set Vanity Fair to NoC-US..."
+      Metadata.where(parent_metadata_id: 6405).update_all(use_right_id: 10)
+
+      puts "Set Printing Services to CNE..."
+      ps_ids = [
+         18146, 18148, 18235, 18236, 18303, 18304, 18532, 18533, 18534, 18535, 18536, 18537,
+         18538, 18539, 18540, 18541, 18559, 18560, 18561, 18562, 18563, 18564, 18565, 18566, 18567
+      ]
+      ps_ids.each do |pd_id|
+         Metadata.where(parent_metadata_id: pd_id).update_all(use_right_id: 1)
+      end
+   end
+
    desc "add University of Virginia Printing Services"
    task :add_printing_service_images  => :environment do
       puts "Reading QDC xml template..."
