@@ -88,15 +88,15 @@ module BuildOrderPDF
          end
 
          # Create special tables to hold component information
-         if unit.components.any?
-            unit.components.each do |component|
-               # Output information for this unit using the Component template
-               output_component_data(component, unit.id)
-            end
-         else
+         # if unit.components.any?
+         #    unit.components.each do |component|
+         #       # Output information for this unit using the Component template
+         #       output_component_data(component, unit.id)
+         #    end
+         # else
             # Output information using the MasterFile only template.
             output_masterfile_data(unit.master_files.order(:filename))
-         end
+         # end
       end
 
       # Page numbering
