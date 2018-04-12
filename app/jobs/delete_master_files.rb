@@ -15,6 +15,7 @@ class DeleteMasterFiles < BaseJob
 
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      in_proc_dir = Finder.finalization_dir(unit, :in_process)
 
       # first remove all of the masterfiles from & tech metadata
       # the list from the unit, archive and IIIF server
@@ -41,6 +42,12 @@ class DeleteMasterFiles < BaseJob
                   end
                else
                   on_failure "No IIIF file found for #{del_fn}"
+               end
+            else
+               cloned_file = File.join(in_proc_dir, mf.filename)
+               if File.exist? cloned_file
+                  logger.info "Removing cloned tif from in_process dir: #{cloned_file}"
+                  File.delete(cloned_file)
                end
             end
 
@@ -98,6 +105,11 @@ class DeleteMasterFiles < BaseJob
                File.rename(archive_file, new_archive)
                new_md5 = Digest::MD5.hexdigest( File.read(new_archive) )
                on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
+            else
+               cloned_file = File.join(in_proc_dir, orig_fn)
+               new_cloned_file = File.join(in_proc_dir, new_fn)
+               logger.info "Rename cloned file #{cloned_file} -> #{new_cloned_file}"
+               File.rename(cloned_file, new_cloned_file)
             end
          end
 
