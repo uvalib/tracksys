@@ -21,6 +21,39 @@ namespace :dpla do
       Metadata.where(q).update_all(use_right_id: 11)
    end
 
+   desc "Add visual history by creator and optional use right"
+   task :add_visual_history => :environment do
+      creator = ENV['creator']
+      right_str = ENV['rights']
+      if !right_str.blank?
+         use_right = UseRight.where("uri like '%#{right_str}%'")
+         puts "Add '#{creator}' from visual history with rights: #{use_right.name}"
+      else
+         puts "Add '#{creator}' from visual history preserving existing use rights"
+      end
+      q = "parent_metadata_id = 3009 and desc_metadata like '%namePart>#{creator}%'"
+      cnt = Metadata.where(q).count
+      abort("No matching records found") if cnt == 0
+
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      puts "   #{cnt} records will be added..."
+      cnt = 0
+      Metadata.where(q).each do |m|
+         if m.dpla == false && m.in_dl?
+            puts "*** #{m.id} - #{m.title} #{m.call_number} flag for DPLA"
+            m.update(dpla: true, qdc_generated_at: Time.now)
+         end
+         if m.in_dl? && m.dpla
+            puts "Generate QDC for #{m.id}:#{m.title} - #{m.call_number}"
+            cnt += generate_collection_qdc(m.id, qdc_tpl, -1)
+         end
+      end
+      puts "DONE. Generated #{cnt} QDC records"
+   end
+
    desc "Set use rights"
    task :update_rights  => :environment do
       puts "Set text collection to NoC-US..."
