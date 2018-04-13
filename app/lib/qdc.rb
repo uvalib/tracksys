@@ -183,9 +183,13 @@ module QDC
             next if clean_txt == "uuuu"
 
             # handle merged create/copyright
-            if clean_text.length == 8
-               next if /[\d]{8}/.match(clean_text).nil?
-               clean_text = clean_text[0...4] # just take the first 4 chars
+            merged = clean_txt.split(",")
+            if merged.size == 2
+               clean_txt = merged[0]
+               next if /[\d]{4}/.match(clean_txt).nil?
+            elsif clean_txt.length == 8
+               next if /[\d]{8}/.match(clean_txt).nil?
+               clean_txt = clean_txt[0...4] # just take the first 4 chars
             end
 
             if QDC.get_attribute(node, "encoding") == "marc"
