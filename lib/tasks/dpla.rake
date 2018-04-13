@@ -38,17 +38,27 @@ namespace :dpla do
       file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
       qdc_tpl = file.read
       file.close
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
 
       puts "   #{cnt} records will be added..."
       cnt = 0
       Metadata.where(q).each do |m|
          if m.dpla == false && m.in_dl?
             puts "*** #{m.id} - #{m.title} #{m.call_number} flag for DPLA"
-            m.update(dpla: true, qdc_generated_at: Time.now)
+            m.update(dpla: true)
          end
-         if m.in_dl? && m.dpla
-            puts "Generate QDC for #{m.id}:#{m.title} - #{m.call_number}"
-            cnt += generate_collection_qdc(m.id, qdc_tpl, -1)
+         if m.in_dl? && m.dpla == true
+            begin
+               puts "Generate #{m}.id : #{m.title}"
+               PublishQDC.generate_qdc(m, qdc_dir, qdc_tpl)
+               m.update(qdc_generated_at: DateTime.now)
+               cnt += 1
+            rescue Exception=>e
+               puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+               puts e.backtrace
+               puts "==============================================================================="
+            end
          end
       end
       puts "DONE. Generated #{cnt} QDC records"

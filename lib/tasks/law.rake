@@ -112,6 +112,7 @@ namespace :law do
            puts "   created ID:#{meta.id}"
 
            puts "Creating new unit for SirsiMeta #{meta.id}"
+           order = Order.find_by(order_title: "Law Library 1828 Master Scans")
            unit = Unit.create(order: order, metadata: meta, intended_use_id: 110, include_in_dl: 1, unit_status: "approved")
         rescue Exception=>e
            abort "ERROR: Unable to find catalog key #{catalog_key}; skipping"
