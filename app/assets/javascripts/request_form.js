@@ -51,6 +51,11 @@ $(document).ready(function () {
          $("div.request-error").show();
          return;
       }
+      if (!due.match(/[\d]{4}-[\d]{2}-[\d]{2}/) ) {
+         $("div.request-error").text("Due date must be of the form YYYY-MM-DD");
+         $("div.request-error").show();
+         return;
+      }
       if ( !use ) {
          $("div.request-error").text("Intended Use is required");
          $("div.request-error").show();
