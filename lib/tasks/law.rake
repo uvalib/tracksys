@@ -86,32 +86,54 @@ namespace :law do
    end
 
    desc 'Fix a single book, referenced by catalog key'
-   task :fix => :environment do
+   task :single => :environment do
      key = ENV['key']
      id = ENV['id']
-     abort("Key or ID required") if key.blank? && id.blank?
      tgt = ENV['dir']
+     abort("Key or ID required") if key.blank? && id.blank?
+
      if !key.blank?
         meta = SirsiMetadata.find_by(catalog_key: key)
      else
         meta = SirsiMetadata.find(id)
         key = meta.catalog_key
      end
-     abort("Metadata not found") if meta.nil?
-     puts "Metadata #{meta.id} #{meta.call_number}"
 
-     json = JSON.parse(File.read('data/lawalt.json'))
-     dirs = json[key]
-     if tgt.blank?
-        abort("not a single dir key") if dirs.length > 1
-        dir = dirs.first
+     if meta.nil? && !tgt.blank?
+        begin
+           puts "Creating metadata record for #{key} #{tgt}"
+           dir = tgt
+           dir_mapper = JSON.parse(File.read('data/law_dir_barcode.json'))
+           barcode = dir_mapper[dir]
+           if barcode.blank?
+              abort "ERROR: NO BARCODE for #{dir} #{key}"
+           end
+           meta = create_sirsi_record(key, barcode)
+           puts "   created ID:#{meta.id}"
+
+           puts "Creating new unit for SirsiMeta #{meta.id}"
+           unit = Unit.create(order: order, metadata: meta, intended_use_id: 110, include_in_dl: 1, unit_status: "approved")
+        rescue Exception=>e
+           abort "ERROR: Unable to find catalog key #{catalog_key}; skipping"
+        end
      else
-        abort("#{tgt} nat part of this key") if !dirs.include? tgt
-        dir = tgt
+        abort("Metadata not found") if meta.nil?
+        puts "Metadata #{meta.id} #{meta.call_number}"
+
+        json = JSON.parse(File.read('data/lawalt.json'))
+        dirs = json[key]
+        if tgt.blank?
+           abort("not a single dir key") if dirs.length > 1
+           dir = dirs.first
+        else
+           abort("#{tgt} not part of this key") if !dirs.include? tgt
+           dir = tgt
+        end
+
+        unit = meta.units.first
+        abort("No Unit") if unit.nil?
      end
 
-     unit = meta.units.first
-     abort("No Unit") if unit.nil?
 
      bits = ARCHIVE_DIR.split("/")
      base_dir = bits[0..bits.length-3].join("/")
@@ -348,13 +370,7 @@ namespace :law do
       if meta.nil?
          puts "Creating new SirsiMetadata record for #{catalog_key}:#{barcode}"
          begin
-            virgo = Virgo.external_lookup(catalog_key, barcode)
-            meta = SirsiMetadata.create(
-               discoverability: 1, dpla: 1, parent_metadata_id: 15784,
-               use_right_id: 10, is_approved: 1, availability_policy_id: 1,
-               title: virgo[:title], creator_name: virgo[:creator_name], catalog_key: catalog_key,
-               barcode: virgo[:barcode], call_number: virgo[:call_number], ocr_hint_id: 1
-            )
+            meta = create_sirsi_record(catalog_key, barcode)
             puts "   created ID:#{meta.id}"
          rescue Exception=>e
             puts "ERROR: Unable to find catalog key #{catalog_key}; skipping"
@@ -421,6 +437,17 @@ namespace :law do
          date_archived: DateTime.now, complete_scan: 1)
       exemplar = unit.master_files.first.filename
       unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
+   end
+
+   def create_sirsi_record(catalog_key, barcode)
+      virgo = Virgo.external_lookup(catalog_key, barcode)
+      meta = SirsiMetadata.create(
+         discoverability: 1, dpla: 1, parent_metadata_id: 15784,
+         use_right_id: 10, is_approved: 1, availability_policy_id: 1,
+         title: virgo[:title], creator_name: virgo[:creator_name], catalog_key: catalog_key,
+         barcode: virgo[:barcode], call_number: virgo[:call_number], ocr_hint_id: 1
+      )
+      return meta
    end
 
    desc "Generate an IIIF manifest report"
