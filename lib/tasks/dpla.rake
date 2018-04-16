@@ -25,12 +25,11 @@ namespace :dpla do
    task :add_visual_history => :environment do
       creator = ENV['creator']
       right_str = ENV['rights']
-      if !right_str.blank?
-         use_right = UseRight.where("uri like '%#{right_str}%'")
-         puts "Add '#{creator}' from visual history with rights: #{use_right.name}"
-      else
-         puts "Add '#{creator}' from visual history preserving existing use rights"
-      end
+      abort("creator and rights are required") if creator.blank? || right_str.nil?
+
+      use_right = UseRight.where("uri like '%#{right_str}%'").first
+      puts "Add '#{creator}' from visual history with rights: #{use_right.name}"
+
       q = "parent_metadata_id = 3009 and desc_metadata like '%namePart>#{creator}%'"
       cnt = Metadata.where(q).count
       abort("No matching records found") if cnt == 0
@@ -45,8 +44,9 @@ namespace :dpla do
       cnt = 0
       Metadata.where(q).each do |m|
          if m.dpla == false && m.in_dl?
-            puts "*** #{m.id} - #{m.title} #{m.call_number} flag for DPLA"
-            m.update(dpla: true)
+            m.update(dpla: true, use_right_id: use_right.id)
+         else 
+            m.update(use_right_id: use_right.id)
          end
          if m.in_dl? && m.dpla == true
             begin
