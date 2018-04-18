@@ -21,9 +21,19 @@ namespace :apollo do
          # each volume has issues
          Component.where(:parent_component_id => vol.id).each do |iss|
             iss_node = Nokogiri::XML::Node.new "issue", doc
+
+            # title
             i_title = Nokogiri::XML::Node.new "title", doc
             i_title.content = iss.title
             iss_node.add_child(i_title)
+
+            # digital object
+            dobj = Nokogiri::XML::Node.new "digitalObject", doc
+            dov = Settings.doviewer_url
+            url = "#{dov}/images/#{iss.pid}"
+            dobj.content = "#{dov}/oembed/url=#{CGI.escape(url)}&format=json"
+            iss_node.add_child(dobj)
+
             vol_node.add_child(iss_node)
          end
       end
