@@ -1,4 +1,4 @@
-namespace :sms do
+namespace :apollo do
    desc "dump our mountain work as XML"
    task :omw  => :environment do
       component = Component.find(511278)
@@ -21,7 +21,9 @@ namespace :sms do
          # each volume has issues
          Component.where(:parent_component_id => vol.id).each do |iss|
             iss_node = Nokogiri::XML::Node.new "issue", doc
-            iss_node.content = iss.title
+            i_title = Nokogiri::XML::Node.new "title", doc
+            i_title.content = iss.title
+            iss_node.add_child(i_title)
             vol_node.add_child(iss_node)
          end
       end
