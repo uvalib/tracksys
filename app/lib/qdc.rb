@@ -139,23 +139,16 @@ module QDC
    #
    def self.crosswalk_multi(doc, xpath, qdc_ns, qdc_ele)
       out = []
-      hack = {"basketball": "http://id.loc.gov/vocabulary/graphicMaterials/tgm000841",
-              "fraternities & sororities": "http://id.loc.gov/vocabulary/graphicMaterials/tgm004278"}
       doc.xpath(xpath).each do |n|
          # Per Jeremy, don't include language if objectPart is present
          next if  xpath.include?("languageTerm") && !n.attribute("objectPart").blank?
 
          txt = clean_xml_text(n.text)
-         hack_val = hack[txt.downcase]
-         if !hack_val.blank?
-            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{hack_val}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+         val = n.attribute("valueURI")
+         if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
+            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
          else
-            val = n.attribute("valueURI")
-            if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
-               out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
-            else
-              out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
-           end
+           out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
         end
       end
       return out

@@ -188,7 +188,7 @@ namespace :dpla do
    desc "Generate DPLA QDC for all children of a single collection record"
    task :generate_collection  => :environment do
       id = ENV['id']
-      abort("id is required") if is.blank?
+      abort("id is required") if id.blank?
 
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
       abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
@@ -199,9 +199,9 @@ namespace :dpla do
       file.close
 
       meta = Metadata.find(id)
-      puts "===> Processing collection #{m.id}: #{m.title}"
+      puts "===> Processing collection #{meta.id}: #{meta.title}"
       ts0 = Time.now
-      cnt = generate_collection_qdc(m.id, qdc_tpl, -1)
+      cnt = generate_collection_qdc(meta.id, qdc_tpl, -1)
       dur = (Time.now-ts0).round(2)
       puts "===> DONE. #{cnt} records generated. Elapsed seconds: #{dur}"
    end
