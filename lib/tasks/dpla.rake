@@ -206,6 +206,36 @@ namespace :dpla do
       puts "===> DONE. #{cnt} records generated. Elapsed seconds: #{dur}"
    end
 
+   desc "Generate QDC for all UVA printing service collections"
+   task :generate_printing_service => :environment do
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      q =  "select * from metadata where title = 'University of Virginia Printing Services photograph file and index'"
+      q << " and dpla = 1 and date_dl_ingest is not null"
+
+      total = 0
+      colls = 0
+      total_time = 0
+      Metadata.find_by_sql(q).each do |m|
+         puts "===> Processing collection #{m.id}: #{m.title}"
+         colls +=1
+         ts0 = Time.now
+         total += generate_collection_qdc(m.id, qdc_tpl, -1)
+         dur = (Time.now-ts0).round(2)
+         total_time += dur
+         puts "===> DONE. Elapsed seconds: #{dur}"
+      end
+      
+      puts
+      puts "FINISHED! Generated #{total} QDC records from #{colls} collections in #{(total_time/60).round(3)} minutes"
+   end
+
    desc "Generate DPLA QDC for all collection records"
    task :generate_all  => :environment do
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
