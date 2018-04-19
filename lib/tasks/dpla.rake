@@ -45,7 +45,7 @@ namespace :dpla do
       Metadata.where(q).each do |m|
          if m.dpla == false && m.in_dl?
             m.update(dpla: true, use_right_id: use_right.id)
-         else 
+         else
             m.update(use_right_id: use_right.id)
          end
          if m.in_dl? && m.dpla == true
@@ -162,7 +162,7 @@ namespace :dpla do
    end
 
    desc "Generate DPLA QDC a single record"
-   task :generate  => :environment do
+   task :generate_single  => :environment do
       id = ENV['id']
       abort("ID is required") if id.nil?
 
@@ -183,7 +183,27 @@ namespace :dpla do
          puts e.backtrace
          puts "==============================================================================="
       end
+   end
 
+   desc "Generate DPLA QDC for all children of a single collection record"
+   task :generate_collection  => :environment do
+      id = ENV['id']
+      abort("id is required") if is.blank?
+
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      meta = Metadata.find(id)
+      puts "===> Processing collection #{m.id}: #{m.title}"
+      ts0 = Time.now
+      cnt = generate_collection_qdc(m.id, qdc_tpl, -1)
+      dur = (Time.now-ts0).round(2)
+      puts "===> DONE. #{cnt} records generated. Elapsed seconds: #{dur}"
    end
 
    desc "Generate DPLA QDC for all collection records"
@@ -253,6 +273,7 @@ namespace :dpla do
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
          next if meta.units.count == 1 && meta.units.first.unit_status == "canceled"
+         next if meta.title.downcase.strip == "untitled"
          puts "Process #{meta.id}:#{meta.pid}..."
 
          begin
