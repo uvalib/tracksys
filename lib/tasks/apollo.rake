@@ -1,42 +1,60 @@
 namespace :apollo do
+   desc "dump Daily Progress as XML"
+   task :dp  => :environment do
+      # Structure: collection, year, month, issue (day)
+      root_component = Component.find(497769)
+      doc = Nokogiri::XML::Document.new
+
+      puts "Generating daily progress XML..."
+      struct = ["collection","year","month","issue"]
+      traverse(struct, doc, root_component, 0, doc)
+      puts
+      puts "DONE; writing file..."
+      File.write("dail_progress.xml", doc.to_xml)
+   end
+
    desc "dump our mountain work as XML"
    task :omw  => :environment do
       component = Component.find(511278)
       doc = Nokogiri::XML::Document.new
-      coll = Nokogiri::XML::Node.new "collection", doc
-      doc.add_child(coll)
       root = doc.root
-      title = Nokogiri::XML::Node.new "title", doc
-      title.content = component.title
-      root.add_child title
 
-      # our montain work structure is collection, volume, issue. Volume has a title
-      Component.where(:parent_component_id => component.id).each do |vol|
-         vol_node = Nokogiri::XML::Node.new "volume", doc
-         v_title = Nokogiri::XML::Node.new "title", doc
-         v_title.content = vol.title
-         vol_node.add_child(v_title)
-         coll.add_child(vol_node)
+      puts "Generating our mountain work XML..."
+      struct = ["collection","volume","issue"]
+      traverse(struct, doc, component, 0, doc)
+      puts
+      puts "DONE"
 
-         # each volume has issues
-         Component.where(:parent_component_id => vol.id).each do |iss|
-            iss_node = Nokogiri::XML::Node.new "issue", doc
-
-            # title
-            i_title = Nokogiri::XML::Node.new "title", doc
-            i_title.content = iss.title
-            iss_node.add_child(i_title)
-
-            # digital object
-            dobj = Nokogiri::XML::Node.new "digitalObject", doc
-            dov = Settings.doviewer_url
-            url = "#{dov}/images/#{iss.pid}"
-            dobj.content = "#{dov}/oembed/url=#{CGI.escape(url)}&format=json"
-            iss_node.add_child(dobj)
-
-            vol_node.add_child(iss_node)
-         end
-      end
       puts doc.to_xml
+   end
+
+   def traverse(struct, xml_doc, curr_component, depth, curr_node)
+      print "."
+      # Create node and add title
+      child_node = Nokogiri::XML::Node.new struct[depth], xml_doc
+      curr_node.add_child(child_node)
+      title = Nokogiri::XML::Node.new "title", xml_doc
+      title.content = curr_component.title
+      child_node.add_child title
+
+      # If there are children, traverse each
+      if curr_component.children.count > 0
+         depth += 1
+         curr_component.children.order(title: :asc).each do |child|
+            traverse( struct, xml_doc, child, depth, child_node )
+         end
+      else
+         # this is a leaf; see if there is a representation
+         dov = Settings.doviewer_url
+         url = "#{dov}/images/#{curr_component.pid}"
+         oembed = "#{dov}/oembed?url=#{CGI.escape(url)}"
+
+         # add digitalObject node with oembed URL
+         dobj = Nokogiri::XML::Node.new "digitalObject", xml_doc
+         url = "#{dov}/images/#{curr_component.pid}"
+         dobj.content = oembed
+         child_node.add_child(dobj)
+      end
+
    end
 end
