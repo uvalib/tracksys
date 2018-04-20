@@ -29,7 +29,6 @@ namespace :apollo do
    end
 
    def traverse(struct, xml_doc, curr_component, depth, curr_node)
-      print "."
       # Create node and add title
       child_node = Nokogiri::XML::Node.new struct[depth], xml_doc
       curr_node.add_child(child_node)
@@ -40,7 +39,12 @@ namespace :apollo do
       # If there are children, traverse each
       if curr_component.children.count > 0
          depth += 1
-         curr_component.children.order(title: :asc).each do |child|
+         if struct[depth] == "year"
+            children = curr_component.children.order(title: :asc)
+         else
+            children = curr_component.children
+         end
+         children.each do |child|
             traverse( struct, xml_doc, child, depth, child_node )
          end
       else
