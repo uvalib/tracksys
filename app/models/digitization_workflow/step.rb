@@ -93,6 +93,11 @@ class Step < ApplicationRecord
          end
       end
 
+      if self.name == "Finalize"
+         # on the last step, clean out any CaptureOne or Settings files
+         remove_extra_files(project, start_dir)
+      end
+
       # After the inital scanning of a manuscript workflow, require the presence
       # of subdirectories in the start directory. No .tif files should be present
       # outside of these subdirectories
@@ -101,6 +106,19 @@ class Step < ApplicationRecord
       else
          # Normal, flat directory validations
          return validate_directory_content(project, start_dir)
+      end
+   end
+
+   private
+   def remove_extra_files( tgt_dir)
+      Rails.logger.info("Remove extra files from: #{tgt_dir}")
+      unwanted = ["CaptureOne", "Setting*"]
+      unwanted.each do |bad|
+         Rails.logger.info("...looking for #{bad}")
+         Dir["#{tgt_dir}/**/#{bad}"].each do |dir|
+            Rails.logger.info("      #{bad} found - removing")
+            FileUtils.rm_rf(dir)
+         end
       end
    end
 
