@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns="http://www.loc.gov/mods/v3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mods="http://www.loc.gov/mods/v3"
+    xsi:schemaLocation="http://www.loc.gov/mods/v3
+    http://www.loc.gov/standards/mods/v3/mods-3-3.xsd">
+   <titleInfo>
+      <title><%= title %></title>
+   </titleInfo>
+   <% if !creator.blank? %>
+   <name>
+      <role>
+         <roleTerm type="text">creator</roleTerm>
+      </role>
+      <namePart><%= creator %></namePart>
+   </name>
+   <% end %>
+   <% if !resource_type.blank? %>
+   <typeOfResource><%= resource_type.downcase %></typeOfResource>
+   <% end %>
+   <% if !genre.blank? %>
+   <genre authority="marcgt"><%= genre %></genre>
+   <% end %>
+</mods>

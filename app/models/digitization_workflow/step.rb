@@ -95,7 +95,7 @@ class Step < ApplicationRecord
 
       if self.name == "Finalize"
          # on the last step, clean out any CaptureOne or Settings files
-         remove_extra_files(project, start_dir)
+         remove_extra_files(start_dir)
       end
 
       # After the inital scanning of a manuscript workflow, require the presence
