@@ -273,8 +273,8 @@ namespace :law do
    end
 
    task :key_barcodes => :environment do
-     ck = ENV['key']
-     puts "BC: #{get_barcodes(ck)}"
+      ck = ENV['key']
+      puts "BC: #{get_barcodes(ck)}"
    end
 
    def get_barcodes(catalog_key)
@@ -320,6 +320,45 @@ namespace :law do
             end
          end
       end
+   end
+
+   desc "Ingest batch 2"
+   task :batch2  => :environment do
+      bits = ARCHIVE_DIR.split("/")
+      base_dir = bits[0..bits.length-3].join("/")
+      base_dir = File.join(base_dir, "1828_Master_Scans/Batch 2")
+      dir_mapper = JSON.parse(File.read('data/law_dir_barcode.json'))
+      json = JSON.parse(File.read('data/lawalt.json'))
+      order = Order.find_by(order_title: "Law Library 1828 Master Scans")
+      missing = 0
+      cnt = 0
+
+      puts "Ingesting files from #{base_dir}"
+      Dir[File.join(base_dir, "*")].each do |dir_path|
+         dir = dir_path.split("/").last
+         cnt += 1
+
+         # get a barcode
+         barcode = dir_mapper[dir]
+         if barcode.blank?
+            puts "ERROR: NO BARCODE for #{dir}"
+            missing += 1
+            next
+         end
+
+         # get catalog key (if above worked, this will as the first json file was derived from this)
+         catalog_key = nil
+         json.each do |key, dirs|
+            if dirs.include? dir
+               catalog_key = key
+               break
+            end
+         end
+
+         puts "Ingest dir #{dir} to #{catalog_key} : #{barcode}"
+         # do_ingest(order, src_dir, catalog_key, barcode)
+      end
+      puts "DONE. #{cnt} directories proceessed; #{missing} have no barcode match"
    end
 
    desc "Ingest all law books"
