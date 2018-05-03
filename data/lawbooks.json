@@ -27,6 +27,12 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3268828",
+                "Directory": "Cage_UK_362_1736_A879_1781_v_1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3268828",
                 "Directory": "Cage_UK_362_1736_A879_1781_v_2"
             }
         },
@@ -34,12 +40,6 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3268828",
                 "Directory": "Cage_UK_362_1736_A879_1781_v_3"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3268828",
-                "Directory": "Cage_UK_362_1736_A879_1781_v_1"
             }
         },
         {
@@ -82,6 +82,18 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3268182",
                 "Directory": "U_K_3613_1530_B458_1661"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3220507",
+                "Directory": "UK_3614_1788_B631_1801_v1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3220507",
+                "Directory": "UK_3614_1788_B631_1801_v2"
             }
         },
         {
@@ -136,6 +148,18 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3342873",
                 "Directory": "UK_46_B852c_1725"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3258179",
+                "Directory": "UK_371_B852_1822_v_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3258179",
+                "Directory": "UK_371_B852_1822_v_3"
             }
         },
         {
@@ -219,13 +243,13 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3228421",
-                "Directory": "UK_46_B9643e_1824_v_2"
+                "Directory": "UK_46_B9643e_1824_v_4"
             }
         },
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3228421",
-                "Directory": "UK_46_B9643e_1824_v_4"
+                "Directory": "UK_46_B9643e_1824_v_2"
             }
         },
         {
@@ -309,12 +333,6 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3342706",
-                "Directory": "R_13_Virg_C156_1824_v3"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3342706",
                 "Directory": "R_13_Virg_C156_1824_v1"
             }
         },
@@ -322,6 +340,12 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3342706",
                 "Directory": "R_13_Virg_C156_1824_v2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3342706",
+                "Directory": "R_13_Virg_C156_1824_v3"
             }
         },
         {
@@ -489,13 +513,13 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3193728",
-                "Directory": "U_K_3613_1774_C876_1800_c1_v02"
+                "Directory": "U_K_3613_1774_C876_1800_c1_v01"
             }
         },
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3193728",
-                "Directory": "U_K_3613_1774_C876_1800_c1_v01"
+                "Directory": "U_K_3613_1774_C876_1800_c1_v02"
             }
         },
         {
@@ -560,6 +584,12 @@
         },
         {
             "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3362178",
+                "Directory": "R_11_1790_v1"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362179",
                 "Directory": "R_11_v2"
             }
@@ -574,12 +604,6 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362179",
                 "Directory": "R_11_v4"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "",
-                "Directory": "R_11_1790_v1"
             }
         },
         {
@@ -608,7 +632,7 @@
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3356379",
                 "Directory": "Cage_Eur_Fr_46_D666c_v_1_c_1"
             }
         },
@@ -681,13 +705,13 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3363937",
-                "Directory": "UK_46_E132p_1803_v_2"
+                "Directory": "UK_46_E132p_1803_v_1"
             }
         },
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3363937",
-                "Directory": "UK_46_E132p_1803_v_1"
+                "Directory": "UK_46_E132p_1803_v_2"
             }
         },
         {
@@ -818,6 +842,12 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3226645",
+                "Directory": "UK_46_G4647ex_1763_"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3369367",
                 "Directory": "UK_46_G4647r_1758"
             }
@@ -939,24 +969,6 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
-                "Directory": "Cage_S_Virg_18_1809_v1_c1"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
-                "Directory": "Cage_S_Virg_18_1809_v2_c1"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
-                "Directory": "Cage_S_Virg_18_1809_v3_c1"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
                 "Directory": "Cage_S_Virg_18_1809_v4_c1"
             }
         },
@@ -1016,6 +1028,24 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
+                "Directory": "Cage_S_Virg_18_1809_v1_c1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
+                "Directory": "Cage_S_Virg_18_1809_v2_c1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362199",
+                "Directory": "Cage_S_Virg_18_1809_v3_c1"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3347292",
                 "Directory": "UK_46_K153h_1761"
             }
@@ -1036,6 +1066,18 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u1926653",
                 "Directory": "UK_46_H8134m_1768"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3346792",
+                "Directory": "UK_46_R111i_1715_pt_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3346792",
+                "Directory": "UK_46_R111i_1715_pt_4"
             }
         },
         {
@@ -1070,8 +1112,8 @@
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362443",
-                "Directory": "UK_46_O325_1679"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3339235",
+                "Directory": "UK_3613_1667_J79_1729"
             }
         },
         {
@@ -1106,7 +1148,7 @@
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u3336522",
                 "Directory": "U_K_3613_1624_L35_1661_c_2"
             }
         },
@@ -1160,7 +1202,7 @@
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u6993610",
                 "Directory": "K_1005_M355_1686"
             }
         },
@@ -1239,6 +1281,30 @@
         {
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
+                "Directory": "U_K_3613_1663_M689_1793a_v_1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
+                "Directory": "U_K_3613_1663_M689_1793A_V_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
+                "Directory": "U_K_3613_1663_M689_1793a_v_3"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
+                "Directory": "U_K_3613_1663_M689_1793a_v_4"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
                 "Directory": "U_K_3613_1663_M689_1793a_v_5"
             }
         },
@@ -1286,30 +1352,6 @@
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
-                "Directory": "U_K_3613_1663_M689_1793a_v_1"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
-                "Directory": "U_K_3613_1663_M689_1793A_V_2"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
-                "Directory": "U_K_3613_1663_M689_1793a_v_3"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3357622",
-                "Directory": "U_K_3613_1663_M689_1793a_v_4"
-            }
-        },
-        {
-            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3228063",
                 "Directory": "Oceans_53_AAA_M7275d_1778_v_1"
             }
@@ -1322,26 +1364,44 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3339845\/",
+                "Directory": "UK_3613_1512_M821_1688"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3210999",
                 "Directory": "UK_36141817_M822v_3"
             }
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u4368526",
+                "Directory": "UK_46_S1568d_1815"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u6993608",
                 "Directory": "KD_671_A7_N4_1725"
             }
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u6993608",
                 "Directory": "KD_671_A7_N4_1725_II"
             }
         },
         {
             "book": {
-                "Virgo": "",
+                "Virgo": "https:\/\/search.lib.virginia.edu\/catalog\/u6993608",
                 "Directory": "KD_671_A7_N4_1725_III"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u4779665",
+                "Directory": "UK_46_R4395_1728"
             }
         },
         {
@@ -1370,6 +1430,12 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3362443",
+                "Directory": "UK_46_O325_1679"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3372168",
                 "Directory": "UK_46_065u_1809"
             }
@@ -1390,6 +1456,24 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3341370",
                 "Directory": "SST_P5127a_1680"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3361632",
+                "Directory": "UK_46_P5628L_1808"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3361632",
+                "Directory": "UK_46_P5628L_1808"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3361586",
+                "Directory": "UK_46_R3441_1694"
             }
         },
         {
@@ -1430,8 +1514,44 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u4766787",
+                "Directory": "UK_46_R3324T_1816"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3247399",
                 "Directory": "Cage_UK_46_R3372_1687"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3340105",
+                "Directory": "UK_46_R5248ac_1778_v_1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3340105",
+                "Directory": "UK_46_R5248ac_1778_v_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3340106",
+                "Directory": "UK_46_R5248ak_1776_v_1"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3340106",
+                "Directory": "UK_46_R5248ak_1776_v_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3231943",
+                "Directory": "UK_46_R6484f_1805"
             }
         },
         {
@@ -1454,6 +1574,12 @@
         },
         {
             "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3216074",
+                "Directory": "UK_46_R6652c_1822"
+            }
+        },
+        {
+            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3339850",
                 "Directory": "UK_3613_1614_R749_1675_v_1"
             }
@@ -1462,6 +1588,12 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3192504",
                 "Directory": "SSP_R7945o"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3361676",
+                "Directory": "UK_46_R9434e_1781"
             }
         },
         {
@@ -1516,6 +1648,12 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3256644",
                 "Directory": "U_K_3613_1666_S257_1824_V_2_Pt_2"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u1938279",
+                "Directory": "UK_46_S2745L_1777"
             }
         },
         {
@@ -1606,6 +1744,36 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3345442",
                 "Directory": "UK_46_S7435e_1723"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
+                "Directory": "UK_3685_T784_H859_v_4"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
+                "Directory": "UK_3685_T784_H859_v_5"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
+                "Directory": "UK_3685_T784_H859_v_6"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
+                "Directory": "UK_3685_T784_H859_v_7"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
+                "Directory": "UK_3685_T784_H859_v_8"
             }
         },
         {
@@ -1724,32 +1892,32 @@
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
-                "Directory": "UK_3685_T784_H859_v_4"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
+                "Directory": "U_K_18_T659_V12"
             }
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
-                "Directory": "UK_3685_T784_H859_v_5"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
+                "Directory": "U_K_18_T659_V13"
             }
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
-                "Directory": "UK_3685_T784_H859_v_6"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
+                "Directory": "U_K_18_T659_V14"
             }
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
-                "Directory": "UK_3685_T784_H859_v_7"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
+                "Directory": "U_K_18_T659_V15"
             }
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3198007",
-                "Directory": "UK_3685_T784_H859_v_8"
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
+                "Directory": "U_K_18_T659_V16"
             }
         },
         {
@@ -1844,43 +2012,13 @@
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
-                "Directory": "U_K_18_T659_V12"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
-                "Directory": "U_K_18_T659_V13"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
-                "Directory": "U_K_18_T659_V14"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
-                "Directory": "U_K_18_T659_V15"
-            }
-        },
-        {
-            "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3271036",
-                "Directory": "U_K_18_T659_V16"
-            }
-        },
-        {
-            "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3361728",
                 "Directory": "UK_46_s7983P_1607"
             }
         },
         {
             "book": {
-                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3344853",
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3267404",
                 "Directory": "T_S7993r_1824"
             }
         },
@@ -1900,6 +2038,12 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3341403",
                 "Directory": "UK_46_S9385p_1707"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3298094",
+                "Directory": "UK_3613_1646_S938_1658_c_2"
             }
         },
         {
@@ -1954,6 +2098,12 @@
             "book": {
                 "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3222088",
                 "Directory": "UK_36141807_T2661811v_7"
+            }
+        },
+        {
+            "book": {
+                "Virgo": "http:\/\/search.lib.virginia.edu\/catalog\/u3341400",
+                "Directory": "UK_46_T2463h_1663"
             }
         },
         {

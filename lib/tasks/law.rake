@@ -201,72 +201,69 @@ namespace :law do
       json.each do |catalog_key,dirs|
          barcodes = get_barcodes(catalog_key)
          # puts "#{catalog_key} BARCODES: #{barcodes}"
-         # if dirs.length == 1
-         #    if barcodes.length > 1
-         #       puts "ERROR: #{catalog_key} dir #{dirs.first} has multiple barcodes"
-         #       #puts "   #{barcodes.to_json}"
-         #    end
-         # else
-            dirs.each do |dir|
-               # hardcode an outlier; part 1 and 2 with unique barcodes
-               if dir == "UK_362_1680_V543_1806_v_2_pt_1"
-                  out[dir] = "3220693-2001"
-                  next
-               end
-               if dir == "UK_362_1680_V543_1806_v_2_pt_2"
-                  out[dir] = "3220693-3001"
-                  next
-               end
-               if barcodes.length == 1 && dirs.length > 1
-                  # puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
-                  # puts "        DETAIL: #{barcodes}"
-                  out[dir] = barcodes.first[:barcode]
-                  next
-               end
+         dirs.each do |dir|
+            # hardcode an outlier; part 1 and 2 with unique barcodes
+            if dir == "UK_362_1680_V543_1806_v_2_pt_1"
+               out[dir] = "3220693-2001"
+               next
+            end
+            if dir == "UK_362_1680_V543_1806_v_2_pt_2"
+               out[dir] = "3220693-3001"
+               next
+            end
+            if barcodes.length == 1 && dirs.length > 1
+               puts "Multiple volumes mapped to single barcode; #{catalog_key} : #{dir} => barcode=   #{barcodes.first[:barcode]}"
+               puts "        DETAIL: #{barcodes}"
+               out[dir] = barcodes.first[:barcode]
+               next
+            end
 
-               working_dir = dir
-               working_dir << "_vol_1" if dir == "Cage_TrialsB_B968r"
-               working_dir = working_dir.gsub(/_c_*1/,"")
-               working_dir = working_dir.gsub(/_pt_\d/i,"")
+            working_dir = dir
+            working_dir << "_vol_1" if dir == "Cage_TrialsB_B968r"
+            working_dir = working_dir.gsub(/_c_*1/,"")
+            working_dir = working_dir.gsub(/_pt_\d/i,"")
 
-               dir_ver = /(v_\d+$|v\d+$|vol_\d+$|book_\d+$|_part_\d+$)/i.match(working_dir).to_s
-               if dir_ver.blank?
-                  # if barcodes.length > 1
-                  #    puts "ERROR: Weird dir name #{dir}"
-                  #    puts "  BC: #{barcodes.to_json}"
-                  #    next
-                  # end
-                  out[dir] = barcodes.first[:barcode]
-                  puts "    MATCH: #{dir} : #{barcodes.first}"
-                  next
+            # attempt to parse out a version number.
+            # Formats: v_#, v#, vol_#, book_#, _part_#
+            dir_ver = /(v_\d+$|v\d+$|vol_\d+$|book_\d+$|_part_\d+$)/i.match(working_dir).to_s
+            if dir_ver.blank?
+               # if no volume/version found assume this is not a multivolume
+               # book and there is a single barcode. Take the first.
+               if barcodes.length > 1
+                  puts "WARN: No volume info in #{dir}, but multiple barcodes. Picking FIRST."
+                  puts "        DETAIL: #{barcodes}"
                end
-               ver_num = dir_ver.gsub(/_part/i,"").gsub(/book/i,"").gsub(/vol/i,"").gsub(/v/i,"").gsub(/_/,"").to_i
-               matched = false
-               barcodes.each do |info|
-                  if (ver_num == 3 || ver_num == 4) && info[:call_number] == "U.K. .46 .G4647E 1795 3-4"
-                     matched = true
-                     out[dir] = info[:barcode]
-                     puts "    MATCH: #{dir} : #{info}"
-                     break
-                  end
-                  hit = /v.\s*#{ver_num}(\s|$)/i.match(info[:call_number]).to_s
-                  if !hit.blank?
-                     matched = true
-                     out[dir] = info[:barcode]
-                     puts "    MATCH: #{dir} : #{info}"
-                     break
-                  end
+               out[dir] = barcodes.first[:barcode]
+               puts "    MATCH: #{dir} : #{barcodes.first}"
+               next
+            end
+            ver_num = dir_ver.gsub(/_part/i,"").gsub(/book/i,"").gsub(/vol/i,"").gsub(/v/i,"").gsub(/_/,"").to_i
+            matched = false
+            barcodes.each do |info|
+               if (ver_num == 3 || ver_num == 4) && info[:call_number] == "U.K. .46 .G4647E 1795 3-4"
+                  matched = true
+                  out[dir] = info[:barcode]
+                  puts "    MATCH: #{dir} : #{info}"
+                  break
                end
-               if matched == false
-                  # if barcodes.length == 1
-                     out[dir] = barcodes.first[:barcode]
-                     puts "    MATCH: #{dir} : #{barcodes.first}"
-                  # else
-                  #    puts "ERROR: No call number match for key #{catalog_key}, dir #{dir}: #{barcodes}"
-                  # end
+               hit = /v.\s*#{ver_num}(\s|$)/i.match(info[:call_number]).to_s
+               if !hit.blank?
+                  matched = true
+                  out[dir] = info[:barcode]
+                  puts "    MATCH: #{dir} : #{info}"
+                  break
                end
             end
-         # end
+            if matched == false
+               # if barcodes.length == 1
+               puts "WARN: No call number match for key #{catalog_key}, dir #{dir}: #{barcodes}. Take first."
+                  out[dir] = barcodes.first[:barcode]
+                  puts "    MATCH: #{dir} : #{barcodes.first}"
+               # else
+               #    puts "ERROR: No call number match for key #{catalog_key}, dir #{dir}: #{barcodes}"
+               # end
+            end
+         end
       end
       puts "==================================================================================================="
       puts "#{out.to_json}"
@@ -333,9 +330,15 @@ namespace :law do
       missing = 0
       cnt = 0
 
+      skip_me = ['UK_36141807_T2661811v_4']
+
       puts "Ingesting files from #{base_dir}"
       Dir[File.join(base_dir, "*")].each do |dir_path|
          dir = dir_path.split("/").last
+         if skip_me.include? dir
+            puts "Skipping #{dir}. Multiple books tied to single catalog key or bad tif images"
+            next
+         end
          cnt += 1
 
          # get a barcode
@@ -356,7 +359,7 @@ namespace :law do
          end
 
          puts "Ingest dir #{dir} to #{catalog_key} : #{barcode}"
-         # do_ingest(order, src_dir, catalog_key, barcode)
+         do_ingest(order, dir, catalog_key, barcode)
       end
       puts "DONE. #{cnt} directories proceessed; #{missing} have no barcode match"
    end
