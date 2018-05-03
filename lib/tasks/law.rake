@@ -359,7 +359,7 @@ namespace :law do
          end
 
          puts "Ingest dir #{dir} to #{catalog_key} : #{barcode}"
-         do_ingest(order, dir, catalog_key, barcode)
+         do_ingest(order, dir_path, catalog_key, barcode)
       end
       puts "DONE. #{cnt} directories proceessed; #{missing} have no barcode match"
    end
