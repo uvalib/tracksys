@@ -323,7 +323,7 @@ namespace :law do
    task :batch2  => :environment do
       bits = ARCHIVE_DIR.split("/")
       base_dir = bits[0..bits.length-3].join("/")
-      base_dir = File.join(base_dir, "1828_Master_Scans/Batch 2")
+      base_dir = File.join(base_dir, "1828_Master_Scans/Batch_2")
       dir_mapper = JSON.parse(File.read('data/law_dir_barcode.json'))
       json = JSON.parse(File.read('data/lawalt.json'))
       order = Order.find_by(order_title: "Law Library 1828 Master Scans")
