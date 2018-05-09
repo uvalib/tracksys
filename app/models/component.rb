@@ -10,7 +10,7 @@ class Component < ApplicationRecord
 
    has_many :master_files
 
-   has_and_belongs_to_many :metadata
+   has_and_belongs_to_many :metadata,  :join_table => :sirsi_metadata_components,  :class_name=>"SirsiMetadata"
 
    #------------------------------------------------------------------
    # validations
