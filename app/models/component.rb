@@ -144,11 +144,11 @@ class Component < ApplicationRecord
    end
 
    def new_next
-      return Component.find(self.followed_by_id) unless self.followed_by_id.nil?
+      return Component.find_by(id: self.followed_by_id) unless self.followed_by_id.nil?
    end
 
    def new_previous
-      return Component.where(:followed_by_id => self.id).first
+      return Component.find_by(:followed_by_id => self.id)
    end
 
    def next
