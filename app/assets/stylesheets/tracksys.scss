@@ -1,5 +1,10 @@
 body.active_admin {
    min-width:1200px;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   font-family: 'Avenir', Helvetica, Arial, sans-serif;
+   font-weight: 500;
+
    .do-viewer-enabled {
       cursor: pointer;
       &:hover {
@@ -785,7 +790,6 @@ body.active_admin {
    #child-links {
       margin: 5px 0;
       width: inherit;
-      text-transform: uppercase;
 
       td,
       tr {
