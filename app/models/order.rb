@@ -73,8 +73,8 @@ class Order < ApplicationRecord
    validates :order_status, :inclusion => { :in => ORDER_STATUSES,
       :message => 'must be one of these values: ' + ORDER_STATUSES.join(", ")}
 
-   # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved" || "canceled"
-   validate :validate_order_approval, :on => :update, :if => 'self.order_status == "approved"'
+   # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved"
+   validate :validate_order_approval, :on => :update
 
    #------------------------------------------------------------------
    # callbacks
@@ -180,8 +180,10 @@ class Order < ApplicationRecord
    # A validation callback which returns to the Order#edit view the IDs of Units which are preventing the Order from being approved because they
    # are neither approved or canceled.
    def validate_order_approval
-      if !has_approved_units
-         errors[:order_status] << "cannot be set to approved because no units are approved"
+      if order_status == "approved"
+         if !has_approved_units
+            errors[:order_status] << "cannot be set to approved because no units are approved"
+         end
       end
    end
 
