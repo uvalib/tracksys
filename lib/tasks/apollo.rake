@@ -146,6 +146,13 @@ namespace :apollo do
             traverse( struct, xml_doc, child, depth, child_node )
          end
       else
+         # Check for reel info in content_desc
+         if curr_component.content_desc.downcase.include? "reel"
+            obj = Nokogiri::XML::Node.new "reel", xml_doc
+            obj.content = curr_component.content_desc.split("reel").last.strip
+            child_node.add_child(obj)
+         end
+
          # this is a leaf; see if there is a representation
          dov = Settings.doviewer_url
          url = "#{dov}/images/#{curr_component.pid}"
