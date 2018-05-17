@@ -19,4 +19,14 @@
          <% end %>
       </td>
    </tr>
+   <tr>
+      <td class="child-type">External: </td>
+      <td>
+         <% if map[:external].size > 0 %>
+            <%= link_to "#{map[:external].size}", admin_external_metadata_path(:q => {:parent_metadata_id_eq => parent_id } ) %>
+         <% else %>
+            <span class="none">None</span>
+         <% end %>
+      </td>
+   </tr>
 </table>

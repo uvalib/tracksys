@@ -1,0 +1,36 @@
+if as_info.nil?
+   div do "Unable to connect with external metadata source" end
+else
+   attributes_table_for external_metadata do
+      row("External System") do |xm|
+         xm.external_system
+      end
+      row("Repository") do |xm|
+         as_info[:repo]
+      end
+      row("Collection Title") do |xm|
+         as_info[:collection_title]
+      end
+      row("ID") do |xm|
+         as_info[:id]
+      end
+      row("Language") do |xm|
+         as_info[:language]
+      end
+      row("Dates") do |xm|
+         as_info[:dates]
+      end
+      row("Title") do |xm|
+         as_info[:title]
+      end
+      row("Level") do |xm|
+         as_info[:level]
+      end
+      row("Created By") do |xm|
+         as_info[:created_by]
+      end
+      row("Create Time") do |xm|
+         as_info[:create_time]
+      end
+   end
+end

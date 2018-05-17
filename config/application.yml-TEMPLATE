@@ -48,6 +48,7 @@ index_destintion: "virgo"
 pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
 rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
 archives_space_url: https://archivesspace01.lib.virginia.edu
+apollo_url: https://apollo.lib.virginia.edu
 as_api_url: https://archivesspace01.lib.virginia.edu:8089
 
 # DPLAVA settings

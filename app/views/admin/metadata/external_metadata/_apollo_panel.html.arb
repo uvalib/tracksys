@@ -1,0 +1,33 @@
+if apollo_info.nil?
+   div do "Unable to connect with external metadata source" end
+else
+   attributes_table_for external_metadata do
+      row("External System") do |am|
+         am.external_system
+      end
+      row("Collection PID") do |xm|
+         link_to apollo_info[:pid], "#{Settings.apollo_url}/collections/#{apollo_info[:pid]}", target: "_blank"
+      end
+      row("Collection Title") do |xm|
+         apollo_info[:collection]
+      end
+      row("Collection Barcode") do |xm|
+         apollo_info[:barcode]
+      end
+      row("Collection Catalog Key") do |xm|
+         apollo_info[:catalog_key]
+      end
+      row("Use Rights") do |xm|
+         link_to apollo_info[:rights], apollo_info[:rights_uri], target: "_blank"
+      end
+      row("Item PID") do |xm|
+         apollo_info[:item_pid]
+      end
+      row("Item Type") do |xm|
+         apollo_info[:item_type]
+      end
+      row("Item Title") do |xm|
+         apollo_info[:item_title]
+      end
+   end
+end

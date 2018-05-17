@@ -12,9 +12,9 @@ ActiveAdmin.register ExternalMetadata do
 
    config.clear_action_items!
 
-   action_item :edit, only: :show do
-      link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
-   end
+   # action_item :edit, only: :show do
+   #    link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
+   # end
    action_item :delete, only: :show do
       link_to "Delete", resource_path,
       data: {:confirm => "Are you sure you want to delete this External Metadata?"}, :method => :delete  if current_user.admin?
@@ -30,14 +30,8 @@ ActiveAdmin.register ExternalMetadata do
    #
    filter :title_contains, label: "Title"
    filter :pid_starts_with, label: "PID"
-   filter :collection_id_contains, label: "Collection ID"
-   filter :dpla, :as => :select
-   filter :is_manuscript
-   filter :use_right, :as => :select, label: 'Right Statement'
-   filter :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc)
-   filter :genre, :as => :select, :collection=>Genre.all.order(name: :asc)
-   filter :availability_policy
-   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
+   filter :external_system_starts_with, label: "External System"
+
 
    # INDEX page ===============================================================
    #
@@ -48,14 +42,7 @@ ActiveAdmin.register ExternalMetadata do
          truncate_words(external_metadata.title, 25)
       end
       column :pid, :sortable => false
-      column ("Digital Library?") do |external_metadata|
-         div do
-            format_boolean_as_yes_no(external_metadata.in_dl?)
-         end
-      end
-      column ("DPLA?") do |external_metadata|
-         format_boolean_as_yes_no(external_metadata.dpla)
-      end
+      column :external_system
       column :units, :class => 'sortable_short', :sortable => :units_count do |external_metadata|
          if external_metadata.units.count == 0 && external_metadata.master_files.count == 1
             link_to "1", "/admin/units/#{external_metadata.master_files.first.unit.id}"
@@ -86,65 +73,13 @@ ActiveAdmin.register ExternalMetadata do
    #
    show :title => proc { |external_metadata| truncate(external_metadata.title, :length => 60) } do
       div :class => 'two-column' do
-         panel "Digital Library Information"  do
-            attributes_table_for external_metadata do
-               row :pid
-               row ("In Digital Library?") do |external_metadata|
-                  format_boolean_as_yes_no(external_metadata.in_dl?)
-               end
-               row :dpla
-               row :exemplar do |external_metadata|
-                  link_to "#{external_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => external_metadata.exemplar})
-               end
-               row('Right Statement'){ |r| r.use_right.name }
-               row('Rights Rationale'){ |r| r.use_right_rationale }
-               row :creator_death_date
-               row :availability_policy
-               row ("Discoverable?") do |sirsi_metadata|
-                  format_boolean_as_yes_no(sirsi_metadata.discoverability)
-               end
-               row :collection_facet
-               row :date_dl_ingest
-               row :date_dl_update
-            end
-         end
-
          panel "External Metadata" do
-            if as_info.nil?
-               div do "Unable to connect with external metadata source" end
+            if external_metadata.external_system == "ArchivesSpace"
+               render "/admin/metadata/external_metadata/as_panel", :context => self
+            elsif external_metadata.external_system == "Apollo"
+               render "/admin/metadata/external_metadata/apollo_panel", :context => self
             else
-               attributes_table_for external_metadata do
-                  row("External System") do |xm|
-                     xm.external_system
-                  end
-                  row("Repository") do |xm|
-                     as_info[:repo]
-                  end
-                  row("Collection Title") do |xm|
-                     as_info[:collection_title]
-                  end
-                  row("ID") do |xm|
-                     as_info[:id]
-                  end
-                  row("Language") do |xm|
-                     as_info[:language]
-                  end
-                  row("Dates") do |xm|
-                     as_info[:dates]
-                  end
-                  row("Title") do |xm|
-                     as_info[:title]
-                  end
-                  row("Level") do |xm|
-                     as_info[:level]
-                  end
-                  row("Created By") do |xm|
-                     as_info[:created_by]
-                  end
-                  row("Create Time") do |xm|
-                     as_info[:create_time]
-                  end
-               end
+               div do "Unknown external system #{external_metadata.external_system}" end
             end
          end
       end
@@ -152,20 +87,7 @@ ActiveAdmin.register ExternalMetadata do
       div :class => 'two-column' do
          panel "Administrative Information" do
             attributes_table_for external_metadata do
-               row("Collection ID") do |external_metadata|
-                  external_metadata.collection_id
-               end
-               row "Approved?" do |external_metadata|
-                  format_boolean_as_yes_no(external_metadata.is_approved)
-               end
-               row "Personal item?" do |external_metadata|
-                  format_boolean_as_yes_no(external_metadata.is_personal_item)
-               end
-               row "Manuscript or unpublished item?" do |external_metadata|
-                  format_boolean_as_yes_no(external_metadata.is_manuscript)
-               end
-               row :resource_type
-               row :genre
+               row :pid
                row :ocr_hint
                row :ocr_language_hint
                row ("Date Created") do |external_metadata|
@@ -265,7 +187,33 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    controller do
-       before_action :get_as_metadata, only: [:show]
+       before_action :get_external_metadata, only: [:show]
+       def get_external_metadata
+          if resource.external_system == "ArchivesSpace"
+             get_as_metadata()
+          elsif resource.external_system == "Apollo"
+             get_apollo_metadata()
+          end
+       end
+
+       def get_apollo_metadata
+          resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
+          json = JSON.parse(resp.body)
+          puts json
+          coll_data = json['collection']['children']
+          item_data = json['item']['children']
+          @apollo_info = {pid: json['collection']['pid'] }
+          @apollo_info[:collection] = coll_data.find{ |attr| attr['name']['value']=="title" }['value']
+          @apollo_info[:barcode] = coll_data.find{ |attr| attr['name']['value']=="barcode" }['value']
+          @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['name']['value']=="catalogKey" }['value']
+          right = coll_data.find{ |attr| attr['name']['value']=="useRights" }
+          @apollo_info[:rights] = right['value']
+          @apollo_info[:rights_uri] = right['valueURI']
+          @apollo_info[:item_pid] = json['item']['pid']
+          @apollo_info[:item_type] = json['item']['name']['value']
+          @apollo_info[:item_title] = item_data.find{ |attr| attr['name']['value']=="title" }['value']
+       end
+
        def get_as_metadata
           begin
              # First, authenticate with the API. Necessary to call other methods

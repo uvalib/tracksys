@@ -188,6 +188,7 @@ class Metadata < ApplicationRecord
       out = {}
       out[:sirsi] = SirsiMetadata.where(parent_metadata_id: self.id)
       out[:xml] = XmlMetadata.where(parent_metadata_id: id)
+      out[:external] = ExternalMetadata.where(parent_metadata_id: id)
       return out
    end
 

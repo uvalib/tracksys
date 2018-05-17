@@ -1,4 +1,50 @@
 namespace :apollo do
+   desc "Convert an entire componet-based serial to Apollo ExternalMetadata"
+   task :convert  => :environment do
+      pid = ENV['pid']
+      component = Component.find_by(pid: pid)
+      abort("PID not found") if component.blank?
+      walk_tree(component, 0)
+   end
+
+   def walk_tree(component, depth)
+      pad = "  "*depth
+      if component.children.count > 0
+         # This component is a container for other components.
+         # Descend through each of them....
+         puts "#{pad}START #{component.title}"
+         component.children.each do |child|
+            walk_tree( child, depth+1 )
+         end
+
+         # This container has had all of its children processed.
+         # It is no longer needed; delete it
+         puts "#{pad}END #{component.title}"
+         component.destroy
+      else
+         # This is a leaf of the component tree. It holds all of the
+         # master files and is the point of conversion to Apollo
+         puts "#{pad}LEAF #{component.title}; Convert to ExternalMetadata..."
+         orig_metadata = component.master_files.first.metadata
+         unit = component.master_files.first.unit
+         apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{component.pid}"
+         abort("Unable to find related Apollo item!") if apollo_pid.blank?
+
+         md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
+            pid: component.pid, title: "#{orig_metadata.title}: #{component.title}",
+            is_approved: true, use_right: orig_metadata.use_right,
+            ocr_hint_id: orig_metadata.ocr_hint_id,
+            exemplar: component.master_files.first.filename,
+            discoverability: orig_metadata.discoverability,
+            availability_policy_id: orig_metadata.availability_policy_id,
+            external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
+         unit.update(metadata: md)
+         unit.master_files.update_all(metadata_id: md.id, component_id: nil)
+         component.destroy
+         puts "#{pad}Converted"
+      end
+   end
+
    desc "Convert componet-based serial to Apollo ExternalMetadata"
    task :convert_one  => :environment do
       pid = ENV['pid']
@@ -8,8 +54,7 @@ namespace :apollo do
       orig_metadata = component.master_files.first.metadata
       unit = component.master_files.first.unit
 
-      hdr = {:content_type => :json, :accept => :json, :'remote_user'=>"lf6f"}
-      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{pid}", hdr
+      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{pid}"
 
       md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
          pid: pid, title: "#{orig_metadata.title}: #{component.title}",
