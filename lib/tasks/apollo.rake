@@ -4,6 +4,14 @@ namespace :apollo do
       pid = ENV['pid']
       component = Component.find_by(pid: pid)
       abort("PID not found") if component.blank?
+
+      # FIRST, set up apollo as supplemental metadata for root
+      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{component.pid}"
+      abort("Unable to find related Apollo item!") if apollo_pid.blank?
+      orig_metadata = component.master_files.first.metadata
+      orig_metadata.update(supplemental_system: "Apollo", supplemental_uri:"/collections/#{apollo_pid}")
+
+      # Now walk tree, generate apollo ext metadata and delete unused components
       walk_tree(component, 0)
    end
 
