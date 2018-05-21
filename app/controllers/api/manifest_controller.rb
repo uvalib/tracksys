@@ -20,29 +20,7 @@ class Api::ManifestController < ApplicationController
          return
       end
 
-      obj = SirsiMetadata.find_by(supplemental_system: "Apollo", supplemental_uri: "/collections/#{pid}")
-      if !obj.blank?
-         puts "This is an Apollo PID"
-         out = get_apollo_manifest(obj.id)
-         render json: JSON.pretty_generate(out)
-         return
-      end
-
       render plain: "PID #{pid} was not found", status: :not_found
-   end
-
-   private
-   def get_apollo_manifest(parent_id)
-      out  = []
-      ExternalMetadata.where(parent_metadata_id: parent_id).each do |em|
-         em.master_files.includes(:image_tech_meta).all.order(filename: :asc).each do |mf|
-            json = { pid: mf.pid, filename: mf.filename, width: mf.image_tech_meta.width, height: mf.image_tech_meta.height }
-            json[:title] = mf.title if !mf.title.nil?
-            json[:description] = mf.description if !mf.description.nil?
-            out << json
-         end
-      end
-      return out
    end
 
    private
