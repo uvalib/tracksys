@@ -11,7 +11,6 @@ class Project < ApplicationRecord
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
-   has_one :order, :through => :unit
    has_one :metadata, :through => :unit
 
    has_and_belongs_to_many :equipment, :join_table=>:project_equipment,  :dependent=>:destroy
