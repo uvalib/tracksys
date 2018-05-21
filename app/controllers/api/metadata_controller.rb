@@ -2,31 +2,25 @@ class Api::MetadataController < ApplicationController
    def show
       render :plain=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
-      render :plain=>"#{type} is not supported", status: :bad_request and return if type != "desc_metadata" && type != "dpla_metadata"
+      render :plain=>"#{type} is not supported", status: :bad_request and return if type != "desc_metadata" && type != "brief"
       render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
-      object = Metadata.find_by(pid: params[:pid])
-      if object.nil?
-         object = MasterFile.find_by(pid: params[:pid])
+      md = Metadata.find_by(pid: params[:pid])
+      if md.nil?
+         md = MasterFile.find_by(pid: params[:pid])
       end
-      render :plain=>"PID is invalid", status: :bad_request and return if object.nil?
+      render :plain=>"PID is invalid", status: :bad_request and return if md.nil?
 
       if type == "desc_metadata"
-         render :xml=> Hydra.desc(object)
+         render :xml=> Hydra.desc(md) and return
       end
 
-      if type == "dpla_metadata"
-         xsl = File.join(Rails.root, "lib", "xslt", "DPLA", "MODStoDPLAMODS.xsl")
-         saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
-         params = "pid=#{object.pid} exemplarPid=#{object.pid}"
-
-         tmp = Tempfile.new(object.pid)
-         tmp.write(Hydra.desc(object))
-         tmp.close
-
-         cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl} #{params}"   #-o:#{out} #{params}"
-         puts "     #{cmd}"
-         render :xml=> `#{cmd}`
+      if type == "brief"
+         out = {pid: params[:pid], title: md.title, creator: md.creator_name, rights: md.use_right.uri }
+         out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
+         out[:callNumber] = md.call_number if !md.call_number.blank?
+         out[:exemplar] = md.exemplar if !md.exemplar.blank?
+         render json: out
       end
    end
 
