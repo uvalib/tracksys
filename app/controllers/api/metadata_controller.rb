@@ -11,7 +11,11 @@ class Api::MetadataController < ApplicationController
       end
       if md.nil? && type == "brief"
          c = Component.find_by(pid: params[:pid])
-         out = {pid: params[:pid], title: c.title}
+         out = {pid: params[:pid]}
+         out[:title] = c.title
+         if c.title.blank?
+            out[:title] = c.label
+         end
          out[:exemplar] = c.exemplar if !c.exemplar.blank?
          md = c.master_files.first.metadata
          out[:rights] = md.use_right.uri
