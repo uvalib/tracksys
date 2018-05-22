@@ -9,6 +9,17 @@ class Api::MetadataController < ApplicationController
       if md.nil?
          md = MasterFile.find_by(pid: params[:pid])
       end
+      if md.nil? && type == "brief"
+         c = Component.find_by(pid: params[:pid])
+         out = {pid: params[:pid], title: c.title}
+         out[:exemplar] = c.exemplar if !c.exemplar.blank?
+         md = c.master_files.first.metadata
+         out[:rights] = md.use_right.uri
+         out[:creator] = md.creator_name
+         out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
+         out[:callNumber] = md.call_number if !md.call_number.blank?
+         render json: out and return
+      end
       render :plain=>"PID is invalid", status: :bad_request and return if md.nil?
 
       if type == "desc_metadata"
