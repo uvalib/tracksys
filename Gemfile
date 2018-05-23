@@ -14,7 +14,7 @@ gem 'exception_notification'
 gem 'turnout'           # Maintence page
 
 gem 'annotate'
-gem 'mysql2', '0.4.10' # version 0.5.0 on up dont seem to work
+gem 'mysql2'   #, '0.4.10' # version 0.5.0 on up dont seem to work
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
