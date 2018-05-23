@@ -6,7 +6,7 @@ namespace :apollo do
       abort("PID not found") if component.blank?
 
       # FIRST, set up apollo as supplemental metadata for root
-      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{component.pid}"
+      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{component.pid}"
       abort("Unable to find related Apollo item!") if apollo_pid.blank?
       orig_metadata = component.master_files.first.metadata
       orig_metadata.update(supplemental_system: "Apollo", supplemental_uri:"/collections/#{apollo_pid}")
@@ -134,7 +134,7 @@ namespace :apollo do
       title.content = curr_component.title
       child_node.add_child title
 
-      pid_obj = Nokogiri::XML::Node.new "componentPID", xml_doc
+      pid_obj = Nokogiri::XML::Node.new "externalPID", xml_doc
       pid_obj.content = curr_component.pid
       child_node.add_child(pid_obj)
 
