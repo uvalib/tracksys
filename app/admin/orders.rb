@@ -180,7 +180,7 @@ ActiveAdmin.register Order do
       failed = []
       Order.find(selection).each do |s|
          begin
-            s.approve_order
+            s.approve_order(current_user)
          rescue Exception=>e
             failed << s.id
          end
@@ -195,7 +195,7 @@ ActiveAdmin.register Order do
       failed = []
       Order.find(selection).each do |s|
          begin
-            s.cancel_order
+            s.cancel_order(current_user)
          rescue Exception=>e
             failed << s.id
          end
