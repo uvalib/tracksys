@@ -208,7 +208,7 @@ ActiveAdmin.register Order do
 
    batch_action :complete_orders do |selection|
       failed = []
-      Order.find(selection).each {|s| failed << s.id if !s.complete_order }
+      Order.find(selection).each {|s| failed << s.id if !s.complete_order(current_user) }
       if !failed.empty?
          flash[:notice] = "Unable to complete order(s) #{failed.join(',')}. See order details for reason."
       end
