@@ -6,7 +6,9 @@ else
          am.external_system
       end
       row("Collection PID") do |xm|
-         link_to apollo_info[:pid], "#{Settings.apollo_url}/collections/#{apollo_info[:pid]}", target: "_blank"
+         # Apollo is single page app and the history mode doesn't work right
+         # because of the shibboleth proxy. All URLs are links to ID instead of real URL
+         link_to apollo_info[:pid], "#{Settings.apollo_url}/#/collections/#{apollo_info[:pid]}", target: "_blank"
       end
       row("Collection Title") do |xm|
          apollo_info[:collection]

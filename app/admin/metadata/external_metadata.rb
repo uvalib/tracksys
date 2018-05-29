@@ -203,15 +203,15 @@ ActiveAdmin.register ExternalMetadata do
           coll_data = json['collection']['children']
           item_data = json['item']['children']
           @apollo_info = {pid: json['collection']['pid'] }
-          @apollo_info[:collection] = coll_data.find{ |attr| attr['name']['value']=="title" }['value']
-          @apollo_info[:barcode] = coll_data.find{ |attr| attr['name']['value']=="barcode" }['value']
-          @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['name']['value']=="catalogKey" }['value']
-          right = coll_data.find{ |attr| attr['name']['value']=="useRights" }
+          @apollo_info[:collection] = coll_data.find{ |attr| attr['type']['name']=="title" }['value']
+          @apollo_info[:barcode] = coll_data.find{ |attr| attr['type']['name']=="barcode" }['value']
+          @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['type']['name']=="catalogKey" }['value']
+          right = coll_data.find{ |attr| attr['type']['name']=="useRights" }
           @apollo_info[:rights] = right['value']
           @apollo_info[:rights_uri] = right['valueURI']
           @apollo_info[:item_pid] = json['item']['pid']
-          @apollo_info[:item_type] = json['item']['name']['value']
-          @apollo_info[:item_title] = item_data.find{ |attr| attr['name']['value']=="title" }['value']
+          @apollo_info[:item_type] = json['item']['type']['name']
+          @apollo_info[:item_title] = item_data.find{ |attr| attr['type']['name']=="title" }['value']
        end
 
        def get_as_metadata

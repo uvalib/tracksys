@@ -5,13 +5,7 @@ namespace :apollo do
       component = Component.find_by(pid: pid)
       abort("PID not found") if component.blank?
 
-      # FIRST, set up apollo as supplemental metadata for root
-      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{component.pid}"
-      abort("Unable to find related Apollo item!") if apollo_pid.blank?
-      orig_metadata = component.master_files.first.metadata
-      orig_metadata.update(supplemental_system: "Apollo", supplemental_uri:"/collections/#{apollo_pid}")
-
-      # Now walk tree, generate apollo ext metadata and delete unused components
+      # Walk component tree, generate apollo ext metadata and delete unused components
       walk_tree(component, 0)
    end
 
@@ -33,10 +27,21 @@ namespace :apollo do
          # This is a leaf of the component tree. It holds all of the
          # master files and is the point of conversion to Apollo
          puts "#{pad}LEAF #{component.title}; Convert to ExternalMetadata..."
+         if component.master_files.first.blank?
+            puts "#{pad}WARNING: #{component.id}:#{component.title} has no master files. Skip."
+            component.destroy
+            return
+         end
          orig_metadata = component.master_files.first.metadata
          unit = component.master_files.first.unit
-         apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{component.pid}"
+         apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{component.pid}"
          abort("Unable to find related Apollo item!") if apollo_pid.blank?
+
+         # Update the top-level sirsi metadata representing this item to have
+         # a reference to apollo for supplemental metadata
+         if orig_metadata.supplemental_system.blank?
+            orig_metadata.update(supplemental_system: "Apollo", supplemental_uri:"/collections/#{apollo_pid}")
+         end
 
          md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
             pid: component.pid, title: "#{orig_metadata.title}: #{component.title}",
@@ -62,7 +67,7 @@ namespace :apollo do
       orig_metadata = component.master_files.first.metadata
       unit = component.master_files.first.unit
 
-      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/legacy/lookup/#{pid}"
+      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{pid}"
 
       md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
          pid: pid, title: "#{orig_metadata.title}: #{component.title}",
