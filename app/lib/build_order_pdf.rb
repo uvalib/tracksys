@@ -45,7 +45,7 @@ module BuildOrderPDF
          @pdf.text "Or you may send a check or money order (include your order number for proper credit in our system) in the above amount made payable to <b>Digital Production Group, UVa Library</b>, and send it to the following address:", :inline_format => true
          @pdf.text "\n"
          @pdf.text "Financial Services, UVa Library", :left => 100
-         @pdf.text "Attn: Teresa Brown", :left => 100
+         @pdf.text "Attn: Barbara Paschke", :left => 100
          @pdf.text "PO Box 400107", :left => 100
          @pdf.text "Charlottesville, Virginia 22904  U.S.A", :left => 100
       end
