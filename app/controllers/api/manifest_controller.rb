@@ -38,7 +38,19 @@ class Api::ManifestController < ApplicationController
 
       out  = []
       files.each do |mf|
-         json = { pid: mf.pid, filename: mf.filename, width: mf.image_tech_meta.width, height: mf.image_tech_meta.height }
+         tech_meta = mf.image_tech_meta
+         if tech_meta.nil?
+            unit_dir = mf.filename.split("_")[0]
+            archive_file = File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+            begin
+               logger.warn("MasterFile #{mf.filename} is missing image tech metadata. Creating from #{archive_file}")
+               tech_meta = TechMetadata.create(mf, archive_file)
+            rescue Exception => e
+               logger.error("Unable to create tech metadata: #{e}. Skipping.")
+               next
+            end
+         end
+         json = { pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height }
          json[:title] = mf.title if !mf.title.nil?
          json[:description] = mf.description if !mf.description.nil?
          out << json
@@ -50,7 +62,19 @@ class Api::ManifestController < ApplicationController
    def get_component_manifest(obj)
       out  = []
       obj.master_files.order(filename: :asc).each do |mf|
-         json = { pid: mf.pid, filename: mf.filename, width: mf.image_tech_meta.width, height: mf.image_tech_meta.height }
+         tech_meta = mf.image_tech_meta
+         if tech_meta.nil?
+            unit_dir = mf.filename.split("_")[0]
+            archive_file = File.join(ARCHIVE_DIR, unit_dir, mf.filename)
+            begin
+               logger.warn("MasterFile #{mf.filename} is missing image tech metadata. Creating from #{archive_file}")
+               tech_meta = TechMetadata.create(mf, archive_file)
+            rescue Exception => e
+               logger.error("Unable to create tech metadata: #{e}. Skipping.")
+               next
+            end
+         end
+         json = { pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height }
          json[:title] = mf.title if !mf.title.nil?
          json[:description] = mf.description if !mf.description.nil?
          out << json

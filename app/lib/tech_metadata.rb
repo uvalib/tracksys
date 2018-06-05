@@ -69,6 +69,7 @@ module TechMetadata
 
       # Make sure that the memory is cleared after the processor no longer needs these two objects.
       image.destroy!
+      return image_tech_meta
    end
 
    def self.get_color_profile_name(image_color_profile)
