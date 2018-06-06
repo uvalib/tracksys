@@ -82,7 +82,7 @@ ActiveAdmin.register_page "Equipment" do
        def create
           e = Equipment.create(type: params[:type], name: params[:name], serial_number: params[:serial])
           if e.valid?
-             html = render_to_string partial: "/admin/equipment/equipment_table", locals: {equipment: Equipment.where(type: params[:type])}
+             html = render_to_string partial: "/admin/digitization_workflow/equipment/equipment_table", locals: {equipment: Equipment.where(type: params[:type])}
              render json: { html: html, id: e.id }
           else
              render plain: e.errors.full_messages.to_sentence, status: :error
