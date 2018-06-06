@@ -1,4 +1,23 @@
 namespace :apollo do
+   desc "Fix apollo link"
+   task :fix  => :environment do
+      id = ENV['id']
+      abort("ID is required") if id.nil?
+      offsetStr = ENV['offset']
+      abort("offset is required") if offsetStr.nil?
+      offset = offsetStr.to_i
+      sm = SirsiMetadata.find(id)
+      puts "Updating ext_uri id by #{offset} for #{sm.title} children..."
+      ExternalMetadata.where(external_system: "Apollo", parent_metadata_id: id).find_each do |am|
+         puts "#{am.id} = #{am.title}:#{am.external_uri}"
+         uri = am.external_uri
+         num = uri.split("-")[1].gsub(/an/,"").to_i
+         newNum = "an#{num+offset}"
+         newUri = "#{uri.split("-")[0]}-#{newNum}"
+         am.update(external_uri: newUri)
+      end
+   end
+
    desc "Convert an entire componet-based serial to Apollo ExternalMetadata"
    task :convert  => :environment do
       pid = ENV['pid']
