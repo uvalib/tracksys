@@ -2,7 +2,7 @@ class Admin::WorkstationsController < ApplicationController
    def create
       ws = Workstation.create(name: params[:name])
       if ws.valid?
-         html = render_to_string partial: "/admin/equipment/workstation_row", locals: {ws: ws}
+         html = render_to_string partial: "/admin/digitization_workflow/equipment/workstation_row", locals: {ws: ws}
          render json: { html: html, id: ws.id }
       else
          render plain: ws.errors.full_messages.to_sentence, status: :error
