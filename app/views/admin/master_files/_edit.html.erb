@@ -44,6 +44,10 @@
             <input  name="master_file[folder_id]" id="master_file_folder_id"
                     type="text" value="<%= @master_file.folder_id %>"/>
          </li>
+         <li class="select input optional stringish">
+            <label class="label">Notes</label>
+            <textarea rows="5"  name="master_file[notes]" id="master_file_notes"><%= @master_file.notes %></textarea>
+         </li>
       <% end %>
    <% end %>
    <%= render partial: "/admin/common/metadata_finder_modal" %>

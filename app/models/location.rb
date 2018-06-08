@@ -24,7 +24,16 @@ class Location < ApplicationRecord
 
       location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
       if location.nil?
-         location = Location.create(container_type_id: ct.id, container_id: box_id, folder_id: folder)
+         # See if there is a notes.txt file present in the base dir. Add the contents
+         # as a note if present
+         notes_file = File.join(unit_base_dir, "notes.txt")
+         notes = nil
+         if File.exist? notes_file
+            file = File.open(notes_file, "rb")
+            notes = file.read
+            file.close
+         end
+         location = Location.create(container_type_id: ct.id, container_id: box_id, folder_id: folder, notes: notes)
       end
       return location
    end

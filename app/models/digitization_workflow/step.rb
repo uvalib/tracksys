@@ -45,6 +45,8 @@ class Step < ApplicationRecord
 
    private
    def validate_start_dir(project)
+      Rails.logger.info "Validate Start directory for project #{project.id} step #{self.name}"
+
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
       # wil have moved it to teh finish location prior to clicking finish)
       return true if self.error?
@@ -98,13 +100,15 @@ class Step < ApplicationRecord
          remove_extra_files(start_dir)
       end
 
-      # After the inital scanning of a manuscript workflow, require the presence
+      # After the inital scanning/processing of a manuscript workflow, require the presence
       # of subdirectories in the start directory. No .tif files should be present
       # outside of these subdirectories
-      if self.workflow.name == "Manuscript" && self.name != "Scan"
+      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+         Rails.logger.info "This is a manuscript project; validate the content and directory structure"
          return validate_manuscript_directory_content(project, start_dir)
       else
          # Normal, flat directory validations
+         Rails.logger.info "This is a standard project; validate the directory content"
          return validate_directory_content(project, start_dir)
       end
    end
@@ -150,14 +154,15 @@ class Step < ApplicationRecord
       Rails.logger.info "Validate directory for manuscript workflow. Enforce directories"
       return false if !validate_mpcatalog(project, dir)
 
-      # No .tif files should reside in the base directory
+      # No .tif files should reside in the base directory; everything should be in the
+      # box/folder strucure of the manuscript
       Rails.logger.info "Checking for .tif files not in subdirectories of #{dir}"
       if Dir.glob("#{dir}/*.tif").count > 0
          step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
          return false
       end
 
-      # validate [box|oversize|tray].name/folder/*.tif structure
+      # validate directory structure: ./[step_dir]/[box|oversize|tray].name/folder/*.tif
       return false if !validate_structure(project, dir)
 
       # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
@@ -259,15 +264,26 @@ class Step < ApplicationRecord
       end
 
       # Make sure only .tif, .xml and .mpcatalog files are present. Fail if others
+      # notes.txt is also acceptable if this is a manuscript workflow
       Dir[File.join(dir, '/**/*')].each do |f|
          next if File.directory? f
+
+         if self.workflow.name == "Manuscript"
+            if File.basename(f).downcase == "notes.txt"
+               Rails.logger.info("Found location notes file for manifest project. Keeping it for ingest later.")
+               next
+            end
+         end
+
          ext = File.extname f
          ext.downcase!
+
          if ext == ".noindex"
             Rails.logger.info("Deleting tmp file #{f}")
             FileUtils.rm(f)
             next
          end
+
          if ext != ".xml" && ext != ".tif" && ext != ".mpcatalog"
             step_failed(project, "Filesystem", "<p>Unexpected file or directory #{f} found</p>")
             return false
@@ -305,6 +321,9 @@ class Step < ApplicationRecord
 
    private
    def validate_mpcatalog(project, dir)
+      # There must be ONE .mpcatalog file in the directory and it must have
+      # the same name as the unit (9-digit unit number). This is required once
+      # the QA steps start
       logger.info "Validate mpcatalog files in #{dir}"
       cnt = 0
       unit_dir = project.unit.directory
@@ -414,8 +433,7 @@ class Step < ApplicationRecord
          if has_output_dir
             FileUtils.mkdir src_dir
             File.chmod(0775, src_dir)
-            # NOTE: Skipping ths part for now. It was causing problems for the
-            # normal workflow
+            # NOTE: Skipping ths part for now. It was causing problems for the normal workflow
             #
             # orig_src = File.join(self.workflow.base_directory, self.start_dir, project.unit.directory)
             # scan_dir = self.start_dir.split("/")[1] # remove the scan/ drom start dir and get 10_raw

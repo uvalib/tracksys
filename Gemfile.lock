@@ -56,7 +56,7 @@ GEM
       tzinfo (~> 1.1)
     ancestry (3.0.2)
       activerecord (>= 3.2.0)
-    annotate (2.7.3)
+    annotate (2.7.4)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 13.0)
     arbre (1.1.1)
@@ -251,7 +251,7 @@ GEM
       tilt (>= 1.4, < 3)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    uglifier (4.1.10)
+    uglifier (4.1.11)
       execjs (>= 0.3.0, < 3)
     unf (0.1.4)
       unf_ext

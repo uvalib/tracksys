@@ -30,7 +30,7 @@ class MasterFile < ApplicationRecord
    #------------------------------------------------------------------
    # delegation
    #------------------------------------------------------------------
-   delegate :container_id, :folder_id, to: :location, allow_nil: true, prefix: false
+   delegate :container_id, :folder_id, :notes, to: :location, allow_nil: true, prefix: false
    delegate :title, :use_right, :to => :metadata, :allow_nil => true, :prefix => true
 
    delegate :date_due, :date_order_approved, :date_request_submitted, :date_customer_notified, :id,

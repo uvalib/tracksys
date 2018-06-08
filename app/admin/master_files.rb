@@ -259,6 +259,11 @@ ActiveAdmin.register MasterFile do
          row "Folder" do |mf|
             mf.folder_id
          end
+         if !master_file.location.notes.blank?
+            row "Notes" do |mf|
+               mf.location.notes
+            end
+         end
       end
    end
 
@@ -394,9 +399,12 @@ ActiveAdmin.register MasterFile do
       def update
          mf = MasterFile.find(params[:id])
          if !mf.location.nil?
-            mf.location.update(folder_id: params[:master_file][:folder_id])
-            mf.location.update(container_id: params[:master_file][:container_id])
-            mf.location.update(container_type_id: params[:master_file][:container_type_id])
+            mf.location.update(
+               folder_id: params[:master_file][:folder_id],
+               container_id: params[:master_file][:container_id],
+               container_type_id: params[:master_file][:container_type_id],
+               notes: params[:master_file][:notes]
+            )
          end
          super
       end
