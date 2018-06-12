@@ -1,4 +1,9 @@
 $(function() {
+  $("#recipient").chosen({
+      no_results_text: "Sorry, no matches found",
+      width: "100%"
+  });
+
   $(".msg-button.read").on("click", function() {
     var id = $(this).data("msg-id");
     var row = $(this).closest("tr");
@@ -33,6 +38,34 @@ $(function() {
   $("#close-reader").on("click", function() {
     $("#dimmer").hide();
     $("#reader-modal").hide();
+  });
+
+  $("#compose").on("click", function() {
+    $("#recipient").val("");
+    $("#subject").val("");
+    $("#message").val("");
+    $("#compose-err").hide();
+    $("#dimmer").show();
+    $("#compose-modal").show();
+  });
+
+  $("#close-compose").on("click", function() {
+    $("#dimmer").hide();
+    $("#compose-modal").hide();
+  });
+  $("#send-message").on("click", function() {
+    var data = {
+      to: $("#recipient").val(),
+      subject: $("#subject").val(),
+      message: $("#message").val()
+    };
+    if ( data.to.length === 0 || data.subject.length === 0 || data.message.length === 0) {
+      $("#compose-err").show();
+      return;
+    }
+    $("#compose-err").hide();
+    // $("#dimmer").hide();
+    // $("#reader-modal").hide();
   });
 
   $(".message-panel .msg-button.delete").on("click", function() {

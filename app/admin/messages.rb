@@ -1,6 +1,10 @@
 ActiveAdmin.register_page "Messages" do
    menu false
 
+   action_item :compose do
+      raw("<a id='compose'>Compose New Message</a>")
+   end
+
    content :only=>:index do
       page_size = params[:page_size]
       page_size = 15 if page_size.nil?
