@@ -3,7 +3,7 @@ ActiveAdmin.register_page "Messages" do
 
    content :only=>:index do
       page_size = params[:page_size]
-      page_size = 5 if page_size.nil?
+      page_size = 15 if page_size.nil?
       msgs = Message.where(to_id: current_user.id).page(params[:page]).per(page_size.to_i)
 
       panel "Inbox" , class: "message-panel" do
@@ -31,7 +31,7 @@ ActiveAdmin.register_page "Messages" do
                      span class: "msg-button read", "data-msg-id": "#{msg.id}" do "View" end
                   end
                   div do
-                     span class: "msg-button delete" do "Delete" end
+                     span class: "msg-button delete", "data-msg-id": "#{msg.id}" do "Delete" end
                   end
                end
             end
@@ -47,6 +47,15 @@ ActiveAdmin.register_page "Messages" do
          msg.update(read: 1)
          html = render_to_string partial: "/admin/messages/message", locals: {msg: msg}
          render json: {html: html}
+      end
+
+      def destroy
+         msg = Message.find_by(id: params[:id])
+         if msg.nil?
+            render plain: "Message ID #{params[:id]} not found", status: :not_found and return
+         end
+         msg.destroy
+         render plain: "OK"
       end
    end
 end

@@ -5,4 +5,6 @@ class Message < ApplicationRecord
    validates :to, presence: true
    validates :from, presence: true
    validates :message, presence: true
+
+   default_scope { order(sent_at: :desc) }
 end

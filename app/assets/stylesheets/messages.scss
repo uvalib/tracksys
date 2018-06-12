@@ -23,6 +23,7 @@
   }
   .email.opened {
     background-image: image_url("opened-email.png");
+    opacity: 0.6;
   }
   .email.closed {
     background-image: image_url("closed-email.png");

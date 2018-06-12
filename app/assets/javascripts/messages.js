@@ -9,7 +9,7 @@ $(function() {
           if (textStatus != "success") {
              alert("Unable to read message: "+jqXHR.responeText);
           } else {
-             populateMessage(icon, jqXHR.responseJSON);
+             populateMessage(row, jqXHR.responseJSON);
           }
        }
     });
@@ -20,7 +20,7 @@ $(function() {
     $("#reader-modal .content").append(json.html);
     $("#dimmer").show();
     $("#reader-modal").show();
-    
+
     var icon = row.find("td.col.icon .email");
     if (icon.hasClass("opened") === false ) {
       icon.removeClass("closed").addClass("opened");
@@ -33,5 +33,23 @@ $(function() {
   $("#close-reader").on("click", function() {
     $("#dimmer").hide();
     $("#reader-modal").hide();
+  });
+
+  $(".message-panel .msg-button.delete").on("click", function() {
+    resp = confirm("Delete this message?");
+    if (!resp) return;
+
+    var id = $(this).data("msg-id");
+    $.ajax({
+       url: "/admin/messages/"+id,
+       method: "DELETE",
+       complete: function(jqXHR, textStatus) {
+          if (textStatus != "success") {
+             alert("Unable to delete message: "+jqXHR.responeText);
+          } else {
+             window.location.reload();
+          }
+       }
+    });
   });
 });
