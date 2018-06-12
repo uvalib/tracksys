@@ -9,11 +9,11 @@ Rails.application.config.assets.version = '1.0'
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )
-Rails.application.config.assets.precompile += %w( request.css )
-Rails.application.config.assets.precompile += %w( request.js )
-Rails.application.config.assets.precompile += %w( printable.css )
-Rails.application.config.assets.precompile += %w( email.css )
-Rails.application.config.assets.precompile += %w( active_admin.js )
+# Rails.application.config.assets.precompile += %w( request.css )
+# Rails.application.config.assets.precompile += %w( request.js )
+# Rails.application.config.assets.precompile += %w( email.css )
+# Rails.application.config.assets.precompile += %w( active_admin.js )
+
 # active_admin.css active_admin.js request.css request.js email.css printable.css
 
 # Enable the asset pipeline

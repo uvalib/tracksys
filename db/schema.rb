@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_08_135104) do
+ActiveRecord::Schema.define(version: 2018_06_08_182826) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -342,6 +342,17 @@ ActiveRecord::Schema.define(version: 2018_06_08_135104) do
     t.index ["pid"], name: "index_master_files_on_pid"
     t.index ["title"], name: "index_master_files_on_title"
     t.index ["unit_id"], name: "index_master_files_on_unit_id"
+  end
+
+  create_table "messages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "subject", null: false
+    t.text "message"
+    t.boolean "read", default: false
+    t.bigint "from_id"
+    t.bigint "to_id"
+    t.datetime "sent_at"
+    t.index ["from_id"], name: "index_messages_on_from_id"
+    t.index ["to_id"], name: "index_messages_on_to_id"
   end
 
   create_table "metadata", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

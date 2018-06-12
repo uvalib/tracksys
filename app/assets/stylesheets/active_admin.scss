@@ -29,6 +29,7 @@
 @import "workflow_reports";
 @import "annual_reports";
 @import "tags";
+@import "messages";
 
 body.active_admin.logged_in .flash.flash_error {
    border-top: 1px solid #e0c2c0;
@@ -63,9 +64,18 @@ li.scope.selected a {
    display: table-cell;
    white-space: nowrap;
    text-align: right;
-   position: absolute;
-   right: 15px;
-   top: 2px;
+   position: relative;
+   right: 6px;
+   top: -5px;
+   .user-messages {
+     cursor: pointer;
+     text-align: right;
+     .message-cnt {
+        position: relative;
+        top: -5px;
+        margin-right: 5px;
+     }
+   }
    div {
       color: white;
    }

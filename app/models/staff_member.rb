@@ -22,6 +22,8 @@ class StaffMember < ApplicationRecord
    validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
    has_many :projects, foreign_key: 'owner_id'
+   has_many :messages, foreign_key: 'to_id',   :class_name => 'Message'
+   has_many :sent_messages, foreign_key: 'from_id',   :class_name => 'Message'
 
    public
    def can_deaccession?

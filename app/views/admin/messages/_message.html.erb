@@ -1,0 +1,16 @@
+<table>
+   <tr>
+      <td class="label">Sent:</td><td class="data"><%= msg.sent_at.strftime('%F %r') %></td>
+   </tr>
+   <tr>
+      <td class="label">From:</td><td class="data"><%= msg.from.full_name %> (<%= msg.from.email %>)</td>
+   </tr>
+   <tr>
+      <td class="label">Subject:</td><td class="data"><%= msg.subject %></td>
+   </tr>
+</table>
+<div class="body-scroller">
+   <div id="message-body">
+      <%= msg.message %>
+   </div>
+</div>

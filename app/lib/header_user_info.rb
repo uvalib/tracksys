@@ -16,9 +16,7 @@ class HeaderUserInfo < ActiveAdmin::Component
            end
         end
      else
-        div id: "login-info" do
-           link_to "#{current_user.full_name}", "/admin/staff_members/#{current_user.id}"
-        end
+        render partial: "/admin/common/login_info", locals: {user: current_user}
      end
 
   end

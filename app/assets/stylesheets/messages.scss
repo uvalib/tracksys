@@ -1,0 +1,66 @@
+.message-panel {
+  .sender {
+    width: 230px;
+  }
+
+  .sent-date {
+    width: 85px;
+  }
+  .subject {
+    min-width: 150px;
+  }
+  .email {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: relative;
+  }
+  .icon {
+    text-align: center;
+    width: 22px;
+  }
+  .email.opened {
+    background-image: image_url("opened-email.png");
+  }
+  .email.closed {
+    background-image: image_url("closed-email.png");
+  }
+  .msg-button {
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+    width: 50px;
+    text-align: center;
+    display: inline-block;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  .msg-button.read {
+    background: #47c;
+  }
+  .msg-button.delete {
+    background: #c44;
+  }
+}
+
+#dimmer #reader-modal {
+  width: 500px !important;
+  padding: 10px;
+  table {
+    border-collapse: collapse;
+    td.label {
+      width: 50px;
+      text-align: right;
+      font-weight: bold;
+    }
+  }
+  .body-scroller {
+    overflow-y: scroll;
+    max-height: 250px;
+  }
+}

@@ -7,29 +7,29 @@ Rails.application.configure do
    config.cache_classes = false
 
    # Do not eager load code on boot.
-   config.eager_load = false
+   config.eager_load = true
 
    # Show full error reports.
    config.consider_all_requests_local = true
+   config.action_controller.perform_caching = true
 
-   # Enable/disable caching. By default caching is disabled.
-   if Rails.root.join('tmp/caching-dev.txt').exist?
-     config.action_controller.perform_caching = true
-
-     config.cache_store = :memory_store
-     config.public_file_server.headers = {
-       'Cache-Control' => "public, max-age=#{2.days.seconds.to_i}"
-     }
-   else
-     config.action_controller.perform_caching = false
-
-     config.cache_store = :null_store
-   end
+   # # Enable/disable caching. By default caching is disabled.
+   # if Rails.root.join('tmp/caching-dev.txt').exist?
+   #   config.action_controller.perform_caching = true
+   #
+   #   config.cache_store = :memory_store
+   #   config.public_file_server.headers = {
+   #     'Cache-Control' => "public, max-age=#{2.days.seconds.to_i}"
+   #   }
+   # else
+   #   config.action_controller.perform_caching = false
+   #
+   #   config.cache_store = :null_store
+   # end
 
    # Don't care if the mailer can't send.
    config.action_mailer.raise_delivery_errors = false
 
-   config.action_mailer.perform_caching = false
 
    # Print deprecation notices to the Rails logger.
    config.active_support.deprecation = :log
@@ -40,11 +40,11 @@ Rails.application.configure do
    # Debug mode disables concatenation and preprocessing of assets.
    # This option may cause significant delays in view rendering with a large
    # number of complex assets.
-   config.assets.debug = false
-   config.assets.compile = true
 
    # Suppress logger output for asset requests.
    config.assets.quiet = true
+   config.assets.debug = false
+   config.assets.digest = false
 
    # Raises error for missing translations
    # config.action_view.raise_on_missing_translations = true
