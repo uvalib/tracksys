@@ -10,12 +10,6 @@ module Tracksys
    class Application < Rails::Application
       config.load_defaults 5.2
 
-      # Version of your assets, change this if you want to expire all your assets
-      config.assets.version = '1.0'
-
-      # Change the path that assets are served from
-      config.assets.prefix = "/assets"
-
       config.autoload_paths << Rails.root.join('app',"models", "metadata")
       config.autoload_paths << Rails.root.join('app',"models", "equipment")
       config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
