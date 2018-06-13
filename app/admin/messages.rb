@@ -53,6 +53,13 @@ ActiveAdmin.register_page "Messages" do
          render json: {html: html}
       end
 
+      def create
+         to = StaffMember.find(params[:to])
+         Message.create!(subject: params[:subject], message: params[:message],
+            to_id: params[:to], from_id: current_user.id )
+         render plain: "ok"
+      end
+
       def destroy
          msg = Message.find_by(id: params[:id])
          if msg.nil?

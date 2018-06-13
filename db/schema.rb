@@ -350,7 +350,7 @@ ActiveRecord::Schema.define(version: 2018_06_08_182826) do
     t.boolean "read", default: false
     t.bigint "from_id"
     t.bigint "to_id"
-    t.datetime "sent_at"
+    t.datetime "sent_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["from_id"], name: "index_messages_on_from_id"
     t.index ["to_id"], name: "index_messages_on_to_id"
   end

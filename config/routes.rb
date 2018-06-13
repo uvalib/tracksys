@@ -35,6 +35,7 @@ Tracksys::Application.routes.draw do
 
      post "messages/:id/read" => "messages#read_meassge"
      delete "messages/:id" => "messages#destroy"
+     post "messages" => "messages#create"
 
      # Weird. The file /admin/equipment is made with register_page so it
      # has none of the basic CRUD actions defined automatically. Add them

@@ -40,11 +40,17 @@ $(function() {
     $("#reader-modal").hide();
   });
 
-  $("#compose").on("click", function() {
-    $("#recipient").val("");
+  var clearFields = function() {
+    $("#recipient").val("").trigger('chosen:updated');
     $("#subject").val("");
     $("#message").val("");
+  };
+
+  $("#compose").on("click", function() {
+    clearFields();
+    $("#send-message").removeClass("disabled");
     $("#compose-err").hide();
+    $("#sending").hide();
     $("#dimmer").show();
     $("#compose-modal").show();
   });
@@ -54,6 +60,8 @@ $(function() {
     $("#compose-modal").hide();
   });
   $("#send-message").on("click", function() {
+    if ( $(this).hasClass("disabled") ) return;
+
     var data = {
       to: $("#recipient").val(),
       subject: $("#subject").val(),
@@ -61,11 +69,28 @@ $(function() {
     };
     if ( data.to.length === 0 || data.subject.length === 0 || data.message.length === 0) {
       $("#compose-err").show();
+      $("#sending").hide();
       return;
     }
+
+    $("#sending").text("Sending message...");
+    $("#sending").show();
+    $("#send-message").addClass("disabled");
     $("#compose-err").hide();
-    // $("#dimmer").hide();
-    // $("#reader-modal").hide();
+    $.ajax({
+       url: "/admin/messages/",
+       method: "POST",
+       data: data,
+       complete: function(jqXHR, textStatus) {
+          if (textStatus != "success") {
+             alert("Unable to send message: "+jqXHR.responeText);
+          } else {
+             $("#sending").text("Your message has been sent");
+             clearFields();
+          }
+          $("#send-message").removeClass("disabled");
+       }
+    });
   });
 
   $(".message-panel .msg-button.delete").on("click", function() {

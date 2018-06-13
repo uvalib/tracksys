@@ -6,7 +6,7 @@ class CreateMessages < ActiveRecord::Migration[5.2]
       t.boolean :read, default: false
       t.belongs_to :from,  index: true
       t.belongs_to :to,  index: true
-      t.datetime  :sent_at
+      t.datetime  :sent_at, default: -> { 'CURRENT_TIMESTAMP' }
     end
   end
 end
