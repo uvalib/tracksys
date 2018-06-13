@@ -49,6 +49,7 @@ ActiveAdmin.register_page "Messages" do
       def read_meassge
          msg = Message.find(params[:id])
          msg.update(read: 1)
+         session[:last_msg_read] = Time.now
          html = render_to_string partial: "/admin/messages/message", locals: {msg: msg}
          render json: {html: html}
       end

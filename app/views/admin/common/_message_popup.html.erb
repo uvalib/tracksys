@@ -1,4 +1,4 @@
-<% if current_user.has_unread_messages? %>
+<% if current_user.has_unread_messages? && check_messages? %>
 <div id="msg-reader-dimmer" style="display: block;">
    <% msg = current_user.first_unread_message %>
    <div id="popup-reader" class="modal" style="display: block;">

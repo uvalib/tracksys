@@ -95,8 +95,8 @@ ActiveAdmin.setup do |config|
  config.current_user_method   = :current_user
  config.before_action :authorize, :except => [ :access_denied ]
 
-  # Set language
-  config.before_action :set_admin_locale
+  # # Set language
+  # config.before_action :set_admin_locale
 
   # == Logging Out
   #
