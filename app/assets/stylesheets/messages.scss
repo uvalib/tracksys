@@ -53,7 +53,13 @@
   cursor: pointer;
 }
 
-#dimmer #reader-modal, #dimmer #compose-modal {
+#msg-reader-dimmer #popup-reader h1 {
+  border-radius: 5px;
+  margin: 0;
+  text-align: center;
+}
+
+#dimmer #reader-modal, #dimmer #compose-modal, #msg-reader-dimmer  #popup-reader {
   width: 500px !important;
   padding: 10px;
   #compose-err {

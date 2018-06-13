@@ -20,6 +20,12 @@ $(function() {
     });
   });
 
+  var reduceMessageCount = function() {
+    var cntEle = $(".message-cnt");
+    var cnt = parseInt(cntEle.text(),10);
+    $(".message-cnt").text(cnt-1);
+  };
+
   var populateMessage = function(row, json) {
     $("#reader-modal .content").empty();
     $("#reader-modal .content").append(json.html);
@@ -29,9 +35,7 @@ $(function() {
     var icon = row.find("td.col.icon .email");
     if (icon.hasClass("opened") === false ) {
       icon.removeClass("closed").addClass("opened");
-      var cntEle = $(".message-cnt");
-      var cnt = parseInt(cntEle.text(),10);
-      $(".message-cnt").text(cnt-1);
+      reduceMessageCount();
     }
   };
 
@@ -109,5 +113,17 @@ $(function() {
           }
        }
     });
+  });
+
+  $("#close-popup-reader").on("click", function() {
+    var id = $("#message-body").data("msg-id");
+    $.ajax({
+       url: "/admin/messages/"+id+"/read",
+       method: "POST",
+       complete: function(jqXHR, textStatus) {
+         $("#msg-reader-dimmer").hide();
+         reduceMessageCount();
+       }
+     });
   });
 });
