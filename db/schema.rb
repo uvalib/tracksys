@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_08_182826) do
+ActiveRecord::Schema.define(version: 2018_06_14_125649) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -546,6 +546,7 @@ ActiveRecord::Schema.define(version: 2018_06_08_182826) do
     t.datetime "updated_at"
     t.string "email"
     t.integer "role", default: 0
+    t.text "notes"
     t.index ["computing_id"], name: "index_staff_members_on_computing_id", unique: true
   end
 

@@ -54,6 +54,7 @@ ActiveAdmin.register StaffMember do
         row :computing_id
         row :email
         row :role
+        row :notes
         row :is_active
       end
     end
@@ -67,6 +68,7 @@ ActiveAdmin.register StaffMember do
       f.input :email
       f.input :role, :as => :select
       f.input :is_active, :as => :radio
+      f.input :notes, :as => :text, :input_html => {:rows => 5}
     end
 
     f.actions
