@@ -55,7 +55,7 @@ ActiveAdmin.register SirsiMetadata do
   filter :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc)
   filter :genre, :as => :select, :collection=>Genre.all.order(name: :asc)
   filter :availability_policy
-  filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
+  filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc).map { |cf| [cf.name] }
 
   csv do
     column :id
