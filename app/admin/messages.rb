@@ -51,9 +51,9 @@ ActiveAdmin.register_page "Messages" do
 
       sent = Message.where(from_id: current_user.id).page(params[:page]).per(page_size.to_i)
       panel "Sent" , class: "message-panel" do
-         if msgs.length == 0
+         if sent.length == 0
             h4 do
-               "You have no sent messages" 
+               "You have no sent messages"
             end
          else
             paginated_collection(sent, download_links: false) do
