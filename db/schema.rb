@@ -351,6 +351,8 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.bigint "from_id"
     t.bigint "to_id"
     t.timestamp "sent_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.boolean "deleted", default: false
+    t.timestamp "deleted_at"
     t.index ["from_id"], name: "index_messages_on_from_id"
     t.index ["to_id"], name: "index_messages_on_to_id"
   end

@@ -8,34 +8,70 @@ ActiveAdmin.register_page "Messages" do
    content :only=>:index do
       page_size = params[:page_size]
       page_size = 15 if page_size.nil?
-      msgs = Message.where(to_id: current_user.id).page(params[:page]).per(page_size.to_i)
+      msgs = Message.where(to_id: current_user.id, deleted: 0).page(params[:page]).per(page_size.to_i)
 
       panel "Inbox" , class: "message-panel" do
-         paginated_collection(msgs, download_links: false) do
-            table_for collection do |msg|
-               column (''), class:"icon" do |msg|
-                  cn = "email closed"
-                  cn = "email opened" if msg.read
-                  span class: "#{cn}" do end
-               end
-               column :from, class:"sender" do |msg|
-                  "#{msg.from.full_name} (#{msg.from.email})"
-               end
-               column :subject, class:"subject" do |msg|
-                 msg.subject.truncate( 50 )
-               end
-               column :message do |msg|
-                  msg.message.truncate( 150 )
-               end
-               column :Date, class:"sent-date" do |msg|
-                  msg.sent_at.strftime("%F %r")
-               end
-               column (''), class:"actions" do |msg|
-                  div do
-                     span class: "msg-button read", "data-msg-id": "#{msg.id}" do "View" end
+         if msgs.length == 0
+            h4 do
+               "Your inbox is empty"
+            end
+         else
+            paginated_collection(msgs, download_links: false) do
+               table_for collection do |msg|
+                  column (''), class:"icon" do |msg|
+                     cn = "email closed"
+                     cn = "email opened" if msg.read
+                     span class: "#{cn}" do end
                   end
-                  div do
-                     span class: "msg-button delete", "data-msg-id": "#{msg.id}" do "Delete" end
+                  column :from, class:"sender" do |msg|
+                     "#{msg.from.full_name} (#{msg.from.email})"
+                  end
+                  column :subject, class:"subject" do |msg|
+                    msg.subject.truncate( 50 )
+                  end
+                  column :message do |msg|
+                     msg.message.truncate( 150 )
+                  end
+                  column :Date, class:"sent-date" do |msg|
+                     msg.sent_at.strftime("%F %r")
+                  end
+                  column (''), class:"actions" do |msg|
+                     div do
+                        span class: "msg-button read", "data-msg-id": "#{msg.id}" do "View" end
+                     end
+                     div do
+                        span class: "msg-button delete", "data-msg-id": "#{msg.id}" do "Delete" end
+                     end
+                  end
+               end
+            end
+         end
+         div style: "clear:both" do end
+      end
+
+      sent = Message.where(from_id: current_user.id).page(params[:page]).per(page_size.to_i)
+      panel "Sent" , class: "message-panel" do
+         if msgs.length == 0
+            h4 do
+               "You have no sent messages" 
+            end
+         else
+            paginated_collection(sent, download_links: false) do
+               table_for collection do |msg|
+                  column :to, class:"sender" do |msg|
+                     "#{msg.to.full_name} (#{msg.from.email})"
+                  end
+                  column :subject, class:"subject" do |msg|
+                    msg.subject.truncate( 50 )
+                  end
+                  column :message do |msg|
+                     msg.message.truncate( 150 )
+                  end
+                  column :Date, class:"sent-date" do |msg|
+                     msg.sent_at.strftime("%F %r")
+                  end
+                  column ('read'), class:"icon" do |msg|
+                     msg.read
                   end
                end
             end
@@ -66,7 +102,7 @@ ActiveAdmin.register_page "Messages" do
          if msg.nil?
             render plain: "Message ID #{params[:id]} not found", status: :not_found and return
          end
-         msg.destroy
+         msg.update(deleted: 1, deleted_at: DateTime.now)
          render plain: "OK"
       end
    end

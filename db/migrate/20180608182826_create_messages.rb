@@ -7,6 +7,8 @@ class CreateMessages < ActiveRecord::Migration[5.2]
       t.belongs_to :from,  index: true
       t.belongs_to :to,  index: true
       t.timestamp  :sent_at, default: -> { 'CURRENT_TIMESTAMP' }
+      t.boolean :deleted, default: false
+      t.timestamp :deleted_at
     end
   end
 end

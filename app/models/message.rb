@@ -7,4 +7,14 @@ class Message < ApplicationRecord
    validates :message, presence: true
 
    default_scope { order(sent_at: :desc) }
+
+   # remove any messages that have been flagged as deleted after twp weeks
+   #
+   def self.remove_deleted
+      deleted = Message.where('deleted=? and deleted_at < ?', 1, Date.today-2.weeks)
+      if deleted.count > 0
+         puts "Remove #{deleted.count} deleted messages"
+         deleted.destroy_all
+      end
+   end
 end

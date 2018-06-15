@@ -172,6 +172,7 @@ GEM
       ttfunk (~> 1.5)
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
+    puma (3.11.4)
     rack (2.0.5)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -296,6 +297,7 @@ DEPENDENCIES
   passenger (= 5.1.5)
   prawn
   prawn-table
+  puma (~> 3.11)
   rails (= 5.2.0)
   rest-client
   rmagick

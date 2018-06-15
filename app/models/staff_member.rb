@@ -35,6 +35,9 @@ class StaffMember < ApplicationRecord
    def first_unread_message
        return self.messages.where(read: 0).first
    end
+   def sent_messages
+      return self.sent_messages.where(deleted: 0)
+   end
 
    def can_deaccession?
       return DEACCESSION_USERS.include? self.computing_id
