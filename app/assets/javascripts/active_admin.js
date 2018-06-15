@@ -16,6 +16,7 @@
 //= require equipment
 //= require skills
 //= require tags
+//= require messages
 //= require do_viewer
 //= require metadata
 //= require codemirror

@@ -22,8 +22,23 @@ class StaffMember < ApplicationRecord
    validates :computing_id, :presence => true, :uniqueness => {:case_sensitive => false}
 
    has_many :projects, foreign_key: 'owner_id'
+   has_many :messages, foreign_key: 'to_id',   :class_name => 'Message'
+   has_many :sent_messages, foreign_key: 'from_id',   :class_name => 'Message'
 
    public
+   def has_unread_messages?
+      return self.messages.where(read: 0).count > 0
+   end
+   def unread_message_cnt
+      return self.messages.where(read: 0).count
+   end
+   def first_unread_message
+       return self.messages.where(read: 0).first
+   end
+   def sent_messages
+      return self.sent_messages.where(deleted: 0)
+   end
+
    def can_deaccession?
       return DEACCESSION_USERS.include? self.computing_id
    end
@@ -59,41 +74,6 @@ class StaffMember < ApplicationRecord
       return computing_id
    end
 
-   # Returns a string containing the StaffMember name to be displayed
-   # in "list" views, drop-down menus, etc.: the first name and last
-   # name as formatted by the +name+ method, followed by the UVA
-   # computing ID in parentheses.
-   def list_name(alpha = false)
-      out = name(alpha)
-      if out.blank?
-         out = computing_id.to_s
-      else
-         if not computing_id.blank?
-            out += ' (' + computing_id + ')'
-         end
-      end
-      return out
-   end
-
-   # Same as +list_name+ but formats StaffMember name for alphabetic
-   # sorting as "last-name, first-name".
-   #
-   # Useful with +collection_select+ where you can't call
-   # <tt>list_name(true)</tt>. Example:
-   #   collection_select :task, :staff_member_id, @staff_members, :id, :list_name_alpha
-   def list_name_alpha
-      return list_name(true)
-   end
-
-   # Returns a string: the first name, if available; otherwise the
-   # UVA computing ID (which is required and thus always available).
-   def salutation
-      if not first_name.blank?
-         return first_name
-      else
-         return computing_id
-      end
-   end
 
    #------------------------------------------------------------------
    # callbacks

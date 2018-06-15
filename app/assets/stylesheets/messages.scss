@@ -1,0 +1,107 @@
+.message-panel {
+  .sender {
+    width: 230px;
+  }
+
+  .sent-date {
+    width: 85px;
+  }
+  .subject {
+    min-width: 150px;
+  }
+  .email {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: relative;
+  }
+  .icon {
+    text-align: center;
+    width: 22px;
+  }
+  .email.opened {
+    background-image: image_url("opened-email.png");
+    opacity: 0.6;
+  }
+  .email.closed {
+    background-image: image_url("closed-email.png");
+  }
+  .msg-button {
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: white;
+    cursor: pointer;
+    opacity: 0.5;
+    width: 50px;
+    text-align: center;
+    display: inline-block;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  .msg-button.read {
+    background: #159;
+  }
+  .msg-button.delete {
+    background: #a22;
+  }
+}
+
+.action_item #compose {
+  cursor: pointer;
+}
+
+#msg-reader-dimmer #popup-reader h1 {
+  border-radius: 5px;
+  margin: 0;
+  text-align: center;
+}
+
+#dimmer #reader-modal, #dimmer #compose-modal, #msg-reader-dimmer  #popup-reader {
+  width: 500px !important;
+  padding: 10px;
+  #compose-err {
+    display: none;
+    color: #922;
+    font-style: italic;
+    font-weight: bold;
+    text-align: center;
+  }
+  #sending {
+    display: none;
+    color: #24a;
+    font-style: italic;
+    font-weight: bold;
+    text-align: center;
+  }
+  table {
+    border-collapse: collapse;
+    td.label {
+      width: 50px;
+      text-align: right;
+      font-weight: bold;
+    }
+  }
+  .body-scroller {
+    overflow-y: scroll;
+    max-height: 250px;
+  }
+  input[type=text] {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 4px;
+    font-size: 15px;
+    color: #444;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #fff inset, 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+  label {
+    margin-top: 10px;
+  }
+  textarea {
+    resize: none;
+  }
+}

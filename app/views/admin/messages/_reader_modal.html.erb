@@ -1,0 +1,32 @@
+<div id="dimmer">
+   <div id="reader-modal" class="modal">
+      <div class="content">
+
+      </div>
+      <div class="buttons">
+         <input type="button" id="close-reader" value="Close"/>
+      </div>
+   </div>
+
+   <div id="compose-modal" class="modal">
+      <div class="content">
+         <label>Recipient:</label>
+         <select id="recipient">
+            <option value=''>Select Staff Member</option>
+            <% StaffMember.where(is_active: 1).order(last_name: :asc).each do |sm| %>
+               <option value="<%= sm.id %>"><%= sm.last_name%>, <%= sm.first_name %></option>
+            <% end %>
+         </select>
+         <label>Subject:</label>
+         <input type="text" id="subject"/>
+         <label>Message:</label>
+         <textarea rows="8" id="message"></textarea>
+         <div id="compose-err">All fields are required</div>
+         <div id="sending">Sending message...</div>
+      </div>
+      <div class="buttons">
+         <input type="button" id="close-compose" value="Close"/>
+         <input type="button" id="send-message" value="Send"/>
+      </div>
+   </div>
+</div>

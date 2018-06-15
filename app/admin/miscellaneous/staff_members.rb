@@ -5,7 +5,7 @@ ActiveAdmin.register StaffMember do
   menu :parent => "Miscellaneous"
 
   # strong paramters handling
-  permit_params :computing_id, :last_name, :first_name, :is_active, :role, :email
+  permit_params :computing_id, :last_name, :first_name, :is_active, :role, :email, :notes
 
   config.clear_action_items!
   action_item :new, :only => :index do
@@ -54,6 +54,7 @@ ActiveAdmin.register StaffMember do
         row :computing_id
         row :email
         row :role
+        row :notes
         row :is_active
       end
     end
@@ -67,6 +68,7 @@ ActiveAdmin.register StaffMember do
       f.input :email
       f.input :role, :as => :select
       f.input :is_active, :as => :radio
+      f.input :notes, :as => :text, :input_html => {:rows => 5}
     end
 
     f.actions

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_08_135104) do
+ActiveRecord::Schema.define(version: 2018_06_14_125649) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -344,6 +344,19 @@ ActiveRecord::Schema.define(version: 2018_06_08_135104) do
     t.index ["unit_id"], name: "index_master_files_on_unit_id"
   end
 
+  create_table "messages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "subject", null: false
+    t.text "message"
+    t.boolean "read", default: false
+    t.bigint "from_id"
+    t.bigint "to_id"
+    t.timestamp "sent_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.boolean "deleted", default: false
+    t.timestamp "deleted_at"
+    t.index ["from_id"], name: "index_messages_on_from_id"
+    t.index ["to_id"], name: "index_messages_on_to_id"
+  end
+
   create_table "metadata", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.boolean "is_approved", default: false, null: false
     t.boolean "is_personal_item", default: false, null: false
@@ -535,6 +548,7 @@ ActiveRecord::Schema.define(version: 2018_06_08_135104) do
     t.datetime "updated_at"
     t.string "email"
     t.integer "role", default: 0
+    t.text "notes"
     t.index ["computing_id"], name: "index_staff_members_on_computing_id", unique: true
   end
 

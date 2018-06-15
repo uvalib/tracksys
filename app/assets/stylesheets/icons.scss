@@ -14,6 +14,15 @@
    }
 }
 
+.message-icon {
+  background-image: image_url("message.png");
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: -2px;
+}
+
 .ts-icon.recent-error {
    background-color: white;
    padding: 8px;

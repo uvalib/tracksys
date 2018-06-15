@@ -1,0 +1,14 @@
+<% if current_user.has_unread_messages? && check_messages? %>
+<div id="msg-reader-dimmer" style="display: block;">
+   <% msg = current_user.first_unread_message %>
+   <div id="popup-reader" class="modal" style="display: block;">
+      <h1>You have <%= current_user.unread_message_cnt %> unread message(s)</h1>
+      <div class="content">
+         <%= render partial: "/admin/messages/message", locals: {msg: msg} %>
+      </div>
+      <div class="buttons">
+         <input type="button" id="close-popup-reader" value="Close"/>
+      </div>
+   </div>
+</div>
+<% end %>

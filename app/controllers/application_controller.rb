@@ -1,10 +1,20 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery
 
-   helper_method :current_user, :acting_as_user?
+   helper_method :current_user, :acting_as_user?, :check_messages?
 
    def acting_as_user?
       return !session[:act_as].nil?
+   end
+
+   # Only check for messages on pagereloads every to minutes
+   def check_messages?
+      if session[:last_msg_read].nil?
+         return true
+      end
+
+      delta_mins = (Time.now - session[:last_msg_read])/60.0
+      return delta_mins > 10
    end
 
    def current_user
@@ -26,7 +36,7 @@ class ApplicationController < ActionController::Base
    end
 
    def authorize
-      user = current_user
+      user = current_user()
       unless user and user.active?
          # Display an "Access denied" explanatory page, because one of these
          # conditions has ocurred:
@@ -42,17 +52,4 @@ class ApplicationController < ActionController::Base
       end
       return true
    end
-
-   def set_admin_locale
-      I18n.locale = :en
-   end
-
-   def update
-      puts "---------------------- UPDATE ----------------------------"
-      if env["HTTP_USER_AGENT"] =~ /Oxygen/ && env["REQUEST_METHOD"] == "PUT"
-         xml = Hash.from_xml(request.body.read)
-         params.merge!(xml)
-      end
-   end
-
 end
