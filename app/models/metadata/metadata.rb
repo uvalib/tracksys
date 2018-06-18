@@ -131,7 +131,8 @@ class Metadata < ApplicationRecord
    end
 
    def has_exemplar?
-      return MasterFile.where(exemplar: true).count > 0
+      has =  self.master_files.where(exemplar: true).count > 0
+      return has
    end
 
    # return a has containing URL and page number for exemplar
