@@ -4,9 +4,6 @@
        <% if !@external_metadata.id.blank? %>
           <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
        <% end %>
-       <%= f.input :exemplar, :as => :select,
-         :collection => f.object.dl_master_files.map(&:filename),
-         :input_html => {:class => 'chosen-select',  :style => 'width: 250px'} %>
        <%= f.input :availability_policy %>
        <%= f.input :discoverability, :as => :select %>
        <%= f.input :use_right, label: "Right Statement" %>

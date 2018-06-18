@@ -5,7 +5,7 @@ ActiveAdmin.register SirsiMetadata do
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
-      :exemplar, :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
+      :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :collection_id, :creator_death_date, :use_right_rationale,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id
 
@@ -192,9 +192,6 @@ ActiveAdmin.register SirsiMetadata do
                 render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
              end
           end
-          row :exemplar do |sirsi_metadata|
-            link_to "#{sirsi_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => sirsi_metadata.exemplar})
-          end
           row('Right Statement'){ |r| r.use_right.name }
           row('Rights Rationale'){ |r| r.use_right_rationale }
           row :creator_death_date
@@ -208,6 +205,16 @@ ActiveAdmin.register SirsiMetadata do
         end
       end
     end
+  end
+
+  sidebar "Exemplar", :only => [:show],  if: proc{ sirsi_metadata.has_exemplar? } do
+     div :style=>"text-align:center" do
+        info = sirsi_metadata.exemplar_info(:medium)
+        image_tag(
+           info[:url], id: info[:id],
+           class: "do-viewer-enabled",
+           data: { page: info[:page], metadata_pid:sirsi_metadata.pid } )
+     end
   end
 
   sidebar "Related Information", :only => [:show, :edit] do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_14_125649) do
+ActiveRecord::Schema.define(version: 2018_06_18_151203) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -333,6 +333,7 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.text "deaccession_note"
     t.integer "deaccessioned_by_id"
     t.integer "text_source"
+    t.boolean "exemplar", default: false
     t.index ["component_id"], name: "index_master_files_on_component_id"
     t.index ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest"
     t.index ["date_dl_update"], name: "index_master_files_on_date_dl_update"
@@ -369,7 +370,6 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.string "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "exemplar"
     t.integer "parent_metadata_id", default: 0, null: false
     t.text "desc_metadata"
     t.boolean "discoverability", default: true

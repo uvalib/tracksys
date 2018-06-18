@@ -6,7 +6,7 @@ ActiveAdmin.register ExternalMetadata do
    # strong paramters handling
    permit_params :title, :creator_name,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
-      :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
+      :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :dpla, :external_uri, :creator_death_date,
       :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale
 
@@ -111,6 +111,15 @@ ActiveAdmin.register ExternalMetadata do
 
    # Sidebars =================================================================
    #
+   sidebar "Exemplar", :only => [:show],  if: proc{ external_metadata.has_exemplar? } do
+      div :style=>"text-align:center" do
+         info = external_metadata.exemplar_info(:medium)
+         image_tag(
+            info[:url], id: info[:id],
+            class: "do-viewer-enabled",
+            data: { page: info[:page], metadata_pid:external_metadata.pid } )
+      end
+   end
    sidebar "Related Information", :only => [:show, :edit] do
       attributes_table_for external_metadata do
          # If there is only one master file, link directy to it
