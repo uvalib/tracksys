@@ -74,6 +74,7 @@ GEM
       railties (>= 3.0)
       sass-rails (>= 3.2)
     chronic (0.10.2)
+    coderay (1.1.2)
     coffee-rails (4.2.2)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0)
@@ -159,7 +160,7 @@ GEM
     net-ldap (0.16.1)
     netrc (0.11.0)
     nio4r (2.3.1)
-    nokogiri (1.8.2)
+    nokogiri (1.8.3)
       mini_portile2 (~> 2.3.0)
     passenger (5.1.5)
       rack
@@ -172,6 +173,11 @@ GEM
       ttfunk (~> 1.5)
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    pry-rails (0.3.6)
+      pry (>= 0.10.4)
     puma (3.11.4)
     rack (2.0.5)
     rack-accept (0.4.5)
@@ -297,6 +303,7 @@ DEPENDENCIES
   passenger (= 5.1.5)
   prawn
   prawn-table
+  pry-rails
   puma (~> 3.11)
   rails (= 5.2.0)
   rest-client
