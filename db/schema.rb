@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_18_151203) do
+ActiveRecord::Schema.define(version: 2018_06_19_152418) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -154,7 +154,6 @@ ActiveRecord::Schema.define(version: 2018_06_18_151203) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer "master_files_count", default: 0, null: false
-    t.string "exemplar"
     t.string "ancestry"
     t.string "pids_depth_cache"
     t.string "ead_id_atts_depth_cache"

@@ -31,7 +31,6 @@ class MoveExemplarToMasterFiles < ActiveRecord::Migration[5.2]
 
       puts "Migrating metadata from master files to metadata..."
       MasterFile.where(exemplar: true).find_each do |mf|
-         MasterFile.find_by(filename: meta.exemplar).update!(exemplar: true)
          mf.metadata.update!(exemplar: mf.filename)
       end
 

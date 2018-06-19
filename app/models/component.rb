@@ -239,7 +239,6 @@ end
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
 #  master_files_count      :integer          default(0), not null
-#  exemplar                :string(255)
 #  ancestry                :string(255)
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)
