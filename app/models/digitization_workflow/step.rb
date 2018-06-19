@@ -100,10 +100,10 @@ class Step < ApplicationRecord
          remove_extra_files(start_dir)
       end
 
-      # After the inital scanning/processing of a manuscript workflow, require the presence
+      # After the inital scanning of a manuscript workflow, require the presence
       # of subdirectories in the start directory. No .tif files should be present
       # outside of these subdirectories
-      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
          Rails.logger.info "This is a manuscript project; validate the content and directory structure"
          return validate_manuscript_directory_content(project, start_dir)
       else
