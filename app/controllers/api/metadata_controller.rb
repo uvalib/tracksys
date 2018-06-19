@@ -7,7 +7,8 @@ class Api::MetadataController < ApplicationController
 
       md = Metadata.find_by(pid: params[:pid])
       if md.nil?
-         md = MasterFile.find_by(pid: params[:pid])
+         mf = MasterFile.find_by(pid: params[:pid])
+         md = mf.metadata if !mf.nil?
       end
       if md.nil? && type == "brief"
          c = Component.find_by(pid: params[:pid])
@@ -16,7 +17,9 @@ class Api::MetadataController < ApplicationController
          if c.title.blank?
             out[:title] = c.label
          end
-         out[:exemplar] = c.exemplar if !c.exemplar.blank?
+         if c.has_exemplar?
+            out[:exemplar] = c.exemplar_info(:small)[:filename]
+         end
          md = c.master_files.first.metadata
          out[:rights] = md.use_right.uri
          out[:creator] = md.creator_name
@@ -34,7 +37,9 @@ class Api::MetadataController < ApplicationController
          out = {pid: params[:pid], title: md.title, creator: md.creator_name, rights: md.use_right.uri }
          out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
          out[:callNumber] = md.call_number if !md.call_number.blank?
-         out[:exemplar] = md.exemplar if !md.exemplar.blank?
+         if md.has_exemplar?
+            out[:exemplar] = md.exemplar_info(:small)[:filename]
+         end
          render json: out
       end
    end

@@ -135,16 +135,19 @@ class Metadata < ApplicationRecord
       return has
    end
 
-   # return a has containing URL and page number for exemplar
+   # return a hash containing URL, filename, ID and page number for exemplar
    def exemplar_info( size )
       mf = self.master_files.where(exemplar: true).first
       mf_id = mf.id
       page = mf.filename.split("_")[1].split(".")[0].to_i
+      fn = mf.filename
       if mf.is_clone?
          mf_id = mf.original_mf_id
-         page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
+         orig = MasterFile.find(mf_id)
+         page = orig.filename.split("_")[1].split(".")[0].to_i
+         fn = orig.filename
       end
-      info = {url: mf.link_to_image(size), page: page, id: mf_id}
+      info = {url: mf.link_to_image(size), page: page, id: mf_id, filename: fn}
       return info
    end
 
