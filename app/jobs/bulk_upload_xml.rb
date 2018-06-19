@@ -106,9 +106,8 @@ class BulkUploadXml < BaseJob
                   discoverability: settings[:discoverability],
                   desc_metadata: xml_str, use_right: settings[:rights],
                   availability_policy: settings[:availability],
-                  creator_name: creator, exemplar: mf.filename,
-                  dpla: dpla, parent_metadata_id: orig_metadata.id )
-               mf.update(metadata_id: metadata.id)
+                  creator_name: creator, dpla: dpla, parent_metadata_id: orig_metadata.id )
+               mf.update(metadata_id: metadata.id, exemplar: true)
             else
                # This masterfile already has its own metadata; just update content
                mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,

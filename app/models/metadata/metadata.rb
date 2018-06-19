@@ -142,13 +142,15 @@ class Metadata < ApplicationRecord
       mf_id = mf.id
       page = mf.filename.split("_")[1].split(".")[0].to_i
       fn = mf.filename
+      pid = mf.pid
       if mf.is_clone?
          mf_id = mf.original_mf_id
          orig = MasterFile.find(mf_id)
          page = orig.filename.split("_")[1].split(".")[0].to_i
          fn = orig.filename
+         pid = orig.pid
       end
-      info = {url: mf.link_to_image(size), page: page, id: mf_id, filename: fn}
+      info = {url: mf.link_to_image(size), page: page, id: mf_id, filename: fn, pid: pid}
       return info
    end
 
