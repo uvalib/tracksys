@@ -66,7 +66,6 @@ namespace :apollo do
             pid: component.pid, title: "#{orig_metadata.title}: #{component.title}",
             is_approved: true, use_right: orig_metadata.use_right,
             ocr_hint_id: orig_metadata.ocr_hint_id,
-            exemplar: component.master_files.first.filename,
             discoverability: orig_metadata.discoverability,
             availability_policy_id: orig_metadata.availability_policy_id,
             external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
@@ -91,8 +90,7 @@ namespace :apollo do
       md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
          pid: pid, title: "#{orig_metadata.title}: #{component.title}",
          is_approved: true, use_right: orig_metadata.use_right, ocr_hint_id: 1,
-         exemplar: component.master_files.first.filename, discoverability: 1,
-         availability_policy_id: 1,
+         discoverability: 1, availability_policy_id: 1,
          external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
       unit.update(metadata: md)
       unit.master_files.update_all(metadata_id: md.id, component_id: nil)

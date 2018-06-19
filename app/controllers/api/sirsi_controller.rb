@@ -7,13 +7,6 @@ class Api::SirsiController < ApplicationController
          resp[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
 
-         thumb_pid = ""
-         if sm.has_exemplar?
-            thumb_pid = sm.exemplar_info[:pid]
-         else
-            thumb_pid = sm.master_files.first.pid if sm.master_files.count > 0
-         end
-
          rights = sm.use_right.statement
          rights << "\nFind more information about permission to use the library's materials at http://search.lib.virginia.edu/terms.html."
          uses = []
@@ -29,7 +22,10 @@ class Api::SirsiController < ApplicationController
             rightsWrapperText: "#{sm.get_citation}\n#{Settings.virgo_url}/#{sm.pid}\n\n#{rights}",
             backendIIIFManifestUrl: "#{Settings.iiif_manifest_url}/#{sm.pid}"
          }
-         item[:thumbnailUrl] = "#{Settings.iiif_url}/#{thumb_pid}/full/!125,125/0/default.jpg" if !thumb_pid.blank?
+
+         if sm.has_exemplar?
+            item[:thumbnailUrl] = sm.exemplar_info[:url]
+         end
 
          resp[:items] << item
       end
