@@ -4,7 +4,7 @@ ActiveAdmin.register Component do
 
    # # strong paramters handling
    # permit_params :title, :content_desc, :date, :level, :label, :ead_id_att, :component_type_id,
-   #    :pid, :exemplar, :desc_meta
+   #    :pid, :desc_meta
 
    #scope :all, :default => true
 
@@ -30,18 +30,6 @@ ActiveAdmin.register Component do
       column("Description") {|component| component.content_desc }
       column("DL Ingest Date") do |component|
          format_date(component.date_dl_ingest)
-      end
-      column :exemplar do |component|
-         if not component.exemplar.blank?
-            exemplar_master_file = MasterFile.find_by(filename: component.exemplar)
-            if exemplar_master_file.nil?
-               "Exemplar not found"
-            else
-               image_tag(exemplar_master_file.link_to_image(:small))
-            end
-         else
-            "No exemplar set."
-         end
       end
       column :master_files do |component|
          link_to "#{component.master_files.count}", admin_master_files_path(:q => {:component_id_eq => component.id})
@@ -87,17 +75,6 @@ ActiveAdmin.register Component do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
-               row :exemplar do |component|
-                  if not component.exemplar.blank?
-                     component.exemplar.to_s
-                     mf = MasterFile.where(:filename => component.exemplar).first
-                     if mf.kind_of?(MasterFile)
-                        image_tag(mf.link_to_image(:small))
-                     end
-                  else
-                     nil
-                  end
-               end
                row :discoverability do |component|
                   case component.discoverability
                   when false
@@ -220,7 +197,6 @@ ActiveAdmin.register Component do
 
       f.inputs "Digital Library Information", :class => 'inputs one-column' do
          f.input :pid, :as => :string, :input_html => {:disabled => true}
-         f.input :exemplar, :as => :select
          f.input :desc_metadata, :input_html => {:rows => 5}
       end
 

@@ -14,7 +14,6 @@
 #  pid                    :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
-#  exemplar               :string(255)
 #  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)
