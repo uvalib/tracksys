@@ -55,7 +55,7 @@ class PublishQDC < BaseJob
       FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
       qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
 
-      log.info("Select exemplar...")
+      log.info("Select exemplarPID...")
       if meta.has_exemplar?
          exemplar_pid =  meta.exemplar_info[:pid]
       else

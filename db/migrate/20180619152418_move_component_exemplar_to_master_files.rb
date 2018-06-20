@@ -19,6 +19,9 @@ class MoveComponentExemplarToMasterFiles < ActiveRecord::Migration[5.2]
          if mf.nil?
             puts ""
             puts "WARNING: exemplar #{c.exemplar} for component #{c.id} does not exist. Skipping!"
+         elsif mf.is_clone?
+            puts ""
+            puts "WARNING: exemplar #{c.exemplar} for component #{c.id} is a clone. This is invalid. Skipping!"
          else
             mf.update!(exemplar: true)
          end

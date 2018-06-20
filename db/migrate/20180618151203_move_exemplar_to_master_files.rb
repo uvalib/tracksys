@@ -10,6 +10,9 @@ class MoveExemplarToMasterFiles < ActiveRecord::Migration[5.2]
          if mf.nil?
             puts ""
             puts "WARNING: exemplar #{meta.exemplar} for metadata #{meta.id} does not exist. Skipping!"
+         elsif mf.is_clone?
+            puts ""
+            puts "WARNING: exemplar #{meta.exemplar} for metadata #{meta.id} is a clone. This is invalid. Skipping!"
          else
             mf.update!(exemplar: true)
          end

@@ -131,26 +131,15 @@ class Metadata < ApplicationRecord
    end
 
    def has_exemplar?
-      has =  self.master_files.where(exemplar: true).count > 0
-      return has
+      return master_files.where(exemplar: true).count > 0
    end
 
    # return a hash containing URL, filename, PID, ID and page number for exemplar
    # Optionally specify a size for the thumbnail. Small is the default
    def exemplar_info( size = :small )
-      mf = self.master_files.where(exemplar: true).first
-      mf_id = mf.id
+      mf = master_files.where(exemplar: true).first
       page = mf.filename.split("_")[1].split(".")[0].to_i
-      fn = mf.filename
-      pid = mf.pid
-      if mf.is_clone?
-         mf_id = mf.original_mf_id
-         orig = MasterFile.find(mf_id)
-         page = orig.filename.split("_")[1].split(".")[0].to_i
-         fn = orig.filename
-         pid = orig.pid
-      end
-      info = {url: mf.link_to_image(size), page: page, id: mf_id, filename: fn, pid: pid}
+      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, pid: mf.pid}
       return info
    end
 

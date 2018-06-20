@@ -185,6 +185,9 @@ class Unit < ApplicationRecord
    end
 
    def pick_exemplar
+      # First, wipe out any lingering exemplar setting
+      master_files.update_all(exemplar: false)
+
       # Find exemplar. Preference: Title-page/title page (best), Front Cover (2nd), or 1 (last)
       tgts = ["title-page", "title page", "front cover", "front board", "1"]
       exemplar = nil
@@ -193,15 +196,19 @@ class Unit < ApplicationRecord
          title = mf.title.strip.downcase
          if tgts.include? title
             if exemplar.nil?
-               exemplar = {title: mf.title, file: mf.filename, weight: tgts.index(title) }
+               exemplar = {mf: mf, priority: tgts.index(title) }
             else
-               if tgts.index(title) < exemplar[:weight]
-                  exemplar = {title: mf.title, file: mf.filename, weight: tgts.index(title) }
+               if tgts.index(title) < exemplar[:priority]
+                  exemplar = {mf: mf, priority: tgts.index(title) }
                end
             end
          end
       end
-      return exemplar[:file] if !exemplar.blank?
+
+      if !exemplar.blank?
+         exemplar[:mf].update(exemplar: true)
+         return exemplar[:mf].filename
+      end
 
       # if we got here, an exemplar with matching name was not found
       # try to make sure it is not a spine or egde
@@ -213,11 +220,13 @@ class Unit < ApplicationRecord
 
          # look for something kinda square-ish
          if ratio > 0.4 && ratio < 1.4
+            mf.update(exemplar: true)
             return mf.filename
          end
       end
 
       # nothing else found, just go with first
+      master_files.first.update(exemplar: true)
       return master_files.first.filename
    end
 end

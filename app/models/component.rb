@@ -213,22 +213,13 @@ class Component < ApplicationRecord
    end
 
    def has_exemplar?
-      return self.master_files.where(exemplar: true).count > 0
+      return master_files.where(exemplar: true).count > 0
    end
 
-   # return a hash containing URL, filename, ID and page number for exemplar
    def exemplar_info( size )
-      mf = self.master_files.where(exemplar: true).first
-      mf_id = mf.id
+      mf = master_files.where(exemplar: true).first
       page = mf.filename.split("_")[1].split(".")[0].to_i
-      fn = mf.filename
-      if mf.is_clone?
-         mf_id = mf.original_mf_id
-         orig = MasterFile.find(mf_id)
-         page = orig.filename.split("_")[1].split(".")[0].to_i
-         fn = orig.filename
-      end
-      info = {url: mf.link_to_image(size), page: page, id: mf_id, filename: fn}
+      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, pid: mf.pid}
       return info
    end
 
