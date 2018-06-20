@@ -133,19 +133,19 @@ ActiveAdmin.register SirsiMetadata do
          "- Checked out on #{sirsi_metadata.last_checkout} -"
       end
     end
-    div :class => 'three-column' do
+    div :class => 'columns-none' do
       panel "Basic Metadata" do
         render '/admin/metadata/sirsi_metadata/sirsi_meta'
       end
     end
 
-    div :class => 'three-column' do
+    div :class => 'two-column' do
       panel "Detailed Metadata" do
         render '/admin/metadata/sirsi_metadata/sirsi_detail'
       end
-    end
+   end
 
-    div :class => 'three-column' do
+    div :class => 'two-column' do
       panel "Administrative Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
           row :id
