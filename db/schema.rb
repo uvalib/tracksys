@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_19_152418) do
+ActiveRecord::Schema.define(version: 2018_06_20_132943) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -279,7 +279,7 @@ ActiveRecord::Schema.define(version: 2018_06_19_152418) do
     t.datetime "started_at"
     t.datetime "ended_at"
     t.integer "failures", default: 0, null: false
-    t.string "error"
+    t.text "error"
     t.integer "originator_id"
     t.string "originator_type"
     t.datetime "created_at"
