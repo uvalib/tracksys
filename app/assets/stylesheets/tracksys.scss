@@ -17,6 +17,13 @@ body.active_admin {
          box-shadow: 1px 1px 7px #333;
       }
    }
+   img.do-viewer-enabled.exemplar {
+     border: 3px solid #6af;
+     outline: 1px solid #005;
+   }
+   td.col-thumbnail {
+     text-align: center;
+   }
    #stats-button, #pid-find-button, #find-mf-button {
       width: auto;
       float: right;

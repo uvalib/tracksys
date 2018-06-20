@@ -81,7 +81,13 @@ div id: "masterfile-list" do
              div do
                link_to "Download", download_from_archive_admin_master_file_path(mf.id), :method => :get
              end
+             # If the unit is digital collection building, and there is no exemplar,
+             # offer a UI to set one
+             if !mf.exemplar && unit.intended_use_id == 110
+                link_to "Exemplar", set_exemplar_admin_master_file_path(mf.id), :method => :put
+             end
            end
+
          end
       end
    end

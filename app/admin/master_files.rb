@@ -316,6 +316,13 @@ ActiveAdmin.register MasterFile do
          :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
    end
 
+   member_action :set_exemplar, :method => :put do
+      mf = MasterFile.find(params[:id])
+      mf.unit.master_files.update_all(exemplar: false)
+      mf.update(exemplar: true)
+      redirect_to "/admin/units/#{mf.unit_id}"
+   end
+
    member_action :add_new_tag, :method => :post do
       mf = MasterFile.find(params[:id])
       added = mf.add_new_tag( params[:tag])
