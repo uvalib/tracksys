@@ -1,7 +1,16 @@
 if apollo_info.nil?
-   div do "Unable to connect with external metadata source" end
+   attributes_table_for external_metadata do
+      row :title
+      row("External System") do |am|
+         am.external_system
+      end
+      row ("Error") do |em|
+         "Unable retrieve data from Apollo: #{apollo_error}"
+      end
+   end
 else
    attributes_table_for external_metadata do
+      row :title
       row("External System") do |am|
          am.external_system
       end
