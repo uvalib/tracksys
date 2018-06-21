@@ -1,4 +1,25 @@
 namespace :apollo do
+   desc "Add an OMW2 external metadata record"
+   task :add_omw2 => :environment do
+      uid = ENV['unit']
+      vol = ENV['vol']
+      num = ENV['num']
+      pid = ENV['pid']
+      apollo = ENV['apollo']
+      abort("unit, vol, num, apollo required") if vol.nil? || num.nil? || apollo.nil? || uid.nil?
+
+      unit = Unit.find(uid)
+      title = "Our mountain work in the Diocese of Virginia: Our Mountain Work, Vol. #{vol}, no. #{num}"
+
+      puts("Add ext metadata #{title} from #{unit.to_json}")
+
+      md = ExternalMetadata.create(parent_metadata_id: 16104,
+         pid: pid, title: title, is_approved: true, use_right_id: 1,ocr_hint_id: 1,discoverability: 0,
+         availability_policy_id: 1, external_system: "Apollo", external_uri: "/api/items/#{apollo}")
+      unit.update(metadata: md)
+      unit.master_files.update_all(metadata_id: md.id, component_id: nil)
+   end
+   
    desc "Fix apollo link"
    task :fix  => :environment do
       id = ENV['id']
