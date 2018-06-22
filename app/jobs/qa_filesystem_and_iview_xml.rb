@@ -75,23 +75,21 @@ class QaFilesystemAndIviewXml < BaseJob
       # Check that the number of .tif files in the entry directory equals the sequence number of the last file
       @content_files.sort!
       @number_content_files = @content_files.length
-      last_content_file = @content_files.last
-
-      # Pull out the sequence number through multiple regex substitutions
-      unit_regex = Regexp.new(@unit_dir)
-      sequence_number = File.basename(last_content_file).sub(unit_regex, '')
-      sequence_number = sequence_number.sub(/.tif/, '')
-      sequence_number = sequence_number.sub(/^_0*/, '')
-
-      if (sequence_number != @number_content_files.to_s)
-         @error_messages.push("The number of tif files in directory (#{@number_content_files}) does not equal the sequence number of the last file (#{sequence_number}).")
-      end
 
       # Define regex to ensure the file ends with an _, followed by four digits followed by .tif
       regex_content_file = Regexp.new('_\d{4}.(tif)$')
 
+      max_sequence_num = -1
+      max_seq_file = ""
       @content_files.each do |content_file_path|
          content_file = File.basename(content_file_path)
+
+         # extract the sequence num from the name: unit_SEQ.tif
+         seq = content_file.split("_")[1].split(".")[0].to_i
+         if seq > max_sequence_num
+            max_sequence_num = seq
+            max_seq_file = content_file
+         end
 
          # Check that the content file begins with the unit number
          if content_file !~ /^#{@unit_dir}/
@@ -105,6 +103,10 @@ class QaFilesystemAndIviewXml < BaseJob
          if File.size(content_file_path) < minimum_size
             @error_messages.push("#{content_file} is less than #{minimum_size} bytes large and is very likely an incorrect file.")
          end
+      end
+
+      if max_sequence_num > @number_content_files
+         @error_messages.push("The number of tif files in directory (#{@number_content_files}) does not equal the sequence number of the last file (#{max_seq_file}).")
       end
    end
 
