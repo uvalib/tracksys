@@ -151,10 +151,19 @@ class SirsiMetadata < Metadata
    #------------------------------------------------------------------
 
    def get_full_metadata
-      return Virgo.external_lookup(self.catalog_key, self.barcode)
+      begin
+         return Virgo.external_lookup(self.catalog_key, self.barcode)
+      rescue Exception => e
+         Rails.logger.error("Unable to retrieve external metadata: #{e.to_s}")
+         return nil
+      end
    end
 
    def location
+      virgo_meta = self.get_full_metadata
+      if virgo_meta.nil?
+         return "Data is unavaileble; metadata record may be invalid"
+      end
       return self.get_full_metadata[:location]
    end
 
