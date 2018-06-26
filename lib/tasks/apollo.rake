@@ -19,7 +19,7 @@ namespace :apollo do
       unit.update(metadata: md)
       unit.master_files.update_all(metadata_id: md.id, component_id: nil)
    end
-   
+
    desc "Fix apollo link"
    task :fix  => :environment do
       id = ENV['id']
@@ -214,6 +214,18 @@ namespace :apollo do
          dobj.content = oembed
          child_node.add_child(dobj)
       end
+   end
 
+   desc "Ingest WSLS CSV into Apollo. Requires apollo DB connect ENV varibles to be set"
+   task :ingest_wsls  => :environment do
+      puts "Connecting...."
+      conn = ActiveRecord::Base.establish_connection(
+        adapter:  "mysql2",
+        host:     ENV["APOLLO_DB_HOST"],
+        username: ENV["APOLLO_DB_USER"],
+        password: ENV["APOLLO_DB_PASS"],
+        database: ENV["APOLLO_DB_NAME"]
+      ).connection
+      puts conn
    end
 end

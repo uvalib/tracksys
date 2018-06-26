@@ -3,7 +3,7 @@ class Location < ApplicationRecord
    has_many :master_file_locations
    has_many :master_files, through: :master_file_locations
 
-   validates :folder_id, :container_type, :container_id, presence: true
+   validates :container_type, :container_id, presence: true
 
 
    # Given the unit base directory (ex: /digiserv-production/finalization/20_in_process/000033333)
@@ -14,12 +14,17 @@ class Location < ApplicationRecord
       subdir_str = File.dirname(full_path_to_mf)[unit_base_dir.length+1..-1]
       return nil if subdir_str.blank?
 
-      # Naming convention: [box|oversize|tray].{boxname}/{foldername}
+      # Naming convention: [box|oversize|tray].{boxname}/{foldername} OR
+      #                    ledger.name/masterfile.tif (no folders)
       bits = subdir_str.split("/")
-      folder = bits[1]
       box_info = bits[0].split(".")
       type = box_info[0]
       box_id = box_info[1]
+      if bits.length == 3
+         folder = bits[1]
+      else
+         folder = nil
+      end
       ct = ContainerType.where("name like ?", type).first
 
       location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)

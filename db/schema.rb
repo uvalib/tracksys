@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_20_132943) do
+ActiveRecord::Schema.define(version: 2018_06_26_140629) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -290,7 +290,7 @@ ActiveRecord::Schema.define(version: 2018_06_20_132943) do
   create_table "locations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "container_type_id"
     t.string "container_id", null: false
-    t.string "folder_id", null: false
+    t.string "folder_id"
     t.text "notes"
     t.index ["container_type_id"], name: "index_locations_on_container_type_id"
   end
