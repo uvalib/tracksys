@@ -55,7 +55,6 @@ namespace :law do
       end
 
       unit.reload
-      unit.metadata.update(exemplar: unit.master_files.first.filename)
    end
 
    desc 'renumber pages in a unit'
@@ -82,7 +81,6 @@ namespace :law do
       end
 
       unit.reload
-      unit.metadata.update(exemplar: unit.master_files.first.filename)
    end
 
    desc 'Fix a single book, referenced by catalog key'
@@ -143,6 +141,7 @@ namespace :law do
      puts "Ingesting tif from #{src_dir}..."
 
      unit_dir = "%09d" % unit.id
+     first_mf = true
      Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
         src_fn = File.basename(tif, ".*")
 
@@ -163,12 +162,13 @@ namespace :law do
 
         puts "   adding #{tif} as #{ts_filename}"
 
-        # Create MF and tech metadata
+        # Create MF and tech metadata. Default the first master file to exemplar
         md5 = Digest::MD5.hexdigest(File.read(tif))
         mf = MasterFile.create!(
            unit: unit, filename: ts_filename, filesize: File.size(tif),
-           title: ts_page.to_i, md5: md5, metadata: meta)
+           title: ts_page.to_i, md5: md5, metadata: meta, exemplar: first_mf)
         TechMetadata.create(mf, tif)
+        first_mf = false
 
         # Publish and archive
         publish_to_iiif(mf, tif)
@@ -183,12 +183,11 @@ namespace :law do
         end
 
      end
-     # Update metadata (exemplar, date published)
+     # Update metadata with date published
      unit.reload # up to date with newly added MF
      unit.update(master_files_count: unit.master_files.count, date_dl_deliverables_ready: DateTime.now,
         date_archived: DateTime.now, complete_scan: 1)
-     exemplar = unit.master_files.first.filename
-     unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
+     unit.metadata.update(date_dl_ingest: DateTime.now)
      puts "DONE!"
    end
 
@@ -438,6 +437,7 @@ namespace :law do
          return
       end
 
+      first_mf = true
       unit_dir = "%09d" % unit.id
       Dir.glob("#{src_dir}/*.tif").sort.each do |tif|
          src_fn = File.basename(tif, ".*")
@@ -458,8 +458,9 @@ namespace :law do
          md5 = Digest::MD5.hexdigest(File.read(tif))
          mf = MasterFile.create!(
             unit: unit, filename: ts_filename, filesize: File.size(tif),
-            title: ts_page.to_i, md5: md5, metadata: meta)
+            title: ts_page.to_i, md5: md5, metadata: meta, exemplar: first_mf)
          TechMetadata.create(mf, tif)
+         first_mf = false
 
          # Publish and archive
          publish_to_iiif(mf, tif)
@@ -474,12 +475,11 @@ namespace :law do
          end
       end
 
-      # Update metadata (exemplar, date published)
+      # Update metadata date published
       unit.reload # up to date with newly added MF
       unit.update(master_files_count: unit.master_files.count, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
-      exemplar = unit.master_files.first.filename
-      unit.metadata.update(exemplar: exemplar, date_dl_ingest: DateTime.now)
+      unit.metadata.update(date_dl_ingest: DateTime.now)
    end
 
    def create_sirsi_record(catalog_key, barcode)

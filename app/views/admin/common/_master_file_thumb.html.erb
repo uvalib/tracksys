@@ -9,6 +9,8 @@
          mf_id = mf.original_mf_id
          page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
       end %>
-   <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled", id: mf_id,
+   <% exemplar = ""
+      exemplar = " exemplar" if mf.exemplar %>
+   <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled#{exemplar}", id: mf_id,
          data: {page: page, metadata_pid: meta_pid}) %>
 <% end %>

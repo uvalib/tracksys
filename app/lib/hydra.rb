@@ -53,8 +53,8 @@ module Hydra
          availability_policy_pid = metadata.availability_policy.pid
       end
       payload["policyFacet"] = "#{availability_policy_pid}"
-      if !metadata.exemplar.blank?
-         payload["exemplarPid"] = "#{MasterFile.find_by(filename: metadata.exemplar).pid}"
+      if metadata.has_exemplar?
+         payload["exemplarPid"] = metadata.exemplar_info[:pid]
       else
          # one not set; just pick the first masterfile
          payload["exemplarPid"] = "#{metadata.master_files.first.pid}" if !metadata.master_files.first.nil?

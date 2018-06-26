@@ -53,6 +53,7 @@ class Api::ManifestController < ApplicationController
          json = { pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height }
          json[:title] = mf.title if !mf.title.nil?
          json[:description] = mf.description if !mf.description.nil?
+         json[:exemplar] = mf.exemplar if mf.exemplar
          out << json
       end
       return out
@@ -77,6 +78,7 @@ class Api::ManifestController < ApplicationController
          json = { pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height }
          json[:title] = mf.title if !mf.title.nil?
          json[:description] = mf.description if !mf.description.nil?
+         json[:exemplar] = mf.exemplar if mf.exemplar
          out << json
       end
       return out

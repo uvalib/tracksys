@@ -20,9 +20,9 @@ namespace :gannon do
         dest = File.join(archive_dir, txt)
         puts "Archive text file to: #{dest}"
         FileUtils.copy(fn, dest)
-        FileUtils.chmod(0664, dest) 
-      end  
-   end 
+        FileUtils.chmod(0664, dest)
+      end
+   end
 
    desc "Setup order/agency"
    task :setup  => :environment do
@@ -118,6 +118,7 @@ namespace :gannon do
       images = [".tif", ".jp2"]
       unit_dir = "%09d" % unit.id
 
+      first_mf = true
       Dir["#{dir}/*"].sort.each do |file|
          next if !images.include? File.extname(file)
          puts "Processing #{file}..."
@@ -143,8 +144,9 @@ namespace :gannon do
 
          md5 = Digest::MD5.hexdigest(File.read(file))
          mf = MasterFile.create!(unit: unit, filename: ts_filename, filesize: File.size(file),
-            title: "#{img_file.to_i}", md5: md5, metadata: sm)
+            title: "#{img_file.to_i}", md5: md5, metadata: sm, exemplar: first_mf)
          TechMetadata.create(mf, file)
+         first_mf = false
 
          file_type = "TIFF"
          if img_file.include? ".jp2"
@@ -181,24 +183,6 @@ namespace :gannon do
       unit.reload # up to date with newly added MF
       unit.update(master_files_count: unit.master_files.count, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
-      unit.metadata.update(exemplar:  unit.master_files.first.filename)
-   end
-
-   desc "ingest all books"
-   task :ingest_all  => :environment do
-      name = ENV['name']
-      abort("Name is required") if name.nil?
-
-      excel_dir = File.join(Rails.root, "gannon-#{name}")
-      if !Dir.exists? excel_dir
-         abort "Excel dir #{excel_dir} does not exist"
-      end
-
-      Dir.foreach(excel_dir) do |f|
-         next if !f.include? ".xlsx"
-         ENV['barcode'] = f.split(".")[0]
-         Rake::Task['gannon:ingest'].execute
-      end
    end
 
    desc "ingest all books"
@@ -282,7 +266,7 @@ namespace :gannon do
       xlsx = Roo::Spreadsheet.open(excel_file)
       csv_data = xlsx.to_csv
       mf_cnt = 0
-      exemplar = nil
+      title_page_id = nil
       found_title_page = false
       unit_dir = "%09d" % unit.id
       CSV.parse(csv_data, headers: true) do |row|
@@ -314,18 +298,6 @@ namespace :gannon do
          ts_filename = "#{unit_dir}_#{fn_page}.#{filename.split('.')[1]}"
          ts_txt_filename = "#{unit_dir}_#{fn_page}.txt"
 
-         # Set exemplar to the title page if possible, or page 1.
-         # default is first image if neither is found
-         if !title.blank?
-            if title.strip.downcase == "title-page"
-               found_title_page = true
-               exemplar = ts_filename
-            end
-            if title.strip.downcase == "1" && found_title_page == false
-               exemplar = ts_filename
-            end
-         end
-
          # Before anything else happens, run identify on the file to see if it is valid
          cmd = "identify #{img_file}"
          if !system(cmd)
@@ -339,6 +311,11 @@ namespace :gannon do
          md5 = Digest::MD5.hexdigest(File.read(img_file))
          mf = MasterFile.create!(unit: unit, filename: ts_filename, filesize: File.size(img_file),
             title: title, md5: md5, metadata: sm)
+
+         # Set title_page_id to the title page if possible...
+         if !title.blank? && title.strip.downcase == "title-page"
+            title_page_id = mf.id
+         end
 
          # create tech metadata
          no_tech_metadata = false
@@ -404,8 +381,11 @@ namespace :gannon do
 
       unit.update(master_files_count: mf_cnt, date_dl_deliverables_ready: DateTime.now,
          date_archived: DateTime.now, complete_scan: 1)
-      exemplar = unit.master_files.first.filename if exemplar.nil?
-      unit.metadata.update(exemplar: exemplar)
+      if title_page_id != nil
+         MasterFile.find(title_page_id).update(exemplar: true)
+      else
+         unit.master_files.first.update(exemplar: true)
+      end
    end
 
    desc "Fix ALL missing jp2 dimensions metadata"
@@ -423,15 +403,6 @@ namespace :gannon do
            mf.update(date_dl_update: Time.now)
            puts "     updated to #{mf.image_tech_meta.width}x#{mf.image_tech_meta.height}"
          end
-      end
-   end
-
-   desc "Fix bad exemplar"
-   task :fix_exemplar  => :environment do
-      Metadata.where(exemplar: "00000001.jp2").each do |m|
-         e = m.units.first.master_files.first.filename
-         puts "Update #{m.id}: #{m.barcode} exemplar to #{e}"
-         m.update(exemplar: e, date_dl_update: Time.now)
       end
    end
 

@@ -6,7 +6,7 @@ ActiveAdmin.register XmlMetadata do
    # strong paramters handling
    permit_params :title, :creator_name,
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
-      :exemplar, :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
+      :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :desc_metadata, :dpla, :creator_death_date,
       :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale
 
@@ -105,9 +105,6 @@ ActiveAdmin.register XmlMetadata do
                      render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
                   end
                end
-               row :exemplar do |xml_metadata|
-                  link_to "#{xml_metadata.exemplar}", admin_master_files_path(:q => {:filename_eq => xml_metadata.exemplar})
-               end
                row('Right Statement'){ |r| r.use_right.name }
                row('Rights Rationale'){ |r| r.use_right_rationale }
                row :creator_death_date
@@ -168,6 +165,16 @@ ActiveAdmin.register XmlMetadata do
 
    # Sidebars =================================================================
    #
+   sidebar "Exemplar", :only => [:show],  if: proc{ xml_metadata.has_exemplar? } do
+      div :style=>"text-align:center" do
+         info = xml_metadata.exemplar_info(:medium)
+         image_tag(
+            info[:url], id: info[:id],
+            class: "do-viewer-enabled",
+            data: { page: info[:page], metadata_pid:xml_metadata.pid } )
+      end
+   end
+
    sidebar "Related Information", :only => [:show, :edit] do
       attributes_table_for xml_metadata do
          # If there is only one master file, link directy to it

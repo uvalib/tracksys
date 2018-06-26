@@ -27,8 +27,6 @@ class Metadata < ApplicationRecord
    scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
    scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
    scope :not_approved,  ->{ where(:is_approved => false) }
-   scope :has_exemplars,  ->{ where("exemplar is NOT NULL") }
-   scope :need_exemplars,  ->{ where("exemplar is NULL") }
    scope :dpla, ->{where(:dpla => true) }
    scope :checked_out, ->{
       joins(:checkouts).where("checkouts.return_at is null")
@@ -132,6 +130,19 @@ class Metadata < ApplicationRecord
       end
    end
 
+   def has_exemplar?
+      return master_files.where(exemplar: true).count > 0
+   end
+
+   # return a hash containing URL, filename, PID, ID and page number for exemplar
+   # Optionally specify a size for the thumbnail. Small is the default
+   def exemplar_info( size = :small )
+      mf = master_files.where(exemplar: true).first
+      page = mf.filename.split("_")[1].split(".")[0].to_i
+      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, pid: mf.pid}
+      return info
+   end
+
    def in_catalog?
       return self.catalog_key?
    end
@@ -214,7 +225,6 @@ end
 #  pid                    :string(255)
 #  created_at             :datetime
 #  updated_at             :datetime
-#  exemplar               :string(255)
 #  parent_metadata_id     :integer          default(0), not null
 #  desc_metadata          :text(65535)
 #  discoverability        :boolean          default(TRUE)

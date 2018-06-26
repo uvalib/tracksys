@@ -7,13 +7,9 @@ ActiveAdmin.register_page "Dashboard" do
             table_for Metadata.in_digital_library.limit(20) do
                column ("Title") {|metadata| truncate(metadata.title, :length => 80)}
                column ("Thumbnail") do |metadata|
-                  if metadata.exemplar?
-                     mf = MasterFile.find_by( filename: metadata.exemplar)
-                     if mf.nil?
-                        "missing thumbnail"
-                     else
-                        image_tag("#{Settings.iiif_url}/#{mf.pid}/full/!125,125/0/default.jpg")
-                     end
+                  if metadata.has_exemplar?
+                     info = metadata.exemplar_info(:small)
+                     image_tag(info[:url], id: info[:id] )
                   else
                      "no thumbnail"
                   end

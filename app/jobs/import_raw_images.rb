@@ -13,7 +13,7 @@ class ImportRawImages < BaseJob
       images.sort.each do |image_path|
          # files arrive with full path; just get name
          image = File.basename image_path
-         
+
          # create master file, but name it to tracksys standards. Save original file name in title field.
          src_file = File.join(in_proc_dir, image)
          seq_str = "%04d" % seq
@@ -52,9 +52,8 @@ class ImportRawImages < BaseJob
                   md = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
                      desc_metadata: xml_str, creator_name: creator,
                      discoverability: true, availability_policy: unit.metadata.availability_policy,
-                     dpla: dpla, parent_metadata_id: unit.metadata.id,
-                     exemplar: master_file.filename)
-                  master_file.update(metadata_id: md.id)
+                     dpla: dpla, parent_metadata_id: unit.metadata.id)
+                  master_file.update(metadata_id: md.id, exemplar: true)
                   logger.debug "Created XML Metadata for master file #{mf_filename}"
                end
             else

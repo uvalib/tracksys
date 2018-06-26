@@ -18,24 +18,30 @@ class PublishQDC < BaseJob
       qdc_tpl = file.read
       file.close
 
-      logger.info("Pull latest version from git to #{qdc_dir}...")
-      git = Git.open(qdc_dir, :log => logger )
-      git.config('user.name', Settings.dpla_qdc_git_user )
-      git.config('user.email', Settings.dpla_qdc_git_email )
-      git.pull
+      if Rails.env == "production"
+         logger.info("Pull latest version from git to #{qdc_dir}...")
+         git = Git.open(qdc_dir, :log => logger )
+         git.config('user.name', Settings.dpla_qdc_git_user )
+         git.config('user.email', Settings.dpla_qdc_git_email )
+         git.pull
+      end
 
       # Generate QDC and write it to delivery directory. The full path
       # to the QDC file created is returned.
       qdc_fn = PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl, logger)
 
-      if git.diff.size > 0
-         logger.info("Publishing changes to git...")
-         git.add(qdc_fn)
-         git.commit( "Update to #{meta.pid}" )
-         git.push
-         meta.update(qdc_generated_at: DateTime.now)
+      if Rails.env == "production"
+         if git.diff.size > 0
+            logger.info("Publishing changes to git...")
+            git.add(qdc_fn)
+            git.commit( "Update to #{meta.pid}" )
+            git.push
+            meta.update(qdc_generated_at: DateTime.now)
+         else
+            logger.info "Publication resulted in no changes from prior version. Nothing more to do."
+         end
       else
-         logger.info "Publication resulted in no changes from prior version. Nothing more to do."
+         meta.update(qdc_generated_at: DateTime.now)
       end
    end
 
@@ -49,16 +55,11 @@ class PublishQDC < BaseJob
       FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
       qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
 
-      log.info("Select exemplar...")
-      if meta.exemplar.blank?
-         exemplar_pid = meta.master_files.first.pid
+      log.info("Select exemplarPID...")
+      if meta.has_exemplar?
+         exemplar_pid =  meta.exemplar_info[:pid]
       else
-         exemplar = meta.master_files.find_by(filename: meta.exemplar)
-         if !exemplar.nil?
-            exemplar_pid = exemplar.pid
-         else
-            exemplar_pid = meta.master_files.first.pid
-         end
+         exemplar_pid = meta.master_files.first.pid
       end
 
       # ingest into an XML document and do a manual crosswalk to get data
@@ -94,8 +95,8 @@ class PublishQDC < BaseJob
 
 
       # Clean up data and populate XML template...
-      log.info("Populate QDC XML template...")
       cw_data['TERMS'].compact!
+      log.info("Populate QDC XML template with [#{cw_data}]...")
       qdc = qdc_tpl.gsub(/PID/, meta.pid)
       cw_data.each do |k,v|
          if k == "TERMS"

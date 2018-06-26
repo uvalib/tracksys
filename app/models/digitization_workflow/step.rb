@@ -104,11 +104,9 @@ class Step < ApplicationRecord
       # of subdirectories in the start directory. No .tif files should be present
       # outside of these subdirectories
       if self.workflow.name == "Manuscript" && self.name != "Scan"
-         Rails.logger.info "This is a manuscript project; validate the content and directory structure"
          return validate_manuscript_directory_content(project, start_dir)
       else
          # Normal, flat directory validations
-         Rails.logger.info "This is a standard project; validate the directory content"
          return validate_directory_content(project, start_dir)
       end
    end
@@ -162,7 +160,7 @@ class Step < ApplicationRecord
          return false
       end
 
-      # validate directory structure: ./[step_dir]/[box|oversize|tray].name/folder/*.tif
+      # validate directory structure: ./[step_dir]/[box|oversize|tray|ledger].name/folder/*.tif
       return false if !validate_structure(project, dir)
 
       # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
@@ -178,11 +176,13 @@ class Step < ApplicationRecord
 
    private
    def validate_structure(project, dir)
-      # top level contains one directory for box and has a name like: [box|oversize|tray].{name}
+      # top level contains one directory for box and has a name like: [box|oversize|tray|ledger].{name}
       # box contains only directories; one per folder
-      types = ["box", "oversize", "tray"]
+      # EXCEPTION: Ledgers do not have any folders, just .tif files
+      types = ["box", "oversize", "tray", "ledger"]
       tree = {}
       folders_found = false
+      ledger = false
       Dir.glob("#{dir}/**/*").each do |entry|
          if File.directory? (entry)
             # just get the subdirectories...
@@ -208,6 +208,9 @@ class Step < ApplicationRecord
                if !types.include?(type)
                   step_failed(project, "Filesystem", "<p>Unsupported box type #{type} in directory #{subs}</p>")
                   return false
+               else
+                  # Flag ledger for future use
+                  ledger = (type == "ledger")
                end
                tree[subs] = []
                if tree.keys.length > 1
@@ -220,18 +223,29 @@ class Step < ApplicationRecord
                folders_found = true
             end
          else
+            # This is a file. Count slashes to figure out where in the
+            # directory tree this file resides. One slash is the box level.
+            # In all cases except for ledgers, this is invalid
             subs = File.dirname(entry)[dir.length+1..-1]
             next if subs.blank?
-            if subs.split("/").count == 1
+            if subs.split("/").count == 1 && ledger == false
                step_failed(project, "Filesystem", "<p>Files found in box directory</p>")
                return false
             end
          end
       end
 
+      # For all cases except ledgers, folders are required within the box directory
       if folders_found == false
-         step_failed(project, "Filesystem", "<p>No folder directories found</p>")
-         return false
+         if ledger == false
+            step_failed(project, "Filesystem", "<p>No folder directories found</p>")
+            return false
+         end
+      else
+         if ledger == true
+            step_failed(project, "Filesystem", "<p>Folder directories not allowed in ledgers</p>")
+            return false
+         end
       end
       return true
    end

@@ -10,19 +10,17 @@ class JobStatus < ApplicationRecord
       return "warn" if self.failures > 0
    end
    def started
-      self.update_attributes(:started_at => DateTime.now, :status=>"running") if self.status == 'pending'
+      update(started_at: DateTime.now, status: "running") if self.status == 'pending'
    end
 
    def failed(err)
       # only handle this if the status is transitiong from running to failed
       return if self.status != 'running'
-      db_err = err
-      db_err = err.truncate(255, separator: /\s/) if err.length > 255
-      self.update_attributes(:ended_at => DateTime.now, :status=>"failure", :error=>err)
+      update(ended_at: DateTime.now, status: "failure", error: err)
    end
 
    def finished
-      self.update_attributes(:ended_at => DateTime.now, :status=>"success") if self.status == 'running'
+      update(ended_at: DateTime.now, status: "success") if self.status == 'running'
    end
 
    def self.jobs_count(status)

@@ -212,6 +212,17 @@ class Component < ApplicationRecord
       "level=#{format_component_strings(self.level)} ~ pid=#{self.pid} ~ date=#{format_component_strings(self.date)} ~ desc=#{format_component_strings(self.iview_description)}"
    end
 
+   def has_exemplar?
+      return master_files.where(exemplar: true).count > 0
+   end
+
+   def exemplar_info( size )
+      mf = master_files.where(exemplar: true).first
+      page = mf.filename.split("_")[1].split(".")[0].to_i
+      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, pid: mf.pid}
+      return info
+   end
+
    alias :parent_component :parent
 end
 
@@ -239,7 +250,6 @@ end
 #  date_dl_ingest          :datetime
 #  date_dl_update          :datetime
 #  master_files_count      :integer          default(0), not null
-#  exemplar                :string(255)
 #  ancestry                :string(255)
 #  pids_depth_cache        :string(255)
 #  ead_id_atts_depth_cache :string(255)

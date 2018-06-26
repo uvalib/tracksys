@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_14_125649) do
+ActiveRecord::Schema.define(version: 2018_06_26_140629) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -154,7 +154,6 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.datetime "date_dl_ingest"
     t.datetime "date_dl_update"
     t.integer "master_files_count", default: 0, null: false
-    t.string "exemplar"
     t.string "ancestry"
     t.string "pids_depth_cache"
     t.string "ead_id_atts_depth_cache"
@@ -280,7 +279,7 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.datetime "started_at"
     t.datetime "ended_at"
     t.integer "failures", default: 0, null: false
-    t.string "error"
+    t.text "error"
     t.integer "originator_id"
     t.string "originator_type"
     t.datetime "created_at"
@@ -291,7 +290,7 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
   create_table "locations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "container_type_id"
     t.string "container_id", null: false
-    t.string "folder_id", null: false
+    t.string "folder_id"
     t.text "notes"
     t.index ["container_type_id"], name: "index_locations_on_container_type_id"
   end
@@ -333,6 +332,7 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.text "deaccession_note"
     t.integer "deaccessioned_by_id"
     t.integer "text_source"
+    t.boolean "exemplar", default: false
     t.index ["component_id"], name: "index_master_files_on_component_id"
     t.index ["date_dl_ingest"], name: "index_master_files_on_date_dl_ingest"
     t.index ["date_dl_update"], name: "index_master_files_on_date_dl_update"
@@ -369,7 +369,6 @@ ActiveRecord::Schema.define(version: 2018_06_14_125649) do
     t.string "pid"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "exemplar"
     t.integer "parent_metadata_id", default: 0, null: false
     t.text "desc_metadata"
     t.boolean "discoverability", default: true

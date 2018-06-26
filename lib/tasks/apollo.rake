@@ -19,7 +19,7 @@ namespace :apollo do
       unit.update(metadata: md)
       unit.master_files.update_all(metadata_id: md.id, component_id: nil)
    end
-   
+
    desc "Fix apollo link"
    task :fix  => :environment do
       id = ENV['id']
@@ -87,7 +87,6 @@ namespace :apollo do
             pid: component.pid, title: "#{orig_metadata.title}: #{component.title}",
             is_approved: true, use_right: orig_metadata.use_right,
             ocr_hint_id: orig_metadata.ocr_hint_id,
-            exemplar: component.master_files.first.filename,
             discoverability: orig_metadata.discoverability,
             availability_policy_id: orig_metadata.availability_policy_id,
             external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
@@ -112,8 +111,7 @@ namespace :apollo do
       md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
          pid: pid, title: "#{orig_metadata.title}: #{component.title}",
          is_approved: true, use_right: orig_metadata.use_right, ocr_hint_id: 1,
-         exemplar: component.master_files.first.filename, discoverability: 1,
-         availability_policy_id: 1,
+         discoverability: 1, availability_policy_id: 1,
          external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
       unit.update(metadata: md)
       unit.master_files.update_all(metadata_id: md.id, component_id: nil)
@@ -216,6 +214,137 @@ namespace :apollo do
          dobj.content = oembed
          child_node.add_child(dobj)
       end
+   end
 
+   # Read the legacy CSV files and parse them into a hierarchical XML document of the
+   # format Apollo can ingest.
+   # Format:  Collection / year (YYYY) / month (name) / digital_content
+   #
+   desc "Convert WSLS into apollo XML and controlled vocabulary"
+   task :convert_wsls  => :environment do
+      wsls_csv = File.join(Rails.root, "data", "wsls.csv")
+      dur_csv = File.join(Rails.root, "data", "wsls-durations.csv")
+      desc_file  = File.join(Rails.root, "data", "wsls-desc.txt")
+      title = "WSLS-TV (Roanoke, VA) News Film Collection, 1951 to 1971"
+      year_desc_template = "Video clips and corresponding anchor scripts from #YEAR."
+      xml_doc = Nokogiri::XML::Document.new
+
+      puts "Read durations into hash..."
+
+
+      puts
+      puts "DONE; writing file..."
+      File.write("wsls.xml", xml_doc.to_xml)
+   end
+
+   desc "Parse out WSLS controlled vocabulary into Apollo ingest files"
+   task :wsls_vocab  => :environment do
+      topics = {}
+      places = {}
+      colors = []
+      tags = []
+      s_cnt = 0
+      wsls_csv = File.join(Rails.root, "data", "wsls.csv")
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         # O (14) and P (15) are topic val and URI
+         topic = row[14]
+         if !topic.blank?
+            if !topics.has_key? topic
+               topics[topic] = row[15]
+            end
+         end
+
+         # Q (15) and R (16) are topic/URI too
+         topic = row[16]
+         if !topic.blank?
+            if !topics.has_key? topic
+               topics[topic] = row[17]
+            end
+         end
+
+         # S is a topic, but has no URI? Throw it away?
+         topic = row[18]
+         if !topic.blank?
+            if !topics.has_key? topic
+               puts "WARN: Controlled vocab for topic [#{topic}] with no URI"
+               topics[topic] = ""
+            end
+         end
+
+         # T (19) and U (20) are place val and URI
+         place = row[19]
+         if !place.blank?
+            if !places.has_key? place
+               places[place] = row[20]
+            end
+         end
+
+         [21,22].each do |col_idx|
+            val = row[col_idx]
+            next if val.blank?
+            if !topics.has_key? val
+               puts "WARN: Controlled vocab for place [#{val}] with no URI"
+               places[val] = ""
+            end
+         end
+
+         # 34 = wslsColor
+         val = row[34]
+         if !val.blank? && !colors.include?(val)
+            colors << val
+         end
+
+         # 35 - wslsTag
+         val = row[35]
+         if !val.blank? && !tags.include?(val)
+            tags << val
+         end
+      end
+
+      puts "Create SQL for new node_types..."
+      out = File.open("wsls_node_types.sql", "w")
+      out.write("insert into node_types (id,name,controlled_vocab) values\n")
+      out.write("  (15,'wslsTopic',1), (16,'wslsPlace', 1), (17,'wslsColor', 1), (18,'wslsTag', 1);\n")
+      out.close
+
+      puts "Create SQL insert for topics..."
+      out = File.open("wsls_topics.sql", "w")
+      out.write("insert into controlled_values (node_type_id,value,value_uri) values\n  ")
+      topics.sort.each_with_index do |ele, idx|
+         out.write(",\n  ") if idx > 0
+         out.write("(15,'#{ele[0]}','#{ele[1]}')")
+      end
+      out.write(";")
+      out.close
+
+      puts "Create SQL insert for places..."
+      out = File.open("wsls_places.sql", "w")
+      out.write("insert into controlled_values (node_type_id,value,value_uri) values\n  ")
+      places.sort.each_with_index do |ele, idx|
+         out.write(",\n  ") if idx > 0
+         out.write("(16,'#{ele[0]}','#{ele[1]}')")
+      end
+      out.write(";")
+      out.close
+
+      puts "Create SQL insert for wslsColor..."
+      out = File.open("wsls_color.sql", "w")
+      out.write("insert into controlled_values (node_type_id,value) values\n  ")
+      colors.sort.each_with_index do |ele, idx|
+         out.write(",\n  ") if idx > 0
+         out.write("(17,'#{ele}')")
+      end
+      out.write(";")
+      out.close
+
+      puts "Create SQL insert for wslsTag..."
+      out = File.open("wsls_tag.sql", "w")
+      out.write("insert into controlled_values (node_type_id,value) values\n  ")
+      tags.sort.each_with_index do |ele, idx|
+         out.write(",\n  ") if idx > 0
+         out.write("(18,'#{ele}')")
+      end
+      out.write(";")
+      out.close
    end
 end
