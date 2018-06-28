@@ -244,11 +244,14 @@ namespace :apollo do
       colors = []
       tags = []
       s_cnt = 0
+      dups = ["Bedford (Va.)", "James River (Va.)", "Natural Bridge (Va.)", "Roanoke (Va.)", "Salem (Va.)","Smith Mountain Lake (Va.)"]
       wsls_csv = File.join(Rails.root, "data", "wsls.csv")
       CSV.foreach(wsls_csv, headers: true) do |row|
          # O (14) and P (15) are topic val and URI
          topic = row[14]
          if !topic.blank?
+            topic.strip!
+            next if dups.include? topic
             if !topics.has_key? topic
                topics[topic] = row[15]
             end
@@ -257,6 +260,8 @@ namespace :apollo do
          # Q (15) and R (16) are topic/URI too
          topic = row[16]
          if !topic.blank?
+            topic.strip!
+            next if dups.include? topic
             if !topics.has_key? topic
                topics[topic] = row[17]
             end
@@ -265,6 +270,8 @@ namespace :apollo do
          # S is a topic, but has no URI? Throw it away?
          topic = row[18]
          if !topic.blank?
+            topic.strip!
+            next if dups.include? topic
             if !topics.has_key? topic
                puts "WARN: Controlled vocab for topic [#{topic}] with no URI"
                topics[topic] = ""
@@ -274,7 +281,9 @@ namespace :apollo do
          # T (19) and U (20) are place val and URI
          place = row[19]
          if !place.blank?
-            if !places.has_key? place
+            place.strip!
+            next if place=="Jefferson National Forest"
+            if !places.has_key?(place) && !topics.has_key?(place)
                places[place] = row[20]
             end
          end
@@ -282,7 +291,9 @@ namespace :apollo do
          [21,22].each do |col_idx|
             val = row[col_idx]
             next if val.blank?
-            if !topics.has_key? val
+            val.strip!
+            next if val=="Jefferson National Forest"
+            if !places.has_key?(val) && !topics.has_key?(val)
                puts "WARN: Controlled vocab for place [#{val}] with no URI"
                places[val] = ""
             end
@@ -308,41 +319,46 @@ namespace :apollo do
       out.close
 
       puts "Create SQL insert for topics..."
+      cv_id = 10
       out = File.open("wsls_topics.sql", "w")
-      out.write("insert into controlled_values (node_type_id,value,value_uri) values\n  ")
+      out.write("insert into controlled_values (id,pid,node_type_id,value,value_uri) values\n  ")
       topics.sort.each_with_index do |ele, idx|
          out.write(",\n  ") if idx > 0
-         out.write("(15,'#{ele[0]}','#{ele[1]}')")
+         out.write("(#{cv_id},\"uva-acv#{cv_id}\",15,\"#{ele[0]}\",\"#{ele[1]}\")")
+         cv_id+=1
       end
       out.write(";")
       out.close
 
       puts "Create SQL insert for places..."
       out = File.open("wsls_places.sql", "w")
-      out.write("insert into controlled_values (node_type_id,value,value_uri) values\n  ")
+      out.write("insert into controlled_values (id,pid,node_type_id,value,value_uri) values\n  ")
       places.sort.each_with_index do |ele, idx|
          out.write(",\n  ") if idx > 0
-         out.write("(16,'#{ele[0]}','#{ele[1]}')")
+         out.write("(#{cv_id},\"uva-acv#{cv_id}\",16,\"#{ele[0]}\",\"#{ele[1]}\")")
+         cv_id+=1
       end
       out.write(";")
       out.close
 
       puts "Create SQL insert for wslsColor..."
       out = File.open("wsls_color.sql", "w")
-      out.write("insert into controlled_values (node_type_id,value) values\n  ")
+      out.write("insert into controlled_values (id,pid,node_type_id,value) values\n  ")
       colors.sort.each_with_index do |ele, idx|
          out.write(",\n  ") if idx > 0
-         out.write("(17,'#{ele}')")
+         out.write("(#{cv_id},'uva-acv#{cv_id}',17,'#{ele}')")
+         cv_id+=1
       end
       out.write(";")
       out.close
 
       puts "Create SQL insert for wslsTag..."
       out = File.open("wsls_tag.sql", "w")
-      out.write("insert into controlled_values (node_type_id,value) values\n  ")
+      out.write("insert into controlled_values (id,pid,node_type_id,value) values\n  ")
       tags.sort.each_with_index do |ele, idx|
          out.write(",\n  ") if idx > 0
-         out.write("(18,'#{ele}')")
+         out.write("(#{cv_id},'uva-acv#{cv_id}',18,'#{ele}')")
+         cv_id+=1
       end
       out.write(";")
       out.close
