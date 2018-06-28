@@ -25,7 +25,8 @@ class Location < ApplicationRecord
       else
          folder = nil
       end
-      ct = ContainerType.where("name like ?", type).first
+      like_type = "#{type}%"
+      ct = ContainerType.where("name like ?", like_type).first
 
       location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
       if location.nil?
