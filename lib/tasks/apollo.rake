@@ -371,10 +371,9 @@ namespace :apollo do
          print "." if row_num%100 == 0
       end
 
+      item_cnt = 0
       data.keys.sort.each do |year|
          puts "  #{year}"
-         # create the year-level node as a child of collection
-         parent_node = nil
          year_node = Nokogiri::XML::Node.new "year", xml_doc
          coll_node.add_child year_node
          title_node = Nokogiri::XML::Node.new "title", xml_doc
@@ -387,9 +386,9 @@ namespace :apollo do
          pid_node.content = find_year_pid(year, pid_tree)
          year_node.add_child pid_node
 
+         year_ele = data[year]
          if year != "unknown"
-            year_ele = data[year]
-            year_ele.keys.sort.each do |month|  #.sort_by {|key, value| key.to_i }
+            year_ele.keys.sort.each do |month|
                next if month == 0
                month_node = Nokogiri::XML::Node.new "month", xml_doc
                year_node.add_child month_node
@@ -403,20 +402,45 @@ namespace :apollo do
                pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
                pid_node.content = find_month_pid(year, month_name, pid_tree)
                month_node.add_child pid_node
-               parent_node = month_node
                puts "    #{month_name}"
+               year_ele[month].each do |item|
+                  create_item_node(month_node, item)
+                  item_cnt+=1
+                  print "+" if item_cnt%100 == 0
+               end
             end
          else
-            parent_node = year_node
+            year_ele.each do |item|
+               create_item_node(year_node, item)
+               item_cnt+=1
+               print "+" if item_cnt%100 == 0
+            end
          end
-
-         # data[year]
       end
 
       puts
       puts "DONE; writing file..."
       File.write("wsls.xml", xml_doc.to_xml)
       puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}"
+      puts "TOTAL ITEMS: #{item_cnt}"
+   end
+
+   def create_item_node(parent, item)
+      item_node = Nokogiri::XML::Node.new "item", parent
+      parent.add_child item_node
+      item.each do |key,val|
+         if val.kind_of?(Array)
+            val.each do |v|
+               child = Nokogiri::XML::Node.new key, parent
+               child.content = v
+               item_node.add_child child
+            end
+         else
+            child = Nokogiri::XML::Node.new key, parent
+            child.content = val
+            item_node.add_child child
+         end
+      end
    end
 
    def find_month_pid(year, month, tree)
