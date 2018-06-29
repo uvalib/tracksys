@@ -227,8 +227,11 @@ namespace :apollo do
       desc_file  = File.join(Rails.root, "data", "wsls-desc.txt")
       title = "WSLS-TV (Roanoke, VA) News Film Collection, 1951 to 1971"
       year_desc_template = "Video clips and corresponding anchor scripts from #YEAR."
+      month_desc_template = "Video clips and corresponding anchor scripts from #MONTH of #YEAR."
+      f = File.open( File.join(Rails.root, "data", "wsls-tree.json") )
+      pid_tree = JSON.parse(f.read)
       months = ["January", "February", "March", "April", "May", "June", "July",
-                "August", "September", "October", "November", "December"]
+                "August", "September", "October", "November", "December", "Unknown"]
       xml_doc = Nokogiri::XML::Document.new
 
       puts "Read durations into hash..."
@@ -265,7 +268,7 @@ namespace :apollo do
          if wsls_id.blank?
             wsls_id = row[0]
             if wsls_id.blank?
-               puts "WARN: Row #{row_num} has not WSLS ID, skipping"
+               # puts "WARN: Row #{row_num} has not WSLS ID, skipping"
                no_id +=1
                row_num += 1
                next
@@ -281,16 +284,29 @@ namespace :apollo do
          end
 
          wsls_date = row[8]
-         if wsls_date.blank?
+         if wsls_date.blank? || wsls_date == "n/a"
             year = "unknown"
             month = nil
          else
             # YYYY-mm-dd format
-            year = wsls_date.split("-").first
-            month = months[ wsls_date.split("-")[1].to_i ]
+            if wsls_date.include? "/"
+               year = wsls_date.split("/").last
+               month = wsls_date.split("/").first.to_i
+            else
+               year = wsls_date.split("-").first
+               month = wsls_date.split("-")[1].to_i
+            end
+            if year.length > 4
+               # take the last 4 digits; day and year ran together
+               year = year[2..-1]
+            end
+            if month.to_i == 0
+               month = 13
+            end
          end
 
          item = {}
+         item["wslsSource"] = wsls_src if !wsls_src.blank?
          item["filmBoxLabel"] = row[11] if !row[11].blank?
          item["title"] = row[12] if !row[12].blank?
          item["abstract"] = row[13] if !row[13].blank?
@@ -347,7 +363,7 @@ namespace :apollo do
                end
             end
          else
-            puts "WARN: row #{row_num} has no data, skipping"
+            # puts "WARN: row #{row_num} has no data, skipping"
             no_data += 1
          end
 
@@ -355,12 +371,83 @@ namespace :apollo do
          print "." if row_num%100 == 0
       end
 
-      File.write("wsls.json", JSON.pretty_generate(data))
+      data.keys.sort.each do |year|
+         puts "  #{year}"
+         # create the year-level node as a child of collection
+         parent_node = nil
+         year_node = Nokogiri::XML::Node.new "year", xml_doc
+         coll_node.add_child year_node
+         title_node = Nokogiri::XML::Node.new "title", xml_doc
+         title_node.content = year
+         year_node.add_child title_node
+         desc_node = Nokogiri::XML::Node.new "description", xml_doc
+         desc_node.content = year_desc_template.gsub(/#YEAR/, year)
+         year_node.add_child desc_node
+         pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
+         pid_node.content = find_year_pid(year, pid_tree)
+         year_node.add_child pid_node
+
+         if year != "unknown"
+            year_ele = data[year]
+            year_ele.keys.sort.each do |month|  #.sort_by {|key, value| key.to_i }
+               next if month == 0
+               month_node = Nokogiri::XML::Node.new "month", xml_doc
+               year_node.add_child month_node
+               title_node = Nokogiri::XML::Node.new "title", xml_doc
+               month_name = months[ month.to_i-1 ]
+               title_node.content = month_name
+               month_node.add_child title_node
+               desc_node = Nokogiri::XML::Node.new "description", xml_doc
+               desc_node.content = month_desc_template.gsub(/#YEAR/, year).gsub(/#MONTH/, month_name)
+               month_node.add_child desc_node
+               pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
+               pid_node.content = find_month_pid(year, month_name, pid_tree)
+               month_node.add_child pid_node
+               parent_node = month_node
+               puts "    #{month_name}"
+            end
+         else
+            parent_node = year_node
+         end
+
+         # data[year]
+      end
 
       puts
       puts "DONE; writing file..."
       File.write("wsls.xml", xml_doc.to_xml)
       puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}"
+   end
+
+   def find_month_pid(year, month, tree)
+      tree["children"].each do |year_node|
+         if year_node["title"] == year
+            year_node["children"].each do |month_node|
+               if month_node["title"] == month
+                  return month_node["id"]
+               end
+            end
+            break
+         end
+      end
+      if month == "February"
+         return "uva-lib:2215989" if year == "1966"
+         return "uva-lib:2215707" if year == "1967"
+         return "uva-lib:2217905" if year == "1970"
+         return "uva-lib:2216355" if year == "1971"
+      end
+      puts "WARNING: No PID found for #{year}/#{month}"
+      return ""
+   end
+
+   def find_year_pid(year, tree)
+      tree["children"].each do |year_node|
+         if year_node["title"] == year
+            return year_node["id"]
+         end
+      end
+      puts "WARNING: No PID found for #{year}"
+      return ""
    end
 
    desc "Parse out WSLS controlled vocabulary into Apollo ingest files"
