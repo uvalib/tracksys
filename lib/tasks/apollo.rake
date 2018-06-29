@@ -227,14 +227,140 @@ namespace :apollo do
       desc_file  = File.join(Rails.root, "data", "wsls-desc.txt")
       title = "WSLS-TV (Roanoke, VA) News Film Collection, 1951 to 1971"
       year_desc_template = "Video clips and corresponding anchor scripts from #YEAR."
+      months = ["January", "February", "March", "April", "May", "June", "July",
+                "August", "September", "October", "November", "December"]
       xml_doc = Nokogiri::XML::Document.new
 
       puts "Read durations into hash..."
+      dur_map = {}
+      CSV.foreach(dur_csv, headers: true) do |row|
+         dur_map[row[0]] = row[1]
+      end
 
+      puts "Create collection node..."
+      coll_node = Nokogiri::XML::Node.new "collection", xml_doc
+      xml_doc.add_child(coll_node)
+      title_node = Nokogiri::XML::Node.new "title", xml_doc
+      title_node.content = title
+      coll_node.add_child title_node
+      desc_node = Nokogiri::XML::Node.new "description", xml_doc
+      f = File.open(desc_file, "rb")
+      desc_node.content = f.read
+      coll_node.add_child desc_node
+      f.close
+      pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
+      pid_node.content = "uva-lib:2214294"
+      coll_node.add_child pid_node
+      rights_node = Nokogiri::XML::Node.new "useRights", xml_doc
+      rights_node.content = "Copyright Not Evaluated"
+      coll_node.add_child rights_node
+
+      puts "Parse main WSLS csv..."
+      row_num = 2 # spreadsheet starts at 2
+      no_id = 0
+      no_data = 0
+      data = {}
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         wsls_id = row[6]
+         if wsls_id.blank?
+            wsls_id = row[0]
+            if wsls_id.blank?
+               puts "WARN: Row #{row_num} has not WSLS ID, skipping"
+               no_id +=1
+               row_num += 1
+               next
+            end
+         end
+
+         right_status = row[4]
+         wsls_src = nil
+         if right_status == "L"
+            wsls_src = "Local"
+         elsif right_status == "T"
+            wsls_src = "Telenews"
+         end
+
+         wsls_date = row[8]
+         if wsls_date.blank?
+            year = "unknown"
+            month = nil
+         else
+            # YYYY-mm-dd format
+            year = wsls_date.split("-").first
+            month = months[ wsls_date.split("-")[1].to_i ]
+         end
+
+         item = {}
+         item["filmBoxLabel"] = row[11] if !row[11].blank?
+         item["title"] = row[12] if !row[12].blank?
+         item["abstract"] = row[13] if !row[13].blank?
+         topics = []
+         topics << row[14] if !row[14].blank?
+         topics << row[16] if !row[16].blank?
+         topics << row[18] if !row[18].blank?
+         item["topic"] = topics if !topics.blank?
+
+         places = []
+         places << row[19] if !row[19].blank?
+         places << row[21] if !row[21].blank?
+         places << row[22] if !row[22].blank?
+         item["place"] = places if !places.blank?
+
+         entities = []
+         for i in 23..31
+            entities << row[i] if !row[i].blank?
+         end
+         item["entity"] = entities if !entities.blank?
+
+         item["instantiationLocation"] = row[32] if !row[32].blank?
+         dur = dur_map[ wsls_id ]
+         item["duration"] = dur if !dur.blank?
+         item["color"] = row[34]  if !row[34].blank?
+         item["tag"] = row[35] if !row[35].blank?
+         ext_pid = row[38]
+         if !ext_pid.blank?
+            item["externalPID"] = ext_pid.split("/").last
+         end
+
+         # If there is no data for this row, skip it
+         if item.keys.count > 0
+            item["wslsID"] = wsls_id
+
+            # Unknown is special; it doesn't have a month breakdown. Just an array of items
+            if year == "unknown"
+               if data.has_key? year
+                  data[year] << item
+               else
+                  data[year] = [ item ]
+               end
+            else
+               year_obj = data[year]
+               if year_obj.nil?
+                  data[year] = {}
+                  year_obj = data[year]
+               end
+
+               if year_obj.has_key? month
+                  year_obj[month] << item
+               else
+                  year_obj[month] = [ item ]
+               end
+            end
+         else
+            puts "WARN: row #{row_num} has no data, skipping"
+            no_data += 1
+         end
+
+         row_num +=1
+         print "." if row_num%100 == 0
+      end
+
+      File.write("wsls.json", JSON.pretty_generate(data))
 
       puts
       puts "DONE; writing file..."
       File.write("wsls.xml", xml_doc.to_xml)
+      puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}"
    end
 
    desc "Parse out WSLS controlled vocabulary into Apollo ingest files"
