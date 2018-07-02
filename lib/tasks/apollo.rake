@@ -216,6 +216,25 @@ namespace :apollo do
       end
    end
 
+   desc "Convert WSLS into apollo XML and controlled vocabulary"
+   task :compare_wsls  => :environment do
+      wsls_csv = File.join(Rails.root, "data", "wsls.csv")
+      url_csv = File.join(Rails.root, "data", "wsls-urls.csv")
+      main_pids = []
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         main_pids << row[6]
+      end
+      cnt = 0
+      CSV.foreach(url_csv, headers: true) do |row|
+         url_pid = row[0]
+         if !main_pids.include? url_pid
+            cnt += 1
+            puts "URL PID #{url_pid} not found in main WSLS data"
+         end
+      end
+      puts "Found #{cnt} missing PIDS"
+   end
+
    # Read the legacy CSV files and parse them into a hierarchical XML document of the
    # format Apollo can ingest.
    # Format:  Collection / year (YYYY) / month (name) / digital_content
@@ -230,6 +249,7 @@ namespace :apollo do
       month_desc_template = "Video clips and corresponding anchor scripts from #MONTH of #YEAR."
       f = File.open( File.join(Rails.root, "data", "wsls-tree.json") )
       pid_tree = JSON.parse(f.read)
+      url_csv = File.join(Rails.root, "data", "wsls-urls.csv")
       months = ["January", "February", "March", "April", "May", "June", "July",
                 "August", "September", "October", "November", "December", "Unknown"]
       xml_doc = Nokogiri::XML::Document.new
@@ -238,6 +258,20 @@ namespace :apollo do
       dur_map = {}
       CSV.foreach(dur_csv, headers: true) do |row|
          dur_map[row[0]] = row[1]
+      end
+
+      puts "Read URLS into hash..."
+      url_map = {}
+      CSV.foreach(url_csv, headers: true) do |row|
+         # PID, WEBM URL, Streaming Playlist URL,Video Poster URL,
+         # Video Thumbnail URL, Anchor Script PDF URL, Anchor Script Transcription URL,
+         # Anchor Script Thumbnail URL
+         obj = {}
+         obj["digitalObject"] = []
+         for i in 2..9
+            obj["digitalObject"] << row[i] if !row[i].blank?
+         end
+         url_map[row[0]] = obj
       end
 
       puts "Create collection node..."
@@ -262,6 +296,7 @@ namespace :apollo do
       row_num = 2 # spreadsheet starts at 2
       no_id = 0
       no_data = 0
+      no_dobj = 0
       data = {}
       CSV.foreach(wsls_csv, headers: true) do |row|
          wsls_id = row[6]
@@ -341,6 +376,13 @@ namespace :apollo do
          # If there is no data for this row, skip it
          if item.keys.count > 0
             item["wslsID"] = wsls_id
+            dobjs = url_map[wsls_id]
+            if dobjs.blank?
+               no_dobj += 1
+               # puts "WARN: No digital object info for row: #{row_num}, WSLS ID: #{wsls_id}"
+               next
+            end
+            item["digitalObject"] = dobjs["digitalObject"]
 
             # Unknown is special; it doesn't have a month breakdown. Just an array of items
             if year == "unknown"
@@ -421,7 +463,7 @@ namespace :apollo do
       puts
       puts "DONE; writing file..."
       File.write("wsls.xml", xml_doc.to_xml)
-      puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}"
+      puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}, No DigitalObj: #{no_dobj}"
       puts "TOTAL ITEMS: #{item_cnt}"
    end
 
