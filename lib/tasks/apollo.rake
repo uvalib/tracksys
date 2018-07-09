@@ -263,15 +263,12 @@ namespace :apollo do
       puts "Read URLS into hash..."
       url_map = {}
       CSV.foreach(url_csv, headers: true) do |row|
-         # PID, WEBM URL, Streaming Playlist URL,Video Poster URL,
+         # WSLS_ID, PID, WEBM URL, Streaming Playlist URL,Video Poster URL,
          # Video Thumbnail URL, Anchor Script PDF URL, Anchor Script Transcription URL,
          # Anchor Script Thumbnail URL
          obj = {}
          obj["digitalObject"] = []
-         for i in 2..9
-            obj["digitalObject"] << row[i] if !row[i].blank?
-         end
-         url_map[row[0]] = obj
+         url_map[row[0]] = {video: true, script: !row[6].blank? }
       end
 
       puts "Create collection node..."
@@ -296,7 +293,6 @@ namespace :apollo do
       row_num = 2 # spreadsheet starts at 2
       no_id = 0
       no_data = 0
-      no_dobj = 0
       data = {}
       CSV.foreach(wsls_csv, headers: true) do |row|
          wsls_id = row[6]
@@ -349,13 +345,13 @@ namespace :apollo do
          topics << row[14] if !row[14].blank?
          topics << row[16] if !row[16].blank?
          topics << row[18] if !row[18].blank?
-         item["topic"] = topics if !topics.blank?
+         item["wslsTopic"] = topics if !topics.blank?
 
          places = []
          places << row[19] if !row[19].blank?
          places << row[21] if !row[21].blank?
          places << row[22] if !row[22].blank?
-         item["place"] = places if !places.blank?
+         item["wslsPlace"] = places if !places.blank?
 
          entities = []
          for i in 23..31
@@ -363,26 +359,34 @@ namespace :apollo do
          end
          item["entity"] = entities if !entities.blank?
 
-         item["instantiationLocation"] = row[32] if !row[32].blank?
          dur = dur_map[ wsls_id ]
          item["duration"] = dur if !dur.blank?
-         item["color"] = row[34]  if !row[34].blank?
-         item["tag"] = row[35] if !row[35].blank?
+         item["wslsColor"] = row[34]  if !row[34].blank?
+         item["wslsTag"] = row[35] if !row[35].blank?
          ext_pid = row[38]
          if !ext_pid.blank?
+            # this is PID for a ITEM (not structure like year or month)
             item["externalPID"] = ext_pid.split("/").last
          end
 
          # If there is no data for this row, skip it
          if item.keys.count > 0
             item["wslsID"] = wsls_id
+
             dobjs = url_map[wsls_id]
             if dobjs.blank?
-               no_dobj += 1
-               # puts "WARN: No digital object info for row: #{row_num}, WSLS ID: #{wsls_id}"
-               next
+               item["hasVideo"] = false
+               item["hasScript"] = false
+            else
+               item["hasVideo"] = dobjs[:video]
+               item["hasScript"] = dobjs[:script]
+
+               # this is a leaf; see if there is a representation
+               dov = Settings.doviewer_url
+               url = "#{dov}/wsls/#{item['externalPID']}"
+               oembed = "#{dov}/oembed?url=#{CGI.escape(url)}"
+               item["digitalObject"] = oembed
             end
-            item["digitalObject"] = dobjs["digitalObject"]
 
             # Unknown is special; it doesn't have a month breakdown. Just an array of items
             if year == "unknown"
@@ -397,7 +401,6 @@ namespace :apollo do
                   data[year] = {}
                   year_obj = data[year]
                end
-
                if year_obj.has_key? month
                   year_obj[month] << item
                else
@@ -424,9 +427,12 @@ namespace :apollo do
          desc_node = Nokogiri::XML::Node.new "description", xml_doc
          desc_node.content = year_desc_template.gsub(/#YEAR/, year)
          year_node.add_child desc_node
-         pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
-         pid_node.content = find_year_pid(year, pid_tree)
-         year_node.add_child pid_node
+         year_pid = find_year_pid(year, pid_tree)
+         if !year_pid.blank?
+            pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
+            pid_node.content = year_pid
+            year_node.add_child pid_node
+         end
 
          year_ele = data[year]
          if year != "unknown"
@@ -441,9 +447,12 @@ namespace :apollo do
                desc_node = Nokogiri::XML::Node.new "description", xml_doc
                desc_node.content = month_desc_template.gsub(/#YEAR/, year).gsub(/#MONTH/, month_name)
                month_node.add_child desc_node
-               pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
-               pid_node.content = find_month_pid(year, month_name, pid_tree)
-               month_node.add_child pid_node
+               month_pid = find_month_pid(year, month_name, pid_tree)
+               if !month_pid.blank?
+                  pid_node = Nokogiri::XML::Node.new "externalPID", xml_doc
+                  pid_node.content = month_pid
+                  month_node.add_child pid_node
+               end
                puts "    #{month_name}"
                year_ele[month].each do |item|
                   create_item_node(month_node, item)
@@ -463,7 +472,7 @@ namespace :apollo do
       puts
       puts "DONE; writing file..."
       File.write("wsls.xml", xml_doc.to_xml)
-      puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}, No DigitalObj: #{no_dobj}"
+      puts "TOTAL Rows processed: #{row_num-2}, No ID: #{no_id}, No Data: #{no_data}"
       puts "TOTAL ITEMS: #{item_cnt}"
    end
 
