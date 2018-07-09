@@ -486,7 +486,7 @@ class Project < ApplicationRecord
 
       # deliverables ready (patron or dl)
       if unit.intended_use_id == 110
-         if unit.date_dl_deliverables_ready.nil?
+         if unit.date_dl_deliverables_ready.nil? && unit.include_in_dl
             validation_failed("DL deliverables ready date not set")
             return
          end
