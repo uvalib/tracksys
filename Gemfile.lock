@@ -156,11 +156,11 @@ GEM
     mini_portile2 (2.3.0)
     minitest (5.11.3)
     msgpack (1.2.4)
-    mysql2 (0.5.1)
+    mysql2 (0.5.2)
     net-ldap (0.16.1)
     netrc (0.11.0)
     nio4r (2.3.1)
-    nokogiri (1.8.3)
+    nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
     passenger (5.1.5)
       rack
@@ -261,7 +261,7 @@ GEM
       tilt (>= 1.4, < 3)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    uglifier (4.1.11)
+    uglifier (4.1.14)
       execjs (>= 0.3.0, < 3)
     unf (0.1.4)
       unf_ext
