@@ -1,4 +1,45 @@
 namespace :apollo do
+   desc "Convert digitalObject value to remove path to doviewer"
+   task :convert_doviewer_value => :environment do
+      hp = ENV['APOLLO_DB_HOST']
+      host = hp.split(":")[0]
+      port = hp.split(":")[1]
+      conn = ActiveRecord::Base.establish_connection(
+           :adapter  => "mysql2",
+           :database => ENV['APOLLO_DB_NAME'],
+           :host     => host,
+           :port     => port,
+           :username => ENV['APOLLO_DB_USER'],
+           :password => ENV['APOLLO_DB_PASS']
+         )
+
+      # puts "Updating images objects..."
+      # q = "select id,value from nodes where node_type_id = 6 and value like '%images%'"
+      # image_do = conn.connection().execute(q)
+      # image_do.each do |row|
+      #    node_id = row[0]
+      #    url = row[1]
+      #    pid = url.split("%2F").last
+      #    pid.gsub!(/\%3A/, ":")
+      #    json_val = "{\"type\": \"images\", \"id\": \"#{pid}\"}"
+      #    q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
+      #    conn.connection().execute(q2)
+      # end
+
+      puts "Updating wsls objects..."
+      q = "select id,value from nodes where node_type_id = 6 and value like '%wsls%'"
+      image_do = conn.connection().execute(q)
+      image_do.each do |row|
+         node_id = row[0]
+         url = row[1]
+         pid = url.split("%2F").last
+         pid.gsub!(/\%3A/, ":")
+         json_val = "{\"type\": \"wsls\", \"id\": \"#{pid}\"}"
+         q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
+         conn.connection().execute(q2)
+      end
+   end
+
    desc "Add an OMW2 external metadata record"
    task :add_omw2 => :environment do
       uid = ENV['unit']
