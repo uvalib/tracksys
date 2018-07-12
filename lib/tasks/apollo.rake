@@ -13,18 +13,18 @@ namespace :apollo do
            :password => ENV['APOLLO_DB_PASS']
          )
 
-      # puts "Updating images objects..."
-      # q = "select id,value from nodes where node_type_id = 6 and value like '%images%'"
-      # image_do = conn.connection().execute(q)
-      # image_do.each do |row|
-      #    node_id = row[0]
-      #    url = row[1]
-      #    pid = url.split("%2F").last
-      #    pid.gsub!(/\%3A/, ":")
-      #    json_val = "{\"type\": \"images\", \"id\": \"#{pid}\"}"
-      #    q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
-      #    conn.connection().execute(q2)
-      # end
+      puts "Updating images objects..."
+      q = "select id,value from nodes where node_type_id = 6 and value like '%images%'"
+      image_do = conn.connection().execute(q)
+      image_do.each do |row|
+         node_id = row[0]
+         url = row[1]
+         pid = url.split("%2F").last
+         pid.gsub!(/\%3A/, ":")
+         json_val = "{\"type\": \"images\", \"id\": \"#{pid}\"}"
+         q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
+         conn.connection().execute(q2)
+      end
 
       puts "Updating wsls objects..."
       q = "select id,value from nodes where node_type_id = 6 and value like '%wsls%'"
