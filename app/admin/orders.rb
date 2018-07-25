@@ -7,7 +7,7 @@ ActiveAdmin.register Order do
 
    # strong paramters handling
    permit_params :order_status, :order_title, :special_instructions, :staff_notes, :date_request_submitted, :date_due,
-      :fee_estimated, :fee_actual, :date_deferred, :date_fee_estimate_sent_to_customer,
+      :fee, :date_deferred, :date_fee_estimate_sent_to_customer,
       :agency_id, :customer_id, :date_finalization_begun, :date_archiving_complete, :date_patron_deliverables_complete,
       :date_customer_notified, :email
 
@@ -38,7 +38,7 @@ ActiveAdmin.register Order do
       column("Customer") {|order| order.customer.full_name }
       column("Department") {|order| order.customer.department.name if !order.customer.department.blank?}
       column("Acedemic Status") {|order| order.customer.academic_status.name}
-      column("Charged Fee") {|order| order.fee_actual}
+      column("Charged Fee") {|order| order.fee}
    end
 
    config.clear_action_items!
@@ -120,8 +120,8 @@ ActiveAdmin.register Order do
       end
       column :agency, :sortable => 'agencies.name', :class => 'sortable_short'
       column :customer, :sortable => :"customers.last_name", :class => 'sortable_short'
-      column ("Charged Fee") do |customer|
-         number_to_currency(customer.fee_actual)
+      column ("Fee") do |customer|
+         number_to_currency(customer.fee)
       end
       column("") do |order|
          div do

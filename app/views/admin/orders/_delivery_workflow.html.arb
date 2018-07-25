@@ -42,6 +42,6 @@ elsif order.order_status == 'deferred'
    end
 elsif order.order_status == 'await_fee'
    div do
-      "Order is awaiting customer fee approval."
+      "Order is awaiting customer fee payment."
    end
 end

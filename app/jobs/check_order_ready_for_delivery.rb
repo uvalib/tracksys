@@ -84,23 +84,16 @@ class CheckOrderReadyForDelivery < BaseJob
       end
 
       # An order whose customer is non-UVA and whose actual fee is blank is invalid.
-      if order.customer.academic_status_id == 1 && order.fee_actual.nil?
-         on_error "Order #{order.id} has a non-UVA customer and the 'Actual Fee' is blank.  Please fill in with a value."
+      if order.customer.academic_status_id == 1 && order.fee.nil?
+         on_error "Order #{order.id} has a non-UVA customer and the fee is blank."
       end
 
-      # If there is a value for fee_estimated then there must be a value in fee_actual
-      if order.fee_estimated && order.fee_actual.blank?
-         on_error "Error with order fee: Order #{order.id} has an estimated fee but no actual fee."
-      elsif order.fee_actual && order.fee_estimated.blank?
-         on_error "Error with order fee: Check if customer approved fees because the estimated fee is blank while the actual fee is not."
-      elsif order.fee_estimated && order.fee_actual
-         if order.fee_estimated.to_i == 0 && order.fee_actual.to_i != 0
-            on_error "Error with order fee: Fee estimated is equal to 0.00 but the fee actual is greater than that.  Check customer correspondence and update information."
-         elsif order.fee_estimated.to_i == 0 && order.fee_actual.to_i == 0
-            logger.info "Order fee checked. #{order.id} has no fees associated with it."
+      # If there is a value for order fee then there must be a paid invoice
+      if !order.fee.nil? && order.fee > 0
+         if order.fee_paid? == false
+            on_error "Error with order fee: Order #{order.id} has an unpaid fee."
          else
-            fee = order.fee_actual
-            logger.info "Order fee checked. #{order.id} has a fee of #{fee} and both the estimated and actual fee values are greater than 0.00"
+            logger.info "Order fee checked; fee paid."
          end
       else
          logger.info "Order fee checked. #{order.id} has no fees associated with it."

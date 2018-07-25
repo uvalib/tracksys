@@ -2,8 +2,8 @@ if order.customer.unpaid_invoices? && order.awaiting_approval?
    div class: "unpaid-customer" do
       msg = "<p>Customer #{order.customer.full_name} has prior unpaid invoices. "
       msg << "This should be resolved before approving the order.</p><p><b>Contact information:</b> "
-      msg << "<a href='mailto:#{order.customer.email}'>#{order.customer.email}</a>, "
-      msg << "#{order.customer.primary_address.phone}</p>"
+      msg << "<a href='mailto:#{order.customer.email}'>#{order.customer.email}</a>"
+      msg << ", #{order.customer.primary_address.phone}</p>" if !order.customer.primary_address.blank?
       msg << "<span class='warn-icon'></span>"
       raw("#{msg}")
    end
@@ -39,11 +39,8 @@ div :class => 'two-column' do
          row :date_due do |customer|
             format_date(customer.date_due)
          end
-         row :fee_estimated do |customer|
-            number_to_currency(customer.fee_estimated)
-         end
-         row :fee_actual do |customer|
-            number_to_currency(customer.fee_actual)
+         row :fee do |customer|
+            number_to_currency(customer.fee)
          end
          row :date_deferred do |customer|
             format_date(customer.date_deferred)

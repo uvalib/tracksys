@@ -57,8 +57,8 @@ ActiveAdmin.register_page "Dashboard" do
                tr do
                   td do "Total unpaid invoices" end
                   td do
-                     link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee_actual), :precision => 0)}",
-                        admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_actual_desc'  )
+                     link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee), :precision => 0)}",
+                        admin_orders_path( :page => 1, :scope => 'unpaid', :order => 'fee_desc'  )
                   end
                end
             end

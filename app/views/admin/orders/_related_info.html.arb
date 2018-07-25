@@ -12,9 +12,23 @@ attributes_table_for order do
   row :customer
   row :agency
   row :invoices do |order|
-    link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
+     if order.invoices.count == 0
+        "0"
+     elsif order.invoices.count == 1
+        inv = order.invoices.first
+        link_to "# #{inv.id}", "/admin/invoices/#{inv.id}"
+     else
+        link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
+     end
   end
   row :projects do |order|
-    link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
+     if order.projects.count == 0
+       "0"
+     elsif order.projects.count == 1
+       proj = order.projects.first
+       link_to "# #{proj.id}", "/admin/projects/#{proj.id}"
+     else
+       link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
+     end
   end
 end

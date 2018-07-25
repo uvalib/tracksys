@@ -15,7 +15,7 @@ class Invoice < ApplicationRecord
    delegate :date_order_approved, :date_customer_notified,
       :to => :order, :allow_nil => true, :prefix => true
    delegate :customer, to: :order, prefix: true
-   delegate :fee_actual, to: :order, prefix: true
+   delegate :fee, to: :order, prefix: true
 
    #------------------------------------------------------------------
    # callbacks
@@ -37,12 +37,12 @@ class Invoice < ApplicationRecord
    def self.past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date)
-         .joins(:order).where("orders.fee_actual is not null and orders.fee_actual > 0")
+         .joins(:order).where("orders.fee is not null and orders.fee > 0")
    end
    def self.notified_past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date).where("date_second_notice_sent is not NULL")
-         .joins(:order).where("orders.fee_actual is not null and orders.fee_actual > 0")
+         .joins(:order).where("orders.fee is not null and orders.fee > 0")
    end
 end
 
@@ -55,7 +55,6 @@ end
 #  date_invoice            :datetime
 #  created_at              :datetime
 #  updated_at              :datetime
-#  invoice_number          :integer
 #  fee_amount_paid         :integer
 #  date_fee_paid           :datetime
 #  date_second_notice_sent :datetime

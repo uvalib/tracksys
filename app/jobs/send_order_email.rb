@@ -19,17 +19,6 @@ class SendOrderEmail < BaseJob
       order.update(date_customer_notified: Time.now)
       on_success("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
-      # If an invoice does not yet exist for this order, create one
-      if order.invoices.count == 0
-         invoice = Invoice.new
-         invoice.order = order
-         invoice.date_invoice = Time.now
-         invoice.save!
-         logger.info "A new invoice has been created for order #{order.id}."
-      else
-         logger.info "An invoice already exists for order #{order.id}; not creating another."
-      end
-
       # Now clean up any left over files
       # Orders have many units, and each can have a project with a different workflow.
       # Each workflow can have its own base directory. Move each unit individually

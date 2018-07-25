@@ -51,10 +51,10 @@ class Order < ApplicationRecord
       .where("orders.email is not null and order_status != 'canceled' and order_status != 'completed' and date_customer_notified is null")
       .distinct }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
-   scope :unpaid, ->{ where("fee_actual > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
+   scope :unpaid, ->{ where("fee > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
       .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
       .where("order_status != ?", "canceled")
-      .order('fee_actual desc').distinct }
+      .order('fee desc').distinct }
    scope :patron_requests, ->{joins(:units).where('units.intended_use_id != 110')
       .where("order_status != ?", "canceled")
       .distinct.order(id: :asc)}
@@ -67,9 +67,6 @@ class Order < ApplicationRecord
    }
 
    validates :order_title, :uniqueness => true, :allow_blank => true
-
-   validates :fee_estimated, :fee_actual, :numericality => {:greater_than_or_equal_to => 0, :allow_nil => true}
-
    validates :order_status, :inclusion => { :in => ORDER_STATUSES,
       :message => 'must be one of these values: ' + ORDER_STATUSES.join(", ")}
 
@@ -141,6 +138,24 @@ class Order < ApplicationRecord
    # associated Invoice records.
    def invoices?
       return invoices.any?
+   end
+
+   def fee_paid?
+      return false if invoices.count == 0
+      invoices.each do |inv|
+         return true if !inv.date_fee_paid.blank?
+      end
+      return false
+   end
+
+   def fee_payment_info
+      return nil if invoices.count == 0
+      invoices.each do |inv|
+         if !inv.date_fee_paid.blank?
+            return {date_paid: inv.date_fee_paid, fee: inv.fee_amount_paid }
+         end
+      end
+      return nil
    end
 
    def last_error
@@ -380,8 +395,7 @@ end
 #  date_canceled                      :datetime
 #  date_due                           :date
 #  date_customer_notified             :datetime
-#  fee_estimated                      :decimal(7, 2)
-#  fee_actual                         :decimal(7, 2)
+#  fee                                :decimal(7, 2)
 #  special_instructions               :text(65535)
 #  created_at                         :datetime
 #  updated_at                         :datetime

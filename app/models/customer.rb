@@ -32,7 +32,7 @@ class Customer < ApplicationRecord
    #------------------------------------------------------------------
    default_scope {order('last_name ASC, first_name ASC')}
    scope :has_unpaid_invoices, ->{
-      where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).where('orders.fee_actual > 0').distinct }
+      where('customers.id > 0').joins(:orders).joins(:invoices).where('invoices.date_fee_paid' => nil).where('orders.fee > 0').distinct }
 
    #------------------------------------------------------------------
    # public instance methods
@@ -67,7 +67,7 @@ class Customer < ApplicationRecord
    end
 
    def unpaid_invoices?
-      return invoices.where("date_fee_paid is null and orders.fee_actual > 0").count > 0
+      return invoices.where("date_fee_paid is null and orders.fee > 0").count > 0
    end
 
 end

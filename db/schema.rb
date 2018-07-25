@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_26_140629) do
+ActiveRecord::Schema.define(version: 2018_07_24_195519) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -263,7 +263,6 @@ ActiveRecord::Schema.define(version: 2018_06_26_140629) do
     t.datetime "date_invoice"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "invoice_number"
     t.integer "fee_amount_paid"
     t.datetime "date_fee_paid"
     t.datetime "date_second_notice_sent"
@@ -460,8 +459,7 @@ ActiveRecord::Schema.define(version: 2018_06_26_140629) do
     t.datetime "date_canceled"
     t.date "date_due"
     t.datetime "date_customer_notified"
-    t.decimal "fee_estimated", precision: 7, scale: 2
-    t.decimal "fee_actual", precision: 7, scale: 2
+    t.decimal "fee", precision: 7, scale: 2
     t.text "special_instructions"
     t.datetime "created_at"
     t.datetime "updated_at"

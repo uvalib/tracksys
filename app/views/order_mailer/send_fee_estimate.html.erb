@@ -1,20 +1,61 @@
-<%= image_tag "http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg", :size => '640x64' %><br/>
-Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,<br/>
-<p>Thank you again for your request.  Below you will find an estimated fee for your digitization request.  We calculated the fee by charging $50.00 for the first hour (or any part thereof)
-and $25.00 for each additional hour of expected work.  <span style="font-weight:bold">Your order will be held pending acceptance of the fee.</span>
-  To accept this fee, please respond to this email and let us know whether you accept the fee.
-  Payment is not required prior to digitization and you will be invoiced for this order at the time of delivery.
+<%= image_tag "http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg", :size => '640x64' %>
+<p>
+   Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,
+</p>
+<p>
+   Thank you again for your request.  Below you will find the fee for your digitization request.
+   We calculated the fee by charging $50.00 for the first hour (or any part thereof) and $25.00 for each additional hour of expected work.
+   Based  on our calculations, your fee is listed here:
+</p>
+<p>
+   <h4>Digitization Fee: $<%= @order.fee.to_i %></h4>
+</p>
+<p>
+   <b>Your order will be held pending payment of this fee.</b>
+   Payment is required prior to digitization and you will receive an invoice showing the fee
+   paid for this order at the time of delivery.
+   <b>Once your fee is paid, we will begin work on your order.</b>
+</p>
+<p>
   The three accepted methods of payment are check or money order paid in US dollars,
-  or payment by credit card (Visa, Mastercard, American Express, or Discover).</p>
-<h1>Digitization Fee: $ <%= @order.fee_estimated.to_i %></h1>
+  or payment by credit card (Visa, Mastercard, American Express, or Discover).
+</p>
+<p>
+   You may pay by credit card by visiting this website:<br/>
+   <a href="https://pci.foc.virginia.edu/library/online-payments-digitization-orders" target="_blank">https://pci.foc.virginia.edu/library/online-payments-digitization-orders</a>
+</p>
+<p>
+   Or you may send a check or money order (include your order number for proper credit in our system) in the above amount made payable to:
+</p>
+<p>
+   Digital Production Group, UVa Library, and send it to the following address:
+</p>
+<p>
+   Financial Services, UVa Library<br/>
+   Attn: Barbara Paschke<br/>
+   PO Box 400107<br/>
+   Charlottesville, Virginia 22904 U.S.A<br/>
+</p>
 <h3>Additional Information</h3>
-<p>Rush Requests:  As noted on the web request form, our policy states that we require at least 20 working days to complete a digitization request.  If you have requested a due date that is less than 4 weeks from the date the order was placed, we will make every effort to complete the order by the date you requested.  If we cannot meet your due date, we will let you know by email.</p>
-<p>Please be sure you read and understand the Special Collections use, reproduction, and publication policies.  The policies can be found at <%= link_to "http://small.library.virginia.edu/services/reproduction/", "http://small.library.virginia.edu/services/reproduction/" %> .  You are responsible for adhering to these policies.</p>
-<p>Sincerely,
-<br/> 
-<%= @first_name %><br/>
-<br/>
-Digital Production Group<br/>
-University of Virginia Library<br/>
-Email: digitalservices@virginia.edu</p>
-<p>Learn more about us at <%= link_to "http://dcs.library.virginia.edu/", "http://dcs.library.virginia.edu/" %></p>
+<p>
+   <b>Rush Requests:</b> As noted on the web request form, our policy states that we require at least 20 working days to complete
+   a digitization request. If you have requested a due date that is less than 4 weeks from the date the order was placed,
+   we will make every effort to complete the order by the date you requested. If we cannot meet your due date,
+   we will let you know by email.
+</p>
+<p>
+   Please be sure you read and understand the Special Collections use, reproduction, and publication policies.
+   The policies can be found at <%= link_to "http://small.library.virginia.edu/services/reproduction/", "http://small.library.virginia.edu/services/reproduction/" %>.
+   You are responsible for adhering to these policies.
+</p>
+<p>
+   Sincerely,<br/>
+   <%= @first_name %><br/>
+   <br/>
+   Digital Production Group<br/>
+   University of Virginia Library<br/>
+   Email: digitalservices@virginia.edu
+</p>
+<p>
+   Learn more about us at <%= link_to "http://dcs.library.virginia.edu/", "http://dcs.library.virginia.edu/" %>
+</p>

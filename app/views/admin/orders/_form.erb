@@ -26,10 +26,7 @@
       <%= f.input :order_title %>
       <%= f.input :special_instructions, :input_html => {:rows => 3} %>
       <%= f.input :staff_notes, :input_html => {:rows => 3} %>
-
-
-      <%= f.input :fee_estimated, :as => :string %>
-      <%= f.input :fee_actual, :as => :string %>
+      <%= f.input :fee, :as => :string %>
 
       <%= f.input :agency_id, :as => :select,  :input_html => { :class => 'chosen-select',  :style => 'width: 210px' },
          :collection => Agency.order(:names_depth_cache).map {|a| ["    |---- " * a.depth + a.name,a.id]}.insert(0, ""),

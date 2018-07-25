@@ -2,7 +2,7 @@ ActiveAdmin.register Invoice do
    menu :parent => "Miscellaneous", if: proc{ current_user.admin? || current_user.supervisor? }
    config.batch_actions = false
    config.per_page = [30, 50, 100, 250]
-   
+
    # strong paramters handling
    permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes
 
@@ -38,7 +38,7 @@ ActiveAdmin.register Invoice do
       column :order
       column :order_customer
       column ("Fee") do |invoice|
-         number_to_currency(invoice.order_fee_actual)
+         number_to_currency(invoice.order_fee)
       end
       column ("Date Order Approved") do |invoice|
          format_date(invoice.order_date_order_approved)
@@ -162,7 +162,7 @@ ActiveAdmin.register Invoice do
 
    csv do
       column ("Date Fee Paid") { |invoice| format_date(invoice.date_fee_paid) }
-      column ("Fee") { |invoice| invoice.order_fee_actual }
+      column ("Fee") { |invoice| invoice.order_fee }
       column :order_id
       column :notes
    end

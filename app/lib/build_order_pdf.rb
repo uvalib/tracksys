@@ -3,7 +3,7 @@ module BuildOrderPDF
    require 'prawn/table'
 
    def generate_invoice_pdf(order)
-      fee = order.fee_actual
+      fee_info = order.fee_payment_info()
       customer = order.customer
       units_in_pdf = []
       order.units.each do |unit|
@@ -37,17 +37,10 @@ module BuildOrderPDF
          @pdf.text "On #{order.date_request_submitted.strftime("%B %d, %Y")} you placed an order with the Digital Production Group of the University of Virginia, Charlottesville, VA.  Your request comprised #{units_in_pdf.length} item.  Below you will find a description of your digital order and how to cite the material for publication."
       end
       @pdf.text "\n"
-      if not fee.to_i.eql?(0)
-         @pdf.text "Our records show that you accepted a fee of $#{fee.to_i} for this order. This fee must be paid within 30 days.  You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:", :inline_format => true
-         @pdf.text "\n"
-         @pdf.text "<u><link href='https://pci.foc.virginia.edu/library/online-payments-digitization-orders'>https://pci.foc.virginia.edu/library/online-payments-digitization-orders</link></u>" , :inline_format => true
-         @pdf.text "\n"
-         @pdf.text "Or you may send a check or money order (include your order number for proper credit in our system) in the above amount made payable to <b>Digital Production Group, UVa Library</b>, and send it to the following address:", :inline_format => true
-         @pdf.text "\n"
-         @pdf.text "Financial Services, UVa Library", :left => 100
-         @pdf.text "Attn: Barbara Paschke", :left => 100
-         @pdf.text "PO Box 400107", :left => 100
-         @pdf.text "Charlottesville, Virginia 22904  U.S.A", :left => 100
+      if !fee_info.nil?
+         fee = fee_info[:fee]
+         paid = fee_info[:date_paid].strftime("%F")
+         @pdf.text "Our records show that you paid a fee of $#{fee} for this order on #{paid}. ", :inline_format => true
       end
 
       @pdf.text "\n"

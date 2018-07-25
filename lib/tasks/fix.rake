@@ -1,5 +1,17 @@
 #encoding: utf-8
 namespace :fix do
+   # NOTE: This is a one time task that should be run after the DB
+   # is migrated to support the new order pre-pay workflow
+   desc "Add invoices for orders in await_fee state"
+   task :await_fee_invoice =>:environment do
+      Order.where("order_status=? and invoices_count=?", "await_fee", 0).each do |o|
+         puts "Create invoice for:"
+         puts "  #{o.id} fee #{o.fee} date sent #{o.date_fee_estimate_sent_to_customer}"
+         d = o.date_fee_estimate_sent_to_customer
+         d = Time.now if d.blank?
+         invoice = Invoice.create!(order_id: o.id, date_invoice: d)
+      end
+   end
 
    task :death_date_report =>:environment do
       q = 'master_files.creator_death_date is not null and master_files.creator_death_date <> ""'

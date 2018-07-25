@@ -1,31 +1,24 @@
 <%= image_tag('http://digiservdelivery.lib.virginia.edu/lib_letterhead.jpg', :size => '640x64') %>
 <h2>University of Virginia Digital Production Group</h2>
-<p>Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,<br/>
-<% if @delivery_files.length == 1 %>
-Your digital request is now available and may be downloaded using the link below:
-<% else %>
-Your digital request is now available and may be downloaded using the links below:
-<% end %></p>
+<p>
+   Dear <%= @customer.first_name.titleize %> <%= @customer.last_name.titleize %>,<br/>
+   <% if @delivery_files.length == 1 %>
+   Your digital request is now available and may be downloaded using the link below:
+   <% else %>
+   Your digital request is now available and may be downloaded using the links below:
+   <% end %>
+</p>
+
 <% for delivery_file in @delivery_files -%>
 <p><%= DELIVERY_URL %><%= delivery_file %></p>
 <% end -%>
+
 <p>The PDF included in the above list contains all metadata and descriptive information about your digital order.</p>
 
 <% if @fee %>
-<p>Our records show that you accepted a fee of $<%= @fee.to_i %> for this order. This fee must be paid within 30 days.</p>
-
-<p>You may pay by credit card (Visa, Mastercard, Discover, or American Express) by visiting this website:</p><br/>
-    <%= link_to "https://pci.foc.virginia.edu/library/online-payments-digitization-orders", "https://pci.foc.virginia.edu/library/online-payments-digitization-orders"%>
-
-
-<p>Or you may send a check or money order (include your order number for proper credit in our system) in the above amount made payable to Digital Production Group, UVa Library, and send it to the following address:</p>
-<p>
-Financial Services, UVa Library<br/>
-Attn: Barbara Paschke<br/>
-PO Box 400107<br/>
-Charlottesville, VA 22904<br/>
-</p>
-
+   <p>
+      Our records show that you paid a fee of $<%= @fee %> on <%= @date_paid.strftime("%F") %>.
+   </p>
 <% end %>
 
 <p>*** Please note that your image files will only be available for the next 30 days ***</p>

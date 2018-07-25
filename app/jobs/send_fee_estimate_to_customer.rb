@@ -10,7 +10,18 @@ class SendFeeEstimateToCustomer < BaseJob
       OrderMailer.send_fee_estimate(order).deliver
       logger().info "Fee estimate email sent to customer."
 
+      # If an invoice does not yet exist for this order, create one
+      if order.invoices.count == 0
+         invoice = Invoice.new
+         invoice.order = order
+         invoice.date_invoice = Time.now
+         invoice.save!
+         logger.info "A new invoice has been created for order #{order.id}."
+      else
+         logger.info "An invoice already exists for order #{order.id}; not creating another."
+      end
+
       order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'await_fee')
-      logger().info "Date fee estimate sent to customer has been updated and order deferred."
+      logger().info "Order status and date fee estimate sent to customer have been updated."
    end
 end
