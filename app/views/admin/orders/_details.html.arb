@@ -1,4 +1,4 @@
-if order.customer.unpaid_invoices? && order.awaiting_approval?
+if order.customer.other_unpaid_invoices?(order.id) && order.awaiting_approval?
    div class: "unpaid-customer" do
       msg = "<p>Customer #{order.customer.full_name} has prior unpaid invoices. "
       msg << "This should be resolved before approving the order.</p><p><b>Contact information:</b> "

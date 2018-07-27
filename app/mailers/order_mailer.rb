@@ -37,7 +37,7 @@ class OrderMailer < ActionMailer::Base
       end
 
       # Pass fees to email if there is a fee and it is not equal to $0.00
-      if order.fee > 0
+      if !order.fee.nil? && order.fee > 0
          order.invoices.each do |inv|
             if !inv.date_fee_paid.blank?
                @fee = inv.fee_amount_paid

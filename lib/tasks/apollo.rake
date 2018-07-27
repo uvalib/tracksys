@@ -276,6 +276,58 @@ namespace :apollo do
       puts "Found #{cnt} missing PIDS"
    end
 
+   desc "Generate WSLS update XML that includes date and rightsStatus"
+   task :wsls_updates  => :environment do
+      xml_doc = Nokogiri::XML::Document.new
+      update_node = Nokogiri::XML::Node.new "update", xml_doc
+      xml_doc.add_child(update_node)
+
+      wsls_csv = File.join(Rails.root, "data", "wsls.csv")
+      row_num = 0
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         row_num += 1
+         right_status = row[3]
+         wsls_src = nil
+         if right_status == "L"
+            wsls_src = "Local"
+         elsif right_status == "T"
+            wsls_src = "Telenews"
+         end
+         wsls_date = row[8]
+
+         wsls_id = row[6]
+         if wsls_id.blank?
+            wsls_id = row[0]
+         end
+
+         if !wsls_src.nil? || !wsls_date.blank?
+            if wsls_id.blank?
+               puts "WARN: Row #{row_num} has Src [#{wsls_src}], Date [#{wsls_date}] with no WSLS ID"
+               next
+            end
+            insert_node = Nokogiri::XML::Node.new "append", xml_doc
+            update_node.add_child(insert_node)
+            parent_node = Nokogiri::XML::Node.new "wslsParent", xml_doc
+            parent_node.content = wsls_id
+            insert_node.add_child parent_node
+
+            if !wsls_src.nil?
+               data_node = Nokogiri::XML::Node.new "wslsRights", xml_doc
+               data_node.content = wsls_src
+               insert_node.add_child data_node
+            end
+            if !wsls_date.blank?
+               data_node = Nokogiri::XML::Node.new "dateCreated", xml_doc
+               data_node.content = wsls_date
+               insert_node.add_child data_node
+            end
+         end
+      end
+
+      puts "DONE; writing file..."
+      File.write("wsls_update.xml", xml_doc.to_xml)
+   end
+
    # Read the legacy CSV files and parse them into a hierarchical XML document of the
    # format Apollo can ingest.
    # Format:  Collection / year (YYYY) / month (name) / digital_content
@@ -449,7 +501,7 @@ namespace :apollo do
                end
             end
          else
-            # puts "WARN: row #{row_num} has no data, skipping"
+             # puts "#{wsls_id}: WARN: row #{row_num} has no data, skipping"
             no_data += 1
          end
 

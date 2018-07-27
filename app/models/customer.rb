@@ -66,8 +66,8 @@ class Customer < ApplicationRecord
       self.orders.where('order_status = ?', 'requested')
    end
 
-   def unpaid_invoices?
-      return invoices.where("date_fee_paid is null and orders.fee > 0").count > 0
+   def other_unpaid_invoices?(exception_order_id)
+      return invoices.where("date_fee_paid is null and orders.fee > 0 and orders.id != #{exception_order_id.to_i}").count > 0
    end
 
 end
