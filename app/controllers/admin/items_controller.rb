@@ -28,7 +28,7 @@ class Admin::ItemsController < ApplicationController
       # Exception id for external customers - a fee is required.
       order = Order.find(params[:order_id])
       approve_enabled = true
-      approve_enabled = false if order.customer.external? && order.fee.nil? && order.fee > 0
+      approve_enabled = false if order.customer.external? && !order.fee.nil? && order.fee > 0
 
       render json: {success: true, item_id: params[:source_item_id], approve_enabled: approve_enabled}
    end
