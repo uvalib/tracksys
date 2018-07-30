@@ -33,7 +33,9 @@ class Invoice < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
-
+   def self.declined()
+      where("date_fee_declined is not null")
+   end
    def self.past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date)

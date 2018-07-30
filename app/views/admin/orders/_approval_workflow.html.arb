@@ -6,7 +6,7 @@ if order.order_status == 'await_fee'
       button_to "Customer Paid Fee", approve_order_admin_order_path(order.id), :disabled => accept_disable, :method => :put
    end
    div :class => 'workflow_button' do
-      button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put
+      button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put, params: { declined: true }
    end
    if !order.fee_paid?
       div do

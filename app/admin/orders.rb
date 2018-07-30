@@ -236,7 +236,12 @@ ActiveAdmin.register Order do
 
    member_action :cancel_order, :method => :put do
       order = Order.find(params[:id])
-      order.cancel_order(current_user)
+      if params[:declined]
+         logger.info("Customer declined fee for order #{params[:id]}")
+         order.decline_fee(current_user)
+      else
+         order.cancel_order(current_user)
+      end
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is now canceled."
    end
 

@@ -309,6 +309,19 @@ class Order < ApplicationRecord
       self.order_items.destroy_all
    end
 
+   def decline_fee(user)
+      msg = "Status #{self.order_status.upcase} to CANCELED because fee declined"
+      AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+      self.order_status = 'canceled'
+      self.date_canceled = Time.now
+      self.save!
+      invoices.each do |inv|
+         if inv.date_fee_paid.blank?
+            inv.update(date_fee_declined: Time.now)
+         end
+      end
+   end
+
    def cancel_order(user)
       msg = "Status #{self.order_status.upcase} to CANCELED"
       AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)

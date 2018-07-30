@@ -12,6 +12,7 @@ ActiveAdmin.register Invoice do
    scope :all, :default => true
    scope :past_due
    scope :notified_past_due
+   scope :declined
    scope :permanent_nonpayment
 
    filter :order_id_equals, label: "Order ID"
@@ -49,16 +50,15 @@ ActiveAdmin.register Invoice do
       column :date_invoice do |invoice|
          format_date(invoice.date_invoice)
       end
-      column ("Date Fee Paid") do |invoice|
+      column ("Date Paid") do |invoice|
          format_date(invoice.date_fee_paid)
       end
-      column ("Date Second Notice Sent") do |invoice|
-         format_date(invoice.date_second_notice_sent)
-      end
-      column :fee_amount_paid do |invoice|
+      column ("Amount Paid") do |invoice|
          number_to_currency(invoice.fee_amount_paid)
       end
-
+      column ("Date Declined") do |invoice|
+         format_date(invoice.date_fee_declined)
+      end
       column :transmittal_number
       column :permanent_nonpayment do |invoice|
          case
@@ -100,6 +100,9 @@ ActiveAdmin.register Invoice do
                row :date_fee_paid do |invoice|
                   format_date(invoice.date_fee_paid)
                end
+               row :date_fee_declined do |invoice|
+                  format_date(invoice.date_fee_declined)
+               end
             end
          end
       end
@@ -128,7 +131,8 @@ ActiveAdmin.register Invoice do
          f.input :order_date_order_approved, :input_html => {:disabled => true}
          f.input :order_date_customer_notified, :input_html => {:disabled => true}
          f.input :date_invoice, :as => :datepicker, datepicker_options: {changeYear: true, changeMonth: true}
-         f.input :date_fee_paid, :as => :date_picker
+         f.input :date_fee_paid, :as => :date_picker, datepicker_options: {changeYear: true, changeMonth: true}
+         f.input :date_fee_declined, :as => :date_picker, datepicker_options: {changeYear: true, changeMonth: true}
       end
 
       f.inputs "Billing Information", :class => 'three-column panel' do
