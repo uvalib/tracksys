@@ -52,6 +52,7 @@ class Order < ApplicationRecord
       .distinct }
    scope :recent, lambda{ |limit=5| order('date_request_submitted DESC').limit(limit) }
    scope :unpaid, ->{ where("fee > 0").joins(:invoices).where('`invoices`.date_fee_paid IS NULL')
+      .where('invoices.date_fee_declined is null')
       .where('`invoices`.permanent_nonpayment IS false').where('`orders`.date_customer_notified > ?', 2.year.ago)
       .where("order_status != ?", "canceled")
       .order('fee desc').distinct }
