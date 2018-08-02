@@ -132,6 +132,24 @@ namespace :as do
       end
    end
 
+   desc "fix_hs_links"
+   task :fix_hs_links  => :environment do
+
+      hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
+      repo_uri = "/repositories/7"
+      repo_url = "#{Settings.as_api_url}#{repo_uri}"
+
+      Metadata.where("supplemental_system=? and creator_name=?", "ArchivesSpace", "Montes-Bradley, Eduardo").each do |m|
+         do_id = m.supplemental_uri.split("/").last
+         out = RestClient.get "#{repo_url}/digital_objects/#{do_id}", hdr
+         json = JSON.parse(out.body)
+         ref_uri = json['linked_instances'].first['ref']
+         new_uri = "/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(ref_uri)}"
+         puts new_uri
+         m.update(supplemental_uri: new_uri)
+      end
+   end
+
    # Link The Eduardo Montes-Bradley Photograph and Film Collection metadata to archivesspace
    # rake as:hs u=admin p=admin metadata=58576
    #

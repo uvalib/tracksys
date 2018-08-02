@@ -163,7 +163,7 @@ class SirsiMetadata < Metadata
       if virgo_meta.nil?
          return "Data is unavaileble; metadata record may be invalid"
       end
-      return self.get_full_metadata[:location]
+      return virgo_meta[:location]
    end
 
    def url_fragment
