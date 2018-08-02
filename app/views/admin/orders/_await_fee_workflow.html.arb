@@ -1,0 +1,26 @@
+accept_disable = !order.fee_paid? || order.has_units_being_prepared.any?
+div :class => 'workflow_button' do
+   button_to "Customer Paid Fee", approve_order_admin_order_path(order.id), :disabled => accept_disable, :method => :put
+end
+if accept_disable
+   div :class => 'workflow_button' do
+      button_to "Resend Email to Customer", send_fee_estimate_to_customer_admin_order_path(order.id), :method => :put
+   end
+   div :class => 'workflow_button' do
+      button_to "Send Email to Alternate", send_fee_estimate_to_alt_admin_order_path(order.id), id: "alt-est-email",:method => :put
+   end
+end
+div :class => 'workflow_button' do
+   button_to "Customer Declines Fee", cancel_order_admin_order_path(order.id), :method => :put, params: { declined: true }
+end
+if !order.fee_paid?
+   div do
+      "Fee payment information must be added to the invoice."
+   end
+end
+if order.has_units_being_prepared.any?
+   div do
+      span do "You must approve or cancel this order's units." end
+      span do order.unit_status_summary end
+   end
+end

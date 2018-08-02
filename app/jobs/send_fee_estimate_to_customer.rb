@@ -21,7 +21,9 @@ class SendFeeEstimateToCustomer < BaseJob
          logger.info "An invoice already exists for order #{order.id}; not creating another."
       end
 
-      order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'await_fee')
+      if order.order_status != "await_fee"
+         order.update(date_fee_estimate_sent_to_customer: Time.now, order_status: 'await_fee')
+      end
       logger().info "Order status and date fee estimate sent to customer have been updated."
    end
 end

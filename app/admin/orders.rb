@@ -256,11 +256,30 @@ ActiveAdmin.register Order do
 
    member_action :send_fee_estimate_to_customer, :method => :put do
       o = Order.find(params[:id])
-      msg = "Status #{o.order_status.upcase} to AWAIT_FEE"
-      AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
+      if o.order_status != "await_fee"
+         msg = "Status #{o.order_status.upcase} to AWAIT_FEE"
+         AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
+      end
 
       SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
+   end
+
+   member_action :send_fee_estimate_to_alt, :method => :put do
+      order = Order.find(params[:id])
+      msg = OrderMailer.send_fee_estimate(order)
+      msg.body = order.email.to_s
+      msg.to = [params[:email]]
+      msg.date = Time.now
+      msg.deliver
+
+      sn = order.staff_notes
+      sn << "" if sn.nil?
+      sn << " " if !sn.blank?
+      sn << "Fee information sent to alternate email address: #{params[:email]}."
+      order.update(staff_notes: sn)
+
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "Fee Email sent to #{params[:email]}"
    end
 
    member_action :check_order_ready_for_delivery, :method => :put do
