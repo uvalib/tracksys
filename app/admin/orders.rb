@@ -268,9 +268,7 @@ ActiveAdmin.register Order do
    member_action :send_fee_estimate_to_alt, :method => :put do
       order = Order.find(params[:id])
       msg = OrderMailer.send_fee_estimate(order)
-      msg.body = order.email.to_s
       msg.to = [params[:email]]
-      msg.date = Time.now
       msg.deliver
 
       sn = order.staff_notes
@@ -301,9 +299,7 @@ ActiveAdmin.register Order do
    member_action :send_order_alt_email, :method => :put do
       order = Order.find(params[:id])
       msg = OrderMailer.web_delivery(order, ['holding'])
-      msg.body = order.email.to_s
       msg.to = [params[:email]]
-      msg.date = Time.now
       msg.deliver
 
       sn = order.staff_notes
