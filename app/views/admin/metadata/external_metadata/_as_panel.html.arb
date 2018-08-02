@@ -5,6 +5,9 @@ else
       row("External System") do |xm|
          xm.external_system
       end
+      row("URL") do |xm|
+         raw("<a target='_blank' href='#{as_info[:url]}'>#{xm.external_uri}</a>")
+      end
       row("Repository") do |xm|
          as_info[:repo]
       end

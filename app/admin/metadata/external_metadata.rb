@@ -248,6 +248,7 @@ ActiveAdmin.register ExternalMetadata do
              @as_info = {
                 title: title, created_by: ao_json['created_by'],
                 create_time: ao_json['create_time'], level: ao_json['level'],
+                url: "#{Settings.archives_space_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
              }
              dates = ao_json['dates'].first
              if !dates.nil?
