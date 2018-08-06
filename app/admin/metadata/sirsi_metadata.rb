@@ -12,7 +12,7 @@ ActiveAdmin.register SirsiMetadata do
   # eager load to preven n+1 queries, and improve performance
   includes :checkouts
 
-  actions :all, :except => [:destroy]
+  actions :all
   config.clear_action_items!
 
   action_item :new, :only => :index do
