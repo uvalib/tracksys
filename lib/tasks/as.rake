@@ -132,6 +132,14 @@ namespace :as do
       end
    end
 
+   desc "Create a link between AS and TS"
+   task :create_link => :environment do
+      uid = ENV['unit_id']
+      url = ENV['as_url']
+      abort("unit_id and as_url are required") if uid.blank? || url.blank?
+      ArchivesSpace.link(uid, url)
+   end
+
    desc "fix_hs_links"
    task :fix_hs_links  => :environment do
 
