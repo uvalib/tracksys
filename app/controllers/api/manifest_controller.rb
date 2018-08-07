@@ -31,6 +31,10 @@ class Api::ManifestController < ApplicationController
    	elsif obj.type == "ExternalMetadata" || !obj.supplemental_system.blank?
    		logger.info("This is External/supplemental metadata; including all master files")
          files = obj.master_files.includes(:image_tech_meta).joins(:unit).where("units.include_in_dl=1 or units.intended_use_id=110").order(filename: :asc)
+         if files.count == 0
+            # nothing found that was in DL or intended for DL. Just get all as fallback...
+            files = obj.master_files.includes(:image_tech_meta).order(filename: :asc)
+         end
    	else
    		logger.info("Only including masterfiles from units in the DL")
          files = obj.master_files.includes(:image_tech_meta).joins(:unit).where("units.include_in_dl=1").order(filename: :asc)
