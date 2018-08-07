@@ -76,6 +76,11 @@ class XmlMetadata < Metadata
          return errors
       end
 
+      if doc.root.nil?
+         errors << "XML data is required"
+         return errors
+      end
+
       # schemas are held in the root; iterate over all included
       schema_info = doc.root.each do |schema_info|
 
