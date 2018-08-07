@@ -232,14 +232,11 @@ ActiveAdmin.register ExternalMetadata do
        def get_as_metadata
           begin
              # First, authenticate with the API. Necessary to call other methods
-             url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
-             resp = RestClient.post url, {password: Settings.as_pass}
-             json = JSON.parse(resp.body)
-             as_hdr = {:content_type => :json, :accept => :json, :'X-ArchivesSpace-Session'=>json['session']}
+             auth = ArchivesSpace.get_auth_session()
 
-             # Now get the AO and ancestor details
+             # Now get the target object details ...
              url = "#{Settings.as_api_url}#{resource.external_uri}"
-             ao_detail = RestClient.get url, as_hdr
+             ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
              ao_json = JSON.parse(ao_detail.body)
 
              # build a data struct to represent the AS data
@@ -255,34 +252,26 @@ ActiveAdmin.register ExternalMetadata do
                 @as_info[:dates] = dates['expression']
              end
 
+             # pull repo ID from external URL and use it to lookup repo name:
+             # /repositories/REPO_ID/resources/RES_ID
+             repo_id = resource.external_uri.split("/")[2]
+             repo_detail = ArchivesSpace.get_repository(auth, repo_id)
+             @as_info[:repo] = repo_detail['name']
+
              if !ao_json['ancestors'].nil?
                 anc = ao_json['ancestors'].last
                 url = "#{Settings.as_api_url}#{anc['ref']}"
-                coll = RestClient.get url, as_hdr
+                coll = RestClient.get url, ArchivesSpace.auth_header(auth)
                 coll_json = JSON.parse(coll.body)
 
                 @as_info[:collection_title] = coll_json['finding_aid_title']
                 @as_info[:id] = coll_json['id_0']
                 @as_info[:language] = coll_json['language']
-                uri = coll_json['collection_management']['parent']['ref']
-                @as_info[:uri] = uri
 
-                repo = coll_json['collection_management']['repository']['ref']
-                url = "#{Settings.as_api_url}#{repo}"
-                resp = RestClient.get url, as_hdr
-                repo_detail = JSON.parse(resp.body)
-                @as_info[:repo] = repo_detail['name']
              else
                 @as_info[:collection_title] = ao_json['finding_aid_title']
                 @as_info[:id] = ao_json['id_0']
                 @as_info[:language] = ao_json['language']
-                uri = ao_json['collection_management']['parent']['ref']
-                @as_info[:uri] = uri
-                repo = ao_json['collection_management']['repository']['ref']
-                url = "#{Settings.as_api_url}#{repo}"
-                resp = RestClient.get url, as_hdr
-                repo_detail = JSON.parse(resp.body)
-                @as_info[:repo] = repo_detail['name']
              end
           rescue Exception => e
              logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
