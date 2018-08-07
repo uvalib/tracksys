@@ -4,6 +4,7 @@
 //= require jquery.form.min
 //= require jquery.autocomplete
 //= require autocomplete
+//= require archivesspace
 //= require order-items
 //= require transcribe
 //= require statistics

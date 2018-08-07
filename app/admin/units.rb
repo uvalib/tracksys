@@ -98,7 +98,7 @@ ActiveAdmin.register Unit do
       end
       column ("Metadata Record") do |unit|
          div do
-            if !unit.metadata.nil?
+            if !unit.metadata.nil? && !unit.metadata.title.nil?
                link_to "#{unit.metadata.title.truncate(50, separator: ' ')}", "/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}"
             end
          end
@@ -287,6 +287,20 @@ ActiveAdmin.register Unit do
       end
       att.destroy
       redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+   end
+
+   member_action :archivesspace, :method => :post do
+      unit = Unit.find(params[:id])
+      publish = params[:publish] == "true"
+      begin
+         LinkToAs.exec_now({metadata: unit.metadata, as_url: params[:as_url],
+            publish: publish, staff_member: current_user })
+            flash.keep(:notice)
+         render plain: "ArchivesSpace metadata link created"
+      rescue Exception=>e
+         Rails.logger.error "ArchivesSpace link failed: #{e.to_s}"
+         render plain: e.to_s, status:  :error
+      end
    end
 
    member_action :ocr, :method => :post do

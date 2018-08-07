@@ -1,6 +1,37 @@
 <div id="dimmer">
    <%= render partial: "/admin/common/viewer_modal" %>
 
+   <div id="as-modal" class="modal">
+      <h1>ArchivesSpace Link</h1>
+      <div>
+         <div class="content">
+            <p class="as-warn">
+               IMPORTANT: creating this link will convert the existing Sirsi Metadata record
+               into an External Metadata record that points to ArchivesSpace for all information.
+               This action affects all units and master files currently associated with the existing
+               metadata record.
+            </p>
+            <div>
+               <label>ArchivesSpace Public URL:</label>
+               <input type="text" name="as_url" id="as_url"/>
+            </div>
+            <div>
+               <label>
+                  Publish Images?
+                  <input type="checkbox" name="as_publish" id="as_publish"/>
+               </label>
+               <p class="note">
+                  Published images will appear in the ArchivesSpace public interface
+               </p>
+            </div>
+            <div class="buttons">
+               <input type="button" id="cancel-as" value="Cancel"/>
+               <input type="button" id="create-as-link" value="Create Link"/>
+            </div>
+         </div>
+      </div>
+   </div>
+
    <div id="attachment-modal" class="modal">
       <h1>Add Attachment</h1>
       <form id="upload-attachment" method="post" action="/admin/units/<%= unit.id %>/attachment" enctype="multipart/form-data">
