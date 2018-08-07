@@ -7,7 +7,7 @@ module ArchivesSpace
       return json['session']
    end
 
-   def self.link(unit_id, as_url)
+   def self.link(unit_id, as_url, publish)
       puts "Link TrackSys Unit #{unit_id} to #{as_url}"
       unit = Unit.find(unit_id)
       metadata_pid = unit.metadata.pid
@@ -31,7 +31,7 @@ module ArchivesSpace
          puts("#{as_info[:parent_type]}:#{as_info[:parent_id]} already has digital object. Use existing.")
       else
          puts "Creating digitial object for PID #{metadata_pid}"
-         create_digital_object(auth, tgt_obj, unit.metadata)
+         create_digital_object(auth, tgt_obj, unit.metadata, publish)
       end
 
       puts "Convert existing metadata record to external"
@@ -104,11 +104,11 @@ module ArchivesSpace
       return false
    end
 
-   def self.create_digital_object(auth, tgt_obj, ts_metadata)
+   def self.create_digital_object(auth, tgt_obj, ts_metadata, publish)
       payload = {
          digital_object_id: ts_metadata.pid,
          title: ts_metadata.title,
-         publish: true,
+         publish: publish,
          file_versions: [
             {
                use_statement:  "image-service-manifest",
