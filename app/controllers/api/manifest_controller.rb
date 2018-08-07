@@ -30,7 +30,7 @@ class Api::ManifestController < ApplicationController
          files = obj.master_files.includes(:image_tech_meta).joins(:unit).where("units.id=?", unit_id).order(filename: :asc)
    	elsif obj.type == "ExternalMetadata" || !obj.supplemental_system.blank?
    		logger.info("This is External/supplemental metadata; including all master files")
-         files = obj.master_files.includes(:image_tech_meta).all.order(filename: :asc)
+         files = obj.master_files.includes(:image_tech_meta).joins(:unit).where("units.include_in_dl=1 or units.intended_use_id=110").order(filename: :asc)
    	else
    		logger.info("Only including masterfiles from units in the DL")
          files = obj.master_files.includes(:image_tech_meta).joins(:unit).where("units.include_in_dl=1").order(filename: :asc)
