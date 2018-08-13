@@ -378,7 +378,9 @@ class Project < ApplicationRecord
    end
 
    def project_name
-      return self.unit.metadata.title
+      name = self.unit.metadata.title
+      name = "" if name.nil?
+      return name
    end
 
    def percentage_complete

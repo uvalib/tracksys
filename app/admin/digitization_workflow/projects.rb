@@ -63,7 +63,7 @@ ActiveAdmin.register Project do
          row "Metadata" do |project|
             if !project.unit.metadata.nil?
                disp = "<a href='/admin/#{project.unit.metadata.url_fragment}/#{project.unit.metadata.id}'>"
-               disp << "<span>#{project.unit.metadata.pid}<br/>#{project.unit.metadata.title.truncate(100, separator: ' ')}</span></a>"
+               disp << "<span>#{project.unit.metadata.pid}<br/>#{truncate_words(project.unit.metadata.title, 100)}</span></a>"
                raw( disp)
             end
          end

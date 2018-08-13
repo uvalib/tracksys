@@ -3,7 +3,9 @@ div :class => 'columns-none' do
       panel "Order Information" do
          attributes_table_for project do
             row :project_name do |project|
-               project.project_name.truncate( 50, separator: ' ')
+               out = project.project_name
+               out = project.project_name.truncate( 100, separator: ' ') if !out.blank?
+               out
             end
             row :customer
             row ("Customer Status") do |project|

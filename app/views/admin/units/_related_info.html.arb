@@ -1,9 +1,9 @@
 attributes_table_for unit do
    row "Metadata" do |unit|
       if !unit.metadata.nil?
-         title = unit.metadata.title
-         title.truncate( 50, separator: ' ') if !title.nil?
-         disp = "<a href='/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}'><span>#{unit.metadata.pid}<br/>#{title}</span></a>"
+         out = unit.metadata.title
+         out = out.truncate( 100, separator: ' ') if !out.blank?
+         disp = "<a href='/admin/#{unit.metadata.url_fragment}/#{unit.metadata.id}'><span>#{unit.metadata.pid}<br/>#{out}</span></a>"
          raw( disp)
       end
    end
