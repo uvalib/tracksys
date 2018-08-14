@@ -134,8 +134,8 @@ module ArchivesSpace
             raise "ArchivesSpace create DigitalObject API response code #{resp.code}: #{resp.to_s}"
          end
       rescue RestClient::Exception => rce
-         err_body = JSON.parse(rce.response.body}
-         raise "Add DigitalObject FAILED: #{body['error']}"
+         err_body = JSON.parse(rce.response.body)
+         raise "Add DigitalObject FAILED: #{err_body['error']}"
       end
 
       # Add newly created digital object URI reference as an instance in the target archival object
@@ -150,8 +150,8 @@ module ArchivesSpace
             raise "ArchivesSpace update parent API response code #{resp.code}: #{resp.to_s}"
          end
       rescue RestClient::Exception => rce
-         err_body = JSON.parse(rce.response.body}
-         raise "Parent object update FAILED: #{body['error']}"
+         err_body = JSON.parse(rce.response.body)
+         raise "Parent object update FAILED: #{err_body['error']}"
       end
    end
 
