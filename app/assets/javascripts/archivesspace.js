@@ -16,7 +16,7 @@ $(document).ready(function () {
      $("#cancel-as").addClass("disabled");
 
      $.ajax({
-        url: window.location.href+"/archivesspace",
+        url: "/admin/archivesspace",
         method: "POST",
         data: { as_url: $("#as_url").val(),
                 publish: $("#as_publish").prop('checked')

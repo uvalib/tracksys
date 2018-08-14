@@ -289,19 +289,6 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
    end
 
-   member_action :archivesspace, :method => :post do
-      unit = Unit.find(params[:id])
-      publish = params[:publish] == "true"
-      begin
-         LinkToAs.exec_now({unit: unit, as_url: params[:as_url],
-            publish: publish, staff_member: current_user })
-         render plain: "ArchivesSpace metadata link created"
-      rescue Exception=>e
-         Rails.logger.error "ArchivesSpace link failed: #{e.to_s}"
-         render plain: e.to_s, status:  :error
-      end
-   end
-
    member_action :ocr, :method => :post do
       mf_ids = params[:ids]
       Ocr.exec(object_class: "Unit", object_id: params[:id], only: mf_ids)

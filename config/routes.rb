@@ -37,6 +37,10 @@ Tracksys::Application.routes.draw do
      delete "messages/:id" => "messages#destroy"
      post "messages" => "messages#create"
 
+     # archivesSpace
+     post "archivesspace" => "archivesspace#create"
+     get "archivesspace" => "archivesspace#lookup"
+
      # Weird. The file /admin/equipment is made with register_page so it
      # has none of the basic CRUD actions defined automatically. Add them
      # here manually
