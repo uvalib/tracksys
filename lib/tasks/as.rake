@@ -132,6 +132,11 @@ namespace :as do
       end
    end
 
+   task :lookup  => :environment do
+      url = ENV['url']
+      puts ArchivesSpace.lookup(url)
+   end
+
    desc "Create a link between AS and TS"
    task :create_link => :environment do
       uid = ENV['unit_id']

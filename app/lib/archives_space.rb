@@ -6,6 +6,28 @@ module ArchivesSpace
       return json['session']
    end
 
+   # Lookup some brief info for the given AS public URL
+   #
+   def self.lookup(as_url)
+      auth = get_auth_session()
+      as_info = parse_public_url(as_url)
+      repo = get_repository(auth, as_info[:repo])
+      tgt_obj = nil
+      if as_info[:parent_type] == "resources"
+         tgt_obj = get_resource(auth, as_info[:repo], as_info[:parent_id])
+      elsif as_info[:parent_type] == "archival_objects"
+         tgt_obj = get_archival_object(auth, as_info[:repo], as_info[:parent_id])
+      else
+         raise("Unsupported parent type: #{as_info[:parent_type] }")
+      end
+      return {
+         collection: repo['name'],
+         title: tgt_obj['title'],
+         id: tgt_obj['id_0'],
+         uri: tgt_obj['uri']
+      }
+   end
+
    # Create a link between the specified unit and ArchivesSpace object. The parent metadata
    # for the unit will be converted to ExternalMetadata and contain the linkage
    #
