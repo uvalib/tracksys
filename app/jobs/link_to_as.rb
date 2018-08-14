@@ -5,10 +5,11 @@ class LinkToAs < BaseJob
    end
 
    def do_workflow(message)
-      raise "Parameter 'metadata' is required" if message[:metadata].blank?
+      raise "Parameter 'unit' is required" if message[:unit].blank?
       raise "Parameter 'as_url' is required" if message[:as_url].blank?
       raise "Parameter 'staff_member' is required" if message[:staff_member].blank?
 
-      on_error("FAKE FAIL")
+      unit = message[:unit]
+      ArchivesSpace.link(unit.id, message[:as_url], message[:publish], logger)
    end
 end

@@ -1,49 +1,53 @@
 module ArchivesSpace
    def self.get_auth_session()
       url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
-      puts "API Auth URL: #{url}"
       resp = RestClient.post url, {password: Settings.as_pass}
       json = JSON.parse(resp.body)
       return json['session']
    end
 
-   def self.link(unit_id, as_url, publish)
-      puts "Link TrackSys Unit #{unit_id} to #{as_url}"
+   # Create a link between the specified unit and ArchivesSpace object. The parent metadata
+   # for the unit will be converted to ExternalMetadata and contain the linkage
+   #
+   def self.link(unit_id, as_url, publish, log = Logger.new(STDOUT) )
+      log.info "Link TrackSys Unit #{unit_id} to #{as_url}"
       unit = Unit.find(unit_id)
-      metadata_pid = unit.metadata.pid
       as_info = parse_public_url(as_url)
-      auth = get_auth_session
+      auth = get_auth_session()
+
       tgt_obj = nil
       if as_info[:parent_type] == "resources"
-         puts "Looking up parent resource #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
+         log.info "Looking up parent resource #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
          tgt_obj = get_resource(auth, as_info[:repo], as_info[:parent_id])
       elsif as_info[:parent_type] == "archival_objects"
-         puts "Looking up parent archival object #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
+         log.info "Looking up parent archival object #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
          tgt_obj = get_archival_object(auth, as_info[:repo], as_info[:parent_id])
       else
-         abort("Unsupported parent type: #{as_info[:parent_type] }")
+         raise("Unsupported parent type: #{as_info[:parent_type] }")
       end
 
       if tgt_obj.nil?
-         abort("#{as_info[:parent_type]}:#{as_info[:parent_id]} not found in repo #{as_info[:repo]}")
+         raise("#{as_info[:parent_type]}:#{as_info[:parent_id]} not found in repo #{as_info[:repo]}")
       end
-      if has_digital_object?(auth, tgt_obj, metadata_pid)
-         puts("#{as_info[:parent_type]}:#{as_info[:parent_id]} already has digital object. Use existing.")
+      if has_digital_object?(auth, tgt_obj, unit.metadata.pid)
+         log("#{as_info[:parent_type]}:#{as_info[:parent_id]} already has digital object. Use existing.")
       else
-         puts "Creating digitial object for PID #{metadata_pid}"
+         log.info "Creating digitial object for PID #{unit.metadata.pid}"
          create_digital_object(auth, tgt_obj, unit.metadata, publish)
       end
 
-      puts "Convert existing metadata record to external"
-      # Change type fitst, then reload so it changes to ExtMetadata
-      # and can handle blanking out many of the other fields
-      unit.metadata.update!(type: "ExternalMetadata")
-      unit = Unit.find(unit_id)
-      ext_uri = "/repositories/#{as_info[:repo]}/#{as_info[:parent_type]}/#{as_info[:parent_id]}"
-      unit.metadata.update!(creator_name: nil, catalog_key: nil, barcode: nil,
-         call_number:nil, external_system: "ArchivesSpace", external_uri: ext_uri)
+      if unit.metadata.type != "ExternalMetadata"
+         log.info "Converting existing metadata record to ExternalMetadata"
+         # Change type fitst, then reload so it changes to ExtMetadata
+         # and can handle blanking out many of the other fields
+         unit.metadata.update!(type: "ExternalMetadata")
+         unit = Unit.find(unit_id)
+         ext_uri = "/repositories/#{as_info[:repo]}/#{as_info[:parent_type]}/#{as_info[:parent_id]}"
+         unit.metadata.update!(creator_name: nil, catalog_key: nil, barcode: nil,
+            call_number:nil, external_system: "ArchivesSpace", external_uri: ext_uri)
+      end
 
-      puts "DONE!"
+      log.info "ArchivesSpace link successfully created"
    end
 
    def self.parse_public_url(url)
@@ -126,12 +130,12 @@ module ArchivesSpace
          if resp.code.to_i == 200
             json = JSON.parse(resp)
             digital_obj_id = json['id']
-            puts "Digital object created. ID: #{json['id']}"
          else
-            raise "Add digital object FAILED: #{resp.to_s}"
+            raise "ArchivesSpace create DigitalObject API response code #{resp.code}: #{resp.to_s}"
          end
       rescue RestClient::Exception => rce
-         raise "*** ADD FAILED #{rce.response}"
+         err_body = JSON.parse(rce.response.body}
+         raise "Add DigitalObject FAILED: #{body['error']}"
       end
 
       # Add newly created digital object URI reference as an instance in the target archival object
@@ -140,14 +144,14 @@ module ArchivesSpace
          digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"}
       }
       begin
+         url = "#{Settings.as_api_url}#{tgt_obj['uri']}"
          resp = RestClient.post "#{Settings.as_api_url}#{tgt_obj['uri']}", "#{tgt_obj.to_json}", auth_header(auth)
-         if resp.code.to_i == 200
-            puts "Parent object updated"
-         else
-            raise "Parent object update FAILED: #{resp.to_s}"
+         if resp.code.to_i != 200
+            raise "ArchivesSpace update parent API response code #{resp.code}: #{resp.to_s}"
          end
       rescue RestClient::Exception => rce
-         raise "*** Archival object update FAILED #{rce.response}"
+         err_body = JSON.parse(rce.response.body}
+         raise "Parent object update FAILED: #{body['error']}"
       end
    end
 

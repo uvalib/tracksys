@@ -293,9 +293,8 @@ ActiveAdmin.register Unit do
       unit = Unit.find(params[:id])
       publish = params[:publish] == "true"
       begin
-         LinkToAs.exec_now({metadata: unit.metadata, as_url: params[:as_url],
+         LinkToAs.exec_now({unit: unit, as_url: params[:as_url],
             publish: publish, staff_member: current_user })
-            flash.keep(:notice)
          render plain: "ArchivesSpace metadata link created"
       rescue Exception=>e
          Rails.logger.error "ArchivesSpace link failed: #{e.to_s}"

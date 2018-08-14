@@ -27,7 +27,7 @@ $(document).ready(function () {
            if ( textStatus != "success" ) {
               alert("Link failed: "+jqXHR.responseText);
            } else {
-             alert("Link created");
+              alert("Link created");
               window.location.reload();
            }
         }
