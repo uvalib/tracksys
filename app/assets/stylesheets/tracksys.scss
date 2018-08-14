@@ -6,31 +6,6 @@ body.active_admin {
    font-weight: 500;
    color: #333;
 
-  #dimmer .modal#as-modal {
-    width: 400px;
-    p.as-warn {
-      margin: 5px 5px 10px 5px;
-      font-size: 0.9em;
-      padding: 5px;
-      background: white;
-      outline: 1px solid #c40;
-    }
-    input[type=checkbox] {
-      margin-left: 5px;
-      width: 14px;
-      height: 14px;
-    }
-    input[type=text] {
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-    }
-    .note {
-      font-size: 0.8em;
-      padding: 10px;
-    }
-  }
-
   #header a, #header a:link {
     color: #e5e5e5;
     font-weight: 600;

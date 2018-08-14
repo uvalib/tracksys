@@ -46,6 +46,17 @@ $(function() {
       }
    });
 
+   $("#metadata-type").on("change", function() {
+     var type = $(this).val();
+     if (type == "SirsiMetadata") {
+       $("div.sirsi-metadata").show();
+       $("div.archivesspace-metadata").hide();
+     } else {
+       $("div.sirsi-metadata").hide();
+       $("div.archivesspace-metadata").show();
+     }
+   });
+
    var showUnitCreate = function() {
       $("#dimmer").show();
 
@@ -152,7 +163,8 @@ $(function() {
    $("#create-metadata").on("click", function() {
       $("#create-unit-panel").hide();
       $("#create_metadata input, select").each(function() {
-         if ( $(this).attr("id") != "ok-metadata-create" ) {
+        var inputID = $(this).attr("id");
+         if (inputID != "ok-metadata-create" &&  inputID != "metadata-type") {
             $(this).val("");
             $(this).prop("checked", false);
          }

@@ -112,6 +112,14 @@ body.active_admin #dimmer #create-unit-modal {
       padding: 0 0 4px 0;
       margin: 0 0 10px 0;
       border-bottom: 1px solid #ccc;
+      position: relative;
+      select {
+        color: #555;
+        position: absolute;
+        right: 0px;
+        font-size: 0.8em;
+        top: -3px;
+      }
    }
    div.flash_type_error {
       color: #922;
@@ -120,21 +128,32 @@ body.active_admin #dimmer #create-unit-modal {
       text-align: center;
    }
    div.form-group.metadata {
-      padding-bottom: 20px;
       border-bottom: 1px solid #ccc;
+      table {
+        display: inline-block;
+        margin-bottom: 20px;
+      }
       table td {
          padding: 0 10px 0 0;
       }
       table td.label {
          font-weight: 500;
+         vertical-align: middle;
+      }
+      .archivesspace-metadata {
+        display: none;
       }
    }
    #metadata-controls {
       position: relative;
-      .buttons {
+      div.buttons {
+          margin: 5px 0 0;
          position: absolute;
          right: 0;
-         bottom: 0;
+         bottom: 5px;
+         span.btn {
+           padding: 0px 20px 1px 20px;
+         }
       }
    }
    #metadata_id {

@@ -1,0 +1,48 @@
+body.active_admin {
+  #dimmer .modal#as-modal {
+    width: 400px;
+    p.as-warn {
+      margin: 5px 5px 10px 5px;
+      font-size: 0.9em;
+      padding: 5px;
+      background: white;
+      outline: 1px solid #c40;
+    }
+    input[type=checkbox] {
+      margin-left: 5px;
+      width: 14px;
+      height: 14px;
+    }
+    input[type=text] {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .note {
+      font-size: 0.8em;
+      padding: 10px;
+    }
+  }
+
+  #dimmer #create-unit-modal {
+    div.archivesspace-metadata {
+      input[type=text] {
+        box-sizing: border-box;
+        width: 450px;
+      }
+      table.metadata-summary {
+          margin-bottom: 5px !important;
+      }
+      div.as-lookup-panel {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        span.btn.as-lookup {
+          padding: 1px 10px 2px 10px;
+          position: relative;
+          top: -1px;
+        }
+      }
+    }
+  }
+}

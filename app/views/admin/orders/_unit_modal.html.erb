@@ -9,27 +9,59 @@
             <%= hidden_field_tag(:order_id, "#{order.id}" ) %>
             <%= hidden_field_tag(:metadata_id, "#{order.id}" ) %>
             <div class="form-group metadata">
-               <h4>Unit Metadata</h4>
-               <table class="metadata-summary">
-                  <tr>
-                     <td class="label"><label>PID:</label></td>
-                     <td><span id="metadata-pid" class="metadata-display"></span></td>
-                  </tr>
-                  <tr>
-                     <td class="label"><label>Call Number:</label></td>
-                     <td><span id="metadata-call-number" class="metadata-display"></span></td>
-                  </tr>
-                  <tr>
-                     <td class="label">Title:</td>
-                     <td><span id="metadata-title" class="metadata-display"></span></td>
-                  </tr>
-               </table>
-               <div id="metadata-controls">
-                  <span id="metadata-status"></span>
-                  <span class="buttons">
-                     <span class="btn" id="lookup-metadata">Manual Lookup</span>
-                     <span class="btn" id="create-metadata">Create</span>
-                  </span>
+               <h4>
+                  <span>Unit Metadata</span>
+                  <select id='metadata-type'>
+                     <option value="SirsiMetadata">Sirsi</option>
+                     <option value="ExternalMetadata">ArchivesSpace</option>
+                  </select>
+               </h4>
+               <div class="sirsi-metadata">
+                  <table class="metadata-summary">
+                     <tr>
+                        <td class="label"><label>PID:</label></td>
+                        <td><span id="metadata-pid" class="metadata-display"></span></td>
+                     </tr>
+                     <tr>
+                        <td class="label"><label>Call Number:</label></td>
+                        <td><span id="metadata-call-number" class="metadata-display"></span></td>
+                     </tr>
+                     <tr>
+                        <td class="label">Title:</td>
+                        <td><span id="metadata-title" class="metadata-display"></span></td>
+                     </tr>
+                  </table>
+                  <div id="metadata-controls">
+                     <span id="metadata-status"></span>
+                     <div class="buttons">
+                        <span class="btn" id="lookup-metadata">Manual Lookup</span>
+                        <span class="btn" id="create-metadata">Create</span>
+                     </div>
+                     <div style="clear:both"></div>
+                  </div>
+               </div>
+               <div class="archivesspace-metadata">
+                  <div class='as-lookup-panel'>
+                     <label>ArchivesSpace Public URL:</label>
+                     <div>
+                        <input type="text" id="as-utl" class="metadata-display"></input>
+                        <span class="btn as-lookup">Lookup</span>
+                     </div>
+                  </div>
+                  <table class="metadata-summary">
+                     <tr>
+                        <td class="label"><label>Collection:</label></td>
+                        <td><span id="as-collection" class="metadata-display"></span></td>
+                     </tr>
+                     <tr>
+                        <td class="label"><label>Title:</label></td>
+                        <td><span id="as-title" class="metadata-display"></span></td>
+                     </tr>
+                     <tr>
+                        <td class="label"><label>ID:</label></td>
+                        <td><span id="as-id" class="metadata-display"></span></td>
+                     </tr>
+                  </table>
                </div>
             </div>
             <div class="form-group">
