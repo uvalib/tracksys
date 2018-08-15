@@ -46,8 +46,9 @@ $(function() {
       }
    });
 
-   $("#metadata-type").on("change", function() {
+   $("#metadata-type-selector").on("change", function() {
      var type = $(this).val();
+     $("#metadata_type").val(type);
      if (type == "SirsiMetadata") {
        $("div.sirsi-metadata").show();
        $("div.archivesspace-metadata").hide();
@@ -263,11 +264,46 @@ $(function() {
       $("#metadata-builder").hide();
    });
 
+   $("span.as-lookup").on("click", function() {
+     if ($("span.as-lookup").hasClass("disabled") ) return;
+     var url = $("#as-url").val();
+     if (url === "") return;
+
+     $("span.as-lookup").addClass("disabled");
+
+     $.ajax({
+        url: "/admin/archivesspace?uri="+url,
+        method: "GET",
+        complete: function(jqXHR, textStatus) {
+           $("span.as-lookup").removeClass("disabled");
+           if ( textStatus === "success" ) {
+             $("#as-collection").text(jqXHR.responseJSON.collection);
+             $("#as-title").text(jqXHR.responseJSON.title);
+             $("#as-id").text(jqXHR.responseJSON.id);
+             $("#tgt_as_uri").val(jqXHR.responseJSON.uri);
+             $("#tgt_as_title").val(jqXHR.responseJSON.title);
+           } else {
+             $("#as-collection").text("Unable to find specified URL");
+             $("#as-title").text("");
+             $("#as-id").text("");
+             $("#tgt_as_uri").val("");
+             $("#tgt_as_title").val("");
+           }
+        }
+     });
+   });
+
    // Ajax CONVERT form submission hooks; handle before submit, success and error
    //
-   $("form#convert_item").bind('ajax:before', function(){
+   $("#ok-unit-create").on('click', function(event){
+      var asUri = $("#tgt_as_uri").val();
+      if (asUri === "" && $("#metadata-type").val() == "ExternalMetadata") {
+        $("div.flash_type_error").text("ArchivesSpace lookup is required");
+        return;
+      }
       $("#ok-unit-create").addClass("disabled");
       $("div.flash_type_error").text("");
+      $("form#convert_item").submit();
    });
    $("form#convert_item").bind('ajax:error', function(event, jqxhr){
       $("div.flash_type_error").text(jqxhr.responseJSON.message);

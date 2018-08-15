@@ -1,31 +1,4 @@
 $(document).ready(function () {
-  $("span.as-lookup").on("click", function() {
-    if ($("span.as-lookup").hasClass("disabled") ) return;
-    var url = $("#as-url").val();
-    if (url === "") return;
-
-    $("span.as-lookup").addClass("disabled");
-
-    $.ajax({
-       url: "/admin/archivesspace?uri="+url,
-       method: "GET",
-       complete: function(jqXHR, textStatus) {
-          $("span.as-lookup").removeClass("disabled");
-          if ( textStatus === "success" ) {
-            $("#as-collection").text(jqXHR.responseJSON.collection);
-            $("#as-title").text(jqXHR.responseJSON.title);
-            $("#as-id").text(jqXHR.responseJSON.id);
-            $("#tgt-as-uri").text(jqXHR.responseJSON.uri);
-          } else {
-            $("#as-collection").text("Unable to find specified URL");
-            $("#as-title").text("");
-            $("#as-id").text("");
-            $("#tgt-as-uri").text("");
-          }
-       }
-    });
-  });
-
   $("#show-as-link-popup").on("click", function() {
     $("#dimmer").show();
     $("#as-modal").show();

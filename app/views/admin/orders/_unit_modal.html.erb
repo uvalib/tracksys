@@ -8,12 +8,15 @@
             <%= hidden_field_tag(:source_item_id, "" ) %>
             <%= hidden_field_tag(:order_id, "#{order.id}" ) %>
             <%= hidden_field_tag(:metadata_id, "#{order.id}" ) %>
+            <%= hidden_field_tag(:tgt_as_uri, "" ) %>
+            <%= hidden_field_tag(:tgt_as_title, "" ) %>
+            <%= hidden_field_tag(:metadata_type, "sirsi" ) %>
             <div class="form-group metadata">
                <h4>
                   <span>Unit Metadata</span>
-                  <select id='metadata-type'>
-                     <option value="SirsiMetadata">Sirsi</option>
-                     <option value="ExternalMetadata">ArchivesSpace</option>
+                  <select id='metadata-type-selector'>
+                     <option value="sirsi">Sirsi</option>
+                     <option value="archivesspace">ArchivesSpace</option>
                   </select>
                </h4>
                <div class="sirsi-metadata">
@@ -37,7 +40,6 @@
                         <span class="btn" id="lookup-metadata">Manual Lookup</span>
                         <span class="btn" id="create-metadata">Create</span>
                      </div>
-                     <div style="clear:both"></div>
                   </div>
                </div>
                <div class="archivesspace-metadata">
@@ -47,7 +49,6 @@
                         <input type="text" id="as-url" class="metadata-display"></input>
                         <span class="btn as-lookup">Lookup</span>
                      </div>
-                     <div id="tgt-as-uri" style="display: none"></div>
                   </div>
                   <table class="metadata-summary">
                      <tr>
@@ -97,7 +98,7 @@
 
             <div class="buttons create-unit">
                <input type="button" id="cancel-unit-create" value="Cancel"/>
-               <input type="submit" id="ok-unit-create" value="Create Unit"/>
+               <input type="button" id="ok-unit-create" value="Create Unit"/>
             </div>
          <% end %>
       </div>

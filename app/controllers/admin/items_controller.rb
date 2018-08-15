@@ -5,8 +5,27 @@ class Admin::ItemsController < ApplicationController
    end
 
    def convert
-      if params[:metadata_id].blank?
-         render json: {success: false, message: "Metadata ID is required"}, status: :bad_request
+      if params[:metadata_type] == "sirsi"
+         if params[:metadata_id].blank?
+            render json: {success: false, message: "SirsiMetadata is required"}, status: :bad_request
+            return
+         end
+      elsif params[:metadata_type] == "archivesspace"
+         if params[:tgt_as_uri].blank?
+            render json: {success: false, message: "ArchivesSpace metadata lookup is required"}, status: :bad_request
+            return
+         else
+            # Create the external AS metadata record if necessary...
+            uri = params[:tgt_as_uri]
+            as_md = ExternalMetadata.where("external_system=? and external_uri=?", "ArchivesSpace", uri).first
+            if as_md.nil?
+               as_md = ExternalMetadata.create( external_system: "ArchivesSpace", external_uri: uri,
+                  use_right_id: 1, title: params[:tgt_as_title] )
+            end
+            params[:metadata_id] = as_md.id
+         end
+      else
+         render json: {success: false, message: "Unknown metadata type"}, status: :bad_request
          return
       end
 
