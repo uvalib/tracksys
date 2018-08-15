@@ -20,11 +20,13 @@ class Api::MetadataController < ApplicationController
          if c.has_exemplar?
             out[:exemplar] = c.exemplar_info(:small)[:filename]
          end
-         md = c.master_files.first.metadata
-         out[:rights] = md.use_right.uri
-         out[:creator] = md.creator_name
-         out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
-         out[:callNumber] = md.call_number if !md.call_number.blank?
+         if !c.master_files.first.nil?
+            md = c.master_files.first.metadata
+            out[:rights] = md.use_right.uri
+            out[:creator] = md.creator_name
+            out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
+            out[:callNumber] = md.call_number if !md.call_number.blank?
+         end
          render json: out and return
       end
       render :plain=>"PID is invalid", status: :bad_request and return if md.nil?
