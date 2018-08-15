@@ -1,4 +1,7 @@
 module ArchivesSpace
+   # Authenticate withthe ArchivesSpace API and get a session auth token
+   # that will be used in all subsequent requests. This is not permanant and shouldn't be cached
+   # 
    def self.get_auth_session()
       url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
       resp = RestClient.post url, {password: Settings.as_pass}

@@ -29,6 +29,38 @@ class FinalizeUnit < BaseJob
       FileUtils.mv(src_dir, in_process_dir)
       QaUnitData.exec_now( { :unit_id => unit.id }, self)
 
+      # The unit is done finalization. Now see if there needs to be a DigitalObject created
+      # to represent it in ArchivesSpace...
+      if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system == "ArchivesSpace"
+         logger.info "Finalized unit has external ArchivesSpace metadata. See if a DigitalObject needs to be created..."
+         auth = ArchivesSpace.get_auth_session()
+         bits = unit.metadata.external_uri.split("/")
+         obj = nil
+         if bits[3] == "resources"
+            logger.info "Look up ArchivesSpace object: #{unit.metadata.external_uri}"
+            obj = ArchivesSpace.get_resource(auth, bits[2], bits[4])
+         elsif bits[3] == "archival_objects"
+            logger.info "Look up ArchivesSpace object: #{unit.metadata.external_uri}"
+            obj = ArchivesSpace.get_archival_object(auth, bits[2], bits[4])
+         else
+            logger.info "External URI has unsupported parent type in URI: #{bits[3]}"
+         end
+
+         if !obj.nil?
+            if ArchivesSpace.has_digital_object?(auth, obj, unit.metadata.pid) == false
+               begin
+                  logger.info "Creating digital object..."
+                  ArchiveSpace.create_digital_object(auth, obj, unit.metadata, true)
+                  logger.info "...success"
+               rescue Exception=>e
+                  logger.error "Unable to create ArchivesSpace digital object: #{e.message}"
+               end
+            else
+               logger.info "ArchivesSpace already has a digital object for this item; nothing more to do."
+            end
+         end
+      end
+
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
          @project.finalization_success( status_object() )
