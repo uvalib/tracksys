@@ -454,18 +454,20 @@ class Project < ApplicationRecord
    private
    def validate_manual_finalization
       Rails.logger.info("Validating manually finalized unit")
-      if unit.date_archived.nil?
-         validation_failed("Unit was not archived")
-         return
-      end
+      if !unit.throw_away
+         if unit.date_archived.nil?
+            validation_failed("Unit was not archived")
+            return
+         end
 
-      # archive OK; make sure masterfiles all have metadata (tech and desc)
-      # and that the archived file count matches masterfile count
-      archive_dir = File.join(ARCHIVE_DIR, unit.directory)
-      archived_tif_count = Dir[File.join(archive_dir, '*.tif')].count
-      if archived_tif_count == 0
-         validation_failed("No tif files found in archive")
-         return
+         # archive OK; make sure masterfiles all have metadata (tech and desc)
+         # and that the archived file count matches masterfile count
+         archive_dir = File.join(ARCHIVE_DIR, unit.directory)
+         archived_tif_count = Dir[File.join(archive_dir, '*.tif')].count
+         if archived_tif_count == 0
+            validation_failed("No tif files found in archive")
+            return
+         end
       end
 
       mf_count = 0
@@ -481,9 +483,11 @@ class Project < ApplicationRecord
          end
       end
 
-      if archived_tif_count != mf_count
-         validation_failed("MasterFile / tif count mismatch. #{archived_tif_count} tif files vs #{mf_count} MasterFiles")
-         return
+      if !unit.throw_away
+         if archived_tif_count != mf_count
+            validation_failed("MasterFile / tif count mismatch. #{archived_tif_count} tif files vs #{mf_count} MasterFiles")
+            return
+         end
       end
 
       # deliverables ready (patron or dl)
