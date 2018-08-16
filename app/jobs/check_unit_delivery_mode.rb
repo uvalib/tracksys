@@ -84,6 +84,11 @@ class CheckUnitDeliveryMode < BaseJob
       logger.info "Processing complete; removing processing diectory: #{processing_dir}"
       FileUtils.rm_rf(processing_dir)
 
+      # See if the unit should be published to AS
+      if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system == "ArchivesSpace" && unit.throw_away == false
+         PublishToAS.exec_now({unit: unit})
+      end
+
       # All units except re-orders go to archive
       if unit.reorder == false
          # Archive the unit and move in_process files to ready_to_delete
