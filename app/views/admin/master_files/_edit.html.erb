@@ -24,7 +24,7 @@
 
       <% if !@master_file.location.nil? %>
          <li class="select input optional">
-            <label class="label">Container</label>
+            <label class="label">Container Type</label>
             <select name="master_file[container_type_id]" id="master_file_container_type_id" >
                <option value="" disabled selected>Select a type</option>
                <% ContainerType.all.order(name: :asc).each do |c| %>
@@ -35,7 +35,7 @@
             </select>
          </li>
          <li class="select input optional stringish">
-            <label class="label">Box</label>
+            <label class="label">Container Name</label>
             <input  name="master_file[container_id]" id="master_file_container_id"
                     type="text" value="<%= @master_file.container_id %>"/>
          </li>

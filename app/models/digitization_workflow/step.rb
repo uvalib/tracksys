@@ -18,11 +18,10 @@ class Step < ApplicationRecord
          return validate_finish_dir( project, dest_dir )
       end
 
-      # Make sure no illegal/stopper files are present in the starting directory
+      # Make sure no illegal/stopper files are present in the starting directory and ensure structure
       # NOTE: The validation will be skipped if no start directory is found. This
       # is needed to handle error recovery when a automatic move failed and the
       # user manually moved files to finsh dir befor finish clicked
-      Rails.logger.info "Validate start files for project #{project.id}, step #{project.current_step.id}"
       return false if !validate_start_dir(project)
 
       # Automatically move files to destination directory?
@@ -48,7 +47,7 @@ class Step < ApplicationRecord
       Rails.logger.info "Validate Start directory for project #{project.id} step #{self.name}"
 
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
-      # wil have moved it to teh finish location prior to clicking finish)
+      # wil have moved it to the finish location prior to clicking finish)
       return true if self.error?
 
       # get the base start directory
@@ -100,10 +99,9 @@ class Step < ApplicationRecord
          remove_extra_files(start_dir)
       end
 
-      # After the inital scanning of a manuscript workflow, require the presence
-      # of subdirectories in the start directory. No .tif files should be present
-      # outside of these subdirectories
-      if self.workflow.name == "Manuscript" && self.name != "Scan"
+      # After the inital scanning & processing of a manuscript workflow,
+      # enforce the box/folder directory structure
+      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
          return validate_manuscript_directory_content(project, start_dir)
       else
          # Normal, flat directory validations
@@ -139,7 +137,7 @@ class Step < ApplicationRecord
       dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
-      if self.workflow.name == "Manuscript" && self.name != "Scan"
+      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
          return validate_manuscript_directory_content(project, dest_dir)
       else
          return validate_directory_content(project, dest_dir)
@@ -160,7 +158,7 @@ class Step < ApplicationRecord
          return false
       end
 
-      # validate directory structure: ./[step_dir]/[box|oversize|tray|ledger].name/folder/*.tif
+      # validate box/folder directory structure
       return false if !validate_structure(project, dir)
 
       # enforce naming/numbering (note the /**/ in tif path to make the search include subdirs)
@@ -176,13 +174,13 @@ class Step < ApplicationRecord
 
    private
    def validate_structure(project, dir)
-      # top level contains one directory for box and has a name like: [box|oversize|tray|ledger].{name}
-      # box contains only directories; one per folder
-      # EXCEPTION: Ledgers do not have any folders, just .tif files
-      types = ["box", "oversize", "tray", "ledger"]
+      # Top level contains one directory for box, named based on the directory_name
+      # data in the container_types model. The model also contains a has_folders flag.
+      # If it is set, the box directory can contain only folders. If it is not set, the
+      # box directory contains only images.
       tree = {}
       folders_found = false
-      ledger = false
+      container_type = nil
       Dir.glob("#{dir}/**/*").each do |entry|
          if File.directory? (entry)
             # just get the subdirectories...
@@ -196,21 +194,19 @@ class Step < ApplicationRecord
             # of subfolders present. Only support 2...  box/folder
             depth = subs.split("/").count
             if depth > 2
-               step_failed(project, "Filesystem", "<p>Too many subdirectories</p>")
+               step_failed(project, "Filesystem", "<p>Too many subdirectories: #{subs}</p>")
                return false
             elsif depth == 1
-               # this is a container directory. It should have the format type.name. Validate
+               # this is a top-level container directory. It should have the format type.name. Validate
                if subs.split(".").length != 2
                   step_failed(project, "Filesystem", "<p>Incorrectly named box directory #{subs}</p>")
                   return false
                end
-               type = subs.split(".")[0].downcase
-               if !types.include?(type)
+               dir_name = subs.split(".")[0].downcase
+               container_type = ContainerType.find_by(directory_name: dir_name)
+               if container_type.nil?
                   step_failed(project, "Filesystem", "<p>Unsupported box type #{type} in directory #{subs}</p>")
                   return false
-               else
-                  # Flag ledger for future use
-                  ledger = (type == "ledger")
                end
                tree[subs] = []
                if tree.keys.length > 1
@@ -218,6 +214,8 @@ class Step < ApplicationRecord
                   return false
                end
             else
+               # this is a folder directory within the top-level box directory. Split it path parts
+               # where the first part is the box dir name and the second is the folder
                bits = subs.split("/")
                tree[bits[0]] << bits[1]
                folders_found = true
@@ -225,27 +223,24 @@ class Step < ApplicationRecord
          else
             # This is a file. Count slashes to figure out where in the
             # directory tree this file resides. One slash is the box level.
-            # In all cases except for ledgers, this is invalid
+            # Validate based on folders flag in the container_type model
             subs = File.dirname(entry)[dir.length+1..-1]
             next if subs.blank?
-            if subs.split("/").count == 1 && ledger == false
-               step_failed(project, "Filesystem", "<p>Files found in box directory</p>")
+            if subs.split("/").count == 1 && container_type.has_folders
+               step_failed(project, "Filesystem", "<p>Files found in box directory: #{subs}</p>")
                return false
             end
          end
       end
 
-      # For all cases except ledgers, folders are required within the box directory
-      if folders_found == false
-         if ledger == false
-            step_failed(project, "Filesystem", "<p>No folder directories found</p>")
-            return false
-         end
-      else
-         if ledger == true
-            step_failed(project, "Filesystem", "<p>Folder directories not allowed in ledgers</p>")
-            return false
-         end
+      # Validate presence or absence of folders based on container_type
+      if folders_found == false && container_type.has_folders == true
+         step_failed(project, "Filesystem", "<p>No folder directories found</p>")
+         return false
+      end
+      if folders_found == true && container_type.has_folders == false
+         step_failed(project, "Filesystem", "<p>Folder directories not allowed in '#{container_type.name}' containers</p>")
+         return false
       end
       return true
    end

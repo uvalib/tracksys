@@ -14,20 +14,18 @@ class Location < ApplicationRecord
       subdir_str = File.dirname(full_path_to_mf)[unit_base_dir.length+1..-1]
       return nil if subdir_str.blank?
 
-      # Naming convention: [box|oversize|tray].{boxname}/{foldername} OR
-      #                    ledger.name/masterfile.tif (no folders)
+      # Naming convention: {container_dir}.{boxname}/{foldername}/master_file.tif OR
+      #                    {container_dir}.{boxname}/master_file.tif  -- no folders
       bits = subdir_str.split("/")
       box_info = bits[0].split(".")
-      type = box_info[0]
+      box_type = box_info[0]
       box_id = box_info[1]
       if bits.length == 3
          folder = bits[1]
       else
          folder = nil
       end
-      like_type = "#{type}%"
-      ct = ContainerType.where("name like ?", like_type).first
-
+      ct = ContainerType.find_by(directory_name: box_type)
       location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
       if location.nil?
          # See if there is a notes.txt file present in the base dir. Add the contents
