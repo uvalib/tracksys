@@ -255,10 +255,10 @@ ActiveAdmin.register XmlMetadata do
          xml_metadata.supplemental_system
       end
       div do
-         CGI.unescape(xml_metadata.supplemental_uri.split("=").last)
+         xml_metadata.supplemental_uri
       end
       div :class => 'workflow_button', style: "margin-top: 15px" do
-         raw("<a class='view-supplemental' href='#{Settings.archives_space_url}/#{xml_metadata.supplemental_uri}' target='_blank'>View</a>")
+         raw("<a class='view-supplemental' href='#{Settings.archives_space_url}#{xml_metadata.supplemental_uri}' target='_blank'>View</a>")
       end
    end
 

@@ -151,6 +151,17 @@ namespace :as do
       end
    end
 
+   desc "fix supplemental URI so not specific to staff interface"
+   task :fix_supplemental_uri  => :environment do
+      XmlMetadata.where(supplemental_system: "ArchivesSpace").each do |xm|
+         if xm.supplemental_uri.include? "autoselect_repo"
+            stripped = CGI.unescape(xm.supplemental_uri.split("uri=")[1])
+            puts "#{xm.supplemental_uri} => #{stripped}"
+            xm.update(supplemental_uri: stripped)
+         end
+      end
+   end
+
    desc "fix_hs_links"
    task :fix_hs_links  => :environment do
 
