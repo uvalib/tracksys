@@ -277,13 +277,19 @@ $(function() {
         complete: function(jqXHR, textStatus) {
            $("span.as-lookup").removeClass("disabled");
            if ( textStatus === "success" ) {
-             $("#as-collection").text(jqXHR.responseJSON.collection);
+             $("#as-repository").text(jqXHR.responseJSON.repository);
+             $("#collection-row").hide();
+             if ( jqXHR.responseJSON.collection ) {
+               $("#collection-row").show();
+               $("#as-collection").text(jqXHR.responseJSON.collection);
+             }
              $("#as-title").text(jqXHR.responseJSON.title);
              $("#as-id").text(jqXHR.responseJSON.id);
              $("#tgt_as_uri").val(jqXHR.responseJSON.uri);
              $("#tgt_as_title").val(jqXHR.responseJSON.title);
            } else {
-             $("#as-collection").text("Unable to find specified URL");
+             $("#as-repository").text("Unable to find specified URL");
+             $("#as-collection").text("");
              $("#as-title").text("");
              $("#as-id").text("");
              $("#tgt_as_uri").val("");

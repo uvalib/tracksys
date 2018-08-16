@@ -101,7 +101,7 @@ class Step < ApplicationRecord
 
       # After the inital scanning & processing of a manuscript workflow,
       # enforce the box/folder directory structure
-      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
          return validate_manuscript_directory_content(project, start_dir)
       else
          # Normal, flat directory validations
@@ -137,7 +137,7 @@ class Step < ApplicationRecord
       dest_dir = output_dir if Dir.exists? output_dir
 
       # Directory is present and has images; make sure content is all OK
-      if self.workflow.name == "Manuscript" && self.name != "Scan" && self.name != "Process"
+      if self.workflow.name == "Manuscript" && self.name != "Scan"
          return validate_manuscript_directory_content(project, dest_dir)
       else
          return validate_directory_content(project, dest_dir)

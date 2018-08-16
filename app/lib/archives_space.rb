@@ -1,7 +1,7 @@
 module ArchivesSpace
    # Authenticate withthe ArchivesSpace API and get a session auth token
    # that will be used in all subsequent requests. This is not permanant and shouldn't be cached
-   # 
+   #
    def self.get_auth_session()
       url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
       resp = RestClient.post url, {password: Settings.as_pass}
@@ -23,12 +23,27 @@ module ArchivesSpace
       else
          raise("Unsupported parent type: #{as_info[:parent_type] }")
       end
-      return {
-         collection: repo['name'],
+
+      out = {
+         repository: repo['name'],
          title: tgt_obj['title'],
          id: tgt_obj['id_0'],
          uri: tgt_obj['uri']
       }
+
+      # if this has ancestors, it is part of a collection. Find the collection info
+      if !tgt_obj['ancestors'].nil?
+         tgt_obj['ancestors'].each do |ancestor|
+            if ancestor['level'] == "collection"
+               bits = ancestor['ref'].split("/")
+               coll_obj = get_resource(auth, bits[2], bits[4])
+               out[:collection] = coll_obj['finding_aid_title']
+               out[:id] = coll_obj['id_0']
+               break
+            end
+         end
+      end
+      return out
    end
 
    # Create a link between the specified unit and ArchivesSpace object. The parent metadata
