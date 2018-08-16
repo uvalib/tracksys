@@ -16,6 +16,7 @@ class Api::MetadataController < ApplicationController
          out[:title] = c.title
          out[:title] = c.content_desc if out[:title].blank?
          out[:title] = c.label if out[:title].blank?
+         out[:title] = "Untitled" if out[:title].blank?
          if c.has_exemplar?
             out[:exemplar] = c.exemplar_info(:small)[:filename]
          end
