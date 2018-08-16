@@ -14,9 +14,8 @@ class Api::MetadataController < ApplicationController
          c = Component.find_by(pid: params[:pid])
          out = {pid: params[:pid]}
          out[:title] = c.title
-         if c.title.blank?
-            out[:title] = c.label
-         end
+         out[:title] = c.content_desc if out[:title].blank?
+         out[:title] = c.label if out[:title].blank?
          if c.has_exemplar?
             out[:exemplar] = c.exemplar_info(:small)[:filename]
          end
