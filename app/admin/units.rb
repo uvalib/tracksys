@@ -182,7 +182,8 @@ ActiveAdmin.register Unit do
       render "delivery_workflow", :context=>self
    end
 
-   sidebar "Digital Library Workflow", :only => [:show], if: proc{ !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl? ) } do
+   sidebar "Digital Library Workflow", :only => [:show],
+      if: proc{ unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl? ) } do
       render "dl_workflow", :context=>self
    end
 

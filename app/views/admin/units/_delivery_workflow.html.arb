@@ -84,7 +84,7 @@ if !current_user.viewer? && !current_user.student?
             end
          end
       else
-         if unit.date_archived.nil? && unit.project.nil?
+         if unit.date_archived.nil? && unit.project.nil? && unit.date_dl_deliverables_ready.nil?
             div :class => 'workflow_button' do
                button_to "Finalize Raw Images",
                finalize_raw_images_admin_unit_path, :method => :get
