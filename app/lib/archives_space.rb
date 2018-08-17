@@ -49,7 +49,7 @@ module ArchivesSpace
    # Create a link between the specified unit and ArchivesSpace object. The parent metadata
    # for the unit will be converted to ExternalMetadata and contain the linkage
    #
-   def self.link(unit_id, as_url, publish, log = Logger.new(STDOUT) )
+   def self.link(unit_id, as_url, log = Logger.new(STDOUT) )
       log.info "Link TrackSys Unit #{unit_id} to #{as_url}"
       unit = Unit.find(unit_id)
       as_info = parse_public_url(as_url)
@@ -73,7 +73,7 @@ module ArchivesSpace
          log("#{as_info[:parent_type]}:#{as_info[:parent_id]} already has digital object. Use existing.")
       else
          log.info "Creating digitial object for PID #{unit.metadata.pid}"
-         create_digital_object(auth, tgt_obj, unit.metadata, publish)
+         create_digital_object(auth, tgt_obj, unit.metadata, unit.include_in_dl)
       end
 
       if unit.metadata.type != "ExternalMetadata"

@@ -141,11 +141,9 @@ namespace :as do
    task :create_link => :environment do
       uid = ENV['unit_id']
       url = ENV['as_url']
-      publish = ENV['publish']=="true" || ENV['publish']=="1"
-      publish = false if publish.nil?
       abort("unit_id and as_url are required") if uid.blank? || url.blank?
       begin
-         ArchivesSpace.link(uid, url, publish)
+         ArchivesSpace.link(uid, url)
       rescue Exception => e
          puts "Link FAILED: #{e.to_s}"
       end

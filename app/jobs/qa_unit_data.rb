@@ -60,6 +60,10 @@ class QaUnitData < BaseJob
          end
       end
 
+      if unit.include_in_dl && unit.throw_away
+         failure_messages << "Throw away units cannot be flagged for publication to the DL. "
+      end
+
       # In response to DSSR staff's inconsistent use of the date_approved field, this logic will now warn but enforce the inclusion of a date_approved value.
       if not order.date_order_approved?
          # Define and undefine @order_id within this conditional to ensure that only this message is attached to the Order.

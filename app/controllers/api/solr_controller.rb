@@ -41,7 +41,7 @@ class Api::SolrController < ApplicationController
             pids << o.catalog_key
          end
       else
-         Metadata.where("date_dl_ingest is not null and type<>? and (date_dl_ingest >= ? or date_dl_update >= ?)", "SirsiMetadata", date_str,date_str).find_each do |o|
+         Metadata.where("date_dl_ingest is not null and type=? and (date_dl_ingest >= ? or date_dl_update >= ?)", "XmlMetadata", date_str,date_str).find_each do |o|
             pids << o.pid
          end
       end

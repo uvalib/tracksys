@@ -18,8 +18,7 @@ $(document).ready(function () {
     $.ajax({
         url: "/admin/archivesspace",
         method: "POST",
-        data: { as_url: $("#as_url").val(),
-                publish: $("#as_publish").prop('checked') },
+        data: { as_url: $("#as_url").val() },
         complete: function(jqXHR, textStatus) {
            $("#create-as-link").removeClass("disabled");
            $("#cancel-as").removeClass("disabled");
