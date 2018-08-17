@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_15_165800) do
+ActiveRecord::Schema.define(version: 2018_08_17_184442) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -522,7 +522,9 @@ ActiveRecord::Schema.define(version: 2018_08_15_165800) do
     t.string "resolution_note"
     t.integer "workstation_id"
     t.text "condition_note"
+    t.bigint "container_type_id"
     t.index ["category_id"], name: "index_projects_on_category_id"
+    t.index ["container_type_id"], name: "index_projects_on_container_type_id"
     t.index ["unit_id"], name: "index_projects_on_unit_id"
     t.index ["workflow_id"], name: "index_projects_on_workflow_id"
     t.index ["workstation_id"], name: "index_projects_on_workstation_id"

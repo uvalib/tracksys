@@ -8,6 +8,7 @@ class Project < ApplicationRecord
    belongs_to :current_step, :class_name=>"Step", optional: true
    belongs_to :category, counter_cache: true
    belongs_to :workstation, optional: true
+   belongs_to :container_type, optional: true
 
    has_one :order, :through => :unit
    has_one :customer, :through => :order
