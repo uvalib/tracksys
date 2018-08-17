@@ -14,11 +14,12 @@ $(document).ready(function () {
 
     $("#create-as-link").addClass("disabled");
     $("#cancel-as").addClass("disabled");
+    var unitID = $(this).data("unit-id");
 
     $.ajax({
         url: "/admin/archivesspace",
         method: "POST",
-        data: { as_url: $("#as_url").val() },
+        data: { unit_id: unitID, as_url: $("#as_url").val() },
         complete: function(jqXHR, textStatus) {
            $("#create-as-link").removeClass("disabled");
            $("#cancel-as").removeClass("disabled");
