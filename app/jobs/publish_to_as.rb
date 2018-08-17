@@ -27,7 +27,7 @@ class PublishToAS < BaseJob
          if ArchivesSpace.has_digital_object?(auth, obj, unit.metadata.pid) == false
             begin
                logger.info "Creating digital object..."
-               ArchiveSpace.create_digital_object(auth, obj, unit.metadata, true)
+               ArchiveSpace.create_digital_object(auth, obj, unit.metadata, unit.include_in_dl)
                logger.info "...success"
             rescue Exception=>e
                logger.error "Unable to create ArchivesSpace digital object: #{e.message}"
