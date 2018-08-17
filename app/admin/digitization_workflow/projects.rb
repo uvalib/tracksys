@@ -185,6 +185,10 @@ ActiveAdmin.register Project do
          return
       end
 
+      if params[:container_type]
+         project.update(container_type_id: params[:container_type] )
+      end
+
       if params[:category]
          project.update(category_id: params[:category], item_condition: params[:item_condition].to_i,
                         condition_note: params[:condition_note], viu_number: params[:viu_number] )

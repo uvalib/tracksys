@@ -372,7 +372,7 @@ $(function() {
       var tgtClass = "camera";
       if ( $(this).hasClass("item")) {
          tgtClass = "item";
-         data = {
+         data = { container_type: $("#container-type-edit").val(),
             category: $("#category-edit").val(), viu_number: $("#viu_number-edit").val(),
             item_condition: $("#condition-edit").val(), condition_note: $("#condition_note-edit").val()
          };
@@ -423,6 +423,7 @@ $(function() {
                   }
                } else {
                   $("#viu_number").text( data.viu_number );
+                  $("#container-type").text( $("#container-type-edit option:selected").text() );
                   $("#category").text( $("#category-edit option:selected").text() );
                   $("#condition").text( $("#condition-edit option:selected").text() );
                   $("#condition_note").text( data.condition_note  );

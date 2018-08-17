@@ -33,6 +33,11 @@ div :class => 'columns-none' do
    div :class => 'two-column' do
       panel "Item Information" do
          attributes_table_for project do
+            if project.workflow.name == "Manuscript"
+               row :container_type do |p|
+                  render partial: "/admin/digitization_workflow/projects/container", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
+               end
+            end
             row :category do |p|
                render partial: "/admin/digitization_workflow/projects/category", locals: {project: project, admin: (current_user.admin? || current_user.supervisor?)}
             end
