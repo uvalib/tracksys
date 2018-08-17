@@ -83,7 +83,7 @@ module ArchivesSpace
          unit.metadata.update!(type: "ExternalMetadata")
          unit = Unit.find(unit_id)
          ext_uri = "/repositories/#{as_info[:repo]}/#{as_info[:parent_type]}/#{as_info[:parent_id]}"
-         unit.metadata.update!(creator_name: nil, catalog_key: nil, barcode: nil,
+         unit.metadata.update!(creator_name: nil, catalog_key: nil, barcode: nil, desc_metadata: nil,
             call_number:nil, external_system: "ArchivesSpace", external_uri: ext_uri)
       end
 
