@@ -50,9 +50,8 @@ class CreateUnitZip < BaseJob
 
       # Walk each file in the unit assembly dir and add it to the zip...
       logger.info "Create #{zip_file}..."
-      Dir.foreach(unit_path) do |f|
-         next if f == '.' || f == '..' || f == '.DS_Store' || f == '.AppleDouble'
-
+      Dir.glob("#{unit_path}/*").sort.each do |f|
+         next if f == '.DS_Store' || f == '.AppleDouble'
          # build the zip command. cd to the order directory first so
          # unzip will generate only a unit directory
          logger.info "Add #{f} to zip"
