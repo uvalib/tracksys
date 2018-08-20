@@ -32,8 +32,11 @@ class CreateUnitZip < BaseJob
       zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
       if File.exist? zip_file
          if message[:replace]
-            logger.info "Removing pre-existing zip deliverables"
-            Dir.glob("#{delivery_dir}#{unit.id}_*.zip/") { |z| File.delete z }
+            logger.info "Removing pre-existing zip deliverables..."
+            Dir.glob("#{delivery_dir}/*.zip") do |zf|
+               logger.info "Removing #{zf}..."
+               File.delete zf
+            end
          else
             on_error "A .zip archive for unit #{unit.id} already exists."
          end
@@ -46,11 +49,13 @@ class CreateUnitZip < BaseJob
       zip_order_path = unit_path.split('/')[0...-1].join('/')
 
       # Walk each file in the unit assembly dir and add it to the zip...
+      logger.info "Create #{zip_file}..."
       Dir.foreach(unit_path) do |f|
          next if f == '.' || f == '..' || f == '.DS_Store' || f == '.AppleDouble'
 
          # build the zip command. cd to the order directory first so
          # unzip will generate only a unit directory
+         logger.info "Add #{f} to zip"
          zip_cmd = "cd #{zip_order_path}; zip #{zip_file} #{File.join(unit.id.to_s, f)}"
          `#{zip_cmd}`
 
@@ -58,6 +63,7 @@ class CreateUnitZip < BaseJob
          if (File.size(zip_file).to_f / 1024.0**3).to_i > Settings.zip_max_gb.to_i
             file_num += 1
             zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
+            logger.info "Create #{zip_file}"
          end
       end
 
