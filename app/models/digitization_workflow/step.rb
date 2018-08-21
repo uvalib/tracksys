@@ -174,51 +174,43 @@ class Step < ApplicationRecord
 
    private
    def validate_structure(project, dir)
-      # Top level contains one directory for box, named based on the directory_name
-      # data in the container_types model. The model also contains a has_folders flag.
-      # If it is set, the box directory can contain only folders. If it is not set, the
-      # box directory contains only images.
-      tree = {}
-      folders_found = false
-      container_type = nil
+      # All mnuscripts have a top level directory with any name. If ContainerType is
+      # set to has_folders=true, this much contain folders only. tif images reside there,
+      # If not, the top-level directory containes the tif images
+      container_type = project.container_type
+      found_container_dir = false
+      found_folders = false
       Dir.glob("#{dir}/**/*").each do |entry|
          if File.directory? (entry)
-            # just get the subdirectories...
-            # entry is the full path. Strip off the base dir, leaving just the subdirectories
+            # ...there may be a CaptureOne folder here. Ignore it
+            next if entry.include? "CaptureOne"
+
+            # entry is the full path. Strip off the base dir, leaving just the subdirectories and files
             subs = entry[dir.length+1..-1]
 
-            # ...there may be a CaptureOne folder here. Ignore it
-            next if subs.include? "CaptureOne"
-
-            # Split on path seperator. The size of the resulting array is the depth
-            # of subfolders present. Only support 2...  box/folder
+            # Split on path seperator. The size is depth of subfolders present
             depth = subs.split("/").count
             if depth > 2
                step_failed(project, "Filesystem", "<p>Too many subdirectories: #{subs}</p>")
                return false
-            elsif depth == 1
-               # this is a top-level container directory. It should have the format type.name. Validate
-               if subs.split(".").length != 2
-                  step_failed(project, "Filesystem", "<p>Incorrectly named box directory #{subs}</p>")
+            end
+
+            if depth == 2
+               # folders within a top-level container
+               if container_type.has_folders == false
+                  step_failed(project, "Filesystem", "<p>Folder directories not allowed in '#{container_type.name}' containers</p>")
                   return false
                end
-               dir_name = subs.split(".")[0].downcase
-               container_type = ContainerType.find_by(directory_name: dir_name)
-               if container_type.nil?
-                  step_failed(project, "Filesystem", "<p>Unsupported box type #{type} in directory #{subs}</p>")
-                  return false
-               end
-               tree[subs] = []
-               if tree.keys.length > 1
+               found_folders = true
+            end
+
+            if depth == 1
+               # Top-level container directory; there can only be one
+               if found_container_dir == true
                   step_failed(project, "Filesystem", "<p>There can only be one box directory</p>")
                   return false
                end
-            else
-               # this is a folder directory within the top-level box directory. Split it path parts
-               # where the first part is the box dir name and the second is the folder
-               bits = subs.split("/")
-               tree[bits[0]] << bits[1]
-               folders_found = true
+               found_container_dir = true
             end
          else
             # This is a file. Count slashes to figure out where in the
@@ -233,13 +225,9 @@ class Step < ApplicationRecord
          end
       end
 
-      # Validate presence or absence of folders based on container_type
-      if folders_found == false && container_type.has_folders == true
+      # Validate presence of folders based on container_type
+      if found_folders == false && container_type.has_folders == true
          step_failed(project, "Filesystem", "<p>No folder directories found</p>")
-         return false
-      end
-      if folders_found == true && container_type.has_folders == false
-         step_failed(project, "Filesystem", "<p>Folder directories not allowed in '#{container_type.name}' containers</p>")
          return false
       end
       return true

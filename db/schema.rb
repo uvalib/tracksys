@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_17_184442) do
+ActiveRecord::Schema.define(version: 2018_08_21_194329) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -166,7 +166,6 @@ ActiveRecord::Schema.define(version: 2018_08_17_184442) do
 
   create_table "container_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
-    t.string "directory_name"
     t.boolean "has_folders", default: false
   end
 

@@ -6,38 +6,25 @@ class Location < ApplicationRecord
    validates :container_type, :container_id, presence: true
 
 
-   # Given the unit base directory (ex: /digiserv-production/finalization/20_in_process/000033333)
-   # and the full path to a masterfile, determine if location data is encoded in the path
-   # and return location metadata. Return nil if there is no data in the path.
+   # Given the container type and the directory structure, create or find a location
+   # NOTE: the subdir_str does not have a leading or trailing /
    #
-   def self.find_or_create_from_path(unit_base_dir, full_path_to_mf)
-      subdir_str = File.dirname(full_path_to_mf)[unit_base_dir.length+1..-1]
+   def self.find_or_create_from_path(container_type, base_dir, subdir_str)
       return nil if subdir_str.blank?
 
-      # Naming convention: {container_dir}.{boxname}/{foldername}/master_file.tif OR
-      #                    {container_dir}.{boxname}/master_file.tif  -- no folders
       bits = subdir_str.split("/")
-      box_info = bits[0].split(".")
-      box_type = box_info[0]
-      box_id = box_info[1]
-      if bits.length == 3
-         folder = bits[1]
-      else
-         folder = nil
-      end
-      ct = ContainerType.find_by(directory_name: box_type)
-      location = Location.find_by(container_type_id: ct.id, container_id: box_id, folder_id: folder)
+      location = Location.find_by(container_type_id: container_type.id, container_id: bits[0], folder_id: bits[1])
       if location.nil?
          # See if there is a notes.txt file present in the base dir. Add the contents
          # as a note if present
-         notes_file = File.join(unit_base_dir, "notes.txt")
+         notes_file = File.join(base_dir, "notes.txt")
          notes = nil
          if File.exist? notes_file
             file = File.open(notes_file, "rb")
             notes = file.read
             file.close
          end
-         location = Location.create(container_type_id: ct.id, container_id: box_id, folder_id: folder, notes: notes)
+         location = Location.create(container_type_id: container_type.id, container_id: bits[0], folder_id: bits[1], notes: notes)
       end
       return location
    end

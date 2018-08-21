@@ -171,12 +171,12 @@ module ImportIviewXml
       tgt_filename = get_element_value(item.xpath('AssetProperties/Filename').first)
       in_proc = Finder.finalization_dir(unit, :in_process)
       full_path = Dir[File.join(in_proc, "/**/#{tgt_filename}")].first
-      if full_path.nil?
+      if full_path.blank?
          on_error "Missing master file #{tgt_filename}"
       end
 
       # get the directory of the tgt file and strip off the base
-      # in_process dir. The remaining bit will be the subdirectory - or nothing.
+      # in_process dir. The remaining bit will be the subdirectory  or nothing.
       # use this info to know if there is box/folder info encoded in the filename
       subdir_str = File.dirname(full_path)[in_proc.length+1..-1]
 
@@ -206,10 +206,10 @@ module ImportIviewXml
          logger.info "Master file #{tgt_filename} already exists"
       end
 
-      if !subdir_str.blank? && master_file.location.nil?
+      if !subdir_str.blank? && master_file.location.nil? && !unit.project.nil?
          # subdir structure: [box|oversize|tray].{box_name}/{folder_name}
          logger.info "Creating location metadata based on subdirs [#{subdir_str}]"
-         location = Location.find_or_create_from_path(in_proc, full_path)
+         location = Location.find_or_create_from_path(unit.project.container_type, in_proc, subdir_str)
          master_file.location = location
       end
 

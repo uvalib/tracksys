@@ -56,6 +56,13 @@ class AddMasterFiles < BaseJob
          component_id = make_gap_for_insertion(unit, archive_dir, tif_files)
       end
 
+      # grab the first existing master file and see if it has location data.
+      # if it does, the cotainer type for all will be the same. pull it
+      container_type = nil
+      if !unit.master_files.first.nil? && !unit.master_files.first.location.nil?
+         container_type = unit.master_files.first.location.container_type
+      end
+
       # Create new master files for the tif file found in the src dir
       logger.info "Adding #{tif_files.count} new master files..."
       tif_files.each do |mf_path|
@@ -70,8 +77,11 @@ class AddMasterFiles < BaseJob
          CreateImageTechnicalMetadata.exec_now({master_file: master_file, source: mf_path}, self)
 
          # See if directories are present, and use them to generate location metadata for the file
-         location = Location.find_or_create_from_path(src_dir, mf_path)
-         master_file.location = location if !location.nil?
+         if !container_type.nil?
+            subdir_str = File.dirname(mf_path)[src_dir.length+1..-1]
+            location = Location.find_or_create_from_path(container_type, src_dir, subdir_str)
+            master_file.location = location if !location.nil?
+         end
 
          # if XML present, try to match up image -> xml name. Log error if no match
          if !xml_files.empty?
