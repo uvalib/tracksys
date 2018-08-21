@@ -445,6 +445,14 @@ $(function() {
       });
    });
 
+   // When Manuscript workflow is selected, display the container type options
+   $("#workflow").on("change", function() {
+     $("#container-type-row").hide();
+     if ( $( "#workflow option:selected").text() === "Manuscript" ) {
+       $("#container-type-row").show();
+     }
+   });
+
    // Create projects
    $("#show-create-digitization-project").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
@@ -459,16 +467,20 @@ $(function() {
       if ( $("#ok-project-create").hasClass("disabled")) return;
       $("#ok-project-create").addClass("disabled");
       $("#cancel-project-create").addClass("disabled");
+      var data = { workflow: $("#workflow").val(),
+              category: $("#category").val(),
+              priority: $("#priority").val(),
+              condition: $("#condition").val(),
+              notes: $("#condition_notes").val(),
+              due: $("#due_on").val()
+      };
+      if ( $( "#workflow option:selected").text() === "Manuscript" ) {
+        data.container_type = $("#container-type").val();
+      }
       $.ajax({
          url: window.location.href+"/project",
          method: "POST",
-         data: { workflow: $("#workflow").val(),
-                 category: $("#category").val(),
-                 priority: $("#priority").val(),
-                 condition: $("#condition").val(),
-                 notes: $("#condition_notes").val(),
-                 due: $("#due_on").val()
-         },
+         data: data,
          complete: function(jqXHR, textStatus) {
             $("#ok-project-create").removeClass("disabled");
             $("#cancel-project-create").removeClass("disabled");
@@ -479,6 +491,13 @@ $(function() {
                $("#dimmer").hide();
                $("#project-modal").hide();
                $("#show-create-digitization-project").hide();
+               var id = jqXHR.responseText;
+               var projRow = $("tr.row-project");
+               var empty = projRow.find("span.empty");
+               var projTD = empty.closest("td");
+               empty.remove();
+               var link = "<a href='/admin/projects/"+id+"'>Project #"+id+"</a>";
+               projTD.html(link);
             }
          }
       });

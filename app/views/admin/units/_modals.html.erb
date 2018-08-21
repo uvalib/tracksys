@@ -106,6 +106,16 @@
                   </select>
                </td>
             </tr>
+            <tr id="container-type-row" style="display:none">
+               <td class="label">Container Type</td>
+               <td>
+                  <select id="container-type">
+                      <% ContainerType.all.each do |ct| %>
+                          <option value="<%= ct.id %>"><%= ct.name %></option>
+                      <% end %>
+                  </select>
+               </td>
+            </tr>
             <tr>
                <td class="label">Category</td>
                <td>

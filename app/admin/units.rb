@@ -322,6 +322,10 @@ ActiveAdmin.register Unit do
       t = Project.new(workflow: w, unit: u, priority: params[:priority].to_i,
          item_condition: ic.to_i, condition_note: note,
          category: c, due_on: params[:due])
+      if w.name == "Manuscript"
+         container_type = ContainerType.find(params[:container_type])
+         t.container_type = container_type
+      end
       if t.save
          msg = "Project created"
          AuditEvent.create(auditable: t, event: AuditEvent.events[:project_create], staff_member: current_user, details: msg)
