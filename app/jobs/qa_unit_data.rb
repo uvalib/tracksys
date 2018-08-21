@@ -21,6 +21,27 @@ class QaUnitData < BaseJob
       # QA Logic
       #-------------------------
 
+      # First, check if unit is assigned to metadata record. This is an immediate fail
+      if unit.metadata.nil?
+         on_error "Unit #{unit.id} is not assigned to a metadata record."
+      end
+
+      # Is this unit is a candidate for Autopublish?
+      if unit.include_in_dl == false && unit.reorder == false
+         check_auto_publish( unit )
+      end
+
+      # Reorders can't got to DL. Update flag accordingly
+      if unit.reorder? && unit.include_in_dl
+         on_failure("Reorders cannot be sent to DL. Resetting include_in_dl to false")
+         unit.update(include_in_dl: false)
+      end
+
+      # Stop processing if availability policy is not set for non-external metadata
+      if unit.include_in_dl && unit.metadata.availability_policy_id.blank? && unit.metadata.type != "ExternalMetadata"
+         failure_messages << "Availability policy must be set for all units flagged for inclusion in the DL"
+      end
+
       # Fail if unit.date_patron_deliverables_ready is already filled out
       if unit.date_patron_deliverables_ready
          failure_messages << "Unit #{unit.id} already has a value for date_patron_deliverables_ready."
@@ -34,11 +55,6 @@ class QaUnitData < BaseJob
       # Must have a unit status, and it must be approved
       if unit.unit_status != "approved"
          failure_messages << "Unit #{unit.id} has not been approved."
-      end
-
-      # Check if unit is assigned to metadata record
-      if not unit.metadata
-         failure_messages << "Unit #{unit.id} is not assigned to a metadata record."
       end
 
       # Fail if unit.intended_use is blank
@@ -71,7 +87,6 @@ class QaUnitData < BaseJob
          order.date_order_approved = Time.now
          order.order_status = 'approved'
          if !order.save
-            # if status cant be set, fail this QA
             on_error( order.errors.full_messages.to_sentence )
          end
       end
@@ -90,6 +105,53 @@ class QaUnitData < BaseJob
                on_error "Unit #{unit.id} has failed the QA Unit Data Processor"
             end
          end
+      end
+   end
+
+   private
+   def check_auto_publish(unit)
+      logger.info "Checking unit #{unit.id} for auto-publish"
+      if unit.complete_scan == false
+         logger.info "Unit #{unit.id} is not a complete scan and cannot be auto-published"
+         return
+      end
+
+      metadata = unit.metadata
+      if metadata.is_manuscript || metadata.is_personal_item
+         logger.info "Unit #{unit.id} is for a manuscript or personal item and cannot be auto-published"
+         return
+      end
+
+      # TODO revisit this later; doesn't really make sense to only be sirsi published
+      # but at the moment, that is all that CAN be published to virgo
+      if metadata.type != "SirsiMetadata"
+         logger.info "Unit #{unit.id} metadata is not from Sirsi and cannot be auto-published"
+         return
+      end
+
+      # convert to SirsiMetadata so we can get at catalog_key and barcode.
+      # Need this to check publication year before 1923
+      sirsi_meta = metadata.becomes(SirsiMetadata)
+
+      pub_info = Virgo.get_marc_publication_info(sirsi_meta.catalog_key, sirsi_meta.barcode)
+      if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
+         logger.info "Unit #{unit.id} is a candidate for auto-publishing."
+         # year is set and it is before 1923. Good to go for Autopublish.
+         if sirsi_meta.availability_policy.nil?
+            sirsi_meta.update(availability_policy_id: 1)
+         end
+
+         # update index and include_in_dl on unit if not set
+         unit.update(include_in_dl: true)
+         logger.info "Unit #{unit.id} successfully flagged for DL publication"
+
+         # See if this is also eligable for DPLA (not hierarchical and public avail)
+         if sirsi_meta.components.size == 0 && sirsi_meta.availability_policy_id == 1
+            logger.info "Unit #{unit.id} is also acceptable for DPLA publishing"
+            sirsi_meta.update(dpla: 1, parent_metadata_id: 15784)
+         end
+      else
+         logger.info "Unit #{unit.id} has no date or a date after 1923 and cannot be auto-published"
       end
    end
 end
