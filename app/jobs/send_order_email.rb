@@ -26,20 +26,27 @@ class SendOrderEmail < BaseJob
          # get the unit assembly dir
          assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
          if Dir.exist? assemble_dir
-            # get delete destination; this contains the unit. strip it
-            # so we don't end up with nested unit info in the del dir
+            # get delete destination; this contains the unit. Example:
+            #     /digiserv-production/ready_to_delete/delivered_orders/order_10059/49590
             del_dest = Finder.finalization_dir(unit, :delete_from_delivered)
+            if Dir.exist?(del_dest)
+               # if a unit dir exists in the ready to delete directory, remove it
+               # as it will be replaced by the current files below
+               FileUtils.rm_rf del_dest
+            end
+
+            # strip unit ID so we don't end up with nested unit info in the del dir
             del_dest = del_dest.split('/')[0...-1].join('/')
             FileUtils.mkdir_p(del_dest) if !Dir.exist? del_dest
 
             FileUtils.mv assemble_dir, del_dest
          end
+      end
 
-         # clean up the ORDER portion of the assembly dir if it is empty
-         assemble_order_dir = assemble_dir.split('/')[0...-1].join('/')
-         if Dir.exist?(assemble_order_dir) && Dir.empty?(assemble_order_dir)
-            FileUtils.rm_rf assemble_order_dir
-         end
+      # all of the assembled files have been moved. REmove the order dir
+      assemble_order_dir = assemble_dir.split('/')[0...-1].join('/')
+      if Dir.exist?(assemble_order_dir)
+         FileUtils.rm_rf assemble_order_dir
       end
       logger.info "Directory the deliverables for order #{order.id} have been moved from assembly to ready to delete."
 
