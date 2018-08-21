@@ -43,9 +43,11 @@ class CreateUnitZip < BaseJob
       end
 
       # unit_path is the path to the unit tif/jpg files
+      # EX: /digiserv-production/finalization/40_assemble_deliverables/order_10375/52725
       unit_path = Finder.finalization_dir(unit, :assemble_deliverables)
 
-      # The zip file is stored one directory level down in the order dir
+      # Omit the unit directory so the zip file can be created with one subdir
+      # EX: /digiserv-production/finalization/40_assemble_deliverables/order_10375
       zip_order_path = unit_path.split('/')[0...-1].join('/')
 
       # Walk each file in the unit assembly dir and add it to the zip...
@@ -55,7 +57,7 @@ class CreateUnitZip < BaseJob
          # build the zip command. cd to the order directory first so
          # unzip will generate only a unit directory
          logger.info "Add #{f} to zip"
-         zip_cmd = "cd #{zip_order_path}; zip #{zip_file} #{File.join(unit.id.to_s, f)}"
+         zip_cmd = "cd #{zip_order_path}; zip #{zip_file} #{File.join(unit.id.to_s, File.basename(f))}"
          `#{zip_cmd}`
 
          # if the zip is now too big, start another
