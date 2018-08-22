@@ -49,7 +49,7 @@ $(function() {
    $("#metadata-type-selector").on("change", function() {
      var type = $(this).val();
      $("#metadata_type").val(type);
-     if (type == "SirsiMetadata") {
+     if (type == "sirsi") {
        $("div.sirsi-metadata").show();
        $("div.archivesspace-metadata").hide();
      } else {
