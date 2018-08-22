@@ -11,7 +11,7 @@ $(function() {
          row = row.replace("MIN", rowData.mins);
          row = row.replace("CNT", rowData.mf);
          var avg = 0;
-         if (rowData.mf > 0 )  avg = Math.round(rowData.mins/rowData.mf);
+         if (rowData.mf > 0 )  avg = (rowData.mins/rowData.mf).toFixed(2);
          row = row.replace("AVG", avg);
          table.append(row);
       }
@@ -55,7 +55,7 @@ $(function() {
          yAxes: [{
             ticks: {
                callback: function(value, index, values) {
-                  return value + ' mins';
+                  return value.toFixed(2) + ' mins';
                }
             }
          }]
@@ -188,7 +188,7 @@ $(function() {
       var template = "<tr class='data'><td>N</td>";
       template +=    "<td class='left-bar'><a href='"+scanA+"'>SC</a></td><td>MC</td>";
       template +=    "<td><a href='"+scanR+"'>SR</a></td><td>PRR</td><td>IRR</td>";
-      template +=    "<td class='left-bar'><a href='"+qaA+"'>QC</a></td>"
+      template +=    "<td class='left-bar'><a href='"+qaA+"'>QC</a></td>";
       template +=    "<td><a href='"+qaR+"'>QR</a></td><td>QA%</td></tr>";
       var table = $("#rejection-stats tbody");
       $("#rejection-stats tbody tr.data").remove();

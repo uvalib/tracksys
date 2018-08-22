@@ -263,9 +263,9 @@ class Report
 
       # massage raw data into chart.js format; each workflow is a new dataset
       chart[:labels].each do |cat|
-         avg = 0
+         avg = 0.0
          if chart[:raw][cat][:mf] > 0
-            avg = (chart[:raw][cat][:mins].to_f / chart[:raw][cat][:mf].to_f).ceil
+            avg = (chart[:raw][cat][:mins].to_f / chart[:raw][cat][:mf].to_f).round(2)
          end
          chart[:data] << avg
       end
