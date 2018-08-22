@@ -31,6 +31,39 @@ namespace :archive do
       puts "Done. Checked #{cnt} directories, archived #{archived}"
    end
 
+   task :update_finearts  => :environment do
+      src_dir = ENV['src']
+      dest_dir = ENV['dest']
+      abort ("'src_dir' is required") if src_dir.nil?
+      abort ("'dest_dir' is required") if dest_dir.nil?
+      base_src_dir = File.join(Settings.production_mount, "guest_dropoff", "from_fineArts", src_dir)
+      abort("#{base_src_dir} does not exist") if !Dir.exist? base_src_dir
+      archive_dir = File.join(Settings.archive_mount, dest_dir)
+      abort("#{archive_dir} does not exist") if !Dir.exist? archive_dir
+
+      Dir.glob("#{base_src_dir}/*.tif").sort.each do |src|
+         puts src
+         tif = File.basename(src)
+         archive_file = File.join(archive_dir, tif)
+         if File.exist? archive_file
+            backup_file = "#{archive_file}.orig"
+            puts "   backup original to #{backup_file}"
+            File.rename(archive_file, backup_file)
+         end
+
+         src_md5 = Digest::MD5.hexdigest( File.read(src) )
+         FileUtils.copy(src, archive_file )
+         FileUtils.chmod(0664, archive_file )
+         dest_md5 = Digest::MD5.hexdigest( File.read(archive_file) )
+         if src_md5 != dest_md5
+            puts "WARN: #{src} failed checksum test!"
+         else
+            puts "   updated"
+         end
+      end
+      puts "DONE"
+   end
+
    def send_to_archive(base_dir, unit_dir)
       Dir.chdir(base_dir)
       Find.find( unit_dir ) do |f|
