@@ -253,6 +253,13 @@ ActiveAdmin.register MasterFile do
          row "Type" do |mf|
             mf.location.container_type.name
          end
+         row "Metadata" do |mf|
+            if !mf.location.metadata.nil?
+               url = "/admin/#{mf.location.metadata.url_fragment}/#{mf.location.metadata.id}"
+               disp = "<a href='#{url}'><span>#{mf.location.metadata.pid}<br/>#{mf.location.metadata.title}</span></a>"
+               raw( disp)
+            end
+         end
          row "Name" do |mf|
             mf.container_id
          end
