@@ -1,5 +1,48 @@
 #encoding: utf-8
 namespace :fix do
+   # One time fix for missing folders in manuscripts
+   task :missing_folders => :environment do
+      uid = ENV['id']
+      abort("id param is required") if uid.nil?
+      unit = Unit.find(uid)
+      js = JobStatus.where("originator_id=? and originator_type=? and status=?", uid, "Unit", "success")
+      abort("Multiple job status reports. Must be done manually") if js.length > 1
+      job_id = js.first.id
+      job_file = File.join(Rails.root, "log", "jobs", "job_#{job_id}.log")
+
+      curr_mf = nil
+      found_create_lines = false
+      puts "Unit #{uid} finalizaed with job #{job_file}"
+      File.open(job_file, "r").each_line do |line|
+         # Identify the pairs of lines in the log file that to a master file to a location
+         # Pair is: 'Create new master' and 'Creating location metadata' Once one is found,
+         # flag it. After the pair is a line about manuscripts. Skip it. Once anththing
+         # else is found after flagging the start of date, we are done.
+         if line.include? "Create new master"
+            found_create_lines = true
+            tf = line.split(" ").last
+            puts "Processing master file #{tf}..."
+            curr_mf = unit.master_files.find_by(filename: tf)
+            abort("No master file #{tf} found") if curr_mf.nil?
+         elsif line.include? "Creating location metadata"
+            subdir_str = line.split(" ").last.gsub /(\[|\])/, ""
+            abort("Found box/folder info, but dont have masterfile") if curr_mf.nil?
+            puts "   location info #{subdir_str}"
+            folder = subdir_str.split("/").last
+            box_id = subdir_str.split("/").first.split(".").last
+            abort "master file does not have any location info." if curr_mf.location.nil?
+            loc = curr_mf.location
+            abort("Current box_id mismatch: #{loc.container_id} vs #{box_id}") if loc.container_id != box_id
+            abort("Masterfile already has a location with different folder info") if !loc.folder_id.nil? && loc.folder_id != folder
+            puts "   set folder to #{folder}"
+            loc.update!(folder_id: folder)
+         elsif found_create_lines == true && !line.include?("Link manuscript")
+            puts "Found non-create line. Done."
+            break
+         end
+      end
+   end
+
    # NOTE: This is a one time task that should be run after the DB
    # is migrated to support the new order pre-pay workflow
    desc "Add invoices for orders in await_fee state"

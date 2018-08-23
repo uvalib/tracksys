@@ -79,7 +79,7 @@ class AddMasterFiles < BaseJob
          # See if directories are present, and use them to generate location metadata for the file
          if !container_type.nil?
             subdir_str = File.dirname(mf_path)[src_dir.length+1..-1]
-            location = Location.find_or_create_from_path(container_type, src_dir, subdir_str)
+            location = Location.find_or_create(unit.metadata, container_type, src_dir, subdir_str)
             master_file.location = location if !location.nil?
          end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_21_194329) do
+ActiveRecord::Schema.define(version: 2018_08_23_165552) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -293,7 +293,9 @@ ActiveRecord::Schema.define(version: 2018_08_21_194329) do
     t.string "container_id", null: false
     t.string "folder_id"
     t.text "notes"
+    t.bigint "metadata_id"
     t.index ["container_type_id"], name: "index_locations_on_container_type_id"
+    t.index ["metadata_id"], name: "index_locations_on_metadata_id"
   end
 
   create_table "master_file_locations", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
