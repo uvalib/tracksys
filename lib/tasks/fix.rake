@@ -52,43 +52,60 @@ namespace :fix do
 
    # One time fix for missing folders in manuscripts
    task :missing_folders => :environment do
-      uid = ENV['id']
-      abort("id param is required") if uid.nil?
-      unit = Unit.find(uid)
-      js = JobStatus.where("originator_id=? and originator_type=? and status=?", uid, "Unit", "success")
-      abort("Multiple job status reports. Must be done manually") if js.length > 1
-      job_id = js.first.id
-      job_file = File.join(Rails.root, "log", "jobs", "job_#{job_id}.log")
+      loc_ids = Location.where("container_type_id < 4 and folder_id is null").pluck("id").sort.to_a
+      locs = loc_ids.join(",")
+      q = "select distinct unit_id from master_files m inner join master_file_locations l on l.master_file_id=m.id where location_id in (#{locs})"
+      units = Unit.connection.execute(q).to_a
+      units.each do |unit_id|
+         puts "Process UNIT #{unit_id}..."
+         unit = Unit.find(unit_id)
+         if unit.master_files.joins(:locations).where("locations.folder_id is null and locations.container_type_id < 4").count == 0
+            puts "Unit #{unit_id} has no master file locations with blank filders"
+            next
+         end
 
-      curr_mf = nil
-      found_create_lines = false
-      puts "Unit #{uid} finalizaed with job #{job_file}"
-      File.open(job_file, "r").each_line do |line|
-         # Identify the pairs of lines in the log file that to a master file to a location
-         # Pair is: 'Create new master' and 'Creating location metadata' Once one is found,
-         # flag it. After the pair is a line about manuscripts. Skip it. Once anththing
-         # else is found after flagging the start of date, we are done.
-         if line.include? "Create new master"
-            found_create_lines = true
-            tf = line.split(" ").last
-            puts "Processing master file #{tf}..."
-            curr_mf = unit.master_files.find_by(filename: tf)
-            abort("No master file #{tf} found") if curr_mf.nil?
-         elsif line.include? "Creating location metadata"
-            subdir_str = line.split(" ").last.gsub /(\[|\])/, ""
-            abort("Found box/folder info, but dont have masterfile") if curr_mf.nil?
-            puts "   location info #{subdir_str}"
-            folder = subdir_str.split("/").last
-            box_id = subdir_str.split("/").first.split(".").last
-            abort "master file does not have any location info." if curr_mf.location.nil?
-            loc = curr_mf.location
-            abort("Current box_id mismatch: #{loc.container_id} vs #{box_id}") if loc.container_id != box_id
-            abort("Masterfile already has a location with different folder info") if !loc.folder_id.nil? && loc.folder_id != folder
-            puts "   set folder to #{folder}"
-            loc.update!(folder_id: folder)
-         elsif found_create_lines == true && !line.include?("Link manuscript")
-            puts "Found non-create line. Done."
-            break
+         js = JobStatus.where("originator_id=? and originator_type=? and status=?", unit_id, "Unit", "success")
+         if js.length > 1
+            puts("Multiple job status reports for #{unit_id}. Must be done manually; skipping now")
+            next
+         end
+
+         job_id = js.first.id
+         job_file = File.join(Rails.root, "log", "jobs", "job_#{job_id}.log")
+
+         curr_mf = nil
+         found_create_lines = false
+         puts "Unit #{unit_id} finalized with job #{job_file}"
+         File.open(job_file, "r").each_line do |line|
+            # Identify the pairs of lines in the log file that to a master file to a location
+            # Pair is: 'Create new master' and 'Creating location metadata' Once one is found,
+            # flag it. After the pair is a line about manuscripts. Skip it. Once anththing
+            # else is found after flagging the start of date, we are done.
+            if line.include? "Create new master"
+               found_create_lines = true
+               tf = line.split(" ").last
+               puts "Processing master file #{tf}..."
+               curr_mf = unit.master_files.find_by(filename: tf)
+               if curr_mf.nil?
+                  puts("No master file #{tf} found; SKIPPING")
+                  next
+               end
+            elsif line.include? "Creating location metadata"
+               subdir_str = line.split(" ").last.gsub /(\[|\])/, ""
+               abort("Found box/folder info, but dont have masterfile") if curr_mf.nil?
+               puts "   location info #{subdir_str}"
+               folder = subdir_str.split("/").last
+               box_id = subdir_str.split("/").first.split(".").last
+               abort "master file does not have any location info." if curr_mf.location.nil?
+               loc = curr_mf.location
+               abort("Current box_id mismatch: #{loc.container_id} vs #{box_id}") if loc.container_id != box_id
+               abort("Masterfile already has a location with different folder info") if !loc.folder_id.nil? && loc.folder_id != folder
+               puts "   set folder to #{folder}"
+               loc.update!(folder_id: folder)
+            elsif found_create_lines == true && !line.include?("Link manuscript")
+               puts "Found non-create line. Done."
+               break
+            end
          end
       end
    end
