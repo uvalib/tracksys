@@ -80,7 +80,7 @@ div :class => 'columns-none' do
                end
             end
          end
-         if current_user == project.owner
+         if current_user == project.owner || current_user.admin?
             div class: "mini-button-bar" do
                span class: "project mf-action-button item edit-btn" do "Edit" end
                span class: "project mf-action-button hidden item save-btn"  do "Save" end

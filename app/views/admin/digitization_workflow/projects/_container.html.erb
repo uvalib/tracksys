@@ -1,5 +1,5 @@
 <div>
-   <% if admin && project.current_step.name == "Scan" %>
+   <% if admin %>
       <span class='disp-item' id='container-type'><%= project.container_type.name if !project.container_type.blank? %></span>
       <select class='hidden edit-item' id='container-type-edit' >
          <% ContainerType.all.order(name: :asc).each do |c| %>
