@@ -210,7 +210,7 @@ module ImportIviewXml
          # subdir structure: [box|oversize|tray].{box_name}/{folder_name}
          logger.info "Creating location metadata based on subdirs [#{subdir_str}]"
          location = Location.find_or_create(unit.metadata, unit.project.container_type, in_proc, subdir_str)
-         master_file.location = location
+         master_file.set_location(location)
       end
 
       # Get tech metadata and transcriptions

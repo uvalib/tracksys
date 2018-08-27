@@ -80,7 +80,7 @@ class AddMasterFiles < BaseJob
          if !container_type.nil?
             subdir_str = File.dirname(mf_path)[src_dir.length+1..-1]
             location = Location.find_or_create(unit.metadata, container_type, src_dir, subdir_str)
-            master_file.location = location if !location.nil?
+            master_file.set_location(location) if !location.nil?
          end
 
          # if XML present, try to match up image -> xml name. Log error if no match

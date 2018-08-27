@@ -24,8 +24,7 @@ class MasterFile < ApplicationRecord
    has_one :department, :through => :customer
    has_one :agency, :through => :order
 
-   has_one :master_file_location
-   has_one :location, through: :master_file_location
+   has_and_belongs_to_many :locations, join_table: "master_file_locations"
 
    #------------------------------------------------------------------
    # delegation
@@ -73,6 +72,13 @@ class MasterFile < ApplicationRecord
    #------------------------------------------------------------------
    # public class methods
    #------------------------------------------------------------------
+   def location
+      locations.first
+   end
+   def set_location( loc )
+      locations = [loc]
+   end
+
    def deaccessioned?
       return !self.deaccessioned_at.blank?
    end

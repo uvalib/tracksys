@@ -1,8 +1,7 @@
 class Location < ApplicationRecord
    belongs_to :container_type
    belongs_to :metadata, optional: true
-   has_many :master_file_locations
-   has_many :master_files, through: :master_file_locations
+   has_and_belongs_to_many :master_files, join_table: "master_file_locations"
 
    validates :container_type, :container_id, presence: true
 
