@@ -1,5 +1,56 @@
 #encoding: utf-8
 namespace :fix do
+   #
+   # NOTE: Stopped here. This is possibly complete, but untested. <<<<<RUN ON DEV>>>>
+   # Location 5 and 6 are for same units, but should be fine. Double check after running
+   # No lkocations on dev span different metadata records. Need to create a situation like
+   # units 51753 and 52183 on production
+   #
+   # *** Changed MF 1686700 to point to location 2 instead of 7. This replcates the problem
+   #
+   task :location_metadata => :environment do
+      Location.all.each do |loc|
+         # if metadata is correctly set, nothing more to do
+         next if !loc.metadata.nil?
+         if loc.master_files.count == 0
+            puts "LOCATION: #{loc.container_type.name} #{loc.container_id} / #{loc.folder_id} has no master files. Delete!"
+            loc.destroy
+            next
+         end
+
+         puts "LOCATION: #{loc.container_type.name} #{loc.container_id} / #{loc.folder_id}"
+
+         # each location has a set of master files. walk them and figure
+         # out which metadata they are associated with. Assign this to the location.
+         # if metadata changes, create a new location and tie it to the metadata and master files
+         curr_meta = nil
+         curr_loc = nil
+         loc.master_files.each do |mf|
+            if curr_meta != mf.metadata
+               if curr_meta.nil?
+                  # First metadata inecoutered, just set loction to use it
+                  puts "Addding metadata reference to existing location"
+                  loc.update(metadata_id: mf.metadata_id)
+               else
+                  # new metadata encountered, this means there needs to be a new location
+                  puts "New metadata reference found for current location"
+                  puts "Create new location with reference to metadata and assign to MF #{mf.id}"
+                  new_loc = Location.create(metadata: mf.metadata, container_type: loc.container_type,
+                     container_id: loc.container_id, folder_id: loc.folder_id, notes: loc.notes)
+                  mf.location = new_loc
+                  curr_loc = new_loc
+               end
+               curr_meta = mf.metadata
+            else
+               if mf.location != curr_loc
+                  puts "Update MF #{mf.if} with new location #{curr_loc.id}"
+                  mf.location = curr_loc
+               end
+            end
+         end
+      end
+   end
+
    # One time fix for missing folders in manuscripts
    task :missing_folders => :environment do
       uid = ENV['id']
