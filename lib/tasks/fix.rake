@@ -27,7 +27,7 @@ namespace :fix do
                   # new metadata encountered, this means there needs to be a new location
                   puts "New metadata reference found for current location...see if it exists"
                   new_loc = Location.where(metadata_id: mf.metadata_id, container_type: curr_loc.container_type,
-                     container_id: curr_loc.container_id, folder_id: curr_loc.folder_id)
+                     container_id: curr_loc.container_id, folder_id: curr_loc.folder_id).first
                   if new_loc.nil?
                      puts "   create new location with reference to metadata and assign to MF #{mf.id}"
                      new_loc = Location.create(metadata: mf.metadata, container_type: curr_loc.container_type,
