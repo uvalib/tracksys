@@ -29,8 +29,8 @@ ActiveAdmin.register MasterFile do
    filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :metadata_title_starts_with, :label => "Metadata Title"
    filter :metadata_creator_name_starts_with, :label => "Author"
-   filter :location_container_id_starts_with, :label => "Box"
-   filter :location_folder_id_starts_with, :label => "Folder"
+   filter :locations_container_id_starts_with, :label => "Box"
+   filter :locations_folder_id_starts_with, :label => "Folder"
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
