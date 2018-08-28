@@ -1,5 +1,76 @@
 #encoding: utf-8
 namespace :fix do
+   task :validate_loc => :environment do
+      cnt = 0
+      Location.all.each do |loc|
+         loc.master_files.each do |mf|
+            if mf.metadata.id != loc.metadata.id
+               puts "Loc / unit metadata mismatch. Loc:#{loc.to_json} vs MasterFile #{mf.id} metadata #{mf.unit.metadata_id}"
+               locs = Location.where(metadata_id: mf.unit.metadata_id, container_type_id: loc.container_type_id,
+                  container_id: loc.container_id, folder_id: loc.folder_id)
+               if locs.nil? || locs.count == 0
+                  cnt +=1
+               else
+                  if locs.count == 1
+                     puts "  found matching location. Update mf location to #{locs.to_json}"
+                     mf.update!(locations: [locs.first])
+                  else
+                     puts "   found #{locs.count} possible matches. Must manually update to one of the following:"
+                     puts "      #{locs.to_json}"
+                     cnt += 1
+                  end
+               end
+            end
+         end
+      end
+      puts "found #{cnt} mismatched entries"
+   end
+
+   task :update_location => :environment do
+      mfid = ENV['mf']
+      lid = ENV['loc']
+      cnt = ENV['cnt']
+      loc = Location.find(lid)
+      if !cnt.nil? && cnt.to_i > 1
+         updated = 0
+         unit = MasterFile.find(mfid).unit
+         unit.master_files.each do |mf|
+            next if mf.id < mfid.to_i
+            if mf.location.id != loc.id
+               puts "Update MF#{mf.id}:#{mf.filename} to loc #{loc.to_json}"
+               mf.update!(locations: [loc])
+            else 
+               puts "MF#{mf.id}:#{mf.filename} already set to loc #{loc.to_json}"
+            end   
+            updated += 1
+            if updated == cnt.to_i 
+               puts "Updated #{updated} files"
+               break
+            end
+         end
+      else 
+         mf = MasterFile.find(mfid)
+         if mf.location.id != loc.id
+            mf.update!(locations: [loc])
+         end
+         mf = MasterFile.find(mfid)
+         puts "MF #{mfid} new location=#{mf.location.to_json}"
+      end
+   end
+
+
+   task :new_location => :environment do
+      mdid = ENV['md']
+      bt = ENV['type']
+      bid = ENV['bid']
+      fid = ENV['fid']
+      abort("all required") if mdid.nil? || bt.nil? || bid.nil?
+      l = Location.where(metadata_id: mdid, container_type_id: bt, container_id: bid, folder_id: fid)
+      if l.nil? || l.count == 0
+         l = Location.create!(metadata_id: mdid, container_type_id: bt, container_id: bid, folder_id: fid)
+      end
+      puts(l.to_json) 
+   end
 
    task :location_metadata => :environment do
       Location.all.each do |loc|
@@ -56,9 +127,10 @@ namespace :fix do
       locs = loc_ids.join(",")
       q = "select distinct unit_id from master_files m inner join master_file_locations l on l.master_file_id=m.id where location_id in (#{locs})"
       units = Unit.connection.execute(q).to_a
-      units.each do |unit_id|
+      units.each do |uid|
+         unit_id = uid.first
          puts "Process UNIT #{unit_id}..."
-         unit = Unit.find(unit_id)
+         unit = Unit.find_by(id:unit_id)
          if unit.master_files.joins(:locations).where("locations.folder_id is null and locations.container_type_id < 4").count == 0
             puts "Unit #{unit_id} has no master file locations with blank filders"
             next
@@ -68,10 +140,21 @@ namespace :fix do
          if js.length > 1
             puts("Multiple job status reports for #{unit_id}. Must be done manually; skipping now")
             next
+         elsif js.length == 0
+            cmd = "grep #{unit_id}_ log/jobs/*.log | grep 'Create new master file' | awk -F: '{print $1}' | sort | uniq"
+            out = `#{cmd}`
+            out.strip!
+            puts "Job file: [#{out}]"
+            if out.include? "\n"
+               puts "Multiple job files found: #{out}. Skipping"
+               next
+            end
+            job_file = File.join(Rails.root, out)
+         else
+            job_id = js.first.id
+            job_file = File.join(Rails.root, "log", "jobs", "job_#{job_id}.log")
          end
 
-         job_id = js.first.id
-         job_file = File.join(Rails.root, "log", "jobs", "job_#{job_id}.log")
 
          curr_mf = nil
          found_create_lines = false
@@ -99,7 +182,7 @@ namespace :fix do
                abort "master file does not have any location info." if curr_mf.location.nil?
                loc = curr_mf.location
                abort("Current box_id mismatch: #{loc.container_id} vs #{box_id}") if loc.container_id != box_id
-               abort("Masterfile already has a location with different folder info") if !loc.folder_id.nil? && loc.folder_id != folder
+               abort("Masterfile #{curr_mf.id} already has a location with different folder info: #{curr_mf.location.to_json} vs #{folder}") if !loc.folder_id.nil? && loc.folder_id != folder
                puts "   set folder to #{folder}"
                loc.update!(folder_id: folder)
             elsif found_create_lines == true && !line.include?("Link manuscript")
