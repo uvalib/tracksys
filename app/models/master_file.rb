@@ -76,7 +76,7 @@ class MasterFile < ApplicationRecord
       locations.first
    end
    def set_location( loc )
-      locations = [loc]
+      update!(locations: [loc])
    end
 
    def deaccessioned?
