@@ -57,7 +57,7 @@ class Finder
     #
     def self.assemble_order_dir(order)
       base_dir = Settings.production_mount
-      return File.join(base_dir, "40_assemble_deliverables", "order_#{order.id}")
+      return File.join(base_dir, "finalization", "40_assemble_deliverables", "order_#{order.id}")
     end
 
     # Get a finalization directory by name. Supported names: base, dropoff, in_process,

@@ -45,7 +45,7 @@ class SendOrderEmail < BaseJob
 
       # all of the assembled files have been moved. REmove the order dir
       assemble_order_dir = Finder.assemble_order_dir(order)
-      if Dir.exist?(assemble_order_dir)
+      if Dir.exist?(assemble_order_dir) && Dir.glob(File.join(assemble_order_dir, "*/")).length == 0
          FileUtils.rm_rf assemble_order_dir
       end
       logger.info "Directory the deliverables for order #{order.id} have been moved from assembly to ready to delete."
