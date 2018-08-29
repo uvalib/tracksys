@@ -42,4 +42,29 @@ $(function() {
     $("#container-name").find('option:first').attr('selected', 'selected');
     $("#folder-name").find('option:first').attr('selected', 'selected');
   });
+
+  $("#container-name").on("change", function() {
+    var locs = $("#location-finder-panel").data("locations");
+    var nameVal = $(this).val();
+    $("#folder-name").removeAttr("disabled", "disabled");
+    var folders = [];
+    $.each(locs, function(idx, val) {
+      if (val.container_id == nameVal && folders.includes(val.folder_id)===false ) {
+        folders.push(val.folder_id);
+        $("#folder-name").append("<option value="+val.folder_id+">"+val.folder_id+"</option>");
+      }
+    });
+    $("#folder-name").find('option:first').attr('selected', 'selected');
+  });
+
+  $("#select-location").on("click", function() {
+    var folder = $("#folder-name").val();
+    var boxName = $("#container-name").val();
+    var containerType = parseInt($("#container-type").val(),10);
+    var goodFolder = (containerType > 3 || containerType < 4 && folder != "" );
+    if ( boxName === "" || containerType === "" || !goodFolder ) {
+      alert("Please select a value for all entries");
+      return;
+    }
+  });
 });
