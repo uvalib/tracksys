@@ -53,6 +53,13 @@ class Finder
       return dirs
     end
 
+    # Get the base directory used to assemble deliverables for a order
+    #
+    def self.assemble_order_dir(order)
+      base_dir = Settings.production_mount
+      return File.join(base_dir, "40_assemble_deliverables", "order_#{order.id}")
+    end
+
     # Get a finalization directory by name. Supported names: base, dropoff, in_process,
     #    process_deliverables, assemble_deliverables, delete_from_finalization, delete_from_update
     #    and delete_from_delivered

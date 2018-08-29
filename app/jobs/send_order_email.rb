@@ -44,7 +44,7 @@ class SendOrderEmail < BaseJob
       end
 
       # all of the assembled files have been moved. REmove the order dir
-      assemble_order_dir = assemble_dir.split('/')[0...-1].join('/')
+      assemble_order_dir = Finder.assemble_order_dir(order)
       if Dir.exist?(assemble_order_dir)
          FileUtils.rm_rf assemble_order_dir
       end
