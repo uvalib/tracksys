@@ -20,6 +20,7 @@
 //= require messages
 //= require do_viewer
 //= require metadata
+//= require master-file-locations
 //= require codemirror
 //= require xml-editor
 //= require_tree ./mode/

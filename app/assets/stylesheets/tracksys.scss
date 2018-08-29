@@ -6,6 +6,19 @@ body.active_admin {
    font-weight: 500;
    color: #333;
 
+   span.btn {
+      cursor: pointer;
+      padding: 4px 10px;
+      text-decoration: none;
+      border-radius: 4px;
+      background: #47a;
+      color: white;
+      font-size: 0.95em;
+      &:hover {
+         background: #69c;
+      }
+   }
+
   #header a, #header a:link {
     color: #e5e5e5;
     font-weight: 600;

@@ -24,7 +24,8 @@
    <% end %>
 
    <% if !@master_file.location.nil? %>
-      <%= f.inputs "Location Information", :class => 'panel two-column' do %>
+      <%= render partial: "location_panels", locals: {location: @master_file.location} %>
+      <%= f.inputs "Location Information", :class => 'panel two-column edit-location-panel' do %>
          <li class="select input optional">
             <label class="label">Container Type</label>
             <select name="master_file[container_type_id]" id="master_file_container_type_id" >
@@ -51,9 +52,13 @@
             <textarea rows="5"  name="master_file[notes]" id="master_file_notes"><%= @master_file.notes %></textarea>
          </li>
          <li class="note">
-            <b>Important Note:</b> Changing this location information will effect
+            <b>Important Note:</b> Changing the above information will effect
             <%= @master_file.location.master_files.count %> master files from
             <%= @master_file.location.units.count %> units.
+         </li>
+         <li style="text-align:right">
+            <span class="btn" id="change-location">Select Different Location</span>
+            <span class="btn" id="new-location">Create New Location</span>
          </li>
       <% end %>
    <% end %>

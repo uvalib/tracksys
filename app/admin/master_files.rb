@@ -248,6 +248,31 @@ ActiveAdmin.register MasterFile do
       end
    end
 
+   sidebar "Related Information", :only => [:show] do
+      attributes_table_for master_file do
+         row "Metadata" do |unit|
+            if !master_file.metadata.nil?
+               url = "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}"
+               disp = "<a href='#{url}'><span>#{master_file.metadata.pid}<br/>#{master_file.metadata.title}</span></a>"
+               raw( disp)
+            end
+         end
+         row :unit do |master_file|
+            link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
+         end
+         row :order do |master_file|
+            link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
+         end
+         row :component do |master_file|
+            if master_file.component
+               link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
+            end
+         end
+         row :customer
+         row :agency
+      end
+   end
+
    sidebar "Location", :only => [:show],  if: proc{ !master_file.location.nil? } do
       attributes_table_for master_file do
          row "Call Number" do |mf|
@@ -273,31 +298,6 @@ ActiveAdmin.register MasterFile do
          row "Units in Folder" do |mf|
             mf.location.units.count
          end
-      end
-   end
-
-   sidebar "Related Information", :only => [:show] do
-      attributes_table_for master_file do
-         row "Metadata" do |unit|
-            if !master_file.metadata.nil?
-               url = "/admin/#{master_file.metadata.url_fragment}/#{master_file.metadata.id}"
-               disp = "<a href='#{url}'><span>#{master_file.metadata.pid}<br/>#{master_file.metadata.title}</span></a>"
-               raw( disp)
-            end
-         end
-         row :unit do |master_file|
-            link_to "##{master_file.unit.id}", admin_unit_path(master_file.unit.id)
-         end
-         row :order do |master_file|
-            link_to "##{master_file.order.id}", admin_order_path(master_file.order.id)
-         end
-         row :component do |master_file|
-            if master_file.component
-               link_to "#{master_file.component.name}", admin_component_path(master_file.component.id)
-            end
-         end
-         row :customer
-         row :agency
       end
    end
 
@@ -412,6 +412,13 @@ ActiveAdmin.register MasterFile do
    end
 
    controller do
+      before_action :get_related_locations, only: [:edit]
+      def get_related_locations
+         @locations = nil
+         return if resource.locations.nil?
+         @locations = Location.where(metadata_id: resource.location.metadata_id)
+      end
+
       def update
          mf = MasterFile.find(params[:id])
          if !mf.location.nil?

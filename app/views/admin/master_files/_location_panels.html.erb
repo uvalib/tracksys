@@ -1,0 +1,58 @@
+
+   <fieldset id="location-finder-panel" style="display:none" class="panel two-column"
+      data-locations="<%= @locations.to_json %>">
+      <legend><span>Select Existing Location</span></legend>
+      <ol>
+         <li>
+            <label class="label">Call Number</label>
+            <p><%= location.metadata.call_number %></p>
+         </li>
+         <li>
+            <label class="label">Container Type</label>
+            <% type_ids = @locations.pluck(:container_type_id).uniq
+               types = ContainerType.where("id in (#{type_ids.join(",")})") %>
+            <%= select_tag "container-type",
+                  options_from_collection_for_select(types, :id, :name),
+                  prompt: "Select a container" %>
+         </li>
+         <li>
+            <label class="label">Container Name</label>
+            <select id="container-name">
+               <option>Select a name</option>
+                <% @locations.pluck(:container_id).uniq do |c| %>
+                  <option value="<%= c %>"><%= c %></option>
+                <% end %>
+             </select>
+         </li>
+         <li>
+            <label class="label">Folder</label>
+            <select id="folder-name">
+               <option>Select a folder</option>
+                <% @locations.pluck(:folder_id).uniq do |c| %>
+                  <option value="<%= c %>"><%= c %></option>
+                <% end %>
+             </select>
+         </li>
+         <li  style="text-align:right">
+            <span class="btn" id="select-location">Select</span>
+            <span class="btn cancel-location">Cancel</span>
+         </li>
+      </ol>
+   </fieldset>
+
+   <fieldset id="new-location-panel" style="display:none" class="panel two-column">
+      <legend><span>Create New Location</span></legend>
+      <ol>
+         <li>
+            <label class="label">Call Number</label>
+            <p><%= location.metadata.call_number %></p>
+         </li>
+         <li  style="text-align:right">
+            <span class="btn" id="Create-location">Create</span>
+            <span class="btn cancel-location">Cancel</span>
+         </li>
+      </ol>
+   </fieldset>
+
+   <!--      @containers = locations.pluck(:container_id).distinct
+         @folders = locations.pluck(:folder_id).distinct0-->
