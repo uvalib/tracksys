@@ -17,20 +17,14 @@
          </li>
          <li>
             <label class="label">Container Name</label>
-            <select id="container-name">
+            <select id="container-name" disabled=disabled>
                <option>Select a name</option>
-                <% @locations.pluck(:container_id).uniq do |c| %>
-                  <option value="<%= c %>"><%= c %></option>
-                <% end %>
              </select>
          </li>
-         <li>
+         <li id="folder-selector">
             <label class="label">Folder</label>
-            <select id="folder-name">
+            <select id="folder-name" disabled=disabled>
                <option>Select a folder</option>
-                <% @locations.pluck(:folder_id).uniq do |c| %>
-                  <option value="<%= c %>"><%= c %></option>
-                <% end %>
              </select>
          </li>
          <li  style="text-align:right">
