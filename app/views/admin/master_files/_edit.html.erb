@@ -21,8 +21,10 @@
          <input type="text" name="master_file[metadata_id]" id="master_file_metadata_id" value="<%= @master_file.metadata_id %>"/>
          <span id="find-metadata"></span>
       </li>
+   <% end %>
 
-      <% if !@master_file.location.nil? %>
+   <% if !@master_file.location.nil? %>
+      <%= f.inputs "Location Information", :class => 'panel two-column' do %>
          <li class="select input optional">
             <label class="label">Container Type</label>
             <select name="master_file[container_type_id]" id="master_file_container_type_id" >
@@ -47,6 +49,11 @@
          <li class="select input optional stringish">
             <label class="label">Notes</label>
             <textarea rows="5"  name="master_file[notes]" id="master_file_notes"><%= @master_file.notes %></textarea>
+         </li>
+         <li class="note">
+            <b>Important Note:</b> Changing this location information will effect
+            <%= @master_file.location.master_files.count %> master files from
+            <%= @master_file.location.units.count %> units.
          </li>
       <% end %>
    <% end %>

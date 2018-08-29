@@ -92,7 +92,7 @@ class CloneMasterFiles < BaseJob
          metadata_id: src_mf.metadata_id, original_mf_id: src_mf.id)
 
       if !src_mf.location.nil?
-         mf.location = src_mf.location
+         mf.set_location(src_mf.location)
       end
 
       tm = src_mf.image_tech_meta

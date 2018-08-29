@@ -250,6 +250,9 @@ ActiveAdmin.register MasterFile do
 
    sidebar "Location", :only => [:show],  if: proc{ !master_file.location.nil? } do
       attributes_table_for master_file do
+         row "Call Number" do |mf|
+            mf.location.metadata.call_number
+         end
          row "Type" do |mf|
             mf.location.container_type.name
          end

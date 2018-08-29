@@ -52,7 +52,7 @@ class DeleteMasterFiles < BaseJob
             end
 
             logger.info "Removing master file record #{del_fn}"
-            mf.image_tech_meta.destroy
+            mf.image_tech_meta.destroy if !mf.image_tech_meta.nil?
             mf.destroy
 
             del_fn = filenames.shift
