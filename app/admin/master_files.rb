@@ -264,6 +264,12 @@ ActiveAdmin.register MasterFile do
                mf.location.notes
             end
          end
+         row "Files In folder" do |mf|
+            Location.find(mf.location.id).master_files.count
+         end
+         row "Units in Folder" do |mf|
+            mf.location.units.count
+         end
       end
    end
 

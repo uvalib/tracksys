@@ -31,4 +31,11 @@ class Location < ApplicationRecord
       end
       return location
    end
+
+   # Get the unique ids of all units that have master files from this location
+   def units
+      q = "select distinct unit_id from master_files m inner join master_file_locations l on l.master_file_id=m.id"
+      q << " where location_id = #{id}"
+      return Location.connection.query(q).flatten
+   end
 end
