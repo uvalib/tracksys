@@ -10,11 +10,10 @@ module Tracksys
    class Application < Rails::Application
       config.load_defaults 5.2
 
-      config.autoload_paths+=Dir[Rails.root.join('app', 'models', '*/')] 
-      # config.autoload_paths << Rails.root.join('app',"models", "metadata")
-      # config.autoload_paths << Rails.root.join('app',"models", "equipment")
-      # config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
-      # config.autoload_paths << Rails.root.join('app',"models", "digitization_workflow")
+      config.autoload_paths << Rails.root.join('app',"models", "metadata")
+      config.autoload_paths << Rails.root.join('app',"models", "equipment")
+      config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
+      config.autoload_paths << Rails.root.join('app',"models", "digitization_workflow")
       # config.autoload_paths << Rails.root.join('app',"admin", "metadata")
       # config.autoload_paths << Rails.root.join('app',"admin", "digitization_workflow")
       # config.autoload_paths << Rails.root.join('app',"admin", "controlled_vocabulary")
