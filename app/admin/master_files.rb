@@ -335,8 +335,11 @@ ActiveAdmin.register MasterFile do
    end
    member_action :new_location, :method => :post do
       # Create a new location and set the current location it
-      raise "not implemented"
-      render plain: "trouble"
+      mf = MasterFile.find(params[:id])
+      loc = Location.create!(container_type_id: params[:container_type], container_id: params[:container_id],
+         folder_id: params[:folder_id], metadata_id: md.metadata.id)
+      mf.set_location(loc)
+      render plain: "ok"
    end
 
    csv do

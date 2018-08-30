@@ -21,13 +21,13 @@
                <option>Select a name</option>
              </select>
          </li>
-         <li id="folder-selector">
+         <li class="folder-selector">
             <label class="label">Folder</label>
             <select id="folder-name" disabled=disabled>
                <option>Select a folder</option>
              </select>
          </li>
-         <li id="location-error"></li>
+         <li class="location-error"></li>
          <li  style="text-align:right">
             <span class="btn" id="select-location">Select</span>
             <span class="btn cancel-location">Cancel</span>
@@ -42,8 +42,23 @@
             <label class="label">Call Number</label>
             <p><%= location.metadata.call_number %></p>
          </li>
+         <li>
+            <label class="label">Container Type</label>
+            <%= select_tag "new-container-type",
+                  options_from_collection_for_select(ContainerType.all, :id, :name),
+                  prompt: "Select a container" %>
+         </li>
+         <li>
+            <label class="label">Container Name</label>
+            <input type="text" id="new-container-name"/>
+         </li>
+         <li class="folder-selector">
+            <label class="label">Folder</label>
+            <input type="text" id="new-folder-name"/>
+         </li>
+         <li class="location-error"></li>
          <li  style="text-align:right">
-            <span class="btn" id="Create-location">Create</span>
+            <span class="btn" id="create-location">Create</span>
             <span class="btn cancel-location">Cancel</span>
          </li>
       </ol>

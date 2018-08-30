@@ -16,12 +16,20 @@ $(function() {
     $("#location-message").text("");
   });
 
+  $("#new-container-type").on("change", function() {
+    var typeVal =  parseInt($(this).val(),10);
+    $(".folder-selector").show();
+    if ( typeVal > 3 ) {
+      $(".folder-selector").hide();
+    }
+  });
+
   $("#container-type").on("change", function() {
     var locs = $("#location-finder-panel").data("locations");
     var typeVal =  parseInt($(this).val(),10);
-    $("#folder-selector").show();
+    $(".folder-selector").show();
     if ( typeVal > 3 ) {
-      $("#folder-selector").hide();
+      $(".folder-selector").hide();
     }
 
     // reset all container name options to match container
@@ -59,14 +67,14 @@ $(function() {
   });
 
   $("#select-location").on("click", function() {
-    $("#location-error").hide();
+    $("li.location-error").hide();
     var folder = $("#folder-name").val();
     var boxName = $("#container-name").val();
     var containerType = parseInt($("#container-type").val(),10);
     var goodFolder = (containerType > 3 || containerType < 4 && folder != "" );
     if ( boxName === "" || containerType === "" || !goodFolder ) {
-      $("#location-error").text("Please select a value for all entries");
-      $("#location-error").show();
+      $("li.location-error").text("Please select a value for all entries");
+      $("li.location-error").show();
       return;
     }
 
@@ -95,8 +103,8 @@ $(function() {
        data: {location: locId },
        complete: function(jqXHR, textStatus) {
           if (textStatus != "success") {
-             $("#location-error").text("Update failed: "+jqXHR.responseText);
-             $("#location-error").show();
+             $("li.location-error").text("Update failed: "+jqXHR.responseText);
+             $("li.location-error").show();
           } else {
              $("#master_file_container_type_id").val(containerType);
              $("#master_file_container_id").val(boxName);
@@ -104,6 +112,39 @@ $(function() {
              $(".edit-location-panel").show();
              $("#location-finder-panel").hide();
              $("#location-message").text("Location has been updated");
+          }
+       }
+    });
+  });
+
+  $("#create-location").on("click", function() {
+    $("li.location-error").hide();
+    var folder = $("#new-folder-name").val();
+    var boxName = $("#new-container-name").val();
+    var containerType = parseInt($("#new-container-type").val(),10);
+    var goodFolder = (containerType > 3 || containerType < 4 && folder != "" );
+    if ( boxName === "" || containerType === "" || !goodFolder ) {
+      $("li.location-error").text("Please select a value for all entries");
+      $("li.location-error").show();
+      return;
+    }
+    var url = window.location.href;
+    url = url.replace("edit", "new_location");
+    $.ajax({
+       url: url,
+       method: "POST",
+       data: { container_type: containerType, container_id: boxName, folder_id: folder},
+       complete: function(jqXHR, textStatus) {
+          if (textStatus != "success") {
+             $("li.location-error").text("Create failed: "+jqXHR.responseText);
+             $("li.location-error").show();
+          } else {
+             $("#master_file_container_type_id").val(containerType);
+             $("#master_file_container_id").val(boxName);
+             $("#master_file_folder_id").val(folder);
+             $(".edit-location-panel").show();
+             $("#new-location-panel").hide();
+             $("#location-message").text("Location has been created and master file updated");
           }
        }
     });
