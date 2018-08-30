@@ -18,7 +18,7 @@ class Step < ApplicationRecord
          return validate_finish_dir( project, dest_dir )
       end
 
-      if project.container_type.nil?
+      if self.workflow.name == "Manuscript" && project.container_type.nil?
          step_failed(project, "Other", "<p>This project is missing the required Container Type setting.</p>")
          return false
       end
