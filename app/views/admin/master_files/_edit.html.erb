@@ -51,11 +51,7 @@
             <label class="label">Notes</label>
             <textarea rows="5"  name="master_file[notes]" id="master_file_notes"><%= @master_file.notes %></textarea>
          </li>
-         <li class="note">
-            <b>Important Note:</b> Changing the above information will effect
-            <%= @master_file.location.master_files.count %> master files from
-            <%= @master_file.location.units.count %> units.
-         </li>
+         <li id="location-message"></li>
          <li style="text-align:right">
             <span class="btn" id="change-location">Select Different Location</span>
             <span class="btn" id="new-location">Create New Location</span>

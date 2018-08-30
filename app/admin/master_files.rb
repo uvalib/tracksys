@@ -144,87 +144,12 @@ ActiveAdmin.register MasterFile do
    # Show =====================================================================
    #
    show :title => lambda{|mf|  mf.deaccessioned? ?  "#{mf.filename} : DEACCESSIONED" : mf.filename } do
-      render :partial=>"pinit"
-      div :class => 'two-column' do
-         if master_file.deaccessioned?
-            panel "Deaccession Information" do
-               attributes_table_for master_file do
-                  row("Date Deaccessioned") do |master_file|
-                     format_date(master_file.deaccessioned_at)
-                  end
-                  row :deaccessioned_by
-                  row :deaccession_note do |master_file|
-                    raw(master_file.deaccession_note.gsub(/\n/, '<br/>'))
-                  end
-               end
-            end
-         end
-         panel "General Information" do
-            attributes_table_for master_file do
-               row :pid
-               row :filename
-               row :title
-               row :description
-               row :date_archived do |master_file|
-                  format_date(master_file.date_archived)
-               end
-               row :date_dl_ingest do |master_file|
-                  format_date(master_file.date_dl_ingest )
-               end
-               row :date_dl_update do |master_file|
-                  format_date(master_file.date_dl_update)
-               end
-            end
-         end
-         render partial: "tags", :locals=>{ mf: master_file}
-      end
-      render :partial=>"deaccession", :locals=>{ mf: master_file}
-
-      div :class => 'two-column' do
-         panel "Technical Information", :id => 'master_files', :toggle => 'show' do
-            attributes_table_for master_file do
-               row :md5
-               row :filesize do |master_file|
-                  "#{master_file.filesize / 1048576} MB"
-               end
-               if master_file.image_tech_meta
-                  attributes_table_for master_file.image_tech_meta do
-                     row :image_format
-                     row("Height x Width"){|mf| "#{mf.height} x #{mf.width}"}
-                     row :resolution
-                     row :depth
-                     row :compression
-                     row :color_space
-                     row :color_profile
-                     row :equipment
-                     row :model
-                     row :iso
-                     row :exposure_bias
-                     row :exposure_time
-                     row :aperture
-                     row :focal_length
-                     row :software
-                  end
-               end
-            end
-         end
-      end
-
-      if !master_file.transcription_text.blank?
-         div :class => 'columns-none' do
-            panel "Transcription Text", :toggle => 'show' do
-               attributes_table_for master_file do
-                  row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}" if !mf.text_source.nil? }
-               end
-               div :class=>'mf-transcription' do
-                  simple_format(master_file.transcription_text)
-               end
-            end
-         end
-      end
+      render partial: "pinit"
+      render partial: "details"
    end
 
-   # EDIT page ================================================================
+   # Edit ================================================================
+   #
    form :partial => "edit"
 
    sidebar "Thumbnail", :only => [:show],  if: proc{ !master_file.deaccessioned? } do
@@ -396,6 +321,24 @@ ActiveAdmin.register MasterFile do
       render json: {html: html}
    end
 
+   # Location related actions =================================================
+   #
+   member_action :update_location, :method => :put do
+      # Change the current location to a different (existing) one
+      loc = Location.find_by(id: params[:location])
+      if loc.nil?
+         render plain: "Invalid location specified", status: :bad_request
+      end
+      mf = MasterFile.find(params[:id])
+      mf.set_location(loc)
+      render plain: "ok"
+   end
+   member_action :new_location, :method => :post do
+      # Create a new location and set the current location it
+      raise "not implemented"
+      render plain: "trouble"
+   end
+
    csv do
      column :id
      column :pid
@@ -416,7 +359,11 @@ ActiveAdmin.register MasterFile do
       def get_related_locations
          @locations = nil
          return if resource.locations.nil?
-         @locations = Location.where(metadata_id: resource.location.metadata_id)
+         @locations = []
+         Location.where(metadata_id: resource.location.metadata_id).includes(:container_type).each do |ct|
+            @locations << {id:ct.id, container_type_id:ct.container_type_id, container_id:ct.container_id,
+               folder_id:ct.folder_id, metadata_id:ct.metadata_id, has_folders: ct.container_type.has_folders}
+         end
       end
 
       def update

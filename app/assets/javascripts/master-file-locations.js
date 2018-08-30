@@ -13,6 +13,7 @@ $(function() {
     $(".edit-location-panel").show();
     $("#location-finder-panel").hide();
     $("#new-location-panel").hide();
+    $("#location-message").text("");
   });
 
   $("#container-type").on("change", function() {
@@ -58,13 +59,53 @@ $(function() {
   });
 
   $("#select-location").on("click", function() {
+    $("#location-error").hide();
     var folder = $("#folder-name").val();
     var boxName = $("#container-name").val();
     var containerType = parseInt($("#container-type").val(),10);
     var goodFolder = (containerType > 3 || containerType < 4 && folder != "" );
     if ( boxName === "" || containerType === "" || !goodFolder ) {
-      alert("Please select a value for all entries");
+      $("#location-error").text("Please select a value for all entries");
+      $("#location-error").show();
       return;
     }
+
+    // find the ID of the location matching the selections...
+    var locs = $("#location-finder-panel").data("locations");
+    var locId = -1;
+    $.each(locs, function(idx, val) {
+      if (val.container_type_id == containerType && val.container_id == boxName) {
+        if ( val.has_folders ) {
+          if (val.folder_id == folder) {
+            locId = val.id;
+            return false;
+          }
+        } else {
+          locId = val.id;
+          return false;
+        }
+      }
+    });
+
+    var url = window.location.href;
+    url = url.replace("edit", "update_location");
+    $.ajax({
+       url: url,
+       method: "PUT",
+       data: {location: locId },
+       complete: function(jqXHR, textStatus) {
+          if (textStatus != "success") {
+             $("#location-error").text("Update failed: "+jqXHR.responseText);
+             $("#location-error").show();
+          } else {
+             $("#master_file_container_type_id").val(containerType);
+             $("#master_file_container_id").val(boxName);
+             $("#master_file_folder_id").val(folder);
+             $(".edit-location-panel").show();
+             $("#location-finder-panel").hide();
+             $("#location-message").text("Location has been updated");
+          }
+       }
+    });
   });
 });

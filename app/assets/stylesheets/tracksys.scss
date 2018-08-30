@@ -6,6 +6,15 @@ body.active_admin {
    font-weight: 500;
    color: #333;
 
+   #location-error {
+     color: #a00;
+     text-align: center;
+   }
+   #location-message {
+     color: #090;
+     text-align: center;
+   }
+
    span.btn {
       cursor: pointer;
       padding: 4px 10px;

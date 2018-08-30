@@ -1,0 +1,77 @@
+div :class => 'two-column' do
+   if master_file.deaccessioned?
+      panel "Deaccession Information" do
+         attributes_table_for master_file do
+            row("Date Deaccessioned") do |master_file|
+               format_date(master_file.deaccessioned_at)
+            end
+            row :deaccessioned_by
+            row :deaccession_note do |master_file|
+              raw(master_file.deaccession_note.gsub(/\n/, '<br/>'))
+            end
+         end
+      end
+   end
+   panel "General Information" do
+      attributes_table_for master_file do
+         row :pid
+         row :filename
+         row :title
+         row :description
+         row :date_archived do |master_file|
+            format_date(master_file.date_archived)
+         end
+         row :date_dl_ingest do |master_file|
+            format_date(master_file.date_dl_ingest )
+         end
+         row :date_dl_update do |master_file|
+            format_date(master_file.date_dl_update)
+         end
+      end
+   end
+   render partial: "tags", :locals=>{ mf: master_file}
+end
+render :partial=>"deaccession", :locals=>{ mf: master_file}
+
+div :class => 'two-column' do
+   panel "Technical Information", :id => 'master_files', :toggle => 'show' do
+      attributes_table_for master_file do
+         row :md5
+         row :filesize do |master_file|
+            "#{master_file.filesize / 1048576} MB"
+         end
+         if master_file.image_tech_meta
+            attributes_table_for master_file.image_tech_meta do
+               row :image_format
+               row("Height x Width"){|mf| "#{mf.height} x #{mf.width}"}
+               row :resolution
+               row :depth
+               row :compression
+               row :color_space
+               row :color_profile
+               row :equipment
+               row :model
+               row :iso
+               row :exposure_bias
+               row :exposure_time
+               row :aperture
+               row :focal_length
+               row :software
+            end
+         end
+      end
+   end
+end
+
+if !master_file.transcription_text.blank?
+   div :class => 'columns-none' do
+      panel "Transcription Text", :toggle => 'show' do
+         attributes_table_for master_file do
+            row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}" if !mf.text_source.nil? }
+         end
+         div :class=>'mf-transcription' do
+            simple_format(master_file.transcription_text)
+         end
+      end
+   end
+end
