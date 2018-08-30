@@ -18,6 +18,11 @@ class Step < ApplicationRecord
          return validate_finish_dir( project, dest_dir )
       end
 
+      if project.container_type.nil?
+         step_failed(project, "Other", "<p>This project is missing the required Container Type setting.</p>")
+         return false
+      end
+
       # Make sure no illegal/stopper files are present in the starting directory and ensure structure
       # NOTE: The validation will be skipped if no start directory is found. This
       # is needed to handle error recovery when a automatic move failed and the
