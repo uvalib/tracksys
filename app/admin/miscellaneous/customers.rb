@@ -6,8 +6,8 @@ ActiveAdmin.register Customer do
 
    # strong paramters handling
    permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,
-   primary_address_attributes: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
-   billable_address_attributes: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]
+   primary_address: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
+   billable_address: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]
 
    config.clear_action_items!
    action_item :new, only: :index do
@@ -125,7 +125,7 @@ ActiveAdmin.register Customer do
       end
 
       f.inputs "Primary Address (Required)", :class => 'inputs three-column' do
-         f.semantic_fields_for :primary_address do |p|
+         f.semantic_fields_for :primary_address, customer.primary_address do |p|
             p.inputs do
                p.input :address_1
                p.input :address_2
@@ -140,7 +140,7 @@ ActiveAdmin.register Customer do
       end
 
       f.inputs "Billable Address (Optional)", :class => 'inputs three-column' do
-         f.semantic_fields_for :billable_address do |b|
+         f.semantic_fields_for :billable_address, customer.billable_address do |b|
             b.inputs do
                b.input :first_name
                b.input :last_name
@@ -191,16 +191,16 @@ ActiveAdmin.register Customer do
             @customer = Customer.create!(first_name: ca[:first_name],
                last_name: ca[:last_name], email: ca[:email],
                academic_status_id: ca[:academic_status_id], department_id: ca[:department_id])
-            addr = params[:customer][:primary_address_attributes]
+            addr = params[:customer][:primary_address]
             Address.create!(addressable: @customer, address_type: "primary",
                address_1: addr[:address_1], address_2: addr[:address_s],
                city: addr[:city], state: addr[:state], post_code: addr[:post_code],
                country: addr[:country], phone: addr[:phone] )
 
-            addr = params[:customer][:billable_address_attributes]
+            addr = params[:customer][:billable_address]
             if !addr.nil?
                if addr[:first_name].blank? && addr[:last_name].blank? && addr[:address_1].blank?
-                  params[:customer].delete :billable_address_attributes
+                  params[:customer].delete :billable_address
                end
             else
                Address.create!(addressable: @customer, address_type: "billable_address",
@@ -224,7 +224,7 @@ ActiveAdmin.register Customer do
             @customer.update(first_name: ca[:first_name], last_name: ca[:last_name],
                academic_status_id: ca[:academic_status_id], department_id: ca[:department_id])
 
-            addr = params[:customer][:primary_address_attributes]
+            addr = params[:customer][:primary_address]
             if !@customer.primary_address.nil?
                @customer.primary_address.update( address_1: addr[:address_1], address_2: addr[:address_s],
                   city: addr[:city], state: addr[:state], post_code: addr[:post_code],
@@ -236,12 +236,15 @@ ActiveAdmin.register Customer do
                   country: addr[:country], phone: addr[:phone] )
             end
 
-            addr = params[:customer][:billable_address_attributes]
-            if !addr.nil?
-               if addr[:first_name].blank? && addr[:last_name].blank? && addr[:address_1].blank?
-                  params[:customer].delete :billable_address_attributes
+            addr = params[:customer][:billable_address]
+            all_blank = true
+            addr.each do |key,val|
+               if !val.blank?
+                  all_blank = false
+                  break
                end
-            else
+            end
+            if all_blank == false
                if !@customer.billable_address.nil?
                   @customer.billable_address.update(
                      first_name: addr[:first_name],last_name: addr[:last_name],
@@ -257,10 +260,8 @@ ActiveAdmin.register Customer do
                end
             end
          end
-         super
-      rescue Exception => exception
-         puts "CAUGHT: #{exception.message}"
-         super
+         flash[:success] = "Customer #{@customer.full_name} updated"
+         redirect_to "/admin/customers/#{@customer.id}"
       end
    end
 end
