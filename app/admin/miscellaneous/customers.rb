@@ -210,11 +210,12 @@ ActiveAdmin.register Customer do
                   country: addr[:country], phone: addr[:phone] )
             end
          end
-         super
+         flash[:sucess] = "Customer #{@customer.full_name} created"
+         redirect_to "/admin/customers/#{@customer.id}"
       rescue Exception => exception
          puts "CAUGHT: #{exception.message}"
-         @customer = nil
-         super
+         flash[:error] = "Customer create failed. Missing required fields."
+         redirect_to "/admin/customers/new"
       end
 
       def update
@@ -260,7 +261,7 @@ ActiveAdmin.register Customer do
                end
             end
          end
-         flash[:success] = "Customer #{@customer.full_name} updated"
+         flash[:sucess] = "Customer #{@customer.full_name} updated"
          redirect_to "/admin/customers/#{@customer.id}"
       end
    end
