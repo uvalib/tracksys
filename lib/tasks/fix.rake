@@ -1,5 +1,8 @@
 #encoding: utf-8
 namespace :fix do
+   task :add_pdf_use => :environment do
+      IntendedUse.create!(description: "Reading Copy", is_approved:1, deliverable_format: "pdf")
+   end
    task :validate_loc => :environment do
       cnt = 0
       Location.all.each do |loc|
@@ -39,16 +42,16 @@ namespace :fix do
             if mf.location.id != loc.id
                puts "Update MF#{mf.id}:#{mf.filename} to loc #{loc.to_json}"
                mf.update!(locations: [loc])
-            else 
+            else
                puts "MF#{mf.id}:#{mf.filename} already set to loc #{loc.to_json}"
-            end   
+            end
             updated += 1
-            if updated == cnt.to_i 
+            if updated == cnt.to_i
                puts "Updated #{updated} files"
                break
             end
          end
-      else 
+      else
          mf = MasterFile.find(mfid)
          if mf.location.id != loc.id
             mf.update!(locations: [loc])
@@ -69,7 +72,7 @@ namespace :fix do
       if l.nil? || l.count == 0
          l = Location.create!(metadata_id: mdid, container_type_id: bt, container_id: bid, folder_id: fid)
       end
-      puts(l.to_json) 
+      puts(l.to_json)
    end
 
    task :location_metadata => :environment do

@@ -27,6 +27,7 @@ class IntendedUse < ApplicationRecord
   end
 
   def name
+     return "#{description} : #{deliverable_format.upcase}" if deliverable_format == "pdf"
      res = "#{self.deliverable_resolution} DPI"
      res = "highest possible resolution" if self.deliverable_resolution == "Highest Possible" || self.deliverable_resolution.blank?
      fmt = self.deliverable_format

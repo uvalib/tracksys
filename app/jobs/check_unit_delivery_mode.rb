@@ -85,9 +85,17 @@ class CheckUnitDeliveryMode < BaseJob
 
    private
    def create_patron_deliverables(unit)
-      logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
-      CreatePatronDeliverables.exec_now({ unit: unit }, self)
-      CreateUnitZip.exec_now( { unit: unit }, self)
+      if unit.intended_use.deliverable_format == "pdf"
+         logger.info("Unit #{unit.id} requires the creation of PDF patron deliverables.")
+         CreatePDFDeliverable.exec_now({ unit: unit }, self)
+      else
+         logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
+         CreatePatronDeliverables.exec_now({ unit: unit }, self)
+         CreateUnitZip.exec_now( { unit: unit }, self)
+      end
+
+      # check for completeness, fees and generate manifest PDF. Same for all
+      # patron deliverables
       CheckOrderReadyForDelivery.exec_now( { order_id: unit.order_id}, self  )
    end
 end

@@ -32,9 +32,11 @@ $(document).ready(function () {
          $("#intended-use-non-watermarked-jpg").show();
 
       } else if( useId == 101 || useId == 102 || useId == 105 ||
-                 useId == 107 || useId == 108 || useId == 110 || useId >= 112) {
+                 useId == 107 || useId == 108 || useId == 110 || useId == 112) {
         // TIF Intended Use Values
         $("#intended-use-tif").show();
+      } else if( useId == 113 ) {
+        $("#intended-use-pdf").show();
       }
    });
 
