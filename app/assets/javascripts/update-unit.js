@@ -164,7 +164,7 @@ $(function() {
       var action = $("#confirm-update").data("action");
       var tid = setInterval(function() {
          $.ajax({
-            url: url+"/status?job="+jobId+"&type="+action,
+            url: url+"/job_status?job="+jobId+"&type="+action,
             method: "GET",
             complete: function(jqXHR, textStatus) {
                if (textStatus != "success") {

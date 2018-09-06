@@ -419,7 +419,7 @@ ActiveAdmin.register Unit do
       job_id = RenumberMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames], new_start_num: params[:new_start_num]})
       render plain: job_id, status: :ok
    end
-   member_action :status, method: :get do
+   member_action :job_status, method: :get do
       job = JobStatus.find(params[:job])
       job_type = params[:type]
       type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles", "renumber"=>"RenumberMasterFiles"}
