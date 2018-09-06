@@ -62,8 +62,7 @@ class CloneMasterFiles < BaseJob
       archive_dir = File.join(ARCHIVE_DIR, src_mf.filename.split("_")[0])
       archived_mf = File.join(archive_dir, src_mf.filename)
       if not File.exist? archived_mf
-         on_failure "Unable to find archived tif #{archived_mf} for master file with ID #{src_mf.id}. Skipping."
-         return false
+         on_error "Unable to find archived tif #{archived_mf} for master file with ID #{src_mf.id}."
       end
 
       if src_mf.md5.blank?
