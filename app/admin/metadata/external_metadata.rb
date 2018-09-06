@@ -12,9 +12,9 @@ ActiveAdmin.register ExternalMetadata do
 
    config.clear_action_items!
 
-   # action_item :edit, only: :show do
-   #    link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
-   # end
+   action_item :edit, only: :show do
+      link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
+   end
    action_item :delete, only: :show do
       link_to "Delete", resource_path,
       data: {:confirm => "Are you sure you want to delete this External Metadata?"}, :method => :delete  if current_user.admin?
@@ -200,99 +200,117 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    controller do
-       before_action :get_external_metadata, only: [:show]
-       def get_external_metadata
-          if resource.external_system == "ArchivesSpace"
-             get_as_metadata()
-          elsif resource.external_system == "Apollo"
-             get_apollo_metadata()
-          end
-       end
+      def update
+         super
+         if resource.external_system == "ArchivesSpace"
+            auth = ArchivesSpace.get_auth_session()
+            url = "#{Settings.as_api_url}#{resource.external_uri}"
+            ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
+            ao_json = JSON.parse(ao_detail.body)
+            title = ao_json['title']
+            title = ao_json['display_string'] if title.blank?
+            resource.update(title: title)
+         else
+            resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
+            json = JSON.parse(resp.body)
+            item_data = json['item']['children']
+            title = item_data.find{ |attr| attr['type']['name']=="title" }['value']
+            resource.update(title: title)
+         end
+      end
 
-       def get_apollo_metadata
-          begin
-             resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
-             json = JSON.parse(resp.body)
-             puts json
-             coll_data = json['collection']['children']
-             item_data = json['item']['children']
-             @apollo_info = {pid: json['collection']['pid'] }
-             @apollo_info[:collection] = coll_data.find{ |attr| attr['type']['name']=="title" }['value']
-             @apollo_info[:barcode] = coll_data.find{ |attr| attr['type']['name']=="barcode" }['value']
-             @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['type']['name']=="catalogKey" }['value']
-             right = coll_data.find{ |attr| attr['type']['name']=="useRights" }
-             @apollo_info[:rights] = right['value']
-             @apollo_info[:rights_uri] = right['valueURI']
-             @apollo_info[:item_pid] = json['item']['pid']
-             @apollo_info[:item_type] = json['item']['type']['name']
-             @apollo_info[:item_title] = item_data.find{ |attr| attr['type']['name']=="title" }['value']
-          rescue Exception => e
-             logger.error "Unable to get Apollo info for #{resource.id}: #{e.to_s}"
-             @apollo_info = nil
-             @apollo_error = e.to_s
-          end
-       end
+      before_action :get_external_metadata, only: [:show]
+      def get_external_metadata
+         if resource.external_system == "ArchivesSpace"
+            get_as_metadata()
+         elsif resource.external_system == "Apollo"
+            get_apollo_metadata()
+         end
+      end
 
-       def get_as_metadata
-          begin
-             # First, authenticate with the API. Necessary to call other methods
-             auth = ArchivesSpace.get_auth_session()
+      def get_apollo_metadata
+         begin
+            resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
+            json = JSON.parse(resp.body)
+            coll_data = json['collection']['children']
+            item_data = json['item']['children']
+            @apollo_info = {pid: json['collection']['pid'] }
+            @apollo_info[:collection] = coll_data.find{ |attr| attr['type']['name']=="title" }['value']
+            @apollo_info[:barcode] = coll_data.find{ |attr| attr['type']['name']=="barcode" }['value']
+            @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['type']['name']=="catalogKey" }['value']
+            right = coll_data.find{ |attr| attr['type']['name']=="useRights" }
+            @apollo_info[:rights] = right['value']
+            @apollo_info[:rights_uri] = right['valueURI']
+            @apollo_info[:item_pid] = json['item']['pid']
+            @apollo_info[:item_type] = json['item']['type']['name']
+            @apollo_info[:item_title] = item_data.find{ |attr| attr['type']['name']=="title" }['value']
+         rescue Exception => e
+            logger.error "Unable to get Apollo info for #{resource.id}: #{e.to_s}"
+            @apollo_info = nil
+            @apollo_error = e.to_s
+         end
+      end
 
-             # Now get the target object details ...
-             url = "#{Settings.as_api_url}#{resource.external_uri}"
-             ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
-             ao_json = JSON.parse(ao_detail.body)
+      def get_as_metadata
+         begin
+            # First, authenticate with the API. Necessary to call other methods
+            auth = ArchivesSpace.get_auth_session()
 
-             # build a data struct to represent the AS data
-             title = ao_json['display_string']
-             title = ao_json['title'] if title.blank?
-             @as_info = {
-                title: title, created_by: ao_json['created_by'],
-                create_time: ao_json['create_time'], level: ao_json['level'],
-                url: "#{Settings.archives_space_url}#{resource.external_uri}"
-                # url: "#{Settings.archives_space_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
-             }
-             dates = ao_json['dates'].first
-             if !dates.nil?
-                @as_info[:dates] = dates['expression']
-             end
+            # Now get the target object details ...
+            url = "#{Settings.as_api_url}#{resource.external_uri}"
+            ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
+            ao_json = JSON.parse(ao_detail.body)
 
-             # pull repo ID from external URL and use it to lookup repo name:
-             # /repositories/REPO_ID/resources/RES_ID
-             repo_id = resource.external_uri.split("/")[2]
-             repo_detail = ArchivesSpace.get_repository(auth, repo_id)
-             @as_info[:repo] = repo_detail['name']
+            # build a data struct to represent the AS data
+            title = ao_json['title']
+            title = ao_json['display_string'] if title.blank?
+            @as_info = {
+               title: title, created_by: ao_json['created_by'],
+               create_time: ao_json['create_time'], level: ao_json['level'],
+               url: "#{Settings.archives_space_url}#{resource.external_uri}"
+               # url: "#{Settings.archives_space_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
+            }
+            dates = ao_json['dates'].first
+            if !dates.nil?
+               @as_info[:dates] = dates['expression']
+            end
 
-             if !ao_json['ancestors'].nil?
-                anc = ao_json['ancestors'].last
-                url = "#{Settings.as_api_url}#{anc['ref']}"
-                coll = RestClient.get url, ArchivesSpace.auth_header(auth)
-                coll_json = JSON.parse(coll.body)
+            # pull repo ID from external URL and use it to lookup repo name:
+            # /repositories/REPO_ID/resources/RES_ID
+            repo_id = resource.external_uri.split("/")[2]
+            repo_detail = ArchivesSpace.get_repository(auth, repo_id)
+            @as_info[:repo] = repo_detail['name']
 
-                @as_info[:collection_title] = coll_json['finding_aid_title']
-                @as_info[:id] = coll_json['id_0']
-                @as_info[:language] = coll_json['language']
+            if !ao_json['ancestors'].nil?
+               anc = ao_json['ancestors'].last
+               url = "#{Settings.as_api_url}#{anc['ref']}"
+               coll = RestClient.get url, ArchivesSpace.auth_header(auth)
+               coll_json = JSON.parse(coll.body)
 
-             else
-                @as_info[:collection_title] = ao_json['finding_aid_title']
-                @as_info[:id] = ao_json['id_0']
-                @as_info[:language] = ao_json['language']
-             end
-          rescue Exception => e
-             logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
-             @as_info = nil
-          end
-       end
+               @as_info[:collection_title] = coll_json['finding_aid_title']
+               @as_info[:id] = coll_json['id_0']
+               @as_info[:language] = coll_json['language']
 
-       before_action :get_tesseract_langs, only: [:edit, :new]
-       def get_tesseract_langs
-          # Get list of tesseract supported languages
-          lang_str = `tesseract --list-langs 2>&1`
+            else
+               @as_info[:collection_title] = ao_json['finding_aid_title'].split("<num")[0]
+               @as_info[:id] = ao_json['id_0']
+               @as_info[:language] = ao_json['language']
+            end
+         rescue Exception => e
+            logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
+            @as_info = nil
+         end
+      end
 
-          # gives something like: List of available languages (107):\nafr\...
-          # split off info and make array
-          lang_str = lang_str.split(":")[1].strip
-          @languages = lang_str.split("\n")
-       end
-    end
+      before_action :get_tesseract_langs, only: [:edit, :new]
+      def get_tesseract_langs
+         # Get list of tesseract supported languages
+         lang_str = `tesseract --list-langs 2>&1`
+
+         # gives something like: List of available languages (107):\nafr\...
+         # split off info and make array
+         lang_str = lang_str.split(":")[1].strip
+         @languages = lang_str.split("\n")
+      end
+   end
 end

@@ -10,7 +10,6 @@ if apollo_info.nil?
    end
 else
    attributes_table_for external_metadata do
-      row :title
       row("External System") do |am|
          am.external_system
       end
