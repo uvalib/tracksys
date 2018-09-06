@@ -302,6 +302,10 @@ class Step < ApplicationRecord
       unit_dir = project.unit.directory
       Dir[ tif_path ].each do |f|
          name = File.basename f,".tif" # get name minus extention
+         if (name =~ /\d{9}_\d{4}/).nil?
+            step_failed(project, "Filename", "<p>Found incorrectly named image file #{f}.</p>")
+            return false
+         end
          num = name.split("_")[1].to_i
          cnt += 1
          highest = num if num > highest
