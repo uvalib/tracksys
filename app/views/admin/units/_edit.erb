@@ -8,8 +8,13 @@
       <%= f.input :special_instructions, :as => :text, :input_html => { :rows => 5 } %>
       <%= f.input :staff_notes, :as => :text, :input_html => { :rows => 5 } %>
       <%= f.input :complete_scan, :as => :radio %>
-      <%= f.input :throw_away, :as => :radio %>
-      <div class="throw-away-note">Note: Throw away scans will not be sent to preservation. They are one-time scans made for a single patron.</div>
+      <% if @unit.date_dl_deliverables_ready.blank? && @unit.date_patron_deliverables_ready.blank? %>
+         <%= f.input :throw_away, :as => :radio %>
+         <div class="throw-away-note">Note: Throw away scans will not be sent to preservation. They are one-time scans made for a single patron.</div>
+      <% else %>
+         <%= f.input :throw_away, :as => :radio, :input_html => {disabled: "disabled"}%>
+         <div class="throw-away-note">Note: This unit is complete. Throw away status cannot be changed.</div>
+      <% end %>
    <% end %>
 
    <%= f.inputs "Digitization Information", :class => 'panel three-column' do %>

@@ -434,7 +434,7 @@ ActiveAdmin.register Unit do
          # Get a list of units that can be used as a source for cloning masterfiles
          metadata = resource.metadata
          @dc_units = []
-         q = "master_files_count > 0 and reorder = 0 and id <> #{resource.id}"
+         q = "master_files_count > 0 and reorder = 0 and id <> #{resource.id} and throw_away=false"
          q << " and metadata_id = #{resource.metadata_id}" if !resource.metadata_id.nil?
          Unit.where(q).each do |u|
             @dc_units << u.id
