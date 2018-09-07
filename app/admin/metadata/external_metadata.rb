@@ -20,9 +20,9 @@ ActiveAdmin.register ExternalMetadata do
       data: {:confirm => "Are you sure you want to delete this External Metadata?"}, :method => :delete  if current_user.admin?
    end
 
-#   action_item :new, :only => :index do
-#      raw("<a href='/admin/external_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
-#   end
+  action_item :new, :only => :index do
+     raw("<a href='/admin/external_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
+  end
 
    scope :all, :default => true
    scope :approved
