@@ -11,7 +11,6 @@ class CreateExternalSystems < ActiveRecord::Migration[5.2]
     # archives_space_url: http://archives-test.lib.virginia.edu:8081
     # as_api_url: http://archives-test.lib.virginia.edu:8089
     #
-    apollo_url: http://localhost:8085
     ExternalSystem.create([
       {name: "ArchivesSpace", public_url: "https://archives.lib.virginia.edu", api_url: "http://archivesspace01.lib.virginia.edu:8089"},
       {name: "Apollo", public_url: "https://apollo.lib.virginia.edu", api_url: "https://apollo.lib.virginia.edu/api"},
