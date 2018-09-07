@@ -1,4 +1,7 @@
 class CreatePDFDeliverable < BaseJob
+   # NOTE: Called from CheckUnitDeliveryMode when all .TIF files are in
+   # 30_process_deliverables/[unit_id]
+   #
    def do_workflow(message)
       unit = message[:unit]
 
@@ -6,32 +9,26 @@ class CreatePDFDeliverable < BaseJob
       # assemble deliverable directory
       logger.info "Setting up assemble delivery directory to be used to build the PDF..."
       assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
-      if Dir.exist? assemble_dir
-         logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
-         FileUtils.rm_rf(assemble_dir)
-      end
-      FileUtils.mkdir_p(assemble_dir)
-
-      logger.info "Pull images from IIIF to #{assemble_dir} for PDF generation..."
-      unit.master_files.each do |mf|
-         dest = File.join(assemble_dir, mf.filename.gsub(/.tif/, ".jpg") )
-         iiif_url = "#{Settings.iiif_url}/#{mf.pid}/full/1024,/0/default.jpg"
-         logger.info("Download #{iiif_url} to #{dest}")
-         iiif_file = open(iiif_url)
-         IO.copy_stream(iiif_file, dest)
-      end
-
-      # Use File.dirname to omit the unit directory so the zip file is srested directly in the order dir
       assembled_order_dir = File.dirname(assemble_dir)
-      pdf_file = File.join( assembled_order_dir, "#{unit.id}.pdf")
-      jpg_files = File.join(assemble_dir, "*.jpg")
-      logger.info "Covert #{jpg_files} to #{pdf_file}..."
+      if Dir.exist? assembled_order_dir
+         logger.info "Removing old deliverables from #{assembled_order_dir}"
+         FileUtils.rm_rf(assembled_order_dir)
+      end
+      FileUtils.mkdir_p(assembled_order_dir)
+
+      # Source tif files resied in 30_process_deliverables. Get the dir
+      processing_dir = Finder.finalization_dir(unit, :process_deliverables)
+
+      # Convert all tifs in 30_process_deliverables into a single PDF
+      pdf_file = File.join(assembled_order_dir, "#{unit.id}.pdf")
+      tif_files = File.join(processing_dir, "*.tif[0]")
+      logger.info "Covert #{tif_files} to #{pdf_file}..."
       cvt = `which convert`
       cvt.strip!
       if !File.exist? cvt
          on_error("convert command not found on system!")
       end
-      cmd = "#{cvt} -density 150 #{jpg_files} #{pdf_file}"
+      cmd = "#{cvt} -geometry 1024x #{tif_files} #{pdf_file}"
       logger.info("   #{cmd}")
       out = `#{cmd}`
 
