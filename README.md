@@ -28,6 +28,7 @@
 * rake db:schema:load
 * rake db:seed
 
+NOTE: To update the XSLT submodule, cd ./lib/xslt and run git pull origin master
 
 NOTE: Spring is included as a gem to speed up the development environment, but it must not
       be used or installed on production. If it is, rails console will hang. Always use bundler commands
