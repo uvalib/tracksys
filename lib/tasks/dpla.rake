@@ -163,8 +163,8 @@ namespace :dpla do
 
    desc "Generate DPLA QDC a single record"
    task :generate_single  => :environment do
-      id = ENV['id']
-      abort("ID is required") if id.nil?
+      pid = ENV['pid']
+      abort("PID is required") if pid.nil?
 
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
       abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
@@ -175,7 +175,7 @@ namespace :dpla do
       file.close
 
       begin
-         meta = Metadata.find(id)
+         meta = Metadata.find_by(pid: pid)
          PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
          meta.update(qdc_generated_at: DateTime.now)
       rescue Exception=>e
@@ -231,7 +231,7 @@ namespace :dpla do
          total_time += dur
          puts "===> DONE. Elapsed seconds: #{dur}"
       end
-      
+
       puts
       puts "FINISHED! Generated #{total} QDC records from #{colls} collections in #{(total_time/60).round(3)} minutes"
    end
