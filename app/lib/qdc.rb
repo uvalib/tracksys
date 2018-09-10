@@ -11,96 +11,6 @@ module QDC
       return File.join(pid_parts[0], pid_dirs)
    end
 
-   # Crosswalk Creator info from MODS to QDC
-   #
-   def self.crosswalk_creator(doc, metadata_type)
-      out = []
-      concat_names = []
-      curr_name = {}
-      if metadata_type == "SirsiMetadata"
-         doc.xpath("/mods/name").each do |node|
-            if QDC.get_attribute(node, "type") == "primary" ||
-               QDC.get_attribute(node, "usage") == "primary" ||
-               QDC.get_attribute(node, "nameTitleGroup") == "1"
-               # PROCESS ONLY THIS NODEs nameParts
-               name = ""
-               node.xpath("namePart").each do |np|
-                  name << ", " if name.length > 0
-                  name << clean_xml_text(np.text)
-               end
-               val = node.attribute("valueURI")
-               if val.blank?
-                  out << "<dcterms:creator>#{name}</dcterms:creator>"
-               else
-                  out << "<dcterms:creator valueURI=\"#{val.value()}\">#{name}</dcterms:creator>"
-               end
-               break
-            end
-         end
-         return out
-      end
-
-      doc.xpath("/mods/name/namePart").each do |node|
-         value_uri = QDC.get_attribute(node.parent,"valueURI")
-         if QDC.get_attribute(node, "type") == "family"
-            if curr_name.has_key? :family
-               concat_names << curr_name
-               curr_name = {family: clean_xml_text(node.text), value_uri: value_uri }
-            else
-               curr_name[:family] = clean_xml_text(node.text)
-            end
-         elsif  QDC.get_attribute(node, "type") == "given"
-            if curr_name.has_key? :given
-               concat_names << curr_name
-               curr_name = {given: clean_xml_text(node.text), value_uri: value_uri }
-            else
-               curr_name[:given] = clean_xml_text(node.text)
-            end
-         elsif QDC.get_attribute(node, "type") == "date"
-            if curr_name.has_key? :date
-               concat_names << curr_name
-               curr_name = {date: clean_xml_text(node.text), value_uri: value_uri }
-            else
-               curr_name[:date] = clean_xml_text(node.text)
-            end
-         else
-            if value_uri.blank?
-               out << "<dcterms:creator>#{clean_xml_text(node.text)}</dcterms:creator>"
-            else
-               out << "<dcterms:creator valueURI=\"#{value_uri}\">#{clean_xml_text(node.text)}</dcterms:creator>"
-            end
-         end
-
-         # a complete name has family, given and date.
-         # if we have al 3 add it to the list of names
-         if curr_name.keys.size >= 3
-            concat_names << curr_name
-            curr_name = {}
-         end
-      end
-
-      if curr_name.keys.size > 0
-         concat_names << curr_name
-      end
-
-      concat_names.each do |n|
-         name = n[:family]
-         if !n[:given].blank?
-            name << ", #{n[:given]}"
-         end
-         if !n[:date].blank?
-            name << ", #{n[:date]}"
-         end
-         if n[:value_uri].blank?
-            out << "<dcterms:creator>#{name}</dcterms:creator>"
-         else
-            out << "<dcterms:creator valueURI=\"#{value_uri}\">#{name}</dcterms:creator>"
-         end
-      end
-
-      return out
-   end
-
    # Do a crosswalk from MODS to QDC that can return a single QDC element.
    # Some MODS elements may have valueURI. If present, include it as an attribute.
    # These elements are: Name/namePart, sub-elements of hierarchicalGeographic,
@@ -140,16 +50,30 @@ module QDC
    def self.crosswalk_multi(doc, xpath, qdc_ns, qdc_ele)
       out = []
       doc.xpath(xpath).each do |n|
-         # Per Jeremy, don't include language if objectPart is present
-         next if  xpath.include?("languageTerm") && !n.attribute("objectPart").blank?
-
          txt = clean_xml_text(n.text)
-         val = n.attribute("valueURI")
-         if !val.nil? && (xpath.include?("genre") || xpath.include?("subject"))
-            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val.value()}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+         value_uri = get_attribute(n, "valueURI")
+
+         # Per Jeremy, special language handling: don't include language if objectPart is present
+         # and don't include labguages with language term="zxx"
+         next if  xpath.include?("languageTerm") && !n.attribute("objectPart").blank?
+         next if  xpath.include?("languageTerm") && txt == "zxx"
+
+         # For genre, lookup value in the values list from jeremy, If it matches
+         # use it and include the valueURI. If not, map the value to dcterms:medium
+         if xpath.include?("genre")
+            value_uri = lookup_genre(txt)
+            if value_uri.blank?
+               out << "<dcterms:medium>#{txt}</dcterms:medium>"
+            else
+               out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{value_uri}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+            end
          else
-           out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
-        end
+            if !value_uri.nil? && xpath.include?("subject")
+               out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{value_uri}\">#{txt}</#{qdc_ns}:#{qdc_ele}>"
+            else
+              out << "<#{qdc_ns}:#{qdc_ele}>#{txt}</#{qdc_ns}:#{qdc_ele}>"
+            end
+         end
       end
       return out
    end
@@ -253,41 +177,87 @@ module QDC
       return out
    end
 
-   def self.crosswalk_subject_name(doc, metadata_type)
+   # Crosswalk <subject><topic>, <subject><geographic>,<subject><temporal>, <subject><genre> into a single string
+   # with each value listed in order encountered and separated by --.
+   # There may be multiple subject elements. Each one gets its own delimited string
+   # NOTE: a good test item is uva-lib:612592 (ID 1001)
+   #
+   def self.crosswalk_subject(doc)
       out = []
-      if metadata_type == "XmlMetadata"
-         # return multiple, but join multiple nameParts with a comma
-         # If valueURI is present, include it
-         doc.xpath("/mods/subject/name").each do |node|
-            ele_txt = ""
-            val_uri = QDC.get_attribute(node, "valueURI")
-            node.xpath("namePart").each do |np|
-               ele_txt << ", " if ele_txt.length > 0
-               ele_txt << clean_xml_text(np.text)
-            end
-            if val_uri.blank?
-               out << "<dcterms:subject>#{ele_txt}</dcterms:subject>"
-            else
-               out << "<dcterms:subject valueURI=\"#{val_uri}\">#{ele_txt}/</dcterms:subject>"
-            end
+      targets = ["topic", "geographic", "temporal", "genre"]
+      doc.xpath("/mods/subject").each do |subject|
+         values = []
+         val_uri = QDC.get_attribute(subject, "valueURI")
+         subject.children.each do |child|
+            next if targets.include?(child.name) == false
+            values << clean_xml_text(child.text)
          end
-         return out
-      end
 
-      # SIRSI: Only return a SINGE element, but join text, date and termsOfAddress with a comma
-      curr = ""
-      doc.xpath("/mods/subject/name/namePart").each do |n|
-         txt = clean_xml_text(n.text)
-         if n.attributes.count == 0
-            if !curr.blank?
-               out << "<dcterms:subject>#{curr}/</dcterms:subject>"
-            end
-            curr = txt
-         elsif n.attribute("type") == "date" || n.attribute("type") == "termsOfAddress"
-            curr << ", #{txt}"
+         next if values.blank?
+
+         # Per Jeremy, subjects with multiple values are 'compound subjects' and
+         # do not have valueURI attributes. Single value subjects can
+         if val_uri.blank? || values.length > 1
+            out << "<dcterms:subject>#{values.join('--')}</dcterms:subject>"
+         else
+            out << "<dcterms:subject valueURI=\"#{val_uri}\">#{values.first}/</dcterms:subject>"
          end
       end
-      out << "<dcterms:subject>#{curr}</dcterms:subject>" if !curr.blank?
+      return out
+   end
+
+   # Names are parsed from two different xpaths; /mods/name for creatorName
+   # and /mods/subject/name for subject names
+   def self.crosswalk_name(doc, xpath, qdc_ns, qdc_ele)
+      out = []
+      doc.xpath(xpath).each do |name_node|
+         # only accept names with attribute type="personal"
+         next if QDC.get_attribute(name_node, "type") != "personal"
+
+         # NOTE: per ruby spec https://ruby-doc.org/core-2.5.1/Hash.html
+         # the order of this hash will be preserved when values are iterated below to build the name
+         parts = {"none"=>nil, "family"=>nil, "given"=>nil, "termsOfAddress"=>nil, "date"=>nil}
+         val_uri = QDC.get_attribute(name_node, "valueURI")
+         name_node.xpath("namePart").each do |np|
+            if np.attributes.blank?
+               parts["none"] = clean_xml_text(np.text)
+            else
+               part_type = QDC.get_attribute(np, "type")
+               parts[part_type] = clean_xml_text(np.text)
+            end
+         end
+
+         name_val = ""
+         parts.values.each do |p|
+            next if p.blank?
+            name_val << ", " if !name_val.blank?
+            name_val << p
+         end
+
+         if val_uri.blank?
+            out << "<#{qdc_ns}:#{qdc_ele}>#{name_val}</#{qdc_ns}:#{qdc_ele}>"
+         else
+            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val_uri}\">#{name_val}/</#{qdc_ns}:#{qdc_ele}>"
+         end
+      end
+      return out
+   end
+
+   # Crosswalk typeOfResource to QDC
+   #
+   def self.crosswalk_type_of_resource( doc )
+      out = []
+      csv_text = File.read(Rails.root.join('data', "qdc_crosswalk",  "type_of_resource.csv"))
+      lookup = CSV.parse(csv_text, headers: false, col_sep: "|")
+      doc.xpath("/mods/typeOfResource").each do |tor|
+         text = QDC.clean_xml_text(tor.text)
+         lookup.each do |row|
+            if row[0] == text.downcase
+               out << "<dcterms:type>#{row[1]}</dcterms:type>"
+               break
+            end
+         end
+      end
       return out
    end
 
@@ -302,6 +272,31 @@ module QDC
    def self.get_attribute(node, name)
       return nil if node.attribute(name).nil?
       return node.attribute(name).value()
+   end
+
+   def self.lookup_genre(genre)
+      csv_text = File.read(Rails.root.join('data', "qdc_crosswalk",  "qdc_genres.csv"))
+      CSV.parse(csv_text, headers: false).each do |row|
+         if row[0] == genre.downcase
+            return row[1]
+         end
+      end
+      return nil
+   end
+
+   def self.visual_history_rights_ok?(meta, creators)
+      if meta.parent_metadata_id != 3009
+         raise "Called a visual history check on non-visual history metadata"
+      end
+      
+      ok_names = ["Skinner, David M", "Thompson, Ralph R", "Holsinger's Studio",
+         "Anderson, Richard N", "University of Virginia"]
+      creators.each do |c|
+         ok_names.each do |test|
+            return true if c.include? test
+         end
+      end
+      return false
    end
 
 end

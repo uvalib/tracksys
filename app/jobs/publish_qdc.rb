@@ -71,17 +71,29 @@ class PublishQDC < BaseJob
       cw_data = {}
       cw_data['EXEMPLAR'] = exemplar_pid
       cw_data['TITLE'] = QDC.clean_xml_text(meta.title)
+      if cw_data['TITLE'].downcase == "untitled"
+         log.info("This item has title 'untitled'. Skipping.")
+         return nil
+      end
+
       cw_data['RIGHTS'] = meta.use_right.uri
       cw_data['TERMS'] = []
 
-      cw_data['TERMS'].concat( QDC.crosswalk_creator(doc, meta.type) )
+      creators = QDC.crosswalk_name(doc, "/mods/name", "dcterms", "creator")
+      if meta.parent_metadata_id == 3009
+         if QDC.visual_history_rights_ok?(meta, creators) == false
+            log.info("This visual history item has use rights issues. Skipping")
+            return nil
+         end
+      end
+      cw_data['TERMS'].concat( creators )
       cw_data['TERMS'].concat( QDC.crosswalk_date_created(doc, meta.type) )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/abstract", "description")
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/physicalDescription/form", "dcterms", "medium") )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/physicalDescription/extent", "extent")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/originInfo/publisher", "publisher")
-      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/topic[1]", "dcterms", "subject") )
-      cw_data['TERMS'].concat( QDC.crosswalk_subject_name(doc, meta.type) )
+      cw_data['TERMS'].concat( QDC.crosswalk_name(doc, "/mods/subject/name", "dcterms", "subject") )
+      cw_data['TERMS'].concat( QDC.crosswalk_subject(doc) )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/typeOfResource", "type")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
@@ -91,7 +103,7 @@ class PublishQDC < BaseJob
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/language/languageTerm", "dcterms", "language") )
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "dcterms", "isPartOf") )
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/genre", "edm", "hasType") )
-      cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/subject/temporal", "dcterms", "temporal") )
+      cw_data['TERMS'].concat( QDC.crosswalk_type_of_resource(doc) )
 
 
       # Clean up data and populate XML template...
