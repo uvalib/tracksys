@@ -73,20 +73,33 @@ class PublishQDC < BaseJob
       cw_data['TITLE'] = QDC.clean_xml_text(meta.title)
       if cw_data['TITLE'].downcase == "untitled"
          log.info("This item has title 'untitled'. Skipping.")
+         if File.exist? qdc_fn
+            log.info "Skipped item has file #{qdc_fn}; removing it"
+         end
          return nil
       end
 
       cw_data['RIGHTS'] = meta.use_right.uri
       cw_data['TERMS'] = []
 
-      creators = QDC.crosswalk_name(doc, "/mods/name", "dcterms", "creator")
-      if meta.parent_metadata_id == 3009
-         if QDC.visual_history_rights_ok?(meta, creators) == false
+      # Special handling for Visual History. Rights are complicated... need to
+      # check for specific items in the collection and assign rights to them that
+      # may be different from those in tracksys. IF the item is not one of the specificly
+      # accepted ones, skip it as UVA doesn't have clear rights to publish it.
+      if QDC.is_visual_history?(doc, meta)
+         vh_rights_uri = QDC.visual_history_rights(doc)
+         if vh_rights_uri.nil?
             log.info("This visual history item has use rights issues. Skipping")
+            if File.exist? qdc_fn
+               log.info "Skipped item has file #{qdc_fn}; removing it"
+            end
             return nil
+         else
+            cw_data['RIGHTS'] = vh_rights_uri
          end
       end
-      cw_data['TERMS'].concat( creators )
+
+      cw_data['TERMS'].concat( QDC.crosswalk_name(doc, "/mods/name", "dcterms", "creator") )
       cw_data['TERMS'].concat( QDC.crosswalk_date_created(doc, meta.type) )
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/abstract", "description")
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/physicalDescription/form", "dcterms", "medium") )
@@ -94,7 +107,6 @@ class PublishQDC < BaseJob
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/originInfo/publisher", "publisher")
       cw_data['TERMS'].concat( QDC.crosswalk_name(doc, "/mods/subject/name", "dcterms", "subject") )
       cw_data['TERMS'].concat( QDC.crosswalk_subject(doc) )
-      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/typeOfResource", "type")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
@@ -119,7 +131,7 @@ class PublishQDC < BaseJob
       end
 
       # Write QDC file to filesystem
-      log.info("Write QDC file to #{qdc_fn}...")
+      log.info("Write QDC file to #{qdc_fn}")
       out = File.open(qdc_fn, "w")
       out.write(qdc)
       out.close

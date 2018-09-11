@@ -237,7 +237,7 @@ module QDC
          if val_uri.blank?
             out << "<#{qdc_ns}:#{qdc_ele}>#{name_val}</#{qdc_ns}:#{qdc_ele}>"
          else
-            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val_uri}\">#{name_val}/</#{qdc_ns}:#{qdc_ele}>"
+            out << "<#{qdc_ns}:#{qdc_ele} valueURI=\"#{val_uri}\">#{name_val}</#{qdc_ns}:#{qdc_ele}>"
          end
       end
       return out
@@ -284,19 +284,36 @@ module QDC
       return nil
    end
 
-   def self.visual_history_rights_ok?(meta, creators)
-      if meta.parent_metadata_id != 3009
-         raise "Called a visual history check on non-visual history metadata"
-      end
-      
-      ok_names = ["Skinner, David M", "Thompson, Ralph R", "Holsinger's Studio",
-         "Anderson, Richard N", "University of Virginia"]
-      creators.each do |c|
-         ok_names.each do |test|
-            return true if c.include? test
-         end
+   def self.is_visual_history?(doc, meta)
+      # 3009 is the visual history collection...
+      return true if meta.parent_metadata_id == 3009
+
+      # ... but items may not always be attached to it. See if
+      # <relatedItem type="series" displayLabel="Part of"><titleInfo><title>
+      # is: "University of Virginia Visual History Collection"
+      doc.xpath("/mods/relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title").each do |t|
+         return true if QDC.clean_xml_text(t.text) == "University of Virginia Visual History Collection"
       end
       return false
+   end
+
+   def self.visual_history_rights(doc)
+      ok_item = [
+         { xpath: "/mods/name/namePart", name: "Skinner, David M", right_uri: "http://rightsstatements.org/vocab/CNE/1.0/"},
+         { xpath: "/mods/name/namePart", name: "Thompson, Ralph R", right_uri: "http://rightsstatements.org/vocab/CNE/1.0/"},
+         { xpath: "/mods/name/namePart", name: "Holsinger's Studio", right_uri: "http://rightsstatements.org/vocab/UND/1.0/"},
+         { xpath: "/mods/subject/name/namePart", name: "University of Virginia. News Office", right_uri: "http://rightsstatements.org/vocab/CNE/1.0/"}
+      ]
+
+      ok_item.each do |i|
+         doc.xpath(i[:xpath]).each do |name|
+            if QDC.clean_xml_text(name.text).include? i[:name]
+               return i[:right_uri]
+            end
+         end
+      end
+
+      return nil
    end
 
 end
