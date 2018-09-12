@@ -23,7 +23,9 @@ if !current_user.viewer? && !current_user.student?
             button_to "QA Unit Data", qa_unit_data_admin_unit_path , :method => :put
          end
          div :class => 'workflow_button' do
-            button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path , :method => :put
+            clazz = ""
+            clazz = "disabled" if unit.master_files.count > 0
+            button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path, class: clazz, :method => :put
          end
          div :class => 'workflow_button' do
             button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put
@@ -60,6 +62,7 @@ if !current_user.viewer? && !current_user.student?
          div :class => 'workflow_button' do
             clazz = "disabled"
             clazz = "" if (deliverables_ready && unit.date_archived.blank?) || (unit.intended_use.id == 110 && unit.date_archived.blank?)
+            clazz = "disabled" if unit.master_files.count == 0
             button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
          end
       else
