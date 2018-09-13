@@ -34,10 +34,10 @@ class Api::PidController < ApplicationController
             render plain: "xml_metadata" and return
          end
          if obj.type == "ExternalMetadata"
-            if obj.external_system == "ArchivesSpace"
+            if obj.external_system.name == "ArchivesSpace"
                render plain: "archivesspace_metadata" and return
             end
-            if obj.external_system == "Apollo"
+            if obj.external_system.name == "Apollo"
                render plain: "apollo_metadata" and return
             end
          end

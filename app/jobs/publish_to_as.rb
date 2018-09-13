@@ -5,7 +5,7 @@ class PublishToAS < BaseJob
       unit = message[:unit]
 
       # Once sanity check. Make sure the unit is really supposed to go to AS before oing anything.
-      if unit.metadata.type != "ExternalMetadata" || unit.metadata.external_system != "ArchivesSpace" || unit.throw_away == true
+      if unit.metadata.type != "ExternalMetadata" || unit.metadata.external_system.name != "ArchivesSpace" || unit.throw_away == true
          logger.warn("This unit is not intended to publication to ArchivesSpace. Skipping.")
          return
       end

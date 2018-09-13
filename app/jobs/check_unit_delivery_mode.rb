@@ -69,7 +69,7 @@ class CheckUnitDeliveryMode < BaseJob
       FileUtils.rm_rf(processing_dir)
 
       # See if the unit should be published to AS
-      if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system == "ArchivesSpace" && unit.throw_away == false
+      if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system.name == "ArchivesSpace" && unit.throw_away == false
          PublishToAS.exec_now({unit: unit})
       end
 

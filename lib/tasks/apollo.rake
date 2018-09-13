@@ -1,84 +1,4 @@
 namespace :apollo do
-   desc "Convert digitalObject value to remove path to doviewer"
-   task :convert_doviewer_value => :environment do
-      hp = ENV['APOLLO_DB_HOST']
-      host = hp.split(":")[0]
-      port = hp.split(":")[1]
-      conn = ActiveRecord::Base.establish_connection(
-           :adapter  => "mysql2",
-           :database => ENV['APOLLO_DB_NAME'],
-           :host     => host,
-           :port     => port,
-           :username => ENV['APOLLO_DB_USER'],
-           :password => ENV['APOLLO_DB_PASS']
-         )
-
-      puts "Updating images objects..."
-      q = "select id,value from nodes where node_type_id = 6 and value like '%images%'"
-      image_do = conn.connection().execute(q)
-      image_do.each do |row|
-         node_id = row[0]
-         url = row[1]
-         pid = url.split("%2F").last
-         pid.gsub!(/\%3A/, ":")
-         json_val = "{\"type\": \"images\", \"id\": \"#{pid}\"}"
-         q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
-         conn.connection().execute(q2)
-      end
-
-      puts "Updating wsls objects..."
-      q = "select id,value from nodes where node_type_id = 6 and value like '%wsls%'"
-      image_do = conn.connection().execute(q)
-      image_do.each do |row|
-         node_id = row[0]
-         url = row[1]
-         pid = url.split("%2F").last
-         pid.gsub!(/\%3A/, ":")
-         json_val = "{\"type\": \"wsls\", \"id\": \"#{pid}\"}"
-         q2 = "update nodes set value='#{json_val}' where id = #{node_id}"
-         conn.connection().execute(q2)
-      end
-   end
-
-   desc "Add an OMW2 external metadata record"
-   task :add_omw2 => :environment do
-      uid = ENV['unit']
-      vol = ENV['vol']
-      num = ENV['num']
-      pid = ENV['pid']
-      apollo = ENV['apollo']
-      abort("unit, vol, num, apollo required") if vol.nil? || num.nil? || apollo.nil? || uid.nil?
-
-      unit = Unit.find(uid)
-      title = "Our mountain work in the Diocese of Virginia: Our Mountain Work, Vol. #{vol}, no. #{num}"
-
-      puts("Add ext metadata #{title} from #{unit.to_json}")
-
-      md = ExternalMetadata.create(parent_metadata_id: 16104,
-         pid: pid, title: title, is_approved: true, use_right_id: 1,ocr_hint_id: 1,discoverability: 0,
-         availability_policy_id: 1, external_system: "Apollo", external_uri: "/api/items/#{apollo}")
-      unit.update(metadata: md)
-      unit.master_files.update_all(metadata_id: md.id, component_id: nil)
-   end
-
-   desc "Fix apollo link"
-   task :fix  => :environment do
-      id = ENV['id']
-      abort("ID is required") if id.nil?
-      offsetStr = ENV['offset']
-      abort("offset is required") if offsetStr.nil?
-      offset = offsetStr.to_i
-      sm = SirsiMetadata.find(id)
-      puts "Updating ext_uri id by #{offset} for #{sm.title} children..."
-      ExternalMetadata.where(external_system: "Apollo", parent_metadata_id: id).find_each do |am|
-         puts "#{am.id} = #{am.title}:#{am.external_uri}"
-         uri = am.external_uri
-         num = uri.split("-")[1].gsub(/an/,"").to_i
-         newNum = "an#{num+offset}"
-         newUri = "#{uri.split("-")[0]}-#{newNum}"
-         am.update(external_uri: newUri)
-      end
-   end
 
    desc "Convert an entire componet-based serial to Apollo ExternalMetadata"
    task :convert  => :environment do
@@ -91,6 +11,7 @@ namespace :apollo do
    end
 
    def walk_tree(component, depth)
+      apollo = ExternalSystem.find_by(name:"Apollo")
       pad = "  "*depth
       if component.children.count > 0
          # This component is a container for other components.
@@ -115,13 +36,13 @@ namespace :apollo do
          end
          orig_metadata = component.master_files.first.metadata
          unit = component.master_files.first.unit
-         apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{component.pid}"
+         apollo_pid = RestClient.get "#{apollo.public_url}/api/external/#{component.pid}"
          abort("Unable to find related Apollo item!") if apollo_pid.blank?
 
          # Update the top-level sirsi metadata representing this item to have
          # a reference to apollo for supplemental metadata
          if orig_metadata.supplemental_system.blank?
-            orig_metadata.update(supplemental_system: "Apollo", supplemental_uri:"/collections/#{apollo_pid}")
+            orig_metadata.update(supplemental_system: apollo, supplemental_uri:"/collections/#{apollo_pid}")
          end
 
          md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
@@ -130,7 +51,7 @@ namespace :apollo do
             ocr_hint_id: orig_metadata.ocr_hint_id,
             discoverability: orig_metadata.discoverability,
             availability_policy_id: orig_metadata.availability_policy_id,
-            external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
+            external_system: apollo, external_uri: "/api/items/#{apollo_pid}")
          unit.update(metadata: md)
          unit.master_files.update_all(metadata_id: md.id, component_id: nil)
          component.destroy
@@ -146,14 +67,15 @@ namespace :apollo do
       abort("PID not found") if component.blank?
       orig_metadata = component.master_files.first.metadata
       unit = component.master_files.first.unit
+      apollo = ExternalSystem.find_by(name: "Apollo")
 
-      apollo_pid = RestClient.get "#{Settings.apollo_url}/api/external/#{pid}"
+      apollo_pid = RestClient.get "#{apollo.public_url}/api/external/#{pid}"
 
       md = ExternalMetadata.create(parent_metadata_id: orig_metadata.id,
          pid: pid, title: "#{orig_metadata.title}: #{component.title}",
          is_approved: true, use_right: orig_metadata.use_right, ocr_hint_id: 1,
          discoverability: 1, availability_policy_id: 1,
-         external_system: "Apollo", external_uri: "/api/items/#{apollo_pid}")
+         external_system: apollo, external_uri: "/api/items/#{apollo_pid}")
       unit.update(metadata: md)
       unit.master_files.update_all(metadata_id: md.id, component_id: nil)
       component.destroy

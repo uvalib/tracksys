@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_07_150334) do
+ActiveRecord::Schema.define(version: 2018_09_12_154349) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -390,9 +390,7 @@ ActiveRecord::Schema.define(version: 2018_09_07_150334) do
     t.boolean "dpla", default: false
     t.string "collection_facet"
     t.string "type", default: "SirsiMetadata"
-    t.string "external_system"
     t.string "external_uri"
-    t.string "supplemental_system"
     t.string "supplemental_uri"
     t.integer "genre_id"
     t.integer "resource_type_id"
@@ -403,17 +401,21 @@ ActiveRecord::Schema.define(version: 2018_09_07_150334) do
     t.integer "creator_death_date"
     t.datetime "qdc_generated_at"
     t.bigint "preservation_tier_id"
+    t.bigint "external_system_id"
+    t.bigint "supplemental_system_id"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"
     t.index ["catalog_key"], name: "index_metadata_on_catalog_key"
     t.index ["dpla"], name: "index_metadata_on_dpla"
+    t.index ["external_system_id"], name: "index_metadata_on_external_system_id"
     t.index ["genre_id"], name: "index_metadata_on_genre_id"
     t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
     t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
     t.index ["pid"], name: "index_metadata_on_pid"
     t.index ["preservation_tier_id"], name: "index_metadata_on_preservation_tier_id"
     t.index ["resource_type_id"], name: "index_metadata_on_resource_type_id"
+    t.index ["supplemental_system_id"], name: "index_metadata_on_supplemental_system_id"
     t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
   end
 

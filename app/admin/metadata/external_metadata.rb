@@ -8,7 +8,8 @@ ActiveAdmin.register ExternalMetadata do
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :dpla, :external_uri, :creator_death_date,
-      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale
+      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
+      :external_uri, :external_system_id, :preservation_tier_id
 
    config.clear_action_items!
 
@@ -34,7 +35,7 @@ ActiveAdmin.register ExternalMetadata do
    #
    filter :title_contains, label: "Title"
    filter :pid_starts_with, label: "PID"
-   filter :external_system_starts_with, label: "External System"
+   filter :external_system_name_starts_with, label: "External System"
 
 
    # INDEX page ===============================================================
@@ -65,11 +66,11 @@ ActiveAdmin.register ExternalMetadata do
          div do
             link_to "Details", resource_path(external_metadata), :class => "member_link view_link"
          end
-         # if !current_user.viewer? && !current_user.student?
-         #    div do
-         #       link_to I18n.t('active_admin.edit'), edit_resource_path(external_metadata), :class => "member_link edit_link"
-         #    end
-         # end
+         if !current_user.viewer? && !current_user.student?
+            div do
+               link_to I18n.t('active_admin.edit'), edit_resource_path(external_metadata), :class => "member_link edit_link"
+            end
+         end
       end
    end
 
@@ -78,12 +79,12 @@ ActiveAdmin.register ExternalMetadata do
    show :title => proc { |external_metadata| truncate(external_metadata.title, :length => 60) } do
       div :class => 'two-column' do
          panel "External Metadata" do
-            if external_metadata.external_system == "ArchivesSpace"
+            if external_metadata.external_system.name == "ArchivesSpace"
                render "/admin/metadata/external_metadata/as_panel", :context => self
-            elsif external_metadata.external_system == "Apollo"
+            elsif external_metadata.external_system.name == "Apollo"
                render "/admin/metadata/external_metadata/apollo_panel", :context => self
             else
-               div do "Unknown external system #{external_metadata.external_system}" end
+               div do "Unknown external system #{external_metadata.external_system.name}" end
             end
          end
       end
@@ -202,16 +203,16 @@ ActiveAdmin.register ExternalMetadata do
    controller do
       def update
          super
-         if resource.external_system == "ArchivesSpace"
+         if resource.external_system.name == "ArchivesSpace"
             auth = ArchivesSpace.get_auth_session()
-            url = "#{Settings.as_api_url}#{resource.external_uri}"
+            url = "#{resource.external_system.api_url}#{resource.external_uri}"
             ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
             ao_json = JSON.parse(ao_detail.body)
             title = ao_json['title']
             title = ao_json['display_string'] if title.blank?
             resource.update(title: title)
          else
-            resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
+            resp = RestClient.get "#{resource.external_system.public_url}#{resource.external_uri}"
             json = JSON.parse(resp.body)
             item_data = json['item']['children']
             title = item_data.find{ |attr| attr['type']['name']=="title" }['value']
@@ -221,16 +222,17 @@ ActiveAdmin.register ExternalMetadata do
 
       before_action :get_external_metadata, only: [:show]
       def get_external_metadata
-         if resource.external_system == "ArchivesSpace"
+         if resource.external_system.name == "ArchivesSpace"
             get_as_metadata()
-         elsif resource.external_system == "Apollo"
+         elsif resource.external_system.name == "Apollo"
             get_apollo_metadata()
          end
       end
 
       def get_apollo_metadata
          begin
-            resp = RestClient.get "#{Settings.apollo_url}#{resource.external_uri}"
+            apollo = resource.external_system
+            resp = RestClient.get "#{apollo.public_url}#{resource.external_uri}"
             json = JSON.parse(resp.body)
             coll_data = json['collection']['children']
             item_data = json['item']['children']
@@ -255,9 +257,10 @@ ActiveAdmin.register ExternalMetadata do
          begin
             # First, authenticate with the API. Necessary to call other methods
             auth = ArchivesSpace.get_auth_session()
+            as = resource.external_system
 
             # Now get the target object details ...
-            url = "#{Settings.as_api_url}#{resource.external_uri}"
+            url = "#{as.api_url}#{resource.external_uri}"
             ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
             ao_json = JSON.parse(ao_detail.body)
 
@@ -267,8 +270,8 @@ ActiveAdmin.register ExternalMetadata do
             @as_info = {
                title: title, created_by: ao_json['created_by'],
                create_time: ao_json['create_time'], level: ao_json['level'],
-               url: "#{Settings.archives_space_url}#{resource.external_uri}"
-               # url: "#{Settings.archives_space_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
+               url: "#{as.public_url}#{resource.external_uri}"
+               # url: "#{as.public_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
             }
             dates = ao_json['dates'].first
             if !dates.nil?
@@ -283,7 +286,7 @@ ActiveAdmin.register ExternalMetadata do
 
             if !ao_json['ancestors'].nil?
                anc = ao_json['ancestors'].last
-               url = "#{Settings.as_api_url}#{anc['ref']}"
+               url = "#{as.api_url}#{anc['ref']}"
                coll = RestClient.get url, ArchivesSpace.auth_header(auth)
                coll_json = JSON.parse(coll.body)
 

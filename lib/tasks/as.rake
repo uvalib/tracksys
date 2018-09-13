@@ -2,7 +2,8 @@ namespace :as do
    IIIF_USE_STATEMENT = "image-service-manifest"
 
    def get_auth_hdr(u,pw)
-      url = "#{Settings.as_api_url}/users/#{u}/login"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/users/#{u}/login"
       puts "API Auth URL: #{url}"
       resp = RestClient.post url, {password: pw}
       json = JSON.parse(resp.body)
@@ -15,14 +16,15 @@ namespace :as do
 
    def get_ao_detail(ao_uri, hdr, pid)
       existing_do = nil
-      url = "#{Settings.as_api_url}/#{ao_uri}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/#{ao_uri}"
       puts "Looking for AO details at #{url}"
       ao_detail = RestClient.get url, hdr
       ao_json = JSON.parse(ao_detail.body)
       ao_json['instances'].each do |instance|
          next if instance['instance_type'] != 'digital_object'
          do_uri = instance['digital_object']['ref']
-         do_tree = RestClient.get "#{Settings.as_api_url}/#{do_uri}", hdr
+         do_tree = RestClient.get "#{as.api_url}/#{do_uri}", hdr
          do_json = JSON.parse(do_tree.body)
          return {ao_json: ao_json, do_exist: true} if do_json['digital_object_id'] == pid
       end
@@ -46,8 +48,9 @@ namespace :as do
       }
 
       digital_obj_id = -1
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
       begin
-         resp = RestClient.post "#{Settings.as_api_url}#{repo_uri}/digital_objects", "#{payload.to_json}", hdr
+         resp = RestClient.post "#{as.api_url}#{repo_uri}/digital_objects", "#{payload.to_json}", hdr
          if resp.code.to_i == 200
             json = JSON.parse(resp)
             digital_obj_id = json['id']
@@ -80,7 +83,7 @@ namespace :as do
          digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"}
       }
       begin
-         resp = RestClient.post "#{Settings.as_api_url}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
+         resp = RestClient.post "#{as.api_url}#{tgt_ao['uri']}", "#{tgt_ao.to_json}", hdr
          if resp.code.to_i == 200
             puts "Archival object updated"
          else
@@ -98,7 +101,8 @@ namespace :as do
    desc "enums"
    task :enums  => :environment do
       hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
-      out = RestClient.get "#{Settings.as_api_url}/config/enumerations", hdr
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      out = RestClient.get "#{as.api_url}/config/enumerations", hdr
       found = false
       tgt_enum = nil
       JSON.parse(out.body).each do |rec|
@@ -120,7 +124,7 @@ namespace :as do
          tgt_enum['enumeration_values'] << v
          tgt_enum['values'] << IIIF_USE_STATEMENT
          begin
-            resp = RestClient.post "#{Settings.as_api_url}/config/enumerations/#{enum_id}", "#{tgt_enum.to_json}", hdr
+            resp = RestClient.post "#{as.api_url}/config/enumerations/#{enum_id}", "#{tgt_enum.to_json}", hdr
             if resp.code.to_i == 200
                puts "#{IIIF_USE_STATEMENT} ADDED"
             else
@@ -151,7 +155,8 @@ namespace :as do
 
    desc "fix supplemental URI so not specific to staff interface"
    task :fix_supplemental_uri  => :environment do
-      XmlMetadata.where(supplemental_system: "ArchivesSpace").each do |xm|
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      XmlMetadata.where(supplemental_system_id: as.id).each do |xm|
          if xm.supplemental_uri.include? "autoselect_repo"
             stripped = CGI.unescape(xm.supplemental_uri.split("uri=")[1])
             puts "#{xm.supplemental_uri} => #{stripped}"
@@ -162,12 +167,12 @@ namespace :as do
 
    desc "fix_hs_links"
    task :fix_hs_links  => :environment do
-
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
       hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
       repo_uri = "/repositories/7"
-      repo_url = "#{Settings.as_api_url}#{repo_uri}"
+      repo_url = "#{as.api_url}#{repo_uri}"
 
-      Metadata.where("supplemental_system=? and creator_name=?", "ArchivesSpace", "Montes-Bradley, Eduardo").each do |m|
+      Metadata.where("supplemental_system_id=? and creator_name=?", as.id, "Montes-Bradley, Eduardo").each do |m|
          do_id = m.supplemental_uri.split("/").last
          out = RestClient.get "#{repo_url}/digital_objects/#{do_id}", hdr
          json = JSON.parse(out.body)
@@ -186,11 +191,12 @@ namespace :as do
       id = ENV['metadata']
       metadata = Metadata.find(id)
       puts "Source Metadata: #{metadata.title}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
       hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
 
       # 7 = health sciences, 210 = eduardo photos. List all stuff under it and find children
       repo_uri = "/repositories/7"
-      repo_url = "#{Settings.as_api_url}#{repo_uri}"
+      repo_url = "#{as.api_url}#{repo_uri}"
       out = RestClient.get "#{repo_url}/resources/210/tree", hdr
       json = JSON.parse(out.body)
 
@@ -236,12 +242,12 @@ namespace :as do
       id = ENV['id']
       abort("id is required") if id.nil?
       unit = Unit.find(id)
-
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
       hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
 
       # 3 = UVA SC, 413 = VA photos. List all stuff under it and find children
       repo_uri = "/repositories/3"
-      repo_url = "#{Settings.as_api_url}#{repo_uri}"
+      repo_url = "#{as.api_url}#{repo_uri}"
       resource_tree_url = "#{repo_url}/resources/413/tree"
       out = RestClient.get resource_tree_url, hdr
       json = JSON.parse(out.body)
@@ -298,7 +304,7 @@ namespace :as do
                      if mf.metadata.type != "ExternalMetadata"
                         puts "Creating new TrackSys external metadata object"
                         curr_metadata = ExternalMetadata.create(title: mf.description, is_approved: true,
-                           external_system: "ArchivesSpace", use_right: mf.metadata.use_right, ocr_hint_id: 2)
+                           external_system_id: as.id, use_right: mf.metadata.use_right, ocr_hint_id: 2)
                         mf.update(metadata: curr_metadata)
                      else
                         puts "Using existing metadata #{mf.metadata.id}"
@@ -326,16 +332,6 @@ namespace :as do
                end
             end
          end
-      end
-   end
-
-   desc "Test authentication with AS API"
-   task :test_auth  => :environment do
-      begin
-         hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
-         puts hdr
-      rescue Exception=> e
-         puts "FAIL: #{e.to_json}"
       end
    end
 end

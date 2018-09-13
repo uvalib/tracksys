@@ -11,6 +11,9 @@ class Metadata < ApplicationRecord
    belongs_to :resource_type, optional: true
    belongs_to :preservation_tier, optional: true
 
+   belongs_to :external_system, class_name: 'ExternalSystem', foreign_key: 'external_system_id', optional: true
+   belongs_to :supplemental_system, class_name: 'ExternalSystem', foreign_key: 'supplemental_system_id', optional: true
+
    has_many :master_files
    has_many :units
    has_many :orders, :through => :units

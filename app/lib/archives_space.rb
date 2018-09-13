@@ -3,7 +3,8 @@ module ArchivesSpace
    # that will be used in all subsequent requests. This is not permanant and shouldn't be cached
    #
    def self.get_auth_session()
-      url = "#{Settings.as_api_url}/users/#{Settings.as_user}/login"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/users/#{Settings.as_user}/login"
       resp = RestClient.post url, {password: Settings.as_pass}
       json = JSON.parse(resp.body)
       return json['session']
@@ -82,9 +83,10 @@ module ArchivesSpace
          # and can handle blanking out many of the other fields
          unit.metadata.update!(type: "ExternalMetadata")
          unit = Unit.find(unit_id)
+         as = ExternalSystem.find_by(name: "ArchivesSpace")
          ext_uri = "/repositories/#{as_info[:repo]}/#{as_info[:parent_type]}/#{as_info[:parent_id]}"
          unit.metadata.update!(creator_name: nil, catalog_key: nil, barcode: nil, desc_metadata: nil,
-            call_number:nil, external_system: "ArchivesSpace", external_uri: ext_uri)
+            call_number:nil, external_system: as, external_uri: ext_uri)
       end
 
       log.info "ArchivesSpace link successfully created"
@@ -99,7 +101,8 @@ module ArchivesSpace
    end
 
    def self.get_repositories(auth)
-      repo_url = "#{Settings.as_api_url}/repositories"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      repo_url = "#{as.api_url}/repositories"
       out = RestClient.get repo_url, auth_header(auth)
       json = JSON.parse(out.body)
       out = []
@@ -110,25 +113,29 @@ module ArchivesSpace
    end
 
    def self.get_repository(auth, repo_id)
-      repo_url = "#{Settings.as_api_url}/repositories/#{repo_id}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      repo_url = "#{as.api_url}/repositories/#{repo_id}"
       out = RestClient.get repo_url, auth_header(auth)
       return JSON.parse(out.body)
    end
 
    def self.get_resource(auth, repo_id, resource_id)
-      url = "#{Settings.as_api_url}/repositories/#{repo_id}/resources/#{resource_id}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/repositories/#{repo_id}/resources/#{resource_id}"
       out = RestClient.get url, auth_header(auth)
       return JSON.parse(out.body)
    end
 
    def self.get_archival_object(auth, repo_id, ao_id)
-      url = "#{Settings.as_api_url}/repositories/#{repo_id}/archival_objects/#{ao_id}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/repositories/#{repo_id}/archival_objects/#{ao_id}"
       out = RestClient.get url, auth_header(auth)
       return JSON.parse(out.body)
    end
 
    def self.get_digital_object(auth, repo_id, do_id)
-      url = "#{Settings.as_api_url}/repositories/#{repo_id}/digital_objects/#{do_id}"
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/repositories/#{repo_id}/digital_objects/#{do_id}"
       out = RestClient.get url, auth_header(auth)
       json =  JSON.parse(out.body)
       return {pid: json['digital_object_id'], title: json['title'], iiif: json['file_versions'].first['file_uri']}
@@ -164,9 +171,10 @@ module ArchivesSpace
 
       repo_uri = tgt_obj['repository']['ref']
       digital_obj_id = -1
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
 
       begin
-         resp = RestClient.post "#{Settings.as_api_url}#{repo_uri}/digital_objects", "#{payload.to_json}", auth_header(auth)
+         resp = RestClient.post "#{as.api_url}#{repo_uri}/digital_objects", "#{payload.to_json}", auth_header(auth)
          if resp.code.to_i == 200
             json = JSON.parse(resp)
             digital_obj_id = json['id']
@@ -184,8 +192,7 @@ module ArchivesSpace
          digital_object: { ref: "#{repo_uri}/digital_objects/#{digital_obj_id}"}
       }
       begin
-         url = "#{Settings.as_api_url}#{tgt_obj['uri']}"
-         resp = RestClient.post "#{Settings.as_api_url}#{tgt_obj['uri']}", "#{tgt_obj.to_json}", auth_header(auth)
+         resp = RestClient.post "#{as.api_url}#{tgt_obj['uri']}", "#{tgt_obj.to_json}", auth_header(auth)
          if resp.code.to_i != 200
             raise "ArchivesSpace update parent API response code #{resp.code}: #{resp.to_s}"
          end

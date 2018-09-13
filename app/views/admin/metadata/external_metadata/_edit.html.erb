@@ -1,6 +1,6 @@
 <%= semantic_form_for([:admin, @external_metadata], :url => "/admin/external_metadata/#{@external_metadata.id}") do |f| %>
    <%= f.inputs "External Metadata", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
-      <%= f.input :external_system, :input_html => { :readonly => true } %>
+      <%= f.input :external_system %>
       <%= f.input :external_uri %>
    <% end %>
 

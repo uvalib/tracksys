@@ -16,10 +16,11 @@ class Admin::ItemsController < ApplicationController
             return
          else
             # Create the external AS metadata record if necessary...
+            as = ExternalSystem.find_by(name: "ArchivesSpace")
             uri = params[:tgt_as_uri]
-            as_md = ExternalMetadata.where("external_system=? and external_uri=?", "ArchivesSpace", uri).first
+            as_md = ExternalMetadata.where("external_system_id=? and external_uri=?", as.id, uri).first
             if as_md.nil?
-               as_md = ExternalMetadata.create( external_system: "ArchivesSpace", external_uri: uri,
+               as_md = ExternalMetadata.create( external_system: as, external_uri: uri,
                   use_right_id: 1, title: params[:tgt_as_title] )
             end
             params[:metadata_id] = as_md.id

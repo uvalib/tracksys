@@ -252,13 +252,15 @@ ActiveAdmin.register XmlMetadata do
 
    sidebar "Supplemental Metadata", :only => [:show],  if: proc{ !xml_metadata.supplemental_system.nil?} do
       div do
-         xml_metadata.supplemental_system
+         xml_metadata.supplemental_system.name
       end
       div do
          xml_metadata.supplemental_uri
       end
       div :class => 'workflow_button', style: "margin-top: 15px" do
-         raw("<a class='view-supplemental' href='#{Settings.archives_space_url}#{xml_metadata.supplemental_uri}' target='_blank'>View</a>")
+         url = "#{xml_metadata.supplemental_system.public_url}#{xml_metadata.supplemental_uri}"
+         puts "====== #{url}"
+         raw("<a class='view-supplemental' href='#{url}' target='_blank'>View</a>")
       end
    end
 
