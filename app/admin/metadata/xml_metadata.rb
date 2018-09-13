@@ -259,7 +259,6 @@ ActiveAdmin.register XmlMetadata do
       end
       div :class => 'workflow_button', style: "margin-top: 15px" do
          url = "#{xml_metadata.supplemental_system.public_url}#{xml_metadata.supplemental_uri}"
-         puts "====== #{url}"
          raw("<a class='view-supplemental' href='#{url}' target='_blank'>View</a>")
       end
    end
