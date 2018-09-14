@@ -361,7 +361,7 @@ ActiveAdmin.register MasterFile do
       before_action :get_related_locations, only: [:edit]
       def get_related_locations
          @locations = nil
-         return if resource.locations.nil?
+         return if resource.locations.blank?
          @locations = []
          Location.where(metadata_id: resource.location.metadata_id).includes(:container_type).each do |ct|
             @locations << {id:ct.id, container_type_id:ct.container_type_id, container_id:ct.container_id,
