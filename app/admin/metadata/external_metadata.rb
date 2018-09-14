@@ -35,7 +35,7 @@ ActiveAdmin.register ExternalMetadata do
    #
    filter :title_contains, label: "Title"
    filter :pid_starts_with, label: "PID"
-   filter :external_system_name_starts_with, label: "External System"
+   filter :external_system, :as => :select
 
 
    # INDEX page ===============================================================
