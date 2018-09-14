@@ -6,7 +6,7 @@ class AcademicStatus < ApplicationRecord
   has_many :orders, :through => :customers
   has_many :units, :through => :orders
   has_many :master_files, :through => :units
-  
+
   validates :name, :presence => true
 
   def requests

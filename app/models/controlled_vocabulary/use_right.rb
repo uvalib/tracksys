@@ -17,10 +17,14 @@ end
 #
 # Table name: use_rights
 #
-#  id             :integer          not null, primary key
-#  name           :string(255)
-#  created_at     :datetime
-#  updated_at     :datetime
-#  metadata_count :integer          default(0)
-#  uri            :string(255)
+#  id              :integer          not null, primary key
+#  name            :string(255)
+#  created_at      :datetime
+#  updated_at      :datetime
+#  metadata_count  :integer          default(0)
+#  uri             :string(255)
+#  statement       :text(65535)
+#  commercial_use  :boolean          default(FALSE)
+#  educational_use :boolean          default(FALSE)
+#  modifications   :boolean          default(FALSE)
 #

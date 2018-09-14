@@ -38,6 +38,7 @@ class JobStatus < ApplicationRecord
       end
    end
 end
+
 # == Schema Information
 #
 # Table name: job_statuses
@@ -48,9 +49,9 @@ end
 #  started_at      :datetime
 #  ended_at        :datetime
 #  failures        :integer          default(0), not null
-#  error           :string(255)
+#  error           :text(65535)
 #  originator_id   :integer
 #  originator_type :string(255)
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
+#  created_at      :datetime
+#  updated_at      :datetime
 #

@@ -10,7 +10,8 @@
 #  created_at   :datetime
 #  updated_at   :datetime
 #  email        :string(255)
-#  role         :integer          default(0)
+#  role         :integer          default("admin")
+#  notes        :text(65535)
 #
 
 class StaffMember < ApplicationRecord

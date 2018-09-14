@@ -422,4 +422,5 @@ end
 #  units_count                        :integer          default(0)
 #  invoices_count                     :integer          default(0)
 #  master_files_count                 :integer          default(0)
+#  date_completed                     :datetime
 #

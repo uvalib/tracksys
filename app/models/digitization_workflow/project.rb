@@ -1,3 +1,28 @@
+# == Schema Information
+#
+# Table name: projects
+#
+#  id                 :integer          not null, primary key
+#  workflow_id        :integer
+#  unit_id            :integer
+#  owner_id           :integer
+#  current_step_id    :integer
+#  priority           :integer          default("normal")
+#  due_on             :date
+#  item_condition     :integer
+#  added_at           :datetime
+#  started_at         :datetime
+#  finished_at        :datetime
+#  category_id        :integer
+#  viu_number         :string(255)
+#  capture_resolution :integer
+#  resized_resolution :integer
+#  resolution_note    :string(255)
+#  workstation_id     :integer
+#  condition_note     :text(65535)
+#  container_type_id  :bigint(8)
+#
+
 class Project < ApplicationRecord
    enum priority: [:normal, :high, :critical]
    enum item_condition: [:good, :bad]

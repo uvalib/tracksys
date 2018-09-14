@@ -63,4 +63,5 @@ end
 #  transmittal_number      :text(65535)
 #  notes                   :text(65535)
 #  permanent_nonpayment    :boolean          default(FALSE)
+#  date_fee_declined       :datetime
 #

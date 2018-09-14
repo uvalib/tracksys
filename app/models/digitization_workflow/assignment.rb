@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: assignments
+#
+#  id               :integer          not null, primary key
+#  project_id       :integer
+#  step_id          :integer
+#  staff_member_id  :integer
+#  assigned_at      :datetime
+#  started_at       :datetime
+#  finished_at      :datetime
+#  status           :integer          default("pending")
+#  duration_minutes :integer
+#
+
 class Assignment < ApplicationRecord
    enum status: [:pending, :started, :finished, :rejected, :error, :reassigned, :finalizing]
 

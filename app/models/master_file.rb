@@ -202,4 +202,5 @@ end
 #  deaccession_note    :text(65535)
 #  deaccessioned_by_id :integer
 #  text_source         :integer
+#  exemplar            :boolean          default(FALSE)
 #

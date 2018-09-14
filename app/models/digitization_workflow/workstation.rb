@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: workstations
+#
+#  id         :integer          not null, primary key
+#  name       :string(255)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  status     :integer          default("active")
+#
+
 class Workstation < ApplicationRecord
    enum status: [:active, :inactive, :retired]
    has_many :projects

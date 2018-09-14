@@ -8,7 +8,7 @@
 #  serial_number :string(255)
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  status        :integer          default(0)
+#  status        :integer          default("active")
 #
 
 class Lens < Equipment

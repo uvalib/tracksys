@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: locations
+#
+#  id                :bigint(8)        not null, primary key
+#  container_type_id :bigint(8)
+#  container_id      :string(255)      not null
+#  folder_id         :string(255)
+#  notes             :text(65535)
+#  metadata_id       :bigint(8)
+#
+
 class Location < ApplicationRecord
    belongs_to :container_type
    belongs_to :metadata, optional: true

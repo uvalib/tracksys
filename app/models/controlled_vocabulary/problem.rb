@@ -2,9 +2,9 @@
 #
 # Table name: problems
 #
-#  id          :integer          not null, primary key
-#  name        :string(255)
-#  notes_count :integer          default(0)
+#  id    :integer          not null, primary key
+#  name  :string(255)
+#  label :string(255)
 #
 
 class Problem < ApplicationRecord

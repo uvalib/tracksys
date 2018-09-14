@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: messages
+#
+#  id         :bigint(8)        not null, primary key
+#  subject    :string(255)      not null
+#  message    :text(65535)
+#  read       :boolean          default(FALSE)
+#  from_id    :bigint(8)
+#  to_id      :bigint(8)
+#  sent_at    :datetime         not null
+#  deleted    :boolean          default(FALSE)
+#  deleted_at :datetime
+#
+
 class Message < ApplicationRecord
    belongs_to :to, class_name: "StaffMember", foreign_key: "to_id"
    belongs_to :from, class_name: "StaffMember", foreign_key: "from_id"
