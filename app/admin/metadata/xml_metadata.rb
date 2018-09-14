@@ -8,7 +8,8 @@ ActiveAdmin.register XmlMetadata do
       :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :desc_metadata, :dpla, :creator_death_date,
-      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale
+      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
+      :preservation_tier_id
 
    config.clear_action_items!
 
