@@ -4,6 +4,9 @@ if apollo_info.nil?
       row("External System") do |am|
          am.external_system
       end
+      row("External URI") do |am|
+         am.external_uri
+      end
       row ("Error") do |em|
          "Unable retrieve data from Apollo: #{apollo_error}"
       end
@@ -13,10 +16,13 @@ else
       row("External System") do |am|
          am.external_system
       end
+      row("External URI") do |am|
+         am.external_uri
+      end
       row("Collection PID") do |xm|
          # Apollo is single page app and the history mode doesn't work right
          # because of the shibboleth proxy. All URLs are links to ID instead of real URL
-         link_to apollo_info[:pid], "#{Settings.apollo_url}/#/collections/#{apollo_info[:pid]}", target: "_blank"
+         link_to apollo_info[:pid], "#{xm.external_system.public_url}/#/collections/#{apollo_info[:pid]}", target: "_blank"
       end
       row("Collection Title") do |xm|
          apollo_info[:collection]

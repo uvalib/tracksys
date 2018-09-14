@@ -1,10 +1,15 @@
-if as_info.nil?
-   div do "Unable to connect with external metadata source" end
-else
-   attributes_table_for external_metadata do
-      row("External System") do |xm|
-         xm.external_system
+attributes_table_for external_metadata do
+   row("External System") do |xm|
+      xm.external_system
+   end
+   if as_info.nil?
+      row("URL") do |xm|
+         xm.external_uri
       end
+      row("Error") do |xm|
+         "Unable to connect to external metadata resource"
+      end
+   else
       row("URL") do |xm|
          raw("<a target='_blank' href='#{as_info[:url]}'>#{xm.external_uri}</a>")
       end

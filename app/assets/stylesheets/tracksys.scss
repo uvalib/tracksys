@@ -6,6 +6,17 @@ body.active_admin {
    font-weight: 500;
    color: #333;
 
+   li.required {
+     abbr {
+       display: none;
+     }
+     p.inline-errors {
+       font-weight: normal;
+       color: #a00;
+       font-style: italic;
+     }
+   }
+
    li.location-error {
      color: #a00;
      text-align: center;

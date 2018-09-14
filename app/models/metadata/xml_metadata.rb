@@ -39,11 +39,12 @@ require 'open-uri'
 class XmlMetadata < Metadata
 
    # Prevent setting data valid for other classes in the STI model
-   validates :catalog_key, :presence=>false
-   validates :barcode, :presence=>false
-   validates :call_number, :presence=>false
-   validates :external_system, :presence=>false
-   validates :external_uri, :presence=>false
+   validates :catalog_key, presence: false
+   validates :barcode, presence: false
+   validates :call_number, presence: false
+   validates :external_system, presence: false
+   validates :external_uri, presence: false
+   validates :use_right, presence: true
 
    before_save do
       if self.title.blank? || self.creator_name.blank?

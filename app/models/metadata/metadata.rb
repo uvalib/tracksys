@@ -4,7 +4,7 @@ class Metadata < ApplicationRecord
    # relationships
    #------------------------------------------------------------------
    belongs_to :availability_policy, counter_cache: true, optional: true
-   belongs_to :use_right, counter_cache: true
+   belongs_to :use_right, counter_cache: true, optional: true
 
    belongs_to :ocr_hint, optional: true
    belongs_to :genre, optional: true

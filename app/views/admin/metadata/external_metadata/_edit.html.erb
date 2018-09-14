@@ -1,17 +1,17 @@
 <%= semantic_form_for([:admin, @external_metadata], :url => "/admin/external_metadata/#{@external_metadata.id}") do |f| %>
    <%= f.inputs "External Metadata", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
-      <%= f.input :external_system %>
-      <%= f.input :external_uri %>
+      <%= f.input :external_system, :required=>true, :input_html => {:class => 'chosen-select required',  :style => 'width: 200px'} %>
+      <%= f.input :external_uri, :required=>true %>
    <% end %>
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
-      <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select required',  :style => 'width: 200px'} %>
       <%= f.input :ocr_language_hint, :as => :select, :collection => @languages, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
    <% end %>
 
    <fieldset class="columns-none xml-submit">
-      <input type="submit" name="commit" value="Update External Metadata">
+      <input type="submit" name="commit" value="Submit">
       <a class="cancel" href="/admin/external_metadata/<%= @external_metadata.id %>">Cancel</a>
    </fieldset>
 
