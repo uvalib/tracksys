@@ -10,7 +10,10 @@
 </p>
 
 <% for delivery_file in @delivery_files -%>
-<p><%= DELIVERY_URL %><%= delivery_file %></p>
+<p>
+   <% url = "#{DELIVERY_URL}#{delivery_file}" %>
+   <a href="<%= url %>"><%= url %></a>
+</p>
 <% end -%>
 
 <p>The PDF included in the above list contains all metadata and descriptive information about your digital order.</p>
