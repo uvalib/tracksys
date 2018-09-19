@@ -1,8 +1,4 @@
 class CreateImageTechnicalMetadata < BaseJob
-
-   require 'exifr'
-   require 'rmagick'
-
    def do_workflow(message)
       raise "Parameter 'master_file' is required" if message[:master_file].blank?
       raise "Parameter 'source' is required" if message[:source].blank?

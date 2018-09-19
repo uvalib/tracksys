@@ -1,6 +1,4 @@
 #encoding: utf-8
-require 'tempfile'
-require "rmagick"
 
 namespace :iiif do
    desc "Publish jp2 files to IIIF server"
@@ -57,19 +55,6 @@ namespace :iiif do
                puts "Generate JP2K from #{source} to #{jp2k_path}"
                jp2k_dir = File.dirname(jp2k_path)
                FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
-
-               # only supports uncompressed...
-               temp_file = nil
-               tiff = Magick::Image.read(source).first
-               unless tiff.compression.to_s == "NoCompression"
-                   temp_file = Tempfile.new([mf.filename.split(".")[0], ".tif"] )
-                   puts "writing uncompresed tif to #{temp_file.path}"
-                   cmd = "convert -quiet #{source} -compress None #{temp_file.path}"
-                   `#{cmd}`
-                   source = temp_file.path
-               end
-               tiff.destroy!
-
                `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
                temp_file.unlink if !temp_file.nil?
             end
@@ -101,18 +86,6 @@ namespace :iiif do
          jp2k_dir = File.dirname(jp2k_path)
          FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
 
-         # only supports uncompressed...
-         temp_file = nil
-         tiff = Magick::Image.read(source).first
-         unless tiff.compression.to_s == "NoCompression"
-             temp_file = Tempfile.new([mf.filename.split(".")[0], ".tif"] )
-             puts "writing uncompresed tif to #{temp_file.path}"
-             cmd = "convert -quiet #{source} -compress None #{temp_file.path}"
-             `#{cmd}`
-             source = temp_file.path
-         end
-         tiff.destroy!
-
          `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
          temp_file.unlink if !temp_file.nil?
       end
@@ -140,15 +113,8 @@ namespace :iiif do
             jp2k_dir = File.dirname(jp2k_path)
             FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
 
-            # only supports uncompressed...
-            tiff = Magick::Image.read(source).first
-            unless tiff.compression.to_s == "NoCompression"
-                source = "#{Rails.root}/tmp/tiffs/#{mf.filename}"
-                puts "writing uncompresed tif #{source}"
-                tiff.compression=Magick::CompressionType.new("NoCompression", 1)
-                tiff.write(source)
-            end
-            tiff.destroy!
+            # Make sure it is not compressed
+            remove_compression(source)
 
             `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
          end
@@ -182,30 +148,22 @@ namespace :iiif do
             jp2k_dir = File.dirname(jp2k_path)
             FileUtils.mkdir_p jp2k_dir if !Dir.exist?(jp2k_dir)
 
-            # attempt to read in the tif. If the file is messed up
-            # the read will raise an exception. Log the bad file and skip it
-            tiff = nil
-            temp_file = nil
-            begin
-               tiff = Magick::Image.read(source).first
-            rescue Exception => e
-               puts "ERROR reading #{source}: #{e}"
-               next
-            end
-
-            # Good file. Make sure it is not compressed
-            unless tiff.compression.to_s == "NoCompression"
-                temp_file = Tempfile.new([mf.filename.split(".")[0], ".tif"] )
-                puts "writing uncompresed tif to #{temp_file.path}"
-                cmd = "convert -quiet #{source} -compress None #{temp_file.path}"
-                `#{cmd}`
-                source = temp_file.path
-            end
-            tiff.destroy!
+            # Make sure it is not compressed
+            remove_compression(source)
 
             `#{kdu} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
             temp_file.unlink if !temp_file.nil?
          end
+      end
+   end
+
+   def remove_compression(source)
+      cmd = "identify -quiet -ping -format '%C' #{source}[0]"
+      compression = `{cmd}`
+      if compression != 'None'
+         cmd = "convert -quiet -compress none #{source} #{source}"
+         `#{cmd}`
+         puts "#{source} was compressed. This has been corrected automatically."
       end
    end
 

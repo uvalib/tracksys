@@ -1,99 +1,53 @@
-require 'exifr/jpeg'
-require 'exifr/tiff'
-require "rmagick"
-
 module TechMetadata
    # Create image tech metadata
    def self.create(master_file, image_path)
-      # Open Rmagick and EXIFR objects for extraction of technical metadata.
-      image = Magick::Image.ping(image_path).first
-      image_exif = nil
-      if File.extname(image_path) == ".tif"
-         image_exif = EXIFR::TIFF.new(image_path)
-      elsif File.extname(image_path) == ".jpg"
-         image_exif = EXIFR::JPEG.new(image_path)
-      end
+      image = MiniMagick::Image.open(image_path)
+      data = image.data
 
       image_tech_meta = ImageTechMeta.new
       image_tech_meta.master_file = master_file
-      image_tech_meta.image_format = image.format
+      image_tech_meta.image_format = data["format"]
 
-      if image.colorspace.to_s == 'RGBColorspace'
+      if data['colorspace'] == 'RGBColorspace' || data['colorspace'] == "sRGB"
          image_tech_meta.color_space = 'RGB'
-         image_tech_meta.depth = image.depth * 3
+         image_tech_meta.depth = data['depth'] * 3
       end
 
-      if image.compression.to_s == 'NoCompression'
+      if data['compression'] == 'None'
          image_tech_meta.compression = 'Uncompressed'
       else
          image_tech_meta.compression = 'Compressed'
       end
 
-      # Pass the RMagick output of the 'color_profile' method so that it may be analyzed,
-      # unpacked and queried for the color profile name.  Since this is a binary data
-      # structure, the process is rather complicated
-      if image.color_profile
-         image_tech_meta.color_profile = get_color_profile_name(image.color_profile)
+      # Extract ICC profile description with exiftool. Out format is:
+      # "Profile Description             : Adobe RGB (1998)\n"
+      cmd = "exiftool -icc_profile:ProfileDescription #{image_path}"
+      info = `#{cmd}`
+      if !info.blank?
+         image_tech_meta.color_profile = info.split(":")[1].strip
       end
 
-      if !image_exif.nil?
-         image_tech_meta.width = image_exif.width if image_exif.width
-         image_tech_meta.height = image_exif.height if image_exif.height
-         image_tech_meta.resolution = image_exif.x_resolution.to_i if image_exif.x_resolution
-         image_tech_meta.equipment = image_exif.make if image_exif.make
-         image_tech_meta.software = image_exif.software if image_exif.software
-         image_tech_meta.model = image_exif.model if image_exif.model
-         image_tech_meta.capture_date = image_exif.date_time_original if image_exif.date_time_original
-         image_tech_meta.iso = image_exif.iso_speed_ratings if image_exif.iso_speed_ratings
-         image_tech_meta.exposure_bias = image_exif.exposure_bias_value.to_i if image_exif.exposure_bias_value
-         image_tech_meta.exposure_time = image_exif.exposure_time.to_s if image_exif.exposure_time
-         image_tech_meta.aperture = image_exif.f_number.to_i if image_exif.f_number
-         image_tech_meta.focal_length = image_exif.focal_length.to_s if image_exif.focal_length
-         image_tech_meta.exif_version = image.get_exif_by_entry('ExifVersion')[0][1] if image.get_exif_by_entry('ExifVersion')[0][1]
-      else
-         if File.extname(image_path) == ".jp2"
-            # The RMagick ping results contain some very basic (but necessary) metadata
-            # grab it from there if possible
-            #
-            # inspect gives:
-            #    /lib_content38/jp2k/tsm/15/84/18/6/1584186.jp2 JP2 1365x2197 1365x2197+0+0 DirectClass 8-bit 233kb
-            # parse out dimensions
-            dims = image.inspect.split(" ")[2]
-            image_tech_meta.width = dims.split("x")[0]
-            image_tech_meta.height = dims.split("x")[1]
-            image_tech_meta.resolution = image.x_resolution
+      image_tech_meta.width = data['geometry']['width'] if !data['geometry'].blank?
+      image_tech_meta.height = data['geometry']['height'] if !data['geometry'].blank?
+      image_tech_meta.resolution = data['resolution']['x'] if !data['resolution'].blank?
+      props = data['properties']
+      if !props.blank?
+         image_tech_meta.equipment = props['tiff:make']
+         image_tech_meta.software = props['tiff:software']
+         image_tech_meta.model = props['tiff:model']
+         if !props['exif:DateTimeOriginal'].blank?
+            image_tech_meta.capture_date = props['exif:DateTimeOriginal'].split(":",3).join("/").to_datetime
          end
+         image_tech_meta.iso = props['exif:ISOSpeedRatings']
+         image_tech_meta.exposure_bias = props['exif:ExposureBiasValue']
+         image_tech_meta.exposure_time = props['exif:ExposureTime']
+         image_tech_meta.aperture = props['exif:FNumber']
+         image_tech_meta.focal_length = props['exif:FocalLength']
+         image_tech_meta.exif_version = props['xmp:ExifVersion']
       end
 
       image_tech_meta.save!
 
-      # Make sure that the memory is cleared after the processor no longer needs these two objects.
-      image.destroy!
       return image_tech_meta
-   end
-
-   def self.get_color_profile_name(image_color_profile)
-      profile = Array.new
-      color_profile_name = String.new
-
-      # Read the profile into an array
-      image_color_profile.each_byte { |b| profile.push(b) }
-
-      # Count the number of tags
-      tag_count = profile[128,4].pack("c*").unpack("N").first
-
-      # Find the "desc" tag
-      tag_count.times do |i|
-         n =  (128 + 4) + (12*i)
-         ts = profile[n,4].pack("c*")
-         if ts == 'desc'
-            to = profile[n+4,4].pack("c*").unpack("N").first
-            t_size = profile[n+8,4].pack("c*").unpack("N").first
-            tag = profile[to,t_size].pack("c*").unpack("Z12 Z*")
-            color_profile_name = tag[1].to_s
-         end
-      end
-
-      return color_profile_name
    end
 end

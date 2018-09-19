@@ -30,8 +30,7 @@ gem 'git'
 gem 'bootstrap-datepicker-rails'
 
 gem 'whenever', :require => false   # to age off job status records
-gem "rmagick", :require => false
-gem 'exifr'
+gem "mini_magick"
 gem 'rest-client'
 gem 'prawn'
 gem 'prawn-table'

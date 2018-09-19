@@ -1,6 +1,5 @@
 class PublishToIiif < BaseJob
 
-   require 'rmagick'
    require 'fileutils'
 
    def do_workflow(message)
@@ -22,17 +21,14 @@ class PublishToIiif < BaseJob
       end
 
       if master_file.filename.match(".tif$")
-         # Introduce error handling for uncompressed images that kakadu will choke on.
-         tiff = Magick::Image.read(source).first
-         filesize = tiff.filesize
-         unless tiff.compression.to_s == "NoCompression"
-            tiff.compression=Magick::CompressionType.new("NoCompression", 1)
-            tiff.write(source)
-            tiff.destroy!
-            on_success "MasterFile #{master_file.id} is compressed.  This has been corrected automatically.  Update MD5 for #{source} if necessary."
+         # kakadu cant handle compression. remove it if detected
+         cmd = "identify -quiet -ping -format '%C' #{source}[0]"
+         compression = `{cmd}`
+         if compression != 'None'
+            cmd = "convert -compress none #{source} #{source}"
+            `#{cmd}`
+            logger.info "MasterFile #{master_file.id} is compressed.  This has been corrected automatically.  Update MD5 for #{source} if necessary."
          end
-
-         tiff.destroy!
       end
 
       # set path to IIIF jp2k storage location

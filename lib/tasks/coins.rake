@@ -1,5 +1,4 @@
 require 'open-uri'
-require "rmagick"
 
 namespace :coins do
    SITE_ROOT = "http://coins.lib.virginia.edu"
