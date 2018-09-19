@@ -1,7 +1,4 @@
 class CreatePatronDeliverables < BaseJob
-
-   require 'rmagick'
-
    #
    # Note: this should always be called with masterfiles in the PROCESSING directory
    #
