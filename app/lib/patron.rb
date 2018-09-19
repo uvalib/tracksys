@@ -1,4 +1,6 @@
 module Patron
+   # Create patron deliverable and return the full path to the file
+   #
    def self.create_deliverable(unit, master_file, source, dest_dir)
       order_id = unit.order_id
       master_file_id = master_file.id
@@ -42,7 +44,7 @@ module Patron
       # Simple case; just a copy of tif at full resolution. No imagemagick needed
       if suffix == '.tif' && (desired_res.blank? or desired_res.to_s =~ /highest/i)
          FileUtils.cp(source, dest_path)
-         return
+         return dest_path
       end
 
       # make changes to original image, if applicable
@@ -110,5 +112,6 @@ module Patron
       convert.resample(resample) if !resample.nil?
       convert << dest_path
       convert.call
+      return dest_path
    end
 end

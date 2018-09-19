@@ -17,9 +17,9 @@ class CreatePatronDeliverables < BaseJob
       processing_dir = Finder.finalization_dir(unit, :process_deliverables)
       unit.master_files.each do |master_file|
          file_source = File.join(processing_dir, master_file.filename)
-         logger.info "Create deliverable for MasterFile #{master_file_id} from #{file_source}"
-         Patron.create_deliverable(unit, master_file, file_source, assemble_dir)
-         logger.info "Deliverable image created at #{dest_path}"
+         logger.info "Create deliverable for MasterFile #{master_file.id} from #{file_source}"
+         deliverable_file = Patron.create_deliverable(unit, master_file, file_source, assemble_dir)
+         logger.info "Deliverable image created at #{deliverable_file}"
       end
 
       unit.update(date_patron_deliverables_ready: Time.now)
