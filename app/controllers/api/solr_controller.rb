@@ -16,8 +16,9 @@ class Api::SolrController < ApplicationController
          end
       end
       file.rewind
+      send_data(file.read, type: "text/plain", disposition: :inline)
       file.close
-      send_file(file.path, disposition: :inline)
+      file.unlink
    end
 
    # get a csv list of pids for all changed items
