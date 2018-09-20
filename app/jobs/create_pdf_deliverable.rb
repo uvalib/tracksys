@@ -22,13 +22,25 @@ class CreatePDFDeliverable < BaseJob
       # Convert all tifs in 30_process_deliverables into a single PDF
       pdf_file = File.join(assembled_order_dir, "#{unit.id}.pdf")
       tif_files = File.join(processing_dir, "*.tif[0]")
-      logger.info "Covert #{tif_files} to #{pdf_file}..."
+
+      logger.info "Covert #{tif_files} to scaled down JPG..."
+      mogrify = `which mogrify`
+      mogrify.strip!
+      if !File.exist? mogrify
+         on_error("mogrify command not found on system!")
+      end
+      cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg #{tif_files}"
+      logger.info("   #{cmd}")
+      `#{cmd}`
+
+      jpg_files = File.join(processing_dir, "*.jpg")
+      logger.info "Covert #{jpg_files} to #{pdf_file}..."
       cvt = `which convert`
       cvt.strip!
       if !File.exist? cvt
          on_error("convert command not found on system!")
       end
-      cmd = "#{cvt} -geometry 1024x #{tif_files} #{pdf_file}"
+      cmd = "#{cvt} #{jpg_files} #{pdf_file}"
       logger.info("   #{cmd}")
       out = `#{cmd}`
 
