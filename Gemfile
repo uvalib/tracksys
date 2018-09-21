@@ -2,13 +2,15 @@ source 'http://rubygems.org'
 
 gem 'rails', '5.2.0'
 gem 'uglifier', '>= 1.3.0'
-gem 'sass-rails', '~> 5.0'
+#gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails'
 
 # Reduces boot times through caching; required in config/boot.rb
 # gem 'bootsnap', '>= 1.1.0', require: false
 
 gem 'activeadmin', '~> 1.0'
-gem 'ffi', '1.9.18'
+#gem 'ffi', '1.9.18'
+gem 'ffi', '~> 1.9.24'
 
 gem 'passenger', '5.1.5'
 gem 'figaro'
