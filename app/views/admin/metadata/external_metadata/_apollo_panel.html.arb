@@ -17,7 +17,8 @@ else
          am.external_system
       end
       row("External URI") do |am|
-         am.external_uri
+         link_to "/collections/#{apollo_info[:pid]}?item=#{apollo_info[:item_pid]}",
+            "#{am.external_system.public_url}/#/collections/#{apollo_info[:pid]}?item=#{apollo_info[:item_pid]}", target: "_blank"
       end
       row("Collection PID") do |xm|
          # Apollo is single page app and the history mode doesn't work right
