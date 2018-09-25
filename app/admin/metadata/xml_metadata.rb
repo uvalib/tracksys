@@ -5,7 +5,7 @@ ActiveAdmin.register XmlMetadata do
 
    # strong paramters handling
    permit_params :title, :creator_name,
-      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
+      :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
       :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :desc_metadata, :dpla, :creator_death_date,
       :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
@@ -26,8 +26,6 @@ ActiveAdmin.register XmlMetadata do
    end
 
    scope :all, :default => true
-   scope :approved
-   scope :not_approved
    scope :in_digital_library
    scope :not_in_digital_library
    scope :dpla
@@ -51,11 +49,10 @@ ActiveAdmin.register XmlMetadata do
    index :id => 'xml_metadata' do
       selectable_column
       column :id
+      column :pid
       column :title, :sortable => :title do |xml_metadata|
          truncate_words(xml_metadata.title, 25)
       end
-      column :creator_name
-      column :pid, :sortable => false
       column ("Digital Library?") do |xml_metadata|
          div do
             format_boolean_as_yes_no(xml_metadata.in_dl?)
@@ -125,9 +122,6 @@ ActiveAdmin.register XmlMetadata do
             attributes_table_for xml_metadata do
                row("Collection ID") do |xml_metadata|
                   xml_metadata.collection_id
-               end
-               row "Approved?" do |xml_metadata|
-                  format_boolean_as_yes_no(xml_metadata.is_approved)
                end
                row "Personal item?" do |xml_metadata|
                   format_boolean_as_yes_no(xml_metadata.is_personal_item)

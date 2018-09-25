@@ -4,7 +4,7 @@ ActiveAdmin.register SirsiMetadata do
 
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
-      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
+      :is_manuscript, :resource_type_id, :genre_id,
       :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :collection_id, :creator_death_date, :use_right_rationale,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :preservation_tier_id
@@ -35,8 +35,6 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   scope :all, :default => true
-  scope :approved
-  scope :not_approved
   scope :in_digital_library
   scope :not_in_digital_library
   scope :dpla
@@ -148,13 +146,7 @@ ActiveAdmin.register SirsiMetadata do
     div :class => 'two-column' do
       panel "Administrative Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
-          row :id
-          row "Approved?" do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.is_approved)
-          end
-          row "Personal Item?" do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.is_personal_item)
-          end
+          row :pid
           row "Manuscript or unpublished item?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_manuscript)
           end
@@ -182,7 +174,6 @@ ActiveAdmin.register SirsiMetadata do
     div :class => 'columns-none' do
       panel "Digital Library Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
-          row :pid
           row ("In Digital Library?") do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.in_dl?)
           end

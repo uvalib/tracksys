@@ -59,8 +59,6 @@ class Admin::ItemsController < ApplicationController
          render plain: md.errors.full_messages.to_sentence, status: :bad_request
          return
       end
-      md.update(is_approved: 1)
-
       render plain: md.id
    end
 

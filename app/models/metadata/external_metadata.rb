@@ -3,7 +3,6 @@
 # Table name: metadata
 #
 #  id                     :integer          not null, primary key
-#  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
 #  is_manuscript          :boolean          default(FALSE), not null
 #  title                  :text(65535)

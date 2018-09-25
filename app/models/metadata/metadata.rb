@@ -26,10 +26,8 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    # scopes
    #------------------------------------------------------------------
-   scope :approved, ->{ where(:is_approved => true) }
    scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
    scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
-   scope :not_approved,  ->{ where(:is_approved => false) }
    scope :dpla, ->{where(:dpla => true) }
    scope :checked_out, ->{
       joins(:checkouts).where("checkouts.return_at is null")
@@ -217,7 +215,6 @@ end
 # Table name: metadata
 #
 #  id                     :integer          not null, primary key
-#  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
 #  is_manuscript          :boolean          default(FALSE), not null
 #  title                  :text(65535)

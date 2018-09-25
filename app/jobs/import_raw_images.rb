@@ -49,7 +49,7 @@ class ImportRawImages < BaseJob
                   dpla = unit.metadata.dpla
                   dpla = false if unit.reorder
 
-                  md = Metadata.create!(type: "XmlMetadata", title: title, is_approved: 1,
+                  md = Metadata.create!(type: "XmlMetadata", title: title,
                      desc_metadata: xml_str, creator_name: creator,
                      discoverability: true, availability_policy: unit.metadata.availability_policy,
                      dpla: dpla, parent_metadata_id: unit.metadata.id)

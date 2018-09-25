@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_12_154349) do
+ActiveRecord::Schema.define(version: 2018_09_25_175920) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -368,7 +368,6 @@ ActiveRecord::Schema.define(version: 2018_09_12_154349) do
   end
 
   create_table "metadata", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.boolean "is_approved", default: false, null: false
     t.boolean "is_personal_item", default: false, null: false
     t.boolean "is_manuscript", default: false, null: false
     t.text "title"
