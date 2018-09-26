@@ -66,8 +66,7 @@ class Admin::ItemsController < ApplicationController
       params.permit(
          :title, :creator_name, :call_number,
          :catalog_key, :barcode, :use_right_id, :availability_policy_id,
-         :resource_type_id, :genre_id, :discoverability, :is_personal_item,
-         :is_manuscript
+         :discoverability, :is_personal_item, :is_manuscript
       )
    end
 

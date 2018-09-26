@@ -26,8 +26,6 @@
 #  type                   :string(255)      default("SirsiMetadata")
 #  external_uri           :string(255)
 #  supplemental_uri       :string(255)
-#  genre_id               :integer
-#  resource_type_id       :integer
 #  collection_id          :string(255)
 #  ocr_hint_id            :integer
 #  ocr_language_hint      :string(255)

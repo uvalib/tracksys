@@ -7,8 +7,6 @@ class Metadata < ApplicationRecord
    belongs_to :use_right, counter_cache: true, optional: true
 
    belongs_to :ocr_hint, optional: true
-   belongs_to :genre, optional: true
-   belongs_to :resource_type, optional: true
    belongs_to :preservation_tier, optional: true
 
    belongs_to :external_system, class_name: 'ExternalSystem', foreign_key: 'external_system_id', optional: true
@@ -78,7 +76,6 @@ class Metadata < ApplicationRecord
    #------------------------------------------------------------------
    def before_save_handler
       self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
-      self.is_approved = false if self.is_approved.nil?
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
       self.discoverability = true if self.discoverability.nil?
@@ -238,8 +235,6 @@ end
 #  type                   :string(255)      default("SirsiMetadata")
 #  external_uri           :string(255)
 #  supplemental_uri       :string(255)
-#  genre_id               :integer
-#  resource_type_id       :integer
 #  collection_id          :string(255)
 #  ocr_hint_id            :integer
 #  ocr_language_hint      :string(255)

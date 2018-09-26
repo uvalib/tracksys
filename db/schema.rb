@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_25_175920) do
+ActiveRecord::Schema.define(version: 2018_09_26_141607) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -225,10 +225,6 @@ ActiveRecord::Schema.define(version: 2018_09_25_175920) do
     t.index ["name"], name: "index_external_systems_on_name"
   end
 
-  create_table "genres", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name"
-  end
-
   create_table "image_tech_meta", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "master_file_id", default: 0, null: false
     t.string "image_format"
@@ -391,8 +387,6 @@ ActiveRecord::Schema.define(version: 2018_09_25_175920) do
     t.string "type", default: "SirsiMetadata"
     t.string "external_uri"
     t.string "supplemental_uri"
-    t.integer "genre_id"
-    t.integer "resource_type_id"
     t.string "collection_id"
     t.integer "ocr_hint_id"
     t.string "ocr_language_hint"
@@ -408,12 +402,10 @@ ActiveRecord::Schema.define(version: 2018_09_25_175920) do
     t.index ["catalog_key"], name: "index_metadata_on_catalog_key"
     t.index ["dpla"], name: "index_metadata_on_dpla"
     t.index ["external_system_id"], name: "index_metadata_on_external_system_id"
-    t.index ["genre_id"], name: "index_metadata_on_genre_id"
     t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
     t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
     t.index ["pid"], name: "index_metadata_on_pid"
     t.index ["preservation_tier_id"], name: "index_metadata_on_preservation_tier_id"
-    t.index ["resource_type_id"], name: "index_metadata_on_resource_type_id"
     t.index ["supplemental_system_id"], name: "index_metadata_on_supplemental_system_id"
     t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
   end
@@ -537,10 +529,6 @@ ActiveRecord::Schema.define(version: 2018_09_25_175920) do
     t.index ["unit_id"], name: "index_projects_on_unit_id"
     t.index ["workflow_id"], name: "index_projects_on_workflow_id"
     t.index ["workstation_id"], name: "index_projects_on_workstation_id"
-  end
-
-  create_table "resource_types", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name"
   end
 
   create_table "sirsi_metadata_components", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
