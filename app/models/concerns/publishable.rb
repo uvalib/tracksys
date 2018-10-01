@@ -2,8 +2,6 @@ module Publishable
    extend ActiveSupport::Concern
 
    included do
-      scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
-      scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
       scope :dpla, ->{where(:dpla => true) }
    end
 

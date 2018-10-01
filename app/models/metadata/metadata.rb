@@ -27,6 +27,8 @@ class Metadata < ApplicationRecord
    scope :checked_out, ->{
       joins(:checkouts).where("checkouts.return_at is null")
    }
+   scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
+   scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
 
    #------------------------------------------------------------------
    # validations
