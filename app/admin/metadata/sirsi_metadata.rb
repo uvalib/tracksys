@@ -4,7 +4,7 @@ ActiveAdmin.register SirsiMetadata do
 
   # strong paramters handling
   permit_params :catalog_key, :barcode, :title, :creator_name, :call_number,
-      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
+      :is_manuscript,
       :discoverability, :dpla, :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :collection_id, :creator_death_date, :use_right_rationale,
       :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :preservation_tier_id
@@ -35,8 +35,6 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   scope :all, :default => true
-  scope :approved
-  scope :not_approved
   scope :in_digital_library
   scope :not_in_digital_library
   scope :dpla
@@ -52,8 +50,6 @@ ActiveAdmin.register SirsiMetadata do
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'
-  filter :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc)
-  filter :genre, :as => :select, :collection=>Genre.all.order(name: :asc)
   filter :availability_policy
   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc).map { |cf| [cf.name] }
 
@@ -133,33 +129,43 @@ ActiveAdmin.register SirsiMetadata do
          "- Checked out on #{sirsi_metadata.last_checkout} -"
       end
     end
-    div :class => 'columns-none' do
-      panel "Basic Metadata" do
+    div :class => 'two-column' do
+      panel "Metadata Details" do
         render '/admin/metadata/sirsi_metadata/sirsi_meta'
       end
     end
 
     div :class => 'two-column' do
-      panel "Detailed Metadata" do
-        render '/admin/metadata/sirsi_metadata/sirsi_detail'
-      end
-   end
+       panel "Digital Library Information", :toggle => 'show' do
+         attributes_table_for sirsi_metadata do
+           row :pid
+           row ("In Digital Library?") do |sirsi_metadata|
+             format_boolean_as_yes_no(sirsi_metadata.in_dl?)
+           end
+           row :dpla
+           if sirsi_metadata.dpla
+              row('QDC Generated') do |r|
+                 render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
+              end
+           end
+           row('Right Statement'){ |r| r.use_right.name }
+           row('Rights Rationale'){ |r| r.use_right_rationale }
+           row :creator_death_date
+           row :availability_policy
+           row ("Discoverable?") do |sirsi_metadata|
+             format_boolean_as_yes_no(sirsi_metadata.discoverability)
+           end
+           row :collection_facet
+           row :date_dl_ingest
+           row :date_dl_update
+         end
+       end
 
-    div :class => 'two-column' do
-      panel "Administrative Information", :toggle => 'show' do
+       panel "Administrative Information", :toggle => 'show' do
         attributes_table_for sirsi_metadata do
-          row :id
-          row "Approved?" do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.is_approved)
-          end
-          row "Personal Item?" do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.is_personal_item)
-          end
           row "Manuscript or unpublished item?" do |sirsi_metadata|
             format_boolean_as_yes_no(sirsi_metadata.is_manuscript)
           end
-          row :resource_type
-          row :genre
           row :ocr_hint
           row :ocr_language_hint
           row ("Date Created") do |sirsi_metadata|
@@ -175,33 +181,6 @@ ActiveAdmin.register SirsiMetadata do
                 "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
              end
           end
-        end
-      end
-    end
-
-    div :class => 'columns-none' do
-      panel "Digital Library Information", :toggle => 'show' do
-        attributes_table_for sirsi_metadata do
-          row :pid
-          row ("In Digital Library?") do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.in_dl?)
-          end
-          row :dpla
-          if sirsi_metadata.dpla
-             row('QDC Generated') do |r|
-                render partial: '/admin/metadata/common/qdc_info', locals: {meta: r}
-             end
-          end
-          row('Right Statement'){ |r| r.use_right.name }
-          row('Rights Rationale'){ |r| r.use_right_rationale }
-          row :creator_death_date
-          row :availability_policy
-          row ("Discoverable?") do |sirsi_metadata|
-            format_boolean_as_yes_no(sirsi_metadata.discoverability)
-          end
-          row :collection_facet
-          row :date_dl_ingest
-          row :date_dl_update
         end
       end
     end

@@ -39,11 +39,8 @@
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
       <%= f.input :collection_id, label: "Collection ID" %>
-      <%= f.input :is_approved, :as => :radio, label: "Approved?" %>
       <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
       <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>
-      <%= f.input :resource_type, :as => :select, :collection => ResourceType.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
-      <%= f.input :genre, :as => :select, :collection => Genre.all.order(name: :asc), :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :ocr_language_hint, :as => :select, :collection => @languages, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
       <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>

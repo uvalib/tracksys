@@ -7,8 +7,6 @@ class Metadata < ApplicationRecord
    belongs_to :use_right, counter_cache: true, optional: true
 
    belongs_to :ocr_hint, optional: true
-   belongs_to :genre, optional: true
-   belongs_to :resource_type, optional: true
    belongs_to :preservation_tier, optional: true
 
    belongs_to :external_system, class_name: 'ExternalSystem', foreign_key: 'external_system_id', optional: true
@@ -25,12 +23,7 @@ class Metadata < ApplicationRecord
 
    #------------------------------------------------------------------
    # scopes
-   #------------------------------------------------------------------
-   scope :approved, ->{ where(:is_approved => true) }
-   scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
-   scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
-   scope :not_approved,  ->{ where(:is_approved => false) }
-   scope :dpla, ->{where(:dpla => true) }
+   #-----------------------------------------------------------------
    scope :checked_out, ->{
       joins(:checkouts).where("checkouts.return_at is null")
    }
@@ -39,51 +32,14 @@ class Metadata < ApplicationRecord
    # validations
    #------------------------------------------------------------------
    validates :type, presence: true
-   validates :creator_death_date, inclusion: { in: 1200..Date.today.year,
-      :message => 'must be a 4 digit year.', allow_blank: true
-   }
 
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
-   before_save :before_save_handler
-
-   before_destroy :destroyable?
-   def destroyable?
-      if self.units.size > 0
-         errors[:base] << "cannot delete metadata that is associated with units"
-         return false
-      end
-      return true
-   end
-
-   after_create do
-      update_attribute(:pid, "tsb:#{self.id}") if self.pid.blank?
-   end
-
-   after_update do
-      # if parent.nil?
-      #    children.each do |child|
-      #       if child.dpla != self.dpla
-      #          if child.ocr_hint_id.nil?
-      #             child.update(dpla: self.dpla, ocr_hint_id: self.ocr_hint_id)
-      #          else
-      #             child.update(dpla: self.dpla)
-      #          end
-      #       end
-      #    end
-      # end
-   end
-
-   #------------------------------------------------------------------
-   # public instance methods
-   #------------------------------------------------------------------
-   def before_save_handler
+   before_save do
       self.parent_metadata_id = 0 if self.parent_metadata_id.blank?
-      self.is_approved = false if self.is_approved.nil?
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
-      self.discoverability = true if self.discoverability.nil?
       self.collection_facet = nil if !self.collection_facet.nil? && self.collection_facet.downcase == "none"
 
       # default right statement to not Evaluated
@@ -95,12 +51,25 @@ class Metadata < ApplicationRecord
       if preservation_tier.blank?
          units.each do |u|
             if u.intended_use_id == 110
-               preservation_tier = 2 # duplicated
+               preservation_tier_id = 2 # duplicated
                break
             end
          end
       end
    end
+
+   before_destroy do
+      if self.units.size > 0
+         errors[:base] << "cannot delete metadata that is associated with units"
+         return false
+      end
+      return true
+   end
+
+   after_create do
+      update_attribute(:pid, "tsb:#{self.id}") if self.pid.blank?
+   end
+
 
    def url_fragment
       return null
@@ -124,15 +93,6 @@ class Metadata < ApplicationRecord
       checkouts.order("checkout_at desc").first.update(return_at: DateTime.now)
    end
 
-   # Returns an array of MasterFile objects that are in units to be included in the DL
-   def dl_master_files
-      if self.new_record?
-         return Array.new
-      else
-         return MasterFile.joins(:metadata).joins(:unit).where('units.include_in_dl = true').where("metadata.id = #{self.id}")
-      end
-   end
-
    def has_exemplar?
       return master_files.where(exemplar: true).count > 0
    end
@@ -146,26 +106,6 @@ class Metadata < ApplicationRecord
       return info
    end
 
-   def in_catalog?
-      return self.catalog_key?
-   end
-
-   def in_dl?
-      return self.date_dl_ingest?
-   end
-
-   def in_dpla?
-      return dpla && discoverability && (!date_dl_ingest.blank? || !date_dl_update.blank?)
-   end
-
-   def personal_item?
-      return self.is_personal_item
-   end
-
-   def physical_virgo_url
-      return "#{Settings.virgo_url}/#{self.catalog_key}"
-   end
-
    def agency_links
       return "" if self.agencies.empty?
       out = ""
@@ -173,23 +113,6 @@ class Metadata < ApplicationRecord
          out << "<div><a href='/admin/agencies/#{agency.id}'>#{agency.name}</a></div>"
       end
       return out
-   end
-
-   def flag_for_publication
-      if self.date_dl_ingest.blank?
-        if self.date_dl_update.blank?
-            self.update(date_dl_ingest: Time.now)
-        else
-            self.update(date_dl_ingest: self.date_dl_update, date_dl_update: Time.now)
-        end
-      else
-        self.update(date_dl_update: Time.now)
-      end
-   end
-
-   def publish_to_test
-      xml = Hydra.solr( self, nil )
-      RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", xml, {:content_type => 'application/xml'}
    end
 
    # Returns the array of child metadata records
@@ -217,7 +140,6 @@ end
 # Table name: metadata
 #
 #  id                     :integer          not null, primary key
-#  is_approved            :boolean          default(FALSE), not null
 #  is_personal_item       :boolean          default(FALSE), not null
 #  is_manuscript          :boolean          default(FALSE), not null
 #  title                  :text(65535)
@@ -241,8 +163,6 @@ end
 #  type                   :string(255)      default("SirsiMetadata")
 #  external_uri           :string(255)
 #  supplemental_uri       :string(255)
-#  genre_id               :integer
-#  resource_type_id       :integer
 #  collection_id          :string(255)
 #  ocr_hint_id            :integer
 #  ocr_language_hint      :string(255)

@@ -77,9 +77,7 @@ $(function() {
       btn.addClass("disabled");
       var data = {
          title: $("#xml_metadata_title").val(),
-         creator:  $("#xml_metadata_creator_name").val(),
-         genre: $("#xml_metadata_genre").val(),
-         type: $("#xml_metadata_resource_type").val()
+         creator:  $("#xml_metadata_creator_name").val()
       };
 
       $.ajax({

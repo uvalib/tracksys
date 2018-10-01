@@ -1,46 +1,95 @@
-# == Schema Information
-#
-# Table name: metadata
-#
-#  id                     :integer          not null, primary key
-#  is_approved            :boolean          default(FALSE), not null
-#  is_personal_item       :boolean          default(FALSE), not null
-#  is_manuscript          :boolean          default(FALSE), not null
-#  title                  :text(65535)
-#  creator_name           :string(255)
-#  catalog_key            :string(255)
-#  barcode                :string(255)
-#  call_number            :string(255)
-#  pid                    :string(255)
-#  created_at             :datetime
-#  updated_at             :datetime
-#  parent_metadata_id     :integer          default(0), not null
-#  desc_metadata          :text(65535)
-#  discoverability        :boolean          default(TRUE)
-#  date_dl_ingest         :datetime
-#  date_dl_update         :datetime
-#  units_count            :integer          default(0)
-#  availability_policy_id :integer
-#  use_right_id           :integer
-#  dpla                   :boolean          default(FALSE)
-#  collection_facet       :string(255)
-#  type                   :string(255)      default("SirsiMetadata")
-#  external_uri           :string(255)
-#  supplemental_uri       :string(255)
-#  genre_id               :integer
-#  resource_type_id       :integer
-#  collection_id          :string(255)
-#  ocr_hint_id            :integer
-#  ocr_language_hint      :string(255)
-#  use_right_rationale    :string(255)
-#  creator_death_date     :integer
-#  qdc_generated_at       :datetime
-#  preservation_tier_id   :bigint(8)
-#  external_system_id     :bigint(8)
-#  supplemental_system_id :bigint(8)
-#
-
 class SirsiMetadata < Metadata
+   include Publishable
+
+   #------------------------------------------------------------------
+   # relationships
+   #------------------------------------------------------------------
+   has_and_belongs_to_many :components, join_table: :sirsi_metadata_components
+
+   #------------------------------------------------------------------
+   # validations
+   #------------------------------------------------------------------
+   validates :use_right, presence: true
+   validates :desc_metadata, presence: false
+   validates :external_system, presence: false
+   validates :external_uri, presence: false
+   validates :title, presence: true
+   validates :creator_death_date, inclusion: { in: 1200..Date.today.year,
+      :message => 'must be a 4 digit year.', allow_blank: true
+   }
+
+   #------------------------------------------------------------------
+   # callbacks
+   #------------------------------------------------------------------
+   before_save do
+      if self.availability_policy_id.blank?
+         pub_info = Virgo.get_marc_publication_info(self.catalog_key, self.barcode)
+         if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
+            self.availability_policy_id = 1 # PUBLIC
+         end
+      end
+      self.is_personal_item = false if self.is_personal_item.blank?
+   end
+
+   before_destroy :destroyable?
+   def destroyable?
+      if self.components.size > 0
+         errors[:base] << "cannot delete Sirsi metadata that is associated with components"
+         return false
+      end
+      return true
+   end
+
+   #------------------------------------------------------------------
+   # public instance methods
+   #------------------------------------------------------------------
+
+   def get_full_metadata
+      begin
+         return Virgo.external_lookup(self.catalog_key, self.barcode)
+      rescue Exception => e
+         Rails.logger.error("Unable to retrieve external metadata: #{e.to_s}")
+         return nil
+      end
+   end
+
+   def location
+      virgo_meta = self.get_full_metadata
+      if virgo_meta.nil?
+         return "Data is unavaileble; metadata record may be invalid"
+      end
+      return virgo_meta[:location]
+   end
+
+   def url_fragment
+      return "sirsi_metadata"
+   end
+
+   # Although many Bibl records have citations provided through the MARC record, many do not
+   # (especially those which lack a MARC record or are otherwise not cataloged in VIRGO).  As
+   # a result, this method will impose some general order on the act of creating citations where
+   # needed and rely upon the canonical citation when present.
+   def get_citation
+      sirsi_meta =  Virgo.external_lookup(self.catalog_key, self.barcode)
+      if sirsi_meta[:citation]
+         return sirsi_meta[:citation]
+      else
+         citation = ""
+         citation << "#{self.title.gsub(/.\z/, '')}.  " if self.title
+         citation << "#{self.call_number}.  " if self.call_number
+         if sirsi_meta[:location]
+            begin
+               citation << "#{LOCATION_HASH.fetch(sirsi_meta[:location])}"
+            rescue
+               citation << "Special Collections, University of Virginia, Charlottesville, VA"
+            end
+         else
+            citation << "Special Collections, University of Virginia, Charlottesville, VA"
+         end
+         return citation
+      end
+   end
+
    # Create and manage a Hash that contains the SIRSI location codes and their human readable values for citation purposes
    LOCATION_HASH = {
       "ALD-STKS" => "Alderman Library, University of Virginia, Charlottesville, VA.",
@@ -116,90 +165,4 @@ class SirsiMetadata < Metadata
       "STACKS" => "Special Collections, University of Virginia, Charlottesville, VA.",
       "Reading Room" => "Special Collection, University of Virginia, Charlottesville, VA."
    }
-
-   #------------------------------------------------------------------
-   # relationships
-   #------------------------------------------------------------------
-   has_and_belongs_to_many :components, join_table: :sirsi_metadata_components
-
-   #------------------------------------------------------------------
-   # validations
-   #------------------------------------------------------------------
-   validates :use_right, presence: true
-   validates :desc_metadata, presence: false
-   validates :external_system, presence: false
-   validates :external_uri, presence: false
-   # validates :barcode, :uniqueness=>{:message => "must be unique" }, :allow_blank => true
-   validates :title, presence: true
-
-   #------------------------------------------------------------------
-   # callbacks
-   #------------------------------------------------------------------
-   before_save do
-      if self.availability_policy_id.blank?
-         pub_info = Virgo.get_marc_publication_info(self.catalog_key, self.barcode)
-         if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
-            self.availability_policy_id = 1 # PUBLIC
-         end
-      end
-   end
-
-   before_destroy :destroyable?
-   def destroyable?
-      if self.components.size > 0
-         errors[:base] << "cannot delete Sirsi metadata that is associated with components"
-         return false
-      end
-      return true
-   end
-
-   #------------------------------------------------------------------
-   # public instance methods
-   #------------------------------------------------------------------
-
-   def get_full_metadata
-      begin
-         return Virgo.external_lookup(self.catalog_key, self.barcode)
-      rescue Exception => e
-         Rails.logger.error("Unable to retrieve external metadata: #{e.to_s}")
-         return nil
-      end
-   end
-
-   def location
-      virgo_meta = self.get_full_metadata
-      if virgo_meta.nil?
-         return "Data is unavaileble; metadata record may be invalid"
-      end
-      return virgo_meta[:location]
-   end
-
-   def url_fragment
-      return "sirsi_metadata"
-   end
-
-   # Although many Bibl records have citations provided through the MARC record, many do not
-   # (especially those which lack a MARC record or are otherwise not cataloged in VIRGO).  As
-   # a result, this method will impose some general order on the act of creating citations where
-   # needed and rely upon the canonical citation when present.
-   def get_citation
-      sirsi_meta =  Virgo.external_lookup(self.catalog_key, self.barcode)
-      if sirsi_meta[:citation]
-         return sirsi_meta[:citation]
-      else
-         citation = ""
-         citation << "#{self.title.gsub(/.\z/, '')}.  " if self.title
-         citation << "#{self.call_number}.  " if self.call_number
-         if sirsi_meta[:location]
-            begin
-               citation << "#{LOCATION_HASH.fetch(sirsi_meta[:location])}"
-            rescue
-               citation << "Special Collections, University of Virginia, Charlottesville, VA"
-            end
-         else
-            citation << "Special Collections, University of Virginia, Charlottesville, VA"
-         end
-         return citation
-      end
-   end
 end

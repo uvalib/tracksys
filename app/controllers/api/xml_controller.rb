@@ -10,8 +10,7 @@ class Api::XmlController < ApplicationController
 
    def generate
       xml = render_to_string :template => "template/mods.xml",
-         :locals => {:title => params[:title], :creator => params[:creator],
-            :genre => params[:genre], :resource_type => params[:type] }
+         :locals => {:title => params[:title], :creator => params[:creator]}
       render xml: xml, status: :ok
    end
 end

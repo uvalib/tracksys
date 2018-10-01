@@ -5,10 +5,8 @@ ActiveAdmin.register ExternalMetadata do
 
    # strong paramters handling
    permit_params :title, :creator_name,
-      :is_approved, :is_personal_item, :is_manuscript, :resource_type_id, :genre_id,
-      :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :dpla, :external_uri, :creator_death_date,
-      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
+      :is_personal_item, :is_manuscript,
+      :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
       :external_uri, :external_system_id, :preservation_tier_id
 
    config.clear_action_items!
@@ -25,12 +23,6 @@ ActiveAdmin.register ExternalMetadata do
      raw("<a href='/admin/external_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
   end
 
-   scope :all, :default => true
-   scope :approved
-   scope :not_approved
-   scope :in_digital_library
-   scope :not_in_digital_library
-
    # Filters ==================================================================
    #
    filter :title_contains, label: "Title"
@@ -43,10 +35,10 @@ ActiveAdmin.register ExternalMetadata do
    index :id => 'external_metadata' do
       selectable_column
       column :id
+      column :pid
       column :title, :sortable => :title do |external_metadata|
          truncate_words(external_metadata.title, 25)
       end
-      column :pid, :sortable => false
       column :external_system
       column :units, :class => 'sortable_short', :sortable => :units_count do |external_metadata|
          if external_metadata.units.count == 0 && external_metadata.master_files.count == 1
