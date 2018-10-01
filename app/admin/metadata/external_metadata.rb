@@ -6,9 +6,7 @@ ActiveAdmin.register ExternalMetadata do
    # strong paramters handling
    permit_params :title, :creator_name,
       :is_personal_item, :is_manuscript,
-      :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
-      :collection_facet, :use_right_id, :dpla, :external_uri, :creator_death_date,
-      :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
+      :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
       :external_uri, :external_system_id, :preservation_tier_id
 
    config.clear_action_items!
