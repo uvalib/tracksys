@@ -53,8 +53,14 @@ class RecreatePatronDeliverables < BaseJob
 
       # Found files; move to processsinng and recreate deliverables
       CopyUnitForProcessing.exec_now({ :unit => unit}, self)
-      CreatePatronDeliverables.exec_now({ unit: unit }, self)
-      CreateUnitZip.exec_now( { unit: unit, replace: true}, self)
+      if unit.intended_use.deliverable_format == "pdf"
+         logger.info("Unit #{unit.id} requires the creation of PDF patron deliverables.")
+         CreatePDFDeliverable.exec_now({ unit: unit }, self)
+      else
+         logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
+         CreatePatronDeliverables.exec_now({ unit: unit }, self)
+         CreateUnitZip.exec_now( { unit: unit }, self)
+      end
    end
 
    def in_proc_complete? (unit, in_proc_dir)
