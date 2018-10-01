@@ -4,7 +4,8 @@ ActiveAdmin.register Invoice do
    config.per_page = [30, 50, 100, 250]
 
    # strong paramters handling
-   permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes
+   permit_params :date_invoice, :date_fee_paid, :permanent_nonpayment, :fee_amount_paid, :transmittal_number, :notes,
+       :date_fee_declined, :order_id
 
    # eager load to preven n+1 queries, and improve performance
    includes :order
@@ -143,7 +144,7 @@ ActiveAdmin.register Invoice do
       end
 
       f.inputs "Related Information", :class => 'panel three-column' do
-         f.input :order_id, :input_html => {:disabled => true}
+         f.input :order_id, :input_html => {:disabled => resource.order_id != 0}
       end
 
       f.inputs :class => 'columns-none' do

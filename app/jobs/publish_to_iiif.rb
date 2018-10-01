@@ -23,7 +23,7 @@ class PublishToIiif < BaseJob
       if master_file.filename.match(".tif$")
          # kakadu cant handle compression. remove it if detected
          cmd = "identify -quiet -ping -format '%C' #{source}[0]"
-         compression = `{cmd}`
+         compression = `#{cmd}`
          if compression != 'None'
             cmd = "convert -compress none #{source} #{source}"
             `#{cmd}`
