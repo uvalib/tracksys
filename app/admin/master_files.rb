@@ -31,6 +31,7 @@ ActiveAdmin.register MasterFile do
    filter :metadata_creator_name_starts_with, :label => "Author"
    filter :locations_container_id_starts_with, :label => "Box"
    filter :locations_folder_id_starts_with, :label => "Folder"
+   filter :unit_intended_use_id_equals, :label=>"Intended Use", :as=>:select, collection: IntendedUse.where("is_approved=1").pluck(:description, :id)
    filter :date_archived
    filter :date_dl_ingest
    filter :date_dl_update
@@ -355,6 +356,13 @@ ActiveAdmin.register MasterFile do
      column("Date DL Update") {|master_file| format_date(master_file.date_dl_update)}
      column :creation_date
      column :primary_author
+     column("Intended Use") do |mf|
+        if mf.unit.intended_use.nil?
+           "N/A"
+        else
+           mf.unit.intended_use.description
+        end
+     end
    end
 
    controller do

@@ -25,10 +25,12 @@ ActiveAdmin.register Unit do
    filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"
    filter :metadata_title_contains, :as => :string, :label => "Metadata Title"
    filter :agency, :as => :select, collection: Agency.pluck(:name, :id)
+   filter :customer_last_name_starts_with, :label => "Customer Last Name"
    filter :staff_notes
    filter :special_instructions
    filter :date_archived
    filter :date_dl_deliverables_ready
+   filter :intended_use, :as => :select
    filter :department, :as => :select
    filter :reorder, :as => :select
    filter :complete_scan, :as => :select
@@ -42,6 +44,13 @@ ActiveAdmin.register Unit do
             "N/A"
          else
             "#{unit.metadata.call_number}"
+         end
+      end
+      column :intended_use do |unit|
+         if unit.intended_use.nil?
+            "N/A"
+         else
+            unit.intended_use.description
          end
       end
       column("Date Archived") {|unit| format_date(unit.date_archived)}
