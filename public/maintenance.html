@@ -11,58 +11,12 @@
       margin: 0;
       background-color: #F8F2E3;
    }
-   header {
-      background: #0d3268;
-      padding: 25px;
-   }
    div.body {
       background: #fbfbfb;
       border: 1px solid #dfdacc;
       margin: 5% 25%;
       padding: 25px;
       box-shadow: 1px 1px 5px #dfdacc;
-   }
-   #search {
-      position: absolute;
-      right: 25px;
-      top: 25px;
-   }
-   .search-home {
-      border: 1px solid #3f3f3f;
-      font-size: 16px;
-      height: 30px;
-      margin: 0;
-      padding: 4px 0;
-      text-indent: 2%;
-      border-radius: 6px 0 0 6px;
-      -webkit-background-clip: padding-box;
-      background-clip: padding-box;
-      width:550px;
-   }
-   #main_search_submit {
-      cursor: pointer;
-      font-weight: bold;
-      border: 1px solid #1e3342;
-      font-size: 16px;
-      height: 40px;
-      line-height: 34px;
-      margin: 0 0 0 -5px;
-      padding: 0;
-      min-width: 85px;
-      border-radius: 0 6px 6px 0;
-      -webkit-background-clip: padding-box;
-      background-clip: padding-box;
-      background: #93ccdb;
-      -webkit-box-shadow: 0 1px 3px rgba(34, 54, 74, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-      -moz-box-shadow: 0 1px 3px rgba(34, 54, 74, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-      box-shadow: 0 1px 3px rgba(34, 54, 74, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-      color: #133;
-      -webkit-text-shadow: 0 1px 0 #9ef;
-      -moz-text-shadow: 0 1px 0 #9ef;
-      text-shadow: 0 1px 0 #9ef;
-   }
-   #main_search_submit:hover {
-      background: #83bccb;
    }
    .footer {
       background: #0d3268;
@@ -98,17 +52,6 @@
 
 </head>
 <body>
-
-   <header>
-      <a href="http://www.lib.virginia.edu/"><img src="liblogo.png"/></a>
-      <form role="search" id="search" method="get" action="http://search.lib.virginia.edu/catalog">
-         <input type="text" value="" placeholder="Search Virgo for books, articles, digital materials, and more." name="q" id="SI" class="search-home">
-         <input type="hidden" value="all" name="portal">
-         <input type="hidden" value="all" name="catalog_select">
-         <input type="hidden" value="date_received_facet desc" name="sort">
-         <button type="submit" class="search-submit btn btn-info" id="main_search_submit">Search</button>
-      </form>
-   </header>
 
    <div class="body">
       <h3>System Maintenance</h3>
