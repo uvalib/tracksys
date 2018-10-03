@@ -25,9 +25,7 @@ class Api::ResourcesController < ApplicationController
 
       json = {
          identifier: [obj.pid],
-         administrative_url: ["#{Settings.tracksys_url}/admin/#{obj.url_fragment}/#{obj.id}"],
-         service_url: [],
-         metadata_url: []
+         administrative_url: ["#{Settings.tracksys_url}/admin/#{obj.url_fragment}/#{obj.id}"]
       }
 
       json[:identifier] << obj.catalog_key if !obj.catalog_key.nil?
@@ -35,6 +33,7 @@ class Api::ResourcesController < ApplicationController
       json[:identifier] << obj.call_number if !obj.call_number.nil?
 
       if obj.type != "ExternalMetadata"
+         json[:service_url] = []
          virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
          if obj.type == "SirsiMetadata"
             if !obj.catalog_key.nil?
@@ -53,7 +52,7 @@ class Api::ResourcesController < ApplicationController
       end
 
       if obj.type != "ExternalMetadata"
-         json[:metadata_url] <<  {url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}
+         json[:metadata_url] =  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}]
       end
 
       return json
@@ -67,8 +66,6 @@ class Api::ResourcesController < ApplicationController
       json = {
          identifier: [obj.pid],
          administrative_url: ["#{Settings.tracksys_url}/admin/master_files/#{obj.id}"],
-         service_url: [],
-         metadata_url: [],
          master_file: File.join(ARCHIVE_DIR, "%09d" % obj.unit_id, obj.filename)
       }
       return json
@@ -78,5 +75,15 @@ class Api::ResourcesController < ApplicationController
       obj = Component.find_by(pid: id)
       obj = Component.find_by(barcode: id) if obj.nil?
       return nil if obj.nil?
+
+      json = {
+         identifier: [obj.pid],
+         administrative_url: ["#{Settings.tracksys_url}/admin/components/#{obj.id}"]
+      }
+      json[:identifier] << obj.barcode if !obj.barcode.nil?
+      if obj.master_files.count > 0
+         json[:service_url] =  [{url: "#{Settings.iiif_manifest_url}/#{obj.pid}", protocol: "iiif-presentation"}]
+      end
+      return json
    end
 end
