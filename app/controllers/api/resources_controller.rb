@@ -32,7 +32,7 @@ class Api::ResourcesController < ApplicationController
 
       json[:identifier] << obj.catalog_key if !obj.catalog_key.nil?
       json[:identifier] << obj.barcode if !obj.barcode.nil?
-      json[:identifier] << obj.call_number if !obj.call_number.nil? 
+      json[:identifier] << obj.call_number if !obj.call_number.nil?
 
       if obj.type != "ExternalMetadata"
          virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
@@ -64,6 +64,14 @@ class Api::ResourcesController < ApplicationController
       obj = MasterFile.find_by(filename: id) if obj.nil?
       return nil if obj.nil?
 
+      json = {
+         identifier: [obj.pid],
+         administrative_url: ["#{Settings.tracksys_url}/admin/master_files/#{obj.id}"],
+         service_url: [],
+         metadata_url: [],
+         master_file: File.join(ARCHIVE_DIR, "%09d" % obj.unit_id, obj.filename)
+      }
+      return json
    end
 
    def find_component(id)
