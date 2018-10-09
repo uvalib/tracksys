@@ -18,12 +18,10 @@ else
       end
       row("External URI") do |am|
          link_to "/collections/#{apollo_info[:pid]}?item=#{apollo_info[:item_pid]}",
-            "#{am.external_system.public_url}/#/collections/#{apollo_info[:pid]}?item=#{apollo_info[:item_pid]}", target: "_blank"
+            "#{am.external_system.public_url}/collections/#{apollo_info[:pid]}?item=#{apollo_info[:item_pid]}", target: "_blank"
       end
       row("Collection PID") do |xm|
-         # Apollo is single page app and the history mode doesn't work right
-         # because of the shibboleth proxy. All URLs are links to ID instead of real URL
-         link_to apollo_info[:pid], "#{xm.external_system.public_url}/#/collections/#{apollo_info[:pid]}", target: "_blank"
+         link_to apollo_info[:pid], "#{xm.external_system.public_url}/collections/#{apollo_info[:pid]}", target: "_blank"
       end
       row("Collection Title") do |xm|
          apollo_info[:collection]

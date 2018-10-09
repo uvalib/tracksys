@@ -1,6 +1,8 @@
-class Api::ResourcesController < ApplicationController
+class Api::AriesController < ApplicationController
 
-   # Show all details for a resource with the specified identifier
+   # Implemenmtation of the Aries API:
+   # Show all details for a resource with the specified identifier. 404 if
+   # tracksys does not manage a matching resource
    #
    def show
       # Look for the supplied ID in all of the candidate resource types managed
