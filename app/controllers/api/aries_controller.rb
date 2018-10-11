@@ -1,5 +1,12 @@
 class Api::AriesController < ApplicationController
 
+   # Used by aries to ping this API and see if it is alive. Just return
+   # a status string
+   #
+   def index
+      render plain: "TrackSys Aries API", status: :ok
+   end
+
    # Implemenmtation of the Aries API:
    # Show all details for a resource with the specified identifier. 404 if
    # tracksys does not manage a matching resource
@@ -33,9 +40,9 @@ class Api::AriesController < ApplicationController
       json[:identifier] << obj.catalog_key if !obj.catalog_key.nil?
       json[:identifier] << obj.barcode if !obj.barcode.nil?
       json[:identifier] << obj.call_number if !obj.call_number.nil?
+      json[:service_url] = []
 
       if obj.type != "ExternalMetadata"
-         json[:service_url] = []
          virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
          if obj.type == "SirsiMetadata"
             if !obj.catalog_key.nil?

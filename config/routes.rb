@@ -49,6 +49,7 @@ Tracksys::Application.routes.draw do
 
   namespace :api do
      get "aries/:id" => "aries#show"
+     get "aries" => "aries#index"
      get "sirsi/:id" => "sirsi#show"
      get "metadata/search" => "metadata#search"
      get "metadata/:pid" => "metadata#show"
