@@ -54,6 +54,11 @@ class Api::AriesController < ApplicationController
             virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
          end
          json[:service_url] <<  {url: virgo_url, protocol: "virgo-index"}
+         if !obj.availability_policy.blank?
+            json[:access_restriction] = obj.availability_policy.name.split.first.downcase
+         else
+            json[:access_restriction] = "private"
+         end
       end
 
       if obj.master_files.count > 0
