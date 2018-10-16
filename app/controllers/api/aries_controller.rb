@@ -72,7 +72,7 @@ class Api::AriesController < ApplicationController
       json = {
          identifier: [obj.pid],
          administrative_url: ["#{Settings.tracksys_url}/admin/master_files/#{obj.id}"],
-         master_file: File.join(ARCHIVE_DIR, "%09d" % obj.unit_id, obj.filename)
+         master_file: [File.join(ARCHIVE_DIR, "%09d" % obj.unit_id, obj.filename)]
       }
       return json
    end
