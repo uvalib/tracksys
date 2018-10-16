@@ -50,6 +50,9 @@ class Api::AriesController < ApplicationController
             virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
             json[:service_url] <<  {url: virgo_url, protocol: "virgo-index"}
          end
+         if !obj.catalog_key.blank?
+            json[:service_url] <<  {url: "#{Settings.tracksys_url}/api/sirsi/#{obj.catalog_key}", protocol: "sirsi-wrapper"}
+         end
          if !obj.availability_policy.blank?
             json[:access_restriction] = obj.availability_policy.name.split.first.downcase
          else
@@ -60,6 +63,7 @@ class Api::AriesController < ApplicationController
 
       if obj.master_files.count > 0
          json[:service_url] <<  {url: "#{Settings.iiif_manifest_url}/#{obj.pid}", protocol: "iiif-presentation"}
+         json[:service_url] <<  {url: "#{Settings.tracksys_url}/api/manifest/#{obj.pid}", protocol: "json-manifest"}
       end
       return json
    end
@@ -74,6 +78,11 @@ class Api::AriesController < ApplicationController
          administrative_url: ["#{Settings.tracksys_url}/admin/master_files/#{obj.id}"],
          master_file: [File.join(ARCHIVE_DIR, "%09d" % obj.unit_id, obj.filename)]
       }
+
+      if !obj.transcription_text.blank?
+         json[:service_url] = [ {url: "#{Settings.tracksys_url}/api/fulltext/#{obj.pid}", protocol: "transcription"} ]
+      end
+
       return json
    end
 
