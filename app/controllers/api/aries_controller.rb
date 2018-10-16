@@ -41,34 +41,26 @@ class Api::AriesController < ApplicationController
       json[:identifier] << obj.barcode if !obj.barcode.nil?
       json[:identifier] << obj.call_number if !obj.call_number.nil?
       json[:service_url] = []
+      json[:metadata_url] = []
+
+      json[:metadata_url] <<  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=brief", schema: "json"}]
 
       if obj.type != "ExternalMetadata"
-         virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
-         if obj.type == "SirsiMetadata"
-            if !obj.catalog_key.nil?
-               virgo_url = "#{Settings.solr_url}/core/select/?q=id:#{obj.catalog_key}"
-            else
-               virgo_url = "#{Settings.solr_url}/core/select/?q=barcode_facet:#{obj.barcode}"
-            end
-         else
+         if obj.type == "XmlMetadata"
             virgo_url = "#{Settings.tracksys_url}/api/solr/#{obj.pid}"
+            json[:service_url] <<  {url: virgo_url, protocol: "virgo-index"}
          end
-         json[:service_url] <<  {url: virgo_url, protocol: "virgo-index"}
          if !obj.availability_policy.blank?
             json[:access_restriction] = obj.availability_policy.name.split.first.downcase
          else
             json[:access_restriction] = "private"
          end
+         json[:metadata_url] <<  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}]
       end
 
       if obj.master_files.count > 0
          json[:service_url] <<  {url: "#{Settings.iiif_manifest_url}/#{obj.pid}", protocol: "iiif-presentation"}
       end
-
-      if obj.type != "ExternalMetadata"
-         json[:metadata_url] =  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}]
-      end
-
       return json
    end
 
