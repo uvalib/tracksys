@@ -43,7 +43,7 @@ class Api::AriesController < ApplicationController
       json[:service_url] = []
       json[:metadata_url] = []
 
-      json[:metadata_url] <<  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=brief", schema: "json"}]
+      json[:metadata_url] <<  {url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=brief", schema: "json"}
 
       if obj.type != "ExternalMetadata"
          if obj.type == "XmlMetadata"
@@ -55,7 +55,7 @@ class Api::AriesController < ApplicationController
          else
             json[:access_restriction] = "private"
          end
-         json[:metadata_url] <<  [{url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}]
+         json[:metadata_url] <<  {url: "#{Settings.tracksys_url}/api/metadata/#{obj.pid}?type=desc_metadata", schema: "mods"}
       end
 
       if obj.master_files.count > 0
