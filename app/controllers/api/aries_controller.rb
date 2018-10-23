@@ -30,6 +30,7 @@ class Api::AriesController < ApplicationController
       obj = Metadata.find_by(pid: id)
       obj = Metadata.find_by(catalog_key: id) if obj.nil?
       obj = Metadata.find_by(barcode: id) if obj.nil?
+      obj = Metadata.find_by(call_number: id) if obj.nil?
       return nil if obj.nil?
 
       json = {
@@ -62,7 +63,6 @@ class Api::AriesController < ApplicationController
       end
 
       if obj.master_files.count > 0
-         json[:service_url] <<  {url: "#{Settings.iiif_manifest_url}/#{obj.pid}", protocol: "iiif-presentation"}
          json[:service_url] <<  {url: "#{Settings.tracksys_url}/api/manifest/#{obj.pid}", protocol: "json-manifest"}
       end
       return json
