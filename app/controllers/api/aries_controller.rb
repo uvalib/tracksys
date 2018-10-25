@@ -96,9 +96,6 @@ class Api::AriesController < ApplicationController
          administrative_url: ["#{Settings.tracksys_url}/admin/components/#{obj.id}"]
       }
       json[:identifier] << obj.barcode if !obj.barcode.nil?
-      if obj.master_files.count > 0
-         json[:service_url] =  [{url: "#{Settings.iiif_manifest_url}/#{obj.pid}", protocol: "iiif-presentation"}]
-      end
       return json
    end
 end
