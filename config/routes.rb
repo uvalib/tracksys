@@ -56,6 +56,7 @@ Tracksys::Application.routes.draw do
      get "fulltext/:pid" => "fulltext#show"
      get "pid/:pid" => "pid#show"
      get "pid/:pid/type" => "pid#identify"
+     get "pid/:pid/rights" => "pid#rights"
      get "solr/:pid" => "solr#show"
      get "solr" => "solr#index"
      get "published" => "solr#published"

@@ -24,6 +24,27 @@ class Api::PidController < ApplicationController
       end
    end
 
+   def rights
+      safe_pid = ActiveRecord::Base.connection.quote(params[:pid])
+      if Metadata.where("pid=?", params[:pid]).count > 0
+         qs = "select a.name from metadata b inner join availability_policies a on a.id=b.availability_policy_id where b.pid=#{safe_pid}"
+      elsif MasterFile.where("pid=?", params[:pid]).count > 0
+         qs = "select a.name from master_files m inner join metadata b on b.id = m.metadata_id "
+         qs << " inner join availability_policies a on a.id = b.availability_policy_id"
+         qs << " where m.pid=#{safe_pid}"
+      else
+         render :plain=>"Could not find PID", status: :not_found
+         return
+      end
+
+      out = Metadata.connection.execute(qs).first
+      if out.blank?
+         render :plain=>"private"
+      else
+         render :plain=> out[0].downcase.split(" ")[0]
+      end
+   end
+
    def identify
       obj = Metadata.find_by(pid: params[:pid])
       if !obj.nil?
