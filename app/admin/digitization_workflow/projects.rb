@@ -6,11 +6,11 @@ ActiveAdmin.register Project do
    config.batch_actions = false
    config.clear_action_items!
 
-   # scope :active, :default =>true
-   # scope ("Assigned to me") { |project| Project.active.where(owner: current_user) }
+   scope ("Assigned to me"), default:lambda{ current_user.student? } do |project|
+      Project.active.where(owner: current_user)
+   end
    scope :active, :default => lambda{ current_user.admin? }
    scope :ready_to_finalize, if: proc { !current_user.student?}, :default => lambda{ current_user.supervisor? }
-   scope "Assigned to me", :default => lambda{ current_user.student? } { |project| Project.active.where(owner: current_user) }
 
    scope :unassigned
    scope :overdue
