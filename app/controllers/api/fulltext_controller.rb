@@ -33,4 +33,19 @@ class Api::FulltextController < ApplicationController
          render plain: out.gsub(/\s+/, ' ').strip
       end
    end
+
+   def post_ocr #tsm:1686734
+      render :plain=>"PID is required", status: :bad_request and return if params[:pid].nil?
+      render :plain=>"Text is required", status: :bad_request and return if params[:text].nil?
+      mf = MasterFile.find_by(pid: params[:pid])
+      render plain: "PID not found", status: :not_found and return if mf.nil?
+      if mf.text_source.blank? || text_source == "ocr"
+         # only update text if there is none or it is OCR
+         mf.update(text_source: "ocr", transcription_text: params[:text])
+         render plain: "Master File OCR text added", status: :ok
+         return
+      end
+
+      render plain: "Master File already has Corrected OCR or Transcription text", status: :conflict
+   end
 end

@@ -54,6 +54,7 @@ Tracksys::Application.routes.draw do
      get "metadata/search" => "metadata#search"
      get "metadata/:pid" => "metadata#show"
      get "fulltext/:pid" => "fulltext#show"
+     post "fulltext/:pid/ocr" => "fulltext#post_ocr"
      get "pid/:pid" => "pid#show"
      get "pid/:pid/type" => "pid#identify"
      get "pid/:pid/rights" => "pid#rights"
