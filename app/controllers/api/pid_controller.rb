@@ -4,23 +4,32 @@ class Api::PidController < ApplicationController
 
       # check each model that can have a PID to find a match. start
       # with most likely (metadata) and proceed down (masterfile, component)
-      object = Metadata.find_by(pid: params[:pid])
-      if object.nil?
-         type = "master_file"
-         url_frag = "master_files"
-         object = MasterFile.find_by(pid: params[:pid])
-      else
-         url_frag = type = object.type.underscore
+      obj = Metadata.find_by(pid: params[:pid])
+      if !obj.nil?
+         policy = "private"
+         polict = obj.availability_policy.name if !obj.availability_policy_id.nil?
+         render json: {id: obj.id, pid: obj.pid, type: obj.type.underscore, title: obj.title, availability_policy: policy}, status: :ok
+         return
       end
-      if object.nil?
-         type = "component"
-         url_frag = "components"
-         object = Component.find_by(pid: params[:pid])
+
+      obj = MasterFile.find_by(pid: params[:pid])
+      if !obj.nil?
+         out = {id: obj.id, pid: obj.pid, type: "master_file", title: obj.title, filename: obj.filename }
+         if !obj.original_mf_id.nil?
+            orig = MasterFile.find(obj.original_mf_id)
+            out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
+         end
+         render json: out, status: :ok
+         return
       end
+
+      type = "component"
+      url_frag = "components"
+      object = Component.find_by(pid: params[:pid])
       if object.nil?
          render :plain=>"Could not find PID", status: :not_found
       else
-         render :json=>{id: object.id, type: type, url: "#{Settings.tracksys_url}/admin/#{url_frag}/#{object.id}"}, status: :ok
+         render :json=>{id: object.id, type: type, title: object.name}, status: :ok
       end
    end
 
