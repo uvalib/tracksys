@@ -2,26 +2,17 @@ $(function() {
    $(".do-viewer-enabled").on("click", function() {
       $("#dimmer").show();
       $("#do-viewer-modal").show();
-      window.embedScriptIncluded = false;
       var clickedPage = parseInt($(this).data("page"),10);
-      var mfId = $(this).attr("id");
-      var url = "/admin/master_files/"+mfId+"/viewer?page="+clickedPage;
-      $.getJSON(url, function ( data, textStatus, jqXHR ){
+      var curioURL =  $(this).data("curio-url");
+      var mfPid = $(this).data("metadata-pid");
+      var url = curioURL+"/view/"+mfPid+"?page="+clickedPage;
+      url = encodeURIComponent(url);
+      var oembed = curioURL+"/oembed?url="+url+"&format=json&maxwidth=800&maxheight=600";
+      $.getJSON(oembed, function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             $("#do-viewer-modal .content").append(data.html);
          }
       });
-
-      // Example use of calling the oEmbed enpoint
-      // var mfPid = $(this).data("metadata-pid");
-      // var url = "https://doviewer.lib.virginia.edu/images/"+mfPid+"?page="+clickedPage;
-      // url = encodeURIComponent(url);
-      // var oembed = "https://doviewer.lib.virginia.edu/oembed?url="+url+"&format=json&maxwidth=800&maxheight=600";
-      // $.getJSON(oembed, function ( data, textStatus, jqXHR ){
-      //    if (textStatus == "success" ) {
-      //       $("#do-viewer-modal .content").append(data.html);
-      //    }
-      // });
    });
 
    var closeDoViewer = function() {

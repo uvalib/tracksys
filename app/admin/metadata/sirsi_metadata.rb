@@ -189,10 +189,7 @@ ActiveAdmin.register SirsiMetadata do
   sidebar "Exemplar", :only => [:show],  if: proc{ sirsi_metadata.has_exemplar? } do
      div :style=>"text-align:center" do
         info = sirsi_metadata.exemplar_info(:medium)
-        image_tag(
-           info[:url], id: info[:id],
-           class: "do-viewer-enabled",
-           data: { page: info[:page], metadata_pid:sirsi_metadata.pid } )
+        image_tag( info[:url], id: info[:id] )
      end
   end
 
