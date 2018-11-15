@@ -9,17 +9,17 @@ gem 'sass-rails', '~> 5.0'
 # gem 'bootsnap', '>= 1.1.0', require: false
 
 gem 'activeadmin', '~> 1.0'
-#gem 'ffi', '1.9.18'
 gem 'ffi', '~> 1.9.24'
 
 gem 'passenger', '5.1.5'
 gem 'figaro'
 gem 'exception_notification'
+gem "puma"
 
 gem 'turnout'           # Maintence page
 
 gem 'annotate'
-gem 'mysql2'   #, '0.4.10' # version 0.5.0 on up dont seem to work
+gem 'mysql2'  
 gem 'ancestry'
 
 gem 'delayed_job_active_record'
