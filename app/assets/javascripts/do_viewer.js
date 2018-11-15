@@ -3,9 +3,10 @@ $(function() {
       $("#dimmer").show();
       $("#do-viewer-modal").show();
       var clickedPage = parseInt($(this).data("page"),10);
+      var unitID = parseInt($(this).data("unit"),10);
       var curioURL =  $(this).data("curio-url");
       var mfPid = $(this).data("metadata-pid");
-      var url = curioURL+"/view/"+mfPid+"?page="+clickedPage;
+      var url = curioURL+"/view/"+mfPid+"?page="+clickedPage+"&unit="+unitID;
       url = encodeURIComponent(url);
       var oembed = curioURL+"/oembed?url="+url+"&format=json&maxwidth=800&maxheight=600";
       $.getJSON(oembed, function ( data, textStatus, jqXHR ){
