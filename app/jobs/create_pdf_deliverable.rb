@@ -5,24 +5,26 @@ class CreatePDFDeliverable < BaseJob
    def do_workflow(message)
       unit = message[:unit]
 
+      # Source tif files reside in 30_process_deliverables. Get the dir
+      processing_dir = Finder.finalization_dir(unit, :process_deliverables)
+      tif_files = File.join(processing_dir, "*.tif[0]")
+
       # all of the scaled down JPEG source files will be pulled down into the
-      # assemble deliverable directory
+      # assemble deliverable directory; clean up prior versions
       logger.info "Setting up assemble delivery directory to be used to build the PDF..."
       assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
       assembled_order_dir = File.dirname(assemble_dir)
+      pdf_file = File.join(assembled_order_dir, "#{unit.id}.pdf")
       if Dir.exist? assembled_order_dir
-         logger.info "Removing old deliverables from #{assembled_order_dir}"
-         FileUtils.rm_rf(assembled_order_dir)
+         if File.exist? pdf_file
+            logger.info "Removing old deliverable from #{pdf_file}"
+            FileUtils.rm(pdf_file)
+         end
+      else
+         FileUtils.mkdir_p(assembled_order_dir)
       end
-      FileUtils.mkdir_p(assembled_order_dir)
-
-      # Source tif files resied in 30_process_deliverables. Get the dir
-      processing_dir = Finder.finalization_dir(unit, :process_deliverables)
 
       # Convert all tifs in 30_process_deliverables into a single PDF
-      pdf_file = File.join(assembled_order_dir, "#{unit.id}.pdf")
-      tif_files = File.join(processing_dir, "*.tif[0]")
-
       logger.info "Covert #{tif_files} to scaled down JPG..."
       mogrify = `which mogrify`
       mogrify.strip!
