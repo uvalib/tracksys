@@ -3,35 +3,29 @@
 module ActiveAdmin
    module Views
       module Pages
-
-         module OriginHeaderBuilder
-            def build(*args)
-               super(*args)
-               build_origin_header
-            end
-
-            def build_origin_header
-               within @head do
+         # Override some key methohods of the base class defined here:
+         #    https://github.com/activeadmin/activeadmin/blob/master/lib/active_admin/views/pages/base.rb
+         module TracksysOverrides
+            def build_active_admin_head
+               super
+               within head do
                   meta name: "referrer", content: "origin"
                end
             end
-         end
 
-         module PopupMessageBuilder
             def build(*args)
                super(*args)
-               build_popup_message
-            end
-
-            def build_popup_message
-               within @body do
+               within body do
                   render 'admin/common/message_popup'
                end
             end
          end
 
-         Base.prepend(OriginHeaderBuilder)
-         Base.prepend(PopupMessageBuilder)
+         # Prepend will add this module in front of AcriveAdmin::Views::Pages::Base in the class heirarchy,
+         # allowing the extra functionality necessary for header updates and messaging UI to be included 
+         # in all instances
+         Base.prepend(TracksysOverrides)
       end
    end
 end
+
