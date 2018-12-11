@@ -22,6 +22,9 @@ gem 'annotate'
 gem 'mysql2'  
 gem 'ancestry'
 
+# gems for APTrust submission
+gem 'aws-sdk-s3', '~> 1'
+
 gem 'delayed_job_active_record'
 gem 'daemons'
 
