@@ -14,6 +14,6 @@ namespace :aptrust do
       etag = ApTrust::submit( tarfile )
       puts "ETAG #{etag}"
 
-      # bag.cleanup
+      bag.cleanup
    end 
 end

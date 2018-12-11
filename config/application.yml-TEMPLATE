@@ -23,6 +23,9 @@ zip_max_gb: "2"
 aws_key: AWS_KEY
 aws_secret: AWS_SECRET
 aws_bucket: "aptrust.receiving.test.virginia.edu"
+aptrust_user: APTRUST_USER 
+aptrust_key: APTRUST_KEY
+aptrust_api_url: https://demo.aptrust.org/member-api/v2
 
 # Email controls; use to prevent email from being sent
 # to customer from a dev server
