@@ -9,6 +9,11 @@ namespace :aptrust do
       bag.add_file("000047671_0001.tif", mfp)
       bag.add_file("000047671_0001.xml") {|io| io.write mf.metadata.desc_metadata}
       bag.generate_manifests
-      bag.tar
+      tarfile = bag.tar
+
+      etag = ApTrust::submit( tarfile )
+      puts "ETAG #{etag}"
+
+      # bag.cleanup
    end 
 end

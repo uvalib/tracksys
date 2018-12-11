@@ -27,6 +27,7 @@ module Bagit
          valid_store =  ["Standard", "Glacier-OH", "Glacier-OR", "Glacier-VA"]
          raise "Invalid storage '#{storage}'" if !valid_store.include? storage
          @bag_name = "virginia.edu.#{name}"
+         Rails.logger.info("Create bag #{@bag_name}")
 
          # Purge old bag and create new content directory
          @bag_dir = File.join(Rails.root, "tmp", "bags", @bag_name)
@@ -59,6 +60,7 @@ module Bagit
       # Omit src path and provide a block st stream in data from something other than a file 
       # on the filesystem
       def add_file(filename, full_src_path=nil) 
+         Rails.logger.info("Add #{filename} to bag #{@bag_name}")
          data_dir = File.join(@bag_dir, "data")
          dest_file = File.join(data_dir, filename)
          if full_src_path.nil?
@@ -75,6 +77,7 @@ module Bagit
       # Generate MD5 and SHA256 manifests for all files and tag files. Any prior 
       # manifests will be overwritten
       def generate_manifests 
+         Rails.logger.info("Generate manifests for bag #{@bag_name}")
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "manifest*")))
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "tagmanifest*")))
 
@@ -91,17 +94,26 @@ module Bagit
          end 
       end
 
-      # Tar bag file for submission 
+      # Tar bag file for submission and return path to bag
       def tar 
+         Rails.logger.info("Tar bag #{@bag_name}")
          bag_base = File.join(Rails.root, "tmp", "bags")
          dest_file = "#{@bag_name}.tar"
          cmd = "cd #{bag_base}; tar cf #{dest_file} #{@bag_name}"
-         puts "CMD: #{cmd}"
          `#{cmd}`
+         return File.join(bag_base, dest_file)
       end
 
-      # Submit the tar'd bag to the ATrust S3 receiving bucket
-      def submit
+      # Remove all traces of the bag.
+      def cleanup 
+         Rails.logger.info("Cleanup bag #{@bag_name}")
+         if Dir.exist? @bag_dir 
+            FileUtils.rm_rf(@bag_dir)
+         end
+         bag_base = File.join(Rails.root, "tmp", "bags")
+         dest_file = "#{@bag_name}.tar"
+         tar_file = File.join(bag_base, dest_file)
+         FileUtils.rm tar_file if File.exist? tar_file 
       end
 
       private
@@ -117,3 +129,6 @@ module Bagit
       end
    end
 end
+
+#s3 = Aws::S3::Client.new(access_key_id: 'key', secret_access_key: 'secret')
+#)

@@ -19,6 +19,11 @@ create_missing_kp2k: "false"
 # Max size of patron zip Files
 zip_max_gb: "2"
 
+# APTrust configuration 
+aws_key: AWS_KEY
+aws_secret: AWS_SECRET
+aws_bucket: "aptrust.receiving.test.virginia.edu"
+
 # Email controls; use to prevent email from being sent
 # to customer from a dev server
 send_customer_email: "true"
