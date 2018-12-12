@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_26_141607) do
+ActiveRecord::Schema.define(version: 2018_12_11_203935) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -62,6 +62,17 @@ ActiveRecord::Schema.define(version: 2018_09_26_141607) do
     t.integer "orders_count", default: 0
     t.index ["ancestry"], name: "index_agencies_on_ancestry"
     t.index ["name"], name: "index_agencies_on_name", unique: true
+  end
+
+  create_table "ap_trust_statuses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "metadata_id"
+    t.string "etag"
+    t.string "status"
+    t.string "note"
+    t.string "object_id"
+    t.datetime "submitted_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "finished_at"
+    t.index ["metadata_id"], name: "index_ap_trust_statuses_on_metadata_id"
   end
 
   create_table "assignments", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -376,31 +387,30 @@ ActiveRecord::Schema.define(version: 2018_09_26_141607) do
     t.datetime "updated_at"
     t.integer "parent_metadata_id", default: 0, null: false
     t.text "desc_metadata"
-    t.boolean "discoverability", default: true
-    t.datetime "date_dl_ingest"
-    t.datetime "date_dl_update"
     t.integer "units_count", default: 0
-    t.integer "availability_policy_id"
-    t.integer "use_right_id"
-    t.boolean "dpla", default: false
-    t.string "collection_facet"
     t.string "type", default: "SirsiMetadata"
     t.string "external_uri"
     t.string "supplemental_uri"
     t.string "collection_id"
     t.integer "ocr_hint_id"
     t.string "ocr_language_hint"
-    t.string "use_right_rationale"
     t.integer "creator_death_date"
-    t.datetime "qdc_generated_at"
     t.bigint "preservation_tier_id"
     t.bigint "external_system_id"
     t.bigint "supplemental_system_id"
+    t.bigint "use_right_id"
+    t.bigint "availability_policy_id"
+    t.boolean "discoverability"
+    t.boolean "dpla"
+    t.string "use_right_rationale"
+    t.string "collection_facet"
+    t.datetime "date_dl_ingest"
+    t.datetime "date_dl_update"
+    t.datetime "qdc_generated_at"
     t.index ["availability_policy_id"], name: "index_metadata_on_availability_policy_id"
     t.index ["barcode"], name: "index_metadata_on_barcode"
     t.index ["call_number"], name: "index_metadata_on_call_number"
     t.index ["catalog_key"], name: "index_metadata_on_catalog_key"
-    t.index ["dpla"], name: "index_metadata_on_dpla"
     t.index ["external_system_id"], name: "index_metadata_on_external_system_id"
     t.index ["ocr_hint_id"], name: "index_metadata_on_ocr_hint_id"
     t.index ["parent_metadata_id"], name: "index_metadata_on_parent_metadata_id"
@@ -665,9 +675,7 @@ ActiveRecord::Schema.define(version: 2018_09_26_141607) do
   add_foreign_key "invoices", "orders", name: "invoices_order_id_fk"
   add_foreign_key "master_files", "components", name: "master_files_component_id_fk"
   add_foreign_key "master_files", "units", name: "master_files_unit_id_fk"
-  add_foreign_key "metadata", "availability_policies", name: "bibls_availability_policy_id_fk"
   add_foreign_key "metadata", "ocr_hints"
-  add_foreign_key "metadata", "use_rights", name: "bibls_use_right_id_fk"
   add_foreign_key "orders", "agencies", name: "orders_agency_id_fk"
   add_foreign_key "orders", "customers", name: "orders_customer_id_fk"
   add_foreign_key "sirsi_metadata_components", "components", name: "sirsi_metadata_components_ibfk_2"

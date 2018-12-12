@@ -8,6 +8,7 @@ class Metadata < ApplicationRecord
 
    belongs_to :ocr_hint, optional: true
    belongs_to :preservation_tier, optional: true
+   has_one :ap_trust_status
 
    belongs_to :external_system, class_name: 'ExternalSystem', foreign_key: 'external_system_id', optional: true
    belongs_to :supplemental_system, class_name: 'ExternalSystem', foreign_key: 'supplemental_system_id', optional: true
@@ -50,12 +51,32 @@ class Metadata < ApplicationRecord
          self.use_right = cne
       end
 
-      if preservation_tier.blank?
-         units.each do |u|
-            if u.intended_use_id == 110
-               preservation_tier_id = 2 # duplicated
-               break
+      if self.changes.has_key? "preservation_tier_id"
+         # once sent to APTrust, disallow change to lesser tier
+         change = self.changes["preservation_tier_id"]
+         puts "change in preservation #{change}"
+         if !change[0].nil? && change[0] > 1 && change[1] == 1
+            # revert back to original backed-up status 
+            puts "REVERT"
+            self.preservation_tier_id = change[0]
+            self.changes.delete("preservation_tier_id")
+         end
+      else 
+         if preservation_tier.blank?
+            units.each do |u|
+               if u.intended_use_id == 110
+                  preservation_tier_id = 2 # duplicated
+                  break
+               end
             end
+         end
+      end
+   end
+
+   after_save do 
+      if saved_changes.has_key? "preservation_tier_id"
+         if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
+            PublishToApTrust.exec({metadata: self})
          end
       end
    end
