@@ -10,7 +10,7 @@ module Bagit
       # Create a new bag from a config hash. Accepted has params:
       #   bag (required), title (required), pid, storage, access
       # Note: Bag name follows the pattern <institution.edu>.bag_name[.b###.of###].tar.
-      def initialize( cfg )
+      def initialize( cfg, logger = Rails.logger )
          name = cfg[:bag]
          title = cfg[:title]
          pid = cfg[:pid]
@@ -27,7 +27,8 @@ module Bagit
          valid_store =  ["Standard", "Glacier-OH", "Glacier-OR", "Glacier-VA"]
          raise "Invalid storage '#{storage}'" if !valid_store.include? storage
          @bag_name = "virginia.edu.#{name}"
-         Rails.logger.info("Create bag #{@bag_name}")
+         @logger = logger
+         @logger.info("Create bag #{@bag_name}")
 
          # Purge old bag and create new content directory
          @bag_dir = File.join(Rails.root, "tmp", "bags", @bag_name)
@@ -60,7 +61,7 @@ module Bagit
       # Omit src path and provide a block st stream in data from something other than a file 
       # on the filesystem
       def add_file(filename, full_src_path=nil) 
-         Rails.logger.info("Add #{filename} to bag #{@bag_name}")
+         @logger.info("Add #{filename} to bag #{@bag_name}")
          data_dir = File.join(@bag_dir, "data")
          dest_file = File.join(data_dir, filename)
          if full_src_path.nil?
@@ -77,7 +78,7 @@ module Bagit
       # Generate MD5 and SHA256 manifests for all files and tag files. Any prior 
       # manifests will be overwritten
       def generate_manifests 
-         Rails.logger.info("Generate manifests for bag #{@bag_name}")
+         @logger.info("Generate manifests for bag #{@bag_name}")
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "manifest*")))
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "tagmanifest*")))
 
@@ -96,7 +97,7 @@ module Bagit
 
       # Tar bag file for submission and return path to bag
       def tar 
-         Rails.logger.info("Tar bag #{@bag_name}")
+         @logger.info("Tar bag #{@bag_name}")
          bag_base = File.join(Rails.root, "tmp", "bags")
          dest_file = "#{@bag_name}.tar"
          cmd = "cd #{bag_base}; tar cf #{dest_file} #{@bag_name}"
@@ -106,7 +107,7 @@ module Bagit
 
       # Remove all traces of the bag.
       def cleanup 
-         Rails.logger.info("Cleanup bag #{@bag_name}")
+         @logger.info("Cleanup bag #{@bag_name}")
          if Dir.exist? @bag_dir 
             FileUtils.rm_rf(@bag_dir)
          end

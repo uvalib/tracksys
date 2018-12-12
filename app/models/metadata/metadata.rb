@@ -57,7 +57,6 @@ class Metadata < ApplicationRecord
          puts "change in preservation #{change}"
          if !change[0].nil? && change[0] > 1 && change[1] == 1
             # revert back to original backed-up status 
-            puts "REVERT"
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
          end

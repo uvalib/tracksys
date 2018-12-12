@@ -3,7 +3,7 @@ namespace :aptrust do
    task :test  => :environment do
    
       mf = MasterFile.find(365940)
-      bag = Bagit::Bag.new({bag: "testbag", title: "000047671_0001.tif", pid: mf.metadata.pid})
+      bag = Bagit::Bag.new({bag: "testbag", title: "000047671_0001.tif", pid: mf.metadata.pid}, Logger.new(STDOUT) )
       mfp = File.join(Settings.archive_mount, "000047671", "000047671_0001.tif")
       
       bag.add_file("000047671_0001.tif", mfp)
