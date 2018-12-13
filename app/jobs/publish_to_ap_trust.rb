@@ -46,7 +46,12 @@ class PublishToApTrust < BaseJob
 
       # create APTrust status record for this metadata...
       logger.info("Submitting bag to APTrust")
-      apt_status = ApTrustStatus.create(metadata: metadata, status: "Submitted")
+      apt_status = metadata.ap_trust_status 
+      if apt_status.nil?
+         apt_status = ApTrustStatus.create(metadata: metadata, status: "Submitted")
+      else 
+         apt_status.update(status:"Submitted", etag: nil, finished_at: nil, note: nil)
+      end
       etag = ApTrust::submit( tarfile )
       apt_status.update(etag: etag)
       logger.info("Submitted; etag=#{etag}")

@@ -72,7 +72,10 @@ class Metadata < ApplicationRecord
       end
    end
 
-   after_save do 
+   # NOTE: necessary to break out callback into named method so it can be skipped 
+   # by name in a rake task used to manually update status and publish
+   after_save :aptrust_checks
+   def aptrust_checks  
       if saved_changes.has_key? "preservation_tier_id" && self.type != "ExternalMetadata"
          if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
             if Settings.aptrust_enabled == "true"
