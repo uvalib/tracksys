@@ -141,7 +141,9 @@ ActiveAdmin.register XmlMetadata do
                end
             end
          end
-         render partial: '/admin/metadata/common/aptrust_info', locals: {meta: xml_metadata}
+         if !xml_metadata.ap_trust_status.nil?
+            render partial: '/admin/metadata/common/aptrust_info', locals: {meta: xml_metadata}
+         end
       end
 
       div :class => 'columns-none' do

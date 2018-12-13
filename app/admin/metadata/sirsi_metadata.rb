@@ -183,6 +183,9 @@ ActiveAdmin.register SirsiMetadata do
           end
         end
       end
+      if !sirsi_metadata.ap_trust_status.nil?
+         render partial: '/admin/metadata/common/aptrust_info', locals: {meta: sirsi_metadata}
+      end
     end
   end
 
