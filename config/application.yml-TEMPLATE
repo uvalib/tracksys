@@ -20,6 +20,7 @@ create_missing_kp2k: "false"
 zip_max_gb: "2"
 
 # APTrust configuration 
+aptrust_enabled: "false"
 aws_key: AWS_KEY
 aws_secret: AWS_SECRET
 aws_bucket: "aptrust.receiving.test.virginia.edu"

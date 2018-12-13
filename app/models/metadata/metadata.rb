@@ -75,7 +75,9 @@ class Metadata < ApplicationRecord
    after_save do 
       if saved_changes.has_key? "preservation_tier_id"
          if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
-            PublishToApTrust.exec({metadata: self})
+            if Settings.aptrust_enabled == "true"
+               PublishToApTrust.exec({metadata: self})
+            end
          end
       end
    end

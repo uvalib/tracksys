@@ -7,18 +7,32 @@ class PublishToApTrust < BaseJob
       raise "Parameter 'metadata' is required" if message[:metadata].blank?
       metadata = message[:metadata]
 
+      if metadata.preservation_tier_id < 2 
+         on_error("Preservation tier must be greater than 1")
+      end
+
       logger.info "Create new bag"
       storage = "Standard"
-      storage = "Glacier-VA" if metadata.preservation_tier_id == 1
+      storage = "Glacier-VA" if metadata.preservation_tier_id == 2
       bag = Bagit::Bag.new({bag: "tracksys-#{metadata.type.downcase}-#{metadata.id}", 
          title: metadata.title, pid: metadata.pid, storage: storage}, logger)
 
       logger.info "Adding masterfiles to bag..."
+      master_file_cnt = 0
       metadata.master_files.each do |mf|
          logger.info "   #{mf.filename}"
          unit = mf.unit
-         mfp = File.join(Settings.archive_mount, unit.directory, mf.filename)
-         bag.add_file( mf.filename, mfp)
+         if unit.intended_use_id == 110
+            mfp = File.join(Settings.archive_mount, unit.directory, mf.filename)
+            bag.add_file( mf.filename, mfp)
+            master_file_cnt += 1
+         end
+      end
+
+      if master_file_cnt == 0 
+         on_error("No master files qualify for APTrust (intended use 110)")
+      else
+         logger.info "Added #{master_file_cnt} master files to bag"
       end
 
       logger.info "Add desc_metadata"
