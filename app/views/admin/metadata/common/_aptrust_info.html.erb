@@ -1,0 +1,57 @@
+<div class="panel">
+   <h3>APTrust Information</h3>
+   <div class="panel_contents">
+      <div class="attributes_table">
+         <table border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+               <tr class="row">
+                  <th>Date Submitted</th>
+                  <td>
+                  <%= meta.ap_trust_status.submitted_at.strftime("%F %r") %>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <th>Date Finished</th>
+                  <td>
+                     <% if meta.ap_trust_status.finished_at.nil? %>
+                        <span class="empty">Empty</span>
+                     <% else %>
+                        <%= meta.ap_trust_status.finished_at.strftime("%F %r") %>
+                     <% end %>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <th>Etag</th>
+                  <td>
+                  <%= meta.ap_trust_status.etag %>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <th>Status</th>
+                  <td>
+                  <%= meta.ap_trust_status.status %>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <th>APTrust Object</th>
+                  <td>
+                     <% if meta.ap_trust_status.object_id.nil? %>
+                        <span class="empty">Empty</span>
+                     <% else %>
+                        <a target="_blank" href="<%= Settings.aptrust_url %>/objects/<%= meta.ap_trust_status.object_id%>">
+                           <%= meta.ap_trust_status.object_id %>
+                        </a>
+                     <% end %>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <th>Note</th>
+                  <td>
+                  <%= meta.ap_trust_status.note %>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>

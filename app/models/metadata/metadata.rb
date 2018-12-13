@@ -73,7 +73,7 @@ class Metadata < ApplicationRecord
    end
 
    after_save do 
-      if saved_changes.has_key? "preservation_tier_id"
+      if saved_changes.has_key? "preservation_tier_id" && self.type != "ExternalMetadata"
          if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
             if Settings.aptrust_enabled == "true"
                PublishToApTrust.exec({metadata: self})
