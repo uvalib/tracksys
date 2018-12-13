@@ -7,8 +7,17 @@ class Api::PidController < ApplicationController
       obj = Metadata.find_by(pid: params[:pid])
       if !obj.nil?
          policy = "private"
-         polict = obj.availability_policy.name if !obj.availability_policy_id.nil?
-         render json: {id: obj.id, pid: obj.pid, type: obj.type.underscore, title: obj.title, availability_policy: policy}, status: :ok
+         policy = obj.availability_policy.name if !obj.availability_policy_id.nil?
+         out = {id: obj.id, pid: obj.pid, type: obj.type.underscore, title: obj.title, availability_policy: policy}
+         if !obj.ocr_hint_id.nil?
+            out[:ocr_hint] = obj.ocr_hint.name
+         end
+         if !obj.ocr_language_hint.blank?
+            if obj.ocr_language_hint.length == 3
+               out[:ocr_language_hint] = obj.ocr_language_hint
+            end
+         end
+         render json: out, status: :ok
          return
       end
 
