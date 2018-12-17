@@ -39,6 +39,7 @@ ActiveAdmin.register SirsiMetadata do
   scope :not_in_digital_library
   scope :dpla
   scope :checked_out
+  scope "In APTrust", :in_ap_trust
 
   filter :barcode_starts_with, label: "Barcode"
   filter :call_number_starts_with, label: "Call Number"
@@ -50,6 +51,7 @@ ActiveAdmin.register SirsiMetadata do
   filter :is_manuscript
   filter :dpla, :as => :select
   filter :use_right, :as => :select, label: 'Right Statement'
+  filter :preservation_tier, :as => :select
   filter :availability_policy
   filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc).map { |cf| [cf.name] }
 

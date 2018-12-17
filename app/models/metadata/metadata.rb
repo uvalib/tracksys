@@ -30,6 +30,7 @@ class Metadata < ApplicationRecord
    }
    scope :in_digital_library,  ->{ where("metadata.date_dl_ingest is not null").order("metadata.date_dl_ingest DESC") }
    scope :not_in_digital_library,  ->{ where("metadata.date_dl_ingest is null") }
+   scope :in_ap_trust,  ->{ joins(:ap_trust_status).where('ap_trust_statuses.status=?', 'Success') }
 
    #------------------------------------------------------------------
    # validations

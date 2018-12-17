@@ -29,6 +29,7 @@ ActiveAdmin.register XmlMetadata do
    scope :in_digital_library
    scope :not_in_digital_library
    scope :dpla
+   scope "In APTrust", :in_ap_trust
 
    # Filters ==================================================================
    #
@@ -38,6 +39,7 @@ ActiveAdmin.register XmlMetadata do
    filter :dpla, :as => :select
    filter :is_manuscript
    filter :use_right, :as => :select, label: 'Right Statement'
+   filter :preservation_tier, :as => :select
    filter :availability_policy
    filter :desc_metadata_contains, label: "XML Metadata"
    filter :collection_facet, :as => :select, :collection=>CollectionFacet.all.order(name: :asc)
