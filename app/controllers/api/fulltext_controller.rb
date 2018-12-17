@@ -39,7 +39,7 @@ class Api::FulltextController < ApplicationController
       render :plain=>"Text is required", status: :bad_request and return if params[:text].nil?
       mf = MasterFile.find_by(pid: params[:pid])
       render plain: "PID not found", status: :not_found and return if mf.nil?
-      if mf.text_source.blank? || text_source == "ocr"
+      if mf.text_source.blank? || mf.text_source == "ocr"
          # only update text if there is none or it is OCR
          mf.update(text_source: "ocr", transcription_text: params[:text])
          render plain: "Master File OCR text added", status: :ok
