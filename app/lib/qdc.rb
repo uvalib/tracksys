@@ -62,6 +62,7 @@ module QDC
          # use it and include the valueURI. If not, map the value to dcterms:medium
          if xpath.include?("genre")
             value_uri = lookup_genre(txt)
+            txt = txt.gsub(/\.$/, "")  # remove trailing . at end of genre
             if value_uri.blank?
                out << "<dcterms:medium>#{txt}</dcterms:medium>"
             else
