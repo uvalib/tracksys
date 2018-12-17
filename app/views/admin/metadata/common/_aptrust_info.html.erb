@@ -50,6 +50,12 @@
                   <%= meta.ap_trust_status.note %>
                   </td>
                </tr>
+               <% if Settings.aptrust_enabled == "true" %>
+                  <tr class="row">
+                     <th>Actions</th>
+                     <td></td>
+                  </tr>
+               <% end %>
             </tbody>
          </table>
       </div>

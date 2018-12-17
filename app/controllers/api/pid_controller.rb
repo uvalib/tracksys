@@ -28,8 +28,8 @@ class Api::PidController < ApplicationController
             orig = MasterFile.find(obj.original_mf_id)
             out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
          else 
-            if !mf.transcription_text.blank? && !mf.text_source.blank?
-               out[:text_source] = mf.text_source
+            if !obj.transcription_text.blank? && !obj.text_source.blank?
+               out[:text_source] = obj.text_source
             end
          end
          render json: out, status: :ok
