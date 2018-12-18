@@ -122,12 +122,6 @@ module QDC
                if dates[:general].nil?
                   dates[:general] = []
                end
-               # detect dates like: 1975-05-17/18 and toss the info after the slash
-               if /\d{4}-\d{1,2}-\d{1,2}/.match(clean_txt) && clean_txt.include?("/")
-                  dates[:generat] << clean_txt.split("/")[0]
-               else
-                  dates[:general] << clean_txt
-               end
             end
          end
 
@@ -177,7 +171,13 @@ module QDC
       elsif !key_date.blank?
          out << "<dcterms:created>#{key_date}</dcterms:created>"
       else
-         dates.each { |d| out << "<dcterms:created>#{d}</dcterms:created>" }
+         dates.each do |d| 
+            # detect dates like: 1975-05-17/18 and toss the info after the slash
+            if /\d{4}-\d{1,2}-\d{1,2}/.match(d) && d.include?("/")
+               d = d.split("/")[0]
+            end
+            out << "<dcterms:created>#{d}</dcterms:created>" 
+         end
       end
 
       return out
