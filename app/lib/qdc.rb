@@ -149,20 +149,26 @@ module QDC
          #   one with attribute keyDate="yes"
          doc.xpath("/mods/originInfo/dateCreated").each do |n|
             next if ignore_dates.include? n.text.strip.downcase
+            clean_date = clean_xml_text(n.text)
+            
+            # detect dates like: 1975-05-17/18 and toss the info after the slash
+            if /\d{4}-\d{1,2}-\d{1,2}/.match(clean_date) && clean_date.include?("/")
+               clean_date = clean_date.split("/")[0]
+            end
 
             # hold on to specific dates. decide which to use later
             if QDC.get_attribute(n, "keyDate") == "yes"
-               key_date = clean_xml_text(n.text)
+               key_date = clean_date
             end
             if QDC.get_attribute(n, "point")  == "start"
-               start_date = clean_xml_text(n.text)
+               start_date = clean_date
             end
             if QDC.get_attribute(n, "point")  == "end"
-               end_date = clean_xml_text(n.text)
+               end_date = clean_date
             end
 
             # track all dates found
-            dates << clean_xml_text(n.text)
+            dates << clean_date
          end
       end
 
@@ -171,13 +177,7 @@ module QDC
       elsif !key_date.blank?
          out << "<dcterms:created>#{key_date}</dcterms:created>"
       else
-         dates.each do |d| 
-            # detect dates like: 1975-05-17/18 and toss the info after the slash
-            if /\d{4}-\d{1,2}-\d{1,2}/.match(d) && d.include?("/")
-               d = d.split("/")[0]
-            end
-            out << "<dcterms:created>#{d}</dcterms:created>" 
-         end
+         dates.each { |d| out << "<dcterms:created>#{d}</dcterms:created>" }
       end
 
       return out
