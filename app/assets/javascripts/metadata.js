@@ -5,6 +5,14 @@ $(function() {
       $("#search-text").focus();
    });
 
+   $(".btn.aptrust-resubmit").on("click", function() {
+      if ( $(this).hasClass("disabled") ) return;
+
+      var btn = $(this);
+      btn.addClass("disabled");
+      btn.text("Submitting...");
+   });
+
    $(".btn.generate-qdc").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
 

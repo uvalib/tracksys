@@ -53,7 +53,9 @@
                <% if Settings.aptrust_enabled == "true" %>
                   <tr class="row">
                      <th>Actions</th>
-                     <td></td>
+                     <td>
+                        <span class="btn aptrust-resubmit" data-metadata="<%= meta.id %>">Resubmit</span>
+                     </td>
                   </tr>
                <% end %>
             </tbody>

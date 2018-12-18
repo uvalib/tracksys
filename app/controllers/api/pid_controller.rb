@@ -23,13 +23,25 @@ class Api::PidController < ApplicationController
 
       obj = MasterFile.find_by(pid: params[:pid])
       if !obj.nil?
+         parent_md = obj.metadata  
          out = {id: obj.id, pid: obj.pid, type: "master_file", title: obj.title, filename: obj.filename }
+         out[:parent_metadata_pid] = parent_md.pid if !parent_md.nil?
          if !obj.original_mf_id.nil?
             orig = MasterFile.find(obj.original_mf_id)
             out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
          else 
             if !obj.transcription_text.blank? && !obj.text_source.blank?
                out[:text_source] = obj.text_source
+               if !parent_md.nil?
+                  if !parent_md.ocr_hint_id.nil?
+                     out[:ocr_hint] = parent_md.ocr_hint.name
+                  end
+                  if !parent_md.ocr_language_hint.blank?
+                     if parent_md.ocr_language_hint.length == 3
+                        out[:ocr_language_hint] = parent_md.ocr_language_hint
+                     end
+                  end
+               end
             end
          end
          render json: out, status: :ok
