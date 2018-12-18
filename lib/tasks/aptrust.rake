@@ -27,4 +27,12 @@ namespace :aptrust do
       end
       PublishToApTrust.exec_now({metadata: metadata})
    end 
+
+   #
+   # TODO Need a task that can be called to bulk submit items to AAPTrust without
+   # overloading the system with JobStatuses. Likely needs to return an list of PID -> etag 
+   # mappings so status can be watched? Also needs to skip the status polling portion
+   # Follow model if the PublishQDC job; extract main logic into a public status method 
+   # that can be called from do_workflow or from a rake task
+   #
 end

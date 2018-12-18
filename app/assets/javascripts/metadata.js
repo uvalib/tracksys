@@ -19,7 +19,7 @@ $(function() {
             btn.removeClass("disabled");
             btn.text("Resubmit");
             if (textStatus != "success") {
-               alert("Unable to generate QDC: "+jqXHR.responseText);
+               alert("Resubmission failed: "+jqXHR.responseText);
             } else {
                alert("This item has been resubmitted to APTrust. Check the Job Status page for progress.")
             }
