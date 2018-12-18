@@ -122,7 +122,12 @@ module QDC
                if dates[:general].nil?
                   dates[:general] = []
                end
-               dates[:general] << clean_txt
+               # detect dates like: 1975-05-17/18 and toss the info after the slash
+               if /\d{4}-\d{1,2}-\d{1,2}/.match(clean_txt) && clean_txt.include?("/")
+                  dates[:generat] << clean_txt.split("/")[0]
+               else
+                  dates[:general] << clean_txt
+               end
             end
          end
 
