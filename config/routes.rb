@@ -66,6 +66,7 @@ Tracksys::Application.routes.draw do
      get "stylesheet/:id" => "stylesheet#show"
      get "reports" => "reports#generate"
      post "qdc/:id" => "qdc#generate"
+     put "aptrust/:id" => "ap_trust#resubmit"
      get "manifest/:pid" => "manifest#show"
   end
 end

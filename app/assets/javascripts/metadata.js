@@ -10,7 +10,21 @@ $(function() {
 
       var btn = $(this);
       btn.addClass("disabled");
+      var metaID = $(this).data("metadata");
       btn.text("Submitting...");
+      $.ajax({
+         url: "/api/aptrust/"+metaID,
+         method: "PUT",
+         complete: function(jqXHR, textStatus) {
+            btn.removeClass("disabled");
+            btn.text("Resubmit");
+            if (textStatus != "success") {
+               alert("Unable to generate QDC: "+jqXHR.responseText);
+            } else {
+               alert("This item has been resubmitted to APTrust. Check the Job Status page for progress.")
+            }
+         }
+      });
    });
 
    $(".btn.generate-qdc").on("click", function() {
