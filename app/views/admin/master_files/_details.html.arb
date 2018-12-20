@@ -38,7 +38,7 @@ div :class => 'two-column' do
       attributes_table_for master_file do
          row :md5
          row :filesize do |master_file|
-            "#{master_file.filesize / 1048576} MB"
+            "#{'%0.2f' % (master_file.filesize / 1048576.0)} MB"
          end
          if master_file.image_tech_meta
             attributes_table_for master_file.image_tech_meta do
