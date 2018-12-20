@@ -7,13 +7,44 @@ class PublishToApTrust < BaseJob
       raise "Parameter 'metadata' is required" if message[:metadata].blank?
       metadata = message[:metadata]
 
-      if metadata.preservation_tier_id < 2 
+      if metadata.preservation_tier_id.blank? || !metadata.preservation_tier_id.blank? && metadata.preservation_tier_id < 2 
          on_error("Preservation tier must be greater than 1")
       end
 
-      logger.info "Create new bag"
+      # Generate bag, submit to aptrust and get resultant etag
+      etag = PublishToApTrust.do_submission(metadata, logger)
+      if etag.blank?
+         on_error("Bag submission failed")
+      end
+
+      # poll APTrust to follow submission status. only when it is done end this job
+      logger.info("Polling APTrust to monitor submission status")
+      while (true) do 
+         sleep(1.minute)
+
+         resp = ApTrust::status(etag)
+         if !resp.nil?
+            apt_status.update(status: resp[:status], note: resp[:note])  
+            logger.info("Status: #{resp[:status]}, stage: #{resp[:stage]}")
+
+            if resp[:status] == "Failed" || resp[:status] == "Success" 
+               logger.info("APTrust submission #{resp[:status]}")
+               apt_status.update(finished_at: resp[:finished_on], object_id: resp[:object_id])
+               break
+            end
+         end
+      end
+   end
+
+   def self.do_submission(metadata, logger = Logger.new(STDOUT) )
+      if metadata.preservation_tier_id.blank? || metadata.preservation_tier_id == 1
+         logger.error "Preservation tier [#{metadata.preservation_tier_id}] not suitable for submission to APTrust"
+         return nil
+      end
+
       storage = "Standard"
       storage = "Glacier-VA" if metadata.preservation_tier_id == 2
+      logger.info "Create new bag flagged for #{storage} storage"
       bag = Bagit::Bag.new({bag: "tracksys-#{metadata.type.downcase}-#{metadata.id}", 
          title: metadata.title, pid: metadata.pid, storage: storage}, logger)
 
@@ -30,12 +61,13 @@ class PublishToApTrust < BaseJob
       end
 
       if master_file_cnt == 0 
-         on_error("No master files qualify for APTrust (intended use 110)")
+         logger.error("No master files qualify for APTrust (intended use 110)")
+         return nil
       else
          logger.info "Added #{master_file_cnt} master files to bag"
       end
 
-      logger.info "Add desc_metadata"
+      logger.info "Add XML Metadata"
       bag.add_file("#{metadata.pid}.xml") { |io| io.write Hydra.desc(metadata) }
       
       logger.info "Generate manifests"
@@ -59,22 +91,6 @@ class PublishToApTrust < BaseJob
       logger.info("cleaning up bag working files")
       bag.cleanup
 
-      # poll APTrust to follow submission status. only when it is done end this job
-      logger.info("Polling APTrust to monitor submission status")
-      while (true) do 
-         sleep(1.minute)
-
-         resp = ApTrust::status(etag)
-         if !resp.nil?
-            apt_status.update(status: resp[:status], note: resp[:note])  
-            logger.info("Status: #{resp[:status]}, stage: #{resp[:stage]}")
-
-            if resp[:status] == "Failed" || resp[:status] == "Success" 
-               logger.info("APTrust submission #{resp[:status]}")
-               apt_status.update(finished_at: resp[:finished_on], object_id: resp[:object_id])
-               break
-            end
-         end
-      end
+      return etag
    end
 end

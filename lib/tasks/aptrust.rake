@@ -1,38 +1,50 @@
 namespace :aptrust do
    desc "Submit a bg containing a single item"
    task :submit_one  => :environment do
+      # Metadata ID or PID is required. Use it to get the metadata record
       pid = ENV['pid']
-      id = ENV['id']
-      storage = ENV['storage']
+      id = ENV['id']   
       abort("PID or ID is required") if pid.nil? && id.nil? 
-      abort("Storage is required") if storage.nil?
-      abort("Storage must be standard or glacier") if !["standard", "glacier"].include?(storage)
-
       metadata = nil
       if !id.nil?
-         metadata = Metadata.find(id)
+         metadata = Metadata.find_by(id: id)
+         abort("Invalid ID") if metadata.nil?
       else 
          metadata = Metadata.find_by(pid: pid)
+         abort("Invalid PID") if metadata.nil?
       end
-      abort("Invalid PID or ID") if metadata.nil?
+      puts "Send Metadata #{metadata.pid}: #{metadata.title} to APTrust"
 
-      tier_id = 2 
-      tier_id = 3 if storage == "standard"
+      # Storage is optional and can be used to update preservation tier of metadata before submission
+      storage = ENV['storage']
+      if storage.nil?
+         # No storage provided. Make sure the current tier setting is appropriate for APTrust
+         if metadata.preservation_tier_id.blank? || metadata.preservation_tier_id == 1
+            abort "Preservation Tier ID [#{metadata.preservation_tier_id}] not suitable for submission to APTrust"
+         end
+      else
+         abort("Storage must be standard or glacier") if !["standard", "glacier"].include?(storage)
 
-      # Block the automatic check and submission that happes in a callback
-      # we will do it below instead...
-      if metadata.preservation_tier_id != tier_id
-         Metadata.skip_callback( :save, :after, :aptrust_checks)
-         metadata.update(preservation_tier_id: tier_id)
+         tier_id = 2 
+         tier_id = 3 if storage == "standard"
+
+         # Block the automatic check and submission that happens in a callback
+         # it will be done manually below instead
+         if metadata.preservation_tier_id != tier_id
+            puts "Update storage to tier #{tier_id}, #{storage} storage"
+            Metadata.skip_callback( :save, :after, :aptrust_checks)
+            metadata.update(preservation_tier_id: tier_id)
+         else 
+            puts "No updates necessary - storage already set to #{storage}"
+         end
       end
-      PublishToApTrust.exec_now({metadata: metadata})
+
+
+      etag = PublishToApTrust.do_submission(metadata)
+      puts "Bag submitted. Check status with etag: #{etag}"
    end 
 
    #
-   # TODO Need a task that can be called to bulk submit items to AAPTrust without
-   # overloading the system with JobStatuses. Likely needs to return an list of PID -> etag 
-   # mappings so status can be watched? Also needs to skip the status polling portion
-   # Follow model if the PublishQDC job; extract main logic into a public status method 
-   # that can be called from do_workflow or from a rake task
+   # TODO Need a task that can be called to bulk submit items to AAPTrust. Add when items are known
    #
 end
