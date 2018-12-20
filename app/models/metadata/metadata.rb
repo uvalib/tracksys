@@ -130,7 +130,7 @@ class Metadata < ApplicationRecord
    def exemplar_info( size = :small )
       mf = master_files.where(exemplar: true).first
       page = mf.filename.split("_")[1].split(".")[0].to_i
-      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, pid: mf.pid}
+      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
       return info
    end
 

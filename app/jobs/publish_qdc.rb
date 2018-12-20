@@ -55,11 +55,25 @@ class PublishQDC < BaseJob
       FileUtils.mkdir_p pid_path if !Dir.exist?(pid_path)
       qdc_fn = File.join(pid_path, "#{meta.pid}.xml")
 
+      # Make sure the exemplar doesnt have filesize=507620. This equates to an image with text 
+      # 'Original Image Missing'. Instead of the IIIF URL, include this text: 'original image missing'
       log.info("Select exemplarPID...")
       if meta.has_exemplar?
-         exemplar_pid =  meta.exemplar_info[:pid]
+         exemplar_info = meta.exemplar_info
+         if exemplar_info[:filesize] == 507620 
+            log.info("Exemplar matches filesize for missing thumb. Replace IIIF with text")
+            preview = "original image missing"
+         else 
+            preview = "https://iiif.lib.virginia.edu/iiif/#{exemplar_info[:pid]}/full/!300,300/0/default.jpg"
+         end
       else
-         exemplar_pid = meta.master_files.first.pid
+         ex_mf = meta.master_files.first
+         if ex_mf.filesize == 507620 
+            log.info("Exemplar matches filesize for missing thumb. Replace IIIF with text")
+            preview = "original image missing"
+         else 
+            preview = "https://iiif.lib.virginia.edu/iiif/#{ex_mf.pid}/full/!300,300/0/default.jpg"
+         end
       end
 
       # ingest into an XML document and do a manual crosswalk to get data
@@ -69,7 +83,7 @@ class PublishQDC < BaseJob
 
       # Populate data that is common between XML/Sirsi metadat first
       cw_data = {}
-      cw_data['EXEMPLAR'] = exemplar_pid
+      cw_data['PREVIEW'] = preview
       cw_data['TITLE'] = QDC.clean_xml_text(meta.title)
       if cw_data['TITLE'].downcase == "untitled"
          log.info("This item has title 'untitled'. Skipping.")

@@ -15,5 +15,5 @@
     <dcterms:isReferencedBy>http://search.lib.virginia.edu/catalog/PID/iiif/manifest.json</dcterms:isReferencedBy>
     <dcterms:rights>RIGHTS</dcterms:rights>
     <edm:isShownAt>http://search.lib.virginia.edu/catalog/PID</edm:isShownAt>
-    <edm:preview>https://iiif.lib.virginia.edu/iiif/EXEMPLAR/full/!300,300/0/default.jpg</edm:preview>
+    <edm:preview>PREVIEW</edm:preview>
 </mdRecord>
