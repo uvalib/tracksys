@@ -322,4 +322,30 @@ namespace :dpla do
       end
       return cnt
    end
+
+   desc "remove all dpla collections where exemplar is a missing image placeholder"
+   task :remove_placholders  => :environment do
+      q = "select distinct m.pid from master_files mf"
+      q << " inner join metadata m on mf.metadata_id = m.id where filesize=507620 and dpla=1"
+      cnt = 0
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      Metadata.find_by_sql(q).each do |m|
+         puts "#{m.pid} has a placeholder image"
+         relative_pid_path = QDC.relative_pid_path(m.pid)
+         pid_path = File.join(qdc_dir, relative_pid_path)
+         qdc_fn = File.join(pid_path, "#{m.pid}.xml")
+         if File.exist? qdc_fn
+            puts "  removing existing file that was published to DPLA."
+            cnt +=1
+            cmd = "git rm #{qdc_fn}"
+            puts "   #{cmd}"
+            `#{cmd}`
+         else
+            puts "   this item has not been published to DPLA. Nothing to do."
+         end
+      end
+      puts "Removed #{cnt} items from DPLA"
+   end
 end

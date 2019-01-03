@@ -61,18 +61,18 @@ class PublishQDC < BaseJob
       if meta.has_exemplar?
          exemplar_info = meta.exemplar_info
          if exemplar_info[:filesize] == 507620 
-            log.info("Exemplar matches filesize for missing thumb. Replace IIIF with text")
-            preview = "original image missing"
+            log.info "This item has a placeholder image indicating that the digitized version is missing. Skipping."
+            return nil
          else 
-            preview = "https://iiif.lib.virginia.edu/iiif/#{exemplar_info[:pid]}/full/!300,300/0/default.jpg"
+            exemplar_pid = exemplar_info[:pid]
          end
       else
          ex_mf = meta.master_files.first
          if ex_mf.filesize == 507620 
-            log.info("Exemplar matches filesize for missing thumb. Replace IIIF with text")
-            preview = "original image missing"
+            log.info "This item has a placeholder image indicating that the digitized version is missing. Skipping."
+            return nil
          else 
-            preview = "https://iiif.lib.virginia.edu/iiif/#{ex_mf.pid}/full/!300,300/0/default.jpg"
+            exemplar_pid = ex_mf.pid
          end
       end
 
@@ -83,12 +83,13 @@ class PublishQDC < BaseJob
 
       # Populate data that is common between XML/Sirsi metadat first
       cw_data = {}
-      cw_data['PREVIEW'] = preview
+      cw_data['EXEMPLAR'] = exemplar_pid
       cw_data['TITLE'] = QDC.clean_xml_text(meta.title)
       if cw_data['TITLE'].downcase == "untitled"
          log.info("This item has title 'untitled'. Skipping.")
          if File.exist? qdc_fn
             log.info "Skipped item has file #{qdc_fn}; removing it"
+            # FIXME the file is not actually removed
          end
          return nil
       end
@@ -106,6 +107,7 @@ class PublishQDC < BaseJob
             log.info("This visual history item has use rights issues. Skipping")
             if File.exist? qdc_fn
                log.info "Skipped item has file #{qdc_fn}; removing it"
+               # FIXME the file is not actually removed
             end
             return nil
          else
