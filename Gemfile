@@ -39,7 +39,6 @@ gem "mini_magick"
 gem 'rest-client'
 gem 'prawn'
 gem 'prawn-table'
-gem 'net-ldap'
 gem 'country-select'
 
 gem 'jquery-rails'

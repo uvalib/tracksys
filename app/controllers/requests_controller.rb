@@ -30,18 +30,13 @@ class RequestsController < ApplicationController
       @customer = Customer.new(academic_status_id: 1)
       if session[:agree_to_copyright]
          if session[:computing_id] != 'Non-UVA'
-            # UVa user; get LDAP info for user (already authenticated via NetBadge)
-            begin
-               ldap_info = UvaLdap.new(session[:computing_id])
-               @customer = Customer.new(
-                  email: ldap_info.email.first,
-                  first_name: ldap_info.first_name.first,
-                  last_name:  ldap_info.last_name.first,
-                  academic_status_id: AcademicStatus.find_by( name: ldap_info.uva_status.first).id
-               )
-            rescue Exception=>e
-               # Failed trying to get UVA info; default to not affiliated with UVa
-               Rails.logger.error "Error getting UVA info: #{e}"
+            email = "#{session[:computing_id]}@virginia.edu"
+            cust = Customer.find_by(email: email)
+            if !cust.nil?
+               Rails.logger.info("Found existing Customer with email '#{email}'")
+               @customer = cust   
+            else 
+               Rails.logger.info("User '#{session[:computing_id]}' is a new customer. Order form will not be autofilled")
             end
          end
       end
