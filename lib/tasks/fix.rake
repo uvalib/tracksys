@@ -1,5 +1,18 @@
 #encoding: utf-8
 namespace :fix do
+   task :unit_mf_metadata => :environment do
+      uid = ENV['id']
+      abort("id is required") if uid.nil?
+      unit = Unit.find(uid)
+      puts "Update master files of unit #{unit.id} to metadata #{unit.metadata.pid}"
+      unit.master_files.each do |mf|
+         print(".")
+         mf.update(metadata_id: unit.metadata_id)
+      end
+      puts ""
+      puts "DONE"
+   end
+
    task :add_pdf_use => :environment do
       IntendedUse.create!(description: "Reading Copy", is_approved:1, deliverable_format: "pdf")
    end
