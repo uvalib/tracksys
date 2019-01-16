@@ -1,5 +1,22 @@
 namespace :apollo do
 
+   desc "Check production SOLR index for info about incomplete Apollo WSLS items"
+   task :check_missing  => :environment do
+      solr_q = "http://solr.lib.virginia.edu:8082/solr/core/select?q=identifier_text:%22_WSLS_ID_%22&wt=json"
+      wsls_csv = File.join(Rails.root, "data", "wsls_missing_info.csv")
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         puts "WSLS_ID: #{row[1]}"
+         q = solr_q.gsub(/_WSLS_ID_/, row[1])
+         resp = RestClient.get q
+         json = JSON.parse(resp.body)
+         cnt = json["response"]["numFound"].to_i
+         if cnt != 0 
+            abort row
+         end
+         sleep 0.2
+      end
+   end
+
    desc "Convert an entire componet-based serial to Apollo ExternalMetadata"
    task :convert  => :environment do
       pid = ENV['pid']
