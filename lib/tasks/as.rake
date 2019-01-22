@@ -141,15 +141,15 @@ namespace :as do
       puts ArchivesSpace.lookup(url)
    end
 
-   desc "Create a link between AS and TS"
-   task :create_link => :environment do
-      uid = ENV['unit_id']
+   desc "Convert a metadata record to AS"
+   task :convert => :environment do
+      metadata_id = ENV['metadata_id']
       url = ENV['as_url']
-      abort("unit_id and as_url are required") if uid.blank? || url.blank?
+      abort("metadata_id and as_url are required") if metadata_id.blank? || url.blank?
       begin
-         ArchivesSpace.link(uid, url)
+         ArchivesSpace.convert(metadata_id, url)
       rescue Exception => e
-         puts "Link FAILED: #{e.to_s}"
+         puts "Conversion FAILED: #{e.to_s}"
       end
    end
 

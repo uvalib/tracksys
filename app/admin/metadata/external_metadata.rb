@@ -192,6 +192,16 @@ ActiveAdmin.register ExternalMetadata do
       end
    end
 
+   member_action :as_publish, :method => :post do
+      begin 
+         metadata = ExternalMetadata.find( params[:id])
+         PublishToAS.exec_now({metadata: metadata})
+         render plain: "OK"
+      rescue Exception => e  
+         render plain: "Publish Failed: "+e.to_s, status: :error
+      end
+   end
+
    controller do
       def update
          super
@@ -250,24 +260,26 @@ ActiveAdmin.register ExternalMetadata do
             # First, authenticate with the API. Necessary to call other methods
             auth = ArchivesSpace.get_auth_session()
             as = resource.external_system
-
-            # Now get the target object details ...
-            url = "#{as.api_url}#{resource.external_uri}"
-            ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
-            ao_json = JSON.parse(ao_detail.body)
+            url = "#{as.public_url}#{resource.external_uri}"
+            tgt_obj = ArchivesSpace.get_details(auth, url)
+            puts "TGT=== #{tgt_obj}"
 
             # build a data struct to represent the AS data
-            title = ao_json['title']
-            title = ao_json['display_string'] if title.blank?
+            title = tgt_obj['title']
+            title = tgt_obj['display_string'] if title.blank?
             @as_info = {
-               title: title, created_by: ao_json['created_by'],
-               create_time: ao_json['create_time'], level: ao_json['level'],
-               url: "#{as.public_url}#{resource.external_uri}"
-               # url: "#{as.public_url}/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(resource.external_uri)}"
+               title: title, created_by: tgt_obj['created_by'],
+               create_time: tgt_obj['create_time'], level: tgt_obj['level'],
+               url: url
             }
-            dates = ao_json['dates'].first
+            dates = tgt_obj['dates'].first
             if !dates.nil?
                @as_info[:dates] = dates['expression']
+            end
+
+            dobj = ArchivesSpace.get_digital_object(auth, tgt_obj, resource.pid )
+            if !dobj.nil?
+               @as_info[:published_at] = dobj[:created]
             end
 
             # pull repo ID from external URL and use it to lookup repo name:
@@ -275,21 +287,22 @@ ActiveAdmin.register ExternalMetadata do
             repo_id = resource.external_uri.split("/")[2]
             repo_detail = ArchivesSpace.get_repository(auth, repo_id)
             @as_info[:repo] = repo_detail['name']
+   
 
-            if !ao_json['ancestors'].nil?
-               anc = ao_json['ancestors'].last
+            if !tgt_obj['ancestors'].nil?
+               anc = tgt_obj['ancestors'].last
                url = "#{as.api_url}#{anc['ref']}"
                coll = RestClient.get url, ArchivesSpace.auth_header(auth)
                coll_json = JSON.parse(coll.body)
 
-               @as_info[:collection_title] = coll_json['finding_aid_title']
+               @as_info[:collection_title] = coll_json['finding_aid_title'].split("<num")[0]
                @as_info[:id] = coll_json['id_0']
                @as_info[:language] = coll_json['language']
 
             else
-               @as_info[:collection_title] = ao_json['finding_aid_title'].split("<num")[0]
-               @as_info[:id] = ao_json['id_0']
-               @as_info[:language] = ao_json['language']
+               @as_info[:collection_title] = tgt_obj['finding_aid_title'].split("<num")[0]
+               @as_info[:id] = tgt_obj['id_0']
+               @as_info[:language] = tgt_obj['language']
             end
          rescue Exception => e
             logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"

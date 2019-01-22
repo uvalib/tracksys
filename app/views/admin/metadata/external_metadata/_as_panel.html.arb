@@ -38,7 +38,18 @@ attributes_table_for external_metadata do
          as_info[:created_by]
       end
       row("Create Time") do |xm|
-         as_info[:create_time]
+         DateTime.parse(as_info[:create_time]).strftime("%F %r")
+      end
+      row("Publication Time") do |xm|
+         if as_info[:published_at].nil?
+            if xm.master_files.count > 0
+               span class: "btn as-publish" do "Publish Now" end
+            else
+               "No Master Files. Not Published."
+            end
+         else 
+            DateTime.parse(as_info[:published_at]).strftime("%F %r")
+         end
       end
    end
 end

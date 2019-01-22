@@ -65,12 +65,12 @@ class CheckUnitDeliveryMode < BaseJob
          create_patron_deliverables(unit)
       end
 
-      logger.info "Processing complete; removing processing diectory: #{processing_dir}"
+      logger.info "Processing complete; removing processing directory: #{processing_dir}"
       FileUtils.rm_rf(processing_dir)
 
       # See if the unit should be published to AS
       if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system.name == "ArchivesSpace" && unit.throw_away == false
-         PublishToAS.exec_now({unit: unit})
+         PublishToAS.exec_now({metadata: unit.metadata})
       end
 
       # All units except re-orders go to archive

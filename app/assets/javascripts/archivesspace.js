@@ -14,22 +14,38 @@ $(document).ready(function () {
 
     $("#create-as-link").addClass("disabled");
     $("#cancel-as").addClass("disabled");
-    var unitID = $(this).data("unit-id");
+    var metadataID = $(this).data("metadata-id");
 
     $.ajax({
-        url: "/admin/archivesspace",
+        url: "/admin/archivesspace/convert",
         method: "POST",
-        data: { unit_id: unitID, as_url: $("#as_url").val() },
+        data: { metadata_id: metadataID, as_url: $("#as_url").val() },
         complete: function(jqXHR, textStatus) {
            $("#create-as-link").removeClass("disabled");
            $("#cancel-as").removeClass("disabled");
            if ( textStatus != "success" ) {
-              alert("Link failed: "+jqXHR.responseText);
+              alert("Conversion failed: "+jqXHR.responseText);
            } else {
-              alert("Link created");
               window.location.reload();
            }
         }
+    });
+  });
+
+  $(".btn.as-publish").on("click", function() {
+    if ( $(".btn.as-publish").hasClass("disabled")) return;
+    $(".btn.as-publish").addClass("disabled");
+    $.ajax({
+      url: window.location.href+"/as_publish",
+      method: "POST",
+      complete: function(jqXHR, textStatus) {
+        $(".btn.as-publish").removeClass("disabled");
+        if ( textStatus == "success" ) {
+          window.location.reload();
+        } else {
+          alert(jqXHR.responseText);
+        }
+      }
     });
   });
 });

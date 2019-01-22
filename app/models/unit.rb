@@ -75,8 +75,9 @@ class Unit < ApplicationRecord
             # update all of those master files to match the unit. IMPORTANT:
             # Don't do this if masterfile has XML metadata. These will always
             # be different from the unit and must remain that way - the metadata
-            # is specific to each masterfile.
-            next if mf.metadata.type == "XmlMetadata"
+            # is specific to each masterfile. ExternalMetadata can fall under similar
+            # circumstance, so don't update those either
+            next if mf.metadata.type == "XmlMetadata" || mf.metadata.type == "ExternalMetadata"
             if mf.metadata.nil? || (!mf.metadata.nil? && mf.metadata.id != self.metadata.id)
                mf.update(metadata: self.metadata)
             end
