@@ -36,7 +36,7 @@ class Api::PidController < ApplicationController
                if !parent_md.nil?
                   if !parent_md.ocr_hint_id.nil?
                      out[:ocr_hint] = parent_md.ocr_hint.name
-                     out[:ocr_candidate] = obj.ocr_hint.ocr_candidate
+                     out[:ocr_candidate] = parent_md.ocr_hint.ocr_candidate
                   end
                   if !parent_md.ocr_language_hint.blank?
                      if parent_md.ocr_language_hint.length == 3
