@@ -31,17 +31,15 @@ class Api::PidController < ApplicationController
             orig = MasterFile.find(obj.original_mf_id)
             out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
          else 
-            if !obj.transcription_text.blank? && !obj.text_source.blank?
-               out[:text_source] = obj.text_source
-               if !parent_md.nil?
-                  if !parent_md.ocr_hint_id.nil?
-                     out[:ocr_hint] = parent_md.ocr_hint.name
-                     out[:ocr_candidate] = parent_md.ocr_hint.ocr_candidate
-                  end
-                  if !parent_md.ocr_language_hint.blank?
-                     if parent_md.ocr_language_hint.length == 3
-                        out[:ocr_language_hint] = parent_md.ocr_language_hint
-                     end
+            out[:text_source] = obj.text_source if !obj.text_source.blank?
+            if !parent_md.nil?
+               if !parent_md.ocr_hint_id.nil?
+                  out[:ocr_hint] = parent_md.ocr_hint.name
+                  out[:ocr_candidate] = parent_md.ocr_hint.ocr_candidate
+               end
+               if !parent_md.ocr_language_hint.blank?
+                  if parent_md.ocr_language_hint.length == 3
+                     out[:ocr_language_hint] = parent_md.ocr_language_hint
                   end
                end
             end
