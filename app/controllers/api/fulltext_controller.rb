@@ -5,6 +5,7 @@ class Api::FulltextController < ApplicationController
       render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
       render :plain=>"Type is required", status: :bad_request and return if params[:type].nil?
       render :plain=>"Type is invalid", status: :bad_request and return if  !types.include? params[:type]
+      page_breaks = !params[:breaks].nil?
 
       # check each model that can have a PID to find a match. metadata takes precedence
       object = Metadata.find_by(pid: params[:pid])
@@ -25,7 +26,11 @@ class Api::FulltextController < ApplicationController
          out = ""
          out << object.title if params[:type] == "title" && !object.title.blank?
          object.master_files.each do |mf|
-            out << "\n" if out.length > 0
+            if page_breaks
+               out << "[PAGE #{mf.filename.split("_").last.split(".").first}]" 
+            else
+               out << "\n" if out.length > 0
+            end
             out << mf.transcription_text if params[:type] == "transcription" && !mf.transcription_text.blank?
             out << mf.description if params[:type] == "description" && !mf.description.blank?
             out << mf.title if params[:type] == "title" && !mf.title.blank?
