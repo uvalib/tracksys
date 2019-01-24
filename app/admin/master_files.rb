@@ -156,15 +156,11 @@ ActiveAdmin.register MasterFile do
    sidebar "Thumbnail", :only => [:show],  if: proc{ !master_file.deaccessioned? } do
       div :style=>"text-align:center" do
          mf_id = master_file.id
-         page = master_file.filename.split("_")[1].split(".")[0].to_i
-         if master_file.is_clone?
-            mf_id = master_file.original_mf_id
-            page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
-         end
+         page = master_file.get_page_number()
          image_tag(
             master_file.link_to_image(:medium),
             class: "do-viewer-enabled", id: mf_id,
-            data: { page: page, metadata_pid: master_file.metadata.pid } )
+            data: { page: page, metadata_pid: master_file.metadata.pid, curio_url: Settings.doviewer_url } )
       end
       if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned? && master_file.ocr_candidate?
          div style: "margin-top:10px; text-align: center;" do

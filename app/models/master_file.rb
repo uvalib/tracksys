@@ -79,6 +79,33 @@ class MasterFile < ApplicationRecord
       update!(locations: [loc])
    end
 
+   # Figure out the actual page number for this master file. It may not match the
+   # filename numbering scheme if it MF metadata is different from the unit metadata
+   def get_page_number
+      # this is the normal case; masterfile and unit share same metadata record
+      # so page number will match the numbering sequence of the filename
+      page = filename.split("_")[1].split(".")[0].to_i
+      if metadata_id == unit.metadata_id
+         if is_clone?
+            mf_id = original_mf_id
+            page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
+         end
+      else
+         # this master file has been assigned to a separate metadata record. the 
+         # page number in the filename does not reflect the actual page num. Count 
+         # masterfiles owned by metadata record to determine
+         page = 1
+         metadata.master_files.each do |mf| 
+            if mf.id == id 
+               break
+            else
+               page += 1
+            end
+         end
+      end
+      return page
+   end
+
    def deaccessioned?
       return !self.deaccessioned_at.blank?
    end
