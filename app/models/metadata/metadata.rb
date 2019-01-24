@@ -128,9 +128,19 @@ class Metadata < ApplicationRecord
    # return a hash containing URL, filename, PID, ID and page number for exemplar
    # Optionally specify a size for the thumbnail. Small is the default
    def exemplar_info( size = :small )
-      mf = master_files.where(exemplar: true).first
-      page = mf.filename.split("_")[1].split(".")[0].to_i
-      info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
+      page = 1
+      puts "Get exemplar info from list of #{master_files.count} master files"
+      master_files.each do |mf|
+         if mf.exemplar == true 
+            puts "GOT IT AT PAGE=#{page}"
+            info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
+            return info
+         else
+            page += 1
+         end
+      end
+      mf = master_files.first
+      info = {url: mf.link_to_image(size), page: 1, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
       return info
    end
 

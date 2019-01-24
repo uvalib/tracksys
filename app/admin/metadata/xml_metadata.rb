@@ -153,6 +153,9 @@ ActiveAdmin.register XmlMetadata do
             render '/admin/metadata/xml_metadata/xml_meta'
          end
       end
+      div id: "dimmer" do
+         render partial: "/admin/common/viewer_modal"
+      end
    end
 
    # EDIT page ================================================================
@@ -167,7 +170,7 @@ ActiveAdmin.register XmlMetadata do
          image_tag(
             info[:url], id: info[:id],
             class: "do-viewer-enabled",
-            data: { page: info[:page], metadata_pid:xml_metadata.pid } )
+            data: { page: info[:page], metadata_pid:xml_metadata.pid, curio_url: Settings.doviewer_url } )
       end
    end
 

@@ -18,7 +18,7 @@
 //= require skills
 //= require tags
 //= require messages
-//= require do_viewer
+//= require curio
 //= require metadata
 //= require master-file-locations
 //= require codemirror
