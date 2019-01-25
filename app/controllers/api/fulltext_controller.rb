@@ -23,9 +23,12 @@ class Api::FulltextController < ApplicationController
          render plain: object.description.gsub(/\s+/, ' ').strip if params[:type] == "description" && !object.description.blank?
          render plain: object.title.gsub(/\s+/, ' ').strip if params[:type] == "title" && !object.title.blank?
       else
+         uid = params[:unit]
+         render :plain=>"Unit is required", status: :bad_request and return if  uid.nil?
+
          out = ""
          out << object.title if params[:type] == "title" && !object.title.blank?
-         object.master_files.each do |mf|
+         object.master_files.where(unit_id: uid).each do |mf|
             if page_breaks
                out << "[PAGE #{mf.filename.split("_").last.split(".").first}]" 
             else
