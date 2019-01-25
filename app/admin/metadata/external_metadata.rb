@@ -206,15 +206,28 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    controller do
+      def create 
+         super
+         if resource.external_system.name == "ArchivesSpace"
+            auth = ArchivesSpace.get_auth_session()
+            as = resource.external_system
+            url = "#{as.public_url}#{resource.external_uri}"
+            tgt_obj = ArchivesSpace.get_details(auth, url)
+            title = tgt_obj['title']
+            title = tgt_obj['display_string'] if title.blank?
+            resource.update(title: title)
+         end
+      end
+
       def update
          super
          if resource.external_system.name == "ArchivesSpace"
             auth = ArchivesSpace.get_auth_session()
-            url = "#{resource.external_system.api_url}#{resource.external_uri}"
-            ao_detail = RestClient.get url, ArchivesSpace.auth_header(auth)
-            ao_json = JSON.parse(ao_detail.body)
-            title = ao_json['title']
-            title = ao_json['display_string'] if title.blank?
+            as = resource.external_system
+            url = "#{as.public_url}#{resource.external_uri}"
+            tgt_obj = ArchivesSpace.get_details(auth, url)
+            title = tgt_obj['title']
+            title = tgt_obj['display_string'] if title.blank?
             resource.update(title: title)
          else
             resp = RestClient.get "#{resource.external_system.public_url}#{resource.external_uri}"
@@ -265,7 +278,6 @@ ActiveAdmin.register ExternalMetadata do
             as = resource.external_system
             url = "#{as.public_url}#{resource.external_uri}"
             tgt_obj = ArchivesSpace.get_details(auth, url)
-            puts "TGT=== #{tgt_obj}"
 
             # build a data struct to represent the AS data
             title = tgt_obj['title']
