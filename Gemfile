@@ -20,6 +20,7 @@ gem 'turnout'           # Maintence page
 
 gem 'annotate'
 gem 'mysql2'  
+gem 'redis'             # for cache of AS session tokens  
 gem 'ancestry'
 
 # gems for APTrust submission
@@ -50,6 +51,7 @@ group :development, :test do
 end
 
 group :development do
+#  gem 'rb-readline'  # use this if there are dl_open problems with readline on osx
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '>= 3.0.5', '< 3.2'

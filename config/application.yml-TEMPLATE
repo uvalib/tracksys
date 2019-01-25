@@ -28,6 +28,11 @@ aptrust_user: APTRUST_USER
 aptrust_key: APTRUST_KEY
 aptrust_api_url: https://demo.aptrust.org/member-api/v2
 
+# redis info; used to cache AS session tokens 
+redis_host: redis.lib.virginia.edu
+redis_pass: REDIS_PASS
+redis_prefix: tracksys
+
 # Email controls; use to prevent email from being sent
 # to customer from a dev server
 send_customer_email: "true"

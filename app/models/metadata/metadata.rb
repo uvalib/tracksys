@@ -55,7 +55,6 @@ class Metadata < ApplicationRecord
       if self.changes.has_key? "preservation_tier_id"
          # once sent to APTrust, disallow change to lesser tier
          change = self.changes["preservation_tier_id"]
-         puts "change in preservation #{change}"
          if !change[0].nil? && change[0] > 1 && change[1] == 1
             # revert back to original backed-up status 
             self.preservation_tier_id = change[0]
@@ -129,10 +128,8 @@ class Metadata < ApplicationRecord
    # Optionally specify a size for the thumbnail. Small is the default
    def exemplar_info( size = :small )
       page = 1
-      puts "Get exemplar info from list of #{master_files.count} master files"
       master_files.each do |mf|
          if mf.exemplar == true 
-            puts "GOT IT AT PAGE=#{page}"
             info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
             return info
          else

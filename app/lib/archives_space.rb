@@ -3,11 +3,21 @@ module ArchivesSpace
    # that will be used in all subsequent requests. This is not permanant and shouldn't be cached
    #
    def self.get_auth_session()
-      as = ExternalSystem.find_by(name: "ArchivesSpace")
-      url = "#{as.api_url}/users/#{Settings.as_user}/login"
-      resp = RestClient.post url, {password: Settings.as_pass}
-      json = JSON.parse(resp.body)
-      return json['session']
+      # First check redis to see if there is a token there...
+      redis = Redis.new(host: Settings.redis_host, password: Settings.redis_pass)
+      session = redis.get("#{Settings.redis_prefix}:as_session")
+      if session.nil?
+         as = ExternalSystem.find_by(name: "ArchivesSpace")
+         url = "#{as.api_url}/users/#{Settings.as_user}/login"
+         resp = RestClient.post url, {password: Settings.as_pass}
+         json = JSON.parse(resp.body)
+         session = json['session']
+         # save it for 30 mins
+         redis.setex("#{Settings.redis_prefix}:as_session", 30*60, session)
+      end
+
+      return session
+      
    end
 
    # Lookup some brief info for the given AS public URL
