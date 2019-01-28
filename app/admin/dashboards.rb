@@ -2,32 +2,7 @@ ActiveAdmin.register_page "Dashboard" do
    menu :priority => 1
 
    content do
-      div :class => 'three-column' do
-         panel "Recent DL Items (20)", :toggle => 'show' do
-            table_for Metadata.in_digital_library.limit(20) do
-               column ("Title") {|metadata| truncate(metadata.title, :length => 80)}
-               column ("Thumbnail") do |metadata|
-                  if metadata.has_exemplar?
-                     info = metadata.exemplar_info(:small)
-                     image_tag(info[:url], id: info[:id] )
-                  else
-                     "no thumbnail"
-                  end
-               end
-               column("Links") do |metadata|
-                  div do
-                     if metadata.type == "XmlMetadata"
-                        link_to "Details", "/admin/xml_metadata/#{metadata.id}", :class => "member_link view_link"
-                     else
-                        link_to "Details", "/admin/sirsi_metadata/#{metadata.id}", :class => "member_link view_link"
-                     end
-                  end
-               end
-            end
-         end
-      end
-
-      div :class => 'three-column' do
+      div :class => 'two-column' do
          panel "Outstanding Orders", :toggle => 'show' do
             table do
                tr do
@@ -83,6 +58,10 @@ ActiveAdmin.register_page "Dashboard" do
                   td do link_to "#{JobStatus.jobs_count("failure")}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
                end
             end
+            div style: "text-align: right" do 
+               span class: "btn", id: "view-virgo-published" do "View Recent Virgo Publications" end
+               span class: "btn", id: "view-as-published"  do "View Recent ArchivesSpace Publications" end
+            end
          end
 
          panel "Finalization", :width => '33%', :namespace => :admin, :toggle => 'show' do
@@ -102,14 +81,14 @@ ActiveAdmin.register_page "Dashboard" do
          end
 
          panel "PID Finder" do
-            render 'admin/pid_finder'
+            render 'admin/dashboard/pid_finder'
          end
          panel "Master File Finder" do
-            render 'admin/master_file_finder'
+            render 'admin/dashboard/master_file_finder'
          end
       end
 
-      div :class => 'three-column' do
+      div :class => 'two-column' do
          panel "My Projects", :toggle => 'show' do
             if current_user.projects.count > 0
                table do
@@ -181,6 +160,7 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
       end
+      render 'admin/dashboard/published_popups' 
    end
 
    page_action :get_yearly_stats do

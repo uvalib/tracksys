@@ -19,6 +19,7 @@
 //= require tags
 //= require messages
 //= require curio
+//= require dashboard
 //= require metadata
 //= require master-file-locations
 //= require codemirror
