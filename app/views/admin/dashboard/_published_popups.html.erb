@@ -6,7 +6,7 @@
             <tr>
                <th/><th>Title</th><th>Thumbnail</th><th>Links</th>
             </tr>
-            <%  Metadata.in_digital_library.limit(20).each_with_index do |md, idx| %>
+            <%  Metadata.in_digital_library.where("type != 'ExternalMetadata'").limit(20).each_with_index do |md, idx| %>
                <tr>
                   <td><%= idx+1 %>.</td>
                   <td><%= truncate(md.title, :length => 80) %></td>
@@ -33,6 +33,23 @@
    <div id="as-published" class="published modal">
       <h1>Recent AS Items (20)</h1>
       <div class="content">
+      <table>
+            <tr>
+               <th/><th>Title</th><th>Details</th><th>URI</th>
+            </tr>
+            <%  ExternalMetadata.in_digital_library.where("external_system_id = 1").limit(20).each_with_index do |md, idx| %>
+               <tr>
+                  <td><%= idx+1 %>.</td>
+                  <td><%= truncate(md.title, :length => 80) %></td>
+                  <td>
+                     <%= link_to "Details", "/admin/external_metadata/#{md.id}" %>
+                  </td>
+                  <td>
+                     <%= link_to md.external_uri, "#{md.external_system.public_url}/#{md.external_uri}", target: "_blank" %>
+                  </td>
+               </tr>
+            <% end %>
+         </table>  
       </div>
       <div class="buttons" style="padding: 10px">
          <input type="button" class="close-published-popup" value="Close"/>

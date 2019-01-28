@@ -153,34 +153,24 @@ namespace :as do
       end
    end
 
-   desc "fix supplemental URI so not specific to staff interface"
-   task :fix_supplemental_uri  => :environment do
-      as = ExternalSystem.find_by(name: "ArchivesSpace")
-      XmlMetadata.where(supplemental_system_id: as.id).each do |xm|
-         if xm.supplemental_uri.include? "autoselect_repo"
-            stripped = CGI.unescape(xm.supplemental_uri.split("uri=")[1])
-            puts "#{xm.supplemental_uri} => #{stripped}"
-            xm.update(supplemental_uri: stripped)
+   desc "add date published"
+   task :add_publish_date  => :environment do
+      auth = ArchivesSpace.get_auth_session
+      cnt = 0
+      pub = 0
+      ExternalMetadata.where(external_system_id: 1).each do |md|
+         cnt += 1
+         next if !md.date_dl_ingest.nil?
+         tgt_obj = ArchivesSpace.get_details(auth, md.external_uri)
+         dobj = ArchivesSpace.get_digital_object(auth, tgt_obj, md.pid )
+         if !dobj.nil?
+            localtime = Time.zone.parse( dobj[:created] ).strftime("%F %R")
+            puts "ExtMetadata #{md.id} published to AS at #{localtime}"
+            md.update(date_dl_ingest: dobj[:created])
+            pub += 1
          end
-      end
-   end
-
-   desc "fix_hs_links"
-   task :fix_hs_links  => :environment do
-      as = ExternalSystem.find_by(name: "ArchivesSpace")
-      hdr = get_auth_hdr(Settings.as_user, Settings.as_pass)
-      repo_uri = "/repositories/7"
-      repo_url = "#{as.api_url}#{repo_uri}"
-
-      Metadata.where("supplemental_system_id=? and creator_name=?", as.id, "Montes-Bradley, Eduardo").each do |m|
-         do_id = m.supplemental_uri.split("/").last
-         out = RestClient.get "#{repo_url}/digital_objects/#{do_id}", hdr
-         json = JSON.parse(out.body)
-         ref_uri = json['linked_instances'].first['ref']
-         new_uri = "/resolve/readonly?autoselect_repo=true&uri=#{CGI.escape(ref_uri)}"
-         puts new_uri
-         m.update(supplemental_uri: new_uri)
-      end
+      end    
+      puts "DONE. ##{cnt} items checked, #{pub} published items updated"
    end
 
    # Link The Eduardo Montes-Bradley Photograph and Film Collection metadata to archivesspace
