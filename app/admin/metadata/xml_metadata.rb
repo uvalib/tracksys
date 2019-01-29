@@ -315,10 +315,7 @@ ActiveAdmin.register XmlMetadata do
          # create a metadata version to track this change
          new_xml  = params[:xml_metadata][:desc_metadata]
          if new_xml != resource.desc_metadata
-            puts "CREATE A NEW VERSION"
             MetadataVersion.create(metadata: resource, staff_member: current_user, desc_metadata:  resource.desc_metadata)
-         else 
-            puts "NO CHANGE"
          end
          super
        end

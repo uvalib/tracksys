@@ -403,7 +403,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :bulk_upload_xml, :method => :put do
-      BulkUploadXml.exec({unit_id: params[:id]})
+      BulkUploadXml.exec({unit_id: params[:id], user: current_user})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
    end
 
