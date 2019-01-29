@@ -54,7 +54,7 @@ class Api::ManifestController < ApplicationController
                next
             end
          end
-         json = { id: mf.id, pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height }
+         json = { id: mf.id, pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height, flip_axis: tech_meta.flip_axis }
          json[:title] = mf.title if !mf.title.nil?
          json[:description] = mf.description if !mf.description.nil?
          json[:exemplar] = mf.exemplar if mf.exemplar

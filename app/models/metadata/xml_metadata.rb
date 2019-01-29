@@ -26,6 +26,10 @@ class XmlMetadata < Metadata
             self.creator_name = creator_node.text.strip if !creator_node.nil?
          end
       end
+
+      if self.changes.has_key? "desc_metadata"
+         # TODO
+      end
    end
 
    def personal_item?

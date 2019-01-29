@@ -74,7 +74,7 @@ ActiveAdmin.register MasterFile do
             if master_file.in_dl? && master_file.metadata.availability_policy_id == 1
                base_url = "https://www.pinterest.com/pin/create/button"
                url = "#{Settings.virgo_url}/#{master_file.metadata.pid}"
-               media = "#{Settings.iiif_url}/#{master_file.pid}/full/,640/0/default.jpg"
+               media = master_file.link_to_image(:large)
                meta = master_file.metadata
                desc = "#{master_file.title} from #{meta.title} &#183; #{meta.creator_name}"
                desc << " &#183; Albert and Shirley Small Special Collections Library, University of Virginia."
@@ -358,6 +358,7 @@ ActiveAdmin.register MasterFile do
                notes: params[:master_file][:notes]
             )
          end
+         mf.image_tech_meta.update(flip_axis: params[:master_file][:flip_axis])
          super
       end
    end

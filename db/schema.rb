@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_11_203935) do
+ActiveRecord::Schema.define(version: 2019_01_29_144139) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -258,6 +258,7 @@ ActiveRecord::Schema.define(version: 2018_12_11_203935) do
     t.string "exposure_time"
     t.string "aperture"
     t.decimal "focal_length", precision: 10
+    t.integer "flip_axis", default: 0
     t.index ["master_file_id"], name: "index_image_tech_meta_on_master_file_id"
   end
 

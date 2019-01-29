@@ -2,19 +2,9 @@
 # an extension of a single MasterFile record and is applicable only for a
 # MasterFile of type "image".
 class ImageTechMeta < ApplicationRecord
-
-   # include HasFormat
-
-   # COLOR_SPACES = %w[RGB GRAY CMYK]  # These are the values used in iView XML files (which are imported to create MasterFile and ImageTechMeta records)
-
-   #------------------------------------------------------------------
-   # relationships
-   #------------------------------------------------------------------
+   enum flip_axis: {not_flipped:0 , y_axis: 1, x_axis: 2}
    belongs_to :master_file
 
-   #------------------------------------------------------------------
-   # validation
-   #------------------------------------------------------------------
    validates :master_file_id, :presence => true
    validates :master_file_id, :uniqueness => true
    validates :resolution, :width, :height, :depth, :numericality => {:greater_than => 0, :allow_nil => true}
@@ -22,9 +12,6 @@ class ImageTechMeta < ApplicationRecord
       :message => "association with this MasterFile is no longer valid because the MasterFile object no longer exists."
    }
 
-   #------------------------------------------------------------------
-   # public class methods
-   #------------------------------------------------------------------
    # These methods return a string containing a brief description for a specific
    # column, for which the usage or format is not inherently obvious.
    def ImageTechMeta.width_description
@@ -39,39 +26,9 @@ class ImageTechMeta < ApplicationRecord
       return 'Name of compression scheme, or "Uncompressed" for no compression.'
    end
 
-
-   #------------------------------------------------------------------
-   # public instance methods
-   #------------------------------------------------------------------
    # Returns this record's +image_format+ value.
    def format
       return image_format
-   end
-
-   def mime_type
-      if format.blank?
-         return nil
-      else
-         # image formats
-         if format.match(/^(gif|jpeg|tiff)$/i)
-            return "image/#{format.downcase}"
-         elsif format.match(/^mrsid$/i)
-            return "image/x-mrsid"
-         elsif format.match(/^jpeg ?2000$/i)
-            return 'image/jp2'
-            # text formats
-         elsif format == 'TEI-XML'
-            return 'text/xml'
-            # audio formats
-         elsif format == 'WAV'
-            return 'audio/wav'
-            # video formats
-         elsif format == 'AVI'
-            return 'video/avi'
-         else
-            return nil
-         end
-      end
    end
 end
 

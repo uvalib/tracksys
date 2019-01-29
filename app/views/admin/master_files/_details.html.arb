@@ -16,6 +16,9 @@ div :class => 'two-column' do
       attributes_table_for master_file do
          row :pid
          row :filename
+         row :flip_axis do |master_file|
+            master_file.image_tech_meta.flip_axis
+         end
          row :title
          row :description
          row :date_archived do |master_file|
