@@ -58,9 +58,12 @@ ActiveAdmin.register_page "Dashboard" do
                   td do link_to "#{JobStatus.jobs_count("failure")}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
                end
             end
-            div style: "text-align: right" do 
-               span class: "btn", id: "view-virgo-published" do "View Recent Virgo Publications" end
-               span class: "btn", id: "view-as-published"  do "View Recent ArchivesSpace Publications" end
+         end
+
+         panel "Recently Published Images" do 
+            div style: "text-align:center" do 
+               span style: "display:inline-block;width: 45%", class: "btn", id: "view-virgo-published" do "View Recent Virgo Publications" end
+               span style: "display:inline-block;width: 45%", class: "btn", id: "view-as-published"  do "View Recent ArchivesSpace Publications" end
             end
          end
 

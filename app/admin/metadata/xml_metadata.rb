@@ -310,10 +310,23 @@ ActiveAdmin.register XmlMetadata do
           lang_str = lang_str.split(":")[1].strip
           @languages = lang_str.split("\n")
        end
+
+       def update 
+         # create a metadata version to track this change
+         new_xml  = params[:xml_metadata][:desc_metadata]
+         if new_xml != resource.desc_metadata
+            puts "CREATE A NEW VERSION"
+            MetadataVersion.create(metadata: resource, staff_member: current_user, desc_metadata:  resource.desc_metadata)
+         else 
+            puts "NO CHANGE"
+         end
+         super
+       end
     end
 
     before_save do |metadata|
-         xml = Nokogiri::XML( params[:xml_metadata][:desc_metadata] )
+         new_xml  = params[:xml_metadata][:desc_metadata]
+         xml = Nokogiri::XML( new_xml )
          xml.remove_namespaces!
          title_node = xml.xpath( "//titleInfo/title" ).first
          if !title_node.nil?

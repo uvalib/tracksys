@@ -13,6 +13,8 @@ class XmlMetadata < Metadata
    validates :use_right, presence: true
    validates :desc_metadata, presence: true
 
+   has_many :metadata_versions
+
    before_save do
       if self.title.blank? || self.creator_name.blank?
          xml = Nokogiri::XML( self.desc_metadata )
@@ -25,10 +27,6 @@ class XmlMetadata < Metadata
             creator_node = xml.xpath("//name/namePart").first
             self.creator_name = creator_node.text.strip if !creator_node.nil?
          end
-      end
-
-      if self.changes.has_key? "desc_metadata"
-         # TODO
       end
    end
 
