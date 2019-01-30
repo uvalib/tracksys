@@ -11,6 +11,9 @@ else
          button_to "XML Download", bulk_download_xml_admin_unit_path, :method => :put
       end
       div :class => 'workflow_button' do
+         raw("<span class='admin-button' id='unit-xml-transform'>XML Transform</span>")
+      end
+      div :class => 'workflow_button' do
          raw("<span class='admin-button' id='update-dl-settings'>Update DL Settings</span>")
       end
    end

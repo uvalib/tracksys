@@ -143,7 +143,15 @@ body.active_admin {
       a, .breadcrumb_sep {
          color: #444;
       }
-      .action_item a {
+      span.action-btn {
+         display: inline-block;
+         line-height: 12px;
+         border: solid 1px #c7c7c7;
+         padding: 12px 17px 10px;
+         margin: 0px;
+         cursor: pointer;
+      }
+      .action_item a, .action_item span.action-btn {
          background-image: none;
          background-color: #f0f0f0;
          color: #444;
@@ -747,6 +755,15 @@ body.active_admin {
          margin: 1% auto;
          .buttons {
             padding: 0 10px 0 0;
+            margin:0;
+         }
+      }
+
+      #transform-modal {
+         width: 450px;
+         margin: 10% auto;
+         .buttons {
+            padding: 0 10px 10px 0;
             margin:0;
          }
       }

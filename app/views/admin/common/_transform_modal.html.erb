@@ -1,0 +1,32 @@
+<div id="transform-modal" class="modal">
+   <% url ="/admin/xml_metadata/global_transform" %>
+   <% if mode == :global %>
+      <h1>Global XML Metadata Transform</h1>
+   <% else %>
+      <h1>Unit XML Metadata Transform</h1>
+      <% url ="/admin/units/#{unit_id}/xml_transform" %>
+   <% end %>
+   <form id="global-transform-form" action="<%= url %>" method="POST" enctype="multipart/form-data">
+      <div class="content">
+         <% if mode == :global %>
+            <p class="help">
+               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the system</b>. 
+               Click Transform to upload the file and apply the changes.
+            </p>
+         <% else %>
+            <p>
+               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the current unit</b>. 
+               Click Transform to upload the file and apply the changes.
+            </p>
+         <% end %>
+         <div style="margin: 20px 20px 0 20px">
+            <span>XSL File: </span>
+            <input type="file" name="xslfile"  accept=".xsl"/>
+         </div>
+      </div>
+      <div class="buttons">
+         <input type="button" id="close-transform" value="Cancel"/>
+         <input type="submit" id="apply-transform" value="Transform"/>
+      </div>
+   </form>
+</div>

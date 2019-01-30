@@ -1,5 +1,6 @@
 <div id="dimmer">
    <%= render partial: "/admin/common/viewer_modal" %>
+   <%= render partial: "/admin/common/transform_modal", locals: {mode: :unit, unit_id: unit.id} %>
 
    <div id="as-modal" class="modal">
       <h1>ArchivesSpace Link</h1>
