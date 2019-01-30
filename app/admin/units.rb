@@ -311,9 +311,11 @@ ActiveAdmin.register Unit do
 
    member_action :xml_transform, :method => :post do
       # copy the file to /tmp so we have more control over its lifecycle
-      filename = params[:xslfile].original_filename
       upload_file = params[:xslfile].tempfile.path
-      dest = File.join(Rails.root, "tmp", filename)
+      xsl_uuid =  SecureRandom.uuid
+      dest_dir = File.join(Rails.root, "tmp", "xsl")
+      FileUtils.mkdir_p dest_dir
+      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
       FileUtils.cp(upload_file, dest)
       unit = Unit.find(params[:id])
       BulkTransformXml.exec({user: current_user, mode: :unit, unit: unit, xsl_file: dest})

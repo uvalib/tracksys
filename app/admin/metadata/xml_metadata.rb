@@ -309,9 +309,11 @@ ActiveAdmin.register XmlMetadata do
    #
    collection_action :global_transform, method: :post do 
       # copy the file to /tmp so we have more control over its lifecycle
-      filename = params[:xslfile].original_filename
       upload_file = params[:xslfile].tempfile.path
-      dest = File.join(Rails.root, "tmp", filename)
+      xsl_uuid =  SecureRandom.uuid
+      dest_dir = File.join(Rails.root, "tmp", "xsl")
+      FileUtils.mkdir_p dest_dir
+      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
       FileUtils.cp(upload_file, dest)
       BulkTransformXml.exec({user: current_user, mode: :global, xsl_file: dest})
       render plain: "ok"
