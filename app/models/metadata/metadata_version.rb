@@ -6,4 +6,12 @@ class MetadataVersion < ApplicationRecord
    validates :staff_member, :presence => true
    validates :desc_metadata, :presence => true
    validates :version_tag, :presence => true, :uniqueness=>true
+
+   before_validation :set_version_tag, on: :create
+
+   def set_version_tag 
+      if self.version_tag.blank?
+         self.version_tag = SecureRandom.uuid
+      end
+   end
 end
