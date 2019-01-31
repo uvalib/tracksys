@@ -21,6 +21,13 @@ class BulkTransformXml < BaseJob
          on_error("XSL File #{xsl_file} not found")
       end
 
+      if Settings.use_saxon_servlet == "true"
+         uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
+         logger.info "Transformations will be done with #{uri}"
+      else 
+         logger.info "Transformations will be done with a local version of saxon"
+      end
+
       if mode == :unit 
          unit = message[:unit]
          if unit.nil?
@@ -41,12 +48,15 @@ class BulkTransformXml < BaseJob
          next if mf.metadata.nil?
          next if mf.metadata.type != "XmlMetadata"
          next if mf.metadata.metadata_versions.where(version_tag: xsl_uuid).exists?
+
+         logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid}"
          if Settings.use_saxon_servlet == "true"
             new_xml = servlet_transform(mf.metadata, xsl_uuid)
          else
             new_xml = local_transform(mf.metadata, xsl_file)
          end
          if !new_xml.blank? && new_xml != mf.metadata.desc_metadata 
+            logger.info "Transform successful; create new version"
             MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata, version_tag: xsl_uuid)
             mf.metadata.update(desc_metadata: new_xml)
          end
@@ -58,6 +68,8 @@ class BulkTransformXml < BaseJob
       logger.info "The UUID for this transform is #{xsl_uuid}"
       XmlMetadata.all.for_each do |md| 
          next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
+
+         logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid}"
          if Settings.use_saxon_servlet == "true"
             new_xml = servlet_transform(md, xsl_uuid)
          else
