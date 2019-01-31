@@ -13,7 +13,7 @@ class XmlMetadata < Metadata
    validates :use_right, presence: true
    validates :desc_metadata, presence: true
 
-   has_many :metadata_versions
+   has_many :metadata_versions, :foreign_key => "metadata_id"
 
    before_save do
       if self.title.blank? || self.creator_name.blank?

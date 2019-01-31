@@ -38,8 +38,9 @@ class BulkTransformXml < BaseJob
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
       unit.master_files.each do |mf|
-         next if unit.metadata.id == mf.metadata.id 
+         next if mf.metadata.nil?
          next if mf.metadata.type != "XmlMetadata"
+         next if mf.metadata.metadata_versions.where(version_tag: xsl_uuid).exists?
          if Settings.use_saxon_servlet == "true"
             new_xml = servlet_transform(mf.metadata, xsl_uuid)
          else
@@ -56,6 +57,7 @@ class BulkTransformXml < BaseJob
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
       XmlMetadata.all.for_each do |md| 
+         next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
          if Settings.use_saxon_servlet == "true"
             new_xml = servlet_transform(md, xsl_uuid)
          else
