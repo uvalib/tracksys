@@ -30,6 +30,10 @@ class XmlMetadata < Metadata
       end
    end
 
+   def has_versions?
+      return self.metadata_versions.count > 0
+   end
+
    def personal_item?
       return self.is_personal_item
    end
