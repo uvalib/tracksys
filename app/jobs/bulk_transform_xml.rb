@@ -59,6 +59,8 @@ class BulkTransformXml < BaseJob
             logger.info "Transform successful; create new version"
             MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata, version_tag: xsl_uuid)
             mf.metadata.update(desc_metadata: new_xml)
+         else 
+            logger.info "Transform not successful, or caused no changes"
          end
       end
    end
@@ -69,7 +71,6 @@ class BulkTransformXml < BaseJob
       XmlMetadata.all.for_each do |md| 
          next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
 
-         logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid}"
          if Settings.use_saxon_servlet == "true"
             new_xml = servlet_transform(md, xsl_uuid)
          else
@@ -78,6 +79,8 @@ class BulkTransformXml < BaseJob
          if !new_xml.blank? && new_xml != md.desc_metadata 
             MetadataVersion.create(metadata: md, staff_member: user, desc_metadata:  md.desc_metadata, version_tag: xsl_uuid)
             md.update(desc_metadata: new_xml)
+         else 
+            logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid} not successful, or caused no changes"
          end
       end
    end
