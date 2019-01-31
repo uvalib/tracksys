@@ -5,7 +5,7 @@ class MetadataVersion < ApplicationRecord
    validates :metadata, :presence => true
    validates :staff_member, :presence => true
    validates :desc_metadata, :presence => true
-   validates :version_tag, :presence => true
+   validates :version_tag, :presence => true, uniqueness: { scope: :metadata }
 
    before_validation :set_version_tag, on: :create
 

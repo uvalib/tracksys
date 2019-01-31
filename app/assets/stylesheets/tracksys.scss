@@ -759,6 +759,19 @@ body.active_admin {
          }
       }
 
+      #diff-viewer-modal {
+         width: 800px;
+         margin: 5% auto;
+         #diff-scroller {
+            max-height: 500px;
+            overflow: scroll;
+         }
+         .buttons {
+            padding: 0 10px 10px 0;
+            margin:0;
+         }
+      }
+
       #transform-modal {
          width: 450px;
          margin: 10% auto;
