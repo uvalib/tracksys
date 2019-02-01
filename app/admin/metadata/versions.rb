@@ -59,4 +59,27 @@ ActiveAdmin.register_page "Versions" do
       diff = Diffy::Diff.new(old.desc_metadata, md.desc_metadata).to_s()
       render json: { status: "success", diff: diff, curr: md.desc_metadata, tagged: old.desc_metadata}
    end
+
+   page_action :revert, method: "post" do
+      tag = params[:tag]
+      md = XmlMetadata.find(params[:xml_metadatum_id])
+      tgt = MetadataVersion.find_by(metadata_id: md.id, version_tag: tag)
+      if tgt.nil?
+         render json: { status: "failed", message:"Version not found"}, status: :error
+         return
+      end
+
+      del = 0
+      MetadataVersion.where(metadata_id: md.id).order(created_at: :desc).each do |v|
+         del += 1
+         if v.version_tag != tag 
+            v.destroy
+         else
+            md.update(desc_metadata: v.desc_metadata)
+            v.destroy
+            break
+         end
+      end
+      render json: { status: "success", message: "#{tag} restored. #{del} intermediate versions removed."}
+   end
 end
