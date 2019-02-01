@@ -28,9 +28,21 @@ ActiveAdmin.register_page "Versions" do
 
       div id: "dimmer" do
          div id: "diff-viewer-modal", class: "modal" do 
-            h1 id: "diff-header" do "Version Diff" end
+            h1 id: "diff-header" do end
             div class: "content" do 
-               div id: "diff-scroller" do 
+               div class: "diff-tabs" do 
+                  span class: "tab-btn", id: "diff-btn" do "Diff" end
+                  span class: "tab-btn", id: "curr-btn" do "Current" end
+                  span class: "tab-btn", id: "tagged-btn" do "Diff" end
+               end
+               div id: "diff-tab", class: "diff-scroller" do 
+                  pre id: "diff" 
+               end
+               div id: "curr-tab", class: "diff-scroller", style: "display:none" do 
+                  pre id: "curr" 
+               end
+               div id: "tagged-tab", class: "diff-scroller", style: "display:none" do 
+                  pre id: "tagged"
                end
             end
             div class: "buttons" do
@@ -38,5 +50,13 @@ ActiveAdmin.register_page "Versions" do
             end
          end
       end
+   end
+
+   page_action :diff do
+      tag = params[:tag]
+      md = XmlMetadata.find(params[:xml_metadatum_id])
+      old = MetadataVersion.find_by(metadata_id: md.id, version_tag: tag)
+      diff = Diffy::Diff.new(old.desc_metadata, md.desc_metadata).to_s()
+      render json: { status: "success", diff: diff, curr: md.desc_metadata, tagged: old.desc_metadata}
    end
 end

@@ -762,9 +762,37 @@ body.active_admin {
       #diff-viewer-modal {
          width: 800px;
          margin: 5% auto;
-         #diff-scroller {
-            max-height: 500px;
+         .diff-scroller {
+            max-height: 450px;
             overflow: scroll;
+            pre {
+               background: white;
+               border: 1px solid #999;
+               margin: 0;
+               padding: 10px;
+               display: block;
+               white-space: pre-wrap   
+            }
+         }
+         .diff-tab {
+            margin: 0 10px 0 10px;
+         }
+         .diff-tabs {
+            position: relative;
+            top: -1px;
+            .tab-btn {
+               padding: 2px 10px;
+               border: 1px solid #999;
+               background: #d0d0d0;
+               cursor: pointer;
+               &:hover {
+                  background: #e5e5e5;
+               }
+            }
+            .tab-btn.selected {
+               background: white;
+               border-bottom: 1px solid white;
+            }
          }
          .buttons {
             padding: 0 10px 10px 0;
