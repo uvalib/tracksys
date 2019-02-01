@@ -5,23 +5,28 @@ ActiveAdmin.register_page "Versions" do
    content :only=>:index do
       xmd = XmlMetadata.find(params[:xml_metadatum_id])
       panel "Version History for XML Metadata PID #{xmd.pid}" do
-         table_for xmd.metadata_versions.order(created_at: :desc) do |v|
-            column :created_at do |v|
-               v.created_at.strftime("%F %r")
-            end
-            column ("Created By") do |v|
-               v.staff_member.full_name
-            end
-            column :version_tag
-            column ("Records Changed") do |v|
-               MetadataVersion.where(version_tag: v.version_tag).count
-            end
-            column ("Actions") do |v|
-               span class: "btn diff", 'data-tag': v.version_tag do "Diff" end 
-               span class: "btn restore", 'data-tag': v.version_tag  do "Restore" end 
-               if MetadataVersion.where(version_tag: v.version_tag).count > 1
-                  span class: "btn restore-all" do "Restore All" end 
-               end   
+         versions = xmd.metadata_versions.order(created_at: :desc)
+         if versions.count == 0 
+            div do "No prior versions exist for this record" end
+         else
+            table_for versions do |v|
+               column :created_at do |v|
+                  v.created_at.strftime("%F %r")
+               end
+               column ("Created By") do |v|
+                  v.staff_member.full_name
+               end
+               column :version_tag
+               column ("Records Changed") do |v|
+                  MetadataVersion.where(version_tag: v.version_tag).count
+               end
+               column ("Actions") do |v|
+                  span class: "btn diff", 'data-tag': v.version_tag do "Diff" end 
+                  span class: "btn restore", 'data-tag': v.version_tag  do "Restore" end 
+                  if MetadataVersion.where(version_tag: v.version_tag).count > 1
+                     span class: "btn restore-all", 'data-tag': v.version_tag do "Restore All" end 
+                  end   
+               end
             end
          end
       end
@@ -69,17 +74,25 @@ ActiveAdmin.register_page "Versions" do
          return
       end
 
-      del = 0
-      MetadataVersion.where(metadata_id: md.id).order(created_at: :desc).each do |v|
-         del += 1
-         if v.version_tag != tag 
-            v.destroy
-         else
-            md.update(desc_metadata: v.desc_metadata)
-            v.destroy
-            break
+      if params[:all].nil?
+         md.update(desc_metadata: tgt.desc_metadata)
+         del = MetadataVersion.where("metadata_id = ? and created_at>=?",md.id, tgt.created_at)
+         cnt = del.count
+         del.destroy_all
+         render json: { status: "success", message: "#{tag} restored. #{cnt} intermediate versions removed."}
+      else
+         # NOTE: May have to move this to a background job... not sure how long it will take 
+         # if reverting a change for ALL XmlMetadata
+         md_cnt = 0
+         del_cnt = 0
+         MetadataVersion.where(version_tag: tag).find_each do |v|
+            md_cnt += 1
+            v.metadata.update(desc_metadata: v.desc_metadata)
+            del = MetadataVersion.where("metadata_id = ? and created_at>=?",v.metadata.id, v.created_at)
+            del_cnt += del.count
+            del.destroy_all
          end
+         render json: { status: "success", message: "#{tag} restored in #{md_cnt} metadata records. #{del_cnt} intermediate versions removed."}
       end
-      render json: { status: "success", message: "#{tag} restored. #{del} intermediate versions removed."}
    end
 end

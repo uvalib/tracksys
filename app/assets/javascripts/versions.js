@@ -51,7 +51,7 @@ $(function () {
     var tag = btn.data("tag");
 
     var msg = "Restore version "+tag+"?"
-    msg += "\nNOTE: All versions between current and the reverted version will be permanently removed."
+    msg += "\nNOTE: All versions between current and the restored version will be permanently removed."
     msg += "\n\nContinue?";
     var resp = confirm(msg);
     if ( !resp) return;
@@ -76,11 +76,28 @@ $(function () {
   $(".btn.restore-all").on("click", function () {
     var btn = $(this);
     if ( btn.hasClass("disabled")) return;
+    var tag = btn.data("tag");
     
-    var msg = "Revert all affected files to this version of their metadata?"
-    msg += "\nAll versions between current and the reverted version will be permanently removed."
+    var msg = "Revert all affected files to "+tag+"?"
+    msg += "\n\nAll versions between current and the restored version will be permanently removed."
     msg += "\n\nContinue?";
     var resp = confirm(msg);
     if ( !resp) return;
+
+    btn.addClass("disabled");
+
+    $.ajax({
+      url: window.location.href+"/revert?tag=" + tag+"&all=true",
+      method: "post",
+      complete: function (jqXHR, textStatus) {
+        if (textStatus != "success") {
+          alert("Unable to restore diff: "+jqXHR.responseText);
+        } else {
+          alert(jqXHR.responseJSON.message);
+          window.location.reload();
+        }
+        btn.removeClass("disabled");
+      }
+    });
   });
 });
