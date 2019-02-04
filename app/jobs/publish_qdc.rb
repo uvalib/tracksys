@@ -134,13 +134,13 @@ class PublishQDC < BaseJob
       spatial["city"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
       spatial["county"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/county", "spatial")
       
-      hasValueURI = true
+      hasValueURI = false
       hasSpatial = false
       spatial.each do |k,v|
          next if v.nil?
          hasSpatial = true
-         if !v.include?("valueURI")
-            hasValueURI = false
+         if v.include?("valueURI")
+            hasValueURI = true
             break
          end
       end
