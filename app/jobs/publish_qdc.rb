@@ -123,10 +123,40 @@ class PublishQDC < BaseJob
       cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/originInfo/publisher", "publisher")
       cw_data['TERMS'].concat( QDC.crosswalk_name(doc, "/mods/subject/name", "dcterms", "subject") )
       cw_data['TERMS'].concat( QDC.crosswalk_subject(doc) )
-      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
-      cw_data['TERMS'] << QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/county", "spatial")
+
+      # Per Jeremy in Jan 2019; check for valueURI in hierarchicalGeographic. If present, use as-is
+      # If not, map all of the child terms into a single dcterms:spatial element in 
+      #   city, state, country order. Separate terms with comma and space. Example:
+      #   Charlottesville, Virginia, United States
+      spatial = {}
+      spatial["country"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
+      spatial["state"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
+      spatial["city"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
+      spatial["county"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/county", "spatial")
+      
+      hasValueURI = true
+      hasSpatial = false
+      spatial.each do |k,v|
+         next if v.nil?
+         hasSpatial = true
+         if !v.include?("valueURI")
+            hasValueURI = false
+            break
+         end
+      end
+      if hasSpatial
+         if hasValueURI
+            spatial.each do |k,v|
+               cw_data['TERMS'] << v
+            end
+         else
+            bits = []
+            bits << spatial["city"].split(">")[1].split("<")[0]
+            bits << spatial["state"].split(">")[1].split("<")[0]
+            bits << spatial["country"].split(">")[1].split("<")[0]
+            cw_data['TERMS'] <<  "<dcterms:spatial>#{bits.join(", ")}</dcterms:spatial>"
+         end
+      end
 
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/language/languageTerm", "dcterms", "language") )
       cw_data['TERMS'].concat( QDC.crosswalk_multi(doc, "/mods/relatedItem[@type='series'][@displayLabel='Part of']/titleInfo/title", "dcterms", "isPartOf") )
