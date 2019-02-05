@@ -36,7 +36,7 @@ class CheckUnitDeliveryMode < BaseJob
          end
          logger.debug("#{cnt} master files published to IIIF")
          if cnt != unit.master_files.count
-            on_error "Mismatch in count of master files published to IIIF"
+            fatal_error "Mismatch in count of master files published to IIIF"
          end
       end
 

@@ -42,7 +42,7 @@ class CheckOrderReadyForDelivery < BaseJob
 
       # Nothign more to do if customer was already notified...
       if order.date_customer_notified
-         on_failure("The date_customer_notified field on order #{message[:order_id]} is filled out.  The order appears to have been delivered already.")
+         log_failure("The date_customer_notified field on order #{message[:order_id]} is filled out.  The order appears to have been delivered already.")
          return
       end
 
@@ -80,18 +80,18 @@ class CheckOrderReadyForDelivery < BaseJob
 
       # At this point, the order status must be 'approved'.
       if order.order_status != 'approved'
-         on_error "Order #{order.id} does not have an order status of 'approved'.  Please correct before proceeding."
+         fatal_error "Order #{order.id} does not have an order status of 'approved'.  Please correct before proceeding."
       end
 
       # An order whose customer is non-UVA and whose actual fee is blank is invalid.
       if order.customer.academic_status_id == 1 && order.fee.nil?
-         on_error "Order #{order.id} has a non-UVA customer and the fee is blank."
+         fatal_error "Order #{order.id} has a non-UVA customer and the fee is blank."
       end
 
       # If there is a value for order fee then there must be a paid invoice
       if !order.fee.nil? && order.fee > 0
          if order.fee_paid? == false
-            on_error "Error with order fee: Order #{order.id} has an unpaid fee."
+            fatal_error "Error with order fee: Order #{order.id} has an unpaid fee."
          else
             logger.info "Order fee checked; fee paid."
          end

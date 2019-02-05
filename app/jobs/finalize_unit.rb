@@ -22,7 +22,7 @@ class FinalizeUnit < BaseJob
       end
 
       if !Dir.exists? src_dir
-         on_error("Dropoff directory #{src_dir} does not exist")
+         fatal_error("Dropoff directory #{src_dir} does not exist")
       end
 
       logger().info "Moving unit #{unit.id} from #{src_dir} to #{in_process_dir}"

@@ -29,7 +29,7 @@ class CreatePDFDeliverable < BaseJob
       mogrify = `which mogrify`
       mogrify.strip!
       if !File.exist? mogrify
-         on_error("mogrify command not found on system!")
+         fatal_error("mogrify command not found on system!")
       end
       cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg #{tif_files}"
       logger.info("   #{cmd}")
@@ -40,7 +40,7 @@ class CreatePDFDeliverable < BaseJob
       cvt = `which convert`
       cvt.strip!
       if !File.exist? cvt
-         on_error("convert command not found on system!")
+         fatal_error("convert command not found on system!")
       end
       cmd = "#{cvt} #{jpg_files} #{pdf_file}"
       logger.info("   #{cmd}")
@@ -48,10 +48,10 @@ class CreatePDFDeliverable < BaseJob
 
       # See if it appears to have worked...
       if !out.strip.blank?
-         on_error("PDF generation failed: #{out}")
+         fatal_error("PDF generation failed: #{out}")
       end
       if !File.exist? pdf_file
-         on_error("Target PDF #{pdf_file} was not created")
+         fatal_error("Target PDF #{pdf_file} was not created")
       end
 
       # Zip the PDF into the delivery directory

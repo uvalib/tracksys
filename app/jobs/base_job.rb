@@ -1,10 +1,14 @@
 class BaseJob
+   @status  # jobs status tracking object 
+   @logger  # job logger 
+
    # Execute the job asynchronously. Always the start of a workflow.
    # The ID of the delayed job is returned so status can be polled
    #
    def self.exec(message={})
       job = self.new()
       job_id = job.prepare(message)
+      # NOTE: to schedule for later can do: class.delay(run_at: 5.hours.from_now).method(param)
       job.delay.perform(message)
       return job_id
    end
@@ -39,14 +43,10 @@ class BaseJob
       else
          @status = JobStatus.create(name: self.class.name)
          set_originator(message)
-         originator = @status.originator
 
          # Log initial job params so they will always appear in job log - even before start
-         # IMPORTANT:
-         # logger needs to be created before job starts, and again after it starts
-         # not sure why, but if it is created prior and saved as member variable
-         # the job does not run, and produces no errors nor logs
-         create_logger(@status.id).info "Schedule #{self.class.name} with params: #{message.to_json}"
+         create_logger(@status.id)
+         @logger.info "Schedule #{self.class.name} with params: #{message.to_json}"
       end
       return @status.id
    end
@@ -58,11 +58,10 @@ class BaseJob
       if File.exists? log_file_path
          FileUtils.rm(log_file_path)
       end
-      logger = Logger.new(log_file_path)
-      logger.formatter = proc do |severity, datetime, progname, msg|
+      @logger = Logger.new(log_file_path)
+      @logger.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
       end
-      return logger
    end
 
    # Set the originiator of this job request. Default is no originator
@@ -75,12 +74,6 @@ class BaseJob
    # Start logging and update status, then launch into workflow
    #
    def perform(message)
-      # If this job has been chained from another, the log will already exist and
-      # should not be created
-      if @logger.nil?
-         @logger = create_logger(@status.id)
-      end
-
       # Flag job started running
       @logger.info "Start #{self.class.name} with params: #{message.to_json}"
       @status.started
@@ -94,11 +87,11 @@ class BaseJob
    end
 
    def handle_wokflow_exception(exception)
-      # if this error was raised by on_error to end processing, the
+      # if this error was raised by fatal_error to end processing, the
       # status will have been bumped to failure. If status is still running
-      # this error is the result of some other exception, call on_error to deal with it
+      # this error is the result of some other exception, call fatal_error to deal with it
       if @status.status == "running"
-         on_error(exception)
+         fatal_error(exception)
       elsif @status.status == "failure"
          # if this has already failed, just keep passing the exception up the chain
          # to ensure all jobs get stopped and the head of the workflow is notified of the failure
@@ -154,7 +147,7 @@ class BaseJob
 
    # Log a warning message and keep processing
    #
-   def on_failure(message)
+   def log_failure(message)
       @status.update_attributes(:failures=>(@status.failures+1) )
       @logger.error message
    end
@@ -163,7 +156,7 @@ class BaseJob
    # Handles StandardError exceptions and keeps processing. Other exceptions
    # are raised, terminating processing.
    #
-   def on_error(err)
+   def fatal_error(err)
       if err.is_a? Exception
          @status.failed( err.message )
          @logger.fatal err.message

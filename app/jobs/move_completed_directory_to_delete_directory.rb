@@ -51,7 +51,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
             end
          end
       else
-         on_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{source_dir}."
+         fatal_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{source_dir}."
       end
    end
 end

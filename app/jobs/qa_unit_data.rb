@@ -23,7 +23,7 @@ class QaUnitData < BaseJob
 
       # First, check if unit is assigned to metadata record. This is an immediate fail
       if unit.metadata.nil?
-         on_error "Unit #{unit.id} is not assigned to a metadata record."
+         fatal_error "Unit #{unit.id} is not assigned to a metadata record."
       end
 
       # Is this unit is a candidate for Autopublish?
@@ -33,7 +33,7 @@ class QaUnitData < BaseJob
 
       # Reorders can't got to DL. Update flag accordingly
       if unit.reorder? && unit.include_in_dl
-         on_failure("Reorders cannot be sent to DL. Resetting include_in_dl to false")
+         log_failure("Reorders cannot be sent to DL. Resetting include_in_dl to false")
          unit.update(include_in_dl: false)
       end
 
@@ -87,7 +87,7 @@ class QaUnitData < BaseJob
          order.date_order_approved = Time.now
          order.order_status = 'approved'
          if !order.save
-            on_error( order.errors.full_messages.to_sentence )
+            fatal_error( order.errors.full_messages.to_sentence )
          end
       end
 
@@ -100,9 +100,9 @@ class QaUnitData < BaseJob
          QaFilesystemAndIviewXml.exec_now( { :unit_id => unit.id }, self)
       else
          failure_messages.each do |message|
-            on_failure message
+            log_failure message
             if message == failure_messages.last
-               on_error "Unit #{unit.id} has failed the QA Unit Data Processor"
+               fatal_error "Unit #{unit.id} has failed the QA Unit Data Processor"
             end
          end
       end

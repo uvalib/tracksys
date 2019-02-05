@@ -10,7 +10,7 @@ class AddMasterFiles < BaseJob
       tif_files.each do |tf|
          filename = File.basename(tf)
          if /\A\d{9}_\d{4}.(tif)\z/.match(filename).nil?
-            on_error("Invalid master file name: #{filename}")
+            fatal_error("Invalid master file name: #{filename}")
          end
 
          page_num = filename.split("_").last.split(".").first.to_i
@@ -18,14 +18,14 @@ class AddMasterFiles < BaseJob
             new_page = page_num
             prev_page = new_page
          else
-            on_error("Gap in sequence number of new master files") if page_num > prev_page+1
+            fatal_error("Gap in sequence number of new master files") if page_num > prev_page+1
             prev_page = page_num
          end
       end
 
       last_page = unit.master_files.last.filename.split("_").last.split(".").first.to_i
 
-      on_error("New master file sequence number gap (from #{last_page} to #{new_page})") if  new_page > last_page+1
+      fatal_error("New master file sequence number gap (from #{last_page} to #{new_page})") if  new_page > last_page+1
 
       @mode = :append
       @mode = :insert if new_page <= last_page
@@ -44,8 +44,8 @@ class AddMasterFiles < BaseJob
       tif_files = Dir.glob("#{src_dir}/**/*.tif").sort
       xml_files = Dir.glob("#{src_dir}/**/*.xml").sort
 
-      on_error("No tif files found.") if tif_files.count == 0
-      on_error("Count mismatch between tif and xml files.") if xml_files.count > 0 && xml_files.count != tif_files.count
+      fatal_error("No tif files found.") if tif_files.count == 0
+      fatal_error("Count mismatch between tif and xml files.") if xml_files.count > 0 && xml_files.count != tif_files.count
 
       @mode = nil
       validate_tif_files_and_mode(tif_files, unit)
@@ -97,7 +97,7 @@ class AddMasterFiles < BaseJob
          FileUtils.copy(mf_path, new_archive)
          FileUtils.chmod(0664, new_archive)
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )
-         on_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
+         log_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
          master_file.update(date_archived: Time.now)
 
       end
@@ -117,7 +117,7 @@ class AddMasterFiles < BaseJob
          xml_str = f.read
          errors = XmlMetadata.validate( xml_str )
          if errors.length > 0
-            on_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
+            log_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
          else
             xml = Nokogiri::XML( xml_str )
             xml.remove_namespaces!
@@ -177,7 +177,7 @@ class AddMasterFiles < BaseJob
          logger.info "Rename archived file #{archive_file} -> #{new_fn}"
          File.rename(archive_file, new_archive)
          new_md5 = Digest::MD5.hexdigest( File.read(new_archive) )
-         on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
+         fatal_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
 
          break if done == true
       end

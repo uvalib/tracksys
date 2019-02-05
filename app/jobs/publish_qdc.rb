@@ -9,7 +9,7 @@ class PublishQDC < BaseJob
       raise "Parameter 'metadata_id' is required" if message[:metadata_id].blank?
       meta = Metadata.find(message[:metadata_id])
       if !meta.in_dpla?
-         on_error("Metadata #{meta.id} is not in QPLA and does not need QDC to be published")
+         fatal_error("Metadata #{meta.id} is not in QPLA and does not need QDC to be published")
       end
 
       logger.info("Reading QDC template")

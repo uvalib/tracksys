@@ -16,7 +16,7 @@ class ReplaceMasterFiles < BaseJob
       logger.info "Looking for replacement *.tif files in #{src_dir}"
       tif_files = Dir.glob("#{src_dir}/*.tif").sort
       if tif_files.count == 0
-         on_error("No replacement *.tif files found")
+         fatal_error("No replacement *.tif files found")
       end
 
       tif_files.each do |mf_path|
@@ -26,7 +26,7 @@ class ReplaceMasterFiles < BaseJob
          logger.info("Replacing master file #{fn}")
          curr_mf = unit.master_files.find_by(filename: fn)
          if curr_mf.nil?
-            on_failure("File #{fn} was not found in unit. Skipping")
+            log_failure("File #{fn} was not found in unit. Skipping")
             next
          end
 
@@ -41,7 +41,7 @@ class ReplaceMasterFiles < BaseJob
          FileUtils.copy(mf_path, new_archive)
          FileUtils.chmod(0664, new_archive)
          new_md5 = Digest::MD5.hexdigest(File.read(new_archive) )
-         on_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
+         log_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
       end
 
       MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)

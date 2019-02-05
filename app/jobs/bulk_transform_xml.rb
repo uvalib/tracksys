@@ -15,10 +15,10 @@ class BulkTransformXml < BaseJob
       xsl_file = message[:xsl_file]
       mode = message[:mode]
       if !modes.include? mode
-         on_error("Unsupported transform mode #{mode.to_s}")
+         fatal_error("Unsupported transform mode #{mode.to_s}")
       end
       if !File.exist? xsl_file 
-         on_error("XSL File #{xsl_file} not found")
+         fatal_error("XSL File #{xsl_file} not found")
       end
 
       if Settings.use_saxon_servlet == "true"
@@ -31,7 +31,7 @@ class BulkTransformXml < BaseJob
       if mode == :unit 
          unit = message[:unit]
          if unit.nil?
-            on_error("Unit is required")
+            fatal_error("Unit is required")
          end
          logger.info "Transforming all XML files in unit #{unit.id} with #{xsl_file}"
          transform_unit(user, xsl_file, unit)

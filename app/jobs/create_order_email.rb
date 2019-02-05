@@ -1,6 +1,7 @@
 class CreateOrderEmail < BaseJob
 
    def set_originator(message)
+      byebug
       @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order].id )
    end
 

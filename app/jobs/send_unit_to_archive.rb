@@ -40,7 +40,7 @@ class SendUnitToArchive < BaseJob
          dest_md5 = Digest::MD5.hexdigest(File.read(archive_file) )
 
          if src_md5 != dest_md5
-            on_failure("** Warning ** - File #{f} has failed checksum test")
+            log_failure("** Warning ** - File #{f} has failed checksum test")
             errors += 1
          else
             mf = MasterFile.find_by(filename: filename)
@@ -63,7 +63,7 @@ class SendUnitToArchive < BaseJob
          src_dir =  Finder.finalization_dir(unit, :in_process)
          MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
       else
-         on_error "There were errors with the archiving process"
+         fatal_error "There were errors with the archiving process"
       end
    end
 

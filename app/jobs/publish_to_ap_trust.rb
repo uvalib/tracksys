@@ -8,13 +8,13 @@ class PublishToApTrust < BaseJob
       metadata = message[:metadata]
 
       if metadata.preservation_tier_id.blank? || !metadata.preservation_tier_id.blank? && metadata.preservation_tier_id < 2 
-         on_error("Preservation tier must be greater than 1")
+         fatal_error("Preservation tier must be greater than 1")
       end
 
       # Generate bag, submit to aptrust and get resultant etag
       etag = PublishToApTrust.do_submission(metadata, logger)
       if etag.blank?
-         on_error("Bag submission failed")
+         fatal_error("Bag submission failed")
       end
 
       # poll APTrust to follow submission status. only when it is done end this job

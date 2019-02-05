@@ -41,7 +41,7 @@ class Ocr < BaseJob
          end
       end
       if src.nil?
-         on_error("Source #{mf.filename} could not be found")
+         fatal_error("Source #{mf.filename} could not be found")
       end
 
       dest_dir = Finder.finalization_dir(mf.unit, :process_deliverables)
@@ -62,7 +62,7 @@ class Ocr < BaseJob
 
       trans_file = dest.gsub /.tif/, ".txt"
       if !File.exist? trans_file
-         on_error("OCR output file #{trans_file} was not generated")
+         fatal_error("OCR output file #{trans_file} was not generated")
       end
       file = File.open(trans_file, "r")
       mf.update!(transcription_text: file.read, text_source: 0) # OCR source

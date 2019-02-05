@@ -17,11 +17,11 @@ class PublishToDL < BaseJob
 
    def publish_to_prod(unit)
       if unit.metadata.availability_policy.nil?
-         on_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and retry."
+         fatal_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and retry."
       end
 
       if unit.metadata.discoverability.nil?
-         on_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no discoverability value.  Please fill in and retry."
+         fatal_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no discoverability value.  Please fill in and retry."
       end
 
       # Flag metadata for ingest or update
@@ -68,7 +68,7 @@ class PublishToDL < BaseJob
          begin
             unit.metadata.publish_to_test
          rescue Exception=>e
-            on_failure("Unable to publish unit #{unit.id} metadata #{unit.metadata.id}: #{e.message}")
+            log_failure("Unable to publish unit #{unit.id} metadata #{unit.metadata.id}: #{e.message}")
          end
       end
       unit.master_files.each do |mf|
@@ -77,7 +77,7 @@ class PublishToDL < BaseJob
             begin
                mf.metadata.publish_to_test
             rescue Exception=>e
-               on_failure("Unable to publish masterfile #{mf.id} metadata #{mf.metadata.id}: #{e.message}")
+               log_failure("Unable to publish masterfile #{mf.id} metadata #{mf.metadata.id}: #{e.message}")
             end
          end
       end

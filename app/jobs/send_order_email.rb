@@ -55,7 +55,7 @@ class SendOrderEmail < BaseJob
       if order.order_status != "completed"
          if !order.complete_order(user)
             logger.info("Marking order COMPLETE")
-            on_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
+            log_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
          else
             logger.info "Order is now complete"
          end
