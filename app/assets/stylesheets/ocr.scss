@@ -47,17 +47,14 @@ div.image-panel {
    }
 }
 
-div.mf-transcription {
+.mf-transcription {
    border: 1px solid #ccc;
-   margin: 10px 0;
-   padding: 8px;
+   margin: 0;
+   padding: 15px;
    background-color: white;
-   font-size: 1.15em;
-   p {
-      margin: 2px 0;
-      color:#333;
-      font-family: monospace;
-   }
+   font-family: monospace;
+   font-size: 1.3em;
+   color: #444;
 }
 a.workflow_button {
    border: 1px solid #6A7176;
