@@ -27,10 +27,18 @@ class Api::FulltextController < ApplicationController
          render :plain=>"Unit is required", status: :bad_request and return if  uid.nil?
 
          out = ""
+         # Show some metadata about the object at the top of output if breaks are requeted 
+         if page_breaks 
+            if object.type == "SirsiMetadata"
+               out << "[[ #{object.title} - #{object.call_number} ]]\n"
+            else
+               out << "[[ #{object.title} ]]\n"
+            end
+         end
          out << object.title if params[:type] == "title" && !object.title.blank?
          object.master_files.where(unit_id: uid).each do |mf|
             if page_breaks
-               out << "[PAGE #{mf.filename.split("_").last.split(".").first}]" 
+               out << "[PAGE #{mf.filename.split("_").last.split(".").first}]\n" 
             else
                out << "\n" if out.length > 0
             end
@@ -38,7 +46,7 @@ class Api::FulltextController < ApplicationController
             out << mf.description if params[:type] == "description" && !mf.description.blank?
             out << mf.title if params[:type] == "title" && !mf.title.blank?
          end
-         render plain: out.gsub(/\s+/, ' ').strip
+         render plain: out.gsub(/\ +/, ' ').strip
       end
    end
 
