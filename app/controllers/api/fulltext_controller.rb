@@ -19,9 +19,9 @@ class Api::FulltextController < ApplicationController
       render :plain=>"Could not find PID", status: :not_found and return if object.nil?
 
       if type == "master_file"
-         render plain: object.transcription_text.gsub(/\s+/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
-         render plain: object.description.gsub(/\s+/, ' ').strip if params[:type] == "description" && !object.description.blank?
-         render plain: object.title.gsub(/\s+/, ' ').strip if params[:type] == "title" && !object.title.blank?
+         render plain: object.transcription_text.gsub(/\ +/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
+         render plain: object.description.gsub(/\ +/, ' ').strip if params[:type] == "description" && !object.description.blank?
+         render plain: object.title.gsub(/\ +/, ' ').strip if params[:type] == "title" && !object.title.blank?
       else
          uid = params[:unit]
          render :plain=>"Unit is required", status: :bad_request and return if  uid.nil?
