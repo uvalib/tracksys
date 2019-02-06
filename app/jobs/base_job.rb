@@ -138,14 +138,7 @@ class BaseJob
       end
    end
 
-   #
-   # Job Logging Methods
-   #
-   def on_success(message)
-      @logger.info message
-   end
-
-   # Log a warning message and keep processing
+   # Log a warning message and track the total
    #
    def log_failure(message)
       @status.update_attributes(:failures=>(@status.failures+1) )

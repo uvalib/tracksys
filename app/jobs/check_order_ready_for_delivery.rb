@@ -49,7 +49,7 @@ class CheckOrderReadyForDelivery < BaseJob
       # The 'patron' units within the order are complete, and customer not yet notified
       # Flag deliverable complete data and begin order QA process that will result
       # in a PDF ad patron email being generated if all is goos
-      on_success("All units in order #{message[:order_id]} are complete and will now begin the delivery process.")
+      logger.info("All units in order #{message[:order_id]} are complete and will now begin the delivery process.")
       order.update_attribute(:date_patron_deliverables_complete, Time.now)
 
       # Failed QA checks will terminiate the job immediately

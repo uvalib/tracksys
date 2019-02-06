@@ -11,10 +11,10 @@ class Ocr < BaseJob
 
       if object_class == "MasterFile"
          ocr_master_file(object, language)
-         on_success("OCR complete")
+         logger.info("OCR complete")
       elsif object_class == "Unit"
          ocr_unit(object, language, message[:only] )
-         on_success("OCR complete")
+         logger.info("OCR complete")
       else
          raise "OCR can only be performed on units or master files"
       end

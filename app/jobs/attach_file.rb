@@ -38,6 +38,6 @@ class AttachFile < BaseJob
          log_failure "Unable to save attachment: #{att.errors.full_messages.to_sentence}"
       end
 
-      on_success "File #{filename} added as attachment"
+      logger.info "File #{filename} added as attachment"
    end
 end

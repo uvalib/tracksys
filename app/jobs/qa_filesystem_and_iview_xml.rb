@@ -247,7 +247,7 @@ class QaFilesystemAndIviewXml < BaseJob
    def handle_errors
       logger.info "Handle Errors: [#{@error_messages.join(', ')}]"
       if @error_messages.empty?
-         on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA"
+         logger.info "Unit #{@unit.id} has passed the Filesystem and Iview XML QA"
          ImportUnitIviewXML.exec_now({ :unit_id => @unit.id, :path => @xml_files.at(0) }, self)
       else
          @error_messages.each do |message|

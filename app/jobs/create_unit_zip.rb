@@ -68,6 +68,6 @@ class CreateUnitZip < BaseJob
          end
       end
 
-      on_success "Unit #{unit.id} zipped into #{file_num} zip archive(s)."
+      logger.info "Unit #{unit.id} zipped into #{file_num} zip archive(s)."
    end
 end

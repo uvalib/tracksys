@@ -17,7 +17,7 @@ class SendOrderEmail < BaseJob
       new_email.deliver
 
       order.update(date_customer_notified: Time.now)
-      on_success("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
+      logger.info("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
       # Now clean up any left over files
       # Orders have many units, and each can have a project with a different workflow.

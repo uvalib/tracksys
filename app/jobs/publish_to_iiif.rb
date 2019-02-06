@@ -45,7 +45,7 @@ class PublishToIiif < BaseJob
       if master_file.filename.match(".jp2$")
          # write a JPEG-2000 file to the destination directory
          FileUtils.copy(source, jp2k_path)
-         on_success "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
+         logger.info "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
          # If the JP2k already exists (and is not 0), don't make it again!
@@ -73,7 +73,7 @@ class PublishToIiif < BaseJob
          end
 
          # send message to tracksys ingest_jp2k_processor (so it can add jp2 deliverable as datastream for this object)
-         on_success "Generated JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
+         logger.info "Generated JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
       else
          raise "Source is not a .tif file: #{source}"
       end
