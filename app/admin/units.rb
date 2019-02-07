@@ -300,8 +300,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :ocr, :method => :post do
-      unit = Unit.find(param[:id])
-      OCR.unit(unit)
+      OCR.unit( Unit.find(param[:id]) )
       redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
    end
 

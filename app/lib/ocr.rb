@@ -1,7 +1,25 @@
 module OCR
    # Perform OCR on all masterfile in a unit 
    #
-   def self.unit(unit_id)
+   def self.unit(unit)
+      status = JobStatus.create(name: "OCR", originator_type: "Unit", originator_id: unit.id)
+      ocr_log = status.create_logger()
+      ocr_log.info "Schedule OCR of Unit #{unit.id}"
+
+      # call GET on OCR API specifiying the PID of the unit metadata record and unit id
+      md = unit.metadata
+      lang = md.ocr_language_hint
+      cb = "/api/callbacks/#{status.id}/ocr"
+      url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&callback=#{CGI.escape(cb)}"
+      ocr_log.info "Sending OCR request to #{url}..."
+      resp = RestClient.get url
+      if resp.code == 200 
+         status.started
+         ocr_log.info "...request successfully submitted. Awaiting results."
+      else 
+         ocr_log.fatal "...submission failed. Code: #{resp.code}, Message: #{resp.body}"
+         status.failed( resp.bod )
+      end
    end
 
    # Perform OCR on a single master file

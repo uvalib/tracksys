@@ -8,8 +8,8 @@ class Api::CallbacksController < ApplicationController
       render plain: "Job ID not found", status: :not_found and return if job.nil?
 
       job_logger = job.create_logger()
-      job_logger.info "OCR processing started at #{params[:started]}"
       resp = JSON.parse(params[:json])
+      job_logger.info "OCR processing started at #{resp['started']}"
       if resp["status"] == "success"
          job_logger.info "OCR successfully completed at #{resp['finished']}"
          job.finished
