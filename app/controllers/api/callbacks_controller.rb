@@ -9,13 +9,14 @@ class Api::CallbacksController < ApplicationController
 
       job_logger = job.create_logger()
       job_logger.info "OCR started at #{params[:started]}"
-      if params[:status] == "success"
-         job_logger.info "OCR successfully completed at #{params[:finished]}"
+      resp = params[:json]
+      if resp[:status] == "success"
+         job_logger.info "OCR successfully completed at #{resp[:finished]}"
          job.finished
       else 
-         job_logger.fatal "OCR FAILED at #{params[:finished]}"
-         job_logger.fatal "Failure details #{params[:message]}"
-         job.failed( params[:message])
+         job_logger.fatal "OCR FAILED at #{resp[:finished]}"
+         job_logger.fatal "Failure details #{resp[:message]}"
+         job.failed( resp[:message])
       end
    end
 end

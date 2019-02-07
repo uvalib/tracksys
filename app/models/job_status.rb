@@ -5,7 +5,11 @@ class JobStatus < ApplicationRecord
       message: "%{value} is not a valid size" }
 
    def create_logger()
-      log_file_path = File.join(JOB_LOG_DIR, "job_#{self.id}.log")
+      log_file_path = File.join(JOB_LOG_DIR, "job_#{id}.log")
+      Rails.logger.debug "CREATE LOGGER PATH: #{log_file_path}"
+      if File.exists? log_file_path
+         Rails.logger.debug "LOGGER EXISTS"
+      end
       logger = Logger.new(log_file_path)
       logger.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
