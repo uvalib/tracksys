@@ -21,7 +21,7 @@ module OCR
       ocr_log.info "Sending OCR request to #{url}..."
       resp = RestClient.get url
       if resp.code == 200 
-         status.update(status: 'running')
+         status.started
          ocr_log.info "...request successfully submitted. Awaiting results."
       else 
          ocr_log.fatal "...submission failed. Code: #{resp.code}, Message: #{resp.body}"
