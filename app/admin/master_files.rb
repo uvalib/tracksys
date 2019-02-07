@@ -225,7 +225,7 @@ ActiveAdmin.register MasterFile do
 
    member_action :ocr, :method => :post do
       mf = MasterFile.find(params[:id])
-      Ocr.exec({ object_class: "MasterFile", object_id: mf.id, language: mf.metadata.ocr_language_hint, exclude: [] })
+      OCR.master_file(mf)
       redirect_to "/admin/master_files/#{mf.id}",
          :notice => "OCR on master file #{mf.filename} has begun. Check the job status page for updates."
    end
