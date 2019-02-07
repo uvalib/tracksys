@@ -16,7 +16,7 @@ module OCR
       
       # call GET on OCR API with force=true
       lang = mf.metadata.ocr_language_hint
-      cb = "#{Settings.tracksys_url}/api/callbacks/#{status.id}/ocr"
+      cb = "/api/callbacks/#{status.id}/ocr"
       url = "#{Settings.ocr_url}/#{mf.pid}?force=true&lang=#{lang}&callback=#{CGI.escape(cb)}"
       ocr_log.info "Sending OCR request to #{url}..."
       resp = RestClient.get url
