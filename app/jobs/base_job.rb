@@ -1,14 +1,10 @@
 class BaseJob
-   @status  # jobs status tracking object 
-   @logger  # job logger 
-
    # Execute the job asynchronously. Always the start of a workflow.
    # The ID of the delayed job is returned so status can be polled
    #
    def self.exec(message={})
       job = self.new()
       job_id = job.prepare(message)
-      # NOTE: to schedule for later can do: class.delay(run_at: 5.hours.from_now).method(param)
       job.delay.perform(message)
       return job_id
    end
@@ -43,10 +39,14 @@ class BaseJob
       else
          @status = JobStatus.create(name: self.class.name)
          set_originator(message)
+         originator = @status.originator
 
          # Log initial job params so they will always appear in job log - even before start
-         create_logger(@status.id)
-         @logger.info "Schedule #{self.class.name} with params: #{message.to_json}"
+         # IMPORTANT:
+         # logger needs to be created before job starts, and again after it starts
+         # not sure why, but if it is created prior and saved as member variable
+         # the job does not run, and produces no errors nor logs
+         create_logger(@status.id).info "Schedule #{self.class.name} with params: #{message.to_json}"
       end
       return @status.id
    end
@@ -58,10 +58,11 @@ class BaseJob
       if File.exists? log_file_path
          FileUtils.rm(log_file_path)
       end
-      @logger = Logger.new(log_file_path)
-      @logger.formatter = proc do |severity, datetime, progname, msg|
+      logger = Logger.new(log_file_path)
+      logger.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
       end
+      return logger
    end
 
    # Set the originiator of this job request. Default is no originator
@@ -74,6 +75,12 @@ class BaseJob
    # Start logging and update status, then launch into workflow
    #
    def perform(message)
+      # If this job has been chained from another, the log will already exist and
+      # should not be created
+      if @logger.nil?
+         @logger = create_logger(@status.id)
+      end
+
       # Flag job started running
       @logger.info "Start #{self.class.name} with params: #{message.to_json}"
       @status.started
