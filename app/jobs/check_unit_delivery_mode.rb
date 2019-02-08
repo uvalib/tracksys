@@ -41,8 +41,7 @@ class CheckUnitDeliveryMode < BaseJob
       end
 
       if unit.ocr_master_files
-         Ocr.exec_now({object_class: "Unit", object_id: unit.id,
-            language: unit.metadata.ocr_language_hint, exclude: []}, self)
+         OCR.synchronous(unit, self)
       end
 
       # Figure out if this unit has any deliverables, and of what type:
@@ -83,7 +82,6 @@ class CheckUnitDeliveryMode < BaseJob
       end
    end
 
-   private
    def create_patron_deliverables(unit)
       if unit.intended_use.deliverable_format == "pdf"
          logger.info("Unit #{unit.id} requires the creation of PDF patron deliverables.")
