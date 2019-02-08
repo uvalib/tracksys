@@ -396,7 +396,8 @@ ActiveAdmin.register Unit do
    end
 
    member_action :send_unit_to_archive, :method => :put do
-      SendUnitToArchive.exec( {:unit_id => params[:id]})
+      # added a delete flag to this request as it completes finalization. Files can go to ready to delete
+      SendUnitToArchive.exec( {unit_id: params[:id], delete: true})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 

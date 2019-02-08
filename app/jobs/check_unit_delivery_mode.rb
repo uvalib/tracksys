@@ -40,6 +40,13 @@ class CheckUnitDeliveryMode < BaseJob
          end
       end
 
+      # All non-reorder, non-throw away units go to the archive
+      if unit.reorder == false && unit.throw_away == false
+         SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
+      end
+
+      # If OCR has been requested, do it AFTER archive (OCR requires tif to be in archive)
+      # but before deliverable generation (deliverables require OCR text to be present)
       if unit.ocr_master_files
          OCR.synchronous(unit, self)
       end
@@ -71,15 +78,10 @@ class CheckUnitDeliveryMode < BaseJob
       if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system.name == "ArchivesSpace" && unit.throw_away == false
          PublishToAS.exec_now({metadata: unit.metadata})
       end
-
-      # All units except re-orders go to archive
-      if unit.reorder == false
-         # Archive the unit and move in_process files to ready_to_delete
-         SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
-      else
-         logger.info "Cleaning up in_process files for completed re-order"
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: Finder.finalization_dir(unit, :in_process)}, self)
-      end
+      
+      # All done; in_process files can go to ready_to_delete
+      logger.info "Cleaning up in_process files for completed re-order"
+      MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: Finder.finalization_dir(unit, :in_process)}, self)
    end
 
    def create_patron_deliverables(unit)
