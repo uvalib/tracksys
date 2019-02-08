@@ -49,6 +49,19 @@ class CheckUnitDeliveryMode < BaseJob
       # but before deliverable generation (deliverables require OCR text to be present)
       if unit.ocr_master_files
          OCR.synchronous(unit, self)
+         # Once notified that OCR is done, wait til all masterfiles in unit are flagged with OCR
+         while true do 
+            done = true
+            unit.master_files.each do |mf| 
+               if mf.text_source != "ocr"
+                  done = false
+                  break
+               end
+            end
+            if done == true 
+               break
+            end
+         end
       end
 
       # Figure out if this unit has any deliverables, and of what type:
