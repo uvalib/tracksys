@@ -1,8 +1,8 @@
 class JobStatus < ApplicationRecord
-   belongs_to :originator, :polymorphic=>true
+   belongs_to :originator, polymorphic: true, optional: true
    validates :status, inclusion: {
       in: ["pending", "running", "success", "failure"],
-      message: "%{value} is not a valid size" }
+      message: "%{value} is not a valid status" }
 
    def create_logger()
       log_file_path = File.join(JOB_LOG_DIR, "job_#{id}.log")
