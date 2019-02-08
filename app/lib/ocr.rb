@@ -7,14 +7,14 @@ module OCR
    def self.synchronous(unit, job )
       md = unit.metadata
       lang = md.ocr_language_hint
-      cb = "/api/callbacks/#{job.status_object.id}/synchronous_ocr"
+      cb = "/api/callbacks/#{job.status.id}/synchronous_ocr"
       url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&callback=#{CGI.escape(cb)}"
-      job.logger.info "Sending OCR request to #{url}..."
+      job.logger.info "Sending OCR request to #{url}"
       resp = RestClient.get url
       if resp.code == 200 
-         job.logger.info "...request successfully submitted. Awaiting results."
+         job.logger.info "Request successfully submitted. Awaiting results."
          redis = Redis.new(host: Settings.redis_host, password: Settings.redis_pass)
-         redis_key = "#{Settings.redis_prefix}:ocr_#{job.status_object.id}"
+         redis_key = "#{Settings.redis_prefix}:ocr_#{job.status.id}"
          redis.set(redis_key, "waiting") 
          while true do 
             # await change in redis_key and break out of waiting
@@ -32,7 +32,7 @@ module OCR
          end
       else 
          # request failed; log this as a warning and return to finalization
-         job.log_failure("...submission failed. Code: #{resp.code}, Message: #{resp.body}")
+         job.log_failure("Submission failed. Code: #{resp.code}, Message: #{resp.body}")
       end
    end
 
@@ -73,13 +73,13 @@ module OCR
       lang = mf.metadata.ocr_language_hint
       cb = "/api/callbacks/#{status.id}/ocr"
       url = "#{Settings.ocr_url}/#{mf.pid}?force=true&lang=#{lang}&callback=#{CGI.escape(cb)}"
-      ocr_log.info "Sending OCR request to #{url}..."
+      ocr_log.info "Sending OCR request to #{url}"
       resp = RestClient.get url
       if resp.code == 200 
          status.started
-         ocr_log.info "...request successfully submitted. Awaiting results."
+         ocr_log.info "Request successfully submitted. Awaiting results."
       else 
-         ocr_log.fatal "...submission failed. Code: #{resp.code}, Message: #{resp.body}"
+         ocr_log.fatal "Submission failed. Code: #{resp.code}, Message: #{resp.body}"
          status.failed( resp.bod )
       end
    end
