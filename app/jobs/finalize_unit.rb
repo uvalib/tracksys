@@ -31,7 +31,7 @@ class FinalizeUnit < BaseJob
 
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
-         @project.finalization_success( status_object() )
+         @project.finalization_success( status() )
       end
    end
 
@@ -40,7 +40,7 @@ class FinalizeUnit < BaseJob
    def failure(job)
       if !@project.nil?
          logger().fatal "Unit #{@project.unit.id} failed Finalization"
-         @project.finalization_failure( status_object() )
+         @project.finalization_failure( status() )
       end
    end
 end
