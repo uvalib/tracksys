@@ -6,7 +6,17 @@
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
       <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select required',  :style => 'width: 200px'} %>
-      <%= f.input :ocr_language_hint, :as => :select, :collection => @languages, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+       <li class="select input optional" id="external_metadata_ocr_language_hint_input">
+          <label for="external_metadata_ocr_language_hint" class="label">OCR Language Hint</label>
+          <select multiple="multiple" class="chosen-select" name="external_metadata[ocr_language_hint][]" 
+                  id="external_metadata_ocr_language_hint" style="width:200px">
+             <% @languages.each do |l| %>
+                <% selected = ""
+                   selected = "selected='selected'" if @external_metadata.ocr_language_hint.include?(l) %>
+                <option value="<%= l %>" <%= selected %> ><%= l %></option>
+             <% end %>
+          </select>
+      </li>
       <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
    <% end %>
 

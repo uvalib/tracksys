@@ -113,8 +113,8 @@ ActiveAdmin.register XmlMetadata do
                row('Rights Rationale'){ |r| r.use_right_rationale }
                row :creator_death_date
                row :availability_policy
-               row ("Discoverable?") do |sirsi_metadata|
-                  format_boolean_as_yes_no(sirsi_metadata.discoverability)
+               row ("Discoverable?") do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.discoverability)
                end
                row :collection_facet
                row :date_dl_ingest
@@ -247,7 +247,7 @@ ActiveAdmin.register XmlMetadata do
          if xml_metadata.parent
             row("Parent Metadata Record") do |xml_metadata|
                if xml_metadata.parent.type == "SirsiMetadata"
-                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
                elsif xml_metadata.parent.type == "XmlMetadata"
                   link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
                end
@@ -343,6 +343,12 @@ ActiveAdmin.register XmlMetadata do
          new_xml  = params[:xml_metadata][:desc_metadata]
          if new_xml != resource.desc_metadata
             MetadataVersion.create(metadata: resource, staff_member: current_user, desc_metadata:  resource.desc_metadata)
+         end
+         if !params[:xml_metadata][:ocr_language_hint].nil?
+            params[:xml_metadata][:ocr_language_hint].reject!(&:empty?)
+            params[:xml_metadata][:ocr_language_hint] = params[:xml_metadata][:ocr_language_hint].join("+")
+         else 
+            params[:xml_metadata][:ocr_language_hint] = ""
          end
          super
        end

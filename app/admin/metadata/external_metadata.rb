@@ -220,6 +220,12 @@ ActiveAdmin.register ExternalMetadata do
       end
 
       def update
+         if !params[:external_metadata][:ocr_language_hint].nil?
+            params[:external_metadata][:ocr_language_hint].reject!(&:empty?)
+            params[:external_metadata][:ocr_language_hint] = params[:external_metadata][:ocr_language_hint].join("+")
+         else 
+            params[:external_metadata][:ocr_language_hint] = ""
+         end
          super
          if resource.external_system.name == "ArchivesSpace"
             auth = ArchivesSpace.get_auth_session()
