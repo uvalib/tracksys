@@ -339,6 +339,12 @@ ActiveAdmin.register SirsiMetadata do
       end
 
       def update
+         if !params[:sirsi_metadata][:ocr_language_hint].nil?
+            params[:sirsi_metadata][:ocr_language_hint].reject!(&:empty?)
+            params[:sirsi_metadata][:ocr_language_hint] = params[:sirsi_metadata][:ocr_language_hint].join("+")
+         else 
+            params[:sirsi_metadata][:ocr_language_hint] = ""
+         end
          super
          metadata = Metadata.find(params[:id])
          if metadata.in_dpla? && Settings.dpla_qdc_auto_publish == "true"
