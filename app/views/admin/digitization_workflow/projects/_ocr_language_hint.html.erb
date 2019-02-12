@@ -2,14 +2,15 @@
    <% if project.unit.metadata.ocr_language_hint.blank? %>
       <span class="disp-ocr empty" id='ocr-language-hint'>Empty</span>
    <% else %>
-      <span class='disp-ocr' id='ocr-language-hint'><%= project.unit.metadata.ocr_language_hint.upcase %></span>
+      <span class='disp-ocr' id='ocr-language-hint'><%= project.unit.metadata.ocr_language_hint %></span>
    <% end %>
-   <select class='hidden edit-ocr' id='ocr-language-hint-edit' >
-       <option value="">Select an OCR Language Hint</option>
-      <% @languages.each do |p| %>
-         <% sel = ""
-            sel = 'selected=selected' if p == project.unit.metadata.ocr_language_hint %>
-          <option <%= sel %> value="<%= p %>"><%= p.upcase %></option>
-      <% end %>
-   </select>
+   <div class="hidden edit-ocr">
+      <select style="width:200px" multiple="multiple" id='ocr-language-hint-edit' >
+         <% @languages.each do |p| %>
+            <% sel = ""
+               sel = 'selected=selected' if project.unit.metadata.ocr_language_hint.include?(p) %>
+            <option <%= sel %> value="<%= p %>"><%= p %></option>
+         <% end %>
+      </select>
+   </end>
 </div>

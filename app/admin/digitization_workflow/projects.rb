@@ -210,7 +210,11 @@ ActiveAdmin.register Project do
       end
 
       if params[:ocr_language_hint]
+         params[:ocr_language_hint].reject!(&:empty?)
+            params[:ocr_language_hint] = params[:ocr_language_hint].join("+")
          project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
+      else
+         project.unit.metadata.update( ocr_language_hint: "" )
       end
 
       render json: {status: "success", enable_finish: project.assignment_finish_available?}
