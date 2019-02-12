@@ -308,7 +308,7 @@ ActiveAdmin.register Order do
       sn = order.staff_notes
       sn << "" if sn.nil?
       sn << " " if !sn.blank?
-      sn << "Order notification sent to alternate email address: #{params[:email]}."
+      sn << "Order notification sent to alternate email address: #{params[:email]} at #{DateTime.now.strftime('%F %R')}."
       order.update(staff_notes: sn)
 
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
