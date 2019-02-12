@@ -298,8 +298,11 @@ ActiveAdmin.register Order do
 
    member_action :send_order_alt_email, :method => :put do
       order = Order.find(params[:id])
+      orig_email = order.email
       msg = OrderMailer.web_delivery(order, ['holding'])
       msg.to = [params[:email]]
+      msg.body = orig_email.to_s
+      msg.date = Time.now
       msg.deliver
 
       sn = order.staff_notes
