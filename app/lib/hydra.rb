@@ -230,7 +230,9 @@ module Hydra
          else
             rights_node.content = "#{metadata.use_right.uri}"
          end
-         doc.root.children.first.add_previous_sibling(rights_node)
+         if !doc.root.nil?
+            doc.root.children.first.add_previous_sibling(rights_node)
+         end
       end
    end
 end

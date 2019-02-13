@@ -98,9 +98,9 @@ class BulkTransformXml < BaseJob
             return ""
          end
       rescue Exception => e   
-         logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid} exception: #{e.message}"
+         logger.info "Transform XmlMetadata #{metadata.id} : #{metadata.pid} exception: #{e.message}"
          return ""
-      end
+      end   
    end
 
    def local_transform(metadata, xsl_file)
