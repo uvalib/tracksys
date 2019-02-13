@@ -90,10 +90,15 @@ class BulkTransformXml < BaseJob
       payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=desc_metadata"
       payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/user?uuid=#{xsl_uuid}"
       uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
-      response = RestClient.post(uri, payload)
-      if response.code == 200 
-         return response.body
-      else 
+      begin
+         response = RestClient.post(uri, payload)
+         if response.code == 200 
+            return response.body
+         else 
+            return ""
+         end
+      rescue Exception => e   
+         logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid} exception: #{e.message}"
          return ""
       end
    end
