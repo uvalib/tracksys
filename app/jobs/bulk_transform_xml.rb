@@ -68,7 +68,7 @@ class BulkTransformXml < BaseJob
    def transform_all(user, xsl_file) 
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
-      XmlMetadata.all.for_each do |md| 
+      XmlMetadata.all.find_each do |md| 
          next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
 
          if Settings.use_saxon_servlet == "true"
