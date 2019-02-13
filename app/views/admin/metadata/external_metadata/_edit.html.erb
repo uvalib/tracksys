@@ -12,7 +12,7 @@
                   id="external_metadata_ocr_language_hint" style="width:200px">
              <% @languages.each do |l| %>
                 <% selected = ""
-                   selected = "selected='selected'" if @external_metadata.ocr_language_hint.include?(l) %>
+                   selected = "selected='selected'" if !@external_metadata.ocr_language_hint.nil? && @external_metadata.ocr_language_hint.include?(l) %>
                 <option value="<%= l %>" <%= selected %> ><%= l %></option>
              <% end %>
           </select>
