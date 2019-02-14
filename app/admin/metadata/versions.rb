@@ -6,7 +6,7 @@ ActiveAdmin.register_page "Versions" do
       xmd = XmlMetadata.find(params[:xml_metadatum_id])
       panel "Version History for XML Metadata PID #{xmd.pid}" do
          versions = xmd.metadata_versions.order(created_at: :desc)
-         if versions.count == 0 
+         if versions.count == 0
             div do "No prior versions exist for this record" end
          else
             table_for versions do |v|
@@ -21,32 +21,32 @@ ActiveAdmin.register_page "Versions" do
                   MetadataVersion.where(version_tag: v.version_tag).count
                end
                column ("Actions") do |v|
-                  span class: "btn diff", 'data-tag': v.version_tag do "Diff" end 
-                  span class: "btn restore", 'data-tag': v.version_tag  do "Restore" end 
+                  span class: "btn diff", 'data-tag': v.version_tag do "Diff" end
+                  span class: "btn restore", 'data-tag': v.version_tag  do "Restore" end
                   if MetadataVersion.where(version_tag: v.version_tag).count > 1
-                     span class: "btn restore-all", 'data-tag': v.version_tag do "Restore All" end 
-                  end   
+                     span class: "btn restore-all", 'data-tag': v.version_tag do "Restore All" end
+                  end
                end
             end
          end
       end
 
       div id: "dimmer" do
-         div id: "diff-viewer-modal", class: "modal" do 
+         div id: "diff-viewer-modal", class: "modal" do
             h1 id: "diff-header" do end
-            div class: "content" do 
-               div class: "diff-tabs" do 
+            div class: "content" do
+               div class: "diff-tabs" do
                   span class: "tab-btn", id: "diff-btn" do "Diff" end
-                  span class: "tab-btn", id: "curr-btn" do "Current" end
-                  span class: "tab-btn", id: "tagged-btn" do "Diff" end
+                  span class: "tab-btn", id: "curr-btn" do "After" end
+                  span class: "tab-btn", id: "tagged-btn" do "Before" end
                end
-               div id: "diff-tab", class: "diff-scroller" do 
-                  pre id: "diff" 
+               div id: "diff-tab", class: "diff-scroller" do
+                  div id: "diff"
                end
-               div id: "curr-tab", class: "diff-scroller", style: "display:none" do 
-                  pre id: "curr" 
+               div id: "curr-tab", class: "diff-scroller", style: "display:none" do
+                  pre id: "curr"
                end
-               div id: "tagged-tab", class: "diff-scroller", style: "display:none" do 
+               div id: "tagged-tab", class: "diff-scroller", style: "display:none" do
                   pre id: "tagged"
                end
             end
@@ -60,9 +60,19 @@ ActiveAdmin.register_page "Versions" do
    page_action :diff do
       tag = params[:tag]
       md = XmlMetadata.find(params[:xml_metadatum_id])
-      old = MetadataVersion.find_by(metadata_id: md.id, version_tag: tag)
-      diff = Diffy::Diff.new(old.desc_metadata, md.desc_metadata).to_s()
-      render json: { status: "success", diff: diff, curr: md.desc_metadata, tagged: old.desc_metadata}
+      tgt = MetadataVersion.find_by(metadata_id: md.id, version_tag: tag)
+
+      # default to diff between current and target version
+      v0 = md.desc_metadata
+      v1 = tgt.desc_metadata
+
+      # See if there is a version newer than the target version
+      other = MetadataVersion.where("metadata_id = ? and created_at > ?", md.id, tgt.created_at).order(created_at: :asc).first
+      if !other.nil?
+         v0 = other.desc_metadata
+      end
+      diff = Diffy::Diff.new(v0, v1).to_s(:html) #, :diff => "-w"
+      render json: { status: "success", diff: diff, v0: v0, v1: v1}
    end
 
    page_action :revert, method: "post" do
@@ -81,7 +91,7 @@ ActiveAdmin.register_page "Versions" do
          del.destroy_all
          render json: { status: "success", message: "#{tag} restored. #{cnt} intermediate versions removed."}
       else
-         # NOTE: May have to move this to a background job... not sure how long it will take 
+         # NOTE: May have to move this to a background job... not sure how long it will take
          # if reverting a change for ALL XmlMetadata
          md_cnt = 0
          del_cnt = 0

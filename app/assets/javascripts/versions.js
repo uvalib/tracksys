@@ -5,8 +5,7 @@ $(function () {
     btn.addClass("disabled");
     var tag = btn.data("tag");
 
-    $("#diff-header").text("Diff of current version vs. "+tag);
-    $("#tagged-btn").text(tag);
+    $("#diff-header").text("Change "+tag);
     $(".tab-btn").removeClass("selected");
     $("#diff-btn").addClass("selected");
     $("#diff-tab").show();
@@ -21,9 +20,9 @@ $(function () {
         if (textStatus != "success") {
           alert("Unable to get diff: "+jqXHR.responseText);
         } else {
-          $("#diff").text( jqXHR.responseJSON.diff);
-          $("#curr").text( jqXHR.responseJSON.curr);
-          $("#tagged").text( jqXHR.responseJSON.tagged);
+          $("#diff").html( jqXHR.responseJSON.diff);
+          $("#curr").text( jqXHR.responseJSON.v0);
+          $("#tagged").text( jqXHR.responseJSON.v1);
         }
         btn.removeClass("disabled");
       }
@@ -57,7 +56,7 @@ $(function () {
     if ( !resp) return;
 
     btn.addClass("disabled");
-    
+
     $.ajax({
       url: window.location.href+"/revert?tag=" + tag,
       method: "post",
@@ -77,7 +76,7 @@ $(function () {
     var btn = $(this);
     if ( btn.hasClass("disabled")) return;
     var tag = btn.data("tag");
-    
+
     var msg = "Revert all affected files to "+tag+"?"
     msg += "\n\nAll versions between current and the restored version will be permanently removed."
     msg += "\n\nContinue?";

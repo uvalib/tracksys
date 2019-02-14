@@ -6,6 +6,7 @@ namespace :rights do
    task :fix_holsinger  => :environment do
       ignore_dates = ["undated", "unknown date", "unknown", "n.d."]
       cnt = 0
+      skipped = 0
       Metadata.where(parent_metadata_id: 3002).find_each do |md|
          # Note all are XML Metadata
          doc = Nokogiri::XML(md.desc_metadata)
@@ -23,12 +24,14 @@ namespace :rights do
          # Pick latest date and replace U or X with 9. Format: YYYY-MM-DD
          if dates.blank? 
             puts "MD #{md.id} has no date. Current rights: #{md.use_right.name}"
+            skipped += 1
             next
          end
          date = dates.sort.last
          year_str = date.split("-")[0]
          if /[ux]/i.match(year_str)
             puts "MD #{md.id} has unknown in date '#{date}' - current rights: #{md.use_right.name}"
+            skipped += 1
             next
          end
          year = year_str.to_i
@@ -39,7 +42,7 @@ namespace :rights do
          end
          cnt +=1
       end
-      puts "DONE. #{cnt} records updated"
+      puts "DONE. #{cnt} records updated, #{skipped} records skipped"
    end
 
    desc "Fix Jackson Davis rights info"
