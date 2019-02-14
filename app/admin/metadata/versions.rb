@@ -16,6 +16,13 @@ ActiveAdmin.register_page "Versions" do
                column ("Created By") do |v|
                   v.staff_member.full_name
                end
+               column :comment do |v|
+                  if v.comment.blank?
+                     "N/A"
+                  else
+                     v.comment.truncate(50, separator: ' ')
+                  end
+               end
                column :version_tag
                column ("Records Changed") do |v|
                   MetadataVersion.where(version_tag: v.version_tag).count
@@ -49,6 +56,9 @@ ActiveAdmin.register_page "Versions" do
                div id: "tagged-tab", class: "diff-scroller", style: "display:none" do
                   pre id: "tagged"
                end
+               div do
+                  span id: "comment"
+               end
             end
             div class: "buttons" do
                input type: "button", id: "close-diff-viewer", value: "Close"
@@ -72,7 +82,7 @@ ActiveAdmin.register_page "Versions" do
          v0 = other.desc_metadata
       end
       diff = Diffy::Diff.new(v0, v1, diff: ["-w","-U10000"]).to_s(:html)
-      render json: { status: "success", diff: diff, v0: v0, v1: v1}
+      render json: { status: "success", diff: diff, v0: v0, v1: v1, comment: tgt.comment}
    end
 
    page_action :revert, method: "post" do

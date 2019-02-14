@@ -688,6 +688,13 @@ body.active_admin {
       }
    }
 
+   div.change-comment {
+     padding: 5px 0;
+     input {
+       width: 100% !important;
+     }
+   }
+
    #dimmer, #assign-dimmer, #msg-reader-dimmer {
       position: fixed;
       left: 0;
@@ -787,6 +794,10 @@ body.active_admin {
               .diff li.diff-comment { display: none; }
               .diff li.diff-block-info { background: none repeat scroll 0 0 gray; }
             }
+         }
+         #comment {
+          margin: 10px 0;
+          display: inline-block;
          }
          .diff-tab {
             margin: 0 10px 0 10px;

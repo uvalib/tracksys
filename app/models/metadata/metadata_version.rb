@@ -1,5 +1,5 @@
 class MetadataVersion < ApplicationRecord
-   belongs_to :metadata 
+   belongs_to :metadata
    belongs_to :staff_member
 
    validates :metadata, :presence => true
@@ -9,9 +9,13 @@ class MetadataVersion < ApplicationRecord
 
    before_validation :set_version_tag, on: :create
 
-   def set_version_tag 
+   def set_version_tag
       if self.version_tag.blank?
          self.version_tag = SecureRandom.uuid
       end
+   end
+
+   def self.has_changes?(v0, v1)
+      return !Diffy::Diff.new(v0, v1, diff: ["-w","-U10000"]).to_s().blank?
    end
 end

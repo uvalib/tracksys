@@ -23,6 +23,7 @@ $(function () {
           $("#diff").html( jqXHR.responseJSON.diff);
           $("#curr").text( jqXHR.responseJSON.v0);
           $("#tagged").text( jqXHR.responseJSON.v1);
+          $("#comment").text(jqXHR.responseJSON.comment);
         }
         btn.removeClass("disabled");
       }

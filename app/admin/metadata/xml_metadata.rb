@@ -148,10 +148,10 @@ ActiveAdmin.register XmlMetadata do
                   end
                end
                row ("Version History") do |sm|
-                  if sm.has_versions? 
+                  if sm.has_versions?
                      link_to "#{sm.metadata_versions.count}", "/admin/xml_metadata/#{sm.id}/versions"
                   else
-                     "None" 
+                     "None"
                   end
                end
             end
@@ -312,9 +312,9 @@ ActiveAdmin.register XmlMetadata do
       redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
 
-   # Transfmorm ALL XML metadat records in the system with the XSL file uploaded 
+   # Transfmorm ALL XML metadat records in the system with the XSL file uploaded
    #
-   collection_action :global_transform, method: :post do 
+   collection_action :global_transform, method: :post do
       # copy the file to /tmp so we have more control over its lifecycle
       upload_file = params[:xslfile].tempfile.path
       xsl_uuid =  SecureRandom.uuid
@@ -338,16 +338,17 @@ ActiveAdmin.register XmlMetadata do
           @languages = lang_str.split("\n")
        end
 
-       def update 
+       def update
          # create a metadata version to track this change
          new_xml  = params[:xml_metadata][:desc_metadata]
-         if new_xml != resource.desc_metadata
-            MetadataVersion.create(metadata: resource, staff_member: current_user, desc_metadata:  resource.desc_metadata)
+         if MetadataVersion.has_changes? new_xml, resource.desc_metadata
+            MetadataVersion.create(metadata: resource, staff_member: current_user,
+               desc_metadata:  resource.desc_metadata, comment: params[:xml_metadata][:comment])
          end
          if !params[:xml_metadata][:ocr_language_hint].nil?
             params[:xml_metadata][:ocr_language_hint].reject!(&:empty?)
             params[:xml_metadata][:ocr_language_hint] = params[:xml_metadata][:ocr_language_hint].join("+")
-         else 
+         else
             params[:xml_metadata][:ocr_language_hint] = ""
          end
          super
