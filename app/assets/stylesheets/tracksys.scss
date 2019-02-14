@@ -765,6 +765,9 @@ body.active_admin {
          .diff-scroller {
             max-height: 450px;
             overflow: scroll;
+            pre {
+              white-space: pre-wrap ;
+            }
             pre, #diff {
                background: white;
                border: 1px solid #999;

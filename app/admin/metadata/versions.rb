@@ -71,7 +71,7 @@ ActiveAdmin.register_page "Versions" do
       if !other.nil?
          v0 = other.desc_metadata
       end
-      diff = Diffy::Diff.new(v0, v1).to_s(:html) #, :diff => "-w"
+      diff = Diffy::Diff.new(v0, v1, diff: ["-w","-U10000"]).to_s(:html)
       render json: { status: "success", diff: diff, v0: v0, v1: v1}
    end
 
