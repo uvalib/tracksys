@@ -114,8 +114,10 @@ class BulkUploadXml < BaseJob
                mf.update(metadata_id: metadata.id, exemplar: true)
             else
                # This masterfile already has its own metadata; just update content
-               # and create a version history containing the original content
-               MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata)
+               # and create a version history containing the original content (if there are changes)
+               if MetadataVersion.has_changes? xml_str, mf.metadata.desc_metadata
+                  MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata)
+               end
                mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,
                   discoverability: settings[:discoverability], use_right: settings[:rights],
                   availability_policy: settings[:availability], dpla: dpla )

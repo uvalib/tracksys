@@ -17,18 +17,18 @@ class BulkTransformXml < BaseJob
       if !modes.include? mode
          fatal_error("Unsupported transform mode #{mode.to_s}")
       end
-      if !File.exist? xsl_file 
+      if !File.exist? xsl_file
          fatal_error("XSL File #{xsl_file} not found")
       end
 
       if Settings.use_saxon_servlet == "true"
          uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
          logger.info "Transformations will be done with #{uri}"
-      else 
+      else
          logger.info "Transformations will be done with a local version of saxon"
       end
 
-      if mode == :unit 
+      if mode == :unit
          unit = message[:unit]
          if unit.nil?
             fatal_error("Unit is required")
@@ -41,7 +41,7 @@ class BulkTransformXml < BaseJob
       end
    end
 
-   def transform_unit(user, xsl_file, unit) 
+   def transform_unit(user, xsl_file, unit)
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
       unit.master_files.each do |mf|
@@ -55,20 +55,20 @@ class BulkTransformXml < BaseJob
          else
             new_xml = local_transform(mf.metadata, xsl_file)
          end
-         if !new_xml.blank? && new_xml != mf.metadata.desc_metadata 
+         if MetadataVersion.has_changes? new_xml, mf.metadata.desc_metadata
             logger.info "Transform successful; create new version"
             MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata, version_tag: xsl_uuid)
             mf.metadata.update(desc_metadata: new_xml)
-         else 
+         else
             logger.info "Transform not successful, or caused no changes"
          end
       end
    end
 
-   def transform_all(user, xsl_file) 
+   def transform_all(user, xsl_file)
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
-      XmlMetadata.all.find_each do |md| 
+      XmlMetadata.all.find_each do |md|
          next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
 
          if Settings.use_saxon_servlet == "true"
@@ -76,10 +76,10 @@ class BulkTransformXml < BaseJob
          else
             new_xml = local_transform(md, xsl_file)
          end
-         if !new_xml.blank? && new_xml != md.desc_metadata 
+         if MetadataVersion.has_changes? new_xml, md.desc_metadata
             MetadataVersion.create(metadata: md, staff_member: user, desc_metadata:  md.desc_metadata, version_tag: xsl_uuid)
             md.update(desc_metadata: new_xml)
-         else 
+         else
             logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid} not successful, or caused no changes"
          end
       end
@@ -92,15 +92,15 @@ class BulkTransformXml < BaseJob
       uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
       begin
          response = RestClient.post(uri, payload)
-         if response.code == 200 
+         if response.code == 200
             return response.body
-         else 
+         else
             return ""
          end
-      rescue Exception => e   
+      rescue Exception => e
          logger.info "Transform XmlMetadata #{metadata.id} : #{metadata.pid} exception: #{e.message}"
          return ""
-      end   
+      end
    end
 
    def local_transform(metadata, xsl_file)
