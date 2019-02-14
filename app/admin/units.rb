@@ -313,7 +313,7 @@ ActiveAdmin.register Unit do
       dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
       FileUtils.cp(upload_file, dest)
       unit = Unit.find(params[:id])
-      BulkTransformXml.exec({user: current_user, mode: :unit, unit: unit, xsl_file: dest})
+      BulkTransformXml.exec({user: current_user, mode: :unit, unit: unit, xsl_file: dest, comment: params[:comment]})
       render plain: "ok"
    end
 

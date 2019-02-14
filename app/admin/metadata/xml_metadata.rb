@@ -322,7 +322,7 @@ ActiveAdmin.register XmlMetadata do
       FileUtils.mkdir_p dest_dir
       dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
       FileUtils.cp(upload_file, dest)
-      BulkTransformXml.exec({user: current_user, mode: :global, xsl_file: dest})
+      BulkTransformXml.exec({user: current_user, mode: :global, xsl_file: dest, comment: params[:comment]})
       render plain: "ok"
    end
 

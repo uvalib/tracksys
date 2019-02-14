@@ -10,18 +10,22 @@
       <div class="content">
          <% if mode == :global %>
             <p class="help">
-               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the system</b>. 
+               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the system</b>.
                Click Transform to upload the file and apply the changes.
             </p>
          <% else %>
             <p>
-               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the current unit</b>. 
+               Select an XSL file below that will be used to transform <b>ALL XML metadata records in the current unit</b>.
                Click Transform to upload the file and apply the changes.
             </p>
          <% end %>
          <div style="margin: 20px 20px 0 20px">
             <span>XSL File: </span>
             <input type="file" name="xslfile"  accept=".xsl"/>
+         </div>
+         <div>
+            <span>Brief Transform Comment: </span>
+            <textarea name="comment" rows="2"></textarea>
          </div>
       </div>
       <div class="buttons">
