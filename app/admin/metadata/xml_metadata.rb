@@ -327,17 +327,6 @@ ActiveAdmin.register XmlMetadata do
    end
 
    controller do
-       before_action :get_tesseract_langs, only: [:edit, :new]
-       def get_tesseract_langs
-          # Get list of tesseract supported languages
-          lang_str = `tesseract --list-langs 2>&1`
-
-          # gives something like: List of available languages (107):\nafr\...
-          # split off info and make array
-          lang_str = lang_str.split(":")[1].strip
-          @languages = lang_str.split("\n")
-       end
-
        def update
          # create a metadata version to track this change
          new_xml  = params[:xml_metadata][:desc_metadata]

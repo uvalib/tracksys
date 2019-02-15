@@ -281,17 +281,6 @@ ActiveAdmin.register SirsiMetadata do
 
    include ActionView::Helpers::TextHelper
    controller do
-      before_action :get_tesseract_langs, only: [:edit, :new]
-      def get_tesseract_langs
-         # Get list of tesseract supported languages
-         lang_str = `tesseract --list-langs 2>&1`
-
-         # gives something like: List of available languages (107):\nafr\...
-         # split off info and make array
-         lang_str = lang_str.split(":")[1].strip
-         @languages = lang_str.split("\n")
-      end
-
       before_action :get_sirsi, only: [:edit, :show]
       def get_sirsi
          @sirsi_meta = {catalog_key: resource.catalog_key, barcode: resource.barcode,
@@ -342,7 +331,7 @@ ActiveAdmin.register SirsiMetadata do
          if !params[:sirsi_metadata][:ocr_language_hint].nil?
             params[:sirsi_metadata][:ocr_language_hint].reject!(&:empty?)
             params[:sirsi_metadata][:ocr_language_hint] = params[:sirsi_metadata][:ocr_language_hint].join("+")
-         else 
+         else
             params[:sirsi_metadata][:ocr_language_hint] = ""
          end
          super

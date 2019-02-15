@@ -45,9 +45,9 @@
       <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
        <li class="select input optional" id="sirsi_metadata_ocr_language_hint_input">
           <label for="sirsi_metadata_ocr_language_hint" class="label">OCR Language Hint</label>
-          <select multiple="multiple" class="chosen-select" name="sirsi_metadata[ocr_language_hint][]" 
+          <select multiple="multiple" class="chosen-select" name="sirsi_metadata[ocr_language_hint][]"
                   id="sirsi_metadata_ocr_language_hint" style="width:200px">
-             <% @languages.each do |l| %>
+             <% OCR.languages.each do |l| %>
                 <% selected = ""
                    selected = "selected='selected'" if !@sirsi_metadata.ocr_language_hint.nil? && @sirsi_metadata.ocr_language_hint.include?(l) %>
                 <option value="<%= l %>" <%= selected %> ><%= l %></option>
