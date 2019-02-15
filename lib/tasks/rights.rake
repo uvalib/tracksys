@@ -22,7 +22,7 @@ namespace :rights do
             dates << clean_date
          end
          # Pick latest date and replace U or X with 9. Format: YYYY-MM-DD
-         if dates.blank? 
+         if dates.blank?
             puts "MD #{md.id} has no date. Current rights: #{md.use_right.name}"
             skipped += 1
             next
@@ -36,9 +36,13 @@ namespace :rights do
          end
          year = year_str.to_i
          if year.to_i > 1896
-            #puts "#{year} is InC"
+            puts "MD #{md.id} '#{date}' is post-1896, set to InC (3)"
+            md.update(use_right_id: 3, date_dl_update: Time.now)
+            md.master_files.update_all(date_dl_update: Time.now)
          else
-            #puts "#{year} is NoC-US"
+            puts "MD #{md.id} '#{date}' is 1896 or earlier, set to NoC-US (10)"
+            md.update(use_right_id: 10, date_dl_update: Time.now)
+            md.master_files.update_all(date_dl_update: Time.now)
          end
          cnt +=1
       end
