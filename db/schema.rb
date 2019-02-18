@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_11_203935) do
+ActiveRecord::Schema.define(version: 2019_02_14_190517) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -258,6 +258,7 @@ ActiveRecord::Schema.define(version: 2018_12_11_203935) do
     t.string "exposure_time"
     t.string "aperture"
     t.decimal "focal_length", precision: 10
+    t.integer "flip_axis", default: 0
     t.index ["master_file_id"], name: "index_image_tech_meta_on_master_file_id"
   end
 
@@ -418,6 +419,18 @@ ActiveRecord::Schema.define(version: 2018_12_11_203935) do
     t.index ["preservation_tier_id"], name: "index_metadata_on_preservation_tier_id"
     t.index ["supplemental_system_id"], name: "index_metadata_on_supplemental_system_id"
     t.index ["use_right_id"], name: "index_metadata_on_use_right_id"
+  end
+
+  create_table "metadata_versions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "metadata_id", null: false
+    t.bigint "staff_member_id", null: false
+    t.text "desc_metadata"
+    t.string "version_tag", null: false
+    t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.text "comment"
+    t.index ["metadata_id"], name: "index_metadata_versions_on_metadata_id"
+    t.index ["staff_member_id"], name: "index_metadata_versions_on_staff_member_id"
+    t.index ["version_tag"], name: "index_metadata_versions_on_version_tag"
   end
 
   create_table "notes", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

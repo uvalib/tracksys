@@ -20,7 +20,7 @@ class CloneMasterFiles < BaseJob
 
          src_mf = MasterFile.find_by(id: info[:id])
          if src_mf.nil?
-            on_failure "Unable to find master file with ID #{info[:id]}. Skipping."
+            log_failure "Unable to find master file with ID #{info[:id]}. Skipping."
             next
          end
 
@@ -36,7 +36,7 @@ class CloneMasterFiles < BaseJob
    def clone_all_master_files(src_unit_id, dest_unit, page_num )
       src_unit = Unit.find_by(id: src_unit_id)
       if src_unit.nil?
-         on_failure "Unable to find unit with ID #{info[:id]}. Skipping."
+         log_failure "Unable to find unit with ID #{info[:id]}. Skipping."
          return 0
       end
 
@@ -62,11 +62,11 @@ class CloneMasterFiles < BaseJob
       archive_dir = File.join(ARCHIVE_DIR, src_mf.filename.split("_")[0])
       archived_mf = File.join(archive_dir, src_mf.filename)
       if not File.exist? archived_mf
-         on_error "Unable to find archived tif #{archived_mf} for master file with ID #{src_mf.id}."
+         fatal_error "Unable to find archived tif #{archived_mf} for master file with ID #{src_mf.id}."
       end
 
       if src_mf.md5.blank?
-         on_failure "Archived file #{archived_mf} #{src_mf.pid} is missing checksum. Calculating now."
+         log_failure "Archived file #{archived_mf} #{src_mf.pid} is missing checksum. Calculating now."
          md5 = Digest::MD5.hexdigest(File.read(archived_mf) )
          src_mf.update(md5: md5)
       end
@@ -78,7 +78,7 @@ class CloneMasterFiles < BaseJob
       FileUtils.cp( archived_mf, dest_file)
       md5 = Digest::MD5.hexdigest(File.read(dest_file) )
       if md5 != src_mf.md5
-         on_failure "WARNING: Checksum mismatch for master file with ID #{src_mf.id}."
+         log_failure "WARNING: Checksum mismatch for master file with ID #{src_mf.id}."
       end
 
       mf = MasterFile.create(

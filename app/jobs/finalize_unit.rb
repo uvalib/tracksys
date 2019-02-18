@@ -22,7 +22,7 @@ class FinalizeUnit < BaseJob
       end
 
       if !Dir.exists? src_dir
-         on_error("Dropoff directory #{src_dir} does not exist")
+         fatal_error("Dropoff directory #{src_dir} does not exist")
       end
 
       logger().info "Moving unit #{unit.id} from #{src_dir} to #{in_process_dir}"
@@ -31,7 +31,7 @@ class FinalizeUnit < BaseJob
 
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
-         @project.finalization_success( status_object() )
+         @project.finalization_success( status() )
       end
    end
 
@@ -40,7 +40,7 @@ class FinalizeUnit < BaseJob
    def failure(job)
       if !@project.nil?
          logger().fatal "Unit #{@project.unit.id} failed Finalization"
-         @project.finalization_failure( status_object() )
+         @project.finalization_failure( status() )
       end
    end
 end

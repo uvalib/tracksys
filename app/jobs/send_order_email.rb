@@ -17,7 +17,7 @@ class SendOrderEmail < BaseJob
       new_email.deliver
 
       order.update(date_customer_notified: Time.now)
-      on_success("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
+      logger.info("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
       # Now clean up any left over files
       # Orders have many units, and each can have a project with a different workflow.
@@ -55,7 +55,7 @@ class SendOrderEmail < BaseJob
       if order.order_status != "completed"
          if !order.complete_order(user)
             logger.info("Marking order COMPLETE")
-            on_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
+            log_failure("Order is not complete: #{order.errors.full_messages.to_sentence}")
          else
             logger.info "Order is now complete"
          end

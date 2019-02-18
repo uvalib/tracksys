@@ -210,7 +210,11 @@ ActiveAdmin.register Project do
       end
 
       if params[:ocr_language_hint]
+         params[:ocr_language_hint].reject!(&:empty?)
+            params[:ocr_language_hint] = params[:ocr_language_hint].join("+")
          project.unit.metadata.update( ocr_language_hint: params[:ocr_language_hint] )
+      else
+         project.unit.metadata.update( ocr_language_hint: "" )
       end
 
       render json: {status: "success", enable_finish: project.assignment_finish_available?}
@@ -282,16 +286,6 @@ ActiveAdmin.register Project do
    end
 
    controller do
-       before_action :get_tesseract_langs, only: [:show, :edit]
-       def get_tesseract_langs
-          # Get list of tesseract supported languages
-          lang_str = `tesseract --list-langs 2>&1`
-
-          # gives something like: List of available languages (107):\nafr\...
-          # split off info and make array
-          lang_str = lang_str.split(":")[1].strip
-          @languages = lang_str.split("\n").sort
-       end
       def scoped_collection
          if params[:action] == 'index'
             if !current_user.admin? && !current_user.supervisor?

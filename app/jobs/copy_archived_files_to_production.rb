@@ -73,15 +73,15 @@ class CopyArchivedFilesToProduction < BaseJob
 
       if failure_messages.empty?
          if master_file_filename
-            on_success "Master file #{master_file_filename} from unit #{unit.id} has been successfully copied to #{destination_dir}."
+            logger.info "Master file #{master_file_filename} from unit #{unit.id} has been successfully copied to #{destination_dir}."
          else
-            on_success "All master files from unit #{unit.id} have been successfully copied to #{destination_dir}."
+            logger.info "All master files from unit #{unit.id} have been successfully copied to #{destination_dir}."
          end
       else
          failure_messages.each do |message|
-            on_failure "#{message}"
+            log_failure "#{message}"
          end
-         on_error "There were failures in the copying process."
+         fatal_error "There were failures in the copying process."
       end
    end
 end

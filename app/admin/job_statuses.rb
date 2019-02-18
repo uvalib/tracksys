@@ -105,11 +105,15 @@ ActiveAdmin.register JobStatus do
        def show
          @err_msg = JobStatus.find(params[:id]).error
          logpath = File.join(Rails.root,  "log", "jobs", "job_#{params[:id]}.log")
-         f = File.open(logpath, "r")
-         log = f.read
-         f.close
-         log.gsub! /,/, ", "
-         @job_log = log.split("\n")
+         if File.exist? logpath
+            f = File.open(logpath, "r")
+            log = f.read
+            f.close
+            log.gsub! /,/, ", "
+            @job_log = log.split("\n")
+         else 
+            @job_log = [""]
+         end
          show!
        end
    end

@@ -16,6 +16,9 @@ ActiveAdmin.register XmlMetadata do
    action_item :new, :only => :index do
       raw("<a href='/admin/xml_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
    end
+   action_item :batch_transform, :only => :index do
+      raw("<span class='action-btn' id='global-transform'>Global Transform</span>") if !current_user.viewer?  && !current_user.student?
+   end
 
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
@@ -85,6 +88,9 @@ ActiveAdmin.register XmlMetadata do
             end
          end
       end
+      div id: "dimmer" do
+         render partial: "/admin/common/transform_modal", locals: {mode: :global}
+      end
    end
 
    # DETAIL Page ==============================================================
@@ -107,8 +113,8 @@ ActiveAdmin.register XmlMetadata do
                row('Rights Rationale'){ |r| r.use_right_rationale }
                row :creator_death_date
                row :availability_policy
-               row ("Discoverable?") do |sirsi_metadata|
-                  format_boolean_as_yes_no(sirsi_metadata.discoverability)
+               row ("Discoverable?") do |xml_metadata|
+                  format_boolean_as_yes_no(xml_metadata.discoverability)
                end
                row :collection_facet
                row :date_dl_ingest
@@ -139,6 +145,13 @@ ActiveAdmin.register XmlMetadata do
                      "Undefined"
                   else
                      "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
+                  end
+               end
+               row ("Version History") do |sm|
+                  if sm.has_versions?
+                     link_to "#{sm.metadata_versions.count}", "/admin/xml_metadata/#{sm.id}/versions"
+                  else
+                     "None"
                   end
                end
             end
@@ -234,7 +247,7 @@ ActiveAdmin.register XmlMetadata do
          if xml_metadata.parent
             row("Parent Metadata Record") do |xml_metadata|
                if xml_metadata.parent.type == "SirsiMetadata"
-                  link_to "#{xml_metadata.parent.title}", "/admin/sirsi_metadata/#{xml_metadata.parent.id}"
+                  link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
                elsif xml_metadata.parent.type == "XmlMetadata"
                   link_to "#{xml_metadata.parent.title}", "/admin/xml_metadata/#{xml_metadata.parent.id}"
                end
@@ -299,21 +312,41 @@ ActiveAdmin.register XmlMetadata do
       redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Published to: #{Settings.test_virgo_url}/#{metadata.pid}"
    end
 
-   controller do
-       before_action :get_tesseract_langs, only: [:edit, :new]
-       def get_tesseract_langs
-          # Get list of tesseract supported languages
-          lang_str = `tesseract --list-langs 2>&1`
+   # Transfmorm ALL XML metadat records in the system with the XSL file uploaded
+   #
+   collection_action :global_transform, method: :post do
+      # copy the file to /tmp so we have more control over its lifecycle
+      upload_file = params[:xslfile].tempfile.path
+      xsl_uuid =  SecureRandom.uuid
+      dest_dir = File.join(Rails.root, "tmp", "xsl")
+      FileUtils.mkdir_p dest_dir
+      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
+      FileUtils.cp(upload_file, dest)
+      BulkTransformXml.exec({user: current_user, mode: :global, xsl_file: dest, comment: params[:comment]})
+      render plain: "ok"
+   end
 
-          # gives something like: List of available languages (107):\nafr\...
-          # split off info and make array
-          lang_str = lang_str.split(":")[1].strip
-          @languages = lang_str.split("\n")
+   controller do
+       def update
+         # create a metadata version to track this change
+         new_xml  = params[:xml_metadata][:desc_metadata]
+         if MetadataVersion.has_changes? new_xml, resource.desc_metadata
+            MetadataVersion.create(metadata: resource, staff_member: current_user,
+               desc_metadata:  resource.desc_metadata, comment: params[:xml_metadata][:comment])
+         end
+         if !params[:xml_metadata][:ocr_language_hint].nil?
+            params[:xml_metadata][:ocr_language_hint].reject!(&:empty?)
+            params[:xml_metadata][:ocr_language_hint] = params[:xml_metadata][:ocr_language_hint].join("+")
+         else
+            params[:xml_metadata][:ocr_language_hint] = ""
+         end
+         super
        end
     end
 
     before_save do |metadata|
-         xml = Nokogiri::XML( params[:xml_metadata][:desc_metadata] )
+         new_xml  = params[:xml_metadata][:desc_metadata]
+         xml = Nokogiri::XML( new_xml )
          xml.remove_namespaces!
          title_node = xml.xpath( "//titleInfo/title" ).first
          if !title_node.nil?

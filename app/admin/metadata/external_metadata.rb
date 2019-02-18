@@ -196,17 +196,17 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    member_action :as_publish, :method => :post do
-      begin 
+      begin
          metadata = ExternalMetadata.find( params[:id])
          PublishToAS.exec_now({metadata: metadata})
          render plain: "OK"
-      rescue Exception => e  
+      rescue Exception => e
          render plain: "Publish Failed: "+e.to_s, status: :error
       end
    end
 
    controller do
-      def create 
+      def create
          super
          if resource.external_system.name == "ArchivesSpace"
             auth = ArchivesSpace.get_auth_session()
@@ -220,6 +220,12 @@ ActiveAdmin.register ExternalMetadata do
       end
 
       def update
+         if !params[:external_metadata][:ocr_language_hint].nil?
+            params[:external_metadata][:ocr_language_hint].reject!(&:empty?)
+            params[:external_metadata][:ocr_language_hint] = params[:external_metadata][:ocr_language_hint].join("+")
+         else
+            params[:external_metadata][:ocr_language_hint] = ""
+         end
          super
          if resource.external_system.name == "ArchivesSpace"
             auth = ArchivesSpace.get_auth_session()
@@ -302,7 +308,7 @@ ActiveAdmin.register ExternalMetadata do
             repo_id = resource.external_uri.split("/")[2]
             repo_detail = ArchivesSpace.get_repository(auth, repo_id)
             @as_info[:repo] = repo_detail['name']
-   
+
 
             if !tgt_obj['ancestors'].nil?
                anc = tgt_obj['ancestors'].last
@@ -323,17 +329,6 @@ ActiveAdmin.register ExternalMetadata do
             logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
             @as_info = nil
          end
-      end
-
-      before_action :get_tesseract_langs, only: [:edit, :new]
-      def get_tesseract_langs
-         # Get list of tesseract supported languages
-         lang_str = `tesseract --list-langs 2>&1`
-
-         # gives something like: List of available languages (107):\nafr\...
-         # split off info and make array
-         lang_str = lang_str.split(":")[1].strip
-         @languages = lang_str.split("\n")
       end
    end
 end

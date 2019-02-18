@@ -4,17 +4,13 @@
 # URLS
 #
 delivery_url: http://digiservdelivery.lib.virginia.edu/
-
-# VIRGO (Blacklight) URL for catalog linking in UI
 virgo_url: http://search.lib.virginia.edu/catalog
-
-# Library homepage URL for request form footer
-library_url: http://www.library.virginia.edu
+ocr_url: "http://docker1.lib.virginia.edu:8389/ocr"
+## ocr_url: "http://dockerprod1.lib.virginia.edu:8389/ocr"
 
 # Kakadu (for j2k image conversions)
 kdu_compress: /usr/bin/kakadu/kdu_compress
 num_jp2k_threads: "2"
-create_missing_kp2k: "false"
 
 # Max size of patron zip Files
 zip_max_gb: "2"
@@ -29,9 +25,11 @@ aptrust_key: APTRUST_KEY
 aptrust_api_url: https://demo.aptrust.org/member-api/v2
 
 # redis info; used to cache AS session tokens 
-redis_host: redis.lib.virginia.edu
+redis_host: "redis.lib.virginia.edu"
+redis_port: "6379"
 redis_pass: REDIS_PASS
-redis_prefix: tracksys
+redis_prefix: "tracksys"
+redis_db: "0"
 
 # Email controls; use to prevent email from being sent
 # to customer from a dev server

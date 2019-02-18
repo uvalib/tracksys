@@ -15,7 +15,7 @@ class DeaccessionMasterFile < BaseJob
       unit_dir = "%09d" % unit.id
 
       if master_file.is_clone? || (master_file.is_original? && master_file.reorders.size > 0)
-         on_error("Cannot deaccession a cloned master file.")
+         fatal_error("Cannot deaccession a cloned master file.")
       end
 
       logger.info "User #{user.computing_id} begins deaccession of Master File #{master_file.pid}"
@@ -25,7 +25,7 @@ class DeaccessionMasterFile < BaseJob
       # remove archive
       archive_file = File.join(ARCHIVE_DIR, "#{unit_dir}", "#{master_file.filename}")
       if not File.exists? archive_file
-         on_failure("Archive file #{archive_file} does not exist")
+         log_failure("Archive file #{archive_file} does not exist")
       else
          logger.info "Removing archive #{archive_file}"
          FileUtils.rm(archive_file)
@@ -34,7 +34,7 @@ class DeaccessionMasterFile < BaseJob
       # remove from iiif
       iiif_path = MasterFile.iiif_path(master_file.pid)
       if not File.exists? iiif_path
-         on_failure("IIIF file #{iiif_path} does not exist")
+         log_failure("IIIF file #{iiif_path} does not exist")
       else
          logger.info "Removing IIIF derivative #{iiif_path}"
          FileUtils.rm(iiif_path)

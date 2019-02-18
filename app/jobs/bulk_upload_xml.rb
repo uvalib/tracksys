@@ -33,19 +33,23 @@ class BulkUploadXml < BaseJob
 
    def do_workflow(message)
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
+      raise "Parameter 'user' is required" if message[:user].blank?
+
+      user = message[:user]
       unit = Unit.find(message[:unit_id])
       xml_dir = Finder.xml_directory(unit, :dropoff)
       if !Dir.exist? xml_dir
-         on_error("XML Dropoff directory #{xml_dir} does not exist")
+         fatal_error("XML Dropoff directory #{xml_dir} does not exist")
       end
 
       # Make sure there is a settings file present. It has settings for
       # Include in DL, availability, rights, and discoverability
       settings_file = File.join(xml_dir, "settings.txt")
       if not File.exist? settings_file
-         on_error("XML Dropoff directory #{xml_dir} does not contain settings.txt")
+         fatal_error("XML Dropoff directory #{xml_dir} does not contain settings.txt")
       end
       settings = read_settings( settings_file)
+      logger.info "User #{user.computing_id} starting a bulk XML upload"
 
       orig_metadata = unit.metadata
       logger.info "Ingesting XML files from #{xml_dir}"
@@ -60,7 +64,7 @@ class BulkUploadXml < BaseJob
          errors = XmlMetadata.validate( xml_str )
          if errors.length > 0
             has_errors = true
-            on_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
+            log_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
             next
          end
 
@@ -70,7 +74,7 @@ class BulkUploadXml < BaseJob
          mf = unit.master_files.find_by(filename: tif_name)
          if mf.nil?
             has_errors = true
-            on_failure("Unable to find master file for xml file #{xml_name}")
+            log_failure("Unable to find master file for xml file #{xml_name}")
          else
             cnt += 1
 
@@ -110,6 +114,10 @@ class BulkUploadXml < BaseJob
                mf.update(metadata_id: metadata.id, exemplar: true)
             else
                # This masterfile already has its own metadata; just update content
+               # and create a version history containing the original content (if there are changes)
+               if MetadataVersion.has_changes? xml_str, mf.metadata.desc_metadata
+                  MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata)
+               end
                mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,
                   discoverability: settings[:discoverability], use_right: settings[:rights],
                   availability_policy: settings[:availability], dpla: dpla )

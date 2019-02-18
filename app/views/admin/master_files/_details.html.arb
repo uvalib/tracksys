@@ -16,6 +16,9 @@ div :class => 'two-column' do
       attributes_table_for master_file do
          row :pid
          row :filename
+         row :flip_axis do |master_file|
+            master_file.image_tech_meta.flip_axis
+         end
          row :title
          row :description
          row :date_archived do |master_file|
@@ -69,8 +72,8 @@ if !master_file.transcription_text.blank?
          attributes_table_for master_file do
             row("Text Source"){|mf| "#{mf.text_source.gsub(/_/, " ").titlecase}" if !mf.text_source.nil? }
          end
-         div :class=>'mf-transcription' do
-            simple_format(master_file.transcription_text)
+         pre :class=>'mf-transcription' do
+            master_file.transcription_text
          end
       end
    end

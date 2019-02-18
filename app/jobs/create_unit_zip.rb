@@ -38,7 +38,7 @@ class CreateUnitZip < BaseJob
                File.delete zf
             end
          else
-            on_error "A .zip archive for unit #{unit.id} already exists."
+            fatal_error "A .zip archive for unit #{unit.id} already exists."
          end
       end
 
@@ -68,6 +68,6 @@ class CreateUnitZip < BaseJob
          end
       end
 
-      on_success "Unit #{unit.id} zipped into #{file_num} zip archive(s)."
+      logger.info "Unit #{unit.id} zipped into #{file_num} zip archive(s)."
    end
 end

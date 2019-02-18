@@ -169,9 +169,13 @@ class MasterFile < ApplicationRecord
       image_pid = self.pid
       image_pid = self.original.pid if is_clone?
       iiif_url = nil
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/0/default.jpg") if image_size == :small
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/0/default.jpg") if image_size == :medium
-      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/0/default.jpg") if image_size == :large
+      rotate = "0"
+      rotate ="!0" if image_tech_meta.flip_axis == "y_axis"
+      rotate ="!180" if image_tech_meta.flip_axis == "x_axis"
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/#{rotate}/default.jpg") if image_size == :small
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/#{rotate}/default.jpg") if image_size == :medium
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/#{rotate}/default.jpg") if image_size == :large
+      iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/full/#{rotate}/default.jpg") if image_size == :full
       raise "Invalid size" if iiif_url.nil?
       return iiif_url.to_s
    end

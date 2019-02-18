@@ -19,18 +19,26 @@ class Api::FulltextController < ApplicationController
       render :plain=>"Could not find PID", status: :not_found and return if object.nil?
 
       if type == "master_file"
-         render plain: object.transcription_text.gsub(/\s+/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
-         render plain: object.description.gsub(/\s+/, ' ').strip if params[:type] == "description" && !object.description.blank?
-         render plain: object.title.gsub(/\s+/, ' ').strip if params[:type] == "title" && !object.title.blank?
+         render plain: object.transcription_text.gsub(/\ +/, ' ').strip if params[:type] == "transcription" && !object.transcription_text.blank?
+         render plain: object.description.gsub(/\ +/, ' ').strip if params[:type] == "description" && !object.description.blank?
+         render plain: object.title.gsub(/\ +/, ' ').strip if params[:type] == "title" && !object.title.blank?
       else
          uid = params[:unit]
          render :plain=>"Unit is required", status: :bad_request and return if  uid.nil?
 
          out = ""
+         # Show some metadata about the object at the top of output if breaks are requeted 
+         if page_breaks 
+            if object.type == "SirsiMetadata"
+               out << "[[ #{object.title} - #{object.call_number} ]]\n"
+            else
+               out << "[[ #{object.title} ]]\n"
+            end
+         end
          out << object.title if params[:type] == "title" && !object.title.blank?
          object.master_files.where(unit_id: uid).each do |mf|
             if page_breaks
-               out << "[PAGE #{mf.filename.split("_").last.split(".").first}]" 
+               out << "[PAGE #{mf.filename.split("_").last.split(".").first}]\n" 
             else
                out << "\n" if out.length > 0
             end
@@ -38,7 +46,7 @@ class Api::FulltextController < ApplicationController
             out << mf.description if params[:type] == "description" && !mf.description.blank?
             out << mf.title if params[:type] == "title" && !mf.title.blank?
          end
-         render plain: out.gsub(/\s+/, ' ').strip
+         render plain: out.gsub(/\ +/, ' ').strip
       end
    end
 

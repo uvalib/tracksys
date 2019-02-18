@@ -11,7 +11,7 @@ class DeleteMasterFiles < BaseJob
       unit = Unit.find(message[:unit_id])
       filenames = message[:filenames].sort
 
-      on_error("Cannot delete from units that have been published") if unit.in_dl?
+      fatal_error("Cannot delete from units that have been published") if unit.in_dl?
 
       unit_dir = "%09d" % unit.id
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
@@ -29,7 +29,7 @@ class DeleteMasterFiles < BaseJob
                if File.exists? archive_file
                   FileUtils.rm(archive_file)
                else
-                  on_failure "No archive found for #{del_fn}"
+                  log_failure "No archive found for #{del_fn}"
                end
 
                iiif_path = MasterFile.iiif_path(mf.pid)
@@ -41,7 +41,7 @@ class DeleteMasterFiles < BaseJob
                      FileUtils.rm_rf(iiif_dir)
                   end
                else
-                  on_failure "No IIIF file found for #{del_fn}"
+                  log_failure "No IIIF file found for #{del_fn}"
                end
             else
                cloned_file = File.join(in_proc_dir, mf.filename)
@@ -104,7 +104,7 @@ class DeleteMasterFiles < BaseJob
                logger.info "Rename archived file #{archive_file} -> #{new_fn}"
                File.rename(archive_file, new_archive)
                new_md5 = Digest::MD5.hexdigest( File.read(new_archive) )
-               on_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
+               fatal_error("MD5 does not match for rename #{archive_file} -> #{new_archive}") if new_md5 != md5
             else
                cloned_file = File.join(in_proc_dir, orig_fn)
                new_cloned_file = File.join(in_proc_dir, new_fn)

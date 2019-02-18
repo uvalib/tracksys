@@ -14,9 +14,7 @@ class Api::PidController < ApplicationController
             out[:ocr_candidate] = obj.ocr_hint.ocr_candidate
          end
          if !obj.ocr_language_hint.blank?
-            if obj.ocr_language_hint.length == 3
-               out[:ocr_language_hint] = obj.ocr_language_hint
-            end
+            out[:ocr_language_hint] = obj.ocr_language_hint
          end
          render json: out, status: :ok
          return
@@ -38,9 +36,7 @@ class Api::PidController < ApplicationController
                   out[:ocr_candidate] = parent_md.ocr_hint.ocr_candidate
                end
                if !parent_md.ocr_language_hint.blank?
-                  if parent_md.ocr_language_hint.length == 3
-                     out[:ocr_language_hint] = parent_md.ocr_language_hint
-                  end
+                  out[:ocr_language_hint] = parent_md.ocr_language_hint
                end
             end
          end

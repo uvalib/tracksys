@@ -29,15 +29,15 @@ class AttachFile < BaseJob
       md5_cp = Digest::MD5.hexdigest(File.read(dest_file))
 
       if md5 != md5_cp
-         on_failure("Checksum of archived file does not match original")
+         log_failure("Checksum of archived file does not match original")
       end
 
       logger.info "Creating attachment record"
       att = Attachment.create(unit: unit, description: message[:description], md5: md5, filename: filename)
       if att.nil?
-         on_failure "Unable to save attachment: #{att.errors.full_messages.to_sentence}"
+         log_failure "Unable to save attachment: #{att.errors.full_messages.to_sentence}"
       end
 
-      on_success "File #{filename} added as attachment"
+      logger.info "File #{filename} added as attachment"
    end
 end

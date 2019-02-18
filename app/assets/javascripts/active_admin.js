@@ -21,7 +21,9 @@
 //= require curio
 //= require dashboard
 //= require metadata
+//= require batch-transform
 //= require master-file-locations
+//= require versions
 //= require codemirror
 //= require xml-editor
 //= require_tree ./mode/

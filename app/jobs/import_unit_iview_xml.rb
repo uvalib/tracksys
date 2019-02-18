@@ -22,7 +22,7 @@ class ImportUnitIviewXML < BaseJob
          xml_file.close
          logger().info( "Iview XML for Unit #{unit.id} successfully imported.")
       rescue Exception=>e
-         on_error("Import Iview XML for Unit #{unit.id} FAILED: #{e.message}")
+         fatal_error("Import Iview XML for Unit #{unit.id} FAILED: #{e.message}")
          xml_file.close
       end
 

@@ -25,12 +25,14 @@ class RecreatePatronDeliverables < BaseJob
          if did_deliverable_format_change(unit, del_delivered_orders)
             # Format is different from the files found. Must regenerate from archive
             logger.info "Deliverable changed; creating from data in the archive"
-            FileUtils.cp_r archive_dir, File.dirname(in_proc_dir)
+            FileUtils.mkdir_p(assemble_dir) if !Dir.exist? assemble_dir
+            FileUtils.cp_r "#{archive_dir}/.", File.dirname(in_proc_dir)
          else
             # In this case, deliverbles already exist. Move them into the assemble dir for packaging
             logger.info "Moving deliverables from data in the ready to delete delivered orders directory"
             assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
-            FileUtils.cp_r del_delivered_orders, assemble_dir
+            FileUtils.mkdir_p(assemble_dir) if !Dir.exist? assemble_dir
+            FileUtils.cp_r "#{del_delivered_orders}/.", assemble_dir
 
             # since deliverables already exist, just zip them up
             CreateUnitZip.exec_now( { unit: unit, replace: true }, self)

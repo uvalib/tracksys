@@ -42,6 +42,9 @@ $(function() {
          }
       });
    }
+   $("#ocr-language-hint-edit").chosen({
+      width: "200px"
+   });
    $("#assign-to").chosen({
        no_results_text: "Sorry, no matches found",
        width: "100%"
@@ -412,9 +415,16 @@ $(function() {
                } else if ( tgtClass === "ocr") {
                   $("#ocr-hint").text( $("#ocr-hint-edit option:selected").text() );
                   $("#ocr-hint").removeClass("empty");
-                  if ( $("#ocr-language-hint-edit option:selected").val().length > 0 ) {
-                     $("#ocr-language-hint").text( $("#ocr-language-hint-edit option:selected").text() );
-                     $("#ocr-language-hint").removeClass("empty");
+                  var ocrLang = [];
+                  $("#ocr-language-hint").removeClass("empty");
+                  $("#ocr-language-hint-edit option:selected").each( function() {
+                     ocrLang.push( $(this).text());
+                  });
+                  if ( ocrLang.length > 0 ) {
+                     $("#ocr-language-hint").text( ocrLang.join("+") );
+                  } else {
+                     $("#ocr-language-hint").text( "EMPTY" );
+                     $("#ocr-language-hint").addClass("empty");
                   }
                   if ( $("#ocr-master-files-edit").is(':checked' ) ) {
                      $("#ocr-master-files").text("Yes");

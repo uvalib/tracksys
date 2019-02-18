@@ -2,6 +2,53 @@ require 'fileutils'
 
 namespace :rights do
 
+   desc "Fix Holsinger rights info"
+   task :fix_holsinger  => :environment do
+      ignore_dates = ["undated", "unknown date", "unknown", "n.d."]
+      cnt = 0
+      skipped = 0
+      Metadata.where(parent_metadata_id: 3002).find_each do |md|
+         # Note all are XML Metadata
+         doc = Nokogiri::XML(md.desc_metadata)
+         doc.remove_namespaces!
+         dates = []
+         doc.xpath("/mods/originInfo/dateCreated").each do |n|
+            next if ignore_dates.include? n.text.strip.downcase
+            clean_date = QDC.clean_xml_text(n.text)
+            # detect dates like: 1975-05-17/18 and toss the info after the slash
+            if /\d{4}-\d{1,2}-\d{1,2}/.match(clean_date) && clean_date.include?("/")
+               clean_date = clean_date.split("/")[0]
+            end
+            dates << clean_date
+         end
+         # Pick latest date and replace U or X with 9. Format: YYYY-MM-DD
+         if dates.blank?
+            puts "MD #{md.id} has no date. Current rights: #{md.use_right.name}"
+            skipped += 1
+            next
+         end
+         date = dates.sort.last
+         year_str = date.split("-")[0]
+         if /[ux]/i.match(year_str)
+            puts "MD #{md.id} has unknown in date '#{date}' - current rights: #{md.use_right.name}"
+            skipped += 1
+            next
+         end
+         year = year_str.to_i
+         if year.to_i > 1896
+            puts "MD #{md.id} '#{date}' is post-1896, set to InC (3)"
+            md.update(use_right_id: 3, date_dl_update: Time.now)
+            md.master_files.update_all(date_dl_update: Time.now)
+         else
+            puts "MD #{md.id} '#{date}' is 1896 or earlier, set to NoC-US (10)"
+            md.update(use_right_id: 10, date_dl_update: Time.now)
+            md.master_files.update_all(date_dl_update: Time.now)
+         end
+         cnt +=1
+      end
+      puts "DONE. #{cnt} records updated, #{skipped} records skipped"
+   end
+
    desc "Fix Jackson Davis rights info"
    task :fix_jd  => :environment do
       Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 10, creator_death_date: 1947, use_right_rationale: "Jackson Davis died in 1947")

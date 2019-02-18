@@ -298,14 +298,17 @@ ActiveAdmin.register Order do
 
    member_action :send_order_alt_email, :method => :put do
       order = Order.find(params[:id])
+      orig_email = order.email
       msg = OrderMailer.web_delivery(order, ['holding'])
       msg.to = [params[:email]]
+      msg.body = orig_email.to_s
+      msg.date = Time.now
       msg.deliver
 
       sn = order.staff_notes
       sn << "" if sn.nil?
       sn << " " if !sn.blank?
-      sn << "Order notification sent to alternate email address: #{params[:email]}."
+      sn << "Order notification sent to alternate email address: #{params[:email]} at #{DateTime.now.strftime('%F %R')}."
       order.update(staff_notes: sn)
 
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"

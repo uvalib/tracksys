@@ -44,9 +44,9 @@ class QaFilesystemAndIviewXml < BaseJob
 
       if @ivc_files.count == 0
          logger.info "No iview/mpcatalog files present; doing raw import"
-         on_error("There are no .tif files in the directory.") if @content_files.empty?
-         on_error("Unknown files in the directory: #{@unknown_files.join(',')}") if not @unknown_files.empty?
-         on_error("XML file count does not match tif count") if @xml_files.count > 0 && @xml_files.count != @content_files.count
+         fatal_error("There are no .tif files in the directory.") if @content_files.empty?
+         fatal_error("Unknown files in the directory: #{@unknown_files.join(',')}") if not @unknown_files.empty?
+         fatal_error("XML file count does not match tif count") if @xml_files.count > 0 && @xml_files.count != @content_files.count
          ImportRawImages.exec_now({ :unit => @unit, :images=>@content_files, :xml_files=>@xml_files }, self)
       else
          #NOTE: when using the .glob call above, all files in the lists will be FULL PATH
@@ -247,13 +247,13 @@ class QaFilesystemAndIviewXml < BaseJob
    def handle_errors
       logger.info "Handle Errors: [#{@error_messages.join(', ')}]"
       if @error_messages.empty?
-         on_success "Unit #{@unit.id} has passed the Filesystem and Iview XML QA"
+         logger.info "Unit #{@unit.id} has passed the Filesystem and Iview XML QA"
          ImportUnitIviewXML.exec_now({ :unit_id => @unit.id, :path => @xml_files.at(0) }, self)
       else
          @error_messages.each do |message|
-            on_failure message
+            log_failure message
          end
-         on_error "Unit #{@unit.id} has failed the Filesystem and IView XML QA."
+         fatal_error "Unit #{@unit.id} has failed the Filesystem and IView XML QA."
       end
    end
 end

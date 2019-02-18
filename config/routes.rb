@@ -68,5 +68,7 @@ Tracksys::Application.routes.draw do
      post "qdc/:id" => "qdc#generate"
      put "aptrust/:id" => "ap_trust#resubmit"
      get "manifest/:pid" => "manifest#show"
+     post "callbacks/:jid/ocr" => "callbacks#ocr"
+     post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
   end
 end

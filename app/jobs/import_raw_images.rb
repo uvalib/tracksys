@@ -38,7 +38,7 @@ class ImportRawImages < BaseJob
                xml_str = f.read
                errors = XmlMetadata.validate( xml_str )
                if errors.length > 0
-                  on_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
+                  log_failure("XML File #{xf} has errors and has been skipped. Errors: #{errors.join(',')}")
                else
                   xml = Nokogiri::XML( xml_str )
                   xml.remove_namespaces!

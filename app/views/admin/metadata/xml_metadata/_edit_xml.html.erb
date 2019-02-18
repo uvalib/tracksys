@@ -42,7 +42,17 @@
       <%= f.input :is_personal_item, :as => :radio, label: "Personal item?" %>
       <%= f.input :is_manuscript, :as => :radio, label: "Manuscript or unpublished item?" %>
       <%= f.input :ocr_hint, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
-      <%= f.input :ocr_language_hint, :as => :select, :collection => @languages, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <li class="select input optional" id="xml_metadata_ocr_language_hint_input">
+         <label for="xml_metadata_ocr_language_hint" class="label">OCR Language Hint</label>
+         <select multiple="multiple" class="chosen-select" name="xml_metadata[ocr_language_hint][]"
+                  id="xml_metadata_ocr_language_hint" style="width:200px">
+            <% OCR.languages.each do |l| %>
+               <% selected = ""
+                  selected = "selected='selected'" if !@xml_metadata.ocr_language_hint.nil? && @xml_metadata.ocr_language_hint.include?(l) %>
+               <option value="<%= l %>" <%= selected %> ><%= l %></option>
+            <% end %>
+         </select>
+      </li>
       <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
    <% end %>
 
@@ -52,6 +62,10 @@
 
           <div id="tracksys_xml_editor">
              <textarea  class="desc-metadata-editor" name="xml_metadata[desc_metadata]" id="xml_metadata_desc_metadata"><%= @xml_metadata.desc_metadata %></textarea>
+          </div>
+          <div class="change-comment">
+             <span>Change Comment:</span>
+             <input type="text" name="xml_metadata[comment]" id="xml_metadata_comment"/>
           </div>
           <div id="xml-validation-errors">
           </div>

@@ -1,8 +1,17 @@
 class JobStatus < ApplicationRecord
-   belongs_to :originator, :polymorphic=>true
+   belongs_to :originator, polymorphic: true, optional: true
    validates :status, inclusion: {
       in: ["pending", "running", "success", "failure"],
-      message: "%{value} is not a valid size" }
+      message: "%{value} is not a valid status" }
+
+   def create_logger()
+      log_file_path = File.join(JOB_LOG_DIR, "job_#{id}.log")
+      logger = Logger.new(log_file_path)
+      logger.formatter = proc do |severity, datetime, progname, msg|
+         "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} : #{severity} : #{msg}\n"
+      end
+      return logger
+   end
 
    def status_class
       return "running" if self.status == "running" ||  self.status == "pending"

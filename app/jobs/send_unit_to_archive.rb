@@ -9,12 +9,15 @@ class SendUnitToArchive < BaseJob
    def do_workflow(message)
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       unit = Unit.find(message[:unit_id])
+      delete_now = !message[:delete].nil?
       unit_dir = "%09d" % unit.id
 
-      if unit.throw_away
-         logger.info "This unit has been flagged as a throw-away scan and will not be set to the archive."
-         src_dir =  Finder.finalization_dir(unit, :in_process)
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
+      if unit.throw_away || unit.reorder
+         logger.info "This unit has been flagged is a reorder or a throw-away scan. It will not be sent to the archive."
+         if delete_now
+            src_dir =  Finder.finalization_dir(unit, :in_process)
+            MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
+         end
          return
       end
 
@@ -40,7 +43,7 @@ class SendUnitToArchive < BaseJob
          dest_md5 = Digest::MD5.hexdigest(File.read(archive_file) )
 
          if src_md5 != dest_md5
-            on_failure("** Warning ** - File #{f} has failed checksum test")
+            log_failure("** Warning ** - File #{f} has failed checksum test")
             errors += 1
          else
             mf = MasterFile.find_by(filename: filename)
@@ -58,12 +61,14 @@ class SendUnitToArchive < BaseJob
          # See if all units in the parent order are complete. Flag date if so
          check_order_archive_complete(unit.order)
 
-         # Now that all archiving work for the unit is done,
-         # it (and any subsidary files) must be moved to the ready_to_delete directory
-         src_dir =  Finder.finalization_dir(unit, :in_process)
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
+         if delete_now
+            # Now that all archiving work for the unit is done,
+            # it (and any subsidary files) must be moved to the ready_to_delete directory
+            src_dir =  Finder.finalization_dir(unit, :in_process)
+            MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: src_dir}, self)
+         end
       else
-         on_error "There were errors with the archiving process"
+         fatal_error "There were errors with the archiving process"
       end
    end
 

@@ -147,7 +147,7 @@ ActiveAdmin.register Unit do
             end
             if unit.master_files_count > 0 && unit.reorder == false && unit.ocr_candidate?
                div do
-                  link_to "OCR", "/admin/ocr?u=#{unit.id}"
+                  link_to "OCR", "/admin/units/#{unit.id}/ocr"
                end
             end
          end
@@ -220,7 +220,7 @@ ActiveAdmin.register Unit do
    end
    action_item :ocr, only: :show do
       if !current_user.viewer? && !current_user.student? && !unit.reorder && unit.master_files_count > 0
-         link_to "OCR", "/admin/units/#{unit.id}/ocr?all=true", method: :post
+         link_to "OCR", "/admin/units/#{unit.id}/ocr", method: :post
       end
    end
 
@@ -300,13 +300,21 @@ ActiveAdmin.register Unit do
    end
 
    member_action :ocr, :method => :post do
-      mf_ids = params[:ids]
-      Ocr.exec(object_class: "Unit", object_id: params[:id], only: mf_ids)
-      if params[:all]
-         redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
-      else
-         render plain: "OK"
-      end
+      OCR.unit( Unit.find(params[:id]) )
+      redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
+   end
+
+   member_action :xml_transform, :method => :post do
+      # copy the file to /tmp so we have more control over its lifecycle
+      upload_file = params[:xslfile].tempfile.path
+      xsl_uuid =  SecureRandom.uuid
+      dest_dir = File.join(Rails.root, "tmp", "xsl")
+      FileUtils.mkdir_p dest_dir
+      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
+      FileUtils.cp(upload_file, dest)
+      unit = Unit.find(params[:id])
+      BulkTransformXml.exec({user: current_user, mode: :unit, unit: unit, xsl_file: dest, comment: params[:comment]})
+      render plain: "ok"
    end
 
    member_action :attachment, :method => :post do
@@ -388,7 +396,8 @@ ActiveAdmin.register Unit do
    end
 
    member_action :send_unit_to_archive, :method => :put do
-      SendUnitToArchive.exec( {:unit_id => params[:id]})
+      # added a delete flag to this request as it completes finalization. Files can go to ready to delete
+      SendUnitToArchive.exec( {unit_id: params[:id], delete: true})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
@@ -403,7 +412,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :bulk_upload_xml, :method => :put do
-      BulkUploadXml.exec({unit_id: params[:id]})
+      BulkUploadXml.exec({unit_id: params[:id], user: current_user})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
    end
 

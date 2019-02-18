@@ -16,7 +16,7 @@ class CreateOrderEmail < BaseJob
       end
 
       email = OrderMailer.web_delivery(order, delivery_files)
-      order.update_attribute(:email, email.body)
-      on_success "An email for web delivery method created for order #{order.id}"
+      order.update(email: email.body)
+      logger.info "An email for web delivery method created for order #{order.id}"
    end
 end

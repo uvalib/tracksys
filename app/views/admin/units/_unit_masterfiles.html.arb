@@ -32,7 +32,6 @@ div id: "masterfile-list" do
             span do
                link_to "PDF of Selected", url, target: "_blank", id:"pdf-pages", class: "mf-action-button disabled"
             end
-            span id: 'ocr-pages', class: 'mf-action-button disabled' do "OCR Selected" end
          end
       end
    end

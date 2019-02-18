@@ -132,9 +132,9 @@ class Unit < ApplicationRecord
 
    def has_xml_masterfiles?
       self.master_files.each do |mf|
-         next if mf.metadata == self.metadata
          next if mf.metadata.nil?
-         return true if mf.metadata.type == "XmlMetadata"
+         next if mf.metadata.type != "XmlMetadata"
+         return true 
       end
       return false
    end

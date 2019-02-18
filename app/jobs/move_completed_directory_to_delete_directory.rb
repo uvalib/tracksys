@@ -14,7 +14,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
       end
 
       if !Dir.exists? source_dir
-         on_success "Source directory #{source_dir} has already been removed"
+         logger.info "Source directory #{source_dir} has already been removed"
          return
       end
 
@@ -26,7 +26,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
             del_dir << "_#{Time.now.to_i.to_s}" # add a timestamp
          end
          FileUtils.mv source_dir, del_dir
-         on_success "All update files for unit #{unit_id} have been moved to #{del_dir}."
+         logger.info "All update files for unit #{unit_id} have been moved to #{del_dir}."
 
       # If source_dir matches the finalization in process dir, move to delet and look for items in /scan
       elsif /20_in_process/ =~ source_dir
@@ -51,7 +51,7 @@ class MoveCompletedDirectoryToDeleteDirectory < BaseJob
             end
          end
       else
-         on_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{source_dir}."
+         fatal_error "There is an error in the message sent to move_completed_directory_to_delete_directory.  The source_dir variable is set to an unknown value: #{source_dir}."
       end
    end
 end
