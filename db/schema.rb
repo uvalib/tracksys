@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_14_190517) do
+ActiveRecord::Schema.define(version: 2019_02_19_135827) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -425,7 +425,7 @@ ActiveRecord::Schema.define(version: 2019_02_14_190517) do
     t.bigint "metadata_id", null: false
     t.bigint "staff_member_id", null: false
     t.text "desc_metadata"
-    t.string "version_tag", null: false
+    t.string "version_tag", limit: 40, null: false
     t.timestamp "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.text "comment"
     t.index ["metadata_id"], name: "index_metadata_versions_on_metadata_id"
