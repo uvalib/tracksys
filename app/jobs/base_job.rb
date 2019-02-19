@@ -52,15 +52,15 @@ class BaseJob
    # preceeding job
    #
    def prepare(message, workflow_context=nil)
-      if !workflow_context.nil?
+      if !workflow_context.blank?
          @logger = workflow_context.logger
          @status = workflow_context.status
       else
-         @logger = @status.create_logger()
          if @status.nil?
             @status = JobStatus.create(name: self.class.name)
             set_originator(message)
          end
+         @logger = @status.create_logger()
       end
    end
 
