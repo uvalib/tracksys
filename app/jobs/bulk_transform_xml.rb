@@ -109,7 +109,7 @@ class BulkTransformXml < BaseJob
                version_tag: xsl_uuid, comment: comment)
             md.update(desc_metadata: new_xml)
          else
-            logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid} not successful, or caused no changes"
+            logger.info "Transform XmlMetadata #{md.id} : #{md.pid} not successful, or caused no changes"
          end
       end
    end
