@@ -121,7 +121,23 @@ class BulkTransformXml < BaseJob
       begin
          response = RestClient.post(Settings.saxon_url, payload)
          if response.code == 200
-            return response.body
+            xml_str = response.body
+            # Detect non-utf-8 encoding and see if it was set in error
+            # by forcing encoding flag to utf8 (without changing the string)
+            if xml_str.encoding.name != "UTF-8"
+               old_enc = xml_str.encoding.name
+               logger.info "Detected non-UTF-8 encoding #{old_enc}. Try to change flag"
+               xml_str.force_encoding("UTF-8")
+               if !xml_str.valid_encoding?
+                  # Not valid. Switch back to old encoding and
+                  # try to transcode to utf8
+                  logger.info "Flag change failed; try to transcode to UTF-8 instead"
+                  xml_str.force_encoding(old_enc)
+                  xml_str = xml_str.encode("UTF-8")
+               end
+               logger.info "Response is now UTF-8"
+            end
+            return xml_str
          else
             return ""
          end
