@@ -116,7 +116,7 @@ class BulkTransformXml < BaseJob
 
    def servlet_transform(metadata, xsl_uuid)
       payload = {}
-      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=desc_metadata"
+      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=mods"
       payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/user?uuid=#{xsl_uuid}"
       begin
          response = RestClient.post(Settings.saxon_url, payload)

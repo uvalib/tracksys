@@ -2,8 +2,15 @@ class Api::MetadataController < ApplicationController
    def show
       render :plain=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
-      render :plain=>"#{type} is not supported", status: :bad_request and return if type != "desc_metadata" && type != "brief"
+      types = ["mods", "brief", "desc_metadata"]
+      render :plain=>"#{type} is not supported", status: :bad_request and return if !types.include? type
       render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
+
+      if type == "mods"
+         md = XmlMetadata.find_by(pid: params[:pid])
+         render plain: "PID #{params[:pid]} not found", status: :not_found and return if md.nil?
+         render xml: md.desc_metadata and return
+      end
 
       md = Metadata.find_by(pid: params[:pid])
       if md.nil?
