@@ -22,8 +22,7 @@ class BulkTransformXml < BaseJob
       end
 
       if Settings.use_saxon_servlet == "true"
-         uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
-         logger.info "Transformations will be done with #{uri}"
+         logger.info "Transformations will be done with #{Settings.saxon_url}"
       else
          logger.info "Transformations will be done with a local version of saxon"
       end
@@ -66,6 +65,34 @@ class BulkTransformXml < BaseJob
       end
    end
 
+   def self.test_transform(metadata_id, xsl_file)
+      xsl_uuid = File.basename(xsl_file, ".xsl")
+      puts "Get metadata #{metadata_id}"
+      md = XmlMetadata.find(metadata_id)
+      puts "Servlet transform"
+      new_xml = ""
+      begin
+         payload = {}
+         payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{md.pid}?type=desc_metadata"
+         payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/user?uuid=#{xsl_uuid}"
+         response = RestClient.post(Settings.saxon_url, payload)
+         if response.code == 200
+            new_xml = response.body
+         else
+            puts "SERVLET ERROR RESPONSE: #{response.body}"
+            return
+         end
+
+         puts "RESULT ENCODING: [#{new_xml.encoding}]"
+         puts "SOURCE ENCODING: [#{md.desc_metadata.encoding}]"
+         puts "Check for changes....."
+         puts Diffy::Diff.new(new_xml, md.desc_metadata, diff: ["-w","-U10000"]).to_s()
+         puts "==== DONE"
+      rescue Exception => e
+         puts "EXCEPTION: #{e.message}"
+      end
+   end
+
    def transform_all(user, xsl_file, comment)
       xsl_uuid = File.basename(xsl_file, ".xsl")
       logger.info "The UUID for this transform is #{xsl_uuid}"
@@ -91,9 +118,8 @@ class BulkTransformXml < BaseJob
       payload = {}
       payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{metadata.pid}?type=desc_metadata"
       payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/user?uuid=#{xsl_uuid}"
-      uri = "http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet"
       begin
-         response = RestClient.post(uri, payload)
+         response = RestClient.post(Settings.saxon_url, payload)
          if response.code == 200
             return response.body
          else

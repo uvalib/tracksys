@@ -12,19 +12,23 @@ ocr_url: "http://docker1.lib.virginia.edu:8389/ocr"
 kdu_compress: /usr/bin/kakadu/kdu_compress
 num_jp2k_threads: "2"
 
+# Saxxon settings for XSL 2.0 Transformations
+use_saxon_servlet: "false"
+saxon_url: http://docker1.lib.virginia.edu:8391/SaxonServlet
+
 # Max size of patron zip Files
 zip_max_gb: "2"
 
-# APTrust configuration 
+# APTrust configuration
 aptrust_enabled: "false"
 aws_key: AWS_KEY
 aws_secret: AWS_SECRET
 aws_bucket: "aptrust.receiving.test.virginia.edu"
-aptrust_user: APTRUST_USER 
+aptrust_user: APTRUST_USER
 aptrust_key: APTRUST_KEY
 aptrust_api_url: https://demo.aptrust.org/member-api/v2
 
-# redis info; used to cache AS session tokens 
+# redis info; used to cache AS session tokens
 redis_host: "redis.lib.virginia.edu"
 redis_port: "6379"
 redis_pass: REDIS_PASS

@@ -94,7 +94,7 @@ module Hydra
       payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/holsinger"
       payload['clear-stylesheet-cache'] = "yes"
 
-      uri = URI("http://#{Settings.saxon_url}:#{Settings.saxon_port}/saxon/SaxonServlet")
+      uri = URI(Settings.saxon_url)
       response = Net::HTTP.post_form(uri, payload)
       Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
       return response.body
