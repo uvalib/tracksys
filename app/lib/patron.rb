@@ -1,7 +1,7 @@
 module Patron
    # Create patron deliverable and return the full path to the file
    #
-   def self.create_deliverable(unit, master_file, source, dest_dir)
+   def self.create_deliverable(unit, master_file, source, dest_dir, logger)
       order_id = unit.order_id
       master_file_id = master_file.id
       actual_res = master_file.image_tech_meta.resolution
@@ -31,8 +31,14 @@ module Patron
          # New from Brandon; web publication and online exhibits don't need watermarks
          if unit.metadata.is_personal_item || unit.remove_watermark || use_id == 103 || use_id == 109
             add_legal_notice = false
+            logger.info "Patron deliverable is a jpg file and will NOT a watermark"
+            logger.info "One of the following is the reason:"
+            logger.info "personal_item: #{unit.metadata.is_personal_item}, remove_watermark: #{unit.remove_watermark}, use_id: #{use_id} = 103/109"
+         else
+            logger.info "Patron deliverable is a jpg file and will have a watermark"
          end
       elsif format =~ /^tiff?$/i
+         logger.info "Patron deliverable is a tif file and will NOT have a watermark"
          suffix = '.tif'
       else
          raise "Unexpected format value '#{format}'"
@@ -68,6 +74,7 @@ module Patron
 
       if add_legal_notice
          #[0] -pointsize 100 -size 4000x -background lightgray -gravity center caption:"this is a\ntest" -gravity Center -append -bordercolor lightgray -border 50  cvt_drw.jpg
+         logger.info "Adding legal notice"
          notice = ""
          if unit.metadata.title.length < 145
             notice << "Title: #{unit.metadata.title}\n"
@@ -85,9 +92,11 @@ module Patron
 
          # notice for personal research or presentation
          if unit.intended_use.id == 106 || unit.intended_use.id == 104
+            logger.info "Notice of private study"
             notice << "This single copy was produced for the purposes of private study, scholarship, or research pursuant to 17 USC § 107 and/or 108.\nCopyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library."
          elsif unit.intended_use.id == 100
             # Classroom instruction notice
+            logger.info "Notice of classroom teaching"
             notice << "This single copy was produced for the purposes of classroom teaching pursuant to 17 USC § 107 (fair use).\nCopyright and other legal restrictions may apply to further uses. Special Collections, University of Virginia Library."
          end
 

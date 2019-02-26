@@ -18,7 +18,7 @@ class CreatePatronDeliverables < BaseJob
       unit.master_files.each do |master_file|
          file_source = File.join(processing_dir, master_file.filename)
          logger.info "Create deliverable for MasterFile #{master_file.id} from #{file_source}"
-         deliverable_file = Patron.create_deliverable(unit, master_file, file_source, assemble_dir)
+         deliverable_file = Patron.create_deliverable(unit, master_file, file_source, assemble_dir, logger)
          logger.info "Deliverable image created at #{deliverable_file}"
       end
 
