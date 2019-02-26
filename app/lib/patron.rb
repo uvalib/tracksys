@@ -1,7 +1,7 @@
 module Patron
    # Create patron deliverable and return the full path to the file
    #
-   def self.create_deliverable(unit, master_file, source, dest_dir, logger)
+   def self.create_deliverable(unit, master_file, source, dest_dir, logger = Logger.new(STDOUT) )
       order_id = unit.order_id
       master_file_id = master_file.id
       actual_res = master_file.image_tech_meta.resolution
@@ -108,8 +108,8 @@ module Patron
 
          # text size, center justify with colored background
          convert << "-bordercolor" << "lightgray" << "-border" << "0x10"
-         convert << "-quiet" << "-pointsize" << sz << "-size" << "#{width}x" << "-background" << "lightgray" << "-gravity" << "center"
-         convert.caption(notice)
+         convert << "-pointsize" << sz << "-size" << "#{width}x" << "-background" << "lightgray" << "-gravity" << "center"
+         convert << "caption:#{notice}"
 
          # append the notoce to bottom center
          convert <<  "-gravity" << "Center" << "-append"
