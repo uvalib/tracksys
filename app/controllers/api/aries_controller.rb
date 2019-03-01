@@ -70,7 +70,7 @@ class Api::AriesController < ApplicationController
 
    def find_masterfile(id)
       obj = MasterFile.find_by(pid: id)
-      obj = MasterFile.find_by(filename: id) if obj.nil?
+      obj = MasterFile.where("filename like ?", "#{id}%").first if obj.nil?
       return nil if obj.nil?
 
       json = {
