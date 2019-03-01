@@ -2,27 +2,29 @@
    <%= render partial: "/admin/common/viewer_modal" %>
    <%= render partial: "/admin/common/transform_modal", locals: {mode: :unit, unit_id: unit.id} %>
 
-   <div id="as-modal" class="modal">
-      <h1>ArchivesSpace Link</h1>
-      <div>
-         <div class="content">
-            <p class="as-warn">
-               IMPORTANT: creating this link will convert the existing Sirsi Metadata record
-               into an External Metadata record that points to ArchivesSpace for all information.
-               This action affects all units and master files currently associated with the existing
-               metadata record.
-            </p>
-            <div>
-               <label>ArchivesSpace Public URL:</label>
-               <input type="text" name="as_url" id="as_url"/>
-            </div>
-            <div class="buttons">
-               <input type="button" id="cancel-as" value="Cancel"/>
-               <input type="button" data-metadata-id="<%= unit.metadata.id %>" id="create-as-link" value="Submit"/>
+   <% if !unit.metadata.nil? %>
+      <div id="as-modal" class="modal">
+         <h1>ArchivesSpace Link</h1>
+         <div>
+            <div class="content">
+               <p class="as-warn">
+                  IMPORTANT: creating this link will convert the existing Sirsi Metadata record
+                  into an External Metadata record that points to ArchivesSpace for all information.
+                  This action affects all units and master files currently associated with the existing
+                  metadata record.
+               </p>
+               <div>
+                  <label>ArchivesSpace Public URL:</label>
+                  <input type="text" name="as_url" id="as_url"/>
+               </div>
+               <div class="buttons">
+                  <input type="button" id="cancel-as" value="Cancel"/>
+                  <input type="button" data-metadata-id="<%= unit.metadata.id %>" id="create-as-link" value="Submit"/>
+               </div>
             </div>
          </div>
       </div>
-   </div>
+   <% end %>
 
    <div id="attachment-modal" class="modal">
       <h1>Add Attachment</h1>

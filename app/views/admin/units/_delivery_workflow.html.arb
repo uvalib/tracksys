@@ -104,7 +104,7 @@ if unit.date_archived
    div :class => 'workflow_button' do
       raw("<a class='admin-button' href='/admin/units/#{unit.id}/download_unit_xml' target='_blank'>Download Unit XML From Archive</a>")
    end
-   if unit.metadata.type != "ExternalMetadata"
+   if !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata"
       div :class => 'workflow_button' do
          raw("<span class='admin-button' id='show-as-link-popup'>ArchivesSpace Link</span>")
       end
