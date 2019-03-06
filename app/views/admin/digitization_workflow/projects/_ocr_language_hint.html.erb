@@ -8,7 +8,7 @@
       <select style="width:200px" multiple="multiple" id='ocr-language-hint-edit' >
          <% OCR.languages.each do |p| %>
             <% sel = ""
-               if !project.unit.metadata.ocr_language_hint.nil && project.unit.metadata.ocr_language_hint.include?(p)
+               if !project.unit.metadata.ocr_language_hint.nil? && project.unit.metadata.ocr_language_hint.include?(p)
                   sel = 'selected=selected'  
                end
             %>
