@@ -32,11 +32,11 @@ class DeleteMasterFiles < BaseJob
                   log_failure "No archive found for #{del_fn}"
                end
 
-               iiif_path = MasterFile.iiif_path(mf.pid)
-               logger.info "Removing file published to IIIF: #{iiif_path}"
-               if File.exists? iiif_path
-                  FileUtils.rm(iiif_path)
-                  iiif_dir = File.dirname(iiif_path)
+               iiif_fn = mf.iiif_file()
+               logger.info "Removing file published to IIIF: #{iiif_fn}"
+               if File.exists? iiif_fn
+                  FileUtils.rm(iiif_fn)
+                  iiif_dir = File.dirname(iiif_fn)
                   if Dir.glob("#{iiif_dir}/*").empty?
                      FileUtils.rm_rf(iiif_dir)
                   end

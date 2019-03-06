@@ -150,7 +150,7 @@ namespace :gannon do
 
          file_type = "TIFF"
          if img_file.include? ".jp2"
-            pth = iiif_path(mf.pid)
+            pth = mf.iiif_file()
             FileUtils.copy(file, pth)
             file_type = "JP2"
          else
@@ -328,7 +328,7 @@ namespace :gannon do
 
          file_type = "TIFF"
          if filename.include? ".jp2"
-            pth = iiif_path(mf.pid)
+            pth = mf.iiif_file()
             FileUtils.copy(img_file, pth)
             file_type = "JP2"
          else
@@ -395,7 +395,7 @@ namespace :gannon do
          unit.metadata.update(date_dl_update: Time.now)
          puts "CHECK UNIT #{unit.id}..."
          unit.master_files.joins(:image_tech_meta).where("image_tech_meta.width is null").each do |mf|
-           img_path = MasterFile.iiif_path(mf.pid)
+           img_path = mf.iiif_file()
            puts "   MF #{mf.id} missing dimensions"
            image = Magick::Image.ping(img_path).first
            dims = image.inspect.split(" ")[2]

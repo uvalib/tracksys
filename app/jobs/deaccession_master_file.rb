@@ -32,12 +32,12 @@ class DeaccessionMasterFile < BaseJob
       end
 
       # remove from iiif
-      iiif_path = MasterFile.iiif_path(master_file.pid)
-      if not File.exists? iiif_path
-         log_failure("IIIF file #{iiif_path} does not exist")
+      iiif_fn = master_file.iiif_file()
+      if not File.exists? iiif_fn
+         log_failure("IIIF file #{iiif_fn} does not exist")
       else
-         logger.info "Removing IIIF derivative #{iiif_path}"
-         FileUtils.rm(iiif_path)
+         logger.info "Removing IIIF derivative #{iiif_fn}"
+         FileUtils.rm(iiif_fn)
       end
 
       # If necessary, flag mastergfile as shadowed and flag for publish to DL

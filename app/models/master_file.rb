@@ -153,7 +153,12 @@ class MasterFile < ApplicationRecord
       return metadata.ocr_hint.ocr_candidate
    end
 
-   def self.iiif_path(pid)
+   def iiif_exist?
+      return File.exist? self.iiif_file()
+   end
+
+   # Get full path to j2k file used by the IIIF server
+   def iiif_file()
       pid_parts = pid.split(":")
       base = pid_parts[1]
       parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd

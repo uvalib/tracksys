@@ -64,7 +64,7 @@ namespace :masterfile do
 
    def publish_to_iiif(mf, source_tif)
       # get dettination path
-      jp2k_path = iiif_path(mf.pid)
+      jp2k_path = mf.iiif_file()
       puts "   IIIF destination: #{jp2k_path}"
 
       # Make sure tiff is not compressed
@@ -92,18 +92,5 @@ namespace :masterfile do
          `#{kdu} -i #{source_tif} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads 2`
       end
       temp_file.unlink if !temp_file.nil?
-   end
-
-   def iiif_path(pid)
-      pid_parts = pid.split(":")
-      base = pid_parts[1]
-      parts = base.scan(/../) # break up into 2 digit sections, but this leaves off last char if odd
-      parts << base.last if parts.length * 2 !=  base.length
-      pid_dirs = parts.join("/")
-      jp2k_filename = "#{base}.jp2"
-      jp2k_path = File.join(Settings.iiif_mount, pid_parts[0], pid_dirs)
-      FileUtils.mkdir_p jp2k_path if !Dir.exist?(jp2k_path)
-      jp2k_path = File.join(jp2k_path, jp2k_filename)
-      return jp2k_path
    end
 end
