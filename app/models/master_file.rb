@@ -175,8 +175,10 @@ class MasterFile < ApplicationRecord
       image_pid = self.original.pid if is_clone?
       iiif_url = nil
       rotate = "0"
-      rotate ="!0" if image_tech_meta.flip_axis == "y_axis"
-      rotate ="!180" if image_tech_meta.flip_axis == "x_axis"
+      if !image_tech_meta.nil?
+         rotate ="!0" if image_tech_meta.flip_axis == "y_axis"
+         rotate ="!180" if image_tech_meta.flip_axis == "x_axis"
+      end
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/#{rotate}/default.jpg") if image_size == :small
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/#{rotate}/default.jpg") if image_size == :medium
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/,640/#{rotate}/default.jpg") if image_size == :large
