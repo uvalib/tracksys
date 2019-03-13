@@ -174,14 +174,6 @@ class Step < ApplicationRecord
       Rails.logger.info "Validate directory for manuscript workflow. Enforce directories"
       return false if !validate_mpcatalog(project, dir)
 
-      # No .tif files should reside in the base directory; everything should be in the
-      # box/folder strucure of the manuscript
-      Rails.logger.info "Checking for .tif files not in subdirectories of #{dir}"
-      if Dir.glob("#{dir}/*.tif").count > 0
-         step_failed(project, "Filesystem", "<p>Found .tif file in #{dir}. All .tif files should reside in folders.</p>")
-         return false
-      end
-
       # validate box/folder directory structure
       return false if !validate_structure(project, dir)
 
