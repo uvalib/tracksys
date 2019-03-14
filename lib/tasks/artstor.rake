@@ -56,32 +56,10 @@ namespace :artstor do
 
       puts "Link all master files to JSTOR records"
       js = ExternalSystem.find_by(name: "JSTOR")
-      # jstor_cookies = Jstor.forum_login(js.api_url)
       artstor_cookies = Jstor.start_public_session(js.public_url)
 
       unit.master_files.each do |mf| 
          js_key = unit.master_files.first.filename.split(".").first 
-         # puts "Check for JSTOR ID[#{js_key}]"
-         # p  = {type: "string", field: "filename", fieldName: "Filename", value: js_key}.to_json
-         # p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
-         # f = "filter=[#{p}]"
-         # q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
-         # resp = RestClient.get(q,{cookies: jstor_cookies})
-         # if resp.code != 200
-         #    puts "ERROR: JSTOR requst for #{js_key} FAILED - #{resp.code}:#{resp.body}"
-         #    next
-         # end
-         # json = JSON.parse(resp.body)
-         # if json['total'] == 0 
-         #    puts "No item found for #{js_key}"
-         #    next
-         # end
-         # if json['total'] > 1 
-         #    puts "WARN: Too many matches (#{json['total']}) found for #{js_key}"
-         #    next
-         # end
-
-         # jstor_id = json["assets"].first["id"]
          artstor_id = Jstor.find_public_id(js.public_url, js_key, artstor_cookies)
          if artstor_id.blank? 
             puts "WARN: No public ID found for #{js_key}"

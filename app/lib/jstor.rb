@@ -25,7 +25,33 @@ module Jstor
       resp.cookie_jar.cookies
    end
 
-   # Seacrh the ArtStor public API by filename
+   # Search the private forum API for ID by filename
+   #
+   def self.find_id(forum_url, filename, cookies)
+      puts "Check for JSTOR ID[#{filename}]"
+      p  = {type: "string", field: "filename", fieldName: "Filename", value: filename}.to_json
+      p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
+      f = "filter=[#{p}]"
+      q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
+      resp = RestClient.get(q,{cookies: jstor_cookies})
+      if resp.code != 200
+         puts "ERROR: JSTOR requst for #{filename} FAILED - #{resp.code}:#{resp.body}"
+         return ""
+      end
+      json = JSON.parse(resp.body)
+      if json['total'] == 0 
+         puts "No item found for #{filename}"
+         return ""
+      end
+      if json['total'] > 1 
+         puts "WARN: Too many matches (#{json['total']}) found for #{filename}"
+         return ""
+      end
+
+      return json["assets"].first["id"]
+   end
+
+   # Search the ArtStor public API by filename
    #
    def self.find_public_id(public_url, filename, cookies)
       puts "Find public ID for #{filename}"
