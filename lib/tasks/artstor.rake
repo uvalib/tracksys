@@ -7,57 +7,90 @@ namespace :artstor do
          api_url: "https://forum.jstor.org")
    end
 
-   # NOTES: all belong to the Kore collection. Make an XML metadata record as 
-   # a collection placeholder. Each MF gets its own ExternalMetadata reference 
-   # to the public interface (if it is available)
+   def create_or_find_collection(title)
+      xm  = XmlMetadata.find_by(title: title)
+      if !xm.nil?
+         puts "a collection of this name already exists. ID: #{xm.id}"
+         return xm
+      else
+         xml = 
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<mods xmlns=\"http://www.loc.gov/mods/v3\"
+      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+      xmlns:mods=\"http://www.loc.gov/mods/v3\"
+      xsi:schemaLocation=\"http://www.loc.gov/mods/v3
+      http://www.loc.gov/standards/mods/v3/mods-3-3.xsd\">
+   <titleInfo>
+      <title>#{title}</title>
+   </titleInfo>
+</mods>"
+         xm = XmlMetadata.create(desc_metadata: xml, availability_policy_id: 1, discoverability: false, 
+            use_right_id: 1, dpla: false, ocr_hint_id: 2)
+         puts "Create new JSTOR collection parent metadata record. ID: #{xm.id}"
+         return xm
+      end
+   end
+
    # 16414
    desc "Link a unit with no metadata to JSTOR"
    task :link   => :environment do
       uid = ENV['unit']
       abort("Unit is required") if uid.blank?
       unit = Unit.find(uid)
-      abort("Unit #{uid} already has metadata") if !unit.metadata.nil?
-      puts "Link unit #{uid} to JSTOR"
+      if unit.metadata.nil?
+         title = ENV['title']
+         md_id = ENV['collection_id']
+
+         # if nothing specified for collection, default to Kore
+         title = "Kore Collection" if title.blank? && md_id.blank?
+         if !title.blank? 
+            xml_collection_md = create_or_find_collection(title)
+         else 
+            xml_collection_md = XmlMetadata.find(md_id)
+         end
+         abort("Unable to create or find collection metadata #{title}") if xml_collection_md.nil?
+
+         puts "Set unit[#{unit.id}] metadata to #{xml_collection_md.id}:#{xml_collection_md.title}"
+         unit.update!(metadata: xml_collection_md)
+      end
+
+      puts "Link all master files to JSTOR records"
       js = ExternalSystem.find_by(name: "JSTOR")
-      jstor_cookies = jstorLogin(js)
+      # jstor_cookies = Jstor.forum_login(js.api_url)
+      artstor_cookies = Jstor.start_public_session(js.public_url)
 
       unit.master_files.each do |mf| 
          js_key = unit.master_files.first.filename.split(".").first 
-         puts "Check for JSTOR ID[#{js_key}]"
-         p  = {type: "string", field: "filename", fieldName: "Filename", value: js_key}.to_json
-         p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
-         f = "filter=[#{p}]"
-         q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
-         resp = RestClient.get(q,{cookies: jstor_cookies})
-         if resp.code != 200
-            puts "ERROR: JSTOR requst for #{js_key} FAILED - #{resp.code}:#{resp.body}"
-            next
-         end
-         json = JSON.parse(resp.body)
-         if json['total'] == 0 
-            puts "No item found for #{js_key}"
-            next
-         end
-         if json['total'] > 1 
-            puts "WARN: Too many matches (#{json['total']}) found for #{js_key}"
-            next
-         end
+         # puts "Check for JSTOR ID[#{js_key}]"
+         # p  = {type: "string", field: "filename", fieldName: "Filename", value: js_key}.to_json
+         # p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
+         # f = "filter=[#{p}]"
+         # q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
+         # resp = RestClient.get(q,{cookies: jstor_cookies})
+         # if resp.code != 200
+         #    puts "ERROR: JSTOR requst for #{js_key} FAILED - #{resp.code}:#{resp.body}"
+         #    next
+         # end
+         # json = JSON.parse(resp.body)
+         # if json['total'] == 0 
+         #    puts "No item found for #{js_key}"
+         #    next
+         # end
+         # if json['total'] > 1 
+         #    puts "WARN: Too many matches (#{json['total']}) found for #{js_key}"
+         #    next
+         # end
 
-         puts "Found"
+         # jstor_id = json["assets"].first["id"]
+         artstor_id = Jstor.find_public_id(js.public_url, js_key, artstor_cookies)
+         if artstor_id.blank? 
+            puts "WARN: No public ID found for #{js_key}"
+            next
+         end
+         puts "Found public access URL #{js.public_url}/#/asset/#{artstor_id}"
          break
       end
       puts "DONE"
-   end
-
-   def jstorLogin(js)
-      puts "authenticating with JSTOR..."
-      form = {email: Settings.jstor_email, password: Settings.jstor_pass}
-      resp = RestClient.post("#{js.api_url}/account", form)
-      if resp.code != 200 
-         raise "JSTOR authentication failed: #{resp.body}"
-      end
-      puts "Successfully authenticated"
-      resp.cookie_jar.cookies
    end
 
    # generate the IIIF files for ARTSTOR masterfiles that lack them
@@ -82,6 +115,30 @@ namespace :artstor do
             puts "ERROR: Archive directory not found #{archive_dir}"
             missing_dirs << unit_dir
             next
+         end
+
+         archive_file = File.join(archive_dir, mf.filename)
+         if !File.exist? archive_file 
+            puts "ERROR: Archive file not found #{archive_file}"
+            next
+         end
+         
+         artstor_publish(archive_file, mf)
+         cnt += 1
+      end
+      puts "Done. #{cnt} master files published to IIIF"
+   end
+
+   task :single  => :environment do
+      puts "Publishing all missing IIIF files for 201206016ARCH  master files..."
+      cnt = 0
+      MasterFile.where("filename like ?", "201206016ARCH%").each do |mf|
+         next if mf.iiif_exist? 
+        
+         unit_dir = "20120616ARCH"
+         archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+         if !Dir.exist? archive_dir 
+            abort "ERROR: Archive directory not found #{archive_dir}"
          end
 
          archive_file = File.join(archive_dir, mf.filename)

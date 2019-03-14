@@ -60,15 +60,15 @@ class Metadata < ApplicationRecord
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
          end
-      else 
-         if preservation_tier.blank?
-            units.each do |u|
-               if u.intended_use_id == 110
-                  preservation_tier_id = 2 # duplicated
-                  break
-               end
-            end
-         end
+      # else 
+      #    if preservation_tier.blank?
+      #       units.each do |u|
+      #          if u.intended_use_id == 110
+      #             preservation_tier_id = 2 # duplicated
+      #             break
+      #          end
+      #       end
+      #    end
       end
    end
 
