@@ -1,4 +1,65 @@
 namespace :artstor do
+   desc "One time task to add external metadata system info for JSTOR"
+   task :add_ext_sys  => :environment do
+      puts "Adding external metadata system for JSTOR..."
+      ExternalSystem.create(name: "JSTOR", 
+         public_url: "https://library.artstor.org", 
+         api_url: "https://forum.jstor.org")
+   end
+
+   # NOTES: all belong to the Kore collection. Make an XML metadata record as 
+   # a collection placeholder. Each MF gets its own ExternalMetadata reference 
+   # to the public interface (if it is available)
+   # 16414
+   desc "Link a unit with no metadata to JSTOR"
+   task :link   => :environment do
+      uid = ENV['unit']
+      abort("Unit is required") if uid.blank?
+      unit = Unit.find(uid)
+      abort("Unit #{uid} already has metadata") if !unit.metadata.nil?
+      puts "Link unit #{uid} to JSTOR"
+      js = ExternalSystem.find_by(name: "JSTOR")
+      jstor_cookies = jstorLogin(js)
+
+      unit.master_files.each do |mf| 
+         js_key = unit.master_files.first.filename.split(".").first 
+         puts "Check for JSTOR ID[#{js_key}]"
+         p  = {type: "string", field: "filename", fieldName: "Filename", value: js_key}.to_json
+         p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
+         f = "filter=[#{p}]"
+         q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
+         resp = RestClient.get(q,{cookies: jstor_cookies})
+         if resp.code != 200
+            puts "ERROR: JSTOR requst for #{js_key} FAILED - #{resp.code}:#{resp.body}"
+            next
+         end
+         json = JSON.parse(resp.body)
+         if json['total'] == 0 
+            puts "No item found for #{js_key}"
+            next
+         end
+         if json['total'] > 1 
+            puts "WARN: Too many matches (#{json['total']}) found for #{js_key}"
+            next
+         end
+
+         puts "Found"
+         break
+      end
+      puts "DONE"
+   end
+
+   def jstorLogin(js)
+      puts "authenticating with JSTOR..."
+      form = {email: Settings.jstor_email, password: Settings.jstor_pass}
+      resp = RestClient.post("#{js.api_url}/account", form)
+      if resp.code != 200 
+         raise "JSTOR authentication failed: #{resp.body}"
+      end
+      puts "Successfully authenticated"
+      resp.cookie_jar.cookies
+   end
+
    # generate the IIIF files for ARTSTOR masterfiles that lack them
    task :iiif  => :environment do
       puts "Publishing all missing IIIF files for *ARCH* master files..."
