@@ -14,7 +14,6 @@ gem 'ffi', '~> 1.9.24'
 gem 'passenger', '5.1.5'
 gem 'figaro'
 gem 'exception_notification'
-gem "puma"
 
 gem 'turnout'           # Maintence page
 
