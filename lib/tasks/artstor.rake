@@ -59,13 +59,18 @@ namespace :artstor do
       artstor_cookies = Jstor.start_public_session(js.public_url)
 
       unit.master_files.each do |mf| 
+         next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
          js_key = unit.master_files.first.filename.split(".").first 
-         artstor_id = Jstor.find_public_id(js.public_url, js_key, artstor_cookies)
-         if artstor_id.blank? 
-            puts "WARN: No public ID found for #{js_key}"
+         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         if as_info.blank? 
+            puts "WARN: No public info found for #{js_key}"
             next
          end
-         puts "Found public access URL #{js.public_url}/#/asset/#{artstor_id}"
+         uri = "/#/asset/#{as_info[:id]}"
+         puts "Found public access URI: #{uri} : #{as_info[:title]}"
+         em = ExternalMetadata.create!(external_system: js, external_uri: uri,
+            use_right_id: 1, title: as_info[:title], parent_metadata_id: unit.metadata_id, ocr_hint_id: 2 )
+         mf.update!(metadata: em)
          break
       end
       puts "DONE"
@@ -103,6 +108,38 @@ namespace :artstor do
          
          artstor_publish(archive_file, mf)
          cnt += 1
+      end
+      puts "Done. #{cnt} master files published to IIIF"
+   end
+
+   task :units  => :environment do
+      puts "Publishing all missing files from units.txt..."
+      cnt = 0
+      units = File.read( "units.txt")
+      missing_dirs = []
+      units.split("\n").each do |uid|
+         puts "Processing unit #{uid}"
+         Unit.find(uid).master_files.each do |mf|
+            next if mf.iiif_exist? 
+            unit_dir = mf.filename.split("_").first
+            next if missing_dirs.include? unit_dir
+            
+            archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+            if !Dir.exist? archive_dir 
+               puts "ERROR: Archive directory not found #{archive_dir}"
+               missing_dirs << unit_dir
+               next
+            end
+
+            archive_file = File.join(archive_dir, mf.filename)
+            if !File.exist? archive_file 
+               puts "ERROR: Archive file not found #{archive_file}"
+               next
+            end
+         
+            artstor_publish(archive_file, mf)
+            cnt += 1
+         end
       end
       puts "Done. #{cnt} master files published to IIIF"
    end

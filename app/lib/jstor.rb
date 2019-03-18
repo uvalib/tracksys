@@ -53,7 +53,7 @@ module Jstor
 
    # Search the ArtStor public API by filename
    #
-   def self.find_public_id(public_url, filename, cookies)
+   def self.find_public_info(public_url, filename, cookies)
       puts "Find public ID for #{filename}"
       params = {limit: 1, start: 0, content_types: ["art"], query: "#{filename}"}
       resp = RestClient.post("#{public_url}//api/search/v1.0/search", 
@@ -67,6 +67,6 @@ module Jstor
          puts "No public ID found. Code #{resp.code}:#{resp.body}"
          return nil
       end
-      return json['results'].first['artstorid']
+      return {id: json['results'].first['artstorid'], title: json['results'].first['name'] }
    end
 end
