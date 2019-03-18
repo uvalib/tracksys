@@ -29,7 +29,7 @@ attributes_table_for external_metadata do
    row("Artstor ID") do |xm|
       js_info[:id]
    end
-   row("SSID") do |xm|
+   row("Forum ID") do |xm|
       js_info[:ssid]
    end
 end

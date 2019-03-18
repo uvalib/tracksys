@@ -270,12 +270,12 @@ ActiveAdmin.register ExternalMetadata do
          @js_info[:title] = forum_info[:title]
          @js_info[:title] = pub_info[:title] if  @js_info[:title].blank?
          @js_info[:desc] = forum_info[:desc]
-         @js_info[:creator] = pub_info[:creator]
+         @js_info[:creator] = forum_info[:creator]
          @js_info[:date] = pub_info[:date]
          @js_info[:width] = pub_info[:width]
          @js_info[:height] = pub_info[:height]
          @js_info[:id] = resource.external_uri.split("/").last
-         @js_info[:ssid] = ssid
+         @js_info[:ssid] = forum_info[:id]
       end
 
       def get_apollo_metadata
