@@ -31,7 +31,7 @@ namespace :artstor do
       end
    end
 
-   # 16414
+   # 16414 and 15009
    desc "Link a unit with no metadata to JSTOR"
    task :link   => :environment do
       uid = ENV['unit']
@@ -71,7 +71,6 @@ namespace :artstor do
          em = ExternalMetadata.create!(external_system: js, external_uri: uri,
             use_right_id: 1, title: as_info[:title], parent_metadata_id: unit.metadata_id, ocr_hint_id: 2 )
          mf.update!(metadata: em)
-         break
       end
       puts "DONE"
    end
