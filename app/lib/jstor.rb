@@ -27,8 +27,8 @@ module Jstor
 
    # Search the private forum API for ID by filename
    #
-   def self.find_id(forum_url, filename, cookies)
-      puts "Check for JSTOR ID[#{filename}]"
+   def self.forum_info(forum_url, filename, cookies)
+      puts "Get formum info for [#{filename}]"
       p  = {type: "string", field: "filename", fieldName: "Filename", value: filename}.to_json
       p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
       f = "filter=[#{p}]"
@@ -47,8 +47,10 @@ module Jstor
          puts "WARN: Too many matches (#{json['total']}) found for #{filename}"
          return ""
       end
-
-      return json["assets"].first["id"]
+      data = json["assets"].first
+      creator = data['fd_8523_lookup']['display_value']
+      out = {id: data['id'], title: "#{data['fd_8525_s']}\n#{data['fd_8563_s']}", desc: data['fd_8544_s'], creator: creator}
+      return out
    end
 
    # Search the ArtStor public API by filename

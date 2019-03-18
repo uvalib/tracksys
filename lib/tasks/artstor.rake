@@ -1,8 +1,17 @@
 namespace :artstor do
+
+   desc "test metadata"
+   task :test  => :environment do
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
+      cookies = Jstor.forum_login(js.api_url)
+      js_key = "20120725ARCH_0012"
+      puts Jstor.forum_info(js.api_url, js_key, cookies)
+   end
+
    desc "One time task to add external metadata system info for JSTOR"
    task :add_ext_sys  => :environment do
       puts "Adding external metadata system for JSTOR..."
-      ExternalSystem.create(name: "JSTOR", 
+      ExternalSystem.create(name: "JSTOR Forum", 
          public_url: "https://library.artstor.org", 
          api_url: "https://forum.jstor.org")
    end
@@ -36,7 +45,7 @@ namespace :artstor do
       abort("Unit is required") if uid.blank?
       unit = Unit.find(uid)
       puts "Fix bad JSTOR link for Unit #{unit.id}"
-      js = ExternalSystem.find_by(name: "JSTOR")
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
       artstor_cookies = Jstor.start_public_session(js.public_url)
       unit.master_files.each do |mf| 
          next if mf.metadata.external_system.name != "JSTOR"
@@ -77,7 +86,7 @@ namespace :artstor do
       end
 
       puts "Link all master files to JSTOR records"
-      js = ExternalSystem.find_by(name: "JSTOR")
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
       artstor_cookies = Jstor.start_public_session(js.public_url)
 
       unit.master_files.each do |mf| 

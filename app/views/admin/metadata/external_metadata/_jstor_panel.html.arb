@@ -11,8 +11,11 @@ attributes_table_for external_metadata do
    row("Title") do |xm|
       js_info[:title]
    end
-   row("Type") do |xm|
-      js_info[:type]
+   row("Description") do |xm|
+      js_info[:desc]
+   end
+   row("Creator") do |xm|
+      js_info[:creator]
    end
    row("Date") do |xm|
       js_info[:date]

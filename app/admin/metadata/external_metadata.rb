@@ -75,7 +75,7 @@ ActiveAdmin.register ExternalMetadata do
                render "/admin/metadata/external_metadata/as_panel", :context => self
             elsif external_metadata.external_system.name == "Apollo"
                render "/admin/metadata/external_metadata/apollo_panel", :context => self
-            elsif external_metadata.external_system.name == "JSTOR"
+            elsif external_metadata.external_system.name == "JSTOR Forum"
                render "/admin/metadata/external_metadata/jstor_panel", :context => self
             else
                div do "Unknown external system #{external_metadata.external_system.name}" end
@@ -252,7 +252,7 @@ ActiveAdmin.register ExternalMetadata do
             get_as_metadata()
          elsif resource.external_system.name == "Apollo"
             get_apollo_metadata()
-         elsif resource.external_system.name == "JSTOR"
+         elsif resource.external_system.name == "JSTOR Forum"
             get_jstor_metadata()
          end
       end
@@ -262,13 +262,15 @@ ActiveAdmin.register ExternalMetadata do
          js_key = resource.master_files.first.filename.split(".").first 
          artstor_cookies = Jstor.start_public_session(js.public_url)
          js_cookies = Jstor.forum_login(js.api_url)
-         ssid = Jstor.find_id(js.api_url, js_key, js_cookies)
+         forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
          pub_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
          @js_info = {}
          @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
          @js_info[:collection_title] = Metadata.find(resource.parent_metadata_id).title
-         @js_info[:title] = resource.title
-         @js_info[:type] = pub_info[:type]
+         @js_info[:title] = forum_info[:title]
+         @js_info[:title] = pub_info[:title] if  @js_info[:title].blank?
+         @js_info[:desc] = forum_info[:desc]
+         @js_info[:creator] = pub_info[:creator]
          @js_info[:date] = pub_info[:date]
          @js_info[:width] = pub_info[:width]
          @js_info[:height] = pub_info[:height]
