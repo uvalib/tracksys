@@ -75,6 +75,8 @@ ActiveAdmin.register ExternalMetadata do
                render "/admin/metadata/external_metadata/as_panel", :context => self
             elsif external_metadata.external_system.name == "Apollo"
                render "/admin/metadata/external_metadata/apollo_panel", :context => self
+            elsif external_metadata.external_system.name == "JSTOR"
+               render "/admin/metadata/external_metadata/jstor_panel", :context => self
             else
                div do "Unknown external system #{external_metadata.external_system.name}" end
             end
@@ -250,7 +252,28 @@ ActiveAdmin.register ExternalMetadata do
             get_as_metadata()
          elsif resource.external_system.name == "Apollo"
             get_apollo_metadata()
+         elsif resource.external_system.name == "JSTOR"
+            get_jstor_metadata()
          end
+      end
+
+      def get_jstor_metadata
+         js = resource.external_system
+         js_key = resource.master_files.first.filename.split(".").first 
+         artstor_cookies = Jstor.start_public_session(js.public_url)
+         js_cookies = Jstor.forum_login(js.api_url)
+         ssid = Jstor.find_id(js.api_url, js_key, js_cookies)
+         pub_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         @js_info = {}
+         @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
+         @js_info[:collection_title] = Metadata.find(resource.parent_metadata_id).title
+         @js_info[:title] = resource.title
+         @js_info[:type] = pub_info[:type]
+         @js_info[:date] = pub_info[:date]
+         @js_info[:width] = pub_info[:width]
+         @js_info[:height] = pub_info[:height]
+         @js_info[:id] = resource.external_uri.split("/").last
+         @js_info[:ssid] = ssid
       end
 
       def get_apollo_metadata

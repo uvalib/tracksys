@@ -5,7 +5,7 @@ module Jstor
    def self.forum_login ( forum_url )
       puts "authenticating with JSTOR Forum..."
       form = {email: Settings.jstor_email, password: Settings.jstor_pass}
-      resp = RestClient.post("#{jforum_url}/account", form)
+      resp = RestClient.post("#{forum_url}/account", form)
       if resp.code != 200 
          raise "JSTOR authentication failed: #{resp.body}"
       end
@@ -32,8 +32,8 @@ module Jstor
       p  = {type: "string", field: "filename", fieldName: "Filename", value: filename}.to_json
       p = p.gsub(/\"/, "%22").gsub(/{/,"%7B").gsub(/}/, "%7D")
       f = "filter=[#{p}]"
-      q = "#{js.api_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
-      resp = RestClient.get(q,{cookies: jstor_cookies})
+      q = "#{forum_url}/projects/64/assets?with_meta=false&start=0&limit=1&sort=id&dir=DESC&#{f}"
+      resp = RestClient.get(q,{cookies: cookies})
       if resp.code != 200
          puts "ERROR: JSTOR requst for #{filename} FAILED - #{resp.code}:#{resp.body}"
          return ""
@@ -67,6 +67,13 @@ module Jstor
          puts "No public ID found. Code #{resp.code}:#{resp.body}"
          return nil
       end
-      return {id: json['results'].first['artstorid'], title: json['results'].first['name'] }
+      hit = json['results'].first
+      media = JSON.parse(hit['media'])
+      out =  {id: hit['artstorid'], title: hit['name'], date: hit['date'], type: hit['type'] }
+      if !media.nil?
+         out[:width] = media["width"]
+         out[:height] = media["height"]
+      end
+      return out
    end
 end

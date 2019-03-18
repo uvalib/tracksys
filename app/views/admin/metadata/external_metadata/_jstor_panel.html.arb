@@ -1,0 +1,32 @@
+attributes_table_for external_metadata do
+   row("External System") do |xm|
+      xm.external_system
+   end
+   row("URL") do |xm|
+      raw("<a target='_blank' href='#{js_info[:url]}'>#{xm.external_uri}</a>")
+   end
+   row("Collection Title") do |xm|
+      js_info[:collection_title]
+   end
+   row("Title") do |xm|
+      js_info[:title]
+   end
+   row("Type") do |xm|
+      js_info[:type]
+   end
+   row("Date") do |xm|
+      js_info[:date]
+   end
+   row("Width") do |xm|
+      js_info[:width]
+   end
+   row("Height") do |xm|
+      js_info[:height]
+   end
+   row("Artstor ID") do |xm|
+      js_info[:id]
+   end
+   row("SSID") do |xm|
+      js_info[:ssid]
+   end
+end
