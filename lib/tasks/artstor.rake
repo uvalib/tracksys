@@ -30,6 +30,28 @@ namespace :artstor do
          return xm
       end
    end
+   desc "FIX A BAD JSTOR Link"
+   task :fix_link   => :environment do
+      uid = ENV['unit']
+      abort("Unit is required") if uid.blank?
+      unit = Unit.find(uid)
+      puts "Fix bad JSTOR link for Unit #{unit.id}"
+      js = ExternalSystem.find_by(name: "JSTOR")
+      artstor_cookies = Jstor.start_public_session(js.public_url)
+      unit.master_files.each do |mf| 
+         next if mf.metadata.external_system.name != "JSTOR"
+
+         js_key = mf.filename.split(".").first 
+         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         if as_info.blank? 
+            puts "WARN: No public info found for #{js_key}"
+            next
+         end
+         uri = "/#/asset/#{as_info[:id]}"
+         puts "UPDATE URI: #{uri} : #{as_info[:title]}"
+         mf.metadata.update!(title: as_info[:title], external_uri: uri)
+      end
+   end
 
    # 16414 and 15009
    desc "Link a unit with no metadata to JSTOR"
@@ -42,7 +64,7 @@ namespace :artstor do
          md_id = ENV['collection_id']
 
          # if nothing specified for collection, default to Kore
-         title = "Kore Collection" if title.blank? && md_id.blank?
+         title = "UVA Library Kore Collection" if title.blank? && md_id.blank?
          if !title.blank? 
             xml_collection_md = create_or_find_collection(title)
          else 
@@ -60,7 +82,7 @@ namespace :artstor do
 
       unit.master_files.each do |mf| 
          next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
-         js_key = unit.master_files.first.filename.split(".").first 
+         js_key = mf.filename.split(".").first 
          as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
          if as_info.blank? 
             puts "WARN: No public info found for #{js_key}"
