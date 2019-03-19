@@ -185,7 +185,7 @@ ActiveAdmin.register SirsiMetadata do
           end
         end
       end
-      if !sirsi_metadata.ap_trust_status.nil?
+      if !sirsi_metadata.ap_trust_status.nil? && current_user.can_set_preservation?
          render partial: '/admin/metadata/common/aptrust_info', locals: {meta: sirsi_metadata}
       end
     end

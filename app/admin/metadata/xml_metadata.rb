@@ -156,7 +156,7 @@ ActiveAdmin.register XmlMetadata do
                end
             end
          end
-         if !xml_metadata.ap_trust_status.nil?
+         if !xml_metadata.ap_trust_status.nil? && current_user.can_set_preservation?
             render partial: '/admin/metadata/common/aptrust_info', locals: {meta: xml_metadata}
          end
       end

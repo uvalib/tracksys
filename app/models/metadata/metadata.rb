@@ -60,30 +60,24 @@ class Metadata < ApplicationRecord
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
          end
-      # else 
-      #    if preservation_tier.blank?
-      #       units.each do |u|
-      #          if u.intended_use_id == 110
-      #             preservation_tier_id = 2 # duplicated
-      #             break
-      #          end
-      #       end
-      #    end
       end
    end
 
-   # NOTE: necessary to break out callback into named method so it can be skipped 
-   # by name in a rake task used to manually update status and publish
-   after_save :aptrust_checks
-   def aptrust_checks  
-      if saved_changes.has_key? "preservation_tier_id" && self.type != "ExternalMetadata"
-         if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
-            if Settings.aptrust_enabled == "true"
-               PublishToApTrust.exec({metadata: self})
-            end
-         end
-      end
-   end
+   # Disabling automatic publish on change. Needs to be very deliberate, and having this here
+   # opens up the possibility of accidental preservation
+   #
+   # # NOTE: necessary to break out callback into named method so it can be skipped 
+   # # by name in a rake task used to manually update status and publish
+   # after_save :aptrust_checks
+   # def aptrust_checks  
+   #    if saved_changes.has_key? "preservation_tier_id" && self.type != "ExternalMetadata"
+   #       if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
+   #          if Settings.aptrust_enabled == "true"
+   #             PublishToApTrust.exec({metadata: self})
+   #          end
+   #       end
+   #    end
+   # end
 
    before_destroy do
       if self.units.size > 0

@@ -19,6 +19,9 @@ saxon_url: http://docker1.lib.virginia.edu:8391/SaxonServlet
 # Max size of patron zip Files
 zip_max_gb: "2"
 
+# Computing IDs of users that can access preservation (APTrust) settings
+preservation_users: lf6f
+
 # APTrust configuration
 aptrust_enabled: "false"
 aws_key: AWS_KEY

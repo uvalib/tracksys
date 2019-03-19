@@ -40,6 +40,11 @@ class StaffMember < ApplicationRecord
       return self.sent_messages.where(deleted: 0)
    end
 
+   def can_set_preservation?
+      return false if Settings.aptrust_enabled != "true" 
+      return PRESERVATION_USERS.include? self.computing_id
+   end
+
    def can_deaccession?
       return DEACCESSION_USERS.include? self.computing_id
    end

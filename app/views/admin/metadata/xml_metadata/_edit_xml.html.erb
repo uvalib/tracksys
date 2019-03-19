@@ -53,7 +53,9 @@
             <% end %>
          </select>
       </li>
-      <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <% if current_user.can_set_preservation? %>
+         <%= f.input :preservation_tier, :as => :select, :collection => PreservationTier.all, :input_html => {:class => 'chosen-select',  :style => 'width: 200px'} %>
+      <% end %>
    <% end %>
 
    <%= f.inputs "XML Metadata", :class => 'columns-none panel' do %>

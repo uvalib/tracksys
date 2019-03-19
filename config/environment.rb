@@ -3,7 +3,7 @@ require_relative 'application'
 
 # VERSION INFO
 #
-TRACKSYS_VERSION = '5.29.1'
+TRACKSYS_VERSION = '5.30.0'
 
 # Setup logger for all jobs processors
 #
@@ -25,6 +25,7 @@ NUM_JP2K_THREADS = Settings.num_jp2k_threads.to_i
 
 # Users with special privileges
 DEACCESSION_USERS = Settings.deaccession_users.blank? ? [] : Settings.deaccession_users.split(",")
+PRESERVATION_USERS = Settings.preservation_users.blank? ? [] : Settings.preservation_users.split(",")
 
 # Initialize the Rails application.
 Rails.application.initialize!
