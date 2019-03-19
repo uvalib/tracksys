@@ -48,7 +48,8 @@ module Jstor
          return ""
       end
       data = json["assets"].first
-      creator = data['fd_8523_lookup']['display_value']
+      creator = nil
+      creator = data['fd_8523_lookup']['display_value'] if !data['fd_8523_lookup'].nil?
       out = {id: data['id'], title: "#{data['fd_8525_s']}\n#{data['fd_8563_s']}", desc: data['fd_8544_s'], creator: creator}
       return out
    end

@@ -4,7 +4,7 @@ namespace :artstor do
    task :test  => :environment do
       js = ExternalSystem.find_by(name: "JSTOR Forum")
       cookies = Jstor.forum_login(js.api_url)
-      js_key = "20120725ARCH_0012"
+      js_key = "20110716ARCH_0003"
       puts Jstor.forum_info(js.api_url, js_key, cookies)
    end
 
@@ -92,10 +92,14 @@ namespace :artstor do
             skip_cnt += 1
             next
          else
-            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
             uri = "/#/asset/#{as_info[:id]}"
-            title = forum_info[:title]
-            title = as_info[:title] if title.blank?
+            title = as_info[:title]
+
+            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
+            if !forum_info.blank?
+               title = forum_info[:title] if !forum_info[:title].blank?
+            end
+
             puts "Master file #{mf.filename}[#{mf.id}] - Found public access URI: #{uri} : #{title}"
             em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
