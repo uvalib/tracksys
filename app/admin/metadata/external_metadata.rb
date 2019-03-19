@@ -267,6 +267,7 @@ ActiveAdmin.register ExternalMetadata do
          @js_info = {}
          @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
          @js_info[:collection_title] = Metadata.find(resource.parent_metadata_id).title
+         @js_info[:collection_url] = "#{js.public_url}/#/collection/1067"
          @js_info[:title] = forum_info[:title]
          @js_info[:title] = pub_info[:title] if  @js_info[:title].blank?
          @js_info[:desc] = forum_info[:desc]

@@ -62,6 +62,54 @@ namespace :artstor do
       end
    end
 
+   desc "Link ALL artstor masterfiles to External metadata"
+   task :link_all => :environment do 
+      puts "Linking all *ARCH* master files to matching Artstor external metadata.."
+      collection_md = XmlMetadata.find_by(title: "UVA Library Kore Collection")
+      abort("Collection metadata not found") if collection_md.nil?
+
+      puts "Start Jstor/Artstor sessions"
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
+      artstor_cookies = Jstor.start_public_session(js.public_url)
+      js_cookies = Jstor.forum_login(js.api_url)
+      
+      puts "Finding all candidate master files"
+      cnt = 0
+      skip_cnt = 0
+      MasterFile.where("filename like ?", "%arch%").find_each do |mf|
+         unit = mf.unit
+         next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
+
+         if unit.metadata.nil? 
+            puts "Unit #{unit.id} has no metadata; setting to Kore"
+            unit.update!(metadata: collection_md)
+         end
+
+         js_key = mf.filename.split(".").first 
+         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         if as_info.blank? 
+            puts "WARN: No public info found for #{js_key}"
+            skip_cnt += 1
+            next
+         else
+            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
+            uri = "/#/asset/#{as_info[:id]}"
+            title = forum_info[:title]
+            title = as_info[:title] if title.blank?
+            puts "Master file #{mf.filename}[#{mf.id}] - Found public access URI: #{uri} : #{title}"
+            em = ExternalMetadata.create!(external_system: js, external_uri: uri,
+               use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
+               ocr_hint_id: 2, availability_policy_id:  1)
+            mf.update!(metadata: em)   
+            cnt += 1
+         end
+         break
+      end
+      puts "DONE ==============================================="
+      puts "   #{cnt} masterfiles linked"
+      puts "   #{skip_cnt} masterfiles not found in Artstor"
+   end
+
    # 16414 and 15009
    desc "Link a unit with no metadata to JSTOR"
    task :link   => :environment do

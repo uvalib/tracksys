@@ -5,8 +5,8 @@ attributes_table_for external_metadata do
    row("URL") do |xm|
       raw("<a target='_blank' href='#{js_info[:url]}'>#{xm.external_uri}</a>")
    end
-   row("Collection Title") do |xm|
-      js_info[:collection_title]
+   row("Collection") do |xm|
+      raw("<a target='_blank' href='#{js_info[:collection_url]}'>#{js_info[:collection_title]}</a>")
    end
    row("Title") do |xm|
       js_info[:title]

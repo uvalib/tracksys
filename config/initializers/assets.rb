@@ -25,3 +25,4 @@ Rails.application.config.assets.precompile += %w( request.js )
 #
 # # Version of your assets, change this if you want to expire all your assets
 # config.assets.version = '1.0'
+Rails.application.config.assets.quiet = true
