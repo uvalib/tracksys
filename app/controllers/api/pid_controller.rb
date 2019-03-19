@@ -91,11 +91,12 @@ class Api::PidController < ApplicationController
             if obj.external_system.name == "Apollo"
                render plain: "apollo_metadata" and return
             end
-            if obj.external_system.name == "JSTOR"
+            if obj.external_system.name == "JSTOR Forum"
                render plain: "jstor_metadata" and return
             end
          end
          render plain: "unsupported metadata type", status: :bad_request
+         return
       end
 
       obj = Component.find_by(pid: params[:pid])
