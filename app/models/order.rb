@@ -265,9 +265,28 @@ class Order < ApplicationRecord
          else
             if date_finalization_begun.nil?
                errors.add(:order, "has not been finalized")
-            else
-               errors.add(:order, "has not been archived")
+               return false
             end
+
+            # check all NON-CANCELED units for archive date, keeping track of 
+            # latest. If all have been archived, update the order archive date and flag order as complete
+            latest = nil
+            units.each do |unit|
+               next if unit.unit_status == "canceled"
+               if unit.date_archived.nil? 
+                  errors.add(:unit, "has not been archived")
+                  return false
+               else
+                  latest = unit.date_archived if latest.nil? 
+                  if unit.date_archived  > latest 
+                     latest = unit.date_archived
+                  end
+               end
+            end
+            msg = "Status #{self.order_status.upcase} to COMPLETED"
+            AuditEvent.create(auditable: self, event: AuditEvent.events[:status_update], staff_member: user, details: msg)
+            update(order_status: "completed", date_completed: Time.now, date_archiving_complete: latest)
+            return true
          end
       end
       return false
