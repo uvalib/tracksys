@@ -78,7 +78,7 @@ namespace :artstor do
                title = forum_info[:title] if !forum_info[:title].blank?
             end
 
-            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri} : #{title}"
+            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
             em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
                ocr_hint_id: 2, availability_policy_id:  1)
@@ -116,7 +116,7 @@ namespace :artstor do
                title = forum_info[:title] if !forum_info[:title].blank?
             end
 
-            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri} : #{title}"
+            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
             if mf.metadata.type != ExternalMetadata
                puts "   creaing new metadata record"
                em = ExternalMetadata.create!(external_system: js, external_uri: uri,
