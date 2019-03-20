@@ -236,8 +236,7 @@ namespace :artstor do
          if compression != 'None'
             uncompressed_tmp = Tempfile.new([master_file.filename, ".tif"])
             dest_file = uncompressed_tmp.path
-            cmd = "convert -compress none #{source} #{dest_file}"
-            puts "Fixing compression with #{cmd}"
+            cmd = "convert -compress none -quiet #{source} #{dest_file}"
             `#{cmd}`
             source = dest_file
             puts "MasterFile #{master_file.id} is compressed.  This has been corrected automatically. New source is #{source}"
@@ -267,11 +266,11 @@ namespace :artstor do
          # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
-            `#{executable} -i #{source} -o #{jp2k_path}  -rate 0.5 Clayers=1 Clevels=7
-            "Cprecincts={256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}"
-            "Corder=RPCL" "ORGgen_plt=yes" "ORGtparts=R" "Cblk={64,64}"
-            Cuse_sop=yes -quiet -num_threads 8`
-            # -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+            cmd = "#{executable} -i #{source} -o #{jp2k_path} -rate 0.5 Clayers=1 Clevels=7"
+            cmd << " \"Cprecincts={256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}\""
+            cmd << " \"Corder=RPCL\" \"ORGgen_plt=yes\" \"ORGtparts=R\" \"Cblk={64,64}\""
+            cmd << " Cuse_sop=yes -quiet -num_threads 8"
+            `#{cmd}`
             if !File.exist?(jp2k_path) || File.size(jp2k_path) == 0
                puts "ERROR: Destination #{jp2k_path} does not exist or is zero length"
             end

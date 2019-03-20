@@ -27,9 +27,9 @@ class PublishToIiif < BaseJob
          cmd = "identify -quiet -ping -format '%C' #{source}[0]"
          compression = `#{cmd}`
          if compression != 'None'
-            cmd = "convert -compress none #{source} #{source}"
+            cmd = "convert -compress none -quiet #{source} #{source}"
             `#{cmd}`
-            logger.info "MasterFile #{master_file.id} is compressed.  This has been corrected automatically.  Update MD5 for #{source} if necessary."
+            logger.info "MasterFile #{master_file.id} is compressed. This has been corrected automatically."
          end
       end
 
@@ -55,15 +55,18 @@ class PublishToIiif < BaseJob
             return
          end
 
-         # Directly invoke Ruby's garbage collection to clear memory
-         GC.start
+         # # Directly invoke Ruby's garbage collection to clear memory
+         # GC.start
 
          # generate deliverables for DL use
-         # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
             logger.debug("Compressing #{source} to #{jp2k_path}...")
-            `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+            cmd = "#{executable} -i #{source} -o #{jp2k_path} -rate 0.5 Clayers=1 Clevels=7"
+            cmd << " \"Cprecincts={256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}\""
+            cmd << " \"Corder=RPCL\" \"ORGgen_plt=yes\" \"ORGtparts=R\" \"Cblk={64,64}\""
+            cmd << " Cuse_sop=yes -quiet -num_threads 8"
+            `#{cmd}`
             logger.debug("...compression complete")
             if !File.exist?(jp2k_path) || File.size(jp2k_path) == 0
                raise "Destination #{jp2k_path} does not exist or is zero length"
