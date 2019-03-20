@@ -39,28 +39,6 @@ namespace :artstor do
          return xm
       end
    end
-   desc "FIX A BAD JSTOR Link"
-   task :fix_link   => :environment do
-      uid = ENV['unit']
-      abort("Unit is required") if uid.blank?
-      unit = Unit.find(uid)
-      puts "Fix bad JSTOR link for Unit #{unit.id}"
-      js = ExternalSystem.find_by(name: "JSTOR Forum")
-      artstor_cookies = Jstor.start_public_session(js.public_url)
-      unit.master_files.each do |mf| 
-         next if mf.metadata.external_system.name != "JSTOR"
-
-         js_key = mf.filename.split(".").first 
-         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
-         if as_info.blank? 
-            puts "WARN: No public info found for #{js_key}"
-            next
-         end
-         uri = "/#/asset/#{as_info[:id]}"
-         puts "UPDATE URI: #{uri} : #{as_info[:title]}"
-         mf.metadata.update!(title: as_info[:title], external_uri: uri)
-      end
-   end
 
    desc "Link ALL artstor masterfiles to External metadata"
    task :link_all => :environment do 
@@ -107,58 +85,59 @@ namespace :artstor do
             mf.update!(metadata: em)   
             cnt += 1
          end
-         break
       end
       puts "DONE ==============================================="
       puts "   #{cnt} masterfiles linked"
       puts "   #{skip_cnt} masterfiles not found in Artstor"
    end
 
-   # 16414 and 15009
    desc "Link a unit with no metadata to JSTOR"
-   task :link   => :environment do
+   task :link_unit  => :environment do
       uid = ENV['unit']
-      abort("Unit is required") if uid.blank?
       unit = Unit.find(uid)
-      if unit.metadata.nil?
-         title = ENV['title']
-         md_id = ENV['collection_id']
 
-         # if nothing specified for collection, default to Kore
-         title = "UVA Library Kore Collection" if title.blank? && md_id.blank?
-         if !title.blank? 
-            xml_collection_md = create_or_find_collection(title)
-         else 
-            xml_collection_md = XmlMetadata.find(md_id)
-         end
-         abort("Unable to create or find collection metadata #{title}") if xml_collection_md.nil?
-
-         puts "Set unit[#{unit.id}] metadata to #{xml_collection_md.id}:#{xml_collection_md.title}"
-         unit.update!(metadata: xml_collection_md)
-      end
-
-      puts "Link all master files to JSTOR records"
+      puts "Link all master files from unit #{unit.id} to JSTOR records"
       js = ExternalSystem.find_by(name: "JSTOR Forum")
       artstor_cookies = Jstor.start_public_session(js.public_url)
+      js_cookies = Jstor.forum_login(js.api_url)
 
       unit.master_files.each do |mf| 
-         next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
          js_key = mf.filename.split(".").first 
          as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
          if as_info.blank? 
             puts "WARN: No public info found for #{js_key}"
             next
+         else
+            uri = "/#/asset/#{as_info[:id]}"
+            title = as_info[:title]
+
+            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
+            if !forum_info.blank?
+               title = forum_info[:title] if !forum_info[:title].blank?
+            end
+
+            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri} : #{title}"
+            if mf.metadata.type != ExternalMetadata
+               puts "   creaing new metadata record"
+               em = ExternalMetadata.create!(external_system: js, external_uri: uri,
+                  use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
+                  ocr_hint_id: 2, availability_policy_id:  1)
+               mf.update!(metadata: em)   
+            else 
+               if mf.metadata.external_uri == uri 
+                  puts "   existing metadata correct. Nothing to do."
+               else 
+                  puts "   update existing metadata record"
+                  mf.metadata.update( external_uri: uri, title: title)
+               end
+            end
          end
-         uri = "/#/asset/#{as_info[:id]}"
-         puts "Found public access URI: #{uri} : #{as_info[:title]}"
-         em = ExternalMetadata.create!(external_system: js, external_uri: uri,
-            use_right_id: 1, title: as_info[:title], parent_metadata_id: unit.metadata_id, ocr_hint_id: 2 )
-         mf.update!(metadata: em)
       end
       puts "DONE"
    end
 
    # generate the IIIF files for ARTSTOR masterfiles that lack them
+   desc "publish all artstor masterfiles to IIIF"
    task :iiif  => :environment do
       puts "Publishing all missing IIIF files for *ARCH* master files..."
       cnt = 0
@@ -195,7 +174,7 @@ namespace :artstor do
    end
 
    desc "publish/republish all masterfiles from an artstor unit"
-   task :unit  => :environment do
+   task :unit_iiif  => :environment do
       uid = ENV['unit']
       unit = Unit.find(uid)
       puts "Publishing all master files from unit #{unit.id}"
