@@ -81,7 +81,7 @@ namespace :artstor do
          next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
 
          if unit.metadata.nil? 
-            puts "Unit #{unit.id} has no metadata; setting to Kore"
+            puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
             unit.update!(metadata: collection_md)
          end
 
@@ -100,7 +100,7 @@ namespace :artstor do
                title = forum_info[:title] if !forum_info[:title].blank?
             end
 
-            puts "Master file #{mf.filename}[#{mf.id}] - Found public access URI: #{uri} : #{title}"
+            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri} : #{title}"
             em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
                ocr_hint_id: 2, availability_policy_id:  1)
@@ -194,48 +194,19 @@ namespace :artstor do
       puts "Done. #{cnt} master files published to IIIF"
    end
 
-   task :units  => :environment do
-      puts "Publishing all missing files from units.txt..."
+   desc "publish/republish all masterfiles from an artstor unit"
+   task :unit  => :environment do
+      uid = ENV['unit']
+      unit = Unit.find(uid)
+      puts "Publishing all master files from unit #{unit.id}"
       cnt = 0
-      units = File.read( "units.txt")
-      missing_dirs = []
-      units.split("\n").each do |uid|
-         puts "Processing unit #{uid}"
-         Unit.find(uid).master_files.each do |mf|
-            next if mf.iiif_exist? 
-            unit_dir = mf.filename.split("_").first
-            next if missing_dirs.include? unit_dir
-            
-            archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-            if !Dir.exist? archive_dir 
-               puts "ERROR: Archive directory not found #{archive_dir}"
-               missing_dirs << unit_dir
-               next
-            end
-
-            archive_file = File.join(archive_dir, mf.filename)
-            if !File.exist? archive_file 
-               puts "ERROR: Archive file not found #{archive_file}"
-               next
-            end
-         
-            artstor_publish(archive_file, mf)
-            cnt += 1
-         end
-      end
-      puts "Done. #{cnt} master files published to IIIF"
-   end
-
-   task :single  => :environment do
-      puts "Publishing all missing IIIF files for 201206016ARCH  master files..."
-      cnt = 0
-      MasterFile.where("filename like ?", "201206016ARCH%").each do |mf|
-         next if mf.iiif_exist? 
-        
-         unit_dir = "20120616ARCH"
+      unit.master_files.each do |mf|
+         unit_dir = mf.filename.split("_").first
          archive_dir = File.join(ARCHIVE_DIR, unit_dir)
          if !Dir.exist? archive_dir 
-            abort "ERROR: Archive directory not found #{archive_dir}"
+            puts "ERROR: Archive directory not found #{archive_dir}"
+            missing_dirs << unit_dir
+            next
          end
 
          archive_file = File.join(archive_dir, mf.filename)
@@ -244,7 +215,7 @@ namespace :artstor do
             next
          end
          
-         artstor_publish(archive_file, mf)
+         artstor_publish(archive_file, mf, true)
          cnt += 1
       end
       puts "Done. #{cnt} master files published to IIIF"
