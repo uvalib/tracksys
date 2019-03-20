@@ -250,7 +250,7 @@ namespace :artstor do
       puts "Done. #{cnt} master files published to IIIF"
    end
 
-   def artstor_publish(orig_source, master_file) 
+   def artstor_publish(orig_source, master_file, force = false) 
        source = orig_source
        # Generate a checksum if one does not already exist
        if master_file.md5.nil?
@@ -287,7 +287,7 @@ namespace :artstor do
 
       elsif source.match(/\.tiff?$/) and File.file?(source)
          # If the JP2k already exists (and is not 0), don't make it again!
-         if File.exist?(jp2k_path) && File.size(jp2k_path) > 0
+         if File.exist?(jp2k_path) && File.size(jp2k_path) > 0 && force == false
             puts "MasterFile #{master_file.id} already has JP2k file at #{jp2k_path}; skipping creation"
             return
          end
@@ -296,7 +296,11 @@ namespace :artstor do
          # As per a conversation with Ethan Gruber, I'm dividing the JP2K compression ratios between images that are greater and less than 500MB.
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
-            `#{executable} -i #{source} -o #{jp2k_path} -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
+            `#{executable} -i #{source} -o #{jp2k_path}  -rate 0.5 Clayers=1 Clevels=7
+            "Cprecincts={256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}"
+            "Corder=RPCL" "ORGgen_plt=yes" "ORGtparts=R" "Cblk={64,64}"
+            Cuse_sop=yes -quiet -num_threads 8`
+            # -rate 1.0,0.5,0.25 -num_threads #{NUM_JP2K_THREADS}`
             if !File.exist?(jp2k_path) || File.size(jp2k_path) == 0
                puts "ERROR: Destination #{jp2k_path} does not exist or is zero length"
             end
