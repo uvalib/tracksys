@@ -117,7 +117,7 @@ namespace :artstor do
             end
 
             puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
-            if mf.metadata.type != ExternalMetadata
+            if mf.metadata.external_system_id != js.id
                puts "   creaing new metadata record"
                em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                   use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
