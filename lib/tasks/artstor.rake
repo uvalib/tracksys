@@ -136,7 +136,7 @@ namespace :artstor do
             if mf.metadata.external_system_id != js.id
                puts "   creaing new metadata record"
                em = ExternalMetadata.create!(external_system: js, external_uri: uri,
-                  use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
+                  use_right_id: 1, title: title, parent_metadata_id: kore.id, 
                   ocr_hint_id: 2, availability_policy_id:  1)
                mf.update!(metadata: em)  
                cnt +=1 
