@@ -84,7 +84,6 @@ class Metadata < ApplicationRecord
          errors[:base] << "cannot delete metadata that is associated with units"
          return false
       end
-      return true
    end
 
    after_create do
