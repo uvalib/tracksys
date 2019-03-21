@@ -4,10 +4,8 @@ namespace :artstor do
    task :test  => :environment do
       fn = ENV['file']
       js = ExternalSystem.find_by(name: "JSTOR Forum")
-      cookies = Jstor.forum_login(js.api_url)
-      artstor_cookies = Jstor.start_public_session(js.public_url)
-      puts Jstor.forum_info(js.api_url, fn, cookies)
-      puts Jstor.find_public_info(js.public_url, fn, artstor_cookies)
+      cookies = Jstor.start_session(js.api_url)
+      puts Jstor.public_info(js.api_url, fn, cookies)
    end
 
    desc "One time task to add external metadata system info for JSTOR"
@@ -15,7 +13,7 @@ namespace :artstor do
       puts "Adding external metadata system for JSTOR..."
       ExternalSystem.create(name: "JSTOR Forum", 
          public_url: "https://library.artstor.org", 
-         api_url: "https://forum.jstor.org")
+         api_url: "https://library.artstor.org/api")
    end
 
    def create_or_find_collection(title)
@@ -37,7 +35,7 @@ namespace :artstor do
 </mods>"
          xm = XmlMetadata.create(desc_metadata: xml, availability_policy_id: 1, discoverability: false, 
             use_right_id: 1, dpla: false, ocr_hint_id: 2)
-         puts "Create new JSTOR collection parent metadata record. ID: #{xm.id}"
+         puts "Create new JSTOR collection metadata record. ID: #{xm.id}"
          return xm
       end
    end
@@ -45,13 +43,12 @@ namespace :artstor do
    desc "Link ALL artstor masterfiles to External metadata"
    task :link_all => :environment do 
       puts "Linking all *ARCH* master files to matching Artstor external metadata.."
-      collection_md = XmlMetadata.find_by(title: "UVA Library Kore Collection")
+      collection_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
       abort("Collection metadata not found") if collection_md.nil?
 
-      puts "Start Jstor/Artstor sessions"
+      puts "Start Artstor session"
       js = ExternalSystem.find_by(name: "JSTOR Forum")
-      artstor_cookies = Jstor.start_public_session(js.public_url)
-      js_cookies = Jstor.forum_login(js.api_url)
+      cookies = Jstor.start_session(js.api_url)
       
       puts "Finding all candidate master files"
       cnt = 0
@@ -61,12 +58,12 @@ namespace :artstor do
          next if !mf.metadata.nil? && mf.metadata_id != unit.metadata_id
 
          if unit.metadata.nil? 
-            puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
+            puts "==========> Unit #{unit.id} has no metadata; setting to JSTOR"
             unit.update!(metadata: collection_md)
          end
 
          js_key = mf.filename.split(".").first 
-         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         as_info = Jstor.public_info(js.api_url, js_key, cookies)
          if as_info.blank? 
             puts "WARN: No public info found for #{js_key}"
             skip_cnt += 1
@@ -74,12 +71,6 @@ namespace :artstor do
          else
             uri = "/#/asset/#{as_info[:id]}"
             title = as_info[:title]
-
-            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
-            if !forum_info.blank?
-               title = forum_info[:title] if !forum_info[:title].blank?
-            end
-
             puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
             em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
@@ -97,46 +88,51 @@ namespace :artstor do
    task :link_unit  => :environment do
       uid = ENV['unit']
       unit = Unit.find(uid)
-      collection_md = XmlMetadata.find_by(title: "UVA Library Kore Collection")
+      collection_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
 
       puts "Link all master files from unit #{unit.id} to JSTOR records"
       js = ExternalSystem.find_by(name: "JSTOR Forum")
-      artstor_cookies = Jstor.start_public_session(js.public_url)
-      js_cookies = Jstor.forum_login(js.api_url)
+      cookies = Jstor.start_session(js.api_url)
 
-      linked = link_unit_to_as(unit, js, artstor_cookies, js_cookies, collection_md)
+      linked = link_unit_to_as(unit, js, cookies, collection_md)
       puts "DONE. #{linked} master files updated"
    end
 
-   def link_unit_to_as(unit, js, artstor_cookies, js_cookies, kore) 
+   desc "Link units listed in csv to JSTOR"
+   task :link_csv  => :environment do
+      puts "Link all units in artstor_csv..."
+      collection_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
+      cookies = Jstor.start_session(js.api_url)
+
+      File.read("artstor_units.csv").split("\n").each do |uid|
+         puts "===> Link Unit[#{uid}]"
+         linked = link_unit_to_as(Unit.find(uid), js, cookies, collection_md)
+         puts "Unit #{uid}: #{linked} master files linked"
+         break
+      end   
+   end
+
+   def link_unit_to_as(unit, js, cookies, parent_md) 
       cnt = 0
       unit.master_files.each do |mf| 
          js_key = mf.filename.split(".").first 
-         as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         as_info = Jstor.public_info(js.api_url, js_key, cookies)
          if as_info.blank? 
             puts "WARN: No public info found for #{js_key}"
             next
          else
-            if !as_info[:collection].include?("Kore")
-               abort("Non-Kore collection found: #{as_info[:collection]}")
-            end
             if unit.metadata.nil? 
                puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
-               unit.update!(metadata: kore)
+               unit.update!(metadata: parent_md)
             end
             uri = "/#/asset/#{as_info[:id]}"
             title = as_info[:title]
-
-            forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
-            if !forum_info.blank?
-               title = forum_info[:title] if !forum_info[:title].blank?
-            end
-
             puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
             if mf.metadata.external_system_id != js.id
                puts "   creaing new metadata record"
                em = ExternalMetadata.create!(external_system: js, external_uri: uri,
-                  use_right_id: 1, title: title, parent_metadata_id: kore.id, 
+                  use_right_id: 1, title: title, parent_metadata_id: parent_md.id, 
                   ocr_hint_id: 2, availability_policy_id:  1)
                mf.update!(metadata: em)  
                cnt +=1 

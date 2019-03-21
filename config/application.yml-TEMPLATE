@@ -54,10 +54,6 @@ deaccession_users: lf6f,cmm2t
 as_user: as_user
 as_pass: as_pass
 
-# JSTOR API auth
-jstor_email: as_user
-jstor_pass: as_pass
-
 archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
 production_mount: /digiserv-production
 delivery_dir: /digiserv-delivery/patron

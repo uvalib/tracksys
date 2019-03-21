@@ -253,23 +253,20 @@ ActiveAdmin.register ExternalMetadata do
       def get_jstor_metadata
          js = resource.external_system
          js_key = resource.master_files.first.filename.split(".").first 
-         artstor_cookies = Jstor.start_public_session(js.public_url)
-         js_cookies = Jstor.forum_login(js.api_url)
-         forum_info = Jstor.forum_info(js.api_url, js_key, js_cookies)
-         pub_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
+         cookies = Jstor.start_session(js.api_url)
+         pub_info = Jstor.public_info(js.api_url, js_key, cookies)
          @js_info = {}
          @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
-         @js_info[:collection_title] = Metadata.find(resource.parent_metadata_id).title
-         @js_info[:collection_url] = "#{js.public_url}/#/collection/1067"
+         @js_info[:collection_title] = pub_info[:collection]
+         @js_info[:collection_url] = "#{js.public_url}/#/collection/#{pub_info[:collection_id]}"
          @js_info[:title] = pub_info[:title] 
-         @js_info[:title] = forum_info[:title] if !forum_info.blank? && !forum_info[:title].blank?
-         @js_info[:desc] = forum_info[:desc] if !forum_info.blank?
-         @js_info[:creator] = forum_info[:creator] if !forum_info.blank?
+         @js_info[:desc] = pub_info[:desc] 
+         @js_info[:creator] = pub_info[:creator]
          @js_info[:date] = pub_info[:date]
          @js_info[:width] = pub_info[:width]
          @js_info[:height] = pub_info[:height]
-         @js_info[:id] = resource.external_uri.split("/").last
-         @js_info[:ssid] = forum_info[:id] if !forum_info.blank?
+         @js_info[:id] = pub_info[:id]
+         @js_info[:ssid] = pub_info[:ssid]
       end
 
       def get_apollo_metadata
