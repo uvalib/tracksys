@@ -101,6 +101,11 @@ namespace :artstor do
       artstor_cookies = Jstor.start_public_session(js.public_url)
       js_cookies = Jstor.forum_login(js.api_url)
 
+      link_unit_to_as(unit, js, artstor_cookies, js_cookies)
+      puts "DONE"
+   end
+
+   def link_unit_to_as(unit, js, artstor_cookies, js_cookies) 
       unit.master_files.each do |mf| 
          js_key = mf.filename.split(".").first 
          as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
@@ -133,7 +138,6 @@ namespace :artstor do
             end
          end
       end
-      puts "DONE"
    end
 
    # generate the IIIF files for ARTSTOR masterfiles that lack them
