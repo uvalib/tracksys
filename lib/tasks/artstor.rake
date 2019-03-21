@@ -2,10 +2,12 @@ namespace :artstor do
 
    desc "test metadata"
    task :test  => :environment do
+      fn = ENV['file']
       js = ExternalSystem.find_by(name: "JSTOR Forum")
       cookies = Jstor.forum_login(js.api_url)
-      js_key = "20110716ARCH_0003"
-      puts Jstor.forum_info(js.api_url, js_key, cookies)
+      artstor_cookies = Jstor.start_public_session(js.public_url)
+      puts Jstor.forum_info(js.api_url, fn, cookies)
+      puts Jstor.find_public_info(js.public_url, fn, artstor_cookies)
    end
 
    desc "One time task to add external metadata system info for JSTOR"
@@ -95,17 +97,18 @@ namespace :artstor do
    task :link_unit  => :environment do
       uid = ENV['unit']
       unit = Unit.find(uid)
+      collection_md = XmlMetadata.find_by(title: "UVA Library Kore Collection")
 
       puts "Link all master files from unit #{unit.id} to JSTOR records"
       js = ExternalSystem.find_by(name: "JSTOR Forum")
       artstor_cookies = Jstor.start_public_session(js.public_url)
       js_cookies = Jstor.forum_login(js.api_url)
 
-      linked = link_unit_to_as(unit, js, artstor_cookies, js_cookies)
+      linked = link_unit_to_as(unit, js, artstor_cookies, js_cookies, collection_md)
       puts "DONE. #{linked} master files updated"
    end
 
-   def link_unit_to_as(unit, js, artstor_cookies, js_cookies) 
+   def link_unit_to_as(unit, js, artstor_cookies, js_cookies, kore) 
       cnt = 0
       unit.master_files.each do |mf| 
          js_key = mf.filename.split(".").first 
@@ -114,6 +117,13 @@ namespace :artstor do
             puts "WARN: No public info found for #{js_key}"
             next
          else
+            if !as_info[:collection].include?("Kore")
+               abort("Non-Kore collection found: #{as_info[:collection]}")
+            end
+            if unit.metadata.nil? 
+               puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
+               unit.update!(metadata: kore)
+            end
             uri = "/#/asset/#{as_info[:id]}"
             title = as_info[:title]
 

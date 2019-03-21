@@ -71,8 +71,9 @@ module Jstor
          return nil
       end
       hit = json['results'].first
+      coll = hit['collectiontypenameid'].first.split("|")[1]
       media = JSON.parse(hit['media'])
-      out =  {id: hit['artstorid'], title: hit['name'], date: hit['date'], type: hit['type'] }
+      out =  {id: hit['artstorid'], title: hit['name'], date: hit['date'], type: hit['type'], collection: coll }
       if !media.nil?
          out[:width] = media["width"]
          out[:height] = media["height"]
