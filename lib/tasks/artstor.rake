@@ -101,11 +101,12 @@ namespace :artstor do
       artstor_cookies = Jstor.start_public_session(js.public_url)
       js_cookies = Jstor.forum_login(js.api_url)
 
-      link_unit_to_as(unit, js, artstor_cookies, js_cookies)
-      puts "DONE"
+      linked = link_unit_to_as(unit, js, artstor_cookies, js_cookies)
+      puts "DONE. #{linked} master files updated"
    end
 
    def link_unit_to_as(unit, js, artstor_cookies, js_cookies) 
+      cnt = 0
       unit.master_files.each do |mf| 
          js_key = mf.filename.split(".").first 
          as_info = Jstor.find_public_info(js.public_url, js_key, artstor_cookies)
@@ -127,17 +128,20 @@ namespace :artstor do
                em = ExternalMetadata.create!(external_system: js, external_uri: uri,
                   use_right_id: 1, title: title, parent_metadata_id: unit.metadata_id, 
                   ocr_hint_id: 2, availability_policy_id:  1)
-               mf.update!(metadata: em)   
+               mf.update!(metadata: em)  
+               cnt +=1 
             else 
                if mf.metadata.external_uri == uri 
                   puts "   existing metadata correct. Nothing to do."
                else 
                   puts "   update existing metadata record"
                   mf.metadata.update( external_uri: uri, title: title)
+                  cnt+=1
                end
             end
          end
       end
+      return cnt
    end
 
    # generate the IIIF files for ARTSTOR masterfiles that lack them
