@@ -261,15 +261,15 @@ ActiveAdmin.register ExternalMetadata do
          @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
          @js_info[:collection_title] = Metadata.find(resource.parent_metadata_id).title
          @js_info[:collection_url] = "#{js.public_url}/#/collection/1067"
-         @js_info[:title] = forum_info[:title]
-         @js_info[:title] = pub_info[:title] if  @js_info[:title].blank?
-         @js_info[:desc] = forum_info[:desc]
-         @js_info[:creator] = forum_info[:creator]
+         @js_info[:title] = pub_info[:title] 
+         @js_info[:title] = forum_info[:title] if !forum_info.blank? && !forum_info[:title].blank?
+         @js_info[:desc] = forum_info[:desc] if !forum_info.blank?
+         @js_info[:creator] = forum_info[:creator] if !forum_info.blank?
          @js_info[:date] = pub_info[:date]
          @js_info[:width] = pub_info[:width]
          @js_info[:height] = pub_info[:height]
          @js_info[:id] = resource.external_uri.split("/").last
-         @js_info[:ssid] = forum_info[:id]
+         @js_info[:ssid] = forum_info[:id] if !forum_info.blank?
       end
 
       def get_apollo_metadata
