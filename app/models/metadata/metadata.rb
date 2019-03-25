@@ -45,6 +45,7 @@ class Metadata < ApplicationRecord
       self.is_manuscript = false if self.is_manuscript.nil?
       self.is_personal_item = false if self.is_personal_item.nil?
       self.collection_facet = nil if !self.collection_facet.nil? && self.collection_facet.downcase == "none"
+      self.preservation_tier_id = 1 if self.preservation_tier_id.blank?
 
       # default right statement to not Evaluated
       if self.use_right.blank?

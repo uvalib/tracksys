@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '5.2.2'
+gem 'rails', '~> 5.2.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'sass-rails', '~> 5.0'
 #gem 'sassc-rails'
@@ -11,7 +11,7 @@ gem 'sass-rails', '~> 5.0'
 gem 'activeadmin', '~> 1.0'
 gem 'ffi', '~> 1.9.24'
 
-gem 'passenger', '5.1.5'
+#gem 'passenger', '5.1.5'
 gem 'figaro'
 gem 'exception_notification'
 
