@@ -40,6 +40,38 @@ namespace :artstor do
       end
    end
 
+   desc "Second pass Link ALL artstor masterfiles to External metadata"
+   task :pass2 => :environment do 
+      puts "PASS 2: Linking all *ARCH* master files to matching Artstor external metadata"
+      puts "Start Artstor session"
+      js = ExternalSystem.find_by(name: "JSTOR Forum")
+      cookies = Jstor.start_session(js.api_url)
+      jstor_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
+      
+      puts "Finding all candidate master files"
+      cnt = 0
+      linked = 0
+      MasterFile.where("metadata_id=?", jstor_md.id).find_each do |mf|
+         cnt+=1
+         js_key = mf.filename.split(".").first 
+         as_info = Jstor.public_info(js.api_url, js_key, cookies)
+         if as_info.blank? 
+            next
+         else
+            uri = "/#/asset/#{as_info[:id]}"
+            title = as_info[:title]
+            puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
+            em = ExternalMetadata.create!(external_system: js, external_uri: uri,
+               use_right_id: 1, title: title, parent_metadata_id: jstor_md.id, 
+               ocr_hint_id: 2, availability_policy_id:  1)
+            mf.update!(metadata: em)  
+            linked +=1 
+         end 
+         sleep(0.25)  
+      end
+      puts "DONE. Checked #{cnt} master files. Linked #{linked}"
+   end
+
    desc "Link ALL artstor masterfiles to External metadata"
    task :link_all => :environment do 
       puts "Linking all *ARCH* master files to matching Artstor external metadata.."
@@ -98,22 +130,43 @@ namespace :artstor do
       puts "DONE. #{linked} master files updated"
    end
 
+   desc "add jstor collection record to units in csv"
+   task :fix_csv  => :environment do
+      collection_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
+      File.read("as_nomatch.csv").split("\n").each do |uid|
+         unit = Unit.find(uid)
+         if unit.metadata.nil?
+            puts "===> Add JSTOR collection MD to Unit[#{uid}]"
+            unit.update!(metadata: collection_md)
+         end
+      end
+   end
+
    desc "Link units listed in csv to JSTOR"
    task :link_csv  => :environment do
       puts "Link all units in artstor_csv..."
       collection_md = XmlMetadata.find_by(title: "UVA Library JSTOR Collection")
       js = ExternalSystem.find_by(name: "JSTOR Forum")
       cookies = Jstor.start_session(js.api_url)
-
+      cnt = 0
       File.read("artstor_units.csv").split("\n").each do |uid|
          puts "===> Link Unit[#{uid}]"
          linked = link_unit_to_as(Unit.find(uid), js, cookies, collection_md)
          puts "Unit #{uid}: #{linked} master files linked"
-         break
+         cnt += 1
+         if cnt % 25 == 0
+            puts "requesting new auth cookies after 25 units"
+            cookies = Jstor.start_session(js.api_url)
+         end
+         sleep(5)
       end   
    end
 
    def link_unit_to_as(unit, js, cookies, parent_md) 
+      if unit.metadata.nil? 
+         puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
+         unit.update!(metadata: parent_md)
+      end
       cnt = 0
       unit.master_files.each do |mf| 
          js_key = mf.filename.split(".").first 
@@ -122,10 +175,6 @@ namespace :artstor do
             puts "WARN: No public info found for #{js_key}"
             next
          else
-            if unit.metadata.nil? 
-               puts "==========> Unit #{unit.id} has no metadata; setting to Kore"
-               unit.update!(metadata: parent_md)
-            end
             uri = "/#/asset/#{as_info[:id]}"
             title = as_info[:title]
             puts "Master file #{mf.filename}[#{mf.id}] - ARTSTOR URI: #{uri}"
