@@ -44,7 +44,19 @@ namespace :aptrust do
       puts "Bag submitted. Check status with etag: #{etag}"
    end 
 
-   #
-   # TODO Need a task that can be called to bulk submit items to AAPTrust. Add when items are known
-   #
+   desc "Submit bags for a collection"
+   task :submit_collection  => :environment do
+      id = ENV['id']  
+      coll_md = Metadata.find(id)
+      puts "Sending children of collection #{coll_md.id}:#{coll_md.title} to APTrust"
+      cnt = 0
+      coll_md.children. each do |md|
+         next if md.preservation_tier_id.blank? || md.preservation_tier_id == 1
+         puts "   Submit child metadata #{md.id}"
+         etag = PublishToApTrust.do_submission(md)
+         puts "   Bag submitted. Check status with etag: #{etag}"
+         cnt +=1
+      end
+      puts "DONE. #{cnt} bas submitted to APTrust"
+   end
 end
