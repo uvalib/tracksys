@@ -57,14 +57,18 @@ class Metadata < ApplicationRecord
          # once sent to APTrust, disallow change to lesser tier
          change = self.changes["preservation_tier_id"]
          # 1: backed up, 2: 1+duplicated once, 3: 1+duplicated multiple places
+         # change[0] is the current value, change[1] is the update
          if !change[0].nil? && change[0] > 1 && change[1] < change[0]
             # revert back to original backed-up status 
+            Rails.logger.info "Metadata #{self.id} cancel downgrade of preservation tier id #{change[0]} to #{change[1]}"
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
          else  
             # if this item has child metadata records, update all to match 
-            children = Metadata.where("parent_metadata_id=? and preservation_tier_id is null or preservation_tier_id < ?",
+            Rails.logger.info "Metadata #{self.id} set preservation tier id to #{self.preservation_tier_id}"
+            children = Metadata.where("parent_metadata_id=? and (preservation_tier_id is null or preservation_tier_id < ?)",
                self.id, self.preservation_tier_id)
+            Rails.logger.info "Updating #{children.count} child metadata records to match preservation settings"
             children.update_all(preservation_tier_id: self.preservation_tier_id)
          end
       end
