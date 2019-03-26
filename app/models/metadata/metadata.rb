@@ -56,29 +56,19 @@ class Metadata < ApplicationRecord
       if self.changes.has_key? "preservation_tier_id"
          # once sent to APTrust, disallow change to lesser tier
          change = self.changes["preservation_tier_id"]
-         if !change[0].nil? && change[0] > 1 && change[1] == 1
+         # 1: backed up, 2: 1+duplicated once, 3: 1+duplicated multiple places
+         if !change[0].nil? && change[0] > 1 && change[1] < change[0]
             # revert back to original backed-up status 
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
+         else  
+            # if this item has child metadata records, update all to match 
+            children = Metadata.where("parent_metadata_id=? and preservation_tier_id is null or preservation_tier_id < ?",
+               self.id, self.preservation_tier_id)
+            children.update_all(preservation_tier_id: self.preservation_tier_id)
          end
       end
    end
-
-   # Disabling automatic publish on change. Needs to be very deliberate, and having this here
-   # opens up the possibility of accidental preservation
-   #
-   # # NOTE: necessary to break out callback into named method so it can be skipped 
-   # # by name in a rake task used to manually update status and publish
-   # after_save :aptrust_checks
-   # def aptrust_checks  
-   #    if saved_changes.has_key? "preservation_tier_id" && self.type != "ExternalMetadata"
-   #       if self.preservation_tier_id > 1 && self.ap_trust_status.nil?
-   #          if Settings.aptrust_enabled == "true"
-   #             PublishToApTrust.exec({metadata: self})
-   #          end
-   #       end
-   #    end
-   # end
 
    before_destroy do
       if self.units.size > 0
