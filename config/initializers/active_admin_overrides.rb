@@ -10,6 +10,8 @@ module ActiveAdmin
                super
                within head do
                   meta name: "referrer", content: "origin"
+                  script src: "//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js", type: "text/javascript"
+                  script src: "//cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.2/jquery.panzoom.js", type: "text/javascript"
                end
             end
 

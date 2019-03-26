@@ -155,29 +155,6 @@ ActiveAdmin.setup do |config|
   # config.before_action :do_something_awesome
 
 
-  # == Register Stylesheets & Javascripts
-  #
-  # We recommend using the built in Active Admin layout and loading
-  # up your own stylesheets / javascripts to customize the look
-  # and feel.
-  #
-  # To load a stylesheet:
-  #   config.register_stylesheet 'my_stylesheet.css'
-
-  # You can provide an options hash for more control, which is passed along to stylesheet_link_tag():
-  #   config.register_stylesheet 'my_print_stylesheet.css', :media => :print
-  #
-  # To load a javascript file:
-  #   config.register_javascript 'my_javascript.js'
-
-  # config.register_javascript 'chosen-jquery'
-  # config.register_javascript 'html'
-  # config.register_javascript 'tracksys'
-  # config.register_javascript 'ocr'
-  config.register_javascript "https://cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.2/jquery.panzoom.js"
-  config.register_javascript "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"
-
-
   # == CSV options
   #
   # Set the CSV builder separator (default is ",")
