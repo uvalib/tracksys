@@ -13,13 +13,18 @@ module Jstor
 
    # Search the ArtStor public API by filename
    #
-   def self.public_info(api_url, filename, cookies)
+   def self.public_info(api_url, filename, cookies, try_again = true)
       puts "Find public ID for #{filename}"
       params = {limit: 1, start: 0, content_types: ["art"], query: "#{filename}"}
+      begin
       resp = RestClient.post("#{api_url}/search/v1.0/search", 
          params.to_json, {content_type: :json, authority: "library.artstor.org", cookies: cookies})
-      if resp.code != 200 
-         puts "No public ID found. Code #{resp.code}:#{resp.body}"
+      rescue Exception => e 
+         puts "Request for #{filename} public ID failed: #{e.message}"
+         if try_again == true 
+            sleep(10)
+            return Jstor.public_info(api_url, filename, cookies, false)
+         end
          return {}
       end
 
