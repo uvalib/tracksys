@@ -1,12 +1,12 @@
 <%= semantic_form_for([:admin, @master_file], :url => "/admin/master_files/#{@master_file.id}") do |f| %>
    <%= f.inputs "General Information", :class => 'two-column panel' do %>
       <%= f.input :filename %>
-      <li class="select input optional" id="master_file_flip_axis_input">
-         <label for="master_file_flip_axis">Flip Axis</li>
-         <select name="master_file[flip_axis]" id="master_file_flip_axis" >
-            <% ImageTechMeta.flip_axis.each do |fa| %>
+      <li class="select input optional" id="master_file_orientation_input">
+         <label for="master_file_orientation">Orientation</li>
+         <select name="master_file[orientation]" id="master_file_orientation" >
+            <% ImageTechMeta.orientations.each do |fa| %>
                <% selected = ""
-                  selected = "selected='selected'" if fa.first == @master_file.image_tech_meta.flip_axis %>
+                  selected = "selected='selected'" if fa.first == @master_file.image_tech_meta.orientation %>
                <option value="<%= fa.first %>" <%= selected %> ><%= fa.first %></option>
             <% end %>
          </select>

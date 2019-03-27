@@ -2,7 +2,7 @@
 # an extension of a single MasterFile record and is applicable only for a
 # MasterFile of type "image".
 class ImageTechMeta < ApplicationRecord
-   enum flip_axis: {not_flipped:0 , y_axis: 1, x_axis: 2}
+   enum orientation: { normal: 0, flip_y_axis: 1, rotate90: 2, rotate180: 3, rotate270: 4 }
    belongs_to :master_file
 
    validates :master_file_id, :presence => true

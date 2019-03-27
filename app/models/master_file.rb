@@ -176,8 +176,11 @@ class MasterFile < ApplicationRecord
       iiif_url = nil
       rotate = "0"
       if !image_tech_meta.nil?
-         rotate ="!0" if image_tech_meta.flip_axis == "y_axis"
-         rotate ="!180" if image_tech_meta.flip_axis == "x_axis"
+         #flip_y_axis: 1, rotate90: 2, rotate180: 3, rotate270
+         rotate ="!0" if image_tech_meta.orientation == "flip_y_axis"
+         rotate ="90" if image_tech_meta.orientation == "rotate90"
+         rotate ="180" if image_tech_meta.orientation == "rotate180"
+         rotate ="270" if image_tech_meta.orientation == "rotate270"
       end
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!125,200/#{rotate}/default.jpg") if image_size == :small
       iiif_url = URI.parse("#{Settings.iiif_url}/#{image_pid}/full/!240,385/#{rotate}/default.jpg") if image_size == :medium

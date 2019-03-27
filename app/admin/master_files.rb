@@ -361,7 +361,7 @@ ActiveAdmin.register MasterFile do
                notes: params[:master_file][:notes]
             )
          end
-         mf.image_tech_meta.update(flip_axis: params[:master_file][:flip_axis])
+         mf.image_tech_meta.update(orientation: params[:master_file][:orientation])
          super
       end
    end
