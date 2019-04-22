@@ -28,6 +28,11 @@ class Step < ApplicationRecord
    belongs_to :fail_step, class_name: "Step", optional: true
    has_many :notes
 
+   # Presence of a fail_step means this is a QA step
+   def is_qa? 
+      return !self.fail_step.nil?
+   end
+
    # Perform end of step validation and automation
    #
    def finish( project )
@@ -442,6 +447,16 @@ class Step < ApplicationRecord
 
          # Move the source directly to destination directory
          FileUtils.mv(src_dir, dest_dir)
+
+         # Per Sam P and correspoding Jira ticket https://jira.lib.virginia.edu/browse/DCMD-749, 
+         # any time after first QA, CaptureOne directories may be removed
+         if self.is_qa? 
+            cap_dir =  File.join(dest_dir, "CaptureOne")
+            if Dir.exists? cap_dir
+               Rails.logger.info("Removing CaptureOne directory from QA step")
+               FileUtils.rm_rf cap_dir
+            end
+         end
 
          # put back the original src/Ouput folder and move the whole unit dir
          # to ready to delete. This leaves the structure present should rescans need
