@@ -441,7 +441,7 @@ class Step < ApplicationRecord
             cap_dir =  File.join(src_dir, "CaptureOne")
             if Dir.exists? cap_dir
                Rails.logger.info("Removing CaptureOne directory #{cap_dir} from Output")
-               FileUtils.rm_r cap_dir
+               FileUtils.rm_rf cap_dir
             end
          end
 
@@ -454,7 +454,7 @@ class Step < ApplicationRecord
             cap_dir =  File.join(dest_dir, "CaptureOne")
             if Dir.exists? cap_dir
                Rails.logger.info("Removing CaptureOne directory #{cap_dir} from QA step")
-               FileUtils.rm_r cap_dir
+               FileUtils.rm_rf cap_dir
             end
          end
 

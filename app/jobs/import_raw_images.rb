@@ -33,9 +33,10 @@ class ImportRawImages < BaseJob
 
          # if XML present, try to match up image -> xml name. Log error if no match
          if !xml_files.empty?
-            xml_file = image.gsub(/\.tif/, ".xml")
-            logger.info "XML files present. Looking for #{xml_file}..."
-            if xml_files.include? xml_file
+            xml_path = image_path.gsub(/\.tif/, ".xml")
+            xml_file = File.basename xml_path
+            logger.info "XML files present. Looking for #{xml_path}..."
+            if xml_files.include? xml_path
                f = File.open(File.join(in_proc_dir, xml_file), "r")
                xml_str = f.read
                errors = XmlMetadata.validate( xml_str )
@@ -59,7 +60,7 @@ class ImportRawImages < BaseJob
                   logger.debug "Created XML Metadata for master file #{mf_filename}"
                end
             else
-               logger.error "#{xml_file} not found in #{xml_files}. No metadata will be added for #{image}"
+               logger.error "#{xml_path} not found in #{xml_files}. No metadata will be added for #{image}"
             end
          end
 
