@@ -13,6 +13,7 @@ class ImportRawImages < BaseJob
       images.sort.each do |image_path|
          # files arrive with full path; just get name
          image = File.basename image_path
+         logger.info "Processing image: #{image}"
 
          # create master file, but name it to tracksys standards. Save original file name in title field.
          src_file = File.join(in_proc_dir, image)
@@ -33,6 +34,7 @@ class ImportRawImages < BaseJob
          # if XML present, try to match up image -> xml name. Log error if no match
          if !xml_files.empty?
             xml_file = image.gsub(/\.tif/, ".xml")
+            logger.info "XML files present. Looking for #{xml_file}..."
             if xml_files.include? xml_file
                f = File.open(File.join(in_proc_dir, xml_file), "r")
                xml_str = f.read
@@ -57,7 +59,7 @@ class ImportRawImages < BaseJob
                   logger.debug "Created XML Metadata for master file #{mf_filename}"
                end
             else
-               logger.error "#{xml_file} not found. No metadata will be added for #{image}"
+               logger.error "#{xml_file} not found in #{xml_files}. No metadata will be added for #{image}"
             end
          end
 
