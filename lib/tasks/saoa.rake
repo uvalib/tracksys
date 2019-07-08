@@ -12,6 +12,9 @@ namespace :saoa do
       mods = '<mods:modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/mods/v3"'
       mods << '\n   xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">'
 
+      units_processed = 0
+      skipped_images = 0
+      img_cnt = 0
       order.units.where("unit_status=? and master_files_count > 0", "approved").each do |unit| 
          unit_dir = "%09d" % unit.id
          archive_dir = File.join(ARCHIVE_DIR, unit_dir)
@@ -28,6 +31,7 @@ namespace :saoa do
             src_file = File.join(archive_dir, mf.filename)
             if !File.exist? src_file 
                puts "   ERROR: source not found. Skipping."
+               skipped_images +=1
                next
             end
 
@@ -36,9 +40,14 @@ namespace :saoa do
             cmd = "convert #{src_file} -set colorspace Gray -separate -average -quality 75 #{jpg_out}"
             `#{cmd}`
             puts "   Generated grayscale JPG for #{src_file}"
+            img_cnt += 1
          end
-         # TODO remove to generate more!!
-         break
+         # FIXME remove me
+         units_processed +=1 
+         if units_processed  > 2 
+            puts "Stopping after a few test generations"
+            break
+         end
       end
 
       puts "Convert to MODs to SAOA..."
@@ -62,7 +71,7 @@ namespace :saoa do
       saoa_dir = File.join(Rails.root, "saoa")
       File.open(File.join(saoa_dir,"saoa.csv"), 'w') { |file| file.write(csv) }
 
-      puts "DONE"
+      puts "DONE; #{units_processed} units processed; #{img_cnt} images generated; #{skipped_images} images skipped"
    end 
 
    # Target Order: https://tracksys.lib.virginia.edu/admin/orders/10675
