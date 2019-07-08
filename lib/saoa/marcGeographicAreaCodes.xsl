@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs" version="2.0">
+
+  <!-- MARC Code List for Geographic Areas -->
+  <xsl:variable name="marcGeographicAreaCodes">
+    <area code="a">Asia</area>
+    <area code="a-af">Afghanistan</area>
+    <area code="a-ai">Armenia (Republic)</area>
+    <area code="a-aj">Azerbaijan</area>
+    <area code="a-ba">Bahrain</area>
+    <area code="a-bg">Bangladesh</area>
+    <area code="a-bn">Borneo</area>
+    <area code="a-br">Burma</area>
+    <area code="a-bt">Bhutan</area>
+    <area code="a-bx">Brunei</area>
+    <area code="a-cb">Cambodia</area>
+    <area code="a-cc">China</area>
+    <area code="a-cc-an">Anhui Sheng (China)</area>
+    <area code="a-cc-ch">Zhejiang Sheng (China)</area>
+    <area code="a-cc-cq">Chongqing (China)</area>
+    <area code="a-cc-fu">Fujian Sheng (China)</area>
+    <area code="a-cc-ha">Hainan Sheng (China)</area>
+    <area code="a-cc-he">Heilongjiang Sheng (China)</area>
+    <area code="a-cc-hh">Hubei Sheng (China)</area>
+    <area code="a-cc-hk">Hong Kong (China)</area>
+    <area code="a-cc-ho">Henan Sheng (China)</area>
+    <area code="a-cc-hp">Hebei Sheng (China)</area>
+    <area code="a-cc-hu">Hunan Sheng (China)</area>
+    <area code="a-cc-im">Inner Mongolia (China)</area>
+    <area code="a-cc-ka">Gansu Sheng (China)</area>
+    <area code="a-cc-kc">Guangxi Zhuangzu Zizhiqu (China)</area>
+    <area code="a-cc-ki">Jiangxi Sheng (China)</area>
+    <area code="a-cc-kn">Guangdong Sheng (China)</area>
+    <area code="a-cc-kr">Jilin Sheng (China)</area>
+    <area code="a-cc-ku">Jiangsu Sheng (China)</area>
+    <area code="a-cc-kw">Guizhou Sheng (China)</area>
+    <area code="a-cc-lp">Liaoning Sheng (China)</area>
+    <area code="a-cc-mh">Macau (China : Special Administrative Region)</area>
+    <area code="a-cc-nn">Ningxia Huizu Zizhiqu (China)</area>
+    <area code="a-cc-pe">Beijing (China)</area>
+    <area code="a-cc-sh">Shanxi Sheng (China)</area>
+    <area code="a-cc-sm">Shanghai (China)</area>
+    <area code="a-cc-sp">Shandong Sheng (China)</area>
+    <area code="a-cc-ss">Shaanxi Sheng (China)</area>
+    <area code="a-cc-su">Xinjiang Uygur Zizhiqu (China)</area>
+    <area code="a-cc-sz">Sichuan Sheng (China)</area>
+    <area code="a-cc-ti">Tibet (China)</area>
+    <area code="a-cc-tn">Tianjin (China)</area>
+    <area code="a-cc-ts">Qinghai Sheng (China)</area>
+    <area code="a-cc-yu">Yunnan Sheng (China)</area>
+    <area code="a-ccg">Yangtze River (China)</area>
+    <area code="a-cck">Kunlun Mountains (China and India)</area>
+    <area code="a-ccp">Bo Hai (China)</area>
+    <area code="a-ccs">Xi River (China)</area>
+    <area code="a-ccy">Yellow River (China)</area>
+    <area code="a-ce">Sri Lanka</area>
+    <area code="a-ch">Taiwan</area>
+    <area code="a-cy">Cyprus</area>
+    <area code="a-em">Timor-Leste</area>
+    <area code="a-gs">Georgia (Republic)</area>
+    <area code="a-hk" status="discontinued">Hong Kong</area>
+    <area code="a-ii">India</area>
+    <area code="a-io">Indonesia</area>
+    <area code="a-iq">Iraq</area>
+    <area code="a-ir">Iran</area>
+    <area code="a-is">Israel</area>
+    <area code="a-ja">Japan</area>
+    <area code="a-jo">Jordan</area>
+    <area code="a-kg">Kyrgyzstan</area>
+    <area code="a-kn">Korea (North)</area>
+    <area code="a-ko">Korea (South)</area>
+    <area code="a-kr">Korea</area>
+    <area code="a-ku">Kuwait</area>
+    <area code="a-kz">Kazakhstan</area>
+    <area code="a-le">Lebanon</area>
+    <area code="a-ls">Laos</area>
+    <area code="a-mh" status="discontinued">Macao</area>
+    <area code="a-mk">Oman</area>
+    <area code="a-mp">Mongolia</area>
+    <area code="a-my">Malaysia</area>
+    <area code="a-np">Nepal</area>
+    <area code="a-nw">New Guinea</area>
+    <area code="a-ok" status="discontinued">Okinawa</area>
+    <area code="a-ph">Philippines</area>
+    <area code="a-pk">Pakistan</area>
+    <area code="a-pp">Papua New Guinea</area>
+    <area code="a-pt" status="discontinued">Portuguese Timor</area>
+    <area code="a-qa">Qatar</area>
+    <area code="a-si">Singapore</area>
+    <area code="a-sk" status="discontinued">Sikkim</area>
+    <area code="a-su">Saudi Arabia</area>
+    <area code="a-sy">Syria</area>
+    <area code="a-ta">Tajikistan</area>
+    <area code="a-th">Thailand</area>
+    <area code="a-tk">Turkmenistan</area>
+    <area code="a-ts">United Arab Emirates</area>
+    <area code="a-tu">Turkey</area>
+    <area code="a-uz">Uzbekistan</area>
+    <area code="a-vn" status="discontinued">Viet Nam, North</area>
+    <area code="a-vs" status="discontinued">Viet Nam, South</area>
+    <area code="a-vt">Vietnam</area>
+    <area code="a-ye">Yemen (Republic)</area>
+    <area code="a-ys" status="discontinued">Yemen (People's Democratic Republic)</area>
+    <area code="aa">Amur River (China and Russia)</area>
+    <area code="ab">Bengal, Bay of</area>
+    <area code="ac">Asia, Central</area>
+    <area code="ae">East Asia</area>
+    <area code="af">Thailand, Gulf of</area>
+    <area code="ag">Mekong River</area>
+    <area code="ah">Himalaya Mountains</area>
+    <area code="ai">Indochina</area>
+    <area code="ak">Caspian Sea</area>
+    <area code="am">Malaya</area>
+    <area code="an">East China Sea</area>
+    <area code="ao">South China Sea</area>
+    <area code="aopf">Paracel Islands</area>
+    <area code="aoxp">Spratly Islands</area>
+    <area code="ap">Persian Gulf</area>
+    <area code="ar">Arabian Peninsula</area>
+    <area code="as">Southeast Asia</area>
+    <area code="at">Tien Shan</area>
+    <area code="au">Arabian Sea</area>
+    <area code="aw">Middle East</area>
+    <area code="awba">West Bank</area>
+    <area code="awgz">Gaza Strip</area>
+    <area code="awiu" status="discontinued">Israel-Syria Demilitarized Zones</area>
+    <area code="awiw" status="discontinued">Israel-Jordan Demilitarized Zones</area>
+    <area code="awiy" status="discontinued">Iraq-Saudi Arabia Neutral Zone</area>
+    <area code="ay">Yellow Sea</area>
+    <area code="az">South Asia</area>
+    <area code="b">Commonwealth countries</area>
+    <area code="c">Intercontinental areas (Western Hemisphere)</area>
+    <area code="cc">Caribbean Area; Caribbean Sea</area>
+    <area code="cl">Latin America</area>
+    <area code="cm" status="discontinued">Middle America</area>
+    <area code="cr" status="discontinued">Circumcaribbean</area>
+    <area code="d">Developing countries</area>
+    <area code="dd">Developed countries</area>
+    <area code="e">Europe</area>
+    <area code="e-aa">Albania</area>
+    <area code="e-an">Andorra</area>
+    <area code="e-au">Austria</area>
+    <area code="e-be">Belgium</area>
+    <area code="e-bn">Bosnia and Herzegovina</area>
+    <area code="e-bu">Bulgaria</area>
+    <area code="e-bw">Belarus</area>
+    <area code="e-ci">Croatia</area>
+    <area code="e-cs">Czechoslovakia</area>
+    <area code="e-dk">Denmark</area>
+    <area code="e-er">Estonia</area>
+    <area code="e-fi">Finland</area>
+    <area code="e-fr">France</area>
+    <area code="e-ge">Germany (East)</area>
+    <area code="e-gg">Guernsey</area>
+    <area code="e-gi">Gibraltar</area>
+    <area code="e-gr">Greece</area>
+    <area code="e-gw">Germany (West)</area>
+    <area code="e-gx">Germany</area>
+    <area code="e-hu">Hungary</area>
+    <area code="e-ic">Iceland</area>
+    <area code="e-ie">Ireland</area>
+    <area code="e-im">Isle of Man</area>
+    <area code="e-it">Italy</area>
+    <area code="e-je">Jersey</area>
+    <area code="e-kv">Kosovo</area>
+    <area code="e-lh">Liechtenstein</area>
+    <area code="e-li">Lithuania</area>
+    <area code="e-lu">Luxembourg</area>
+    <area code="e-lv">Latvia</area>
+    <area code="e-mc">Monaco</area>
+    <area code="e-mm">Malta</area>
+    <area code="e-mo">Montenegro</area>
+    <area code="e-mv">Moldova</area>
+    <area code="e-ne">Netherlands</area>
+    <area code="e-no">Norway</area>
+    <area code="e-pl">Poland</area>
+    <area code="e-po">Portugal</area>
+    <area code="e-rb">Serbia</area>
+    <area code="e-rm">Romania</area>
+    <area code="e-ru">Russia (Federation)</area>
+    <area code="e-sm">San Marino</area>
+    <area code="e-sp">Spain</area>
+    <area code="e-sw">Sweden</area>
+    <area code="e-sz">Switzerland</area>
+    <area code="e-uk">Great Britain</area>
+    <area code="e-uk-en">England</area>
+    <area code="e-uk-ni">Northern Ireland</area>
+    <area code="e-uk-st">Scotland</area>
+    <area code="e-uk-ui" status="discontinued">Great Britain Miscellaneous Island
+      Dependencies</area>
+    <area code="e-uk-wl">Wales</area>
+    <area code="e-un">Ukraine</area>
+    <area code="e-ur">Russia. Russian Empire. Soviet Union. Former Soviet Republics</area>
+    <area code="e-ur-ai" status="discontinued">Armenia (Republic)</area>
+    <area code="e-ur-aj" status="discontinued">Azerbaijan</area>
+    <area code="e-ur-bw" status="discontinued">Belarus</area>
+    <area code="e-ur-er" status="discontinued">Estonia</area>
+    <area code="e-ur-gs" status="discontinued">Georgia (Republic)</area>
+    <area code="e-ur-kg" status="discontinued">Kyrgyzstan</area>
+    <area code="e-ur-kz" status="discontinued">Kazakhstan</area>
+    <area code="e-ur-li" status="discontinued">Lithuania</area>
+    <area code="e-ur-lv" status="discontinued">Latvia</area>
+    <area code="e-ur-mv" status="discontinued">Moldova</area>
+    <area code="e-ur-ru" status="discontinued">Russia (Federation)</area>
+    <area code="e-ur-ta" status="discontinued">Tajikistan</area>
+    <area code="e-ur-tk" status="discontinued">Turkmenistan</area>
+    <area code="e-ur-un" status="discontinued">Ukraine</area>
+    <area code="e-ur-uz" status="discontinued">Uzbekistan</area>
+    <area code="e-urc">Central Chernozem Region (Russia)</area>
+    <area code="e-ure">Siberia, Eastern (Russia)</area>
+    <area code="e-urf">Russian Far East (Russia)</area>
+    <area code="e-urk">Caucasus</area>
+    <area code="e-url" status="discontinued">Central Region, RSFSR</area>
+    <area code="e-urn">Soviet Union, Northwestern</area>
+    <area code="e-uro" status="discontinued">Soviet Central Asia</area>
+    <area code="e-urp">Volga River (Russia)</area>
+    <area code="e-urr">Caucasus, Northern (Russia)</area>
+    <area code="e-urs">Siberia (Russia)</area>
+    <area code="e-uru">Ural Mountains (Russia)</area>
+    <area code="e-urv" status="discontinued">Volgo-Viatskii Region, RSFSR</area>
+    <area code="e-urw">Siberia, Western (Russia)</area>
+    <area code="e-vc">Vatican City</area>
+    <area code="e-xn">North Macedonia</area>
+    <area code="e-xo">Slovakia</area>
+    <area code="e-xr">Czech Republic</area>
+    <area code="e-xv">Slovenia</area>
+    <area code="e-yu">Serbia and Montenegro; Yugoslavia</area>
+    <area code="ea">Alps</area>
+    <area code="eb">Baltic States</area>
+    <area code="ec">Europe, Central</area>
+    <area code="ed">Balkan Peninsula</area>
+    <area code="ee">Europe, Eastern</area>
+    <area code="ei" status="discontinued">Iberian Peninsula</area>
+    <area code="el">Benelux countries</area>
+    <area code="en">Europe, Northern</area>
+    <area code="eo">Danube River</area>
+    <area code="ep">Pyrenees</area>
+    <area code="er">Rhine River</area>
+    <area code="es">Europe, Southern</area>
+    <area code="et" status="discontinued">Europe, East Central</area>
+    <area code="ev">Scandinavia</area>
+    <area code="ew">Europe, Western</area>
+    <area code="f">Africa</area>
+    <area code="f-ae">Algeria</area>
+    <area code="f-ao">Angola</area>
+    <area code="f-bd">Burundi</area>
+    <area code="f-bs">Botswana</area>
+    <area code="f-by" status="discontinued">Biafra</area>
+    <area code="f-cd">Chad</area>
+    <area code="f-cf">Congo (Brazzaville)</area>
+    <area code="f-cg">Congo (Democratic Republic)</area>
+    <area code="f-cm">Cameroon</area>
+    <area code="f-cx">Central African Republic</area>
+    <area code="f-dm">Benin</area>
+    <area code="f-ea">Eritrea</area>
+    <area code="f-eg">Equatorial Guinea</area>
+    <area code="f-et">Ethiopia</area>
+    <area code="f-ft">Djibouti</area>
+    <area code="f-gh">Ghana</area>
+    <area code="f-gm">Gambia</area>
+    <area code="f-go">Gabon</area>
+    <area code="f-gv">Guinea</area>
+    <area code="f-if" status="discontinued">Ifni</area>
+    <area code="f-iv">Côte d'Ivoire</area>
+    <area code="f-ke">Kenya</area>
+    <area code="f-lb">Liberia</area>
+    <area code="f-lo">Lesotho</area>
+    <area code="f-ly">Libya</area>
+    <area code="f-mg">Madagascar</area>
+    <area code="f-ml">Mali</area>
+    <area code="f-mr">Morocco</area>
+    <area code="f-mu">Mauritania</area>
+    <area code="f-mw">Malawi</area>
+    <area code="f-mz">Mozambique</area>
+    <area code="f-ng">Niger</area>
+    <area code="f-nr">Nigeria</area>
+    <area code="f-pg">Guinea-Bissau</area>
+    <area code="f-rh">Zimbabwe</area>
+    <area code="f-rw">Rwanda</area>
+    <area code="f-sa">South Africa</area>
+    <area code="f-sd">South Sudan</area>
+    <area code="f-sf">Sao Tome and Principe</area>
+    <area code="f-sg">Senegal</area>
+    <area code="f-sh">Spanish North Africa</area>
+    <area code="f-sj">Sudan</area>
+    <area code="f-sl">Sierra Leone</area>
+    <area code="f-so">Somalia</area>
+    <area code="f-sq">Eswatini</area>
+    <area code="f-ss">Western Sahara</area>
+    <area code="f-sx">Namibia</area>
+    <area code="f-tg">Togo</area>
+    <area code="f-ti">Tunisia</area>
+    <area code="f-tz">Tanzania</area>
+    <area code="f-ua">Egypt</area>
+    <area code="f-ug">Uganda</area>
+    <area code="f-uv">Burkina Faso</area>
+    <area code="f-za">Zambia</area>
+    <area code="fa">Atlas Mountains</area>
+    <area code="fb">Africa, Sub-Saharan</area>
+    <area code="fc">Africa, Central</area>
+    <area code="fd">Sahara</area>
+    <area code="fe">Africa, Eastern</area>
+    <area code="ff">Africa, North</area>
+    <area code="fg">Congo River</area>
+    <area code="fh">Africa, Northeast</area>
+    <area code="fi">Niger River</area>
+    <area code="fl">Nile River</area>
+    <area code="fn">Sudan (Region)</area>
+    <area code="fq">Africa, French-speaking Equatorial</area>
+    <area code="fr">Great Rift Valley</area>
+    <area code="fs">Africa, Southern</area>
+    <area code="fu">Suez Canal (Egypt)</area>
+    <area code="fv">Volta River (Ghana)</area>
+    <area code="fw">Africa, West</area>
+    <area code="fz">Zambezi River</area>
+    <area code="h">French Community</area>
+    <area code="i">Indian Ocean</area>
+    <area code="i-bi">British Indian Ocean Territory</area>
+    <area code="i-cq">Comoros</area>
+    <area code="i-fs">Terres australes et antarctiques françaises</area>
+    <area code="i-hm">Heard and McDonald Islands</area>
+    <area code="i-mf">Mauritius</area>
+    <area code="i-my">Mayotte</area>
+    <area code="i-re">Réunion</area>
+    <area code="i-se">Seychelles</area>
+    <area code="i-xa">Christmas Island (Indian Ocean)</area>
+    <area code="i-xb">Cocos (Keeling) Islands</area>
+    <area code="i-xc">Maldives</area>
+    <area code="i-xo" status="discontinued">Socotra Island</area>
+    <area code="l">Atlantic Ocean</area>
+    <area code="ln">North Atlantic Ocean</area>
+    <area code="lnaz">Azores</area>
+    <area code="lnbm">Bermuda Islands</area>
+    <area code="lnca">Canary Islands</area>
+    <area code="lncv">Cabo Verde</area>
+    <area code="lnfa">Faroe Islands</area>
+    <area code="lnjn">Jan Mayen Island</area>
+    <area code="lnma">Madeira Islands</area>
+    <area code="lnsb">Svalbard (Norway)</area>
+    <area code="ls">South Atlantic Ocean</area>
+    <area code="lsai">Ascension Island (Atlantic Ocean)</area>
+    <area code="lsbv">Bouvet Island</area>
+    <area code="lsfk">Falkland Islands</area>
+    <area code="lstd">Tristan da Cunha</area>
+    <area code="lsxj">Saint Helena</area>
+    <area code="lsxs">South Georgia and South Sandwich Islands</area>
+    <area code="m">Intercontinental areas (Eastern Hemisphere)</area>
+    <area code="ma">Arab countries</area>
+    <area code="mb">Black Sea</area>
+    <area code="me">Eurasia</area>
+    <area code="mm">Mediterranean Region; Mediterranean Sea</area>
+    <area code="mr">Red Sea</area>
+    <area code="n">North America</area>
+    <area code="n-cn">Canada</area>
+    <area code="n-cn-ab">Alberta</area>
+    <area code="n-cn-bc">British Columbia</area>
+    <area code="n-cn-mb">Manitoba</area>
+    <area code="n-cn-nf">Newfoundland and Labrador</area>
+    <area code="n-cn-nk">New Brunswick</area>
+    <area code="n-cn-ns">Nova Scotia</area>
+    <area code="n-cn-nt">Northwest Territories</area>
+    <area code="n-cn-nu">Nunavut</area>
+    <area code="n-cn-on">Ontario</area>
+    <area code="n-cn-pi">Prince Edward Island</area>
+    <area code="n-cn-qu">Québec (Province)</area>
+    <area code="n-cn-sn">Saskatchewan</area>
+    <area code="n-cn-yk">Yukon Territory</area>
+    <area code="n-cnh">Hudson Bay</area>
+    <area code="n-cnm">Maritime Provinces</area>
+    <area code="n-cnp">Prairie Provinces</area>
+    <area code="n-gl">Greenland</area>
+    <area code="n-mx">Mexico</area>
+    <area code="n-us">United States</area>
+    <area code="n-us-ak">Alaska</area>
+    <area code="n-us-al">Alabama</area>
+    <area code="n-us-ar">Arkansas</area>
+    <area code="n-us-az">Arizona</area>
+    <area code="n-us-ca">California</area>
+    <area code="n-us-co">Colorado</area>
+    <area code="n-us-ct">Connecticut</area>
+    <area code="n-us-dc">Washington (D.C.)</area>
+    <area code="n-us-de">Delaware</area>
+    <area code="n-us-fl">Florida</area>
+    <area code="n-us-ga">Georgia</area>
+    <area code="n-us-hi">Hawaii</area>
+    <area code="n-us-ia">Iowa</area>
+    <area code="n-us-id">Idaho</area>
+    <area code="n-us-il">Illinois</area>
+    <area code="n-us-in">Indiana</area>
+    <area code="n-us-ks">Kansas</area>
+    <area code="n-us-ky">Kentucky</area>
+    <area code="n-us-la">Louisiana</area>
+    <area code="n-us-ma">Massachusetts</area>
+    <area code="n-us-md">Maryland</area>
+    <area code="n-us-me">Maine</area>
+    <area code="n-us-mi">Michigan</area>
+    <area code="n-us-mn">Minnesota</area>
+    <area code="n-us-mo">Missouri</area>
+    <area code="n-us-ms">Mississippi</area>
+    <area code="n-us-mt">Montana</area>
+    <area code="n-us-nb">Nebraska</area>
+    <area code="n-us-nc">North Carolina</area>
+    <area code="n-us-nd">North Dakota</area>
+    <area code="n-us-nh">New Hampshire</area>
+    <area code="n-us-nj">New Jersey</area>
+    <area code="n-us-nm">New Mexico</area>
+    <area code="n-us-nv">Nevada</area>
+    <area code="n-us-ny">New York</area>
+    <area code="n-us-oh">Ohio</area>
+    <area code="n-us-ok">Oklahoma</area>
+    <area code="n-us-or">Oregon</area>
+    <area code="n-us-pa">Pennsylvania</area>
+    <area code="n-us-ri">Rhode Island</area>
+    <area code="n-us-sc">South Carolina</area>
+    <area code="n-us-sd">South Dakota</area>
+    <area code="n-us-tn">Tennessee</area>
+    <area code="n-us-tx">Texas</area>
+    <area code="n-us-ut">Utah</area>
+    <area code="n-us-va">Virginia</area>
+    <area code="n-us-vt">Vermont</area>
+    <area code="n-us-wa">Washington (State)</area>
+    <area code="n-us-wi">Wisconsin</area>
+    <area code="n-us-wv">West Virginia</area>
+    <area code="n-us-wy">Wyoming</area>
+    <area code="n-usa">Appalachian Mountains</area>
+    <area code="n-usc">Middle West</area>
+    <area code="n-use">Northeastern States</area>
+    <area code="n-usl">Middle Atlantic States</area>
+    <area code="n-usm">Mississippi River</area>
+    <area code="n-usn">New England</area>
+    <area code="n-uso">Ohio River</area>
+    <area code="n-usp">West (U.S.)</area>
+    <area code="n-usr">East (U.S.)</area>
+    <area code="n-uss">Missouri River</area>
+    <area code="n-ust">Southwest, New</area>
+    <area code="n-usu">Southern States</area>
+    <area code="n-usw" status="discontinued">Northwest (U.S.)</area>
+    <area code="n-xl">Saint Pierre and Miquelon</area>
+    <area code="nc">Central America</area>
+    <area code="ncbh">Belize</area>
+    <area code="nccr">Costa Rica</area>
+    <area code="nccz">Canal Zone</area>
+    <area code="nces">El Salvador</area>
+    <area code="ncgt">Guatemala</area>
+    <area code="ncho">Honduras</area>
+    <area code="ncnq">Nicaragua</area>
+    <area code="ncpn">Panama</area>
+    <area code="nl">Great Lakes (North America); Lake States</area>
+    <area code="nm">Mexico, Gulf of</area>
+    <area code="np">Great Plains</area>
+    <area code="nr">Rocky Mountains</area>
+    <area code="nw">West Indies</area>
+    <area code="nwaq">Antigua and Barbuda</area>
+    <area code="nwaw">Aruba</area>
+    <area code="nwbb">Barbados</area>
+    <area code="nwbc" status="discontinued">Barbuda</area>
+    <area code="nwbf">Bahamas</area>
+    <area code="nwbn">Bonaire</area>
+    <area code="nwcj">Cayman Islands</area>
+    <area code="nwco">Curaçao</area>
+    <area code="nwcu">Cuba</area>
+    <area code="nwdq">Dominica</area>
+    <area code="nwdr">Dominican Republic</area>
+    <area code="nweu">Sint Eustatius</area>
+    <area code="nwga" status="discontinued">Greater Antilles</area>
+    <area code="nwgd">Grenada</area>
+    <area code="nwgp">Guadeloupe</area>
+    <area code="nwgs" status="discontinued">Grenadines</area>
+    <area code="nwhi">Hispaniola</area>
+    <area code="nwht">Haiti</area>
+    <area code="nwjm">Jamaica</area>
+    <area code="nwla">Antilles, Lesser</area>
+    <area code="nwli">Leeward Islands (West Indies)</area>
+    <area code="nwmj">Montserrat</area>
+    <area code="nwmq">Martinique</area>
+    <area code="nwna" status="discontinued">Netherlands Antilles</area>
+    <area code="nwpr">Puerto Rico</area>
+    <area code="nwsb" status="discontinued">Saint-Barthélemy</area>
+    <area code="nwsc">Saint-Barthélemy</area>
+    <area code="nwsd">Saba</area>
+    <area code="nwsn">Sint Maarten</area>
+    <area code="nwst">Saint-Martin</area>
+    <area code="nwsv">Swan Islands (Honduras)</area>
+    <area code="nwtc">Turks and Caicos Islands</area>
+    <area code="nwtr">Trinidad and Tobago</area>
+    <area code="nwuc">United States Miscellaneous Caribbean Islands</area>
+    <area code="nwvb">British Virgin Islands</area>
+    <area code="nwvi">Virgin Islands of the United States</area>
+    <area code="nwvr" status="discontinued">Virgin Islands</area>
+    <area code="nwwi">Windward Islands (West Indies)</area>
+    <area code="nwxa">Anguilla</area>
+    <area code="nwxi">Saint Kitts and Nevis</area>
+    <area code="nwxk">Saint Lucia</area>
+    <area code="nwxm">Saint Vincent and the Grenadines</area>
+    <area code="p">Pacific Ocean</area>
+    <area code="pn">North Pacific Ocean</area>
+    <area code="po">Oceania</area>
+    <area code="poas">American Samoa</area>
+    <area code="pobp">Solomon Islands</area>
+    <area code="poci">Caroline Islands</area>
+    <area code="pocp" status="discontinued">Canton and Enderbury Islands</area>
+    <area code="pocw">Cook Islands</area>
+    <area code="poea">Easter Island</area>
+    <area code="pofj">Fiji</area>
+    <area code="pofp">French Polynesia</area>
+    <area code="pogg">Galapagos Islands</area>
+    <area code="pogn" status="discontinued">Gilbert and Ellice Islands</area>
+    <area code="pogu">Guam</area>
+    <area code="poji">Johnston Island</area>
+    <area code="pokb">Kiribati</area>
+    <area code="poki">Kermadec Islands</area>
+    <area code="poln">Line Islands</area>
+    <area code="pome">Melanesia</area>
+    <area code="pomi">Micronesia (Federated States)</area>
+    <area code="ponl">New Caledonia</area>
+    <area code="ponn">Vanuatu</area>
+    <area code="ponu">Nauru</area>
+    <area code="popc">Pitcairn Island</area>
+    <area code="popl">Palau</area>
+    <area code="pops">Polynesia</area>
+    <area code="pory" status="discontinued">Ryukyu Islands, Southern</area>
+    <area code="posc" status="discontinued">Santa Cruz Islands</area>
+    <area code="posh">Samoan Islands</area>
+    <area code="posn" status="discontinued">Solomon Islands</area>
+    <area code="potl">Tokelau</area>
+    <area code="poto">Tonga</area>
+    <area code="pott">Micronesia</area>
+    <area code="potv">Tuvalu</area>
+    <area code="poup">United States Miscellaneous Pacific Islands</area>
+    <area code="powf">Wallis and Futuna Islands</area>
+    <area code="powk">Wake Island</area>
+    <area code="pows">Samoa</area>
+    <area code="poxd">Mariana Islands</area>
+    <area code="poxe">Marshall Islands</area>
+    <area code="poxf">Midway Islands</area>
+    <area code="poxh">Niue</area>
+    <area code="ps">South Pacific Ocean</area>
+    <area code="q">Cold regions</area>
+    <area code="r">Arctic Ocean; Arctic regions</area>
+    <area code="s">South America</area>
+    <area code="s-ag">Argentina</area>
+    <area code="s-bl">Brazil</area>
+    <area code="s-bo">Bolivia</area>
+    <area code="s-ck">Colombia</area>
+    <area code="s-cl">Chile</area>
+    <area code="s-ec">Ecuador</area>
+    <area code="s-fg">French Guiana</area>
+    <area code="s-gy">Guyana</area>
+    <area code="s-pe">Peru</area>
+    <area code="s-py">Paraguay</area>
+    <area code="s-sr">Suriname</area>
+    <area code="s-uy">Uruguay</area>
+    <area code="s-ve">Venezuela</area>
+    <area code="sa">Amazon River</area>
+    <area code="sn">Andes</area>
+    <area code="sp">Rio de la Plata (Argentina and Uruguay)</area>
+    <area code="t">Antarctic Ocean; Antarctica</area>
+    <area code="t-ay" status="discontinued">Antarctica</area>
+    <area code="u">Australasia</area>
+    <area code="u-ac">Ashmore and Cartier Islands</area>
+    <area code="u-at">Australia</area>
+    <area code="u-at-ac">Australian Capital Territory</area>
+    <area code="u-atc">Central Australia</area>
+    <area code="u-ate">Eastern Australia</area>
+    <area code="u-atn">Northern Australia</area>
+    <area code="u-at-ne">New South Wales</area>
+    <area code="u-at-no">Northern Territory</area>
+    <area code="u-at-qn">Queensland</area>
+    <area code="u-at-sa">South Australia</area>
+    <area code="u-at-tm">Tasmania</area>
+    <area code="u-at-vi">Victoria</area>
+    <area code="u-at-we">Western Australia</area>
+    <area code="u-cs">Coral Sea Islands</area>
+    <area code="u-nz">New Zealand</area>
+    <area code="v" status="discontinued">Communist countries</area>
+    <area code="w">Tropics</area>
+    <area code="x">Earth</area>
+    <area code="xa">Eastern Hemisphere</area>
+    <area code="xb">Northern Hemisphere</area>
+    <area code="xc">Southern Hemisphere</area>
+    <area code="xd">Western Hemisphere</area>
+    <area code="zd">Deep space</area>
+    <area code="zju">Jupiter</area>
+    <area code="zma">Mars</area>
+    <area code="zme">Mercury</area>
+    <area code="zmo">Moon</area>
+    <area code="zne">Neptune</area>
+    <area code="zo">Outer space</area>
+    <area code="zpl">Pluto</area>
+    <area code="zs">Solar system</area>
+    <area code="zsa">Saturn</area>
+    <area code="zsu">Sun</area>
+    <area code="zur">Uranus</area>
+    <area code="zve">Venus</area>
+  </xsl:variable>
+</xsl:stylesheet>

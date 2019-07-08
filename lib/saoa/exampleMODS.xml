@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods:modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:mods="http://www.loc.gov/mods/v3"
+  xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
+  <mods:mods version="3.4">
+    <mods:accessCondition type="use and reproduction"
+      >http://rightsstatements.org/vocab/CNE/1.0/</mods:accessCondition>
+    <mods:titleInfo>
+      <mods:title>One hundred best views of Ceylon from photographs taken by the
+        publishers</mods:title>
+    </mods:titleInfo>
+    <mods:name type="corporate">
+      <mods:namePart>Plâté and Company</mods:namePart>
+    </mods:name>
+    <mods:typeOfResource>text</mods:typeOfResource>
+    <mods:originInfo>
+      <mods:place>
+        <mods:placeTerm type="code" authority="marccountry">ce</mods:placeTerm>
+      </mods:place>
+      <mods:place>
+        <mods:placeTerm type="text">Colombo</mods:placeTerm>
+      </mods:place>
+      <mods:publisher>Plâté &amp; Co.</mods:publisher>
+      <mods:dateIssued>[19--]</mods:dateIssued>
+      <mods:dateIssued encoding="marc" point="start" qualifier="questionable">1900</mods:dateIssued>
+      <mods:dateIssued encoding="marc" point="end" qualifier="questionable">1988</mods:dateIssued>
+      <mods:issuance>monographic</mods:issuance>
+      <mods:frequency/>
+    </mods:originInfo>
+    <mods:language>
+      <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+    </mods:language>
+    <mods:physicalDescription>
+      <mods:digitalOrigin>reformatted digital</mods:digitalOrigin>
+      <mods:form authority="marcform">print</mods:form>
+      <mods:extent>Unpaged : chiefly ill. ; 23 x 29 cm.</mods:extent>
+    </mods:physicalDescription>
+    <mods:note type="local">VIVA Repository Copy 2014.</mods:note>
+    <mods:subject authority="lcsh">
+      <mods:geographic>Sri Lanka</mods:geographic>
+      <mods:topic>Desription and travel</mods:topic>
+      <mods:topic>Views</mods:topic>
+    </mods:subject>
+    <mods:classification authority="dlc">DS489 .P53 1900z</mods:classification>
+    <mods:location>
+      <mods:holdingSimple>
+        <mods:copyInformation>
+          <mods:subLocation>IVY</mods:subLocation>
+          <mods:shelfLocator>BY-REQUEST</mods:shelfLocator>
+          <mods:note type="call_number">DS489 .P53 1900z</mods:note>
+          <mods:note type="call_number_sort">LC</mods:note>
+          <mods:note type="barcode">X000936628</mods:note>
+        </mods:copyInformation>
+      </mods:holdingSimple>
+    </mods:location>
+    <mods:identifier type="oclc">19217257</mods:identifier>
+    <mods:recordInfo>
+      <mods:recordContentSource authority="marcorg"/>
+      <mods:recordCreationDate encoding="marc">890215</mods:recordCreationDate>
+      <mods:recordIdentifier source="SIRSI">u1307861</mods:recordIdentifier>
+      <mods:recordOrigin>Converted from MARCXML to MODS version 3.4 using MARC21slim2MODS3-4.xsl
+        (Revision 1.70). UVA (Revision 1.711) 20140122</mods:recordOrigin>
+    </mods:recordInfo>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Unit ID"
+      >53744</mods:identifier>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Metadata ID"
+      >103260</mods:identifier>
+    <mods:identifier type="uri" displayLabel="Accessible index record displayed in VIRGO"
+      >tsb:103260</mods:identifier>
+  </mods:mods>
+  <mods:mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mods="http://www.loc.gov/mods/v3" version="3.4"
+    xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
+    <mods:accessCondition type="use and reproduction"
+      >http://rightsstatements.org/vocab/CNE/1.0/</mods:accessCondition>
+    <mods:titleInfo>
+      <mods:nonSort>The </mods:nonSort>
+      <mods:title>art of Lepakshi</mods:title>
+    </mods:titleInfo>
+    <mods:name type="personal" usage="primary">
+      <mods:namePart>Gōpālakr̥ṣṇamūrti, Śrīpāda.</mods:namePart>
+    </mods:name>
+    <mods:typeOfResource>text</mods:typeOfResource>
+    <mods:originInfo>
+      <mods:place>
+        <mods:placeTerm type="code" authority="marccountry">ii</mods:placeTerm>
+      </mods:place>
+      <mods:place>
+        <mods:placeTerm type="text">Hyderabad</mods:placeTerm>
+      </mods:place>
+      <mods:publisher>Govt. of Andhra Pradesh</mods:publisher>
+      <mods:dateIssued>[19--]</mods:dateIssued>
+      <mods:dateIssued encoding="marc" point="start" qualifier="questionable">1900</mods:dateIssued>
+      <mods:dateIssued encoding="marc" point="end" qualifier="questionable">1975</mods:dateIssued>
+      <mods:issuance>monographic</mods:issuance>
+      <mods:frequency>Annual</mods:frequency>
+    </mods:originInfo>
+    <mods:language>
+      <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+    </mods:language>
+    <mods:physicalDescription>
+      <mods:digitalOrigin>reformatted digital</mods:digitalOrigin>
+      <mods:form authority="marcform">print</mods:form>
+      <mods:extent>34 p., [6] leaves of plates : ill. ; 28 cm.</mods:extent>
+    </mods:physicalDescription>
+    <mods:subject authority="lcsh">
+      <mods:topic>Arts</mods:topic>
+      <mods:geographic>India</mods:geographic>
+      <mods:geographic>Lepakshi</mods:geographic>
+    </mods:subject>
+    <mods:classification authority="lcc">DS485.A55 A3 no. 37</mods:classification>
+    <mods:classification authority="ddc">954/.84/008 s 700/.954/84</mods:classification>
+    <mods:relatedItem type="series">
+      <mods:titleInfo>
+        <mods:title>Arch.series ; no.37</mods:title>
+      </mods:titleInfo>
+    </mods:relatedItem>
+    <mods:location>
+      <mods:holdingSimple>
+        <mods:copyInformation>
+          <mods:subLocation>IVY</mods:subLocation>
+          <mods:shelfLocator>BY-REQUEST</mods:shelfLocator>
+          <mods:note type="call_number">DS485 .A55 A3 no.37</mods:note>
+          <mods:note type="call_number_sort">LC</mods:note>
+          <mods:note type="barcode">X031475246</mods:note>
+        </mods:copyInformation>
+      </mods:holdingSimple>
+    </mods:location>
+    <mods:identifier type="lccn">75311759 //r922</mods:identifier>
+    <mods:identifier type="oclc">03090433</mods:identifier>
+    <mods:identifier type="oclc">3090433</mods:identifier>
+    <mods:recordInfo>
+      <mods:recordContentSource authority="marcorg">DLC</mods:recordContentSource>
+      <mods:recordCreationDate encoding="marc">750507</mods:recordCreationDate>
+      <mods:recordIdentifier source="SIRSI">u2404100</mods:recordIdentifier>
+      <mods:recordOrigin>Converted from MARCXML to MODS version 3.4 using MARC21slim2MODS3-4.xsl
+        (Revision 1.70). UVA (Revision 1.711) 20140122</mods:recordOrigin>
+    </mods:recordInfo>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Unit ID"
+      >53743</mods:identifier>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Metadata ID"
+      >103259</mods:identifier>
+    <mods:identifier type="uri" displayLabel="Accessible index record displayed in VIRGO"
+      >tsb:103259</mods:identifier>
+  </mods:mods>
+  <mods:mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mods="http://www.loc.gov/mods/v3" version="3.4"
+    xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
+    <mods:accessCondition type="use and reproduction"
+      >http://rightsstatements.org/vocab/CNE/1.0/</mods:accessCondition>
+    <mods:titleInfo>
+      <mods:title>Bengal past and present</mods:title>
+    </mods:titleInfo>
+    <mods:name type="corporate">
+      <mods:namePart>Calcutta Historical Society</mods:namePart>
+    </mods:name>
+    <mods:typeOfResource>text</mods:typeOfResource>
+    <mods:originInfo>
+      <mods:place>
+        <mods:placeTerm type="code" authority="marccountry">ii</mods:placeTerm>
+      </mods:place>
+      <mods:place>
+        <mods:placeTerm type="text">Calcutta</mods:placeTerm>
+      </mods:place>
+      <mods:publisher>Calcutta Historical Society.</mods:publisher>
+      <mods:dateIssued encoding="marc" point="start">1907</mods:dateIssued>
+      <mods:dateIssued encoding="marc" point="end">9999</mods:dateIssued>
+      <mods:issuance>serial</mods:issuance>
+      <mods:frequency authority="marcfrequency">Semiannual, 1914-</mods:frequency>
+      <mods:frequency authority="marcfrequency">Irregular, 1908-11</mods:frequency>
+      <mods:frequency>Semiannual</mods:frequency>
+    </mods:originInfo>
+    <mods:language>
+      <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+    </mods:language>
+    <mods:physicalDescription>
+      <mods:digitalOrigin>reformatted digital</mods:digitalOrigin>
+      <mods:form authority="marcform">print</mods:form>
+      <mods:extent>v. ill., plates, ports., map, facsim. 28 cm.</mods:extent>
+    </mods:physicalDescription>
+    <mods:note type="date/sequential designation">v. 1- (no. 1- ); July 1907-</mods:note>
+    <mods:note type="description">Title varies slightly.</mods:note>
+    <mods:note type="numbering">Vols. 3-4 paged continuously.</mods:note>
+    <mods:note type="numbering">Vols. 1- lack whole numbering but constitute no. 1-</mods:note>
+    <mods:note type="numbering">Vol. 36 incorrectly called vol. 37.</mods:note>
+    <mods:note type="numbering">Suspended July 1911-Dec. 1913.</mods:note>
+    <mods:note>With supplements.</mods:note>
+    <mods:note>Vols. 1-8, July 1907-June 1914. 1 v.</mods:note>
+    <mods:subject authority="lcsh">
+      <mods:geographic>Kolkata (India)</mods:geographic>
+      <mods:topic>History</mods:topic>
+      <mods:genre>Periodicals</mods:genre>
+    </mods:subject>
+    <mods:subject authority="lcsh">
+      <mods:geographic>Bengal (India)</mods:geographic>
+      <mods:topic>History</mods:topic>
+      <mods:genre>Periodicals</mods:genre>
+    </mods:subject>
+    <mods:classification authority="lcc">DS486.C2 B5</mods:classification>
+    <mods:classification authority="ddc" edition="19">954/.14</mods:classification>
+    <mods:classification authority="dlc">DS486.C2 B5</mods:classification>
+    <mods:location>
+      <mods:physicalLocation>ALDERMAN</mods:physicalLocation>
+      <mods:shelfLocation>DS486.C2 B5</mods:shelfLocation>
+    </mods:location>
+    <mods:location>
+      <mods:holdingSimple>
+        <mods:copyInformation>
+          <mods:subLocation>ALDERMAN</mods:subLocation>
+          <mods:shelfLocator>STACKS</mods:shelfLocator>
+          <mods:note type="call_number">DS486 .C2 B5 v.1 July-Dec 1907</mods:note>
+          <mods:note type="call_number_sort">LCPER</mods:note>
+          <mods:note type="barcode">X030231966</mods:note>
+        </mods:copyInformation>
+      </mods:holdingSimple>
+    </mods:location>
+    <mods:identifier type="lccn">09029130 //852</mods:identifier>
+    <mods:identifier type="oclc">01774246</mods:identifier>
+    <mods:identifier type="oclc">1774246</mods:identifier>
+    <mods:recordInfo>
+      <mods:recordContentSource authority="marcorg">MUL</mods:recordContentSource>
+      <mods:recordCreationDate encoding="marc">751101</mods:recordCreationDate>
+      <mods:recordIdentifier source="SIRSI">u750108</mods:recordIdentifier>
+      <mods:recordOrigin>Converted from MARCXML to MODS version 3.4 using MARC21slim2MODS3-4.xsl
+        (Revision 1.70). UVA (Revision 1.711) 20140122</mods:recordOrigin>
+    </mods:recordInfo>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Unit ID"
+      >53560</mods:identifier>
+    <mods:identifier type="local" displayLabel="Digital Production Group Tracksys Metadata ID"
+      >103186</mods:identifier>
+    <mods:identifier type="uri" displayLabel="Accessible index record displayed in VIRGO"
+      >tsb:103186</mods:identifier>
+  </mods:mods>
+
+</mods:modsCollection>
