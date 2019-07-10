@@ -138,6 +138,7 @@
     <xsl:variable name="volumes">
       <!-- Only applies to serials -->
       <xsl:if test="*:originInfo/*:issuance[matches(., 'continuing|integrating resource|serial')]">
+        <!-- Extract volume numbers from call number -->
         <xsl:analyze-string
           select="*:location[*:holdingSimple]/*:holdingSimple/*:copyInformation/*:note[@type = 'call_number']"
           regex="\sv(ols?)?\.\s*[^\s]+">
@@ -150,6 +151,7 @@
     <xsl:variable name="issues">
       <!-- Only applies to serials -->
       <xsl:if test="*:originInfo/*:issuance[matches(., 'continuing|integrating resource|serial')]">
+        <!-- Extract issue numbers from call number -->
         <xsl:analyze-string
           select="*:location[*:holdingSimple]/*:holdingSimple/*:copyInformation/*:note[@type = 'call_number']"
           regex="\snos?\.\s*[^\s]+">
@@ -162,7 +164,8 @@
     <xsl:variable name="dates">
       <!-- Only applies to serials -->
       <xsl:if test="*:originInfo/*:issuance[matches(., 'continuing|integrating resource|serial')]">
-        <xsl:variable name="extractedDates">
+        <xsl:variable name="callNumberDates">
+          <!-- Extract dates from call number -->
           <xsl:for-each
             select="*:location/*:holdingSimple/*:copyInformation/*:note[@type = 'call_number']">
             <xsl:analyze-string select="." regex="{$datePatterns}" flags="i">
@@ -174,7 +177,7 @@
             </xsl:analyze-string>
           </xsl:for-each>
         </xsl:variable>
-        <xsl:for-each select="distinct-values($extractedDates//*:date)">
+        <xsl:for-each select="distinct-values($callNumberDates//*:date)">
           <xsl:if test="position() != 1">
             <xsl:value-of select="$valueSep"/>
           </xsl:if>
@@ -215,7 +218,10 @@
       <xsl:text>University of Virginia Library</xsl:text>
     </xsl:variable>
     <xsl:variable name="rights">
-      <xsl:choose>
+      <!-- Single rights statement applied to all items -->
+      <xsl:text>http://rightsstatements.org/vocab/NoC-US/1.0/</xsl:text>
+      <!-- Use existing rights statement -->
+      <!--<xsl:choose>
         <xsl:when test="*:accessCondition[matches(@type, 'use and reproduction')]">
           <xsl:for-each
             select="distinct-values(*:accessCondition[matches(@type, 'use and reproduction')])">
@@ -228,7 +234,7 @@
         <xsl:otherwise>
           <xsl:text>http://rightsstatements.org/vocab/NoC-US/1.0/</xsl:text>
         </xsl:otherwise>
-      </xsl:choose>
+      </xsl:choose>-->
     </xsl:variable>
     <xsl:variable name="countries">
       <xsl:variable name="countryNames">
@@ -270,7 +276,8 @@
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of
-          select="replace(replace(normalize-space(.), '[\.,;:]+$', ''), '&quot;', '&quot;&quot;')"/>
+          select="replace(replace(normalize-space(.), '([\.,;:])[\.,;:]+$', '$1'), '&quot;', '&quot;&quot;')"
+        />
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="contributors">
@@ -286,11 +293,23 @@
         </xsl:when>
         <!-- Use unique names, not including the first one -->
         <xsl:otherwise>
-          <xsl:for-each select="distinct-values(*:name)">
-            <xsl:if test="position() != 1">
-              <xsl:value-of select="$valueSep"/>
-              <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
-            </xsl:if>
+          <xsl:variable name="contributorNames">
+            <xsl:for-each select="distinct-values(*:name[position() &gt; 1])">
+              <name>
+                <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
+              </name>
+            </xsl:for-each>
+          </xsl:variable>
+          <xsl:for-each select="$contributorNames//*:name">
+            <xsl:choose>
+              <xsl:when test="position() = 1">
+                <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
+              </xsl:when>
+              <xsl:when test="position() &gt; 1">
+                <xsl:value-of select="$valueSep"/>
+                <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
+              </xsl:when>
+            </xsl:choose>
           </xsl:for-each>
         </xsl:otherwise>
       </xsl:choose>
@@ -331,34 +350,34 @@
     <xsl:variable name="localIdentifiers">
       <xsl:for-each
         select="
-          *:identifier[@type = 'local'][matches(@displayLabel, 'Virgo')] |
-          *:recordInfo/*:recordIdentifier[@source = 'SIRSI'] |
-          *:recordInfo/*:note[@type = 'barcode']">
+          *:identifier[matches(@displayLabel, 'Virgo', 'i')] |
+          *:recordInfo/*:recordIdentifier[matches(@source, 'Sirsi', 'i')] |
+          //*:note[@type = 'barcode']">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
+        <!-- create parenthetical label -->
         <xsl:choose>
           <xsl:when test="@displayLabel">
-            <xsl:choose>
-              <xsl:when test="matches(@displayLabel, 'Virgo', 'i')">
-                <xsl:text> (VIRGO)</xsl:text>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of
-                  select="concat(' (', replace(normalize-space(@displayLabel), '&quot;', '&quot;&quot;'), ')')"
-                />
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:text> (Virgo)</xsl:text>
           </xsl:when>
           <xsl:when test="@source">
-            <xsl:value-of
-              select="concat(' (', replace(normalize-space(@source), '&quot;', '&quot;&quot;'), ')')"
+            <xsl:variable name="labelText">
+              <xsl:value-of
+                select="concat(upper-case(substring(normalize-space(lower-case(@source)), 1, 1)), substring(normalize-space(lower-case(@source)), 2))"
+              />
+            </xsl:variable>
+            <xsl:value-of select="concat(' (', replace($labelText, '&quot;', '&quot;&quot;'), ')')"
             />
           </xsl:when>
           <xsl:when test="@type">
-            <xsl:value-of
-              select="concat(' (', replace(normalize-space(@type), '&quot;', '&quot;&quot;'), ')')"
+            <xsl:variable name="labelText">
+              <xsl:value-of
+                select="concat(upper-case(substring(normalize-space(lower-case(@type)), 1, 1)), substring(normalize-space(lower-case(@type)), 2))"
+              />
+            </xsl:variable>
+            <xsl:value-of select="concat(' (', replace($labelText, '&quot;', '&quot;&quot;'), ')')"
             />
           </xsl:when>
         </xsl:choose>
@@ -405,7 +424,7 @@
                 <xsl:text>/</xsl:text>
               </xsl:if>
               <xsl:value-of
-                select="replace(replace(normalize-space(.), '[\.,;:]+$', ''), '&quot;', '&quot;&quot;')"
+                select="replace(replace(normalize-space(.), '([\.,;:])[\.,;:]+$', '$1'), '&quot;', '&quot;&quot;')"
               />
             </xsl:for-each>
           </xsl:when>
@@ -544,8 +563,9 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="otherData">
+      <!-- Don't include 'unknown' or empty frequency and certain note types -->
       <xsl:for-each
-        select="*:originInfo/*:frequency | descendant::*:note[not(matches(@type, 'local|call_number|barcode'))]">
+        select="*:originInfo/*:frequency[not(matches(normalize-space(.), '^unknown$|^$', 'i'))] | descendant::*:note[not(matches(@type, 'local|call_number|barcode|date/sequential'))]">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
@@ -553,7 +573,7 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="exactDates">
-      <xsl:for-each select="*:originInfo/*:dateIssued[not(@point) and not(matches(., '-'))]">
+      <xsl:for-each select="*:originInfo/*:dateIssued[not(@point) and not(matches(., '-|\[|\?'))]">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
