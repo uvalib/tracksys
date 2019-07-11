@@ -352,7 +352,7 @@
         select="
           *:identifier[matches(@displayLabel, 'Virgo', 'i')] |
           *:recordInfo/*:recordIdentifier[matches(@source, 'Sirsi', 'i')] |
-          //*:note[@type = 'barcode']">
+          *:location/*:holdingSimple/*:copyInformation/*:note[@type = 'barcode']">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
@@ -539,7 +539,8 @@
       <xsl:text>&#32;</xsl:text>
     </xsl:variable>
     <xsl:variable name="artstorLatestDates">
-      <xsl:for-each select="*:originInfo/*:dateIssued[@point = 'end']">
+      <xsl:for-each
+        select="*:originInfo/*:dateIssued[@point = 'end' and not(matches(normalize-space(.), 'uuuu|9999'))]">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
@@ -547,7 +548,8 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="artstorEarliestDates">
-      <xsl:for-each select="*:originInfo/*:dateIssued[@point = 'start']">
+      <xsl:for-each
+        select="*:originInfo/*:dateIssued[@point = 'start' and not(matches(normalize-space(.), 'uuuu|9999'))]">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
