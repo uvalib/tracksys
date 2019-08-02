@@ -18,7 +18,7 @@
 
   <!-- Program version -->
   <xsl:variable name="progVersion">
-    <xsl:text>0.1</xsl:text>
+    <xsl:text>0.2</xsl:text>
   </xsl:variable>
 
   <!-- Record separator -->
@@ -186,13 +186,13 @@
       </xsl:if>
     </xsl:variable>
     <xsl:variable name="resourceTypes">
-      <xsl:for-each select="*:typeOfResource">
+      <!-- resourceTypes left blank per discussion w/ Jeremy Bartczak -->
+      <!--<xsl:for-each select="*:typeOfResource">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
-      </xsl:for-each>
-    </xsl:variable>
+      </xsl:for-each>--> </xsl:variable>
     <xsl:variable name="descriptions">
       <xsl:for-each select="*:abstract | *:tableOfContents">
         <xsl:if test="position() != 1">
@@ -215,11 +215,12 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="holdingInstitution">
-      <xsl:text>University of Virginia Library</xsl:text>
+      <xsl:text>University of Virginia</xsl:text>
     </xsl:variable>
     <xsl:variable name="rights">
+      <!-- Rights statement left blank per Neel Agrawal <nagrawal@CRL.EDU> -->
       <!-- Single rights statement applied to all items -->
-      <xsl:text>http://rightsstatements.org/vocab/NoC-US/1.0/</xsl:text>
+      <!--<xsl:text>http://rightsstatements.org/vocab/NoC-US/1.0/</xsl:text>-->
       <!-- Use existing rights statement -->
       <!--<xsl:choose>
         <xsl:when test="*:accessCondition[matches(@type, 'use and reproduction')]">
@@ -234,8 +235,7 @@
         <xsl:otherwise>
           <xsl:text>http://rightsstatements.org/vocab/NoC-US/1.0/</xsl:text>
         </xsl:otherwise>
-      </xsl:choose>-->
-    </xsl:variable>
+      </xsl:choose>--> </xsl:variable>
     <xsl:variable name="countries">
       <xsl:variable name="countryNames">
         <!-- Translate code into area/country name -->
@@ -348,7 +348,8 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="localIdentifiers">
-      <xsl:for-each
+      <!-- localIdentifiers left blank per request of Neel Agrawal <nagrawal@CRL.EDU> -->
+      <!--<xsl:for-each
         select="
           *:identifier[matches(@displayLabel, 'Virgo', 'i')] |
           *:recordInfo/*:recordIdentifier[matches(@source, 'Sirsi', 'i')] |
@@ -357,7 +358,7 @@
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
-        <!-- create parenthetical label -->
+        <!-\- create parenthetical label -\->
         <xsl:choose>
           <xsl:when test="@displayLabel">
             <xsl:text> (Virgo)</xsl:text>
@@ -381,20 +382,19 @@
             />
           </xsl:when>
         </xsl:choose>
-      </xsl:for-each>
-    </xsl:variable>
+      </xsl:for-each> --> </xsl:variable>
     <xsl:variable name="relations">
-      <xsl:for-each select="*:relatedItem[not(matches(@type, 'series'))]/*:titleInfo">
+      <!-- relations left blank per request of Neel Agrawal <nagrawal@CRL.EDU> -->
+      <!--<xsl:for-each select="*:relatedItem[not(matches(@type, 'series'))]/*:titleInfo">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
-      </xsl:for-each>
-    </xsl:variable>
+      </xsl:for-each>--> </xsl:variable>
     <xsl:variable name="supplementalHoldings">
+      <!-- supplementalHoldings left blank per request of Neel Agrawal <nagrawal@CRL.EDU> -->
       <!-- Nothing here yet -->
-      <xsl:text>&#32;</xsl:text>
-    </xsl:variable>
+      <!--<xsl:text>&#32;</xsl:text>--> </xsl:variable>
     <xsl:variable name="oclcNumbers">
       <xsl:for-each select="*:identifier[@type = 'oclc']">
         <xsl:if test="position() != 1">
