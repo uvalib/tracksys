@@ -396,12 +396,16 @@
       <!-- Nothing here yet -->
       <!--<xsl:text>&#32;</xsl:text>--> </xsl:variable>
     <xsl:variable name="oclcNumbers">
-      <xsl:for-each select="*:identifier[@type = 'oclc']">
+      <!-- Use only the 1st OCLC number, per Jeremy's request -->
+      <xsl:for-each select="*:identifier[@type = 'oclc'][1]">
+        <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
+      </xsl:for-each>
+      <!--<xsl:for-each select="*:identifier[@type = 'oclc']">
         <xsl:if test="position() != 1">
           <xsl:value-of select="$valueSep"/>
         </xsl:if>
         <xsl:value-of select="replace(normalize-space(.), '&quot;', '&quot;&quot;')"/>
-      </xsl:for-each>
+      </xsl:for-each>-->
     </xsl:variable>
     <xsl:variable name="imprints">
       <xsl:for-each select="*:originInfo">
