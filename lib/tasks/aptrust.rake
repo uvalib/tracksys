@@ -59,4 +59,25 @@ namespace :aptrust do
       end
       puts "DONE. #{cnt} bas submitted to APTrust"
    end
+
+   desc "Update submitted APTrust status" 
+   task :update_status => :environment do
+      puts "Update status of all Submitted APTrust items.."
+      cnt = 0
+      pend = 0
+      ApTrustStatus.where(status: "Submitted").each do |apt| 
+         resp =  ApTrust::status(apt.etag)
+         if !resp.nil?
+            apt.update(status: resp[:status], note: resp[:note])  
+            if resp[:status] == "Failed" || resp[:status] == "Success" 
+               apt.update(finished_at: resp[:finished_on], object_id: resp[:object_id])
+               cnt += 1
+            else 
+               pend += 1
+            end
+         end
+      end
+      puts "DONE. #{cnt} items completed, #{pend} items still processing"
+   end
+
 end
