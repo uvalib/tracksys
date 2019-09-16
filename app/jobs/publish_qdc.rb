@@ -89,7 +89,7 @@ class PublishQDC < BaseJob
          log.info("This item has title 'untitled'. Skipping.")
          if File.exist? qdc_fn
             log.info "Skipped item has file #{qdc_fn}; removing it"
-            # FIXME the file is not actually removed
+            File.delete(qdc_fn)
          end
          return nil
       end
@@ -107,7 +107,7 @@ class PublishQDC < BaseJob
             log.info("This visual history item has use rights issues. Skipping")
             if File.exist? qdc_fn
                log.info "Skipped item has file #{qdc_fn}; removing it"
-               # FIXME the file is not actually removed
+               File.delete(qdc_fn)
             end
             return nil
          else
