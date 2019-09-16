@@ -303,7 +303,6 @@ namespace :dpla do
       Metadata.find(metadata_id).children.find_each do |meta|
          next if !meta.dpla || !meta.discoverability || meta.date_dl_ingest.blank?
          next if meta.units.count == 1 && meta.units.first.unit_status == "canceled"
-         next if meta.title.downcase.strip == "untitled"
          puts "Process #{meta.id}:#{meta.pid}..."
 
          begin
@@ -339,7 +338,7 @@ namespace :dpla do
          if File.exist? qdc_fn
             puts "  removing existing file that was published to DPLA."
             cnt +=1
-            cmd = "git rm #{qdc_fn}"
+            cmd = "cd #{qdc_dir}; git rm #{File.join(relative_pid_path, "#{m.pid}.xml")}"
             puts "   #{cmd}"
             `#{cmd}`
          else
