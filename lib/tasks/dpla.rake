@@ -123,16 +123,16 @@ namespace :dpla do
 
       Metadata.where(title: "untitled").each do |m|
          puts "#{m.id}: is untitled"
-         pid_path = QDC.relative_pid_path(m.pid)
-         del_path = File.join(qdc_dir, pid_path, "#{m.pid}.xml")
-         puts "   remove #{del_path}"
-         m.update(dpla: false, qdc_generated_at: nil)
+         relative_pid_path = QDC.relative_pid_path(m.pid)
+         del_path = File.join(qdc_dir, relative_pid_path, "#{m.pid}.xml")
          if File.exist?(del_path)
-            File.delete(del_path)
-         else
-            puts "ERROR: Not found #{del_path}"
+            puts "   remove #{del_path}"
+            m.update(dpla: false, qdc_generated_at: nil)
+            # File.delete(del_path)
+            cmd = "cd #{qdc_dir}; git rm #{File.join(relative_pid_path, "#{m.pid}.xml")}"
+            `#{cmd}`
+            cnt +=1
          end
-         cnt +=1
       end
       puts "Removed #{cnt} untitled records"
    end
