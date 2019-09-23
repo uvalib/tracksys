@@ -13,6 +13,7 @@ namespace :saoa do
 
       units_processed = 0
       skipped_images = 0
+      skipped_units = 0
       img_cnt = 0
       order.units.where("unit_status=? and master_files_count > 0", "approved").each do |unit| 
          # Get the MODs metadata and remove the <?xml header as it will be added to 
@@ -21,8 +22,14 @@ namespace :saoa do
          puts "Get XML metadata for unit #{unit.id}"
          xml_md = Hydra.desc(unit.metadata)
          base_fn = unit.staff_notes
+         if base_fn.empty? 
+            puts "   ERROR: Unit #{unit.id} missing staff notes data. Skipping."
+            skipped_units+=1
+            next
+         end
          oclc = base_fn.split("_").first
          mods << "\n" << xml_md.gsub(/<\?xml.*\?>/, "")
+
 
          unit_dir = "%09d" % unit.id
          archive_dir = File.join(ARCHIVE_DIR, unit_dir)
@@ -82,7 +89,8 @@ namespace :saoa do
       saoa_dir = File.join(Rails.root, "saoa")
       File.open(File.join(saoa_dir,"saoa.csv"), 'w') { |file| file.write(csv) }
 
-      puts "DONE; #{units_processed} units processed; #{img_cnt} images generated; #{skipped_images} images skipped"
+      puts "DONE: #{units_processed} units processed; #{skipped_units} units skipped;"
+      puts "      #{img_cnt} images generated; #{skipped_images} images skipped"
    end 
 
    # Target Order: https://tracksys.lib.virginia.edu/admin/orders/10675
