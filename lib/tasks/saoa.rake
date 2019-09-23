@@ -15,38 +15,44 @@ namespace :saoa do
       skipped_images = 0
       img_cnt = 0
       order.units.where("unit_status=? and master_files_count > 0", "approved").each do |unit| 
+         # Get the MODs metadata and remove the <?xml header as it will be added to 
+         # the mods collection, which already has this defined. OCLC info has been
+         # added to the staff_notes field; retrieve it too
+         puts "Get XML metadata for unit #{unit.id}"
+         xml_md = Hydra.desc(unit.metadata)
+         base_fn = unit.staff_notes
+         oclc = base_fn.split("_").first
+         mods << "\n" << xml_md.gsub(/<\?xml.*\?>/, "")
+
          unit_dir = "%09d" % unit.id
          archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-         out_dir = File.join(Rails.root, "saoa", unit.metadata.pid)
+         out_dir = File.join(Rails.root, "saoa", oclc)
          if !Dir.exist? out_dir 
             FileUtils.mkdir_p out_dir
          end
-
-         # Get the MODs metadata and remove the <?xml header as it will be added to 
-         # the mods collection, which already has this defined
-         puts "Get XML metadata for unit #{unit.id}"
-         xml_md = Hydra.desc(unit.metadata)
-         mods << "\n" << xml_md.gsub(/<\?xml.*\?>/, "")
 
          puts "Generate JPG deliverables..."
          unit.master_files.each do |mf|
             src_file = File.join(archive_dir, mf.filename)
             if !File.exist? src_file 
-               puts "   ERROR: source not found. Skipping."
+               puts "   ERROR: source #{src_file} not found. Skipping."
                skipped_images +=1
                next
             end
 
-            base_fn = File.basename(mf.filename, File.extname(mf.filename))
-            jpg_out = File.join(out_dir, "#{base_fn}.jpg")
+            seq = mf.filename.split(".").last.split("_").last.to_i
+            seq = "%05d" % seq
+            jpg_out = File.join(out_dir, "#{base_fn}_#{seq}.jpg")
             cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -quality 75 #{jpg_out}"
            `#{cmd}`
             puts "   Generated grayscale JPG for #{src_file}"
             img_cnt += 1
+            # FIXME... only generate ONE
+            break
          end
          # FIXME remove me
          units_processed +=1 
-         if units_processed  > 2 
+         if units_processed  > 9
             puts "Stopping after a few test generations"
             break
          end
