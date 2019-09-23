@@ -33,7 +33,7 @@ namespace :saoa do
 
          unit_dir = "%09d" % unit.id
          archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-         out_dir = File.join(Rails.root, "saoa", oclc)
+         out_dir = File.join(Rails.root, "saoa", oclc, "jpg")
          if !Dir.exist? out_dir 
             FileUtils.mkdir_p out_dir
          end
