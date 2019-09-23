@@ -47,7 +47,7 @@ namespace :saoa do
                next
             end
 
-            seq = mf.filename.split(".").last.split("_").last.to_i
+            seq = mf.filename.split(".").first.split("_").last.to_i
             seq = "%05d" % seq
             jpg_out = File.join(out_dir, "#{base_fn}_#{seq}.jpg")
             cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -quality 75 #{jpg_out}"
