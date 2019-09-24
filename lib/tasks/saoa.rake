@@ -36,6 +36,13 @@ namespace :saoa do
          out_dir = File.join(Rails.root, "saoa", oclc, "jpg")
          if !Dir.exist? out_dir 
             FileUtils.mkdir_p out_dir
+         else
+            file_cnt = Dir.glob("#{out_dir}/*.jpg").count
+            if file_cnt == unit.master_files.count 
+               puts "Destination exists and has all JPG files. Skipping"
+               skipped_units+=1
+               next
+            end
          end
 
          puts "Generate JPG deliverables..."
@@ -50,9 +57,13 @@ namespace :saoa do
             seq = mf.filename.split(".").first.split("_").last.to_i
             seq = "%05d" % seq
             jpg_out = File.join(out_dir, "#{base_fn}_#{seq}.jpg")
-            cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -strip -interlace Plane -gaussian-blur 0.05 -quality 25% #{jpg_out}"
-           `#{cmd}`
-            puts "   Generated grayscale JPG for #{src_file}"
+            if !File.exist? 
+               cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -strip -interlace Plane -gaussian-blur 0.05 -quality 25% #{jpg_out}"
+               `#{cmd}`
+               puts "   Generated grayscale JPG for #{src_file}"
+            else
+               puts "   Grayscale JPG for #{src_file} already exists"
+            end
             img_cnt += 1
          end
          # FIXME remove me
