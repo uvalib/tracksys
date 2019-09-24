@@ -64,36 +64,6 @@ namespace :dpla do
       puts "DONE. Generated #{cnt} QDC records"
    end
 
-   desc "Set use rights"
-   task :update_rights  => :environment do
-      puts "Set text collection to NoC-US..."
-      Metadata.where(parent_metadata_id: 15784).update_all(use_right_id: 10)
-
-      puts "Set Frances Benjamin Johnston to NoC-US..."
-      Metadata.where(parent_metadata_id: 16315).update_all(use_right_id: 10)
-
-      puts "Set Holsinger (negatives from c'ville photo studio) to UND..."
-      Metadata.where(parent_metadata_id: 3002).update_all(use_right_id: 11)
-
-      # puts "Set Jackson Davis to UND..."
-      # Metadata.where(parent_metadata_id: 3109).update_all(use_right_id: 11)
-
-      puts "Set Online Artifacts to InC-NC..."
-      Metadata.where(parent_metadata_id: 16585).update_all(use_right_id: 5)
-
-      puts "Set Vanity Fair to NoC-US..."
-      Metadata.where(parent_metadata_id: 6405).update_all(use_right_id: 10)
-
-      puts "Set Printing Services to CNE..."
-      ps_ids = [
-         18146, 18148, 18235, 18236, 18303, 18304, 18532, 18533, 18534, 18535, 18536, 18537,
-         18538, 18539, 18540, 18541, 18559, 18560, 18561, 18562, 18563, 18564, 18565, 18566, 18567
-      ]
-      ps_ids.each do |pd_id|
-         Metadata.where(parent_metadata_id: pd_id).update_all(use_right_id: 1)
-      end
-   end
-
    desc "add University of Virginia Printing Services"
    task :add_printing_service_images  => :environment do
       puts "Reading QDC xml template..."
@@ -135,30 +105,6 @@ namespace :dpla do
          end
       end
       puts "Removed #{cnt} untitled records"
-   end
-
-   desc "Fix a batch of bad pids"
-   task :fix  => :environment do
-      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
-      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
-
-      puts "Reading QDC xml template..."
-      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
-      qdc_tpl = file.read
-      file.close
-
-      File.open(File.join(Rails.root, "data/qdcfixpids.txt"), "r").each_line do |pid|
-         puts "Generate QDC for #{pid.strip}"
-         begin
-            meta = Metadata.find_by(pid: pid.strip)
-            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
-            meta.update(qdc_generated_at: DateTime.now)
-         rescue Exception=>e
-            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
-            puts e.backtrace
-            puts "==============================================================================="
-         end
-      end
    end
 
    desc "Generate DPLA QDC a single record"
@@ -237,6 +183,39 @@ namespace :dpla do
    end
 
    desc "Generate DPLA QDC for all collection records"
+   task :generate_orphaned_xml  => :environment do
+      qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
+      abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
+
+      puts "Reading QDC xml template..."
+      file = File.open( File.join(Rails.root,"app/views/template/qdc.xml"), "rb")
+      qdc_tpl = file.read
+      file.close
+
+      q = "select id from metadata where dpla=1 and parent_metadata_id=0 and discoverability = 1"
+      q << " and date_dl_ingest is not null and type='XmlMetadata'"
+      total_time = 0
+      total = 0
+      Metadata.find_by_sql(q).each do |resp|
+         meta = Metadata.find(resp.id)
+         puts "Process #{meta.id}: #{meta.pid}..."
+         begin
+            ts0 = Time.now
+            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+            meta.update(qdc_generated_at: DateTime.now)
+            dur = (Time.now-ts0).round(2)
+            total_time += dur
+            total += 1
+         rescue Exception=>e
+            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+            puts e.backtrace
+            puts "==============================================================================="
+         end
+      end
+      puts "FINISHED! Generated #{total} QDC records from in #{(total_time/60).round(3)} minutes"
+   end
+
+   desc "Generate DPLA QDC for all collection records"
    task :generate_all  => :environment do
       qdc_dir = "#{Settings.delivery_dir}/dpla/qdc"
       abort("QDC delivery dir #{qdc_dir} does not exist") if !Dir.exist? qdc_dir
@@ -248,7 +227,7 @@ namespace :dpla do
 
       q = "select distinct mp.id, mp.title from metadata mc"
       q << " inner join metadata mp on mc.parent_metadata_id = mp.id"
-      q << " where mc.parent_metadata_id <> '' and mp.dpla = 1 and mp.date_dl_ingest is not null"
+      q << " where mc.parent_metadata_id > 0 and mp.dpla = 1 and mp.date_dl_ingest is not null"
       q << " order by mp.id asc"
       total = 0
       colls = 0
@@ -266,11 +245,32 @@ namespace :dpla do
       end
 
       puts "Generate QDC for metadata that is not part of a collecion..."
+
       # Now get stand-along DPLA flagged metadata and generate the records
       q = "select distinct m.id from metadata m"
       q << " inner join units u on u.metadata_id = m.id"
-      q << " where parent_metadata_id = '' and dpla = 1 and date_dl_ingest is not null"
+      q << " where parent_metadata_id = 0 and dpla = 1 and date_dl_ingest is not null"
       q << " and u.include_in_dl=1 and discoverability=1"
+      Metadata.find_by_sql(q).each do |resp|
+         meta = Metadata.find(resp.id)
+         puts "Process #{meta.id}: #{meta.pid}..."
+         begin
+            ts0 = Time.now
+            PublishQDC.generate_qdc(meta, qdc_dir, qdc_tpl)
+            meta.update(qdc_generated_at: DateTime.now)
+            dur = (Time.now-ts0).round(2)
+            total_time += dur
+            total += 1
+         rescue Exception=>e
+            puts "ERROR: Unable to generate QDC for this record; skipping it. Cause: #{e}"
+            puts e.backtrace
+            puts "==============================================================================="
+         end
+      end
+
+      # More orphaned items...
+      q = "select id from metadata where dpla=1 and parent_metadata_id=0 and discoverability = 1"
+      q << " and date_dl_ingest is not null and type='XmlMetadata'"
       Metadata.find_by_sql(q).each do |resp|
          meta = Metadata.find(resp.id)
          puts "Process #{meta.id}: #{meta.pid}..."
@@ -348,3 +348,4 @@ namespace :dpla do
       puts "Removed #{cnt} items from DPLA"
    end
 end
+
