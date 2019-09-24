@@ -50,16 +50,14 @@ namespace :saoa do
             seq = mf.filename.split(".").first.split("_").last.to_i
             seq = "%05d" % seq
             jpg_out = File.join(out_dir, "#{base_fn}_#{seq}.jpg")
-            cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -quality 75 #{jpg_out}"
+            cmd = "convert -quiet #{src_file} -set colorspace Gray -separate -average -strip -interlace Plane -gaussian-blur 0.05 -quality 25% #{jpg_out}"
            `#{cmd}`
             puts "   Generated grayscale JPG for #{src_file}"
             img_cnt += 1
-            # FIXME... only generate ONE
-            break
          end
          # FIXME remove me
          units_processed +=1 
-         if units_processed  > 9
+         if units_processed  >= 1
             puts "Stopping after a few test generations"
             break
          end
