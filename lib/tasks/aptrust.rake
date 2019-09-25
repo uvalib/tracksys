@@ -52,6 +52,9 @@ namespace :aptrust do
       cnt = 0
       coll_md.children. each do |md|
          next if md.preservation_tier_id.blank? || md.preservation_tier_id == 1
+         if md.ap_trust_status != nil
+            puts "   Skipping MD #{md.id} as it already has APTrust status"
+         end
          puts "   Submit child metadata #{md.id}"
          etag = PublishToApTrust.do_submission(md)
          puts "   Bag submitted. Check status with etag: #{etag}"
