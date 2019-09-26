@@ -509,4 +509,17 @@ namespace :fix do
          end
       end
    end
+
+   desc "Fix units that were not published to IIIF"
+   task :unit_iiif => :environment do
+      uid = ENV['id']
+      abort("id is required") if uid.nil?
+      unit = Unit.find(uid)
+      unit_dir = "%09d" % unit.id
+      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      unit.master_files.each do |master_file|
+         file_source = File.join(archive_dir, master_file.filename)
+         PublishToIiif.publish( file_source, master_file, true)
+      end
+   end
 end
