@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_27_131200) do
+ActiveRecord::Schema.define(version: 2019_09_30_130540) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -68,7 +68,7 @@ ActiveRecord::Schema.define(version: 2019_03_27_131200) do
     t.bigint "metadata_id"
     t.string "etag"
     t.string "status"
-    t.string "note"
+    t.text "note"
     t.string "object_id"
     t.datetime "submitted_at", default: -> { "CURRENT_TIMESTAMP" }
     t.datetime "finished_at"
