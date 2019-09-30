@@ -76,7 +76,7 @@ class Step < ApplicationRecord
       Rails.logger.info "Validate Start directory for project #{project.id} step #{self.name}"
 
       # Error steps are all manual so start dir cannot be validated (it wont exist as the owner
-      # wil have moved it to the finish location prior to clicking finish)
+      # will have moved it to the finish location prior to clicking finish)
       return true if self.error?
 
       # get the base start directory
@@ -112,8 +112,7 @@ class Step < ApplicationRecord
 
       # if start dir doesn't exist and a move is called for, assume it has been manually moved
       if !Dir.exists?(start_dir)
-         # Special case: if there is no file movement on this step, fail
-         # if the start directory is not present
+         # Special case: if there is no file movement on this step, fail missing start directory
          if self.start_dir == self.finish_dir
             step_failed(project, "Filesystem", "<p>Start directory #{start_dir} does not exist</p>")
             return false
@@ -133,7 +132,6 @@ class Step < ApplicationRecord
       if self.workflow.name == "Manuscript" && self.name != "Scan"
          return validate_manuscript_directory_content(project, start_dir)
       else
-         # Normal, flat directory validations
          return validate_directory_content(project, start_dir)
       end
    end
@@ -175,9 +173,12 @@ class Step < ApplicationRecord
 
    private
    def validate_manuscript_directory_content(project, dir)
-      # First, make sure mpcatalog is good
       Rails.logger.info "Validate directory for manuscript workflow. Enforce directories"
-      return false if !validate_mpcatalog(project, dir)
+
+      # First, make sure mpcatalog is good. This only applies after Build Catalog
+      if self.name == "Build Catalog" || self.name.include?(" QA") || self.name == "Finalize"
+         return false if !validate_mpcatalog(project, dir)
+      end
 
       # validate box/folder directory structure
       return false if !validate_structure(project, dir)
@@ -261,7 +262,10 @@ class Step < ApplicationRecord
       return false if !validate_tif_sequence(project, dir, File.join(dir, '*.tif') )
 
       # validate mpcatalog & check for unsaved changes
-      return false if !validate_mpcatalog(project, dir)
+      # First, make sure mpcatalog is good. This only applies after Build Catalog
+      if self.name == "Build Catalog" || self.name.include?(" QA") || self.name == "Finalize"
+         return false if !validate_mpcatalog(project, dir)
+      end
 
       # On the final step, be sure there is an XML file present that
       # has a name matching the unit directory
@@ -363,10 +367,7 @@ class Step < ApplicationRecord
          end
       end
 
-      # once NEXT step has a failure path (meaning it is a QA step),
-      # fail current step if there is no mpcatalog
-      next_step = project.current_step.next_step
-      if cnt == 0 && !next_step.nil? && !next_step.fail_step.blank?
+      if cnt == 0 
          step_failed(project, "Metadata", "<p>Missing #{unit_dir}.mpcatalog file</p>")
          return false
       end

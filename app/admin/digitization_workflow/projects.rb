@@ -29,7 +29,9 @@ ActiveAdmin.register Project do
 
    filter :workflow, :as => :select, :collection => Workflow.all
    filter :owner_id, :as => :select, :label => "Assigned to", :collection => StaffMember.where(is_active:1).order(first_name: :asc)
+   filter :by_assignee_in, :as => :select, :label => "Worked on by", :collection => StaffMember.where(is_active:1).order(first_name: :asc)
    filter :priority, :as => :select, :collection => Project.priorities
+   filter :id_equals, :label => "Project ID"
    filter :order_id_equals, :label => "Order ID"
    filter :unit_id_equals, :label => "Unit ID"
    filter :metadata_call_number_starts_with, :as => :string, :label => "Call Number"

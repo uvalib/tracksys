@@ -333,6 +333,14 @@ ActiveAdmin.register Unit do
    member_action :project, :method => :post do
       w = Workflow.find(params[:workflow])
       u = Unit.find(params[:id])
+
+      # Another user could have created a project for this unit while this 
+      # user was on the unit screen. Ensure no project exists for this unit before continuing
+      if !u.project.nil?
+         render plain: "A project already exists for this unit", status: :error
+         return
+      end
+
       c = Category.find(params[:category])
       ic = params[:condition]
       note = params[:notes]

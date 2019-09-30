@@ -67,6 +67,20 @@ class Project < ApplicationRecord
       .joins("inner join units u on u.id=unit_id inner join orders o on o.id=u.order_id inner join agencies a on a.id=o.agency_id")
       .where('a.name like "% grant%" ')}
 
+   def self.worked_on_by(id)
+      owners = Project.joins(:assignments).where(owner_id: id)
+      assigned = Project.joins(:assignments).where(:assignments => { :staff_member_id=>id})
+      return assigned.or(owners).distinct
+   end
+
+   by_assignee_formatter = -> value {
+      data = Project.worked_on_by(value).pluck(:id)
+      data = data.present? ? data : nil
+   }
+   ransacker(:by_assignee, formatter: by_assignee_formatter, splat_params: true ) do |parent| 
+      parent.table[:id]
+   end
+
    # Get a list of projects per user/date/workflow/tyoe
    #
    def self.filter(type, staff_id, workflow, start_date, end_date, rejects_only)
