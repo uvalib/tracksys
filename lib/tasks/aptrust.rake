@@ -44,6 +44,19 @@ namespace :aptrust do
       puts "Bag submitted. Check status with etag: #{etag}"
    end 
 
+   desc "Resubmit failed bags"
+   task :resubmit_failed  => :environment do
+      cnt = 0
+      puts "Resend failed submissions"
+      Metadata.joins(:ap_trust_status).where("ap_trust_statuses.status=?", "Failed").each do |md|
+         puts "   Resubmit failed metadata #{md.id}"
+         etag = PublishToApTrust.do_submission(md)
+         puts "   Bag submitted. Check status with etag: #{etag}"
+         cnt +=1
+      end
+      puts "DONE. #{cnt} bags re-submitted to APTrust"
+   end 
+
    desc "Submit bags for a collection"
    task :submit_collection  => :environment do
       id = ENV['id']  
