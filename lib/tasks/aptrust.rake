@@ -50,10 +50,10 @@ namespace :aptrust do
       coll_md = Metadata.find(id)
       puts "Sending children of collection #{coll_md.id}:#{coll_md.title} to APTrust"
       cnt = 0
-      coll_md.children. each do |md|
+      coll_md.children.each do |md|
          next if md.preservation_tier_id.blank? || md.preservation_tier_id == 1
          if md.ap_trust_status != nil
-            puts "   Skipping MD #{md.id} as it already has APTrust status"
+            next
          end
          puts "   Submit child metadata #{md.id}"
          etag = PublishToApTrust.do_submission(md)
@@ -68,7 +68,7 @@ namespace :aptrust do
       puts "Update status of all Submitted APTrust items.."
       cnt = 0
       pend = 0
-      ApTrustStatus.where(status: "Submitted").each do |apt| 
+      ApTrustStatus.where("status<>? and status<>?", "Submitted", "Failed").each do |apt| 
          resp =  ApTrust::status(apt.etag)
          if !resp.nil?
             apt.update(status: resp[:status], note: resp[:note])  
