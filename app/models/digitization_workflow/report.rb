@@ -255,6 +255,7 @@ class Report
          cat_id = res[1]
          cat = categories.select { |c| c.id == cat_id }.first
          mins = res[2]
+         mins = 0 if mins.nil?
          mf_count = res[3]
          chart[:raw][cat.name][:mins] += mins
          chart[:raw][cat.name][:mf] += mf_count
