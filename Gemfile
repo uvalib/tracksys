@@ -7,7 +7,7 @@ gem 'sass-rails', '~> 6.0'
 # Reduces boot times through caching; required in config/boot.rb
 # gem 'bootsnap', '>= 1.1.0', require: false
 
-gem 'activeadmin', '~> 1.0'
+gem 'activeadmin', '~> 2.6.1'
 gem 'ffi', '~> 1.9.24'
 
 #gem 'passenger', '5.1.5'

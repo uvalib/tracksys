@@ -223,7 +223,7 @@ ActiveAdmin.register Customer do
             @customer = Customer.find(params[:id])
             ca = params[:customer]
             @customer.update(first_name: ca[:first_name], last_name: ca[:last_name],
-               academic_status_id: ca[:academic_status_id], department_id: ca[:department_id])
+               academic_status_id: ca[:academic_status_id], department_id: ca[:department_id], email:  ca[:email])
 
             addr = params[:customer][:primary_address]
             if !@customer.primary_address.nil?
