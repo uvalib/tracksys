@@ -48,6 +48,7 @@ Tracksys::Application.routes.draw do
   end
 
   namespace :api do
+     get "archivesspace/report" => "as#report"
      get "aries/:id" => "aries#show", :constraints => { :id => /[0-9A-Za-z:_\-\.\/]+/ }
      get "aries" => "aries#index"
      get "sirsi/:id" => "sirsi#show"

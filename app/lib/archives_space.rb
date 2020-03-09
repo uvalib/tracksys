@@ -178,12 +178,12 @@ module ArchivesSpace
       payload = {
          digital_object_id: ts_metadata.pid,
          title: ts_metadata.title,
-         publish: true,
+         publish: false,
          file_versions: [
             {
                use_statement:  "image-service-manifest",
                file_uri: "#{Settings.iiif_manifest_url}/#{ts_metadata.pid}",
-               publish: true
+               publish: false
             }
          ]
       }
