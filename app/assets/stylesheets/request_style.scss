@@ -31,7 +31,7 @@ header {
    -webkit-background-clip: padding-box;
    background-clip: padding-box;
    width:550px;
-   -webkit-box-shadow: 0 1px 3px rgba(22,44,88,0.3),inset 0 0 7px rgba(64,92,120,0.4);
+   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.3),inset 0 0 7px rgba(64,92,120,0.4);
    -moz-box-shadow: 0 1px 3px rgba(22,44,88,0.3),inset 0 0 7px rgba(64,92,120,0.4);
    box-shadow: 0 1px 3px rgba(22,44,88,0.3),inset 0 0 7px rgba(64,92,120,0.4);
 
@@ -48,6 +48,19 @@ blockquote.research {
     margin: 0 0 20px;
     font-size: 0.9em;
     border-left: 5px solid #eee;
+}
+.covid {
+   color: #b00;
+   border: 3px solid #b00;
+   padding: 15px;
+   margin: 20px 0;
+   border-radius: 3px;
+   font-size: 1.15em;
+   background: white;
+   font-weight: bold;
+   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 7px rgba(0,0,0,0.5);
+   -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 7px rgba(0,0,0,0.5);
+   box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 7px rgba(0,0,0,0.5);
 }
 #main_search_submit {
    cursor: pointer;
