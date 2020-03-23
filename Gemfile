@@ -7,6 +7,9 @@ gem 'sass-rails', '~> 6.0'
 # Reduces boot times through caching; required in config/boot.rb
 # gem 'bootsnap', '>= 1.1.0', require: false
 
+# Use Puma as the app server
+gem 'puma'
+
 gem "nokogiri", ">= 1.10.8"
 
 gem 'activeadmin', '~> 2.6.1'
@@ -61,3 +64,9 @@ group :development do
 #  gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'pry-rails'
 end
+
+# for alpine Linux
+gem 'etc'
+gem 'json'
+gem 'bigdecimal'
+gem 'webrick'

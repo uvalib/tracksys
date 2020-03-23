@@ -1,0 +1,11 @@
+# aliases we like
+alias ll='ls -al'
+alias bdf='df -k'
+
+# prompt
+export HOST=$(hostname -s)
+export PWD=`pwd`
+export PS1='(tracksys:$HOST) $PWD$ '
+
+# command editor
+set -o vi

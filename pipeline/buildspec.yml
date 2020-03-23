@@ -1,0 +1,40 @@
+#
+# buildspec.yml
+#
+
+version: 0.2
+
+#env:
+#  variables:
+#    name: value
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+      ruby: 2.6
+#    commands:
+
+  pre_build:
+    commands:
+      - $(aws ecr get-login --no-include-email --region $AWS_REGION)
+      - BUILD_VERSION=$(date --date="@$(echo $CODEBUILD_START_TIME | cut -c1-10)" +"%Y%m%d%H%M%S")
+      - COMMIT_TAG=gitcommit-$CODEBUILD_RESOLVED_SOURCE_VERSION
+
+  build:
+    commands:
+      - docker build -f package/Dockerfile -t $CONTAINER_IMAGE:latest --build-arg BUILD_TAG=$BUILD_VERSION .
+      - docker tag $CONTAINER_IMAGE:latest $CONTAINER_REGISTRY/$CONTAINER_IMAGE:latest
+      - docker tag $CONTAINER_IMAGE:latest $CONTAINER_REGISTRY/$CONTAINER_IMAGE:build-$BUILD_VERSION
+      - docker tag $CONTAINER_IMAGE:latest $CONTAINER_REGISTRY/$CONTAINER_IMAGE:$COMMIT_TAG
+      - docker push $CONTAINER_REGISTRY/$CONTAINER_IMAGE:latest
+      - docker push $CONTAINER_REGISTRY/$CONTAINER_IMAGE:build-$BUILD_VERSION
+      - docker push $CONTAINER_REGISTRY/$CONTAINER_IMAGE:$COMMIT_TAG
+      - aws --region=$AWS_REGION ssm put-parameter --name /containers/$CONTAINER_IMAGE/latest --value build-$BUILD_VERSION --type String --overwrite
+
+#  post_build:
+#    commands:
+
+#
+# end of file
+#

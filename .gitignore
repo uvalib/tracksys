@@ -18,6 +18,7 @@ tracksys.sublime-workspace
 config/database.yml
 *~
 *.bak
+.idea
 
 gannon-content
 gannon-excel
@@ -30,3 +31,6 @@ yarn.lock
 # Ignore application configuration
 /config/application.yml
 saoa/
+
+# ignore local environment files
+/env.*
