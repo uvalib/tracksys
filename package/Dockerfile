@@ -24,6 +24,11 @@ RUN bundle install --jobs=4 --without=["development" "test"] --no-cache
 # install the app and bundle
 COPY . $APP_HOME
 
+# we need these because the asset precompile phase seems to want to talk to the database
+ARG DBHOST
+ARG DBNAME
+ARG DBUSER
+ARG DBPASSWD
 # asset precompile
 RUN RAILS_ENV=production SECRET_KEY_BASE=x rake assets:precompile
 

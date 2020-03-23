@@ -11,8 +11,11 @@
 INSTANCE=tracksys
 NAMESPACE=uvadave
 
+# we need these because the asset precompile phase seems to want to talk to the database
+DBARGS="--build-arg DBHOST --build-arg DBNAME --build-arg DBUSER --build-arg DBPASSWD"
+
 # build the image
-docker build -f package/Dockerfile -t $NAMESPACE/$INSTANCE .
+docker build -f package/Dockerfile $DBARGS -t $NAMESPACE/$INSTANCE .
 
 # return status
 exit $?
