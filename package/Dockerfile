@@ -24,8 +24,8 @@ RUN bundle install --jobs=4 --without=["development" "test"] --no-cache
 # install the app and bundle
 COPY . $APP_HOME
 
-# asset prevompile
-RUN rake assets:precompile
+# asset precompile
+RUN RAILS_ENV=production SECRET_KEY_BASE=x rake assets:precompile
 
 # Update permissions
 RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
@@ -41,9 +41,8 @@ COPY package/container_bash_profile /home/docker/.profile
 RUN chown docker:sse /home/docker/.profile $APP_HOME/script/entry.sh && chmod 755 /home/docker/.profile $APP_HOME/script/entry.sh
 
 # Add the build tag
-#ARG BUILD_TAG
-#RUN test -n "$BUILD_TAG" && touch $APP_HOME/buildtag.build-$BUILD_TAG || touch $APP_HOME/buildtag.build-0
+ARG BUILD_TAG
+RUN test -n "$BUILD_TAG" && touch $APP_HOME/buildtag.build-$BUILD_TAG || touch $APP_HOME/buildtag.build-0
 
 # Specify the user
 #USER docker
-
