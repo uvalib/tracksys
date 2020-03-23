@@ -1,0 +1,23 @@
+development:
+  adapter: mysql2
+  encoding: utf8
+  host: <%= ENV['DBHOST'] %>
+  database: <%= ENV['DBNAME'] %>
+  username: <%= ENV['DBUSER'] %>
+  password: <%= ENV['DBPASSWD'] %>
+
+test:
+  adapter: mysql2
+  encoding: utf8
+  host: <%= ENV['DBHOST'] %>
+  database: <%= ENV['DBNAME'] %>
+  username: <%= ENV['DBUSER'] %>
+  password: <%= ENV['DBPASSWD'] %>
+
+production:
+  adapter: mysql2
+  encoding: utf8
+  host: <%= ENV['DBHOST'] %>
+  database: <%= ENV['DBNAME'] %>
+  username: <%= ENV['DBUSER'] %>
+  password: <%= ENV['DBPASSWD'] %>
