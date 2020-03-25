@@ -13,7 +13,7 @@ gem 'puma'
 gem "nokogiri", ">= 1.10.8"
 
 gem 'activeadmin', '~> 2.6.1'
-gem 'ffi', '~> 1.9.24'
+#gem 'ffi', '~> 1.9.24'
 
 #gem 'passenger', '5.1.5'
 gem 'figaro'
@@ -73,4 +73,5 @@ gem 'webrick'
 
 # == Addresses bug when building on AWS
 # (see https://github.com/sass/sassc-ruby/issues/146)
-gem 'sassc', '2.1.0'
+gem 'ffi', '1.12.2'
+gem 'sassc', '2.2.1'
