@@ -70,3 +70,7 @@ gem 'etc'
 gem 'json'
 gem 'bigdecimal'
 gem 'webrick'
+
+# == Addresses bug when building on AWS
+# (see https://github.com/sass/sassc-ruby/issues/146)
+gem 'sassc', '2.1.0'
