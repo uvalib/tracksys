@@ -17,6 +17,9 @@ RUN gem install bundler -v 1.17.3 --no-document # && gem install io-console --no
 ENV APP_HOME /tracksys
 WORKDIR $APP_HOME
 
+# see https://northsail.io/articles/ruby-sassc-illegal-instruction
+RUN bundle config --local build.sassc --disable-march-tune-native
+
 # Copy the Gemfile into the image and install the gems
 ADD Gemfile Gemfile.lock ./
 RUN bundle install --jobs=4 --without=["development" "test"] --no-cache
