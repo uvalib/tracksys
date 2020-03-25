@@ -14,6 +14,7 @@ phases:
       golang: 1.x
       python: 3.x
     commands:
+      - apt-get update -y
       - apt-get install -y ccrypt
       - wget https://releases.hashicorp.com/terraform/0.12.21/terraform_0.12.21_linux_amd64.zip
       - unzip terraform_0.12.21_linux_amd64.zip
