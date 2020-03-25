@@ -1,7 +1,7 @@
 FROM alpine:3.11
 
 # Add necessary packages
-RUN apk --update add bash tzdata ruby ruby-dev build-base nodejs sqlite-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates git imagemagick file mysql-dev
+RUN apk --update add bash tzdata ruby ruby-dev build-base nodejs sqlite-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates git imagemagick file mysql-dev yarn
 
 # Create the run user and group
 RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
