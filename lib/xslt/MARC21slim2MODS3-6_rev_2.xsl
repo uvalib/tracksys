@@ -1277,7 +1277,7 @@
                   <dateIssued>
                     <!-- UVA Revision 1.119.33 -->
                     <xsl:if
-                      test="matches(substring($controlField008, 8, 4), '[\s\|]{4}') or contains(., substring($controlField008, 8, 4))">
+                      test="matches(substring($controlField008, 8, 4), '[\s\|]{4}') or not(contains(., substring($controlField008, 8, 4)))">
                       <xsl:attribute name="keyDate">
                         <xsl:text>yes</xsl:text>
                       </xsl:attribute>
