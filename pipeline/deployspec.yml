@@ -4,9 +4,9 @@
 
 version: 0.2
 
-#env:
-#  variables:
-#    name: value
+env:
+  variables:
+    terraform_version: 0.12.21
 
 phases:
   install:
@@ -16,8 +16,8 @@ phases:
     commands:
       - apt-get update -y
       - apt-get install -y ccrypt
-      - wget https://releases.hashicorp.com/terraform/0.12.21/terraform_0.12.21_linux_amd64.zip
-      - unzip terraform_0.12.21_linux_amd64.zip
+      - wget https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip
+      - unzip terraform_${terraform_version}_linux_amd64.zip
       - mv terraform /usr/local/bin
       - pip3 install --user ansible
 
