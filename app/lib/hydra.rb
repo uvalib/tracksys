@@ -183,7 +183,7 @@ module Hydra
    # Generate mods from sirsi metadata
    #
    def self.mods_from_marc(object)
-      xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl")
+      xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev_2.xsl")
       i0 = xslt_str.index "<xsl:include"
       i1 = xslt_str.index("\n", i0)
       inc = "<xsl:include href=\"#{Rails.root}/lib/xslt/MARC21slimUtils.xsl\"/>"
