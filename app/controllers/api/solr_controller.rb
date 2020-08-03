@@ -65,7 +65,13 @@ class Api::SolrController < ApplicationController
             Rails.logger.warn "Invalid request for solr index record for SirsiMetadata #{metadata.pid}"
             render plain: "Tracksys cannot generate Solr index records for SirsiMetadata", status: :error
          else
-            render :xml=> Hydra.solr(metadata, params[:no_external])
+            ok, payload = Hydra.solr(metadata, params[:no_external])
+            if ok == true
+               render :xml=> payload
+            else
+               Rails.logger.warn "Error creating Solr index record (#{payload})"
+               render plain: "Error creating Solr index record (#{payload})", status: :error
+            end
          end
       end
    end
