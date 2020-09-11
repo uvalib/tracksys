@@ -129,6 +129,7 @@ class PublishQDC < BaseJob
       #   city, state, country order. Separate terms with comma and space. Example:
       #   Charlottesville, Virginia, United States
       spatial = {}
+      spatial["continent"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/continent", "spatial")
       spatial["country"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/country", "spatial")
       spatial["state"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/state", "spatial")
       spatial["city"] = QDC.crosswalk(doc, "/mods/subject/hierarchicalGeographic/city", "spatial")
@@ -151,9 +152,11 @@ class PublishQDC < BaseJob
             end
          else
             bits = []
-            bits << spatial["city"].split(">")[1].split("<")[0]
-            bits << spatial["state"].split(">")[1].split("<")[0]
-            bits << spatial["country"].split(">")[1].split("<")[0]
+            bits << spatial["city"].split(">")[1].split("<")[0]  if !spatial["city"].blank?
+            bits << spatial["county"].split(">")[1].split("<")[0] if !spatial["county"].blank? 
+            bits << spatial["state"].split(">")[1].split("<")[0] if !spatial["state"].blank? 
+            bits << spatial["country"].split(">")[1].split("<")[0] if !spatial["country"].blank? 
+            bits << spatial["continent"].split(">")[1].split("<")[0] if !spatial["continent"].blank? 
             cw_data['TERMS'] <<  "<dcterms:spatial>#{bits.join(", ")}</dcterms:spatial>"
          end
       end

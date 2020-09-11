@@ -80,11 +80,11 @@ module Hydra
 
    def self.solr_transform(metadata, payload)
       if Settings.use_saxon_servlet == "true"
-         xml = Hydra.servlet_transform(metadata, payload)
+         ok, xml = Hydra.servlet_transform(metadata, payload)
       else
-         xml = Hydra.local_transform(metadata, payload)
+         ok, xml = Hydra.local_transform(metadata, payload)
       end
-      return xml
+      return ok, xml
    end
 
    def self.servlet_transform(metadata, payload)
@@ -96,8 +96,8 @@ module Hydra
 
       uri = URI(Settings.saxon_url)
       response = Net::HTTP.post_form(uri, payload)
-      Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.to_s}" )
-      return response.body
+      Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.code} #{response.body}" )
+      return response.code == Net::HTTPOK, response.body
    end
 
    def self.local_transform(metadata, payload)
@@ -122,7 +122,7 @@ module Hydra
       end
 
       cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl} #{params}"
-      return `#{cmd}`
+      return true, `#{cmd}`
    end
 
    #-----------------------------------------------------------------------------
