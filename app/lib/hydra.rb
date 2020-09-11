@@ -97,7 +97,7 @@ module Hydra
       uri = URI(Settings.saxon_url)
       response = Net::HTTP.post_form(uri, payload)
       Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.code} #{response.body}" )
-      return response.code == 200, response.body
+      return response.code == Net::HTTPOK, response.body
    end
 
    def self.local_transform(metadata, payload)
