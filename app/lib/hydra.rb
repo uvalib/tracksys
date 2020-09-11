@@ -97,7 +97,7 @@ module Hydra
       uri = URI(Settings.saxon_url)
       response = Net::HTTP.post_form(uri, payload)
       Rails.logger.info( "Hydra.solr(bibl): SAXON_SERVLET response: #{response.code} #{response.body}" )
-      return response.code == Net::HTTPOK, response.body
+      return response.code.to_i == 200, response.body
    end
 
    def self.local_transform(metadata, payload)
@@ -183,7 +183,8 @@ module Hydra
    # Generate mods from sirsi metadata
    #
    def self.mods_from_marc(object)
-      xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev_2.xsl")
+      #xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev_2.xsl")
+      xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl")
       i0 = xslt_str.index "<xsl:include"
       i1 = xslt_str.index("\n", i0)
       inc = "<xsl:include href=\"#{Rails.root}/lib/xslt/MARC21slimUtils.xsl\"/>"
