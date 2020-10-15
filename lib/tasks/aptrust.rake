@@ -1,18 +1,8 @@
 namespace :aptrust do
    desc "Submit a bg containing a single item"
-   task :submit_one  => :environment do
-      # Metadata ID or PID is required. Use it to get the metadata record
-      pid = ENV['pid']
-      id = ENV['id']   
-      abort("PID or ID is required") if pid.nil? && id.nil? 
-      metadata = nil
-      if !id.nil?
-         metadata = Metadata.find_by(id: id)
-         abort("Invalid ID") if metadata.nil?
-      else 
-         metadata = Metadata.find_by(pid: pid)
-         abort("Invalid PID") if metadata.nil?
-      end
+
+   def submit_metadata metadata_id
+      metadata = Metadata.find(metadata_id)
       puts "Send Metadata #{metadata.pid}: #{metadata.title} to APTrust"
 
       # Storage is optional and can be used to update preservation tier of metadata before submission
@@ -25,24 +15,50 @@ namespace :aptrust do
       else
          abort("Storage must be standard or glacier") if !["standard", "glacier"].include?(storage)
 
-         tier_id = 2 
+         tier_id = 2
          tier_id = 3 if storage == "standard"
 
          # Block the automatic check and submission that happens in a callback
          # it will be done manually below instead
          if metadata.preservation_tier_id != tier_id
             puts "Update storage to tier #{tier_id}, #{storage} storage"
-            Metadata.skip_callback( :save, :after, :aptrust_checks)
             metadata.update(preservation_tier_id: tier_id)
-         else 
+         else
             puts "No updates necessary - storage already set to #{storage}"
          end
       end
 
-
       etag = PublishToApTrust.do_submission(metadata)
       puts "Bag submitted. Check status with etag: #{etag}"
-   end 
+   end
+
+   desc "Submit all metadata for an order. Use storage=glacier for tier 2"
+   task :submit_order => :environment do
+      o = Order.find(ENV['id'])
+      puts "Publishing all metadata inside order #{o.id} to APTrust, using storage \"#{ENV['storage']}\""
+
+      abort("This script does not support metadata with children.") if o.units.any? {|u| u.metadata.children.any?}
+      o.units.each do |unit|
+         puts "submitting unit #{unit.id}"
+         submit_metadata unit.metadata_id
+      end
+   end
+
+   task :submit_one  => :environment do
+      # Metadata ID or PID is required. Use it to get the metadata record
+      pid = ENV['pid']
+      id = ENV['id']
+      abort("PID or ID is required") if pid.nil? && id.nil?
+      metadata = nil
+      if !id.nil?
+         metadata = Metadata.find_by(id: id)
+         abort("Invalid ID") if metadata.nil?
+      else
+         metadata = Metadata.find_by(pid: pid)
+         abort("Invalid PID") if metadata.nil?
+      end
+      submit_metadata metadata.id
+   end
 
    desc "Resubmit failed bags"
    task :resubmit_failed  => :environment do
@@ -55,11 +71,11 @@ namespace :aptrust do
          cnt +=1
       end
       puts "DONE. #{cnt} bags re-submitted to APTrust"
-   end 
+   end
 
    desc "Submit bags for a collection"
    task :submit_collection  => :environment do
-      id = ENV['id']  
+      id = ENV['id']
       coll_md = Metadata.find(id)
       puts "Sending children of collection #{coll_md.id}:#{coll_md.title} to APTrust"
       cnt = 0
@@ -73,22 +89,23 @@ namespace :aptrust do
          puts "   Bag submitted. Check status with etag: #{etag}"
          cnt +=1
       end
-      puts "DONE. #{cnt} bas submitted to APTrust"
+      puts "DONE. #{cnt} have been submitted to APTrust"
    end
 
-   desc "Update submitted APTrust status" 
+
+   desc "Update submitted APTrust status"
    task :update_status => :environment do
       puts "Update status of all Submitted APTrust items.."
       cnt = 0
       pend = 0
-      ApTrustStatus.where("status<>? and status<>?", "Submitted", "Failed").each do |apt| 
+      ApTrustStatus.where("status<>? and status<>?", "Submitted", "Failed").each do |apt|
          resp =  ApTrust::status(apt.etag)
          if !resp.nil?
-            apt.update(status: resp[:status], note: resp[:note])  
-            if resp[:status] == "Failed" || resp[:status] == "Success" 
+            apt.update(status: resp[:status], note: resp[:note])
+            if resp[:status] == "Failed" || resp[:status] == "Success"
                apt.update(finished_at: resp[:finished_on], object_id: resp[:object_id])
                cnt += 1
-            else 
+            else
                pend += 1
             end
          end

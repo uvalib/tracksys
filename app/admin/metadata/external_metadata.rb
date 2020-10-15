@@ -187,6 +187,8 @@ ActiveAdmin.register ExternalMetadata do
                render partial: '/admin/metadata/common/children_links', locals: {map: map, parent_id: external_metadata.id}
             end
          end
+
+         row :preservation_tier
       end
    end
 
@@ -252,15 +254,15 @@ ActiveAdmin.register ExternalMetadata do
 
       def get_jstor_metadata
          js = resource.external_system
-         js_key = resource.master_files.first.filename.split(".").first 
+         js_key = resource.master_files.first.filename.split(".").first
          cookies = Jstor.start_session(js.api_url)
          pub_info = Jstor.public_info(js.api_url, js_key, cookies)
          @js_info = {}
          @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
          @js_info[:collection_title] = pub_info[:collection]
          @js_info[:collection_url] = "#{js.public_url}/#/collection/#{pub_info[:collection_id]}"
-         @js_info[:title] = pub_info[:title] 
-         @js_info[:desc] = pub_info[:desc] 
+         @js_info[:title] = pub_info[:title]
+         @js_info[:desc] = pub_info[:desc]
          @js_info[:creator] = pub_info[:creator]
          @js_info[:date] = pub_info[:date]
          @js_info[:width] = pub_info[:width]
