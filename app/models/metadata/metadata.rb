@@ -55,18 +55,18 @@ class Metadata < ApplicationRecord
          self.use_right = cne
       end
 
-      if self.changes.has_key? "preservation_tier_id"
+      if self.changes.has_key?("preservation_tier_id")
          # once sent to APTrust, disallow change to lesser tier
          change = self.changes["preservation_tier_id"]
          # 1: backed up, 2: 1+duplicated once, 3: 1+duplicated multiple places
          # change[0] is the current value, change[1] is the update
          if !change[0].nil? && change[0] > 1 && change[1] < change[0]
-            # revert back to original backed-up status 
+            # revert back to original backed-up status
             Rails.logger.info "Metadata #{self.id} cancel downgrade of preservation tier id #{change[0]} to #{change[1]}"
             self.preservation_tier_id = change[0]
             self.changes.delete("preservation_tier_id")
-         else  
-            # if this item has child metadata records, update all to match 
+         else
+            # if this item has child metadata records, update all to match
             Rails.logger.info "Metadata #{self.id} set preservation tier id to #{self.preservation_tier_id}"
             children = Metadata.where("parent_metadata_id=? and (preservation_tier_id is null or preservation_tier_id < ?)",
                self.id, self.preservation_tier_id)
@@ -119,7 +119,7 @@ class Metadata < ApplicationRecord
    def exemplar_info( size = :small )
       page = 1
       master_files.each do |mf|
-         if mf.exemplar == true 
+         if mf.exemplar == true
             info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}
             return info
          else

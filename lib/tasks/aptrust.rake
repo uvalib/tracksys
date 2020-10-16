@@ -21,10 +21,10 @@ namespace :aptrust do
          # Block the automatic check and submission that happens in a callback
          # it will be done manually below instead
          if metadata.preservation_tier_id != tier_id
-            puts "Update storage to tier #{tier_id}, #{storage} storage"
+            puts "Updating metadata_id: #{metadata_id} tier #{tier_id}, #{storage} storage."
             metadata.update(preservation_tier_id: tier_id)
          else
-            puts "No updates necessary - storage already set to #{storage}"
+            puts "No updates necessary for metadata_id: #{metadata_id} - storage already set to #{storage}"
          end
       end
 
@@ -35,11 +35,14 @@ namespace :aptrust do
    desc "Submit all metadata for an order. Use storage=glacier for tier 2"
    task :submit_order => :environment do
       o = Order.find(ENV['id'])
+      if o.units.any? {|u| u.metadata.children.any?}
+         abort("This script does not currently support nested metadata.")
+      end
       puts "Publishing all metadata inside order #{o.id} to APTrust, using storage \"#{ENV['storage']}\""
 
-      abort("This script does not support metadata with children.") if o.units.any? {|u| u.metadata.children.any?}
       o.units.each do |unit|
-         puts "submitting unit #{unit.id}"
+         puts "submitting unit #{unit.id}, updating intended_use: 110"
+         unit.update(intended_use_id: 110)
          submit_metadata unit.metadata_id
       end
    end
