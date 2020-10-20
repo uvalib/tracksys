@@ -1,16 +1,41 @@
-module ApTrust 
-   # Submit the specified tar file to APTrust. An etag is returned that can be used to 
+module ApTrust
+   CHUNK_SIZE = 1_073_741_824 # Gigabyte
+   # Submit the specified tar file to APTrust. An etag is returned that can be used to
    # track submission status
    def self.submit ( tar_path )
       Rails.logger.info( "Submit bag #{tar_path} to APTrust #{Settings.aws_bucket}" )
       client = Aws::S3::Client.new
 
       etag = ""
-      File.open(tar_path, 'rb') do |file|
-         resp = client.put_object(bucket: Settings.aws_bucket, key: File.basename(tar_path), body: file)
-         etag = resp.to_h[:etag]
+      part_number = 1
+      multipart_resp = client.create_multipart_upload(bucket: Settings.aws_bucket, key: File.basename(tar_path))
+      upload_id = multipart_resp[:upload_id]
+      parts = []
+      completed_resp = nil
+      Rails.logger.info("Starting multipart S3 upload: #{upload_id}")
+
+      begin
+         File.open(tar_path, 'rb').each(nil, CHUNK_SIZE) do |chunk|
+            Rails.logger.info("Sending chunk #{part_number}")
+            resp = client.upload_part(bucket: Settings.aws_bucket, key: File.basename(tar_path),
+                                    body: chunk, upload_id: upload_id, part_number: part_number)
+            parts << {etag: resp.to_h[:etag], part_number: part_number}
+            part_number += 1
+         end
+
+         completed_resp = client.complete_multipart_upload(
+            bucket: Settings.aws_bucket, key: File.basename(tar_path),
+            multipart_upload: {parts: parts}, upload_id: upload_id
+         )
+      rescue Aws::S3::Errors => e
+         abort_resp = client.abort_multipart_upload(bucket: Settings.aws_bucket, key: File.basename(tar_path), upload_id: upload_id)
+         Rails.logger.error("Aborting upload: #{abort_resp.to_h}")
+         raise e
       end
+
+      etag = completed_resp.to_h[:etag]
       return etag.gsub(/\"/, "")
+
    end
 
    # Use an etag to check the status of an APTrust ingest
@@ -21,7 +46,7 @@ module ApTrust
          results = JSON.parse(resp.body)["results"]
          if results.count > 0
             status = results.first
-            out = {status: status["status"], stage: status["stage"], note: status["note"], 
+            out = {status: status["status"], stage: status["stage"], note: status["note"],
                started_on: status["bag_date"], finished_on: status["date"], object_id: status["object_identifier"]}
             return out
          end
