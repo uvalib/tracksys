@@ -306,7 +306,7 @@ ActiveAdmin.register Order do
       msg.deliver
 
       sn = order.staff_notes
-      sn << "" if sn.nil?
+      sn = "" if sn.nil?
       sn << " " if !sn.blank?
       sn << "Order notification sent to alternate email address: #{params[:email]} at #{DateTime.now.strftime('%F %R')}."
       order.update(staff_notes: sn)
