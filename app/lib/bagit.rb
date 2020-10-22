@@ -1,10 +1,10 @@
 module Bagit
    # Bag  class wraps functionality for creating a bag, adding files/tagfiles,
    # generating checksums into a single place
-   class Bag 
+   class Bag
       attr_reader :bag_dir
       attr_reader :tag_files
-      attr_reader :files 
+      attr_reader :files
       attr_reader :bag_name
 
       # Create a new bag from a config hash. Accepted has params:
@@ -18,8 +18,8 @@ module Bagit
          storage = "Standard" if storage.blank?
          access = cfg[:access]
          access = "Consortia" if access.blank?
-         
-         # Make sure cfg is valid 
+
+         # Make sure cfg is valid
          raise "Bag name required" if name.blank?
          raise "Title name required" if title.blank?
          valid_access =  ["Consortia", "Restricted", "Institution"]
@@ -32,7 +32,7 @@ module Bagit
 
          # Purge old bag and create new content directory
          @bag_dir = File.join(Rails.root, "tmp", "bags", @bag_name)
-         if Dir.exist? @bag_dir 
+         if Dir.exist? @bag_dir
             FileUtils.rm_rf(@bag_dir)
          end
          FileUtils.mkdir_p( @bag_dir )
@@ -41,7 +41,7 @@ module Bagit
          data_dir = File.join(@bag_dir, "data")
          FileUtils.mkdir_p( data_dir )
 
-         # add the aptrust-info.txt, bag-info.txt, bagit.txt. bagit.txt is not a tag file 
+         # add the aptrust-info.txt, bag-info.txt, bagit.txt. bagit.txt is not a tag file
          bagit = "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8"
          File.open(File.join(@bag_dir, "bagit.txt"), "w") { |file| file.write bagit }
 
@@ -57,10 +57,10 @@ module Bagit
          @tag_files << "bag-info.txt"
       end
 
-      # Add the file found at src_path to the bag and name it with the filename param 
-      # Omit src path and provide a block st stream in data from something other than a file 
+      # Add the file found at src_path to the bag and name it with the filename param
+      # Omit src path and provide a block st stream in data from something other than a file
       # on the filesystem
-      def add_file(filename, full_src_path=nil) 
+      def add_file(filename, full_src_path=nil)
          @logger.info("Add #{filename} to bag #{@bag_name}")
          data_dir = File.join(@bag_dir, "data")
          dest_file = File.join(data_dir, filename)
@@ -75,9 +75,9 @@ module Bagit
          @files << File.join("data", filename)
       end
 
-      # Generate MD5 and SHA256 manifests for all files and tag files. Any prior 
+      # Generate MD5 and SHA256 manifests for all files and tag files. Any prior
       # manifests will be overwritten
-      def generate_manifests 
+      def generate_manifests
          @logger.info("Generate manifests for bag #{@bag_name}")
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "manifest*")))
          FileUtils.rm_f( Dir.glob(File.join(@bag_dir, "tagmanifest*")))
@@ -86,35 +86,38 @@ module Bagit
             src = File.join(@bag_dir, f)
             write_md5(File.join(@bag_dir, "manifest-md5.txt"), src, f)
             write_sha256(File.join(@bag_dir, "manifest-sha256.txt"), src, f)
-         end 
+         end
 
          @tag_files.each do |f|
             src = File.join(@bag_dir, f)
             write_md5(File.join(@bag_dir, "tagmanifest-md5.txt"), src, f)
             write_sha256(File.join(@bag_dir, "tagmanifest-sha256.txt"), src, f)
-         end 
+         end
       end
 
       # Tar bag file for submission and return path to bag
-      def tar 
+      def tar
          @logger.info("Tar bag #{@bag_name}")
          bag_base = File.join(Rails.root, "tmp", "bags")
          dest_file = "#{@bag_name}.tar"
          cmd = "cd #{bag_base}; tar cf #{dest_file} #{@bag_name}"
-         `#{cmd}`
+         success = system(cmd)
+         if !success
+            raise "tar process failed for #{@bag_name}"
+         end
          return File.join(bag_base, dest_file)
       end
 
       # Remove all traces of the bag.
-      def cleanup 
+      def cleanup
          @logger.info("Cleanup bag #{@bag_name}")
-         if Dir.exist? @bag_dir 
+         if Dir.exist? @bag_dir
             FileUtils.rm_rf(@bag_dir)
          end
          bag_base = File.join(Rails.root, "tmp", "bags")
          dest_file = "#{@bag_name}.tar"
          tar_file = File.join(bag_base, dest_file)
-         FileUtils.rm tar_file if File.exist? tar_file 
+         FileUtils.rm tar_file if File.exist? tar_file
       end
 
       private

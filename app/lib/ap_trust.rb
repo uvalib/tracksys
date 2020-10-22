@@ -1,9 +1,9 @@
 module ApTrust
-   CHUNK_SIZE = 1_073_741_824 # Gigabyte
    # Submit the specified tar file to APTrust. An etag is returned that can be used to
    # track submission status
    def self.submit ( tar_path )
-      Rails.logger.info( "Submit bag #{tar_path} to APTrust #{Settings.aws_bucket}" )
+      $stdout.sync = true
+      puts "Submit bag #{tar_path} to APTrust #{Settings.aws_bucket}"
       client = Aws::S3::Client.new
 
       etag = ""
@@ -15,12 +15,15 @@ module ApTrust
       Rails.logger.info("Starting multipart S3 upload: #{upload_id}")
 
       begin
-         File.open(tar_path, 'rb').each(nil, CHUNK_SIZE) do |chunk|
-            Rails.logger.info("Sending chunk #{part_number}")
-            resp = client.upload_part(bucket: Settings.aws_bucket, key: File.basename(tar_path),
-                                    body: chunk, upload_id: upload_id, part_number: part_number)
-            parts << {etag: resp.to_h[:etag], part_number: part_number}
-            part_number += 1
+         File.open(tar_path, 'rb') do |file|
+            until file.eof?
+               chunk = file.read(1024*1024*1024)
+               puts "Sending chunk #{part_number}"
+               resp = client.upload_part(bucket: Settings.aws_bucket, key: File.basename(tar_path),
+                                       body: chunk, upload_id: upload_id, part_number: part_number)
+               parts << {etag: resp.to_h[:etag], part_number: part_number}
+               part_number += 1
+            end
          end
 
          completed_resp = client.complete_multipart_upload(
@@ -29,7 +32,7 @@ module ApTrust
          )
       rescue Aws::S3::Errors => e
          abort_resp = client.abort_multipart_upload(bucket: Settings.aws_bucket, key: File.basename(tar_path), upload_id: upload_id)
-         Rails.logger.error("Aborting upload: #{abort_resp.to_h}")
+         puts "Aborting upload: #{abort_resp.to_h}"
          raise e
       end
 
