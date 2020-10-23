@@ -23,6 +23,8 @@ ActiveAdmin.register ExternalMetadata do
      raw("<a href='/admin/external_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
   end
 
+  scope "In APTrust", :in_ap_trust
+
    # Filters ==================================================================
    #
    filter :title_contains, label: "Title"
@@ -93,6 +95,9 @@ ActiveAdmin.register ExternalMetadata do
                   external_metadata.created_at
                end
             end
+         end
+         if external_metadata.ap_trust_status.present? && current_user.can_set_preservation?
+            render partial: '/admin/metadata/common/aptrust_info', locals: {meta: external_metadata}
          end
       end
       div id: "dimmer" do
