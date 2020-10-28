@@ -53,7 +53,11 @@ class PublishToApTrust < BaseJob
       storage = "Glacier-VA" if metadata.preservation_tier_id == 2
       logger.info "Create new bag flagged for #{storage} storage"
       bag = Bagit::Bag.new({bag: "tracksys-#{metadata.type.downcase}-#{metadata.id}",
-         title: metadata.title, pid: metadata.pid, storage: storage}, logger)
+         title: metadata.title,
+         pid: metadata.pid,
+         storage: storage,
+         collection: metadata.collection_name
+         }, logger)
 
       logger.info "Adding masterfiles to bag..."
       master_file_cnt = 0
