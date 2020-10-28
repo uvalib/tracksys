@@ -14,8 +14,11 @@ class Api::StylesheetController < ApplicationController
             style_xsl = File.read("#{Rails.root}/tmp/xsl/#{uuid}.xsl")
             render :xml=>style_xsl
          else
-            render plain: "stylesheet not found", status: :not_found 
+            render plain: "stylesheet not found", status: :not_found
          end
+      elsif id.downcase == "marctomods"
+         style_xsl = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev.xsl")
+         render :xml=>style_xsl
       else
          render :plain=>"Invalid stylesheet requested", status: :not_found
       end
