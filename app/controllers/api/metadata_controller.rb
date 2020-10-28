@@ -2,9 +2,33 @@ class Api::MetadataController < ApplicationController
    def show
       render :plain=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
-      types = ["mods", "brief", "desc_metadata"]
+      types = ["mods", "brief", "desc_metadata", "marc"]
       render :plain=>"#{type} is not supported", status: :bad_request and return if !types.include? type
       render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
+
+      if type == "marc"
+         pid = params[:pid]
+         md = Metadata.find_by(pid: pid)
+         if md.nil?
+            render plain: "PID #{params[:pid]} not found", status: :not_found and return if md.nil?
+         end
+
+         # first try virgo as a source for marc as it has filterd out sensitive data
+         # If not found, the response will just be: <?xml version="1.0"?> with no mods info
+         xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{md.catalog_key}.xml"))
+         if xml.to_s.include?("xmlns") == false
+            # Not found, try solr index. If found, data is wrapped in a collection. Fix it
+            xml_string = Virgo.get_marc(md.catalog_key)
+            puts xml_string
+            idx = xml_string.index("<record>")
+            a = xml_string[idx..-1]
+            idx = a.index("</collection>")
+            b = a[0...idx]
+            c = b.gsub(/<record>/, "<record xmlns=\"http:\/\/www.loc.gov\/MARC21\/slim\">")
+            xml = Nokogiri::XML( c )
+         end
+         render xml: xml.to_s and return
+      end
 
       if type == "mods"
          md = XmlMetadata.find_by(pid: params[:pid])
