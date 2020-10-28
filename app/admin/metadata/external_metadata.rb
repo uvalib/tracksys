@@ -248,110 +248,16 @@ ActiveAdmin.register ExternalMetadata do
 
       before_action :get_external_metadata, only: [:show]
       def get_external_metadata
-         if resource.external_system.name == "ArchivesSpace"
-            get_as_metadata()
-         elsif resource.external_system.name == "Apollo"
-            get_apollo_metadata()
-         elsif resource.external_system.name == "JSTOR Forum"
-            get_jstor_metadata()
+         ex_m = resource.get_external_metadata
+         case resource.external_system.name
+         when "ArchivesSpace"
+            @as_info = ex_m
+         when "Apollo"
+            @apollo_info = ex_m
+         when "JSTOR Forum"
+            @js_info = ex_m
          end
       end
 
-      def get_jstor_metadata
-         js = resource.external_system
-         js_key = resource.master_files.first.filename.split(".").first
-         cookies = Jstor.start_session(js.api_url)
-         pub_info = Jstor.public_info(js.api_url, js_key, cookies)
-         @js_info = {}
-         @js_info[:url] = "#{js.public_url}#{resource.external_uri}"
-         @js_info[:collection_title] = pub_info[:collection]
-         @js_info[:collection_url] = "#{js.public_url}/#/collection/#{pub_info[:collection_id]}"
-         @js_info[:title] = pub_info[:title]
-         @js_info[:desc] = pub_info[:desc]
-         @js_info[:creator] = pub_info[:creator]
-         @js_info[:date] = pub_info[:date]
-         @js_info[:width] = pub_info[:width]
-         @js_info[:height] = pub_info[:height]
-         @js_info[:id] = pub_info[:id]
-         @js_info[:ssid] = pub_info[:ssid]
-      end
-
-      def get_apollo_metadata
-         begin
-            apollo = resource.external_system
-            resp = RestClient.get "#{apollo.public_url}#{resource.external_uri}"
-            json = JSON.parse(resp.body)
-            coll_data = json['collection']['children']
-            item_data = json['item']['children']
-            @apollo_info = {pid: json['collection']['pid'] }
-            @apollo_info[:collection] = coll_data.find{ |attr| attr['type']['name']=="title" }['value']
-            @apollo_info[:barcode] = coll_data.find{ |attr| attr['type']['name']=="barcode" }['value']
-            @apollo_info[:catalog_key] = coll_data.find{ |attr| attr['type']['name']=="catalogKey" }['value']
-            right = coll_data.find{ |attr| attr['type']['name']=="useRights" }
-            @apollo_info[:rights] = right['value']
-            @apollo_info[:rights_uri] = right['valueURI']
-            @apollo_info[:item_pid] = json['item']['pid']
-            @apollo_info[:item_type] = json['item']['type']['name']
-            @apollo_info[:item_title] = item_data.find{ |attr| attr['type']['name']=="title" }['value']
-         rescue Exception => e
-            logger.error "Unable to get Apollo info for #{resource.id}: #{e.to_s}"
-            @apollo_info = nil
-            @apollo_error = e.to_s
-         end
-      end
-
-      def get_as_metadata
-         begin
-            # First, authenticate with the API. Necessary to call other methods
-            auth = ArchivesSpace.get_auth_session()
-            as = resource.external_system
-            url = "#{as.public_url}#{resource.external_uri}"
-            tgt_obj = ArchivesSpace.get_details(auth, url)
-
-            # build a data struct to represent the AS data
-            title = tgt_obj['title']
-            title = tgt_obj['display_string'] if title.blank?
-            @as_info = {
-               title: title, created_by: tgt_obj['created_by'],
-               create_time: tgt_obj['create_time'], level: tgt_obj['level'],
-               url: url
-            }
-            dates = tgt_obj['dates'].first
-            if !dates.nil?
-               @as_info[:dates] = dates['expression']
-            end
-
-            dobj = ArchivesSpace.get_digital_object(auth, tgt_obj, resource.pid )
-            if !dobj.nil?
-               @as_info[:published_at] = dobj[:created]
-            end
-
-            # pull repo ID from external URL and use it to lookup repo name:
-            # /repositories/REPO_ID/resources/RES_ID
-            repo_id = resource.external_uri.split("/")[2]
-            repo_detail = ArchivesSpace.get_repository(auth, repo_id)
-            @as_info[:repo] = repo_detail['name']
-
-
-            if !tgt_obj['ancestors'].nil?
-               anc = tgt_obj['ancestors'].last
-               url = "#{as.api_url}#{anc['ref']}"
-               coll = RestClient.get url, ArchivesSpace.auth_header(auth)
-               coll_json = JSON.parse(coll.body)
-
-               @as_info[:collection_title] = coll_json['finding_aid_title'].split("<num")[0]
-               @as_info[:id] = coll_json['id_0']
-               @as_info[:language] = coll_json['language']
-
-            else
-               @as_info[:collection_title] = tgt_obj['finding_aid_title'].split("<num")[0]
-               @as_info[:id] = tgt_obj['id_0']
-               @as_info[:language] = tgt_obj['language']
-            end
-         rescue Exception => e
-            logger.error "Unable to get AS info for #{resource.id}: #{e.to_s}"
-            @as_info = nil
-         end
-      end
    end
 end

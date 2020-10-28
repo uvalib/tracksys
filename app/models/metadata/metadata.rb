@@ -158,6 +158,10 @@ class Metadata < ApplicationRecord
       return nil if self.parent_metadata_id.blank? || self.parent_metadata_id == 0
       return Metadata.find_by(id: self.parent_metadata_id)
    end
+
+   def collection_name
+      collection_id
+   end
 end
 
 # == Schema Information

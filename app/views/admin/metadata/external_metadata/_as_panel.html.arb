@@ -2,7 +2,7 @@ attributes_table_for external_metadata do
    row("External System") do |xm|
       xm.external_system
    end
-   if as_info.nil?
+   if as_info.empty?
       row("URL") do |xm|
          xm.external_uri
       end
@@ -47,7 +47,7 @@ attributes_table_for external_metadata do
             else
                "No Master Files. Not Published."
             end
-         else 
+         else
             DateTime.parse(as_info[:published_at]).strftime("%F %r")
          end
       end
