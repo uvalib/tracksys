@@ -19,6 +19,8 @@ module Bagit
          access = cfg[:access]
          access = "Consortia" if access.blank?
 
+         collection = cfg[:collection]
+
          # Make sure cfg is valid
          raise "Bag name required" if name.blank?
          raise "Title name required" if title.blank?
@@ -52,7 +54,7 @@ module Bagit
 
          info_file = File.join(@bag_dir, "bag-info.txt")
          info = "Source-Organization: virginia.edu\nBagging-Date: #{DateTime.now.iso8601}\nBag-Count: 1 of 1\n"
-         info << "Internal-Sender-Description: \nInternal-Sender-Identifier: #{pid}\nBag-Group-Identifier: "
+         info << "Internal-Sender-Description: \nInternal-Sender-Identifier: #{pid}\nBag-Group-Identifier: #{collection}"
          File.open(info_file, "w") { |file| file.write info }
          @tag_files << "bag-info.txt"
       end
