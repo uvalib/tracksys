@@ -18,12 +18,13 @@ module Hydra
          # recursive calls happen as the XSLT calls back to tracksys
          payload["excludeExternallyGenerated"] = 1
       end
+
       payload["pid"] = "#{metadata.pid}"
       payload["destination"] = "#{Settings.index_destintion}"
       payload["dateReceived"] = "#{date_received}"
       payload["dateIngestNow"] = "#{now_str}"
       payload["sourceFacet"] = "UVA Library Digital Repository"
-      payload["iiifManifest"] = "#{Settings.iiif_manifest_url}/#{metadata.pid}/manifest.json"
+      # payload["iiifManifest"] = "#{Settings.iiif_manifest_url}/#{metadata.pid}/manifest.json"
       payload["iiifRoot"] = "#{Settings.iiif_url}/"
       payload["rightsWrapperServiceUrl"] = "#{Settings.rights_wrapper_url}?pid=#{metadata.pid}&pagePid="
       payload["useRightsString"] = "#{metadata.use_right.name}"

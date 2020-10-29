@@ -14,13 +14,22 @@ class Api::SirsiController < ApplicationController
          uses << "Commercial Use Permitted" if sm.use_right.commercial_use
          uses << "Modifications Permitted" if sm.use_right.modifications
 
+         # Try to get the S3 URL from pidcache. If it fails, the old IIIF service
+         # is still in place; use the original URL
+         manifestURL = "#{Settings.iiif_manifest_url}/#{sm.pid}"
+         resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{sm.pid}"
+         if resp.code.to_i == 200
+            json = JSON.parse(resp.body)
+            manifestURL = json.url
+         end
+
          item =  {
             pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode,
             rsURI: sm.use_right.uri,
             rsUses: uses,
             rightsWrapperUrl: "#{Settings.rights_wrapper_url}/?pid=#{sm.pid}&pagePid=",
             rightsWrapperText: "#{sm.get_citation}\n#{Settings.virgo_url}/#{sm.pid}\n\n#{rights}",
-            backendIIIFManifestUrl: "#{Settings.iiif_manifest_url}/#{sm.pid}"
+            backendIIIFManifestUrl: manifestURL
          }
 
          if sm.has_exemplar?

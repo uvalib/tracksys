@@ -37,6 +37,16 @@ class CheckUnitDeliveryMode < BaseJob
          logger.debug("#{cnt} master files published to IIIF")
          if cnt != unit.master_files.count
             fatal_error "Mismatch in count of master files published to IIIF"
+         else
+            logger.info "Generating IIIF manifest..."
+            md_pid = unit.metadata.pid
+            resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
+            if resp.code.to_i != 200
+               logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
+            else
+               json = JSON.parse(resp.body)
+               logger.info "IIIF Manifest generated at: #{json.url}"
+            end
          end
       end
 
@@ -79,7 +89,7 @@ class CheckUnitDeliveryMode < BaseJob
       if unit.metadata.type == "ExternalMetadata" && unit.metadata.external_system.name == "ArchivesSpace" && unit.throw_away == false
          PublishToAS.exec_now({metadata: unit.metadata})
       end
-      
+
       # All done; in_process files can go to ready_to_delete
       logger.info "Cleaning up in_process files for completed re-order"
       MoveCompletedDirectoryToDeleteDirectory.exec_now({ unit_id: unit.id, source_dir: Finder.finalization_dir(unit, :in_process)}, self)
