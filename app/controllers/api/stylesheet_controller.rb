@@ -17,13 +17,16 @@ class Api::StylesheetController < ApplicationController
             render plain: "stylesheet not found", status: :not_found
          end
       elsif id.downcase == "marctomods"
-         style_xsl = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev.xsl")
-         render :xml=>style_xsl
-      elsif id == "MARC21slimUtils"
-         style_xsl = File.read("#{Rails.root}/lib/xslt/#{id}.xsl")
+         style_xsl = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev_no_include.xsl")
          render :xml=>style_xsl
       else
-         render :plain=>"Invalid stylesheet requested", status: :not_found
+         tgt = "#{Rails.root}/lib/xslt/#{id}.xsl"
+         if File.exist? tgt
+            style_xsl = File.read(tgt)
+            render :xml=>style_xsl
+         else
+            render :plain=>"stylesheet #{id} not found", status: :not_found
+         end
       end
    end
 end

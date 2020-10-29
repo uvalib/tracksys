@@ -32,8 +32,14 @@ class Api::MetadataController < ApplicationController
 
       if type == "mods"
          md = XmlMetadata.find_by(pid: params[:pid])
+         if !md.nil?
+            render xml: md.desc_metadata and return
+         end
+         md = SirsiMetadata.find_by(pid: params[:pid])
+         if !md.nil?
+            render :xml=> Hydra.desc(md) and return
+         end
          render plain: "PID #{params[:pid]} not found", status: :not_found and return if md.nil?
-         render xml: md.desc_metadata and return
       end
 
       md = Metadata.find_by(pid: params[:pid])
