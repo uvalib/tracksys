@@ -116,4 +116,41 @@ namespace :aptrust do
       puts "DONE. #{cnt} items completed, #{pend} items still processing"
    end
 
+   desc "Updates and resubmits bag-info.txt. No files are sent."
+   task :reupload_bag_info, [:order_id] => :environment do |task, args|
+      ap_trust_statuses = if args[:order_id]
+         s = ApTrustStatus.joins(metadata: :units).where(units: {order_id: args[:order_id]} )
+         puts "Updating #{s.count} AP Trust bags inside order: #{args[:order_id]}"
+         s
+      else
+         puts "resubmitting bag-info.txt for all submitted items..."
+         ApTrustStatus.where("status<>? and status<>?", "Submitted", "Failed")
+      end
+
+
+      ap_trust_statuses.each do |apt|
+         metadata = apt.metadata
+         storage = "Standard"
+         storage = "Glacier-VA" if metadata.preservation_tier_id == 2
+         bag = Bagit::Bag.new({bag: "tracksys-#{metadata.type.downcase}-#{metadata.id}",
+            title: metadata.title,
+            pid: metadata.pid,
+            storage: storage,
+            collection: metadata.collection_name
+            },  Logger.new(STDOUT))
+
+         bag.info_only_adjustments
+
+         tarfile = bag.tar
+         etag = ApTrust::submit( tarfile )
+         if etag
+            puts "Uploaded etag: #{etag}"
+            apt.update(etag: etag)
+         else
+            puts "no etag received for #{apt.metadata_id}"
+         end
+         bag.cleanup
+      end
+   end
+
 end
