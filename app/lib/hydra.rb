@@ -139,34 +139,36 @@ module Hydra
          # the MODS that will be ingested as the Hydra-compliant descMetadata
          sirsi_metadata = object.becomes(SirsiMetadata)
          doc = Nokogiri::XML( mods_from_marc(sirsi_metadata) )
+         doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
          last_node = doc.xpath("//mods:mods/mods:recordInfo").last
+         if !last_node.nil?
+            # Add node for indexing
+            index_node = Nokogiri::XML::Node.new "identifier", doc
+            index_node['type'] = 'uri'
+            index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
+            index_node['invalid'] = 'yes' unless object.discoverability
+            index_node.content = "#{metadata.pid}"
+            last_node.add_next_sibling(index_node)
 
-         # Add node for indexing
-         index_node = Nokogiri::XML::Node.new "identifier", doc
-         index_node['type'] = 'uri'
-         index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
-         index_node['invalid'] = 'yes' unless object.discoverability
-         index_node.content = "#{metadata.pid}"
-         last_node.add_next_sibling(index_node)
+            # Add node with Tracksys Metadata ID
+            metadata_id_node = Nokogiri::XML::Node.new "identifier", doc
+            metadata_id_node['type'] = 'local'
+            metadata_id_node['displayLabel'] = 'Digital Production Group Tracksys Metadata ID'
+            metadata_id_node.content = "#{metadata.id}"
+            last_node.add_next_sibling(metadata_id_node)
 
-         # Add node with Tracksys Metadata ID
-         metadata_id_node = Nokogiri::XML::Node.new "identifier", doc
-         metadata_id_node['type'] = 'local'
-         metadata_id_node['displayLabel'] = 'Digital Production Group Tracksys Metadata ID'
-         metadata_id_node.content = "#{metadata.id}"
-         last_node.add_next_sibling(metadata_id_node)
-
-         # Add nodes with Unit IDs that are included in DL
-         metadata.units.each do |unit|
-            if unit.include_in_dl == true
-               unit_id_node = Nokogiri::XML::Node.new "identifier", doc
-               unit_id_node['type'] = 'local'
-               unit_id_node['displayLabel'] = 'Digital Production Group Tracksys Unit ID'
-               unit_id_node.content = "#{unit.id}"
-               last_node.add_next_sibling(unit_id_node)
+            # Add nodes with Unit IDs that are included in DL
+            metadata.units.each do |unit|
+               if unit.include_in_dl == true
+                  unit_id_node = Nokogiri::XML::Node.new "identifier", doc
+                  unit_id_node['type'] = 'local'
+                  unit_id_node['displayLabel'] = 'Digital Production Group Tracksys Unit ID'
+                  unit_id_node.content = "#{unit.id}"
+                  last_node.add_next_sibling(unit_id_node)
+               end
             end
+            add_rights_to_mods(doc, metadata)
          end
-         add_rights_to_mods(doc, metadata)
          output = doc.to_xml
       else
          # For now, the only type of metadata that exists is MODS XML. Just return it
@@ -183,36 +185,16 @@ module Hydra
    # Generate mods from sirsi metadata
    #
    def self.mods_from_marc(object)
-      #xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev.xsl)
-      xslt_str = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-4.xsl")
-      i0 = xslt_str.index "<xsl:include"
-      i1 = xslt_str.index("\n", i0)
-      inc = "<xsl:include href=\"#{Rails.root}/lib/xslt/MARC21slimUtils.xsl\"/>"
-      fixed = "#{xslt_str[0...i0]}#{inc}#{xslt_str[i1+1...-1]}"
-      xslt = Nokogiri::XSLT(fixed)
-
-      # first try virgo as a source for marc as it has filterd out sensitive data
-      # If not found, the response will just be: <?xml version="1.0"?> with no mods info
-      xml = Nokogiri::XML(open("http://search.lib.virginia.edu/catalog/#{object.catalog_key}.xml"))
-      if xml.to_s.include?("xmlns") == false
-         # Not found, try solr index. If found, data is wrapped in a collection. Fix it
-         xml_string = Virgo.get_marc(object.catalog_key)
-         idx = xml_string.index("<record>")
-         a = xml_string[idx..-1]
-         idx = a.index("</collection>")
-         b = a[0...idx]
-         c = b.gsub(/<record>/, "<record xmlns=\"http:\/\/www.loc.gov\/MARC21\/slim\">")
-         xml = Nokogiri::XML( c )
-      end
-
-      mods = xslt.transform(xml, ['barcode', "'#{object.barcode}'"])
-
-      # In order to reformat and pretty print the MODS record after string insertion, the document is reopened and then
-      # manipulated by Nokogiri.
-      doc = Nokogiri.XML(mods.to_xml) do |config|
-         config.default_xml.noblanks
-      end
-      return doc.to_xml
+      payload = {}
+      payload['barcode'] = object.barcode
+      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=marc"
+      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/marctomods"
+      payload['clear-stylesheet-cache'] = "yes"
+      uri = URI(Settings.saxon_url)
+      response = Net::HTTP.post_form(uri, payload)
+      Rails.logger.info( "Hydra.mods_from_marc: SAXON_SERVLET response: #{response.code} #{response.body}" )
+      if response.code.to_i == 200 return response.body
+      return ""
    end
 
    private
