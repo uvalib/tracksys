@@ -193,7 +193,7 @@ module Hydra
       uri = URI(Settings.saxon_url)
       response = Net::HTTP.post_form(uri, payload)
       Rails.logger.info( "Hydra.mods_from_marc: SAXON_SERVLET response: #{response.code} #{response.body}" )
-      if response.code.to_i == 200 return response.body
+      return response.body if response.code.to_i == 200
       return ""
    end
 
