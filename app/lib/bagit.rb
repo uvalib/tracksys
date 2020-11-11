@@ -122,6 +122,14 @@ module Bagit
          FileUtils.rm tar_file if File.exist? tar_file
       end
 
+      def info_only_adjustments
+         data_dir = File.join(@bag_dir, "data")
+         FileUtils.rm_rf( data_dir )
+
+         FileUtils.touch(File.join(@bag_dir, "manifest-md5.txt"))
+
+      end
+
       private
       def write_md5(manifest, src_file, rel_path)
          md5 = Digest::MD5.file src_file
