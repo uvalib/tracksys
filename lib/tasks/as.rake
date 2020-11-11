@@ -33,6 +33,13 @@ namespace :as do
 
    def create_digital_object(repo_uri, hdr, tgt_ao, mf, create_external_id)
       pid = mf.metadata.pid
+      manifestURL = "#{Settings.iiif_manifest_url}/#{pid}"
+      resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{pid}"
+      if resp.code.to_i == 200
+         json = JSON.parse(resp.body)
+         manifestURL = json.url
+      end
+
       payload = {
          digital_object_id: pid,
          title: mf.metadata.title,
@@ -41,7 +48,7 @@ namespace :as do
             {
                use_statement: IIIF_USE_STATEMENT,
                # TODO maybe stick unit id as a query param to work around access isues if unit is not in DL
-               file_uri: "#{Settings.iiif_manifest_url}/#{pid}",
+               file_uri: manifestURL,
                publish: true
             }
          ]
@@ -169,7 +176,7 @@ namespace :as do
             md.update(date_dl_ingest: dobj[:created])
             pub += 1
          end
-      end    
+      end
       puts "DONE. ##{cnt} items checked, #{pub} published items updated"
    end
 

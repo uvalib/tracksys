@@ -44,6 +44,13 @@ class ReplaceMasterFiles < BaseJob
          log_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
       end
 
+      logger.info "Regenerating IIIF manifest"
+      md_pid = unit.metadata.pid
+      resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?refresh=true"
+      if resp.code.to_i != 200
+         logger.warn "Unable to regenerate IIIF manifest: #{resp.code}: #{resp.body}"
+      end
+
       MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
    end
 end

@@ -17,7 +17,7 @@ module ArchivesSpace
       end
 
       return session
-      
+
    end
 
    # Lookup some brief info for the given AS public URL
@@ -161,7 +161,7 @@ module ArchivesSpace
          bits = ref.split("/")
          repo_id = bits[2]
          do_id = bits.last
-         
+
          # look up DO details...
          as = ExternalSystem.find_by(name: "ArchivesSpace")
          url = "#{as.api_url}/repositories/#{repo_id}/digital_objects/#{do_id}"
@@ -175,6 +175,15 @@ module ArchivesSpace
    end
 
    def self.create_digital_object(auth, tgt_obj, ts_metadata)
+      # Try to get the S3 URL from pidcache. If it fails, the old IIIF service
+      # is still in place; use the original URL
+      manifestURL = "#{Settings.iiif_manifest_url}/#{ts_metadata.pid}"
+      resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{ts_metadata.pid}"
+      if resp.code.to_i == 200
+         json = JSON.parse(resp.body)
+         manifestURL = json.url
+      end
+
       payload = {
          digital_object_id: ts_metadata.pid,
          title: ts_metadata.title,
@@ -182,7 +191,7 @@ module ArchivesSpace
          file_versions: [
             {
                use_statement:  "image-service-manifest",
-               file_uri: "#{Settings.iiif_manifest_url}/#{ts_metadata.pid}",
+               file_uri: manifestURL,
                publish: false
             }
          ]
