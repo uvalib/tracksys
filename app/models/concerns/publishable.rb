@@ -42,13 +42,4 @@ module Publishable
       end
    end
 
-   def publish_to_test
-      ok, payload = Hydra.solr( self, nil )
-      if ok == true
-         RestClient.post "#{Settings.test_solr_url}/virgo/update?commit=true", payload, {:content_type => 'application/xml'}
-      else
-         Rails.logger.warn "Error creating Solr index record (#{payload})"
-      end
-   end
-
 end

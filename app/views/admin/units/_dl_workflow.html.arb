@@ -6,13 +6,4 @@ elsif unit.in_dl?
    div :class => 'workflow_button' do
       button_to "Publish All", publish_admin_unit_path(), :method => :put
    end
-   if unit.has_xml_masterfiles?
-      div :class => 'workflow_button' do
-         button_to "Publish to Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
-      end
-   end
-else
-   div :class => 'workflow_button' do
-      button_to "Put into Digital Library Test", publish_to_test_admin_unit_path(), :method => :put
-   end
 end

@@ -8,14 +8,6 @@ class PublishToDL < BaseJob
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       unit = Unit.find(message[:unit_id])
 
-      if message[:mode] == :test
-         publish_to_test(unit)
-      else
-         publish_to_prod(unit)
-      end
-   end
-
-   def publish_to_prod(unit)
       if unit.metadata.availability_policy.nil?
          fatal_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and retry."
       end
@@ -59,27 +51,6 @@ class PublishToDL < BaseJob
          logger.info "Unit #{unit.id} is ready for ingestion into the DL."
       else
          logger.info "Unit #{unit.id} and #{unit.master_files_count} master files have been flagged for an update in the DL"
-      end
-   end
-
-   def publish_to_test(unit)
-      if unit.metadata.discoverability
-         logger.info "Publish unit ID #{unit.id} to test"
-         begin
-            unit.metadata.publish_to_test
-         rescue Exception=>e
-            log_failure("Unable to publish unit #{unit.id} metadata #{unit.metadata.id}: #{e.message}")
-         end
-      end
-      unit.master_files.each do |mf|
-         if mf.metadata.discoverability && unit.metadata.id != mf.metadata.id
-            logger.info "Publish master file ID #{mf.id} to test"
-            begin
-               mf.metadata.publish_to_test
-            rescue Exception=>e
-               log_failure("Unable to publish masterfile #{mf.id} metadata #{mf.metadata.id}: #{e.message}")
-            end
-         end
       end
    end
 end

@@ -334,7 +334,7 @@ ActiveAdmin.register Unit do
       w = Workflow.find(params[:workflow])
       u = Unit.find(params[:id])
 
-      # Another user could have created a project for this unit while this 
+      # Another user could have created a project for this unit while this
       # user was on the unit screen. Ensure no project exists for this unit before continuing
       if !u.project.nil?
          render plain: "A project already exists for this unit", status: :error
@@ -409,13 +409,8 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
-   member_action :publish_to_test, :method => :put do
-      PublishToDL.exec({unit_id: params[:id], mode: :test})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit is being published to test"
-   end
-
    member_action :publish, :method => :put do
-      PublishToDL.exec({unit_id: params[:id], mode: :production})
+      PublishToDL.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit published to DL. It will be available tomorrow."
    end
 
