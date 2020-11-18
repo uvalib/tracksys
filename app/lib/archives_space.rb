@@ -181,7 +181,7 @@ module ArchivesSpace
       resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{ts_metadata.pid}"
       if resp.code.to_i == 200
          json = JSON.parse(resp.body)
-         manifestURL = json.url
+         manifestURL = json['url']
       end
 
       payload = {

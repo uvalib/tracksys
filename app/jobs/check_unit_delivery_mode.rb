@@ -45,7 +45,7 @@ class CheckUnitDeliveryMode < BaseJob
                logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
             else
                json = JSON.parse(resp.body)
-               logger.info "IIIF Manifest generated at: #{json.url}"
+               logger.info "IIIF Manifest generated at: #{json['url']}"
             end
          end
       end

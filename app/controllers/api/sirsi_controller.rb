@@ -20,7 +20,7 @@ class Api::SirsiController < ApplicationController
          resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{sm.pid}"
          if resp.code.to_i == 200
             json = JSON.parse(resp.body)
-            manifestURL = json.url
+            manifestURL = json['url']
          end
 
          item =  {

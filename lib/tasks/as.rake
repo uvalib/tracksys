@@ -37,7 +37,7 @@ namespace :as do
       resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{pid}"
       if resp.code.to_i == 200
          json = JSON.parse(resp.body)
-         manifestURL = json.url
+         manifestURL = json['url']
       end
 
       payload = {
