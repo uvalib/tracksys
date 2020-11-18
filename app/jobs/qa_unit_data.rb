@@ -133,7 +133,7 @@ class QaUnitData < BaseJob
       # Need this to check publication year before 1923
       sirsi_meta = metadata.becomes(SirsiMetadata)
 
-      pub_info = Virgo.get_marc_publication_info(sirsi_meta.catalog_key, sirsi_meta.barcode)
+      pub_info = Virgo.get_marc_publication_info(sirsi_meta.catalog_key)
       if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
          logger.info "Unit #{unit.id} is a candidate for auto-publishing."
          # year is set and it is before 1923. Good to go for Autopublish.

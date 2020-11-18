@@ -23,7 +23,7 @@ class SirsiMetadata < Metadata
    #------------------------------------------------------------------
    before_save do
       if self.availability_policy_id.blank?
-         pub_info = Virgo.get_marc_publication_info(self.catalog_key, self.barcode)
+         pub_info = Virgo.get_marc_publication_info(self.catalog_key)
          if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
             self.availability_policy_id = 1 # PUBLIC
          end

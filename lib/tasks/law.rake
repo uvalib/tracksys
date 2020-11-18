@@ -274,7 +274,8 @@ namespace :law do
    end
 
    def get_barcodes(catalog_key)
-      marc = Virgo.get_marc_doc(catalog_key)
+      marc_xml_string = Virgo.get_marc(catalog_key)
+      marc = Nokogiri::XML(marc_xml_string)
       marc.remove_namespaces!
       out = []
       marc.xpath("//datafield[@tag='999']").each do |n999|
@@ -483,7 +484,7 @@ namespace :law do
    end
 
    def create_sirsi_record(catalog_key, barcode)
-      virgo = Virgo.external_lookup(catalog_key, barcode)
+      virgo = Virgo.external_lookup(catalog_key)
       meta = SirsiMetadata.create(
          discoverability: 1, dpla: 1, parent_metadata_id: 15784,
          use_right_id: 10, is_approved: 1, availability_policy_id: 1,

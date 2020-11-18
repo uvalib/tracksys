@@ -73,7 +73,8 @@ module Hydra
 
       if metadata.type == "SirsiMetadata"
          sirsi_metadata = metadata.becomes(SirsiMetadata)
-         payload["analogSolrRecord"] = "#{Settings.solr_url}/core/select?q=id%3A#{sirsi_metadata.catalog_key}"
+         ckey = sirsi_metadata.catalog_key.gsub /\Au/, ''
+         payload["analogSolrRecord"] = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
       end
 
       return solr_transform(metadata, payload)
