@@ -275,26 +275,8 @@ ActiveAdmin.register XmlMetadata do
       end
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? && xml_metadata.master_files.count > 0} do
-      if xml_metadata.in_dl?
-         div :class => 'workflow_button' do
-            button_to "Publish","/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
-         end
-      end
-   end
-
    # ACTIONS ==================================================================
    #
-
-   # Flag for publication  overnight
-   #
-   member_action :publish, :method => :put do
-      metadata = XmlMetadata.find(params[:id])
-      metadata.flag_for_publication
-
-      logger.info "XmlMetadata #{metadata.id} has been flagged for an update in the DL"
-      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
-   end
 
    # Transfmorm ALL XML metadat records in the system with the XSL file uploaded
    #
