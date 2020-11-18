@@ -307,23 +307,13 @@ ActiveAdmin.register SirsiMetadata do
       end
 
       def external_lookup
-         # First off; if a barcode is specified, make sure it is unique
-         if !params[:barcode].blank?
-            dup = SirsiMetadata.where(barcode: params[:barcode]).first
-            if !dup.nil?
-               msg = "A Sirsi Metadata record with the same barcode already exists. Click <a href='/admin/sirsi_metadata/#{dup.id}'>here</a> to view it."
-               render json: {invalid: true, catalog_key: params[:catalog_key],
-                  barcode: params[:barcode], message: msg}, status: :bad_reqeust
-               return
-            end
-         end
          # look up catalog ID (passed as a parameter) in external metadata source
          begin
             @sirsi_meta = Virgo.external_lookup(params[:catalog_key], params[:barcode])
             render json: @sirsi_meta, status: :ok
          rescue Exception=> e
             render json: {invalid: true, catalog_key: params[:catalog_key],
-               barcode: params[:barcode], message: "No matching Sirsi record found"}, status: :bad_reqeust
+               barcode: params[:barcode], message: "No matching Sirsi record found"}, status: :bad_request
          end
       end
 
