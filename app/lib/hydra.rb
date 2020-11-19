@@ -77,16 +77,7 @@ module Hydra
          payload["analogSolrRecord"] = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
       end
 
-      return solr_transform(metadata, payload)
-   end
-
-   def self.solr_transform(metadata, payload)
-      if Settings.use_saxon_servlet == "true"
-         ok, xml = Hydra.servlet_transform(metadata, payload)
-      else
-         ok, xml = Hydra.local_transform(metadata, payload)
-      end
-      return ok, xml
+      return Hydra.servlet_transform(metadata, payload)
    end
 
    def self.servlet_transform(metadata, payload)
@@ -102,31 +93,6 @@ module Hydra
       return response.code.to_i == 200, response.body
    end
 
-   def self.local_transform(metadata, payload)
-      tmp = Tempfile.new([metadata.pid, ".xml"])
-      tmp.write(Hydra.desc(metadata))
-      tmp.close
-
-      # TODO for now there is only 1 XML format supported (MODS) and one
-      # transform. When this changes, the code here will need to be updated
-      xsl = File.join(Rails.root, "lib", "xslt", "holsingerTransformation.xsl")
-      saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
-
-      params = ""
-      payload.each do |k,v|
-         next if v.blank?
-         v.strip!
-         if v.include? "'"
-            params << " #{k}=\"#{v}\""
-         else
-            params << " #{k}='#{v}'"
-         end
-      end
-
-      cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl} #{params}"
-      return true, `#{cmd}`
-   end
-
    #-----------------------------------------------------------------------------
 
    # Takes a Metadata Record or MasterFile record and returns a string
@@ -140,7 +106,13 @@ module Hydra
          # transform MARC XML will into
          # the MODS that will be ingested as the Hydra-compliant descMetadata
          sirsi_metadata = object.becomes(SirsiMetadata)
-         doc = Nokogiri::XML( mods_from_marc(sirsi_metadata) )
+         mods_xml_string = mods_from_marc(sirsi_metadata)
+         if mods_xml_string == ""
+            Rails.logger.error("Conversion of MARC to MODS for #{metadata.pid} returned an empty string")
+            return ""
+         end
+
+         doc = Nokogiri::XML( mods_xml_string)
          doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
          last_node = doc.xpath("//mods:mods/mods:recordInfo").last
          if !last_node.nil?
