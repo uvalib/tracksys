@@ -5,10 +5,12 @@
   exclude-result-prefixes="xlink marc" version="2.0">
 
   <!-- UVA Revision 1.119.01 -->
+  <!-- url encoding -->
+  
   <xsl:variable name="ascii">
     <xsl:text> !"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~</xsl:text>
   </xsl:variable>
-
+  
   <xsl:variable name="latin1">
     <xsl:text> ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ</xsl:text>
   </xsl:variable>
@@ -16,10 +18,10 @@
   <xsl:variable name="safe">
     <xsl:text>!'()*-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~</xsl:text>
   </xsl:variable>
-
+  
   <xsl:variable name="hex">0123456789ABCDEF</xsl:variable>
-
-
+  
+  
   <xsl:template name="datafield">
     <xsl:param name="tag"/>
     <xsl:param name="ind1">
@@ -42,7 +44,7 @@
       <xsl:copy-of select="$subfields"/>
     </xsl:element>
   </xsl:template>
-
+  
   <xsl:template name="subfieldSelect">
     <xsl:param name="codes">abcdefghijklmnopqrstuvwxyz</xsl:param>
     <xsl:param name="delimeter">
@@ -58,7 +60,7 @@
     </xsl:variable>
     <xsl:value-of select="substring($str,1,string-length($str)-string-length($delimeter))"/>
   </xsl:template>
-
+  
   <xsl:template name="buildSpaces">
     <xsl:param name="spaces"/>
     <xsl:param name="char">
@@ -72,7 +74,7 @@
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
-
+  
   <xsl:template name="chopPunctuation">
     <xsl:param name="chopString"/>
     <xsl:param name="punctuation">
@@ -93,7 +95,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
   <xsl:template name="chopPunctuationFront">
     <xsl:param name="chopString"/>
     <xsl:variable name="length" select="string-length($chopString)"/>
@@ -111,7 +113,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
   <xsl:template name="chopPunctuationBack">
     <xsl:param name="chopString"/>
     <xsl:param name="punctuation">
@@ -132,12 +134,12 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
   <!-- nate added 12/14/2007 for lccn.loc.gov: url encode ampersand, etc. -->
   <xsl:template name="url-encode">
-
+    
     <xsl:param name="str"/>
-
+    
     <xsl:if test="$str">
       <xsl:variable name="first-char" select="substring($str,1,1)"/>
       <xsl:choose>
@@ -186,6 +188,9 @@
 
   <!-- UVA Revision 1.119.06 -->
   <xsl:param name="barcode" select="''"/>
+
+  <!-- UVA Revision 1.119.56 -->
+  <xsl:param name="redact541" select="'true'"/>
 
   <!-- UVA Revision 1.119.13 -->
   <xsl:param name="tracksysUnitID" select="''"/>
@@ -310,12 +315,14 @@
   </xsl:variable>
 
   <!-- UVA Revision 1.119.09 -->
-  <!-- Maintenance note: For each revision, change the content of $progVersion to reflect the
+  <!-- Maintenance note: For each revision, change the content of $progVersion to reflect the 
     latest revision number. -->
   <xsl:variable name="progName">MARC21slim2MODS3-6_rev.xsl</xsl:variable>
-  <xsl:variable name="progVersion">1.119.55</xsl:variable>
+  <xsl:variable name="progVersion">1.119.57</xsl:variable>
 
   <!-- UVA Revisions
+  1.119.57 - Account for repeatable subfields in 880
+  1.119.56 - Redact 541 subfields a, b, f, and h when @ind1 = '0' or $redact541 = 'true'
   1.119.55 - Correct typo in determination of genre
   1.119.54 - Add targetAudience/@displayLabel
   1.119.53 - Revise creation of abstract/@type
@@ -363,7 +370,7 @@
   1.119.13 - Add parameters for TrackSys Unit ID, TrackSys Metadata ID, and Virgo Index Record ID.
   1.119.12 - Add <accessCondition> when there's no 506 or 540.
   1.119.11 - Add @type on all notes.
-  1.119.10 - Include all 040$a, $c, and $d in recordInfo per documentation at
+  1.119.10 - Include all 040$a, $c, and $d in recordInfo per documentation at 
     http://www.loc.gov/standards/mods/userguide/recordinfo.html#recordcontentsource, retrieved
     2019/07/01: "<recordContentSource> should be repeated for each code or name recorded."
   1.119.09 - Create variables to hold latest UVA revision info.
@@ -374,8 +381,8 @@
   1.119.05 - Include 590 fields for local notes.
   1.119.04 - Add reformattedDigital and reformattingQuality parameters to indicate digitization
     of an analog resource.
-  1.119.03 - Add new "createHoldingSimpleFrom999" template to process holdings info.
-  1.119.02 - Create two new templates to transform 090 and 099 called
+  1.119.03 - Add new "createHoldingSimpleFrom999" template to process holdings info.        
+  1.119.02 - Create two new templates to transform 090 and 099 called 
     "createClassificationFrom090" and "createClassificationFrom099". The
     authority for both call numbers is "uva".
   1.119.01 - Include local MARC21slimUtils.xsl.
@@ -392,17 +399,17 @@
 	Revision 1.114 - Added <itemIdentifier> for 852$p and <itemIdentifier > with type="copy number" for 852$t RE: MODS 3.6 - 2016/3/15 ws
 	Revision 1.113 - Added @valueURI="contents of $0" for 752/662 RE: MODS 3.6 - 2016/3/15 ws
 	Revision 1.112 - Added @xml:space="preserve" to title/nonSort on 245 and 242 RE: MODS 3.6 - 2016/3/15 ws
-
+	
 	Revision 1.111 - Added test to prevent empty authority attribute for 047 with no subfield 2. - ws 2016/03/24
 	Revision 1.110 - Added test to prevent empty authority attribute for 336 with no subfield 2. - ws 2016/03/24
 	Revision 1.109 - Added test to prevent empty authority attribute for 655 and use if ind2 if no subfield 2 is available. - ws 2016/03/24
 	Revision 1.108 - Added filter to name templates to exclude names with title subfields. - ws 2016/03/24
-
-	Revision 1.107 - Added support for 024/@ind1=7 - ws 2016/1/7
-	Revision 1.106 - Added a xsl:when to deal with '#' and ' ' in $leader19 and $controlField008-18 - ws 2014/12/19
-	Revision 1.105 - Add @unit to extent - ws 2014/11/20
+	
+	Revision 1.107 - Added support for 024/@ind1=7 - ws 2016/1/7	
+	Revision 1.106 - Added a xsl:when to deal with '#' and ' ' in $leader19 and $controlField008-18 - ws 2014/12/19		
+	Revision 1.105 - Add @unit to extent - ws 2014/11/20	
 	Revision 1.104 - Fixed 111$n and 711$n to reflect mapping to <namePart> tmee 20141112
-	Revision 1.103 - Fixed 008/28 to reflect revised mapping for government publication tmee 20141104
+	Revision 1.103 - Fixed 008/28 to reflect revised mapping for government publication tmee 20141104	
 	Revision 1.102 - Fixed 240$s duplication tmee 20140812
 	Revision 1.101 - Fixed 130 tmee 20140806
 	Revision 1.100 - Fixed 245c tmee 20140804
@@ -410,10 +417,10 @@
 	Revision 1.98 - Fixed 336 mapping tmee 20140522
 	Revision 1.97 - Fixed 264 mapping tmee 20140521
 	Revision 1.96 - Fixed 310 and 321 and 008 frequency authority for marcfrequency tmee 2014/04/22
-	Revision 1.95 - Modified 035 to include identifier type (WlCaITV) tmee 2014/04/21
+	Revision 1.95 - Modified 035 to include identifier type (WlCaITV) tmee 2014/04/21	
 	Revision 1.94 - Leader 07 b changed mapping from continuing to serial tmee 2014/02/21
-
-	MODS 3.5
+	
+	MODS 3.5 
 	Revision 1.93 - Fixed personal name transform for ind1=0 tmee 2014/01/31
 	Revision 1.92 - Removed duplicate code for 856 1.51 tmee 2014/01/31
 	Revision 1.91 - Fixed createnameFrom720 duplication tmee 2014/01/31
@@ -423,7 +430,7 @@
 	Revision 1.87 - Fixed expressions of <accessCondition> type values - tmee 2013/08/29
 	Revision 1.86 - Fixed 008 <frequency> subfield to occur w/i <originiInfo> - tmee 2013/08/29
 	Revision 1.85 - Fixed 245$c - tmee 2013/03/07
-	Revision 1.84 - Fixed 1.35 and 1.36 date mapping for 008 when 008/06=e,p,r,s,t so only 008/07-10 displays, rather than 008/07-14 - tmee 2013/02/01
+	Revision 1.84 - Fixed 1.35 and 1.36 date mapping for 008 when 008/06=e,p,r,s,t so only 008/07-10 displays, rather than 008/07-14 - tmee 2013/02/01   
 	Revision 1.83 - Deleted mapping for 534 to note - tmee 2013/01/18
 	Revision 1.82 - Added mapping for 264 ind 0,1,2,3 to originInfo - 2013/01/15 tmee
 	Revision 1.81 - Added mapping for 336$a$2, 337$a$2, 338$a$2 - 2012/12/03 tmee
@@ -436,9 +443,9 @@
 	Revision 1.74 - Fixed 510 note - 2011/07/15 tmee
 	Revision 1.73 - Fixed 506 540 - 2011/07/11 tmee
 	Revision 1.72 - Fixed frequency error - 2011/07/07 and 2011/07/14 tmee
-	Revision 1.71 - Fixed subject titles for subfields t - 2011/04/26 tmee
-	Revision 1.70 - Added mapping for OCLC numbers in 035s to go into <identifier type="oclc"> 2011/02/27 - tmee
-	Revision 1.69 - Added mapping for untyped identifiers for 024 - 2011/02/27 tmee
+	Revision 1.71 - Fixed subject titles for subfields t - 2011/04/26 tmee 
+	Revision 1.70 - Added mapping for OCLC numbers in 035s to go into <identifier type="oclc"> 2011/02/27 - tmee 	
+	Revision 1.69 - Added mapping for untyped identifiers for 024 - 2011/02/27 tmee 
 	Revision 1.68 - Added <subject><titleInfo> mapping for 600/610/611 subfields t,p,n - 2010/12/22 tmee
 	Revision 1.67 - Added frequency values and authority="marcfrequency" for 008/18 - 2010/12/09 tmee
 	Revision 1.66 - Fixed 008/06=c,d,i,m,k,u, from dateCreated to dateIssued - 2010/12/06 tmee
@@ -463,11 +470,11 @@
 	Revision 1.48 - Aquifer revision 1.27 - Added mapping of 242 second indicator (for nonfiling characters) to <titleInfo><nonSort > subelement  2007/08/08 tmee/dlf
 	Revision 1.47 - Aquifer revision 1.26 - Mapped 300 subfield f (type of unit) - and g (size of unit) 2009 ntra
 	Revision 1.46 - Aquifer revision 1.25 - Changed mapping of 767 so that <type="otherVersion>  2009/11/20  tmee
-	Revision 1.45 - Aquifer revision 1.24 - Changed mapping of 765 so that <type="otherVersion>  2009/11/20  tmee
+	Revision 1.45 - Aquifer revision 1.24 - Changed mapping of 765 so that <type="otherVersion>  2009/11/20  tmee 
 	Revision 1.44 - Added <recordInfo><recordOrigin> canned text about the version of this stylesheet 2009 ntra
 	Revision 1.43 - Mapped 351 subfields a,b,c 2009/11/20 tmee
 	Revision 1.42 - Changed 856 second indicator=1 to go to <location><url displayLabel=”electronic resource”> instead of to <relatedItem type=”otherVersion”><url> 2009/11/20 tmee
-	Revision 1.41 - Aquifer revision 1.9 Added variable and choice protocol for adding usage=”primary display” 2009/11/19 tmee
+	Revision 1.41 - Aquifer revision 1.9 Added variable and choice protocol for adding usage=”primary display” 2009/11/19 tmee 
 	Revision 1.40 - Dropped <note> for 510 and added <relatedItem type="isReferencedBy"> for 510 2009/11/19 tmee
 	Revision 1.39 - Aquifer revision 1.23 Changed mapping for 762 (Subseries Entry) from <relatedItem type="series"> to <relatedItem type="constituent"> 2009/11/19 tmee
 	Revision 1.38 - Aquifer revision 1.29 Dropped 007s for electronic versions 2009/11/18 tmee
@@ -491,7 +498,7 @@
 	Revision 1.20 - Added genre w/@auth="contents of 2" and type= "musical composition"  2008/07/01 tmee
 	Revision 1.19 - Added genre offprint for 008/24+ BK code 2  2008/07/01  tmee
 	Revision 1.18 - Added xlink/uri for subfield 0 for 130/240/730, 100/700, 110/710, 111/711  2008/06/26 tmee
-	Revision 1.17 - Added mapping of 662 2008/05/14 tmee
+	Revision 1.17 - Added mapping of 662 2008/05/14 tmee	
 	Revision 1.16 - Changed @authority from "marc" to "marcgt" for 007 and 008 codes mapped to a term in <genre> 2007/07/10 tmee
 	Revision 1.15 - For field 630, moved call to part template outside title element  2007/07/10 tmee
 	Revision 1.14 - Fixed template isValid and fields 010, 020, 022, 024, 028, and 037 to output additional identifier elements with corresponding @type and @invalid eq 'yes' when subfields z or y (in the case of 022) exist in the MARCXML ::: 2007/01/04 17:35:20 cred
@@ -689,7 +696,7 @@
 				<xsl:call-template name="role"/>
 			</name>
 		</xsl:for-each>
-
+		
 		<xsl:for-each select="marc:datafield[@tag='720'][not(marc:subfield[@code='t'])]">
 		<name>
 		<xsl:if test="@ind1=1">
@@ -1887,8 +1894,8 @@
           <xsl:value-of select="."/>
         </dateCreated>
       </xsl:for-each>-\->
-
-
+      
+      
       <xsl:variable name="controlField008-7-10"
         select="normalize-space(substring($controlField008, 8, 4))"/>
       <xsl:variable name="controlField008-11-14"
@@ -1946,10 +1953,10 @@
               <xsl:value-of select="replace($controlField008-11-14, '[u\s\?]', 'X')"/>
             </copyrightDate>
           </xsl:if>
-        </xsl:if>
+        </xsl:if>        
       </xsl:variable>
       <xsl:copy-of select="$fixedFieldDates"/>
-
+      
 
 
       <!-\- tmee 1.35 1.36 dateIssued/nonMSS vs dateCreated/MSS -\->
@@ -2132,7 +2139,7 @@
           </dateIssued>
         </xsl:if>
       </xsl:if>-\->
-      <!-\- tmee 1.77 008-06 dateIssued for value 's' 1.89 removed 20130920
+      <!-\- tmee 1.77 008-06 dateIssued for value 's' 1.89 removed 20130920 
 			<xsl:if test="$controlField008-6='s'">
 				<xsl:if test="$controlField008-7-10">
 					<dateIssued encoding="marc">
@@ -2408,6 +2415,7 @@
         select="../marc:datafield[@tag = $related_datafield and contains(marc:subfield[@code = '6'], concat('880-', $occurence_number))]/@tag"/>
 
       <xsl:choose>
+        <!-- UVA Revision 1.119.57 -->
         <xsl:when test="$hit = '260'">
           <originInfo>
             <xsl:call-template name="scriptCode"/>
@@ -2415,32 +2423,30 @@
               select="../marc:datafield[@tag = '260' and marc:subfield[@code = 'a' or code = 'b' or @code = 'c' or code = 'g']]">
               <xsl:call-template name="z2xx880"/>
             </xsl:for-each>
-            <xsl:if test="marc:subfield[@code = 'a']">
+            <xsl:for-each select="marc:subfield[@code = 'a']">
               <place>
                 <placeTerm type="text">
-                  <xsl:value-of select="marc:subfield[@code = 'a']"/>
+                  <xsl:value-of select="."/>
                 </placeTerm>
               </place>
-            </xsl:if>
-            <xsl:if test="marc:subfield[@code = 'b']">
+            </xsl:for-each>
+            <xsl:for-each select="marc:subfield[@code = 'b']">
               <publisher>
-                <xsl:value-of select="marc:subfield[@code = 'b']"/>
+                <xsl:value-of select="."/>
               </publisher>
-            </xsl:if>
-            <xsl:if test="marc:subfield[@code = 'c']">
+            </xsl:for-each>
+            <xsl:for-each select="marc:subfield[@code = 'c']">
               <dateIssued>
                 <xsl:value-of
-                  select="replace(replace(marc:subfield[@code = 'c'], '^[\.:,;/\[\]\s]+', ''), '[\.:,;/\[\]\s]+$', '')"/>
-                <!--<xsl:value-of select="marc:subfield[@code = 'c']"/>-->
+                  select="replace(replace(., '^[\.:,;/\[\]\s]+', ''), '[\.:,;/\[\]\s]+$', '')"/>
               </dateIssued>
-            </xsl:if>
-            <xsl:if test="marc:subfield[@code = 'g']">
+            </xsl:for-each>
+            <xsl:for-each select="marc:subfield[@code = 'g']">
               <dateCreated>
                 <xsl:value-of
-                  select="replace(replace(marc:subfield[@code = 'g'], '^[\.:,;/\[\]\s]+', ''), '[\.:,;/\[\]\s]+$', '')"/>
-                <!--<xsl:value-of select="marc:subfield[@code = 'g']"/>-->
+                  select="replace(replace(., '^[\.:,;/\[\]\s]+', ''), '[\.:,;/\[\]\s]+$', '')"/>
               </dateCreated>
-            </xsl:if>
+            </xsl:for-each>
             <xsl:for-each
               select="../marc:datafield[@tag = '880']/marc:subfield[@code = '6'][contains(text(), '250')]">
               <edition>
@@ -3117,7 +3123,7 @@
           </xsl:if>
           <xsl:if
             test="marc:controlfield[@tag = '007'][matches(substring(text(), 1, 1), '(a|c|d|g|k|m|v)')][substring(text(), 4, 1) = 'm'] | marc:controlfield[@tag = '007'][substring(text(), 1, 1) = 'h'][substring(text(), 10, 1) = 'm']">
-            <note type="{$notePrefix}colorContent">mixed</note>
+            <note type="{$notePrefix}colorContent">mixed color</note>
           </xsl:if>
         </xsl:if>
         <!-- Configuration of playback channels (motion picture, sound recording, videorecording)-->
@@ -3851,15 +3857,16 @@
           </xsl:if>
           <xsl:if
             test="marc:controlfield[@tag = '007'][substring(text(), 1, 1) = 's'][substring(text(), 14, 1) = 'b']">
-            <note type="{$notePrefix}soundCaptureStorage">direct storage, not acoustical</note>
+            <note type="{$notePrefix}soundCaptureStorage">electrical capture, direct storage</note>
           </xsl:if>
           <xsl:if
             test="marc:controlfield[@tag = '007'][substring(text(), 1, 1) = 's'][substring(text(), 14, 1) = 'd']">
-            <note type="{$notePrefix}soundCaptureStorage">digital storage</note>
+            <note type="{$notePrefix}soundCaptureStorage">electrical capture, digital storage</note>
           </xsl:if>
           <xsl:if
             test="marc:controlfield[@tag = '007'][substring(text(), 1, 1) = 's'][substring(text(), 14, 1) = 'e']">
-            <note type="{$notePrefix}soundCaptureStorage">analog electrical storage</note>
+            <note type="{$notePrefix}soundCaptureStorage">electrical capture, analog electrical
+              storage</note>
           </xsl:if>
         </xsl:if>
         <!-- Motion picture -->
@@ -4506,27 +4513,27 @@
           <xsl:choose>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'a')]">
-              <note type="{$notePrefix}scoreFormat">full score</note>
+              <note type="{$notePrefix}scoreFormat">score</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'b')]">
-              <note type="{$notePrefix}scoreFormat">miniature or study score</note>
+              <note type="{$notePrefix}scoreFormat">study score</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'c')]">
-              <note type="{$notePrefix}scoreFormat">accompaniment reduced for keyboard</note>
+              <note type="{$notePrefix}scoreFormat">piano score</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'd')]">
-              <note type="{$notePrefix}scoreFormat">voice score with accompaniment omitted</note>
+              <note type="{$notePrefix}scoreFormat">vocal score</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'e')]">
-              <note type="{$notePrefix}scoreFormat">condensed score or piano-conductor score</note>
+              <note type="{$notePrefix}scoreFormat">piano conductor part</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'g')]">
-              <note type="{$notePrefix}scoreFormat">close score</note>
+              <note type="{$notePrefix}scoreFormat">condensed score</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'h')]">
@@ -4538,7 +4545,7 @@
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'j')]">
-              <note type="{$notePrefix}scoreFormat">performer-conductor part</note>
+              <note type="{$notePrefix}scoreFormat">performer conductor part</note>
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'k')]">
@@ -4548,10 +4555,10 @@
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'l')]">
               <note type="{$notePrefix}scoreFormat">score</note>
             </xsl:when>
-            <xsl:when
+            <!--<xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'm')]">
               <note type="{$notePrefix}scoreFormat">multiple score formats</note>
-            </xsl:when>
+            </xsl:when>-->
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 21, 1), 'p')]">
               <note type="{$notePrefix}scoreFormat">piano score</note>
@@ -4572,6 +4579,60 @@
               <note type="{$notePrefix}musicParts">vocal parts</note>
             </xsl:when>
           </xsl:choose>
+          <!-- Literary text for sound recording (008/30-31) -->
+          <xsl:if test="matches($leader6, 'i|j')">
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'a')">
+              <note type="{$notePrefix}literaryText">autobiography</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'b')">
+              <note type="{$notePrefix}literaryText">biography</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'c')">
+              <note type="{$notePrefix}literaryText">conference publication</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'd')">
+              <note type="{$notePrefix}literaryText">drama</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'e')">
+              <note type="{$notePrefix}literaryText">essay</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'f')">
+              <note type="{$notePrefix}literaryText">fiction</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'g')">
+              <note type="{$notePrefix}literaryText">reporting</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'h')">
+              <note type="{$notePrefix}literaryText">history</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'i')">
+              <note type="{$notePrefix}literaryText">instruction</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'j')">
+              <note type="{$notePrefix}literaryText">language instruction</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'k')">
+              <note type="{$notePrefix}literaryText">comedy</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'l')">
+              <note type="{$notePrefix}literaryText">speech</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'm')">
+              <note type="{$notePrefix}literaryText">memoir</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'o')">
+              <note type="{$notePrefix}literaryText">folktale</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'p')">
+              <note type="{$notePrefix}literaryText">poetry</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 'r')">
+              <note type="{$notePrefix}literaryText">rehearsal</note>
+            </xsl:if>
+            <xsl:if test="matches(substring(marc:controlfield[@tag = '008'], 31, 2), 't')">
+              <note type="{$notePrefix}literaryText">interview</note>
+            </xsl:if>
+          </xsl:if>
           <!-- Transposition and arrangement (008/33) -->
           <xsl:choose>
             <xsl:when
@@ -4584,7 +4645,7 @@
             </xsl:when>
             <xsl:when
               test="marc:controlfield[@tag = '008'][contains(substring(text(), 34, 1), 'c')]">
-              <note type="{$notePrefix}transpositionArrangement">transposed and arranged </note>
+              <note type="{$notePrefix}transpositionArrangement">transposed and arranged</note>
             </xsl:when>
           </xsl:choose>
         </xsl:if>
@@ -5312,7 +5373,7 @@
           <xsl:copy-of select="."/>
         </xsl:for-each>
       </xsl:variable>
-      <!-- Output unique values and types; this removes duplicates caused by
+      <!-- Output unique values and types; this removes duplicates caused by 
         values provided in multiple control fields and variable fields. -->
       <xsl:for-each select="$physDetailsSorted/*:note">
         <xsl:variable name="thisValue">
@@ -7160,7 +7221,7 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  <!-- 1.75
+  <!-- 1.75 
 		fix -->
   <xsl:template name="subject653Type">
     <xsl:if test="@ind2 != ' '">
@@ -7298,7 +7359,7 @@
           <xsl:with-param name="chopString">
             <xsl:value-of select="marc:subfield[@code = 'b']"/>
             <!--<xsl:call-template name="subfieldSelect">
-							<xsl:with-param name="codes">b</xsl:with-param>
+							<xsl:with-param name="codes">b</xsl:with-param>									
 						</xsl:call-template>-->
           </xsl:with-param>
         </xsl:call-template>
@@ -8892,15 +8953,43 @@
     <note type="acquisition">
       <xsl:call-template name="xxx880"/>
       <xsl:call-template name="uri"/>
+      <!-- UVA Revision 1.119.56 -->
       <xsl:variable name="str">
-        <xsl:for-each select="marc:subfield[@code != '6' and @code != '8']">
-          <xsl:value-of select="."/>
-          <xsl:text> </xsl:text>
-        </xsl:for-each>
+        <xsl:choose>
+          <!-- Exclude subfields a, b, f, and h -->
+          <xsl:when test="@ind1 = '0' or $redact541 = 'true'">
+            <xsl:for-each
+              select="marc:subfield[@code != '6' and @code != '8' and @code != 'a' and @code != 'b' and @code != 'f' and @code != 'h']">
+              <xsl:value-of select="."/>
+              <xsl:if test="position() ne last()">
+                <xsl:text> </xsl:text>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:for-each select="marc:subfield[@code != '6' and @code != '8']">
+              <xsl:value-of select="."/>
+              <xsl:if test="position() ne last()">
+                <xsl:text> </xsl:text>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:variable>
       <!-- UVA Revision 1.119.15 -->
-      <xsl:value-of select="normalize-space(substring($str, 1, string-length($str) - 1))"/>
+      <xsl:value-of select="normalize-space($str)"/>
     </note>
+    <!-- Place acquisition info in private note -->
+    <xsl:if test="@ind1 = '0' or $redact541 = 'true'">
+      <note type="private_541">
+        <xsl:for-each select="marc:subfield[@code != '6' and @code != '8']">
+          <xsl:value-of select="."/>
+          <xsl:if test="position() ne last()">
+            <xsl:text> </xsl:text>
+          </xsl:if>
+        </xsl:for-each>
+      </note>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="createNoteFrom545">
@@ -9712,7 +9801,7 @@
                 >true</xsl:when>
 
               <xsl:when
-                test="@ind2 != 1 and @ind2 != 0 and @ind2 != 2 and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '0']) = 0 and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '1']) = 0 and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2]) = 0"
+                test="@ind2 != '1' and @ind2 != '0' and @ind2 != '2' and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '0']) = 0 and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '1']) = 0 and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2]) = 0"
                 >true</xsl:when>
               <xsl:otherwise>false</xsl:otherwise>
             </xsl:choose>
@@ -9896,12 +9985,6 @@
       </url>
     </location>
   </xsl:template>
-
-
-
-
-
-
 
 </xsl:stylesheet>
 <!-- Stylus Studio meta-information - (c) 2004-2005. Progress Software Corporation. All rights reserved.
