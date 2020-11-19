@@ -21,12 +21,6 @@ class BulkTransformXml < BaseJob
          fatal_error("XSL File #{xsl_file} not found")
       end
 
-      if Settings.use_saxon_servlet == "true"
-         logger.info "Transformations will be done with #{Settings.saxon_url}"
-      else
-         logger.info "Transformations will be done with a local version of saxon"
-      end
-
       if mode == :unit
          unit = message[:unit]
          if unit.nil?
@@ -49,11 +43,8 @@ class BulkTransformXml < BaseJob
          next if mf.metadata.metadata_versions.where(version_tag: xsl_uuid).exists?
 
          logger.info "Transform XmlMetadata #{mf.metadata.id} : #{mf.metadata.pid}"
-         if Settings.use_saxon_servlet == "true"
-            new_xml = servlet_transform(mf.metadata, xsl_uuid)
-         else
-            new_xml = local_transform(mf.metadata, xsl_file)
-         end
+         new_xml = servlet_transform(mf.metadata, xsl_uuid)
+
          if MetadataVersion.has_changes? new_xml, mf.metadata.desc_metadata
             logger.info "Transform successful; create new version"
             MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata,
@@ -99,11 +90,8 @@ class BulkTransformXml < BaseJob
       XmlMetadata.all.find_each do |md|
          next if md.metadata_versions.where(version_tag: xsl_uuid).exists?
 
-         if Settings.use_saxon_servlet == "true"
-            new_xml = servlet_transform(md, xsl_uuid)
-         else
-            new_xml = local_transform(md, xsl_file)
-         end
+         new_xml = servlet_transform(md, xsl_uuid)
+
          if MetadataVersion.has_changes? new_xml, md.desc_metadata
             MetadataVersion.create(metadata: md, staff_member: user, desc_metadata:  md.desc_metadata,
                version_tag: xsl_uuid, comment: comment)
@@ -145,16 +133,5 @@ class BulkTransformXml < BaseJob
          logger.info "Transform XmlMetadata #{metadata.id} : #{metadata.pid} exception: #{e.message}"
          return ""
       end
-   end
-
-   def local_transform(metadata, xsl_file)
-      saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
-
-      tmp = Tempfile.new([metadata.pid, ".xml"])
-      tmp.write(metadata.desc_metadata)
-      tmp.close
-
-      cmd = "#{saxon} -s:#{tmp.path} -xsl:#{xsl_file}"
-      return `#{cmd}`
    end
 end

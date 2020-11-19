@@ -13,8 +13,7 @@ kdu_compress: /usr/bin/kakadu/kdu_compress
 num_jp2k_threads: "2"
 
 # Saxxon settings for XSL 2.0 Transformations
-use_saxon_servlet: "false"
-saxon_url: http://docker1.lib.virginia.edu:8391/SaxonServlet
+saxon_url: https://saxon-servlet.internal.lib.virginia.edu/SaxonServlet
 
 # Max size of patron zip Files
 zip_max_gb: "2"
