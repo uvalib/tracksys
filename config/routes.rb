@@ -51,7 +51,6 @@ Tracksys::Application.routes.draw do
      get "archivesspace/report" => "as#report"
      get "aries/:id" => "aries#show", :constraints => { :id => /[0-9A-Za-z:_\-\.\/]+/ }
      get "aries" => "aries#index"
-     get "sirsi/:id" => "sirsi#show"
      get "metadata/search" => "metadata#search"
      get "metadata/:pid" => "metadata#show"
      get "fulltext/:pid" => "fulltext#show"
@@ -59,9 +58,6 @@ Tracksys::Application.routes.draw do
      get "pid/:pid" => "pid#show"
      get "pid/:pid/type" => "pid#identify"
      get "pid/:pid/rights" => "pid#rights"
-     get "solr/:pid" => "solr#show"
-     get "solr" => "solr#index"
-     get "published" => "solr#published"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
      get "stylesheet/:id" => "stylesheet#show"
@@ -71,5 +67,18 @@ Tracksys::Application.routes.draw do
      get "manifest/:pid" => "manifest#show"
      post "callbacks/:jid/ocr" => "callbacks#ocr"
      post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
+
+      # Used by overnight ingest for Virgo3 -- all to be retired once V3 goes away
+     get "published" => "solr#published"
+     get "solr/:pid" => "solr#show"
+     get "solr" => "solr#index"
+
+     # used by V4 tracksys-enrich
+     get "sirsi/published" => "sirsi#published"
+     get "other/published" => "other#published"
+     get "other/:id" => "other#show"
+
+     # Used by V3 and V4
+     get "sirsi/:id" => "sirsi#show"
   end
 end

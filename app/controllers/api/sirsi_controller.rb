@@ -1,10 +1,19 @@
 class Api::SirsiController < ApplicationController
+   def published
+      keys = []
+      SirsiMetadata.where("date_dl_ingest is not null").find_each do |m|
+         keys << m.catalog_key
+      end
+      render json: keys
+   end
+
    def show
-      resp = { sirsiId: params[:id], pdfServiceRoot: Settings.pdf_url, items: [] }
+      out = { sirsiId: params[:id], pdfServiceRoot: Settings.pdf_url, items: [] }
       found = false
-      Metadata.where("catalog_key=?", params[:id]).order(call_number: :asc).each do |sm|
-         next if sm.date_dl_ingest.nil? || !sm.discoverability
-         resp[:collection] = sm.collection_facet if !sm.collection_facet.blank?
+      SirsiMetadata.where("catalog_key=?", params[:id]).order(call_number: :asc).each do |sm|
+         next if sm.date_dl_ingest.blank? || !sm.discoverability
+
+         out[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
 
          rights = sm.use_right.statement
@@ -36,11 +45,11 @@ class Api::SirsiController < ApplicationController
             item[:thumbnailUrl] = sm.exemplar_info[:url]
          end
 
-         resp[:items] << item
+         out[:items] << item
       end
 
       if found
-         render json: resp
+         render json: out
       else
          render plain: "Not Found", status: :not_found
       end
