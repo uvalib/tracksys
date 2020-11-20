@@ -1,10 +1,10 @@
 class Api::OtherController < ApplicationController
    def published
-      keys = []
+      out = {items: []}
       XmlMetadata.where("date_dl_ingest is not null").find_each do |m|
-         keys << m.pid
+         out[:items] << m.pid
       end
-      render json: keys
+      render json: out
    end
 
    def show

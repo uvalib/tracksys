@@ -1,10 +1,10 @@
 class Api::SirsiController < ApplicationController
    def published
-      keys = []
+      out = {items: []}
       SirsiMetadata.where("date_dl_ingest is not null").find_each do |m|
-         keys << m.catalog_key
+         out[:items] << m.catalog_key
       end
-      render json: keys
+      render json: out
    end
 
    def show
