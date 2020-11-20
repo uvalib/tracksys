@@ -1,7 +1,7 @@
 class Api::OtherController < ApplicationController
    def published
       out = {items: []}
-      XmlMetadata.where("date_dl_ingest is not null").find_each do |m|
+      XmlMetadata.where("date_dl_ingest is not null").distinct().find_each do |m|
          out[:items] << m.pid
       end
       render json: out

@@ -1,7 +1,7 @@
 class Api::SirsiController < ApplicationController
    def published
       out = {items: []}
-      SirsiMetadata.where("date_dl_ingest is not null").find_each do |m|
+      SirsiMetadata.where("date_dl_ingest is not null").distinct().find_each do |m|
          out[:items] << m.catalog_key
       end
       render json: out
