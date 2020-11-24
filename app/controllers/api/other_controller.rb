@@ -22,8 +22,6 @@ class Api::OtherController < ApplicationController
 
       out[:collection] = md.collection_facet if !md.collection_facet.blank?
 
-      rights = md.use_right.statement
-      rights << "\nFind more information about permission to use the library's materials at http://search.lib.virginia.edu/terms.html."
       uses = []
       uses << "Educational Use Permitted" if md.use_right.educational_use
       uses << "Commercial Use Permitted" if md.use_right.commercial_use
@@ -38,8 +36,8 @@ class Api::OtherController < ApplicationController
          manifestURL = json['url']
       end
 
-      out[:rsURI] = md.use_right.uri,
-      out[:rsUses] = uses,
+      out[:rsURI] = md.use_right.uri
+      out[:rsUses] = uses
       out[:backendIIIFManifestUrl] = manifestURL
 
       if md.has_exemplar?
