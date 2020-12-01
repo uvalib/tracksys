@@ -45,6 +45,17 @@ class PublishToDL < BaseJob
          end
       end
 
+      # Call the reindex API for sirsi items
+      if unit.metadata.type == "SirsiMetadata" && !unit.metadata.catalog_key.blank?
+         logger.info "Call the reindex service for #{unit.metadata.id} - #{unit.metadata.catalog_key}"
+         resp = RestClient.put "#{Settings.reindex_url}//api/reindex/#{unit.metadata.catalog_key}"
+         if resp.code.to_i == 200
+            logger.info "#{unit.metadata.catalog_key} reindex request successful"
+         else
+            logger.warn "#{unit.metadata.catalog_key} reindex request FAILED: #{resp.code}: #{resp.body}"
+         end
+      end
+
       # Lastly, flag the deliverables ready date if it is not already set
       if unit.date_dl_deliverables_ready.blank?
          unit.update(date_dl_deliverables_ready: Time.now)
