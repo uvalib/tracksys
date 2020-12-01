@@ -61,7 +61,7 @@ class Api::ManifestController < ApplicationController
          json[:text_source] = mf.text_source if !mf.text_source.nil?
          if !mf.original_mf_id.nil?
             orig = MasterFile.find(mf.original_mf_id)
-            out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
+            json[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
          end
          out << json
       end
