@@ -44,7 +44,7 @@ module Publishable
       # Call the reindex API for sirsi items
       if self.type == "SirsiMetadata" && !self.catalog_key.blank?
          Rails.logger.info "Call the reindex service for #{self.id} - #{self.catalog_key}"
-         resp = RestClient.put "#{Settings.reindex_url}//api/reindex/#{self.catalog_key}"
+         resp = RestClient.put "#{Settings.reindex_url}/api/reindex/#{self.catalog_key}"
          if resp.code.to_i == 200
             Rails.logger.info "#{self.catalog_key} reindex request successful"
          else
