@@ -29,14 +29,14 @@ module TechMetadata
       image_tech_meta.width = image.width
       image_tech_meta.height = image.height
       image_tech_meta.resolution = image.resolution.first
-      image_tech_meta.equipment = image["%[tiff:make]"] 
+      image_tech_meta.equipment = image["%[tiff:make]"]
       image_tech_meta.software = image["%[tiff:software]"]
       image_tech_meta.model = image["%[tiff:model]"]
       exif_date = image["%[exif:DateTimeOriginal]"]
       if !exif_date.blank?
          image_tech_meta.capture_date = exif_date.split(":",3).join("/").to_datetime
       end
-      image_tech_meta.iso = image["%[exif:ISOSpeedRatings]"] 
+      image_tech_meta.iso = image["%[exif:ISOSpeedRatings]"]
       image_tech_meta.exposure_bias = image["%exif:ExposureBiasValue]"]
       image_tech_meta.exposure_time = image["%exif:ExposureTime]"]
       image_tech_meta.aperture = image["%exif:FNumber]"]

@@ -53,6 +53,20 @@ class Api::ManifestController < ApplicationController
                logger.error("Unable to create tech metadata: #{e}. Skipping.")
                next
             end
+         else
+            if tech_meta.width.nil? ||  tech_meta.height.nil?
+               logger.info "MasterFile #{mf.id} missing width/height info in metadata. Trying to update..."
+               image = MiniMagick::Image.open(archive_file)
+               tech_meta.width = image.width
+               tech_meta.height = image.height
+               tech_meta.resolution = image.resolution.first
+               begin
+                  tech_meta.save!
+                  logger.info "MasterFile #{mf.id} width/height updated"
+               rescue Exception => e
+                  logger.error("Unable to update tech metadata: #{e}")
+               end
+            end
          end
          json = { id: mf.id, pid: mf.pid, filename: mf.filename, width: tech_meta.width, height: tech_meta.height, orientation: tech_meta.orientation }
          json[:title] = mf.title if !mf.title.nil?
