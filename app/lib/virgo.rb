@@ -156,15 +156,26 @@ module Virgo
     # normalize parameters
     catalog_key = catalog_key.strip.downcase unless catalog_key.blank?
     barcode = barcode.strip.upcase unless barcode.blank?
-    if catalog_key.blank?
-      raise ArgumentError, "Catalog_key blank; nothing to look up"
+    if catalog_key.blank? && barcode.blank?
+      Rails.logger.warn "external_lookup called with blank catalog key and barcode"
+      raise ArgumentError, "Catalog_key and barcode blank; nothing to look up"
     end
 
     begin
-      marc_string = get_marc(catalog_key)
+      if !catalog_key.blank?
+         marc_string = get_marc(catalog_key)
+      else
+         sirsi_url = "#{Settings.sirsi_url}/getMarc?barcode=#{barcode}&type=xml"
+         Rails.logger.info("Query SIRSI for MARC: #{sirsi_url}")
+         response = RestClient.get( sirsi_url )
+         marc_string = ""
+         if response.code.to_i == 200
+            marc_string = response.body
+         end
+      end
       return get_metadata_json(marc_string, barcode)
     rescue
-      raise "Query to #{Settings.solr_url} with key #{catalog_key} failed to return a valid result."
+      raise "Query to #{Settings.solr_url} with key:#{catalog_key} barcode:#{barcode} failed to return a valid result."
     end
   end
 
@@ -172,9 +183,9 @@ module Virgo
   # metadata record to look up. Returns an XML string with the SIRSI response
   def self.get_marc(catalog_key)
       ckey = catalog_key.gsub /\Au/, ''
-      solr_query = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
-      Rails.logger.info("Query SIRSI for MARC: #{solr_query}")
-      response = RestClient.get( solr_query )
+      sirsi_url = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
+      Rails.logger.info("Query SIRSI for MARC: #{sirsi_url}")
+      response = RestClient.get( sirsi_url )
       return response.body if response.code.to_i == 200
       return ""
   end
