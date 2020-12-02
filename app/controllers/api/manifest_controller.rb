@@ -56,6 +56,8 @@ class Api::ManifestController < ApplicationController
          else
             if tech_meta.width.nil? ||  tech_meta.height.nil?
                logger.info "MasterFile #{mf.id} missing width/height info in metadata. Trying to update..."
+               unit_dir = mf.filename.split("_")[0]
+               archive_file = File.join(ARCHIVE_DIR, unit_dir, mf.filename)
                image = MiniMagick::Image.open(archive_file)
                tech_meta.width = image.width
                tech_meta.height = image.height
