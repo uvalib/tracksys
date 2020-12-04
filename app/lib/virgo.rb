@@ -263,9 +263,11 @@ module Virgo
       if marc245a and marc245a.text
          marc245b = marc245.xpath("subfield[@code='b']").first
          if marc245b and marc245b.text
-         title_a = marc245a.text.strip
-         title_b = marc245b.text.strip.sub(/\s*\/$/,'')  # remove trailing / character
-         metadata[:title] = "#{title_a} #{title_b}"
+            title_a = marc245a.text.strip
+            title_b = marc245b.text.strip.sub(/\s*\/$/,'')  # remove trailing / character
+            metadata[:title] = "#{title_a} #{title_b}"
+         else
+            metadata[:title] = marc245a.text.strip
          end
       end
    end
