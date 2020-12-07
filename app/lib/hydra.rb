@@ -142,6 +142,7 @@ module Hydra
                end
             end
             add_rights_to_mods(doc, metadata)
+            add_access_url_to_mods(doc, metadata)
          end
          output = doc.to_xml
       else
@@ -151,6 +152,7 @@ module Hydra
 
          doc = Nokogiri::XML(metadata.desc_metadata)
          add_rights_to_mods(doc, metadata)
+         add_access_url_to_mods(doc, metadata)
          output = doc.to_xml
       end
       return output
@@ -171,14 +173,9 @@ module Hydra
       return ""
    end
 
-   private
    def self.add_rights_to_mods(doc, metadata)
-      # some desc_metadata has namespaces, some does not.
-      # figure out if this one does, and set params to be used in xpath
-      ns = ""
-      ns = "mods:" if doc.to_xml.include? "mods:"
-
-      access = doc.xpath("//#{ns}mods/#{ns}accessCondition").first
+      doc.remove_namespaces!
+      access = doc.xpath("//mods/accessCondition").first
       if access.nil?
          rights_node = Nokogiri::XML::Node.new "accessCondition", doc
          rights_node['type'] = 'use and reproduction'
@@ -189,6 +186,52 @@ module Hydra
          end
          if !doc.root.nil?
             doc.root.children.first.add_previous_sibling(rights_node)
+         end
+      end
+   end
+
+   def self.add_access_url_to_mods(doc, metadata)
+      doc.remove_namespaces!
+
+      # generate all of the necessary URL nodes
+      url_nodes = []
+      n = Nokogiri::XML::Node.new "url", doc
+      n['access'] = 'object in context'
+      n.content = "#{Settings.virgo_url}/items/#{metadata.pid}"
+      url_nodes << n
+      if metadata.has_exemplar?
+         n = Nokogiri::XML::Node.new "url", doc
+         n['access'] = 'preview'
+         n.content = metadata.exemplar_info(:small)[:url]
+         url_nodes << n
+      end
+      n = Nokogiri::XML::Node.new "url", doc
+      n['access'] = 'raw object'
+      n.content = "#{Settings.doviewer_url}/view/#{metadata.pid}"
+      url_nodes << n
+
+      loc = doc.xpath("//mods/location").first
+      if loc.nil?
+         # no location node present, just add one at start and append the
+         # URL nodes from above to it
+         if !doc.root.nil?
+            url_nodes.each do |n|
+               doc.root.children.first.add_previous_sibling(n)
+            end
+         end
+      else
+         # Location is present. URLs must be added AFTER physicalLocation
+         pl = loc.xpath("physicalLocation").first
+         if pl.nil?
+            # No physicalLocation, just add to root of location
+            url_nodes.each do |n|
+               loc.add_child(n)
+            end
+         else
+            # physicalLocation found, add URL nodes immediately after
+            url_nodes.each do |n|
+               pl.add_next_sibling(n)
+            end
          end
       end
    end

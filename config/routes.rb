@@ -68,6 +68,9 @@ Tracksys::Application.routes.draw do
      post "callbacks/:jid/ocr" => "callbacks#ocr"
      post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
 
+     # Get a list of PIDs that have been flagged for DPLA publication
+     get "dpla" => "dpla#published"
+
       # Used by overnight ingest for Virgo3 -- all to be retired once V3 goes away
      get "published" => "solr#published"
      get "solr/:pid" => "solr#show"
