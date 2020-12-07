@@ -197,7 +197,7 @@ module Hydra
       url_nodes = []
       n = Nokogiri::XML::Node.new "url", doc
       n['access'] = 'object in context'
-      n.content = "#{Settings.virgo_url}/items/#{metadata.pid}"
+      n.content = "#{Settings.virgo_url}/#{metadata.pid}"
       url_nodes << n
       if metadata.has_exemplar?
          n = Nokogiri::XML::Node.new "url", doc
