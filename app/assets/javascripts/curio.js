@@ -2,11 +2,21 @@ $(function() {
    $(".do-viewer-enabled").on("click", function() {
       $("#dimmer").show();
       $("#do-viewer-modal").show();
-      var clickedPage = parseInt($(this).data("page"),10);
+      var params = [];
       var unitID = parseInt($(this).data("unit"),10);
+      if (unitID) {
+         params.push("unit="+unitID)
+      }
+      var clickedPage = parseInt($(this).data("page"),10);
+      if (clickedPage) {
+         params.push("page="+clickedPage)
+      }
       var curioURL =  $(this).data("curio-url");
       var mfPid = $(this).data("metadata-pid");
-      var url = curioURL+"/view/"+mfPid+"?page="+clickedPage+"&unit="+unitID;
+      var url = curioURL+"/view/"+mfPid
+      if (params.length > 0) {
+         url = url + "?" + params.join("&")
+      }
       url = encodeURIComponent(url);
       var oembed = curioURL+"/oembed?url="+url+"&format=json&maxwidth=800&maxheight=600";
       $.getJSON(oembed, function ( data, textStatus, jqXHR ){
