@@ -113,7 +113,10 @@ module Hydra
          end
 
          doc = Nokogiri::XML( mods_xml_string)
-         doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
+         namespaces = doc.root.namespaces
+         if namespaces.key?("mods") == false
+            doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
+         end
          last_node = doc.xpath("//mods:mods/mods:recordInfo").last
          if !last_node.nil?
             # Add node for indexing
@@ -174,8 +177,14 @@ module Hydra
    end
 
    def self.add_rights_to_mods(doc, metadata)
-      doc.remove_namespaces!
-      access = doc.xpath("//mods/accessCondition").first
+      namespaces = doc.root.namespaces
+      if namespaces.key?("xlink") == false
+         doc.root.add_namespace_definition("xlink", "http://www.w3.org/1999/xlink")
+      end
+      if namespaces.key?("mods") == false
+         doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
+      end
+      access = doc.xpath("//mods:mods/mods:accessCondition").first
       if access.nil?
          rights_node = Nokogiri::XML::Node.new "accessCondition", doc
          rights_node['type'] = 'use and reproduction'
@@ -191,7 +200,10 @@ module Hydra
    end
 
    def self.add_access_url_to_mods(doc, metadata)
-      doc.remove_namespaces!
+      namespaces = doc.root.namespaces
+      if namespaces.key?("mods") == false
+         doc.root.add_namespace_definition("mods", "http://www.loc.gov/mods/v3")
+      end
 
       # generate all of the necessary URL nodes
       url_nodes = []
@@ -210,7 +222,7 @@ module Hydra
       n.content = "#{Settings.doviewer_url}/view/#{metadata.pid}"
       url_nodes << n
 
-      loc = doc.xpath("//mods/location").first
+      loc = doc.xpath("//mods:mods/mods:location").first
       if loc.nil?
          # no location node present, just add one at start and append the
          # URL nodes from above to it
@@ -221,7 +233,7 @@ module Hydra
          end
       else
          # Location is present. URLs must be added AFTER physicalLocation
-         pl = loc.xpath("physicalLocation").first
+         pl = loc.xpath("mods:physicalLocation").first
          if pl.nil?
             # No physicalLocation, just add to root of location
             url_nodes.each do |n|

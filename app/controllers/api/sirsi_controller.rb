@@ -36,8 +36,6 @@ class Api::SirsiController < ApplicationController
             pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode,
             rsURI: sm.use_right.uri,
             rsUses: uses,
-            rightsWrapperUrl: "#{Settings.rights_wrapper_url}/?pid=#{sm.pid}&pagePid=",
-            rightsWrapperText: "#{sm.get_citation}\n#{Settings.virgo_url}/#{sm.pid}\n\n#{rights}",
             backendIIIFManifestUrl: manifestURL
          }
 
