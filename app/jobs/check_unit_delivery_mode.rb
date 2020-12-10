@@ -48,7 +48,7 @@ class CheckUnitDeliveryMode < BaseJob
             if resp.code.to_i != 200
                logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
             else
-               json = JSON.parse(resp.body)item published to virgo
+               json = JSON.parse(resp.body)
 
                logger.info "IIIF Manifest generated at: #{json['url']}"
             end
