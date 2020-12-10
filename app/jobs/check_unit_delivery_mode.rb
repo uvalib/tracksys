@@ -38,13 +38,18 @@ class CheckUnitDeliveryMode < BaseJob
          if cnt != unit.master_files.count
             fatal_error "Mismatch in count of master files published to IIIF"
          else
-            logger.info "Generating IIIF manifest..."
             md_pid = unit.metadata.pid
-            resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
+            iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
+            if unit.include_in_dl == false
+               iiif_url = "#{iiif_url}?unit=#{unit.id}"
+            end
+            logger.info "Generating IIIF manifest with #{iiif_url}..."
+            resp = RestClient.get iiif_url
             if resp.code.to_i != 200
                logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
             else
-               json = JSON.parse(resp.body)
+               json = JSON.parse(resp.body)item published to virgo
+
                logger.info "IIIF Manifest generated at: #{json['url']}"
             end
          end
