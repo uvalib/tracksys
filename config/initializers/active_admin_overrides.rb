@@ -11,7 +11,7 @@ module ActiveAdmin
                within head do
                   meta name: "referrer", content: "origin"
                   script src: "//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js", type: "text/javascript"
-                  script src: "//cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.2/jquery.panzoom.js", type: "text/javascript"
+                  script src: "//cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.3/jquery.panzoom.js", type: "text/javascript"
                end
             end
 
@@ -24,7 +24,7 @@ module ActiveAdmin
          end
 
          # Prepend will add this module in front of AcriveAdmin::Views::Pages::Base in the class heirarchy,
-         # allowing the extra functionality necessary for header updates and messaging UI to be included 
+         # allowing the extra functionality necessary for header updates and messaging UI to be included
          # in all instances
          Base.prepend(TracksysOverrides)
       end
