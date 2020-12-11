@@ -110,3 +110,9 @@ if unit.date_archived
       end
    end
 end
+
+if unit.master_files.length > 0
+   div :class => 'workflow_button' do
+      button_to "Regenerate IIIF Manifest", regenerate_iiifman_admin_unit_path, :method => :put
+   end
+end

@@ -22,13 +22,13 @@ class Api::PidController < ApplicationController
 
       obj = MasterFile.find_by(pid: params[:pid])
       if !obj.nil?
-         parent_md = obj.metadata  
+         parent_md = obj.metadata
          out = {id: obj.id, pid: obj.pid, type: "master_file", title: obj.title, filename: obj.filename }
          out[:parent_metadata_pid] = parent_md.pid if !parent_md.nil?
          if !obj.original_mf_id.nil?
             orig = MasterFile.find(obj.original_mf_id)
             out[:cloned_from] = {id: orig.id, pid: orig.pid, filename: orig.filename }
-         else 
+         else
             out[:text_source] = obj.text_source if !obj.text_source.blank?
             if !parent_md.nil?
                if !parent_md.ocr_hint_id.nil?
@@ -109,6 +109,6 @@ class Api::PidController < ApplicationController
          render plain: "masterfile" and return
       end
 
-      render plain: "invalid", status: :bad_request
+      render plain: "#{params[:pid]} not found", status: :not_found
    end
 end
