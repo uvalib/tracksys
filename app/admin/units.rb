@@ -367,9 +367,9 @@ ActiveAdmin.register Unit do
    member_action :regenerate_iiifman, :method=>:put do
       unit = Unit.find(params[:id])
       md_pid = unit.metadata.pid
-      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
+      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}&refresh=1"
       if unit.include_in_dl == false
-         iiif_url = "#{iiif_url}?unit=#{unit.id}"
+         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?unit=#{unit.id}&refresh=1"
       end
       Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
       resp = RestClient.get iiif_url
