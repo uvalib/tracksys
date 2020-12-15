@@ -48,7 +48,7 @@ class PublishToDL < BaseJob
       # Call the reindex API for sirsi items
       if unit.metadata.type == "SirsiMetadata" && !unit.metadata.catalog_key.blank?
          logger.info "Call the reindex service for #{unit.metadata.id} - #{unit.metadata.catalog_key}"
-         resp = RestClient.put "#{Settings.reindex_url}/api/reindex/#{unit.metadata.catalog_key}"
+         resp = RestClient.put "#{Settings.reindex_url}/api/reindex/#{unit.metadata.catalog_key}", ""
          if resp.code.to_i == 200
             logger.info "#{unit.metadata.catalog_key} reindex request successful"
          else
