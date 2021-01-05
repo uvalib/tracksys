@@ -67,14 +67,11 @@ class CheckUnitDeliveryMode < BaseJob
          unit.reload
       end
 
-      # Figure out if this unit has any deliverables, and of what type:
-      if unit.include_in_dl && unit.metadata.availability_policy_id?
-         # flagged for DL and policy set. Send to DL
+      # Figure out if this unit has any deliverables, and of what type
+      # NOTE: no need to check avail policy. Prior jobs already enforce setting
+      if unit.include_in_dl
          logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
          PublishToDL.exec_now({unit_id: unit.id}, self)
-         if unit.intended_use.description != "Digital Collection Building"
-            create_patron_deliverables(unit)
-         end
 
          # If this unit is also slated for DPLA, publish the QDC
          if unit.metadata.in_dpla?
@@ -83,7 +80,8 @@ class CheckUnitDeliveryMode < BaseJob
          end
       end
 
-      if unit.intended_use.description != "Digital Collection Building" && unit.include_in_dl == false
+      # If desc is not digital collection building, create patron deliverables regardless of any other settings
+      if unit.intended_use.description != "Digital Collection Building"
          create_patron_deliverables(unit)
       end
 
