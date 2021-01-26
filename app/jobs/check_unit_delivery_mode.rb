@@ -72,12 +72,6 @@ class CheckUnitDeliveryMode < BaseJob
       if unit.include_in_dl
          logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
          PublishToDL.exec_now({unit_id: unit.id}, self)
-
-         # If this unit is also slated for DPLA, publish the QDC
-         if unit.metadata.in_dpla?
-            logger.info "This unit is to be available in DPLA. Generate and publish QDC."
-            PublishQDC.exec_now({metadata_id: unit.metadata_id})
-         end
       end
 
       # If desc is not digital collection building, create patron deliverables regardless of any other settings

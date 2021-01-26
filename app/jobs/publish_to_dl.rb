@@ -45,6 +45,16 @@ class PublishToDL < BaseJob
          end
       end
 
+      md_pid = unit.metadata.pid
+      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}&refresh=true"
+      Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+      resp = RestClient.get iiif_url
+      if resp.code.to_i != 200
+         Rails.logger.error "Unable to generate IIIF manifest: #{resp.body}"
+      else
+         Rails.logger.info "IIIF manifest regenerated."
+      end
+
       # Call the reindex API for sirsi items
       if unit.metadata.type == "SirsiMetadata" && !unit.metadata.catalog_key.blank?
          logger.info "Call the reindex service for #{unit.metadata.id} - #{unit.metadata.catalog_key}"

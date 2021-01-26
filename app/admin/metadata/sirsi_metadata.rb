@@ -325,10 +325,6 @@ ActiveAdmin.register SirsiMetadata do
             params[:sirsi_metadata][:ocr_language_hint] = ""
          end
          super
-         metadata = Metadata.find(params[:id])
-         if metadata.in_dpla? && Settings.dpla_qdc_auto_publish == "true"
-            PublishQDC.exec({metadata_id: metadata.id})
-         end
       end
    end
 end

@@ -41,6 +41,16 @@ module Publishable
         self.update(date_dl_update: Time.now)
       end
 
+      # regenerate the IIIF man
+      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{self.pid}&refresh=true"
+      Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+      resp = RestClient.get iiif_url
+      if resp.code.to_i != 200
+         Rails.logger.error "Unable to generate IIIF manifest: #{resp.body}"
+      else
+         Rails.logger.info "IIIF manifest regenerated."
+      end
+
       # Call the reindex API for sirsi items
       if self.type == "SirsiMetadata" && !self.catalog_key.blank?
          Rails.logger.info "Call the reindex service for #{self.id} - #{self.catalog_key}"

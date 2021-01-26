@@ -311,27 +311,23 @@ ActiveAdmin.register XmlMetadata do
     end
 
     before_save do |metadata|
-         new_xml  = params[:xml_metadata][:desc_metadata]
-         xml = Nokogiri::XML( new_xml )
-         xml.remove_namespaces!
-         title_node = xml.xpath( "//titleInfo/title" ).first
-         if !title_node.nil?
-            title = title_node.text.strip
-            metadata.title = title
+      new_xml  = params[:xml_metadata][:desc_metadata]
+      xml = Nokogiri::XML( new_xml )
+      xml.remove_namespaces!
+      title_node = xml.xpath( "//titleInfo/title" ).first
+      if !title_node.nil?
+         title = title_node.text.strip
+         metadata.title = title
+      end
+      creator = []
+      first_node = xml.xpath("/mods/name").first
+      if !first_node.nil?
+         first_node.xpath("namePart").each do |node|
+            creator << node.text.strip
          end
-         creator = []
-         first_node = xml.xpath("/mods/name").first
-         if !first_node.nil?
-            first_node.xpath("namePart").each do |node|
-               creator << node.text.strip
-            end
-         end
-         if !creator.blank?
-            metadata.creator_name = creator.join(" ")
-         end
-
-         if metadata.in_dpla? && Settings.dpla_qdc_auto_publish == "true"
-            PublishQDC.exec({metadata_id: metadata.id})
-         end
+      end
+      if !creator.blank?
+         metadata.creator_name = creator.join(" ")
+      end
    end
 end
