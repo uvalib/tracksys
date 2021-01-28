@@ -71,11 +71,6 @@ Tracksys::Application.routes.draw do
      # Get a list of PIDs that have been flagged for DPLA publication
      get "dpla" => "dpla#published"
 
-      # Used by overnight ingest for Virgo3 -- all to be retired once V3 goes away
-     get "published" => "solr#published"
-     get "solr/:pid" => "solr#show"
-     get "solr" => "solr#index"
-
      # used by V4 tracksys-enrich
      get "sirsi/published" => "sirsi#published"
      get "other/published" => "other#published"
