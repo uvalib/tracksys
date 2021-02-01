@@ -45,20 +45,18 @@ class PublishToDL < BaseJob
          end
       end
 
-      md_pid = unit.metadata.pid
-      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}&refresh=true"
-      logger.info "Regenerate IIIF manifest with #{iiif_url}"
-      resp = RestClient.get iiif_url
-      if resp.code.to_i == 404
-         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
-         logger.info "No IIIF manifest exists. Create a new one with #{iiif_url}"
+      begin
+         md_pid = unit.metadata.pid
+         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?refresh=true"
+         logger.info "Regenerate IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
          if resp.code.to_i != 200
-            logger.error "Unable to generate IIIF manifest: #{resp.body}"
+            logger.error "Unable to regenerate IIIF manifest: #{resp.body}"
+         else
+            logger.info "IIIF manifest regenerated"
          end
-      elsif resp.code.to_i != 200
-         ogger.error "Unable to regenerate IIIF manifest: #{resp.body}"
-      else
-         logger.info "IIIF manifest regenerated."
+      rescue Exception => e
+         logger.error "Unable to regenerate IIIF manifest: #{e}"
       end
 
       # Call the reindex API for sirsi items
