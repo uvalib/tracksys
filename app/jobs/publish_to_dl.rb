@@ -55,7 +55,7 @@ class PublishToDL < BaseJob
          if resp.code.to_i != 200
             logger.error "Unable to generate IIIF manifest: #{resp.body}"
          end
-      elsif if resp.code.to_i != 200
+      elsif resp.code.to_i != 200
          ogger.error "Unable to regenerate IIIF manifest: #{resp.body}"
       else
          logger.info "IIIF manifest regenerated."
