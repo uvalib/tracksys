@@ -45,10 +45,16 @@ module Publishable
       iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{self.pid}&refresh=true"
       Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
       resp = RestClient.get iiif_url
-      if resp.code.to_i != 200
-         Rails.logger.error "Unable to generate IIIF manifest: #{resp.body}"
+      if resp.code.to_i == 404
+         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{self.pid}"
+         logger.info "No IIIF manifest exists. Create a new one with #{iiif_url}"
+         if resp.code.to_i != 200
+            Rails.logger.error "Unable to generate IIIF manifest: #{resp.body}"
+         end
+      elsif resp.code.to_i != 200
+         Rails.logger.error "Unable to regenerate IIIF manifest: #{resp.body}"
       else
-         Rails.logger.info "IIIF manifest regenerated."
+         Rails.logger.info "IIIF manifest regenerated"
       end
 
       # Call the reindex API for sirsi items
