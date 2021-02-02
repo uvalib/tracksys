@@ -30,6 +30,16 @@ class Api::MetadataController < ApplicationController
       if type == "desc_metadata"
          render :xml=> Hydra.desc(md) and return
       end
+
+      if type == "brief"
+         out = {pid: params[:pid], title: md.title, creator: md.creator_name, rights: md.use_right.uri }
+         out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
+         out[:callNumber] = md.call_number if !md.call_number.blank?
+         if md.has_exemplar?
+            out[:exemplar] = md.exemplar_info(:small)[:filename]
+         end
+         render json: out
+      end
    end
 
    include ActionView::Helpers::TextHelper
