@@ -13,7 +13,7 @@ class Api::CallbacksController < ApplicationController
       if resp["status"] == "success"
          job_logger.info "OCR successfully completed at #{resp['finished']}"
          job.finished
-      else 
+      else
          job_logger.fatal "OCR FAILED at #{resp['finished']}"
          job_logger.fatal "Failure details #{resp['message']}"
          job.failed( resp['message'])
@@ -22,23 +22,23 @@ class Api::CallbacksController < ApplicationController
    end
 
    # Callback from OCR service that was triggered from finalization.
-   # Instead of marking the job success/fail flag the OCR completion 
-   # in redis. The job is watching for this signal and will unblock 
+   # Instead of marking the job success/fail flag the OCR completion
+   # in redis. The job is watching for this signal and will unblock
    # based on the setting in redis
    #
    def synchronous_ocr
       job_id = params[:jid]
-      redis = Redis.new(host: Settings.redis_host, password: Settings.redis_pass)
+      redis = Redis.new(host: Settings.redis_host, port: Settings.redis_port, db: Settings.redis_db)
       redis_key = "#{Settings.redis_prefix}:ocr_#{job_id}"
       ocr_status = redis.get(redis_key)
-      if ocr_status.nil? 
+      if ocr_status.nil?
          logger.error("No OCR job status for job #{job_id} found!")
          render plain: "Job ID not found", status: :not_found
       else
          resp = JSON.parse(params[:json])
          if resp["status"] == "success"
-            redis.set(redis_key, "success")    
-         else 
+            redis.set(redis_key, "success")
+         else
             redis.set(redis_key, "OCR FAILED: #{resp['message']}")
          end
          render plain: "ok"

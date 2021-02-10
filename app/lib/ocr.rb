@@ -13,7 +13,7 @@ module OCR
       resp = RestClient.get url
       if resp.code == 200
          job.logger.info "Request successfully submitted. Awaiting results."
-         redis = Redis.new(host: Settings.redis_host, password: Settings.redis_pass)
+         redis = Redis.new(host: Settings.redis_host, port: Settings.redis_port, db: Settings.redis_db)
          redis_key = "#{Settings.redis_prefix}:ocr_#{job.status.id}"
          redis.set(redis_key, "waiting")
          while true do

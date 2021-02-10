@@ -4,7 +4,7 @@ module ArchivesSpace
    #
    def self.get_auth_session()
       # First check redis to see if there is a token there...
-      redis = Redis.new(host: Settings.redis_host, password: Settings.redis_pass)
+      redis = Redis.new(host: Settings.redis_host, port: Settings.redis_port, db: Settings.redis_db)
       session = redis.get("#{Settings.redis_prefix}:as_session")
       if session.nil?
          as = ExternalSystem.find_by(name: "ArchivesSpace")
