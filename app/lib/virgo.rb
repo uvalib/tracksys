@@ -166,7 +166,7 @@ module Virgo
          marc_string = get_marc(catalog_key)
       else
          sirsi_url = "#{Settings.sirsi_url}/getMarc?barcode=#{barcode}&type=xml"
-         Rails.logger.info("Query SIRSI for MARC: #{sirsi_url}")
+         Rails.logger.info("external_lookup: Query SIRSI for MARC: #{sirsi_url}")
          response = RestClient.get( sirsi_url )
          marc_string = ""
          if response.code.to_i == 200
@@ -184,7 +184,7 @@ module Virgo
   def self.get_marc(catalog_key)
       ckey = catalog_key.gsub /\Au/, ''
       sirsi_url = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
-      Rails.logger.info("Query SIRSI for MARC: #{sirsi_url}")
+      Rails.logger.info("get_marc: Query SIRSI for MARC: #{sirsi_url}")
       response = RestClient.get( sirsi_url )
       return response.body if response.code.to_i == 200
       return ""

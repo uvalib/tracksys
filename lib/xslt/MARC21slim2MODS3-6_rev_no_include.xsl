@@ -6,11 +6,11 @@
 
   <!-- UVA Revision 1.119.01 -->
   <!-- url encoding -->
-  
+
   <xsl:variable name="ascii">
     <xsl:text> !"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~</xsl:text>
   </xsl:variable>
-  
+
   <xsl:variable name="latin1">
     <xsl:text> ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ</xsl:text>
   </xsl:variable>
@@ -18,10 +18,9 @@
   <xsl:variable name="safe">
     <xsl:text>!'()*-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~</xsl:text>
   </xsl:variable>
-  
+
   <xsl:variable name="hex">0123456789ABCDEF</xsl:variable>
-  
-  
+
   <xsl:template name="datafield">
     <xsl:param name="tag"/>
     <xsl:param name="ind1">
@@ -44,7 +43,7 @@
       <xsl:copy-of select="$subfields"/>
     </xsl:element>
   </xsl:template>
-  
+
   <xsl:template name="subfieldSelect">
     <xsl:param name="codes">abcdefghijklmnopqrstuvwxyz</xsl:param>
     <xsl:param name="delimeter">
@@ -58,15 +57,15 @@
         </xsl:if>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:value-of select="substring($str,1,string-length($str)-string-length($delimeter))"/>
+    <xsl:value-of select="substring($str, 1, string-length($str) - string-length($delimeter))"/>
   </xsl:template>
-  
+
   <xsl:template name="buildSpaces">
     <xsl:param name="spaces"/>
     <xsl:param name="char">
       <xsl:text> </xsl:text>
     </xsl:param>
-    <xsl:if test="$spaces>0">
+    <xsl:if test="$spaces > 0">
       <xsl:value-of select="$char"/>
       <xsl:call-template name="buildSpaces">
         <xsl:with-param name="spaces" select="$spaces - 1"/>
@@ -74,7 +73,7 @@
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template name="chopPunctuation">
     <xsl:param name="chopString"/>
     <xsl:param name="punctuation">
@@ -82,10 +81,10 @@
     </xsl:param>
     <xsl:variable name="length" select="string-length($chopString)"/>
     <xsl:choose>
-      <xsl:when test="$length=0"/>
-      <xsl:when test="contains($punctuation, substring($chopString,$length,1))">
+      <xsl:when test="$length = 0"/>
+      <xsl:when test="contains($punctuation, substring($chopString, $length, 1))">
         <xsl:call-template name="chopPunctuation">
-          <xsl:with-param name="chopString" select="substring($chopString,1,$length - 1)"/>
+          <xsl:with-param name="chopString" select="substring($chopString, 1, $length - 1)"/>
           <xsl:with-param name="punctuation" select="$punctuation"/>
         </xsl:call-template>
       </xsl:when>
@@ -95,16 +94,15 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template name="chopPunctuationFront">
     <xsl:param name="chopString"/>
     <xsl:variable name="length" select="string-length($chopString)"/>
     <xsl:choose>
-      <xsl:when test="$length=0"/>
-      <xsl:when test="contains('.:,;/[ ', substring($chopString,1,1))">
+      <xsl:when test="$length = 0"/>
+      <xsl:when test="contains('.:,;/[ ', substring($chopString, 1, 1))">
         <xsl:call-template name="chopPunctuationFront">
-          <xsl:with-param name="chopString" select="substring($chopString,2,$length - 1)"
-          />
+          <xsl:with-param name="chopString" select="substring($chopString, 2, $length - 1)"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="not($chopString)"/>
@@ -113,7 +111,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template name="chopPunctuationBack">
     <xsl:param name="chopString"/>
     <xsl:param name="punctuation">
@@ -121,10 +119,10 @@
     </xsl:param>
     <xsl:variable name="length" select="string-length($chopString)"/>
     <xsl:choose>
-      <xsl:when test="$length=0"/>
-      <xsl:when test="contains($punctuation, substring($chopString,$length,1))">
+      <xsl:when test="$length = 0"/>
+      <xsl:when test="contains($punctuation, substring($chopString, $length, 1))">
         <xsl:call-template name="chopPunctuation">
-          <xsl:with-param name="chopString" select="substring($chopString,1,$length - 1)"/>
+          <xsl:with-param name="chopString" select="substring($chopString, 1, $length - 1)"/>
           <xsl:with-param name="punctuation" select="$punctuation"/>
         </xsl:call-template>
       </xsl:when>
@@ -134,48 +132,44 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <!-- nate added 12/14/2007 for lccn.loc.gov: url encode ampersand, etc. -->
   <xsl:template name="url-encode">
-    
+
     <xsl:param name="str"/>
-    
+
     <xsl:if test="$str">
-      <xsl:variable name="first-char" select="substring($str,1,1)"/>
+      <xsl:variable name="first-char" select="substring($str, 1, 1)"/>
       <xsl:choose>
-        <xsl:when test="contains($safe,$first-char)">
+        <xsl:when test="contains($safe, $first-char)">
           <xsl:value-of select="$first-char"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:variable name="codepoint">
             <xsl:choose>
-              <xsl:when test="contains($ascii,$first-char)">
-                <xsl:value-of
-                  select="string-length(substring-before($ascii,$first-char)) + 32"
-                />
+              <xsl:when test="contains($ascii, $first-char)">
+                <xsl:value-of select="string-length(substring-before($ascii, $first-char)) + 32"/>
               </xsl:when>
-              <xsl:when test="contains($latin1,$first-char)">
-                <xsl:value-of
-                  select="string-length(substring-before($latin1,$first-char)) + 160"/>
+              <xsl:when test="contains($latin1, $first-char)">
+                <xsl:value-of select="string-length(substring-before($latin1, $first-char)) + 160"/>
                 <!-- was 160 -->
               </xsl:when>
               <xsl:otherwise>
-                <xsl:message terminate="no">Warning: string contains a character
-                  that is out of range! Substituting "?".</xsl:message>
+                <xsl:message terminate="no">Warning: string contains a character that is out of
+                  range! Substituting "?".</xsl:message>
                 <xsl:text>63</xsl:text>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:variable>
-          <xsl:variable name="hex-digit1"
-            select="substring($hex,floor($codepoint div 16) + 1,1)"/>
-          <xsl:variable name="hex-digit2" select="substring($hex,$codepoint mod 16 + 1,1)"/>
+          <xsl:variable name="hex-digit1" select="substring($hex, floor($codepoint div 16) + 1, 1)"/>
+          <xsl:variable name="hex-digit2" select="substring($hex, $codepoint mod 16 + 1, 1)"/>
           <!-- <xsl:value-of select="concat('%',$hex-digit2)"/> -->
-          <xsl:value-of select="concat('%',$hex-digit1,$hex-digit2)"/>
+          <xsl:value-of select="concat('%', $hex-digit1, $hex-digit2)"/>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="string-length($str) &gt; 1">
         <xsl:call-template name="url-encode">
-          <xsl:with-param name="str" select="substring($str,2)"/>
+          <xsl:with-param name="str" select="substring($str, 2)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:if>
@@ -318,7 +312,7 @@
   <!-- Maintenance note: For each revision, change the content of $progVersion to reflect the 
     latest revision number. -->
   <xsl:variable name="progName">MARC21slim2MODS3-6_rev.xsl</xsl:variable>
-  <xsl:variable name="progVersion">1.119.57</xsl:variable>
+  <xsl:variable name="progVersion">1.119.59</xsl:variable>
 
   <!-- UVA Revisions
   1.119.57 - Account for repeatable subfields in 880
@@ -521,7 +515,8 @@
         <modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <!-- UVA Revision 1.119.29 -->
           <!--xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd"-->
-          <xsl:for-each select="//marc:collection/marc:record">
+          <!-- UVA Revision 1.119.59 -->
+          <xsl:for-each select="//marc:collection/marc:record[not(ancestor::marc:record)]">
             <mods version="3.6">
               <xsl:call-template name="marcRecord"/>
             </mods>
@@ -532,7 +527,8 @@
         <mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.6">
           <!-- UVA Revision 1.119.29 -->
           <!--xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd"-->
-          <xsl:for-each select="//marc:record">
+          <!-- UVA Revision 1.119.59 -->
+          <xsl:for-each select="//marc:record[not(ancestor::marc:record)]">
             <xsl:call-template name="marcRecord"/>
           </xsl:for-each>
         </mods>
@@ -1544,7 +1540,8 @@
             <xsl:if
               test="$controlField008-6 = 'c' or $controlField008-6 = 'd' or $controlField008-6 = 'i' or $controlField008-6 = 'k' or $controlField008-6 = 'm' or $controlField008-6 = 'u'">
               <xsl:if test="$controlField008-11-14">
-                <xsl:value-of select="concat('/', replace($controlField008-11-14, '[u\s\?]', 'X'))"
+                <xsl:value-of
+                  select="concat('/', replace(replace($controlField008-11-14, '[u\s\?]', 'X'), '^9999$', ''))"
                 />
               </xsl:if>
             </xsl:if>
@@ -1564,7 +1561,8 @@
         <xsl:if test="$controlField008-6 = 't'">
           <xsl:if test="$controlField008-11-14">
             <copyrightDate encoding="edtf">
-              <xsl:value-of select="replace($controlField008-11-14, '[u\s\?]', 'X')"/>
+              <xsl:value-of
+                select="replace(replace($controlField008-11-14, '[u\s\?]', 'X'), '^9999$', '')"/>
             </copyrightDate>
           </xsl:if>
         </xsl:if>
@@ -5350,6 +5348,18 @@
             />
           </note>
         </xsl:for-each>
+        <xsl:if
+          test="marc:datafield[matches(@tag, '500|504') and matches(., '(contains|includes).*index', 'i')]">
+          <note type="{$notePrefix}containsIndex">
+            <xsl:text>yes</xsl:text>
+          </note>
+        </xsl:if>
+        <xsl:if test="marc:datafield[matches(@tag, '504') and matches(., 'bibliograph', 'i')]">
+          <note type="{$notePrefix}containsBibrefs">
+            <xsl:text>yes</xsl:text>
+          </note>
+        </xsl:if>
+
         <xsl:for-each select="marc:datafield[@tag = '546']/marc:subfield[@code = 'b']">
           <xsl:if
             test="matches(., 'Arabic|Chinese|Cyrillic|Devanagari \(Nagari\)|Extended Latin|Greek|Hebrew|Japanese|Korean|Latin|Tamil|Thai', 'i')">
@@ -5752,19 +5762,37 @@
           </originInfo>
         </xsl:for-each>
 
-        <part>
-          <detail type="part">
-            <number>
-              <xsl:call-template name="chopPunctuation">
-                <xsl:with-param name="chopString">
-                  <xsl:call-template name="subfieldSelect">
-                    <xsl:with-param name="codes">c</xsl:with-param>
+        <!-- UVA Revision 1.119.58 -->
+        <xsl:if test="*:subfield[matches(@code, '3|c')]">
+          <part>
+            <detail type="part">
+              <xsl:if test="*:subfield[matches(@code, '3')]">
+                <title>
+                  <xsl:text>(</xsl:text>
+                  <xsl:call-template name="chopPunctuation">
+                    <xsl:with-param name="chopString">
+                      <xsl:call-template name="subfieldSelect">
+                        <xsl:with-param name="codes">3</xsl:with-param>
+                      </xsl:call-template>
+                    </xsl:with-param>
                   </xsl:call-template>
-                </xsl:with-param>
-              </xsl:call-template>
-            </number>
-          </detail>
-        </part>
+                  <xsl:text>),</xsl:text>
+                </title>
+              </xsl:if>
+              <xsl:if test="*:subfield[matches(@code, 'c')]">
+                <number>
+                  <xsl:call-template name="chopPunctuation">
+                    <xsl:with-param name="chopString">
+                      <xsl:call-template name="subfieldSelect">
+                        <xsl:with-param name="codes">c</xsl:with-param>
+                      </xsl:call-template>
+                    </xsl:with-param>
+                  </xsl:call-template>
+                </number>
+              </xsl:if>
+            </detail>
+          </part>
+        </xsl:if>
       </relatedItem>
     </xsl:for-each>
 
@@ -6675,17 +6703,19 @@
 
     <!-- UVA Revision 1.119.03 -->
     <xsl:choose>
+      <!-- UVA Revision 1.119.59 -->
       <xsl:when
         test="
           normalize-space($barcode) != '' and
-          marc:datafield[@tag = '999'][marc:subfield[@code = 'i'][matches(., $barcode)]]">
+          //*:datafield[@tag = '999'][*:subfield[@code = 'i'][matches(., $barcode)]]">
         <xsl:for-each
-          select="marc:datafield[@tag = '999'][marc:subfield[@code = 'i'][matches(., $barcode)]]">
+          select="//*:datafield[@tag = '999'][*:subfield[@code = 'i'][matches(., $barcode)]]">
           <xsl:call-template name="createHoldingSimpleFrom999"/>
         </xsl:for-each>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:for-each select="marc:datafield[@tag = '999']">
+        <!-- UVA Revision 1.119.59 -->
+        <xsl:for-each select="//marc:datafield[@tag = '999']">
           <xsl:sort select="marc:subfield[@code = 'a']"/>
           <xsl:call-template name="createHoldingSimpleFrom999"/>
         </xsl:for-each>
@@ -7017,6 +7047,9 @@
       <namePart>
         <xsl:call-template name="chopPunctuation">
           <xsl:with-param name="chopString" select="."/>
+          <xsl:with-param name="punctuation">
+            <xsl:text>:,;/ </xsl:text>
+          </xsl:with-param>
         </xsl:call-template>
       </namePart>
     </xsl:for-each>
@@ -9955,11 +9988,18 @@
           </xsl:for-each>
           <xsl:for-each select="marc:subfield[@code = 'i']">
             <itemIdentifier>
-              <xsl:if test="matches(., '^X')">
-                <xsl:attribute name="type">
-                  <xsl:text>barcode</xsl:text>
-                </xsl:attribute>
-              </xsl:if>
+              <xsl:choose>
+                <xsl:when test="matches(., '^X')">
+                  <xsl:attribute name="type">
+                    <xsl:text>barcode</xsl:text>
+                  </xsl:attribute>
+                </xsl:when>
+                <xsl:when test="matches(., '^\d+-\d+$')">
+                  <xsl:attribute name="type">
+                    <xsl:text>autogen</xsl:text>
+                  </xsl:attribute>
+                </xsl:when>
+              </xsl:choose>
               <xsl:value-of select="normalize-space(.)"/>
             </itemIdentifier>
           </xsl:for-each>
