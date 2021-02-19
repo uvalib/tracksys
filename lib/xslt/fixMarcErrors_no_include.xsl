@@ -8076,7 +8076,7 @@
       </xsl:variable>
       <xsl:variable name="okSubfields">
         <xsl:value-of
-          select="concat('[', string-join($marcDatafieldDesc//*:datafield[@tag = $sourceTag]/*:subfield/@code), ']')"
+          select="concat('[', string-join($marcDatafieldDesc//*:datafield[@tag = $sourceTag]/*:subfield/@code, ' '), ']')"
         />
       </xsl:variable>
       <xsl:choose>
@@ -8099,7 +8099,7 @@
                 <xsl:value-of select="concat(' ', string-join(following-sibling::*:subfield, ' '))"/>
               </xsl:if>
               <xsl:if test="position() = last() and ../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]">
-                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]/*:subfield))"/>
+                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]/*:subfield, ' '))"/>
               </xsl:if>
             </subfield>
           </xsl:for-each>
@@ -8140,7 +8140,7 @@
       <xsl:variable name="okSubfields">
         <xsl:variable name="definedSubfields">
           <xsl:value-of
-            select="string-join($marcDatafieldDesc//*:datafield[@tag = $thisTag]/*:subfield/@code)"
+            select="string-join($marcDatafieldDesc//*:datafield[@tag = $thisTag]/*:subfield/@code, ' ')"
           />
         </xsl:variable>
         <xsl:if test="$definedSubfields ne ''">
@@ -8167,7 +8167,7 @@
                 <xsl:value-of select="concat(' ', string-join(following-sibling::*:subfield, ' '))"/>
               </xsl:if>
               <xsl:if test="position() = last() and ../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]">
-                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)])= 0]/*:subfield, ' '))"/>
+                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]/*:subfield, ' '))"/>
               </xsl:if>
             </subfield>
           </xsl:for-each>
