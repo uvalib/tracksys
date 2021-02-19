@@ -90,7 +90,7 @@ module Hydra
          if !Dir.exist? out_dir
             FileUtils.mkdir_p out_dir
          end
-         out_file = File.join(out_dir, "#{object.pid}.xml"
+         out_file = File.join(out_dir, "#{object.pid}.xml")
          File.open(out_file, 'w') { |file| file.write(response.body) }
          payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=fixedmarc"
          Rails.logger.info "Fix MARC #{object.pid} success"

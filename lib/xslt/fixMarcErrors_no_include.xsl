@@ -8167,7 +8167,7 @@
                 <xsl:value-of select="concat(' ', string-join(following-sibling::*:subfield, ' '))"/>
               </xsl:if>
               <xsl:if test="position() = last() and ../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]">
-                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)]) = 0]/*:subfield))"/>
+                <xsl:value-of select="concat(' ', string-join(../preceding-sibling::*[count(*:subfield[matches(@code, $okSubfields)])= 0]/*:subfield, ' '))"/>
               </xsl:if>
             </subfield>
           </xsl:for-each>
