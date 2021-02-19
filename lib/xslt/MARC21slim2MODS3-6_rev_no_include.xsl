@@ -5,6 +5,14 @@
   exclude-result-prefixes="xlink marc" version="2.0">
 
   <!-- UVA Revision 1.119.01 -->
+  <!--<xsl:include href="MARC21slimUtils.xsl"/>-->
+  <!--<xsl:include href="http://www.loc.gov/standards/marcxml/xslt/MARC21slimUtils.xsl"/>-->
+
+  <!-- This stylesheet physically includes the MARC21slimUtils.xsl stylesheet to accommodate running it inside a servlet. -->
+
+  <!-- 08/08/08: tmee added corrected chopPunctuation templates for 260c -->
+  <!-- 08/19/04: ntra added "marc:" prefix to datafield element -->
+  <!-- 12/14/07: ntra added url encoding template -->
   <!-- url encoding -->
 
   <xsl:variable name="ascii">
@@ -174,8 +182,6 @@
       </xsl:if>
     </xsl:if>
   </xsl:template>
-  <!--<xsl:include href="MARC21slimUtils.xsl"/>-->
-  <!--<xsl:include href="http://www.loc.gov/standards/marcxml/xslt/MARC21slimUtils.xsl"/>-->
 
   <xsl:output encoding="UTF-8" indent="yes" method="xml" xml:space="preserve"/>
   <xsl:strip-space elements="*"/>
@@ -312,9 +318,12 @@
   <!-- Maintenance note: For each revision, change the content of $progVersion to reflect the 
     latest revision number. -->
   <xsl:variable name="progName">MARC21slim2MODS3-6_rev.xsl</xsl:variable>
-  <xsl:variable name="progVersion">1.119.59</xsl:variable>
+  <xsl:variable name="progVersion">1.119.60</xsl:variable>
 
   <!-- UVA Revisions
+  1.119.60 - Accommodate non-numeric values, such as a space, in 245/ind2
+  1.119.59 - Accommodate the invalid output of getMarc.pl when the MARC record in Sirsi exceeds 99,999 characters
+  1.119.58 - Avoid creation of empty <part> element; map subfield 3 to part/detail/title and subfield c to part/detail/number
   1.119.57 - Account for repeatable subfields in 880
   1.119.56 - Redact 541 subfields a, b, f, and h when @ind1 = '0' or $redact541 = 'true'
   1.119.55 - Correct typo in determination of genre
@@ -622,7 +631,8 @@
           </xsl:call-template>
         </xsl:variable>
         <xsl:choose>
-          <xsl:when test="@ind2 &gt; 0">
+          <!-- UVA Revision 1.119.60 -->
+          <xsl:when test="number(@ind2) &gt; 0">
             <!-- 1.112 -->
             <nonSort xml:space="preserve"><xsl:value-of select="substring($titleChop, 1, @ind2)"/> </nonSort>
             <title>
@@ -1954,8 +1964,6 @@
         </xsl:if>        
       </xsl:variable>
       <xsl:copy-of select="$fixedFieldDates"/>
-      
-
 
       <!-\- tmee 1.35 1.36 dateIssued/nonMSS vs dateCreated/MSS -\->
       <!-\-<xsl:for-each
@@ -5761,7 +5769,6 @@
             </dateOther>
           </originInfo>
         </xsl:for-each>
-
         <!-- UVA Revision 1.119.58 -->
         <xsl:if test="*:subfield[matches(@code, '3|c')]">
           <part>
@@ -7139,7 +7146,7 @@
             </xsl:with-param>
           </xsl:call-template>
         </title>
-        <xsl:if test="marc:datafield[@tag != 773] and marc:subfield[@code = 'g']">
+        <xsl:if test="marc:datafield[@tag != '773'] and marc:subfield[@code = 'g']">
           <xsl:call-template name="relatedPartNumName"/>
         </xsl:if>
       </titleInfo>
@@ -7153,7 +7160,7 @@
             </xsl:with-param>
           </xsl:call-template>
         </title>
-        <xsl:if test="marc:datafield[@tag != 773] and marc:subfield[@code = 'g']">
+        <xsl:if test="marc:datafield[@tag != '773'] and marc:subfield[@code = 'g']">
           <xsl:call-template name="relatedPartNumName"/>
         </xsl:if>
       </titleInfo>
@@ -7167,7 +7174,7 @@
             </xsl:with-param>
           </xsl:call-template>
         </title>
-        <xsl:if test="marc:datafield[@tag != 773] and marc:subfield[@code = 'g']">
+        <xsl:if test="marc:datafield[@tag != '773'] and marc:subfield[@code = 'g']">
           <xsl:call-template name="relatedPartNumName"/>
         </xsl:if>
       </titleInfo>
@@ -7231,10 +7238,10 @@
     </xsl:for-each>
   </xsl:template>
   <xsl:template name="subjectAuthority">
-    <xsl:if test="@ind2 != 4">
+    <xsl:if test="@ind2 != '4'">
       <xsl:if test="@ind2 != ' '">
-        <xsl:if test="@ind2 != 8">
-          <xsl:if test="@ind2 != 9">
+        <xsl:if test="@ind2 != '8'">
+          <xsl:if test="@ind2 != '9'">
             <xsl:attribute name="authority">
               <xsl:choose>
                 <xsl:when test="@ind2 = '0'">lcsh</xsl:when>
@@ -8301,7 +8308,8 @@
         </xsl:call-template>
       </xsl:variable>
       <xsl:choose>
-        <xsl:when test="@ind2 &gt; 0">
+        <!-- UVA Revision 1.119.60 -->
+        <xsl:when test="number(@ind2) &gt; 0">
           <xsl:if test="@tag != '880'">
             <!-- UVA Revision 1.119.17 -->
             <!-- 1.112 -->
@@ -9712,7 +9720,7 @@
         <xsl:value-of select="marc:subfield[@code = 'a']"/>
       </classification>
     </xsl:for-each>
-    <xsl:for-each select="marc:datafield[@tag = '086'][@ind1 != 1 and @ind1 != 0]">
+    <xsl:for-each select="marc:datafield[@tag = '086'][@ind1 != '1' and @ind1 != '0']">
       <classification>
         <xsl:call-template name="xxx880"/>
         <xsl:attribute name="authority">
@@ -9828,13 +9836,15 @@
               <xsl:when
                 test="@ind2 = '0' and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2 = '0']) = 0"
                 >true</xsl:when>
-
               <xsl:when
                 test="@ind2 = '1' and count(ancestor::marc:record//marc:datafield[@tag = '856'][@ind2 = '0']) = 0 and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2 = '1']) = 0"
                 >true</xsl:when>
-
               <xsl:when
-                test="@ind2 != '1' and @ind2 != '0' and @ind2 != '2' and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '0']) = 0 and count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '1']) = 0 and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2]) = 0"
+                test="
+                  @ind2 != '1' and @ind2 != '0' and @ind2 != '2' and
+                  count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '0']) = 0 and
+                  count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '1']) = 0 and
+                  count(preceding-sibling::marc:datafield[@tag = '856'][@ind2]) = 0"
                 >true</xsl:when>
               <xsl:otherwise>false</xsl:otherwise>
             </xsl:choose>

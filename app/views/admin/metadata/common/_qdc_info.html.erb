@@ -1,9 +1,0 @@
-
-<% if meta.qdc_generated_at.blank? %>
-   <span class="qdc-date empty">Empty</span>
-<% else %>
-   <span class="qdc-date"><%= meta.qdc_generated_at.strftime('%F %r') %></span>
-<% end %>
-<% if meta.discoverability %>
-   <span class="btn generate-qdc" data-metadata="<%= meta.id %>">Generate QDC</span>
-<% end %>

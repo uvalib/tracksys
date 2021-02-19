@@ -2,7 +2,7 @@ class Api::MetadataController < ApplicationController
    def show
       render :plain=>"type is required", status: :bad_request and return if params[:type].blank?
       type = params[:type].strip.downcase
-      types = ["mods", "brief", "desc_metadata", "marc"]
+      types = ["mods", "brief", "desc_metadata", "marc", "fixedmarc"]
       render :plain=>"#{type} is not supported", status: :bad_request and return if !types.include? type
       render :plain=>"PID is invalid", status: :bad_request and return if !params[:pid].include?(":")
 
@@ -20,6 +20,18 @@ class Api::MetadataController < ApplicationController
       if type == "marc"
          xml_string = Virgo.get_marc(md.catalog_key)
          render xml: xml_string
+         return
+      end
+
+      if type == "fixedmarc"
+         fix_file = File.join(Rails.root, "tmp", "fixed_marc", "#{pid}.xml")
+         if !File.exist? fix_file
+            Rails.logger.error "Fixed MARC for #{pid} not found, returning original"
+            xml_string = Virgo.get_marc(md.catalog_key)
+            render xml: xml_string
+            return
+         end
+         render xml: File.read(fix_file)
          return
       end
 

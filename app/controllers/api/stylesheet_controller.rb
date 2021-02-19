@@ -19,6 +19,9 @@ class Api::StylesheetController < ApplicationController
       elsif id.downcase == "marctomods"
          style_xsl = File.read("#{Rails.root}/lib/xslt/MARC21slim2MODS3-6_rev_no_include.xsl")
          render :xml=>style_xsl
+      elsif id.downcase == "fixmarc"
+         style_xsl = File.read("#{Rails.root}/lib/xslt/fixMarcErrors_no_include.xsl")
+         render :xml=>style_xsl
       else
          tgt = "#{Rails.root}/lib/xslt/#{id}.xsl"
          if File.exist? tgt

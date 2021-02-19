@@ -71,12 +71,35 @@ module Hydra
    # Generate mods from sirsi metadata
    #
    def self.mods_from_marc(object)
-      payload = {}
-      payload['barcode'] = object.barcode
-      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=marc"
-      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/marctomods"
-      payload['clear-stylesheet-cache'] = "yes"
       uri = URI(Settings.saxon_url)
+
+      # Do this in two passes. First pass is a transform that corrects known problems in the MARC
+      Rails.logger.info "Run fixMarcErrors.xsl to cleanup metadata prior to transform to MODS on #{object.pid}"
+      payload = {}
+      payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=marc"
+      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/fixmarc"
+      payload['clear-stylesheet-cache'] = "yes"
+      response = Net::HTTP.post_form(uri, payload)
+      if response.code.to_i != 200
+         # the fix failed... just run the transform to MODS on the original MARC
+         Rails.logger.error "Fix MARC #{object.pid} failed with code #{response.code}: #{response.body}"
+         payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=marc"
+      else
+         # write the fixed up MARC to a temp location
+         out_dir = File.join(Rails.root, "tmp", "fixed_marc")
+         if !Dir.exist? out_dir
+            FileUtils.mkdir_p out_dir
+         end
+         out_file = File.join(out_dir, "#{object.pid}.xml"
+         File.open(out_file, 'w') { |file| file.write(response.body) }
+         payload['source'] = "#{Settings.tracksys_url}/api/metadata/#{object.pid}?type=fixedmarc"
+         Rails.logger.info "Fix MARC #{object.pid} success"
+      end
+
+
+      # Now, tke the fixed MARC an transform it
+      payload['barcode'] = object.barcode
+      payload['style'] = "#{Settings.tracksys_url}/api/stylesheet/marctomods"
       response = Net::HTTP.post_form(uri, payload)
       Rails.logger.info( "Hydra.mods_from_marc: SAXON_SERVLET response: #{response.code} #{response.body}" )
       return response.body if response.code.to_i == 200
@@ -133,10 +156,10 @@ module Hydra
       if loc.nil?
          # no location node present, just add one at start and append the
          # URL nodes from above to it
-         if !doc.root.nil?
-            url_nodes.each do |n|
-               doc.root.children.first.add_previous_sibling(n)
-            end
+         ln = Nokogiri::XML::Node.new "location", doc
+         doc.root.children.first.add_previous_sibling(ln)
+         url_nodes.each do |n|
+            ln.add_child(n)
          end
       else
          # Location is present. URLs must be added AFTER physicalLocation
