@@ -16,8 +16,6 @@ class Api::SirsiController < ApplicationController
          out[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
 
-         rights = sm.use_right.statement
-         rights << "\nFind more information about permission to use the library's materials at https://www.library.virginia.edu/policies/use-of-materials."
          uses = []
          uses << "Educational Use Permitted" if sm.use_right.educational_use
          uses << "Commercial Use Permitted" if sm.use_right.commercial_use
@@ -36,7 +34,6 @@ class Api::SirsiController < ApplicationController
             pid: sm.pid, callNumber: sm.call_number, barcode: sm.barcode,
             rsURI: sm.use_right.uri,
             rsUses: uses,
-            rsText: rights,
             backendIIIFManifestUrl: manifestURL
          }
 

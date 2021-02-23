@@ -44,7 +44,10 @@ class Api::MetadataController < ApplicationController
       end
 
       if type == "brief"
-         out = {pid: params[:pid], title: md.title, creator: md.creator_name, rights: md.use_right.uri }
+         rights_statement = md.use_right.statement
+         rights_statement << "\nFind more information about permission to use the library's materials at https://www.library.virginia.edu/policies/use-of-materials."
+
+         out = {pid: params[:pid], title: md.title, creator: md.creator_name, rights: md.use_right.uri, rightsStatement: rights_statement }
          out[:catalogKey] = md.catalog_key if !md.catalog_key.blank?
          out[:callNumber] = md.call_number if !md.call_number.blank?
          if md.has_exemplar?

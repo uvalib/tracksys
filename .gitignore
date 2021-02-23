@@ -18,6 +18,7 @@ tracksys.sublime-workspace
 config/database.yml
 *~
 *.bak
+*.swp
 
 gannon-content
 gannon-excel
