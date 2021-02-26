@@ -117,7 +117,7 @@ class Metadata < ApplicationRecord
    # return a hash containing URL, filename, PID, ID and page number for exemplar
    # Optionally specify a size for the thumbnail. Small is the default
    def exemplar_info( size = :small )
-      page = 1
+      page = 0 # manifests are 0 based
       master_files.each do |mf|
          if mf.exemplar == true
             info = {url: mf.link_to_image(size), page: page, id: mf.id, filename: mf.filename, filesize: mf.filesize, pid: mf.pid}

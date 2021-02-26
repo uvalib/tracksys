@@ -367,16 +367,23 @@ ActiveAdmin.register Unit do
    member_action :regenerate_iiifman, :method=>:put do
       unit = Unit.find(params[:id])
       md_pid = unit.metadata.pid
-      iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?refresh=true"
-      if unit.include_in_dl == false
-         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?unit=#{unit.id}&refresh=true"
+
+      # regenerate public and private TS unit manifest
+      refresh_urls = ["#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?unit=#{unit.id}&refresh=true"]
+      refresh_urls << "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}?refresh=true"
+
+      errors = []
+      refresh_urls.each do |iiif_url|
+         Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
+         if resp.code.to_i != 200
+            errors << "Unable to generate IIIF manifest: #{resp.body}"
+         end
       end
-      Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
-      resp = RestClient.get iiif_url
-      if resp.code.to_i != 200
-         redirect_to "/admin/units/#{params[:id]}", :flash => {
-            :error => "Unable to generate IIIF manifest: #{resp.body}"
-         }
+
+      if errors.length > 0
+         msg = errors.join(", ")
+         redirect_to "/admin/units/#{params[:id]}", :flash => { :error => msg}
       else
          redirect_to "/admin/units/#{params[:id]}", :notice => "IIIF manifest regenerated."
       end
