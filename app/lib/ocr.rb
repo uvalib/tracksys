@@ -8,7 +8,7 @@ module OCR
       md = unit.metadata
       lang = md.ocr_language_hint
       cb = "/api/callbacks/#{job.status.id}/synchronous_ocr"
-      url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&callback=#{CGI.escape(cb)}"
+      url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&force=true&callback=#{CGI.escape(cb)}"
       job.logger.info "Sending OCR request to #{url}"
       resp = RestClient.get url
       if resp.code == 200
@@ -47,7 +47,7 @@ module OCR
       md = unit.metadata
       lang = md.ocr_language_hint
       cb = "/api/callbacks/#{status.id}/ocr"
-      url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&callback=#{CGI.escape(cb)}"
+      url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&force=true&callback=#{CGI.escape(cb)}"
       ocr_log.info "Sending OCR request to #{url}..."
       resp = RestClient.get url
       if resp.code == 200

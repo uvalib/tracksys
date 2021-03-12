@@ -16,6 +16,17 @@ class Api::PidController < ApplicationController
          if !obj.ocr_language_hint.blank?
             out[:ocr_language_hint] = obj.ocr_language_hint
          end
+
+         out[:has_ocr] = false
+         if !obj.date_dl_ingest.nil?
+            published_unit = obj.units.where( intended_use_id: 110).first
+            if !published_unit.blank?
+               ocr_mf = MasterFile.where(unit_id: published_unit.id).where("transcription_text is not null and transcription_text <> ''")
+               if ocr_mf.length > 0
+                  out[:has_ocr] = true
+               end
+            end
+         end
          render json: out, status: :ok
          return
       end
