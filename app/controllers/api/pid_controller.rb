@@ -24,6 +24,10 @@ class Api::PidController < ApplicationController
                ocr_mf = MasterFile.where(unit_id: published_unit.id).where("transcription_text is not null and transcription_text <> ''")
                if ocr_mf.length > 0
                   out[:has_ocr] = true
+                  out[:has_transcription] = false
+                  if ocr_mf.first.text_source == 2
+                     out[:has_transcription] = false
+                  end
                end
             end
          end
