@@ -1,8 +1,8 @@
 class Api::SirsiController < ApplicationController
    def published
       out = {items: []}
-      SirsiMetadata.where("date_dl_ingest is not null").distinct().find_each do |m|
-         out[:items] << m.catalog_key
+      SirsiMetadata.where("date_dl_ingest is not null").pluck(:catalog_key).uniq.each do |m|
+         out[:items] << m
       end
       render json: out
    end
@@ -12,6 +12,7 @@ class Api::SirsiController < ApplicationController
       found = false
       SirsiMetadata.where("catalog_key=?", params[:id]).order(call_number: :asc).each do |sm|
          next if sm.date_dl_ingest.blank? || !sm.discoverability
+         next if !sm.units.where(include_in_dl: true).exists?
 
          out[:collection] = sm.collection_facet if !sm.collection_facet.blank?
          found = true
