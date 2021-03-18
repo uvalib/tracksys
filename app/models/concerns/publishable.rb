@@ -23,7 +23,7 @@ module Publishable
    end
 
    def in_dpla?
-      return dpla && discoverability && (!date_dl_ingest.blank? || !date_dl_update.blank?)
+      return dpla && (!date_dl_ingest.blank? || !date_dl_update.blank?)
    end
 
    def physical_virgo_url

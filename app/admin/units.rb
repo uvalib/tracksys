@@ -228,11 +228,10 @@ ActiveAdmin.register Unit do
    #
    member_action :bulk_settings_update, method: :post do
       unit = Unit.find(params[:id])
-      discoverability = (params[:discoverable] == "yes")
       rights = UseRight.find(params[:rights].to_i)
       avail = AvailabilityPolicy.find(params[:availability].to_i)
       unit.master_files.each do |mf|
-         mf.metadata.update(discoverability: discoverability, use_right: rights, availability_policy: avail)
+         mf.metadata.update(use_right: rights, availability_policy: avail)
       end
       render :nothing=>true
    end

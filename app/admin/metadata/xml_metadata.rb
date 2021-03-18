@@ -6,7 +6,7 @@ ActiveAdmin.register XmlMetadata do
    # strong paramters handling
    permit_params :title, :creator_name,
       :is_personal_item, :is_manuscript,
-      :discoverability, :date_dl_ingest, :date_dl_update, :availability_policy_id,
+      :date_dl_ingest, :date_dl_update, :availability_policy_id,
       :collection_facet, :use_right_id, :desc_metadata, :dpla, :creator_death_date,
       :collection_id, :ocr_hint_id, :ocr_language_hint, :parent_metadata_id, :use_right_rationale,
       :preservation_tier_id
@@ -108,9 +108,6 @@ ActiveAdmin.register XmlMetadata do
                row('Rights Rationale'){ |r| r.use_right_rationale }
                row :creator_death_date
                row :availability_policy
-               row ("Discoverable?") do |xml_metadata|
-                  format_boolean_as_yes_no(xml_metadata.discoverability)
-               end
                row :collection_facet
                row :date_dl_ingest
                row :date_dl_update

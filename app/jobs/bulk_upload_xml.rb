@@ -13,9 +13,7 @@ class BulkUploadXml < BaseJob
       settings = {}
       settings_str.each_line do |line|
          parts = line.split(":")
-         if parts[0].strip.downcase == "discoverability"
-            settings[:discoverability] = parts[1].strip == "true"
-         elsif parts[0].strip.downcase == "dpla"
+         if parts[0].strip.downcase == "dpla"
                settings[:dpla] = parts[1].strip == "true"
          elsif parts[0].strip.downcase == "availability"
             if parts[1].strip.downcase == "uva"
@@ -43,7 +41,7 @@ class BulkUploadXml < BaseJob
       end
 
       # Make sure there is a settings file present. It has settings for
-      # Include in DL, availability, rights, and discoverability
+      # Include in DL, availability, rights
       settings_file = File.join(xml_dir, "settings.txt")
       if not File.exist? settings_file
          fatal_error("XML Dropoff directory #{xml_dir} does not contain settings.txt")
@@ -107,7 +105,6 @@ class BulkUploadXml < BaseJob
                # This Master file is still associated with the original unit metadata.
                # Create a new metadata record based on the XML and associate it with the masterfile
                metadata = Metadata.create!(type: "XmlMetadata", title: title,
-                  discoverability: settings[:discoverability],
                   desc_metadata: xml_str, use_right: settings[:rights],
                   availability_policy: settings[:availability],
                   creator_name: creator, dpla: dpla, parent_metadata_id: orig_metadata.id )
@@ -119,8 +116,7 @@ class BulkUploadXml < BaseJob
                   MetadataVersion.create(metadata: mf.metadata, staff_member: user, desc_metadata:  mf.metadata.desc_metadata)
                end
                mf.metadata.update(desc_metadata: xml_str, title: title, creator_name: creator,
-                  discoverability: settings[:discoverability], use_right: settings[:rights],
-                  availability_policy: settings[:availability], dpla: dpla )
+                  use_right: settings[:rights], availability_policy: settings[:availability], dpla: dpla )
             end
          end
       end

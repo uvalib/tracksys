@@ -12,10 +12,6 @@ class PublishToDL < BaseJob
          fatal_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no availability value.  Please fill in and retry."
       end
 
-      if unit.metadata.discoverability.nil?
-         fatal_error "Metadata #{unit.metadata.id} for Unit #{unit.id} has no discoverability value.  Please fill in and retry."
-      end
-
       # Flag metadata for ingest or update
       if unit.metadata.date_dl_ingest.blank?
          unit.metadata.update(date_dl_ingest: Time.now)

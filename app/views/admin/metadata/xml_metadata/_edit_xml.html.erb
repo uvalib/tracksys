@@ -5,7 +5,6 @@
           <%= f.input :pid, :as => :string, :input_html => { :readonly => true } %>
        <% end %>
        <%= f.input :availability_policy %>
-       <%= f.input :discoverability, :as => :select %>
        <%= f.input :use_right, label: "Right Statement" %>
        <%= f.input :use_right_rationale %>
        <%= f.input :creator_death_date, label: "Creator Death Date (Year)", placeholder: "YYYY" %>
@@ -20,8 +19,6 @@
           </li>
        <% end %>
 
-       <%= f.input :date_dl_ingest, :as => :string, :input_html => {:class => "datepicker"} %>
-       <%= f.input :date_dl_update, :as => :string, :input_html => {:class => "datepicker"} %>
        <li class="select input optional" id="xml_metadata_collection_facet_input">
           <label for="xml_metadata_collection_facet" class="label">Collection Facet</label>
           <select name="xml_metadata[collection_facet]" id="xml_metadata_collection_facet" >

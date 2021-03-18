@@ -55,7 +55,7 @@ class ImportRawImages < BaseJob
                   md = Metadata.create!(type: "XmlMetadata", title: title,
                      use_right_id: unit.metadata.use_right_id,
                      desc_metadata: xml_str, creator_name: creator,
-                     discoverability: true, availability_policy: unit.metadata.availability_policy,
+                     availability_policy: unit.metadata.availability_policy,
                      dpla: dpla, parent_metadata_id: unit.metadata.id)
                   master_file.update(metadata_id: md.id, exemplar: true)
                   logger.debug "Created XML Metadata for master file #{mf_filename}"

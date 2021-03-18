@@ -30,7 +30,6 @@ module Hydra
             index_node = Nokogiri::XML::Node.new "identifier", doc
             index_node['type'] = 'uri'
             index_node['displayLabel'] = 'Accessible index record displayed in VIRGO'
-            index_node['invalid'] = 'yes' unless object.discoverability
             index_node.content = "#{metadata.pid}"
             last_node.add_next_sibling(index_node)
 

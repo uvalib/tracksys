@@ -75,16 +75,6 @@ ActiveAdmin.register Component do
                row :pid
                row :date_dl_ingest
                row :date_dl_update
-               row :discoverability do |component|
-                  case component.discoverability
-                  when false
-                     "UNDISCOVERABLE"
-                  when true
-                     "VISIBLE"
-                  else
-                     "Unknown"
-                  end
-               end
                row(:desc_metadata) do |component|
                   if component.desc_metadata
                      div :id => "desc_meta_div" do
