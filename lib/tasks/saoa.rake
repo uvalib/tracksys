@@ -15,11 +15,12 @@ namespace :saoa do
    def process_unit( uid )
       unit = Unit.find(uid)
       abort "Unit #{uid} not found" if unit.nil?
-      puts "Generate SAOA jpg and metadata for Unit #{uid}"
+      puts "Generate SAOA jpg for Unit #{uid}"
+      # puts "Generate SAOA jpg and metadata for Unit #{uid}"
 
-      xsl = File.join(Rails.root, "lib", "saoa", "mods2SAOA.xsl")
-      saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
-      mods = '<mods:modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mods="http://www.loc.gov/mods/v3" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">\n'
+      # xsl = File.join(Rails.root, "lib", "saoa", "mods2SAOA.xsl")
+      # saxon = "java -jar #{File.join(Rails.root, "lib", "Saxon-HE-9.7.0-8.jar")}"
+      # mods = '<mods:modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mods="http://www.loc.gov/mods/v3" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">\n'
 
       puts "Get XML metadata"
       xml_md = Hydra.desc(unit.metadata)
@@ -28,7 +29,7 @@ namespace :saoa do
          abort "Unit #{unit.id} missing staff notes data."
       end
       oclc = base_fn.split("_").first
-      mods << "\n" << xml_md.gsub(/<\?xml.*\?>/, "")
+      # mods << "\n" << xml_md.gsub(/<\?xml.*\?>/, "")
 
 
       unit_dir = "%09d" % unit.id
@@ -38,7 +39,7 @@ namespace :saoa do
          FileUtils.mkdir_p out_dir
       end
 
-      puts "Generate JPG deliverables..."
+      puts "Generate JPG deliverables to #{out_dir}..."
       unit.master_files.each do |mf|
          src_file = File.join(archive_dir, mf.filename)
          if !File.exist? src_file
@@ -54,26 +55,26 @@ namespace :saoa do
          puts "   Generated grayscale JPG for #{src_file}"
       end
 
-      puts "Convert to SAOA..."
-      mods << "\n</mods:modsCollection>"
-      tmp_mods = Tempfile.new(["saoa_mods", ".xml"])
-      tmp_mods.write(mods)
-      tmp_mods.close
+      # puts "Convert to SAOA..."
+      # mods << "\n</mods:modsCollection>"
+      # tmp_mods = Tempfile.new(["saoa_mods", ".xml"])
+      # tmp_mods.write(mods)
+      # tmp_mods.close
 
-      cmd = "#{saxon} -s:#{tmp_mods.path} -xsl:#{xsl}"
-      saoa_xml = `#{cmd}`
-      tmp_saoa = Tempfile.new(["converted", ".xml"])
-      tmp_saoa.write( saoa_xml )
-      tmp_saoa.close
+      # cmd = "#{saxon} -s:#{tmp_mods.path} -xsl:#{xsl}"
+      # saoa_xml = `#{cmd}`
+      # tmp_saoa = Tempfile.new(["converted", ".xml"])
+      # tmp_saoa.write( saoa_xml )
+      # tmp_saoa.close
 
-      puts "Postprocess results into CSV..."
-      sed_apos =  "-e \"s/\\&apos;/\\'/g\""
-      sed = "sed -ne '/<xmlData/,/<\\/xmlData>/p' |sed -e 's/<xmlData>//' -e 's/<\\/xmlData>//' -e 's/\\&amp;/\\&/g' #{sed_apos} -e 's/\\&gt;/>/g' -e 's/\\&lt;/</g'"
-      csv = `cat #{tmp_saoa.path} | #{sed}`
+      # puts "Postprocess results into CSV..."
+      # sed_apos =  "-e \"s/\\&apos;/\\'/g\""
+      # sed = "sed -ne '/<xmlData/,/<\\/xmlData>/p' |sed -e 's/<xmlData>//' -e 's/<\\/xmlData>//' -e 's/\\&amp;/\\&/g' #{sed_apos} -e 's/\\&gt;/>/g' -e 's/\\&lt;/</g'"
+      # csv = `cat #{tmp_saoa.path} | #{sed}`
 
-      puts "Write results to file..."
-      saoa_dir = File.join(Rails.root, "saoa")
-      File.open(File.join(saoa_dir,"saoa_u#{uid}.csv"), 'w') { |file| file.write(csv) }
+      # puts "Write results to file..."
+      # saoa_dir = File.join(Rails.root, "saoa")
+      # File.open(File.join(saoa_dir,"saoa_u#{uid}.csv"), 'w') { |file| file.write(csv) }
 
       puts "DONE"
    end
@@ -162,7 +163,7 @@ namespace :saoa do
             end
          end
 
-         puts "Generate JPG deliverables..."
+         puts "Generate JPG deliverables to #{out_dir}..."
          unit.master_files.each do |mf|
             src_file = File.join(archive_dir, mf.filename)
             if !File.exist? src_file
