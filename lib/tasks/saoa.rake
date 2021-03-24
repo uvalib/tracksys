@@ -8,8 +8,8 @@ namespace :saoa do
    end
 
    task :unit   => :environment do
-      uid = ENV['id']
-      process_unit(id)
+      uid = ENV['uid']
+      process_unit(uid)
    end
 
    def process_unit( uid )
