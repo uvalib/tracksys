@@ -5,16 +5,9 @@
   exclude-result-prefixes="xlink marc" version="2.0">
 
   <!-- UVA Revision 1.119.01 -->
-  <!--<xsl:include href="MARC21slimUtils.xsl"/>-->
-  <!--<xsl:include href="http://www.loc.gov/standards/marcxml/xslt/MARC21slimUtils.xsl"/>-->
+  <!-- MARC21slimUtils.xsl physically included -->
 
-  <!-- This stylesheet physically includes the MARC21slimUtils.xsl stylesheet to accommodate running it inside a servlet. -->
-
-  <!-- 08/08/08: tmee added corrected chopPunctuation templates for 260c -->
-  <!-- 08/19/04: ntra added "marc:" prefix to datafield element -->
-  <!-- 12/14/07: ntra added url encoding template -->
   <!-- url encoding -->
-
   <xsl:variable name="ascii">
     <xsl:text> !"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~</xsl:text>
   </xsl:variable>
@@ -183,6 +176,9 @@
     </xsl:if>
   </xsl:template>
 
+  <!--<xsl:include href="MARC21slimUtils.xsl"/>-->
+  <!--<xsl:include href="http://www.loc.gov/standards/marcxml/xslt/MARC21slimUtils.xsl"/>-->
+
   <xsl:output encoding="UTF-8" indent="yes" method="xml" xml:space="preserve"/>
   <xsl:strip-space elements="*"/>
 
@@ -317,10 +313,12 @@
   <!-- UVA Revision 1.119.09 -->
   <!-- Maintenance note: For each revision, change the content of $progVersion to reflect the 
     latest revision number. -->
-  <xsl:variable name="progName">MARC21slim2MODS3-6_rev.xsl</xsl:variable>
-  <xsl:variable name="progVersion">1.119.60</xsl:variable>
+  <xsl:variable name="progName">MARC21slim2MODS3-6_rev_no_include.xsl</xsl:variable>
+  <xsl:variable name="progVersion">1.119.62</xsl:variable>
 
   <!-- UVA Revisions
+  1.119.62 - Revise handling of all dates in 008
+  1.119.61 - Revise handling of questionable and incorrectly coded Type of date/Publication status
   1.119.60 - Accommodate non-numeric values, such as a space, in 245/ind2
   1.119.59 - Accommodate the invalid output of getMarc.pl when the MARC record in Sirsi exceeds 99,999 characters
   1.119.58 - Avoid creation of empty <part> element; map subfield 3 to part/detail/title and subfield c to part/detail/number
@@ -1520,61 +1518,167 @@
           </xsl:if>
         </dateCreated>
       </xsl:for-each>
+
+      <!-- UVA Revision 1.119.62 -->
       <xsl:variable name="controlField008-7-10"
-        select="normalize-space(substring($controlField008, 8, 4))"/>
+        select="replace(replace(substring($controlField008, 8, 4), '^\s+', ''), '\|', '')"/>
       <xsl:variable name="controlField008-11-14"
-        select="normalize-space(substring($controlField008, 12, 4))"/>
-      <xsl:variable name="controlField008-6"
-        select="normalize-space(substring($controlField008, 7, 1))"/>
+        select="replace(replace(substring($controlField008, 12, 4), '^\s+', ''), '\|', '')"/>
+      <xsl:variable name="controlField008-6" select="substring($controlField008, 7, 1)"/>
       <xsl:variable name="fixedFieldDates">
-        <xsl:if
-          test="($controlField008-6 = 'e' or $controlField008-6 = 'p' or $controlField008-6 = 'r' or $controlField008-6 = 's' or $controlField008-6 = 't') and ($leader6 = 'd' or $leader6 = 'f' or $leader6 = 'p' or $leader6 = 't')">
-          <xsl:if test="$controlField008-7-10">
-            <dateCreated encoding="edtf" keyDate="yes">
-              <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
-            </dateCreated>
-          </xsl:if>
-        </xsl:if>
-        <xsl:if
-          test="($controlField008-6 = 'e' or $controlField008-6 = 'p' or $controlField008-6 = 'r' or $controlField008-6 = 's' or $controlField008-6 = 't') and not($leader6 = 'd' or $leader6 = 'f' or $leader6 = 'p' or $leader6 = 't')">
-          <xsl:if test="$controlField008-7-10">
-            <dateIssued encoding="edtf" keyDate="yes">
-              <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
-            </dateIssued>
-          </xsl:if>
-        </xsl:if>
+
+        <!-- 008/07-14 captures a date range; i.e., dates of continuing resource currently published, 
+           continuing resource ceased publication, inclusive dates of collection, range of years of bulk of 
+           collection, range of years of publication of a multipart item, or continuing resource status unknown -->
         <xsl:if
           test="$controlField008-6 = 'c' or $controlField008-6 = 'd' or $controlField008-6 = 'i' or $controlField008-6 = 'k' or $controlField008-6 = 'm' or $controlField008-6 = 'u'">
-          <dateIssued encoding="edtf" keyDate="yes">
+          <xsl:variable name="elementName">
+            <xsl:choose>
+              <xsl:when test="$leader6 = 'd' or $leader6 = 'f' or $leader6 = 'p' or $leader6 = 't'"
+                >dateCreated</xsl:when>
+              <xsl:otherwise>dateIssued</xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:element name="{$elementName}">
+            <xsl:attribute name="encoding">edtf</xsl:attribute>
+            <xsl:attribute name="keyDate">yes</xsl:attribute>
             <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
-            <xsl:if
-              test="$controlField008-6 = 'c' or $controlField008-6 = 'd' or $controlField008-6 = 'i' or $controlField008-6 = 'k' or $controlField008-6 = 'm' or $controlField008-6 = 'u'">
-              <xsl:if test="$controlField008-11-14">
+            <xsl:choose>
+              <xsl:when test="matches($controlField008-11-14, '^$')">
+                <xsl:value-of select="'/..'"/>
+              </xsl:when>
+              <xsl:otherwise>
                 <xsl:value-of
-                  select="concat('/', replace(replace($controlField008-11-14, '[u\s\?]', 'X'), '^9999$', ''))"
+                  select="concat('/', replace(replace($controlField008-11-14, '[u\s\?]', 'X'), '^9999$', '..'))"
                 />
-              </xsl:if>
-            </xsl:if>
-          </dateIssued>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:element>
         </xsl:if>
+
+        <!-- 008/07-14 captures date which represents the month (and possibly the day) in addition to the year -->
+        <xsl:if test="$controlField008-6 = 'e' and $controlField008-7-10">
+          <xsl:variable name="elementName">
+            <xsl:choose>
+              <xsl:when test="$leader6 = 'd' or $leader6 = 'f' or $leader6 = 'p' or $leader6 = 't'">
+                <xsl:text>dateCreated</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>dateIssued</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:element name="{$elementName}">
+            <xsl:attribute name="encoding">edtf</xsl:attribute>
+            <xsl:attribute name="keyDate">yes</xsl:attribute>
+            <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
+            <xsl:value-of
+              select="concat('-', replace(substring($controlField008-11-14, 1, 2), '[u\s\?]', 'X'))"/>
+            <xsl:if test="not(matches(substring($controlField008-11-14, 3, 2), '\s\s'))">
+              <xsl:value-of
+                select="concat('-', replace(substring($controlField008-11-14, 3, 2), '[u\s\?]', 'X'))"
+              />
+            </xsl:if>
+          </xsl:element>
+        </xsl:if>
+
+        <!-- 008/07-14 captures distribution/release/issue and production/recording session date, 
+          reprint/reissue date and original date, or publication date and copyright date -->
+        <xsl:if
+          test="($controlField008-6 = 'p' or $controlField008-6 = 'r' or $controlField008-6 = 't') and $controlField008-7-10">
+          <dateIssued encoding="edtf">
+            <xsl:if test="matches($controlField008-7-10, '^\d+$')">
+              <xsl:attribute name="keyDate">yes</xsl:attribute>
+            </xsl:if>
+            <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
+          </dateIssued>
+          <xsl:if test="not(normalize-space($controlField008-11-14) = '')">
+            <xsl:choose>
+              <xsl:when test="$controlField008-6 = 'p'">
+                <dateCreated encoding="edtf">
+                  <xsl:if test="not(matches($controlField008-7-10, '^\d+$'))">
+                    <xsl:attribute name="keyDate">yes</xsl:attribute>
+                  </xsl:if>
+                  <xsl:value-of select="replace($controlField008-11-14, '[u\s\?]', 'X')"/>
+                </dateCreated>
+              </xsl:when>
+              <xsl:when test="$controlField008-6 = 'r'">
+                <dateIssued encoding="edtf">
+                  <xsl:if test="not(matches($controlField008-7-10, '^\d+$'))">
+                    <xsl:attribute name="keyDate">yes</xsl:attribute>
+                  </xsl:if>
+                  <xsl:value-of select="replace($controlField008-11-14, '[u\s\?]', 'X')"/>
+                </dateIssued>
+              </xsl:when>
+              <xsl:when test="$controlField008-6 = 't'">
+                <copyrightDate encoding="edtf">
+                  <xsl:if test="not(matches($controlField008-7-10, '^\d+$'))">
+                    <xsl:attribute name="keyDate">yes</xsl:attribute>
+                  </xsl:if>
+                  <xsl:value-of select="replace($controlField008-11-14, '[u\s\?]', 'X')"/>
+                </copyrightDate>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:if>
+        </xsl:if>
+
+        <!-- 008/07-14 contains a range of years when the exact date for a monographic item is not known -->
         <xsl:if test="$controlField008-6 = 'q'">
           <dateIssued encoding="edtf" keyDate="yes">
-            <xsl:value-of select="concat(replace($controlField008-7-10, '[u\s\?]', 'X'), '?')"/>
-            <xsl:if test="$controlField008-6 = 'q'">
-              <xsl:if test="$controlField008-11-14">
-                <xsl:value-of
-                  select="concat('/', replace($controlField008-11-14, '[u\s\?]', 'X'), '?')"/>
-              </xsl:if>
-            </xsl:if>
+            <xsl:choose>
+              <!-- Date range -->
+              <xsl:when
+                test="matches($controlField008-7-10, '[\d\?u]+') and matches($controlField008-11-14, '[\d\?u]+')">
+                <xsl:text>[</xsl:text>
+                <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
+                <xsl:value-of select="concat('..', replace($controlField008-11-14, '[u\s\?]', 'X'))"/>
+                <xsl:text>]</xsl:text>
+              </xsl:when>
+              <!-- Single date must be in 008/07-10 -->
+              <xsl:otherwise>
+                <xsl:value-of select="concat(replace($controlField008-7-10, '[u\s\?]', 'X'), '?')"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </dateIssued>
         </xsl:if>
-        <xsl:if test="$controlField008-6 = 't'">
-          <xsl:if test="$controlField008-11-14">
-            <copyrightDate encoding="edtf">
-              <xsl:value-of
-                select="replace(replace($controlField008-11-14, '[u\s\?]', 'X'), '^9999$', '')"/>
-            </copyrightDate>
-          </xsl:if>
+
+        <!-- 008/07-14 contains a single known date/probable date -->
+        <xsl:if test="$controlField008-6 = 's' and $controlField008-7-10">
+          <dateIssued encoding="edtf" keyDate="yes">
+            <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
+          </dateIssued>
+        </xsl:if>
+
+        <!-- 008/07-14 contains some other kind of date -->
+        <xsl:if
+          test="not(matches($controlField008-6, '[bcdeikmpqrstu]')) and (matches($controlField008-7-10, '[\du]+') or matches($controlField008-11-14, '[\du]+'))">
+          <dateOther encoding="edtf" keyDate="yes">
+            <xsl:choose>
+              <!-- Date range -->
+              <xsl:when
+                test="matches($controlField008-7-10, '[\d\?u]+') and matches($controlField008-11-14, '[\d\?u]+')">
+                <xsl:text>[</xsl:text>
+                <xsl:value-of select="replace($controlField008-7-10, '[u\s\?]', 'X')"/>
+                <xsl:value-of select="concat('..', replace($controlField008-11-14, '[u\s\?]', 'X'))"/>
+                <xsl:text>]</xsl:text>
+              </xsl:when>
+              <!-- Single date -->
+              <xsl:otherwise>
+                <xsl:choose>
+                  <!-- Date is in 008/07-10 -->
+                  <xsl:when test="matches($controlField008-7-10, '[\d\?u]+')">
+                    <xsl:value-of
+                      select="concat(replace($controlField008-7-10, '[u\s\?]', 'X'), '?')"/>
+                  </xsl:when>
+                  <!-- Date is in 008/01-14 -->
+                  <xsl:otherwise>
+                    <xsl:value-of
+                      select="concat(replace($controlField008-11-14, '[u\s\?]', 'X'), '?')"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:otherwise>
+            </xsl:choose>
+          </dateOther>
         </xsl:if>
       </xsl:variable>
       <xsl:copy-of select="$fixedFieldDates"/>
@@ -1964,6 +2068,8 @@
         </xsl:if>        
       </xsl:variable>
       <xsl:copy-of select="$fixedFieldDates"/>
+      
+
 
       <!-\- tmee 1.35 1.36 dateIssued/nonMSS vs dateCreated/MSS -\->
       <!-\-<xsl:for-each
@@ -2554,8 +2660,7 @@
     <xsl:variable name="physicalDescription">
       <!--3.2 change tmee 007/11 -->
       <!-- UVA Revision 1.119.04 -->
-      <xsl:if
-        test="
+      <xsl:if test="
           ($typeOf008 = 'CF' and marc:controlfield[@tag = '007'][substring(., 12, 1) = 'a']) or
           matches($reformattedDigital, 'true')">
         <digitalOrigin>reformatted digital</digitalOrigin>
@@ -4659,9 +4764,10 @@
         <xsl:if test="$typeOf008 = 'VM'">
           <!-- Playing time -->
           <xsl:variable name="rawMinutes">
-            <xsl:value-of select="number(substring(marc:controlfield[@tag = '008'], 19, 3))"/>
+            <xsl:value-of select="substring(marc:controlfield[@tag = '008'], 19, 3)"/>
           </xsl:variable>
-          <xsl:if test="$rawMinutes != 0">
+          <!-- Make sure $rawMinutes is a number greater than 0! -->
+          <xsl:if test="number($rawMinutes) and number($rawMinutes) != 0">
             <xsl:variable name="minutes">
               <xsl:value-of select="format-number(($rawMinutes) mod 60, '00')"/>
             </xsl:variable>
@@ -5718,8 +5824,7 @@
         <xsl:call-template name="createLocationFrom852"/>
       </xsl:for-each>
       <!-- UVA Revision 1.119.16 -->
-      <xsl:if
-        test="
+      <xsl:if test="
           marc:datafield[matches(@tag, '866|867|868')] and
           count(marc:datafield[@tag = '852']) &gt; 1">
         <xsl:call-template name="createLocationFrom866-868"/>
@@ -6711,8 +6816,7 @@
     <!-- UVA Revision 1.119.03 -->
     <xsl:choose>
       <!-- UVA Revision 1.119.59 -->
-      <xsl:when
-        test="
+      <xsl:when test="
           normalize-space($barcode) != '' and
           //*:datafield[@tag = '999'][*:subfield[@code = 'i'][matches(., $barcode)]]">
         <xsl:for-each
@@ -9839,8 +9943,7 @@
               <xsl:when
                 test="@ind2 = '1' and count(ancestor::marc:record//marc:datafield[@tag = '856'][@ind2 = '0']) = 0 and count(preceding-sibling::marc:datafield[@tag = '856'][@ind2 = '1']) = 0"
                 >true</xsl:when>
-              <xsl:when
-                test="
+              <xsl:when test="
                   @ind2 != '1' and @ind2 != '0' and @ind2 != '2' and
                   count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '0']) = 0 and
                   count(ancestor::marc:record//marc:datafield[@tag = '856' and @ind2 = '1']) = 0 and
