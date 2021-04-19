@@ -37,21 +37,6 @@ class CheckUnitDeliveryMode < BaseJob
          logger.debug("#{cnt} master files published to IIIF")
          if cnt != unit.master_files.count
             fatal_error "Mismatch in count of master files published to IIIF"
-         else
-            md_pid = unit.metadata.pid
-            iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{md_pid}"
-            if unit.include_in_dl == false
-               iiif_url = "#{iiif_url}?unit=#{unit.id}"
-            end
-            logger.info "Generating IIIF manifest with #{iiif_url}..."
-            resp = RestClient.get iiif_url
-            if resp.code.to_i != 200
-               logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
-            else
-               json = JSON.parse(resp.body)
-
-               logger.info "IIIF Manifest generated at: #{json['url']}"
-            end
          end
       end
 
@@ -71,6 +56,16 @@ class CheckUnitDeliveryMode < BaseJob
       # NOTE: no need to check avail policy. Prior jobs already enforce setting
       if unit.include_in_dl
          logger.info ("Unit #{unit.id} requires the creation of repository deliverables.")
+
+         iiif_url = "#{Settings.iiif_manifest_url}/pid/#{unit.metadata.pid}?refresh=true"
+         logger.info "Generating IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
+         if resp.code.to_i != 200
+            logger.warn "Unable to generate IIIF manifest: #{resp.code}: #{resp.body}"
+         else
+            logger.info("IIIF manifest successfully generated")
+         end
+
          PublishToDL.exec_now({unit_id: unit.id}, self)
       end
 

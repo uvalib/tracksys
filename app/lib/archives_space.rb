@@ -175,15 +175,17 @@ module ArchivesSpace
    end
 
    def self.create_digital_object(auth, tgt_obj, ts_metadata)
-      # Try to get the S3 URL from pidcache. If it fails, the old IIIF service
-      # is still in place; use the original URL
-      manifestURL = "#{Settings.iiif_manifest_url}/#{ts_metadata.pid}"
-      resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{ts_metadata.pid}"
+      manifestURL = ""
+      resp = RestClient.get "#{Settings.iiif_manifest_url}/pid/#{ts_metadata.pid}/exist"
       if resp.code.to_i == 200
          json = JSON.parse(resp.body)
-         manifestURL = json['url']
+         if json['cached'] == true
+            manifestURL = json['url']
+         end
       end
-
+      if manifestURL == ""
+         raise "ArchivesSpace create DigitalObject could not find cached IIIF manifest"
+      end
       payload = {
          digital_object_id: ts_metadata.pid,
          title: ts_metadata.title,
@@ -191,7 +193,7 @@ module ArchivesSpace
          file_versions: [
             {
                use_statement:  "image-service-manifest",
-               file_uri: manifestURL,
+               file_uri: "#{Settings.iiif_manifest_url}/pid/#{ts_metadata.pid}",
                publish: false
             }
          ]

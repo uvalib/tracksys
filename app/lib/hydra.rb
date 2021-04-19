@@ -118,7 +118,7 @@ module Hydra
          rights_node = Nokogiri::XML::Node.new "accessCondition", doc
          rights_node['type'] = 'use and reproduction'
          if metadata.use_right.blank?
-            rights_node.content = "#{UseRight.fin(1).uri}" # default to CNE
+            rights_node.content = "#{UseRight.find(1).uri}" # default to CNE
          else
             rights_node.content = "#{metadata.use_right.uri}"
          end

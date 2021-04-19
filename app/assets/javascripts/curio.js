@@ -19,7 +19,7 @@ $(function() {
       }
       url = encodeURIComponent(url);
       var oembed = curioURL+"/oembed?url="+url+"&format=json&maxwidth=800&maxheight=600";
-      $.getJSON(oembed, function ( data, textStatus, jqXHR ){
+      $.getJSON(oembed, function ( data, textStatus ){
          if (textStatus == "success" ) {
             $("#do-viewer-modal .content").append(data.html);
          }

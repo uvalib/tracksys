@@ -42,8 +42,7 @@ module Publishable
       end
 
       begin
-         # regenerate the IIIF man
-         iiif_url = "#{Settings.iiif_manifest_url}/pidcache/#{self.pid}?refresh=true"
+         iiif_url = "#{Settings.iiif_manifest_url}/pid/#{self.pid}?refresh=true"
          Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
          resp = RestClient.get iiif_url
          if resp.code.to_i != 200

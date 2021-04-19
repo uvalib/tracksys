@@ -27,13 +27,18 @@ class Api::OtherController < ApplicationController
       uses << "Commercial Use Permitted" if md.use_right.commercial_use
       uses << "Modifications Permitted" if md.use_right.modifications
 
-      # Try to get the S3 URL from pidcache. If it fails, the old IIIF service
-      # is still in place; use the original URL
-      manifestURL = "#{Settings.iiif_manifest_url}/#{md.pid}"
-      resp = RestClient.get "#{Settings.iiif_manifest_url}/pidcache/#{md.pid}"
+      manifestURL = ""
+      resp = RestClient.get "#{Settings.iiif_manifest_url}/pid/#{md.pid}/exist"
       if resp.code.to_i == 200
          json = JSON.parse(resp.body)
-         manifestURL = json['url']
+         if json['cached'] == true
+            manifestURL = json['url']
+         end
+      end
+      if manifestURL == ""
+         Rails.logger.error "IIIF Manifest cache not found for #{md.pid}"
+         render plain: "Not Found", status: :not_found
+         return
       end
 
       out[:rsURI] = md.use_right.uri
