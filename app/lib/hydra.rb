@@ -60,8 +60,10 @@ module Hydra
          # when other flavors of XML are supported (VRA, others)
 
          doc = Nokogiri::XML(metadata.desc_metadata)
-         add_rights_to_mods(doc, metadata)
-         add_access_url_to_mods(doc, metadata)
+
+         # The raw data appears to have this info already. Don't try to re-add
+         # add_rights_to_mods(doc, metadata)
+         # add_access_url_to_mods(doc, metadata)
          output = doc.to_xml
       end
       return output

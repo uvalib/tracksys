@@ -1,24 +1,44 @@
 namespace :dpla do
    desc "Visual history cleanup"
    task :clean_visual_history  => :environment do
-      q = "parent_metadata_id = 3009 and not ( "
-      q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
-      q << " or desc_metadata like '%namePart>Skinner, David M%' "
+      # q = "parent_metadata_id = 3009 and not ( "
+      # q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
+      # q << " or desc_metadata like '%namePart>Skinner, David M%' "
+      # q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
+      # q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
+      # puts "Removing DPLA flag from Visual History records..."
+      # Metadata.where(q).update_all(dpla: 0, qdc_generated_at: nil)
+
+      # puts "Setting rights CNE for skinner, thompson and UVA news.."
+      # q = "parent_metadata_id = 3009 and ( "
+      # q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
+      # q << " or desc_metadata like '%namePart>Skinner, David M%' "
+      # q << " or desc_metadata like '%namePart>University of Virginia. News Office%') "
+      # Metadata.where(q).update_all(use_right_id: 1)
+
+      # puts "Setting rights UND for Holsinger.."
+      # q = "parent_metadata_id = 3009 and desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      # Metadata.where(q).update_all(use_right_id: 11)
+
+      # Update to match these requirements:
+      # https://confluence.lib.virginia.edu/pages/viewpage.action?spaceKey=MDS&title=DPLA+Harvest+and+Rights+Information
+      # these are in DPLA
+      q = "parent_metadata_id = 3009 and dpla=0 and ( "
+      q << " desc_metadata like '%namePart>Thompson, Ralph R.%' "
+      q << " or desc_metadata like '%namePart>Skinner, David M., 1921-2009%' "
+      q << " or desc_metadata like '%namePart>Anderson, Richard N.%' "
       q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
-      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
-      puts "Removing DPLA flag from Visual History records..."
-      Metadata.where(q).update_all(dpla: 0, qdc_generated_at: nil)
+      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      Metadata.where(q).update_all(dpla: 1)
 
-      puts "Setting rights CNE for skinner, thompson and UVA news.."
-      q = "parent_metadata_id = 3009 and ( "
-      q << " desc_metadata like '%namePart>Thompson, Ralph R%' "
-      q << " or desc_metadata like '%namePart>Skinner, David M%' "
-      q << " or desc_metadata like '%namePart>University of Virginia. News Office%') "
-      Metadata.where(q).update_all(use_right_id: 1)
-
-      puts "Setting rights UND for Holsinger.."
-      q = "parent_metadata_id = 3009 and desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
-      Metadata.where(q).update_all(use_right_id: 11)
+      # all others are NOT DPLA (just a NOT on the or conditions)
+      q = "parent_metadata_id = 3009 and dpla=1 and NOT ( "
+      q << " desc_metadata like '%namePart>Thompson, Ralph R.%' "
+      q << " or desc_metadata like '%namePart>Skinner, David M., 1921-2009%' "
+      q << " or desc_metadata like '%namePart>Anderson, Richard N.%' "
+      q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
+      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      Metadata.where(q).update_all(dpla: 0)
    end
 
    desc "Add visual history by creator and optional use right"
