@@ -46,7 +46,7 @@ namespace :dpla do
       q << " or desc_metadata like '%namePart>Skinner, David M., 1921-2009%' "
       q << " or desc_metadata like '%namePart>Anderson, Richard N.%' "
       q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
-      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
       Metadata.where(q).update_all(dpla: 1)
 
       # all others are NOT DPLA (just a NOT on the or conditions)
@@ -55,7 +55,7 @@ namespace :dpla do
       q << " or desc_metadata like '%namePart>Skinner, David M., 1921-2009%' "
       q << " or desc_metadata like '%namePart>Anderson, Richard N.%' "
       q << " or desc_metadata like '%namePart>University of Virginia. News Office%' "
-      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
+      q << " or desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
       Metadata.where(q).update_all(dpla: 0)
    end
 
