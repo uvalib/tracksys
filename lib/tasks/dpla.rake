@@ -1,4 +1,22 @@
 namespace :dpla do
+   desc "TEST"
+   task :test_count  => :environment do
+      out = []
+      q = "select distinct mp.id, mp.pid from metadata mc"
+      q << " inner join metadata mp on mc.parent_metadata_id = mp.id"
+      q << " where mc.parent_metadata_id > 0 and mp.dpla = 1 and mp.date_dl_ingest is not null"
+      q << " order by mp.id asc"
+      puts "GET PUBLISHED DPLA COLLECTIONS..."
+      Metadata.find_by_sql(q).each do |m|
+         m.children.find_each do |meta|
+            next if !meta.dpla || meta.date_dl_ingest.blank?
+            next if meta.units.count == 1 && meta.units.first.unit_status == "canceled"
+            out << meta.pid
+         end
+      end
+      Rails.logger.info "Found #{out.length} DPLA items in collections"
+   end
+
    desc "Visual history cleanup"
    task :clean_visual_history  => :environment do
       # q = "parent_metadata_id = 3009 and not ( "
