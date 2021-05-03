@@ -20,9 +20,9 @@ namespace :dpla do
    desc "Holsinger fix UND"
    task :fix_holsinger  => :environment do
       q = "parent_metadata_id = 3009 and type='XmlMetadata' "
-      q << " and desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\")"
+      q << " and desc_metadata like \"%namePart>Holsinger's Studio (Charlottesville, Va.)%\""
       Metadata.where(q).update_all(use_right_id: 11) # UND
-   }
+   end
 
    desc "Visual history cleanup"
    task :clean_visual_history  => :environment do
