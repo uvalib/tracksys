@@ -23,7 +23,7 @@
       <%= f.input :ocr_master_files, :as => :radio %>
       <%= f.input :remove_watermark, :as => :radio %>
       <% if !@unit.reorder %>
-         <% if @unit.metadata.date_dl_ingest.blank? %>
+         <% if @unit.metadata.nil? || @unit.metadata.date_dl_ingest.blank? %>
             <%= f.input :include_in_dl, :as => :radio %>
          <% else %>
             <%= f.input :include_in_dl, :as => :radio, :input_html => {disabled: "disabled"}%>
