@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '~> 5.2.3'
 gem 'uglifier', '>= 1.3.0'
-gem 'sass-rails', '~> 6.0'  
+gem 'sass-rails', '~> 6.0'
 
 # Reduces boot times through caching; required in config/boot.rb
 # gem 'bootsnap', '>= 1.1.0', require: false
@@ -10,7 +10,7 @@ gem 'sass-rails', '~> 6.0'
 gem "nokogiri", ">= 1.10.8"
 
 gem 'activeadmin', '~> 2.6.1'
-gem 'ffi', '~> 1.9.24'
+gem 'ffi', '~> 1.15.0'
 
 #gem 'passenger', '5.1.5'
 gem 'figaro'
@@ -19,8 +19,8 @@ gem 'exception_notification'
 gem 'turnout'           # Maintence page
 
 gem 'annotate'
-gem 'mysql2'  
-gem 'redis'             # for cache of AS session tokens  
+gem 'mysql2'
+gem 'redis'             # for cache of AS session tokens
 gem 'ancestry'
 gem 'diffy'             # to diff XML metadata changes
 
