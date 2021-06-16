@@ -1,6 +1,5 @@
 class Component < ApplicationRecord
    has_ancestry
-   include ExportIviewXML
 
    #------------------------------------------------------------------
    # relationships
@@ -89,20 +88,6 @@ class Component < ApplicationRecord
          value = id # Everything has an id, so it is the LCD.
       end
       return value.to_s.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
-   end
-
-   # For the purposes of digitization, student workers need access to as much of the metadata available
-   # in the Component class as possible.  The 'name' method does not provide enough information in some
-   # circumstances.  In the circumstances where a Component has both a title and content_desc, pull both.
-   # Otherwise, use the default name method.
-   def iview_description
-      value = String.new
-      if title && content_desc
-         value = "#{title} - #{content_desc}"
-      else
-         value = name
-      end
-      return value.strip.gsub(/\n/, ' ').gsub(/  +/, ' ')
    end
 
    # Returns a count of all MasterFiles belonging to both this component (i.e. self) and its children.
@@ -205,11 +190,6 @@ class Component < ApplicationRecord
       end
       hash[self.pid] = values
       hash
-   end
-
-   # utility for export iView Catalog
-   def iview_data_str
-      "level=#{format_component_strings(self.level)} ~ pid=#{self.pid} ~ date=#{format_component_strings(self.date)} ~ desc=#{format_component_strings(self.iview_description)}"
    end
 
    def has_exemplar?

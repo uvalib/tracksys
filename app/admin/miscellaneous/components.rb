@@ -2,20 +2,11 @@ ActiveAdmin.register Component do
    #menu :priority => 7
    menu :parent => "Miscellaneous"
 
-   # # strong paramters handling
-   # permit_params :title, :content_desc, :date, :level, :label, :ead_id_att, :component_type_id,
-   #    :pid, :desc_meta
-
    #scope :all, :default => true
 
    config.clear_action_items!
    config.batch_actions = false
-   # action_item :new, :only => :index do
-   #    raw("<a href='/admin/components/new'>New</a>") if current_user.admin?
-   # end
-   # action_item :edit, only: :show do
-   #    link_to "Edit", edit_resource_path  if current_user.admin?
-   # end
+
 
    filter :title_or_content_desc_contains, label: "Title / Description"
    filter :date_contains, label: "Date"
@@ -38,11 +29,6 @@ ActiveAdmin.register Component do
          div do
             link_to "Details", resource_path(component), :class => "member_link view_link"
          end
-         # if current_user.admin?
-         #    div do
-         #       link_to I18n.t('active_admin.edit'), edit_resource_path(component), :class => "member_link edit_link"
-         #    end
-         # end
       end
    end
 
@@ -219,15 +205,6 @@ ActiveAdmin.register Component do
 
    action_item :next, :only => :show do
       link_to("Next", admin_component_path(component.new_next)) unless component.new_next.nil?
-   end
-
-   action_item :create, :only => :show do
-      link_to "Create iView Catalog", export_iview_admin_component_path, :method => :put
-   end
-
-   member_action :export_iview, :method => :put do
-      Component.find(params[:id]).export_iview_xml
-      redirect_to "/admin/components/#{params[:id]}", :notice => "New Iview Catalog written to file system."
    end
 
    member_action :tree, :method => :get do
