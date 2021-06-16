@@ -399,16 +399,14 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
    end
 
-   member_action :import_unit_iview_xml, :method => :put do
-      unit_dir = "%09d" % params[:id].to_i
-      unit = Unit.find(params[:id])
-      ImportUnitIviewXML.exec( {:unit_id => params[:id], :path => "#{Finder.finalization_dir(unit, :in_process)}/#{unit_dir}.xml"})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the importation of the Iview XML and creation of master files."
+   member_action :import_unit_images, :method => :put do
+      ImportUnitImages.exec( {:unit_id => params[:id]})
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started creation of master files."
    end
 
-   member_action :qa_filesystem_and_iview_xml, :method => :put do
-      QaFilesystemAndIviewXml.exec( {:unit_id => params[:id]} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem and Iview XML."
+   member_action :qa_filesystem, :method => :put do
+      QaFilesystem.exec( {:unit_id => params[:id]} )
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem."
    end
 
    member_action :qa_unit_data, :method => :put do

@@ -25,10 +25,10 @@ if !current_user.viewer? && !current_user.student?
             button_to "QA Unit Data", qa_unit_data_admin_unit_path, class: qa_class, :method => :put
          end
          div :class => 'workflow_button' do
-            button_to "QA Filesystem and XML", qa_filesystem_and_iview_xml_admin_unit_path, class: qa_class, :method => :put
+            button_to "QA Filesystem", qa_filesystem_admin_unit_path, class: qa_class, :method => :put
          end
          div :class => 'workflow_button' do
-            button_to "Create Master File Records", import_unit_iview_xml_admin_unit_path, :method => :put
+            button_to "Create Master File Records", import_unit_images_admin_unit_path, :method => :put
          end
 
          deliverables_ready = false
