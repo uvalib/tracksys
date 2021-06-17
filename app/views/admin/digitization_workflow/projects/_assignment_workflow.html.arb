@@ -1,4 +1,9 @@
 if current_user == project.owner
+   div :class => 'workflow_button project' do
+      clazz = "admin-button viewer"
+      raw("<a href='#{Settings.qa_viewer_url}/unit/#{project.unit.id}' target='_blank' class='#{clazz}' id='openviwer-btn'>Open Viewer</a>")
+   end
+
    if current_user.admin? || current_user.supervisor?
       div class: 'workflow_button project' do
          c = "admin-button assign"

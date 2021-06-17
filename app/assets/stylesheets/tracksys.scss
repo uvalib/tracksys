@@ -427,6 +427,11 @@ body.active_admin {
       }
    }
 
+   .admin-button.viewer {
+      box-shadow: none;
+      background-image: linear-gradient(180deg, #8a9edd, #3030c0);
+   }
+
    #copy-existing {
       margin-bottom: 15px;
    }
