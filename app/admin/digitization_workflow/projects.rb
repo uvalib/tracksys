@@ -96,19 +96,8 @@ ActiveAdmin.register Project do
             row ("Started") do |project|
                format_datetime(project.active_assignment.started_at) if !project.owner.nil?
             end
-            if !project.current_step.start_dir.blank?
-               row ("Working Directory") do |project|
-                  File.join(project.workflow.base_directory, project.current_step.start_dir)
-               end
-            end
-            if project.current_step.start_dir != project.current_step.finish_dir
-               row ("Finish Directory") do |project|
-                  str = "<span>#{File.join(project.workflow.base_directory, project.current_step.finish_dir)}</span>"
-                  if project.current_step.manual
-                     str << "<p class='manual-move-note'>Manual move required</p>"
-                  end
-                  raw(str)
-               end
+            row ("Working Directory") do |project|
+               project.working_dir
             end
          end
       end

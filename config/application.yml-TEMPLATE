@@ -53,6 +53,10 @@ archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
 production_mount: /digiserv-production
 delivery_dir: /digiserv-delivery/patron
 
+# Scanning / QA config
+qa_viewer_url: https://dpg-imaging.lib.virginia.edu
+image_qa_dir: /digiserv-production/dpg_imaging
+
 # V4 SIRSI instance data, used to get raw MARC
 sirsi_url: https://ils.lib.virginia.edu/uhtbin
 

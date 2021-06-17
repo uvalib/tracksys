@@ -77,7 +77,7 @@ class Project < ApplicationRecord
       data = Project.worked_on_by(value).pluck(:id)
       data = data.present? ? data : nil
    }
-   ransacker(:by_assignee, formatter: by_assignee_formatter, splat_params: true ) do |parent| 
+   ransacker(:by_assignee, formatter: by_assignee_formatter, splat_params: true ) do |parent|
       parent.table[:id]
    end
 
@@ -214,6 +214,13 @@ class Project < ApplicationRecord
       return claimable_by? assignee
    end
 
+   def working_dir
+      if self.current_step.name == "Process" || self.current_step.name == "Scan"
+         return File.join(self.workflow.base_directory, "scan", "10_raw", self.unit.directory)
+      end
+      return File.join(Settings.image_qa_dir, self.unit.directory)
+   end
+
    def total_work_time
       mins = self.assignments.sum(:duration_minutes)
       h = mins/60
@@ -319,6 +326,8 @@ class Project < ApplicationRecord
    # Finish assignment, automate file moves and advance project to next step
    #
    def finish_assignment(duration)
+      Rails.logger.info("Finish step #{self.current_step.name} in workflow #{self.workflow.name}")
+
       # First finish attempt includes a non-zero duration. Record it.
       # If a step fails and is corrected, 0 duration will be passed. Just
       # preserve the original duration. Requested by Sam P.
