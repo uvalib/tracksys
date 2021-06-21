@@ -283,6 +283,9 @@ class Step < ApplicationRecord
          step_failed(project, "Filesystem", note)
          return false
       end
+
+      Rails.logger.info("Files successfully moved to #{dest_dir}")
+      return true
    end
 
    private
