@@ -65,12 +65,6 @@ index_destintion: "virgo"
 pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
 rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
 
-# DPLAVA settings
-dpla_qdc_auto_publish: "false"
-dpla_qdc_git_repo: https://github.com/uvalib/dpla_test
-dpla_qdc_git_email: user@email.com
-dpla_qdc_git_user: "User Name"
-
 # Reindex service
 #reindex_url: https://virgo4-sirsi-cache-reprocess-ws-dev.internal.lib.virginia.edu
 reindex_url: https://virgo4-sirsi-cache-reprocess-ws.internal.lib.virginia.edu
