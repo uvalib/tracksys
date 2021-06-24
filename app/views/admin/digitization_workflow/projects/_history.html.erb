@@ -12,7 +12,9 @@
       <table class="project-history">
          <tr><th>Date</th><th>Step</th><th>Activity</th><th>Owner</th></tr>
          <% project.assignments.order(assigned_at: :desc).each do |a| %>
-
+            <% if a.step.nil? %>
+               <% next %>
+            <% end %>
             <% if !a.finished_at.nil? %>
                <% c="success"
                   t = "Finished"
