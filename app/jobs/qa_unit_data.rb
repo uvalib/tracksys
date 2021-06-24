@@ -97,7 +97,7 @@ class QaUnitData < BaseJob
 
       if failure_messages.empty?
          logger.info "Unit #{unit.id} has passed the QaUnitDataProcessor."
-         QaFilesystemAndIviewXml.exec_now( { :unit_id => unit.id }, self)
+         QaFilesystem.exec_now( { :unit_id => unit.id }, self)
       else
          failure_messages.each do |message|
             log_failure message

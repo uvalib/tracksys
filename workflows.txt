@@ -11,9 +11,9 @@ Top Level Jobs
 ⁃	CreateDlManifest
 ⁃	CreateImageTechnicalMetadata: Only used in DP rake task
 ⁃	CreateStatsReport
-⁃	ImportUnitIviewXML
+⁃	ImportUnitImages
 ⁃	OCR
-⁃	QaFilesystemAndIviewXml
+⁃	QaFilesystem
 ⁃	QaUnitData
 ⁃	SendFeeEstimateToCustomer
 ⁃	SendOrderEmail
@@ -38,10 +38,11 @@ START FINALIZATION FLOW
 ========================
 ⁃  start_finalization
    ⁃  qa_unit_data
-      ⁃  qa_filesystem_and_iview_xml
-         ⁃  import_unit_iview_xml
+      ⁃  qa_filesystem
+         ⁃  import_unit_images
             ⁃ copy_metadata_to_metadata_directory
             ⁃ check_unit_delivery_mode
+                  - copy_unit_for_processing
                   ⁃  copy_unit_for_deliverable_generation
                      ==>  BRANCH: Patron Deliverable or DL deliverables <==
                      **  PATRON **

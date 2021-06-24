@@ -1,4 +1,19 @@
 namespace :workflow do
+   desc "Drop the build catalog step"
+   task :drop_build_catalog_step  => :environment do
+      puts "Remove all Build Catalog steps..."
+      Step.where(name: "Build Catalog").delete_all
+
+      puts "Update all Process steps to skip over deleted build..."
+      Step.where(name: "Process").each do |s|
+         next_step = s.next_step_id
+         next_step += 1
+         s.update(next_step_id: next_step)
+      end
+
+      puts "DONE"
+   end
+
    desc "Create new workflow for clone projects"
    task :create_clone  => :environment do
       wf = Workflow.create(name: 'Clone', description: "Workflow for cloning existing master files")

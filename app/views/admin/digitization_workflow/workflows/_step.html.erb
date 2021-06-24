@@ -10,15 +10,5 @@
    </div>
    <div class="step-content">
       <p class="desc"><%= step.description %></p>
-      <% if !error && !step.start_dir.blank? %>
-         <p><b>Start Directory:</b><%= step.start_dir %></p>
-      <% end %>
-
-      <% if !step.finish_dir.blank? %>
-         <p><b>Finish Directory:</b><%= step.finish_dir %></p>
-         <% if step.manual  %>
-            <p class='note'>Manually move all files to finish directory</p>
-         <% end %>
-      <% end %>
    </div>
 </div>
