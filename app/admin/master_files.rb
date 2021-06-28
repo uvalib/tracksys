@@ -158,7 +158,7 @@ ActiveAdmin.register MasterFile do
          mf_id = master_file.id
          uid = master_file.unit_id
          page = master_file.get_page_number()
-         md_pid = nil 
+         md_pid = nil
          md_pid = master_file.metadata.pid if !master_file.metadata.nil?
          image_tag(
             master_file.link_to_image(:medium),
@@ -292,7 +292,7 @@ ActiveAdmin.register MasterFile do
       if mf.update(transcription_text: params[:transcription], text_source: src)
          render plain: "OK"
       else
-         render plain: mf.errors.full_messages.to_sentence, status: :error
+         render plain: mf.errors.full_messages.to_sentence, status: :internal_server_error
       end
    end
 

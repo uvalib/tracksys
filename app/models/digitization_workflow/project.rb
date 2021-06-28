@@ -364,9 +364,37 @@ class Project < ApplicationRecord
          end
       end
 
-      # Advance to next step, enforcing owner type
+      # Advance to next step
       self.active_assignment.update(finished_at: Time.now, status: :finished)
       new_step = self.current_step.next_step
+
+      # when the project moves to the final step, call finalize on the imaging service API to
+      # prepare the unit for finalization
+      if new_step.end?
+         begin
+            Rails.logger.info("Finalizing data for unit #{self.unit_id}")
+            finalize_url = "#{Settings.qa_viewer_url}/api/units/#{self.unit_id}/finalize"
+            resp = RestClient.post finalize_url, {}
+            json = JSON.parse(resp)
+            if !json['success']
+               Rails.logger.error("#{finalize_url} returned errors: #{json['problems']}")
+               msg = "<p>Prep for finalization failed</p>"
+               json['problems'].forEach do |p|
+                  msg << "<p>#{p['file']}: #{p['problem']}</p>"
+               end
+               note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
+               note.problems << prob
+            end
+         rescue Exception => e
+            Rails.logger.error("Unable to prep unit [#{self.unit_id}] for finalization: #{e.message}")
+            msg = "<p>Prep for finalization failed</p>"
+            msg << "<p>DPG Imaging was unable to prep the unit for finalization: #{e.message}</p>"
+            note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
+            note.problems << prob
+         end
+      end
+
+      # enforcing owner type
       if new_step.prior_owner?
          # Create a new assignment with staff_member set to current owner.
          Rails.logger.info("Workflow [#{self.workflow.name}] advanced to [#{new_step.name}], owner preserved")

@@ -135,7 +135,7 @@ ActiveAdmin.register Project do
       type = params[:note_type].to_i
       problems = params[:problems]
       if type == 2 && problems.nil? || (!problems.nil? && problems.length == 0)
-         render plain: "At least one problem must be selected.", status:  :error
+         render plain: "At least one problem must be selected.", status:  :bad_request
          return
       end
 
@@ -152,7 +152,7 @@ ActiveAdmin.register Project do
          render json: {html: html}
       rescue Exception => e
          Rails.logger.error e.to_s
-         render plain: "Create note FAILED: #{e.to_s}", status:  :error
+         render plain: "Create note FAILED: #{e.to_s}", status:  :internal_server_error
       end
    end
 
@@ -168,7 +168,7 @@ ActiveAdmin.register Project do
             workstation:ws, capture_resolution: params[:capture_resolution],
             resized_resolution: params[:resized_resolution], resolution_note: params[:resolution_note])
          if !ok
-            render json: {status: "fail", enable_finish: false, error: project.errors.full_messages.to_sentence}, status: :error
+            render json: {status: "fail", enable_finish: false, error: project.errors.full_messages.to_sentence}, status: :bad_request
          else
             html = render_to_string partial: "/admin/digitization_workflow/projects/project_equipment", locals: {equipment: project.equipment}
             render json: {html: html, enable_finish: project.assignment_finish_available?}, status: :ok
@@ -213,7 +213,7 @@ ActiveAdmin.register Project do
 
    member_action :unassign, :method => :post do
       if !(current_user.admin? || current_user.supervisor?)
-         render plain: "You do not have permissions to remove the assigned staff.", status: :error
+         render plain: "You do not have permissions to remove the assigned staff.", status: :unauthorized
          return
       end
       begin
@@ -223,7 +223,7 @@ ActiveAdmin.register Project do
          render plain: "OK"
       rescue Exception=>e
          logger.error("Unassign project FAILED: #{e.class.name} - #{e.message}}")
-         render plain: "#{e.class.name}: #{e.message}}", status: :error
+         render plain: "#{e.class.name}: #{e.message}}", status: :internal_server_error
       end
    end
 
@@ -232,7 +232,7 @@ ActiveAdmin.register Project do
       user = StaffMember.find(params[:user])
       if !project.assignable?(user, current_user)
          logger.info("Project[#{project.id}] unable to assign staff_member[#{user.id}]: #{user.computing_id}. Not claimable.")
-         render plain: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :error
+         render plain: "#{user.full_name} cannot be assigned this project. Required skills are missing.", status: :bad_request
          return
       end
       begin
@@ -241,7 +241,7 @@ ActiveAdmin.register Project do
          render json: {id: user.id, name: "#{user.full_name} (#{user.computing_id})"}, status: :ok
       rescue Exception=>e
          logger.error("Assign project FAILED: #{e.class.name} - #{e.message}}")
-         render plain: "#{e.class.name}: #{e.message}}", status: :error
+         render plain: "#{e.class.name}: #{e.message}}", status: :internal_server_error
       end
    end
 

@@ -325,7 +325,7 @@ ActiveAdmin.register Unit do
          render plain: "OK"
       rescue Exception => e
          Rails.logger.error e.to_s
-         render plain: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :error
+         render plain: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :internal_server_error
       end
    end
 
@@ -336,7 +336,7 @@ ActiveAdmin.register Unit do
       # Another user could have created a project for this unit while this
       # user was on the unit screen. Ensure no project exists for this unit before continuing
       if !u.project.nil?
-         render plain: "A project already exists for this unit", status: :error
+         render plain: "A project already exists for this unit", status: :bad_request
          return
       end
 
@@ -355,7 +355,7 @@ ActiveAdmin.register Unit do
          AuditEvent.create(auditable: t, event: AuditEvent.events[:project_create], staff_member: current_user, details: msg)
          render plain: t.id, status: :ok
       else
-         render plain: t.errors.full_messages.to_sentence, status: :error
+         render plain: t.errors.full_messages.to_sentence, status: :internal_server_error
       end
    end
 
