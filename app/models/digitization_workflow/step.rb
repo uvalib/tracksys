@@ -263,6 +263,14 @@ class Step < ApplicationRecord
          return true
       end
 
+      # See if there is an 'Output' directory for special handling. This is the directory where CaptureOne
+      # places the generated .tif files. Treat it as the source location if it is present
+      output_dir =  File.join(src_dir, "Output")
+      if Dir.exists? output_dir
+         Rails.logger.info("Output directory found. Moving it to final directory.")
+         src_dir = output_dir
+      end
+
       # Do the move
       begin
          FileUtils.mv(src_dir, dest_dir)
