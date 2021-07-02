@@ -372,7 +372,7 @@ class Project < ApplicationRecord
       # prepare the unit for finalization
       if new_step.end?
          begin
-            Rails.logger.info("Finalizing data for unit #{self.unit_id}")
+            Rails.logger.info("Starting Finalize step, finalizing data for unit #{self.unit_id}")
             finalize_url = "#{Settings.qa_viewer_url}/api/units/#{self.unit_id}/finalize"
             resp = RestClient.post finalize_url, {}
             json = JSON.parse(resp)
@@ -382,6 +382,7 @@ class Project < ApplicationRecord
                json['problems'].forEach do |p|
                   msg << "<p>#{p['file']}: #{p['problem']}</p>"
                end
+               prob = Problem.find(7) # Other
                note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
                note.problems << prob
             end
@@ -390,6 +391,7 @@ class Project < ApplicationRecord
             msg = "<p>Prep for finalization failed</p>"
             msg << "<p>DPG Imaging was unable to prep the unit for finalization: #{e.message}</p>"
             note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
+            prob = Problem.find(7) # Other
             note.problems << prob
          end
       end

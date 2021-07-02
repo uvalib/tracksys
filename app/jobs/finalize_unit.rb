@@ -31,6 +31,7 @@ class FinalizeUnit < BaseJob
 
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
+         logger().info "Unit #{unit.id} finished finalization; updating project."
          @project.finalization_success( status() )
       end
    end

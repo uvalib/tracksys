@@ -104,7 +104,7 @@ class Step < ApplicationRecord
       highest = -1
       cnt = 0
       unit_dir = project.unit.directory
-      Dir[ tif_path ].each do |f|
+      Dir[ tif_path ].sort.each do |f|
          name = File.basename f,".tif" # get name minus extention
          if (name =~ /\d{9}_\d{4}/).nil?
             step_failed(project, "Filename", "<p>Found incorrectly named image file #{f}.</p>")
@@ -151,7 +151,7 @@ class Step < ApplicationRecord
       container_type = project.container_type
       found_container_dir = false
       found_folders = false
-      Dir.glob("#{dir}/**/*").each do |entry|
+      Dir.glob("#{dir}/**/*").sort.each do |entry|
          if File.directory? (entry)
 
             # entry is the full path. Strip off the base dir, leaving just the subdirectories and files
@@ -205,7 +205,7 @@ class Step < ApplicationRecord
    private
    def validate_content(project, dir)
       # Make sure only .tif and notes.txt are present
-      Dir[File.join(dir, '/**/*')].each do |f|
+      Dir[File.join(dir, '/**/*')].sort.each do |f|
          next if File.directory? f
 
          if self.workflow.name == "Manuscript"

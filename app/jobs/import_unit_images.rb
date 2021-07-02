@@ -17,7 +17,7 @@ class ImportUnitImages < BaseJob
       begin
          # iterate through all of the .tif files in the unit directory
          mf_count = 0
-         Dir.glob(File.join(unit_path, "**/*.tif")).each do |mf_path|
+         Dir.glob(File.join(unit_path, "**/*.tif")).sort.each do |mf_path|
             logger.info "Import #{mf_path}"
             tgt_filename = File.basename(mf_path)
             mf_count += 1
@@ -89,8 +89,14 @@ class ImportUnitImages < BaseJob
             if !subdir_str.blank? && master_file.location.nil? && !unit.project.nil?
                # subdir structure: [box|oversize|tray].{box_name}/{folder_name}
                logger.info "Creating location metadata based on subdirs [#{subdir_str}]"
-               location = Location.find_or_create(unit.metadata, unit.project.container_type, in_proc, subdir_str)
+               if unit.project.container_type.nil?
+                  unit.project.container_type = ContainerType.first
+                  unit.project.save!
+                  logger.warn "Location data available, but container type not set. Defaulting to #{unit.project.container_type.name}"
+               end
+               location = Location.find_or_create(unit.metadata, unit.project.container_type, unit_path, subdir_str)
                master_file.set_location(location)
+               logger.info "Created location metadata for [#{subdir_str}]"
             end
          end
 
