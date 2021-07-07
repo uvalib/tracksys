@@ -235,9 +235,10 @@ class Step < ApplicationRecord
    private
    def move_files( project, src_dir, dest_dir )
       Rails.logger.info("Step #{self.name}: moving working files from #{src_dir} to #{dest_dir}")
+      has_delete_me = Dir.glob("#{src_dir}/**/DELETE.ME").length > 0
 
-      # Both exist; something is wrong. Fail
-      if Dir.exists?(src_dir) && Dir.exists?(dest_dir)
+      # Both exist without DELETE.ME; something is wrong. Fail
+      if Dir.exists?(src_dir) && Dir.exists?(dest_dir) && has_delete_me == false
          Rails.logger.error("Both source dir #{src_dir} and destination dir #{dest_dir} exist")
          step_failed(project, "Filesystem", "<p>Both source dir #{src_dir} and destination dir #{dest_dir} exist</p>")
          return false
@@ -257,8 +258,8 @@ class Step < ApplicationRecord
          end
       end
 
-      # Source is gone, but dest exists. No move needed
-      if !Dir.exists?(src_dir) && Dir.exists?(dest_dir)
+      # Source is gone or has the DELETE.ME file, but dest exists. No move needed
+      if (!Dir.exists?(src_dir) || has_delete_me ) && Dir.exists?(dest_dir)
          Rails.logger.info("Source is missing and destination directory #{dest_dir} already exists")
          return true
       end
@@ -273,23 +274,23 @@ class Step < ApplicationRecord
 
       # Do the move and sanity check on results. If .AppleDouble is present, move individual files and drop a DELETE.ME
       if Dir.glob("#{src_dir}/**/.AppleDouble").length > 0
-         Rails.logger.inf("Source #{src_dir} contains an .AppleDouble file and cannot be moved")
-         msg = "Directory #{src_dir} contains .AppleDouble files and cannot be removed. Manual cleanup required."
+         Rails.logger.info("Source #{src_dir} contains an .AppleDouble file and could not be moved")
+         msg = "Directory #{src_dir} contains .AppleDouble files and could not be removed. Manual cleanup required."
          Note.create(staff_member: project.owner, project: project, note_type: :comment, note: msg, step: project.current_step )
 
          Dir.glob("#{src_dir}/**/*.tif").sort.each do |entry|
             tgt_file = entry.gsub(src_dir, dest_dir)
             new_dir = File.dirname(tgt_file)
             if !Dir.exist? new_dir
-               Rails.logger.inf("Create dest_dir #{new_dir}")
+               Rails.logger.info("Create dest_dir #{new_dir}")
                FileUtils.mkdir_p(new_dir)
             end
-            Rails.logger.inf("Move #{entry} to #{tgt_file}")
+            Rails.logger.info("Move #{entry} to #{tgt_file}")
             FileUtils.mv(entry, tgt_file)
          end
 
          del =  File.join(src_dir, "DELETE.ME")
-         File.open(del, "w") { |file| file.write "moved to #{tgt_dir}\n" }
+         File.open(del, "w") { |file| file.write "moved to #{dest_dir}\n" }
       else
          FileUtils.mv(src_dir, dest_dir, force: true)
       end
