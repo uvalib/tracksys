@@ -271,21 +271,34 @@ class Step < ApplicationRecord
          src_dir = output_dir
       end
 
-      # Do the move and sanity check on results
-      FileUtils.mv(src_dir, dest_dir, force: true)
+      # Do the move and sanity check on results. If .AppleDouble is present, move individual files and drop a DELETE.ME
+      if Dir.glob("#{src_dir}/**/.AppleDouble").length > 0
+         Rails.logger.inf("Source #{src_dir} contains an .AppleDouble file and cannot be moved")
+         msg = "Directory #{src_dir} contains .AppleDouble files and cannot be removed. Manual cleanup required."
+         Note.create(staff_member: project.owner, project: project, note_type: :comment, note: msg, step: project.current_step )
+
+         Dir.glob("#{src_dir}/**/*.tif").sort.each do |entry|
+            tgt_file = entry.gsub(src_dir, dest_dir)
+            new_dir = File.dirname(tgt_file)
+            if !Dir.exist? new_dir
+               Rails.logger.inf("Create dest_dir #{new_dir}")
+               FileUtils.mkdir_p(new_dir)
+            end
+            Rails.logger.inf("Move #{entry} to #{tgt_file}")
+            FileUtils.mv(entry, tgt_file)
+         end
+
+         del =  File.join(src_dir, "DELETE.ME")
+         File.open(del, "w") { |file| file.write "moved to #{tgt_dir}\n" }
+      else
+         FileUtils.mv(src_dir, dest_dir, force: true)
+      end
+
       if !validate_directory(project, dest_dir)
          Rails.logger.error("Destination #{src_dir} did not validate")
          step_failed(project, "Filesystem", "<p>Errprs have occurred moving files to #{dest_dir}</p>")
          return false
       end
-
-
-      if !Dir.exists?(src_dir)
-         msg = "Files were moved from source #{src_dir} to #{dest_dir}, but source could not be removed automatically."
-         msg << " Manual cleanup is necessary"
-         Note.create(staff_member: project.owner, project: project, note_type: :comment, note: msg, step: project.current_step )
-      end
-
 
       Rails.logger.info("Files successfully moved to #{dest_dir}")
       return true
