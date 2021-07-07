@@ -271,26 +271,21 @@ class Step < ApplicationRecord
          src_dir = output_dir
       end
 
-      # Do the move
-      begin
-         FileUtils.mv(src_dir, dest_dir)
-         # do a sanity check on the newly moved files
-         if !validate_directory(project, dest_dir)
-            Rails.logger.error("Destination #{src_dir} did not validate")
-            step_failed(project, "Filesystem", "<p>Errprs have occurred moving files to #{dest_dir}</p>")
-            return false
-         end
-      rescue Exception => e
-         Rails.logger.error("Move files FAILED #{e.to_s}")
-         # Any problems moving files around will set the assignment as ERROR and leave it
-         # uncompleted. A note detailing the error will be generated. At this point, the current
-         # user can try again, or manually fix the directories and finish the step again.
-         note = "<p>An error occurred moving files after step completion. Not all files have been moved. "
-         note << "Please check and manually move each file. When the problem has been resolved, click finish again.</p>"
-         note << "<p><b>Error details:</b> #{e.to_s}</p>"
-         step_failed(project, "Filesystem", note)
+      # Do the move and sanity check on results
+      FileUtils.mv(src_dir, dest_dir, force: true)
+      if !validate_directory(project, dest_dir)
+         Rails.logger.error("Destination #{src_dir} did not validate")
+         step_failed(project, "Filesystem", "<p>Errprs have occurred moving files to #{dest_dir}</p>")
          return false
       end
+
+
+      if !Dir.exists?(src_dir)
+         msg = "Files were moved from source #{src_dir} to #{dest_dir}, but source could not be removed automatically."
+         msg << " Manual cleanup is necessary"
+         Note.create(staff_member: project.owner, project: project, note_type: :comment, note: msg, step: project.current_step )
+      end
+
 
       Rails.logger.info("Files successfully moved to #{dest_dir}")
       return true
