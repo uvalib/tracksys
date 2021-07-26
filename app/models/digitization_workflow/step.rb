@@ -284,6 +284,7 @@ class Step < ApplicationRecord
             if !Dir.exist? new_dir
                Rails.logger.info("Create dest_dir #{new_dir}")
                FileUtils.mkdir_p(new_dir)
+               FileUtils.chmod(0775, new_dir)
             end
             Rails.logger.info("Move #{entry} to #{tgt_file}")
             FileUtils.mv(entry, tgt_file)
