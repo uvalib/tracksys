@@ -216,7 +216,7 @@ class Project < ApplicationRecord
 
    def working_dir
       if self.current_step.name == "Process" || self.current_step.name == "Scan"
-         return File.join(self.workflow.base_directory, "scan", "10_raw", self.unit.directory)
+         return File.join(Settings.production_mount, "scan", "10_raw", self.unit.directory)
       end
       return File.join(Settings.image_qa_dir, self.unit.directory)
    end

@@ -17,80 +17,24 @@ if !current_user.viewer? && !current_user.student?
       end
    end
 
-   if unit.has_in_process_files?
-      if unit.date_archived.blank? && unit.reorder == false
-         qa_class = ""
-         qa_class = "disabled" if unit.master_files.count > 0
-         div :class => 'workflow_button' do
-            button_to "QA Unit Data", qa_unit_data_admin_unit_path, class: qa_class, :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "QA Filesystem", qa_filesystem_admin_unit_path, class: qa_class, :method => :put
-         end
-         div :class => 'workflow_button' do
-            button_to "Create Master File Records", import_unit_images_admin_unit_path, :method => :put
-         end
-
-         deliverables_ready = false
-         if unit.intended_use.id == 110
-            # Digital colection building
-            if unit.date_dl_deliverables_ready.blank?
-               div :class => 'workflow_button' do
-                  clazz = "disabled"
-                  clazz = "" if unit.master_files.count > 0
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
-               end
-            else
-               deliverables_ready = true
-            end
-         else
-            # Patron order
-            if unit.date_patron_deliverables_ready.blank?
-               div :class => 'workflow_button' do
-                  clazz = "disabled"
-                  clazz = ""  if unit.master_files.count > 0
-                  button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, class: clazz, :method => :put
-               end
-            else
-               deliverables_ready = true
-               div :class => 'workflow_button' do
-                  button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
-               end
-            end
-         end
-
-         div :class => 'workflow_button' do
-            clazz = "disabled"
-            clazz = "" if (deliverables_ready && unit.date_archived.blank?) || (unit.intended_use.id == 110 && unit.date_archived.blank?)
-            clazz = "disabled" if unit.master_files.count == 0
-            button_to "Send Unit to Archive", send_unit_to_archive_admin_unit_path, class: clazz, :method => :put
-         end
-      else
-         # in process files and deliverable ready, allow regenerate
-         if !unit.date_patron_deliverables_ready.blank?
-            div :class => 'workflow_button' do
-               button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
-            end
-         elsif unit.reorder && unit.master_files.count > 0 && unit.date_patron_deliverables_ready.blank?
-            div :class => 'workflow_button' do
-               button_to "Generate Deliverables", check_unit_delivery_mode_admin_unit_path, :method => :put
-            end
-         end
+   if unit.can_finalize?
+      div :class => 'workflow_button' do
+         button_to "Finalize Raw Images",
+         finalize_raw_images_admin_unit_path, :method => :get
       end
+   end
 
-   else
-      # NO in-process files....
+   if unit.error?
+      div :class => 'workflow_button' do
+         button_to "Retry Finalization", retry_finalization_admin_unit_path, :method => :put
+      end
+   end
+
+   if unit.done?
       if unit.date_patron_deliverables_ready && unit.intended_use.id != 110
          if unit.date_patron_deliverables_ready
             div :class => 'workflow_button' do
                button_to "Regenerate Deliverables", regenerate_deliverables_admin_unit_path, :method => :put
-            end
-         end
-      else
-         if unit.date_archived.nil? && unit.project.nil? && unit.date_dl_deliverables_ready.nil?
-            div :class => 'workflow_button' do
-               button_to "Finalize Raw Images",
-               finalize_raw_images_admin_unit_path, :method => :get
             end
          end
       end

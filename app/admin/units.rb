@@ -399,19 +399,9 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
    end
 
-   member_action :import_unit_images, :method => :put do
-      ImportUnitImages.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started creation of master files."
-   end
-
-   member_action :qa_filesystem, :method => :put do
-      QaFilesystem.exec( {:unit_id => params[:id]} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem."
-   end
-
-   member_action :qa_unit_data, :method => :put do
-      QaUnitData.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA unit data."
+   member_action :retry_finalization, :method => :put do
+      FinalizeUnit.exec({unit_id: params[:id]})
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Finalization restarted."
    end
 
    member_action :send_unit_to_archive, :method => :put do

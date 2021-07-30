@@ -41,20 +41,19 @@ class Step < ApplicationRecord
       # Make sure  directory is clean and in proper structure
       tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
       if self.name == "Scan" || self.name == "Process"
-         tgt_dir = File.join(self.workflow.base_directory, "scan", "10_raw", project.unit.directory)
+         tgt_dir = File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
       end
       return false if !validate_directory(project, tgt_dir)
 
       # Files get moved in two places; after Process and Finalization
-      # NOTE: workflow.base_directory is eoither /digiserv-production or /digiserv-migration
       if self.name == "Process"
-         src_dir =  File.join(self.workflow.base_directory, "scan", "10_raw", project.unit.directory)
+         src_dir =  File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
          tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
          return move_files( project, src_dir, tgt_dir )
       end
       if self.name == "Finalize"
          src_dir = File.join(Settings.image_qa_dir, project.unit.directory)
-         tgt_dir =  File.join(self.workflow.base_directory, "finalization", "10_dropoff", project.unit.directory)
+         tgt_dir =  File.join(Settings.production_mount, "finalization", project.unit.directory)
          return move_files( project, src_dir, tgt_dir )
       end
 

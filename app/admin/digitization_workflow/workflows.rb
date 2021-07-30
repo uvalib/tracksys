@@ -43,12 +43,7 @@ ActiveAdmin.register Workflow do
      div do
         panel "Workflow Name: #{workflow.name}" do
            div class: "workflow-description" do
-             h4 do
-                workflow.description
-             end
-             h5 do
-                "Base Directory: #{workflow.base_directory}"
-             end
+             h4 do workflow.description end
           end
            render partial: "/admin/digitization_workflow/workflows/workflow_steps", locals: { workflow: workflow}
         end
