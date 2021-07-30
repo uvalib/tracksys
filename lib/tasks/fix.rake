@@ -1,5 +1,109 @@
 #encoding: utf-8
 namespace :fix do
+   task :unused => :environment do
+      puts "Flag unused units with DELETE.ME"
+      dirs = [
+         "/digiserv-production/finalization/20_in_process", "/digiserv-production/finalization/30_process_deliverables",
+         "/digiserv-migration/finalization/20_in_process", "/digiserv-migration/finalization/30_process_deliverables",
+      ]
+      cnt = 0
+      in_proc = 0
+      dirs.each do |d|
+         puts "Checking #{d}..."
+         Dir.entries(d).select do |entry|
+            next if entry == "." || entry == ".."
+
+            full_path = File.join(d,entry)
+            next if !File.directory?(File.join(full_path))
+            next if /^\d{9}$/.match(entry).nil?
+            uid = entry.to_i
+            u = Unit.find(uid)
+            print "     #{entry}:   "
+
+            # assume the unit can be deleted, then check for data to indicate it can't
+            can_delete = true
+            if u.unit_status == "canceled"
+               can_delete = true
+                print "CANCELED "
+            else
+               if u.include_in_dl
+                  # if its in DL, date_dl_deliverables_ready and date_archived are set when done
+                  if u.date_archived.blank? || u.date_dl_deliverables_ready.blank?
+                     can_delete = false
+                  end
+               end
+
+               # not digital collection building, should havve patron deliverables and may be archived if not throw_away/reorder
+               if u.intended_use.id != 110
+                  if u.date_patron_deliverables_ready.blank?
+                     can_delete = false
+                  end
+                  if u.throw_away == false && u.reorder == false && u.date_archived.blank?
+                     can_delete = false
+                  end
+               end
+            end
+
+            if can_delete
+               print "DELETE\n"
+               cnt+=1
+               dm =  File.join(full_path, "DELETE.ME")
+               if !File.exist?(dm)
+                  begin
+                     File.open(dm, "w") { |file| file.write "DELETE ME\n" }
+                  rescue Exception=>e
+                     puts "ERROR: unable to write #{dm}: #{e}"
+                  end
+               end
+            else
+               print "IN PROGRESS\n"
+               in_proc += 1
+            end
+         end
+      end
+      puts "DONE. #{cnt} directories flagged for deletion, #{in_proc} stil in process"
+   end
+
+   task :broken_unit => :environment do
+      puts "Fix missing images in unit 4358"
+      img_dir = File.join(Rails.root, "tmp", "fix4358")
+      Dir.chdir img_dir
+      all_imgs = Dir.glob("*.jpg").sort
+      archive_dir  = File.join(ARCHIVE_DIR, "000004358")
+      Dir.chdir archive_dir
+      arch_imgs = Dir.glob("*.tif").sort
+      missing_imgs = []
+      all_imgs.each do |jpg_file|
+         tgt_file = jpg_file.gsub(/jpg/, "tif")
+         if !arch_imgs.include?(tgt_file)
+            missing_imgs << tgt_file
+            tif_file = File.join(img_dir, tgt_file)
+            archive_tif_file = File.join(archive_dir, tgt_file)
+            puts "#{tgt_file} is missing. Archive to: #{archive_tif_file}"
+
+            #cmd = "convert -compress none #{img_dir}/#{jpg_file} #{tif_file}"
+            #`#{cmd}`
+
+            FileUtils.copy(tif_file, archive_tif_file)
+            FileUtils.chmod(0664, archive_tif_file)
+
+            src_md5 = Digest::MD5.hexdigest(File.read(tif_file) )
+            dest_md5 = Digest::MD5.hexdigest(File.read(archive_tif_file) )
+            if src_md5 != dest_md5
+               puts "WARNING! #{tif_file} failed checksum test"
+            end
+            mf = MasterFile.find_by(filename: tgt_file)
+            if !mf.nil?
+               puts "Update masterfile record"
+               mf.update(md5: src_md5, date_archived: Time.now, description: "tif generated from derivative jpg file")
+
+               puts "Publish to IIIF"
+               PublishToIiif.publish(tif_file, mf, false)
+            end
+         end
+      end
+   end
+
    task :unit_mf_metadata => :environment do
       uid = ENV['id']
       abort("id is required") if uid.nil?
@@ -519,7 +623,7 @@ namespace :fix do
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       unit.master_files.each do |master_file|
          file_source = File.join(archive_dir, master_file.filename)
-         PublishToIiif.publish( file_source, master_file, true)
+         PublishToIiif.publish( file_source, master_file, false)
       end
    end
 end
