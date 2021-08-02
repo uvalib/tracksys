@@ -51,8 +51,6 @@ Tracksys::Application.routes.draw do
      get "archivesspace/report" => "as#report"
      get "aries/:id" => "aries#show", :constraints => { :id => /[0-9A-Za-z:_\-\.\/]+/ }
      get "aries" => "aries#index"
-     get "metadata/search" => "metadata#search"
-     get "metadata/:pid" => "metadata#show"
      get "fulltext/:pid" => "fulltext#show"
      post "fulltext/:pid/ocr" => "fulltext#post_ocr"
      get "pid/:pid" => "pid#show"

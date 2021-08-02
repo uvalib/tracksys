@@ -11,16 +11,18 @@ class FinalizeUnit < BaseJob
       src_dir = File.join(Settings.production_mount, "finalization", @unit.directory)
       if !@unit.project.nil?
          @project = @unit.project
-         logger().info "Project #{@project.id}, unit #{@unit.id} #{act} finalization."
+         logger.info "Project #{@project.id}, unit #{@unit.id} #{act} finalization."
       else
-         logger().info "Unit #{@unit.id} #{act} finalization without project."
+         logger.info "Unit #{@unit.id} #{act} finalization without project."
       end
 
+      # ensure finilzation directory exists
       if !Dir.exists? src_dir
          @unit.update(unit_status: "error")
          fatal_error("Finalization directory #{src_dir} does not exist")
       end
 
+      # manage unit status
       if @unit.unit_status == "finalizing"
          @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} is already finalizaing."
@@ -33,19 +35,30 @@ class FinalizeUnit < BaseJob
       end
       @unit.update(unit_status: "finalizing")
 
-      # Perform basic QA on unit settings and filesystem contents.
-      # These are safe to repeat overy time finalization is started/restarted
-      qa_unit_data()
-      qa_filesystem(src_dir)
-
-      # Create all of the master files, then archive the unit
       begin
+         # Perform basic QA on unit settings and filesystem contents.
+         # These are safe to repeat overy time finalization is started/restarted
+         qa_unit_data()
+         qa_filesystem(src_dir)
+
+         # Create all of the master files (and publish to IIIF) then archive the unit
          Images.import(@unit, logger)
          if @unit.reorder == false && @unit.throw_away == false && @unit.date_archived.blank?
             Archive.publish(@unit, logger)
          end
+
+         # If OCR has been requested, do it AFTER archive (OCR requires tif to be in archive)
+         # but before deliverable generation (deliverables require OCR text to be present)
+         if @unit.ocr_master_files
+            OCR.synchronous(unit, self)
+            @unit.reload
+         end
+
+         # Flag unit for Virgo publication?
+         if @unit.include_in_dl
+            Virgo.publish(@unit, logger)
+         end
       rescue Exception => e
-         logger.error "Caught exception #{e.message}"
          fatal_error( e.message )
       end
 
@@ -230,14 +243,13 @@ class FinalizeUnit < BaseJob
       end
    end
 
+   # Override fatail error and mark the unit as status 'error'
    def fatal_error(err)
-      logger.info("OVERRIDDEN fatal_error")
       @unit.update!(unit_status: "error")
       super
    end
 
-   # Override the normal delayed_job failure hook to pass the
-   # problem info back to the project
+   # Override the normal delayed_job failure hook to pass the problem info back to the project
    def failure(job)
       if !@project.nil?
          logger().fatal "Unit #{@project.unit.id} failed Finalization"

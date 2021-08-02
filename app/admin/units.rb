@@ -378,11 +378,6 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :check_unit_delivery_mode, :method => :put do
-      CheckUnitDeliveryMode.exec( {:unit_id => params[:id]} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
-   end
-
    member_action :copy_from_archive, :method => :put do
       CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
@@ -394,8 +389,9 @@ ActiveAdmin.register Unit do
    end
 
    member_action :publish, :method => :put do
-      PublishToDL.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit published to DL. It will be available tomorrow."
+      unit = Unit.find(params[:id])
+      Virgo.publish(unit, Rails.logger)
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo."
    end
 
    member_action :bulk_upload_xml, :method => :put do
