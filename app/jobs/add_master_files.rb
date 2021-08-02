@@ -74,7 +74,7 @@ class AddMasterFiles < BaseJob
          master_file  = MasterFile.create(filename: fn, title: pg_num.to_s, filesize: fs, md5: md5,
             unit_id: unit.id, component_id: component_id, metadata_id: unit.metadata_id)
          logger.info "Created master file #{mf_path}"
-         CreateImageTechnicalMetadata.exec_now({master_file: master_file, source: mf_path}, self)
+         TechMetadata.create(master_file,  mf_path)
 
          # See if directories are present, and use them to generate location metadata for the file
          if !container_type.nil?
@@ -88,8 +88,7 @@ class AddMasterFiles < BaseJob
             add_xml_metadata(unit, master_file, mf_path, xml_files)
          end
 
-         # send to IIIF
-         PublishToIiif.exec_now({source: mf_path, master_file_id: master_file.id}, self)
+         IIIF.publish(mf_path, master_file, true, logger)
 
          # archive file, validate checksum and set archived date
          new_archive = File.join(archive_dir, fn)

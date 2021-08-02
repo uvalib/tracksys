@@ -5,119 +5,128 @@ class FinalizeUnit < BaseJob
 
    def do_workflow(message)
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
-      unit =  Unit.find( message[:unit_id] )
+      @unit =  Unit.find( message[:unit_id] )
       act = "begins"
-      act = "restarts" if unit.unit_status == "error"
-      src_dir = File.join(Settings.production_mount, "finalization", unit.directory)
-      if !unit.project.nil?
-         @project = unit.project
-         logger().info "Project #{@project.id}, unit #{unit.id} #{act} finalization."
+      act = "restarts" if @unit.unit_status == "error"
+      src_dir = File.join(Settings.production_mount, "finalization", @unit.directory)
+      if !@unit.project.nil?
+         @project = @unit.project
+         logger().info "Project #{@project.id}, unit #{@unit.id} #{act} finalization."
       else
-         logger().info "Unit #{unit.id} #{act} finalization without project."
+         logger().info "Unit #{@unit.id} #{act} finalization without project."
       end
 
       if !Dir.exists? src_dir
-         unit.update(unit_status: "error")
+         @unit.update(unit_status: "error")
          fatal_error("Finalization directory #{src_dir} does not exist")
       end
 
-      if unit.unit_status == "finalizing"
-         unit.update(unit_status: "error")
-         fatal_error "Unit #{unit.id} is already finalizaing."
+      if @unit.unit_status == "finalizing"
+         @unit.update(unit_status: "error")
+         fatal_error "Unit #{@unit.id} is already finalizaing."
+      elsif @unit.unit_status == "approved"
+         @unit.order.update(:date_finalization_begun, Time.now)
+         logger().info("Date Finalization Begun updated for order #{@unit.order.id}")
+      elsif @unit.unit_status != 'error'
+         @unit.update(unit_status: "error")
+         fatal_error "Unit #{@unit.id} has not been approved."
       end
-      if unit.unit_status != "approved" && unit.unit_status != 'error'
-         unit.update(unit_status: "error")
-         fatal_error "Unit #{unit.id} has not been approved."
-      end
-      unit.update(unit_status: "finalizing")
+      @unit.update(unit_status: "finalizing")
 
       # Perform basic QA on unit settings and filesystem contents.
       # These are safe to repeat overy time finalization is started/restarted
-      qa_unit_data(unit)
-      qa_filesystem(unit, src_dir)
+      qa_unit_data()
+      qa_filesystem(src_dir)
 
-      unit.update(unit_status: "error")
+      # Create all of the master files, then archive the unit
+      begin
+         Images.import(@unit, logger)
+         if @unit.reorder == false && @unit.throw_away == false && @unit.date_archived.blank?
+            Archive.publish(@unit, logger)
+         end
+      rescue Exception => e
+         logger.error "Caught exception #{e.message}"
+         fatal_error( e.message )
+      end
+
       fatal_error "STOP EARLY!"
-      # TODO IMPORT FILES
-      # CHECK UNIT DELIVERY
-      #ImportUnitImages.exec_now({ :unit_id => @unit.id }, self)
+      # CheckUnitDeliveryMode.exec_now({ :unit_id => unit.id }, self)
 
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
-         logger().info "Unit #{unit.id} finished finalization; updating project."
+         logger().info "Unit #{@unit.id} finished finalization; updating project."
          @project.finalization_success( status() )
-         unit.update(unit_status: "done")
+         @unit.update(unit_status: "done")
       end
    end
 
    # Perfrom QA on unit / order settings. This is the first step in finalization
    private
-   def qa_unit_data(unit)
-      logger.info "QA unit #{unit.id} data"
+   def qa_unit_data
+      logger.info "QA unit #{@unit.id} data"
 
       # First, check if unit is assigned to metadata record. This is an immediate fail
-      if unit.metadata.nil?
-         unit.update(unit_status: "error")
-         fatal_error "Unit #{unit.id} is not assigned to a metadata record."
+      if @unit.metadata.nil?
+         @unit.update(unit_status: "error")
+         fatal_error "Unit #{@unit.id} is not assigned to a metadata record."
       end
 
-      if unit.include_in_dl == false && unit.reorder == false
-         check_auto_publish( unit )
+      if @unit.include_in_dl == false && @unit.reorder == false
+         check_auto_publish
       end
 
       has_failures = false
-      if unit.include_in_dl && unit.metadata.availability_policy_id.blank? && unit.metadata.type != "ExternalMetadata"
+      if @unit.include_in_dl && @unit.metadata.availability_policy_id.blank? && @unit.metadata.type != "ExternalMetadata"
          log_failure "Availability policy must be set for all units flagged for inclusion in the DL"
          has_failures = true
       end
 
-      # Fail if unit.intended_use is blank
-      if not unit.intended_use
-         log_failure "Unit #{unit.id} has no intended use.  All units that participate in this workflow must have an intended use."
+      if @unit.intended_use.blank?
+         log_failure "Unit #{@unit.id} has no intended use.  All units that participate in this workflow must have an intended use."
          has_failures = true
       end
 
       # fail for no ocr hint or incompatible hint / ocr Settings
-      if unit.metadata.ocr_hint_id.nil?
-         log_failure "Unit metadata #{unit.metadata.id} has no OCR Hint. This is a required setting."
+      if @unit.metadata.ocr_hint_id.nil?
+         log_failure "Unit metadata #{@unit.metadata.id} has no OCR Hint. This is a required setting."
          has_failures = true
       else
-         if unit.ocr_master_files
-            if !unit.metadata.ocr_hint.ocr_candidate
+         if @unit.ocr_master_files
+            if !@unit.metadata.ocr_hint.ocr_candidate
                log_failure "Unit is flagged to perform OCR, but the metadata setting indicates OCR is not possible."
                has_failures = true
             end
-            if unit.metadata.ocr_language_hint.nil?
-               log_failure "Unit is flagged to perform OCR, but the required language hint for metadata #{unit.metadata.id} is not set"
+            if @unit.metadata.ocr_language_hint.nil?
+               log_failure "Unit is flagged to perform OCR, but the required language hint for metadata #{@unit.metadata.id} is not set"
                has_failures = true
             end
          end
       end
 
-      if unit.include_in_dl && unit.throw_away
+      if @unit.include_in_dl && @unit.throw_away
          log_failure "Throw away units cannot be flagged for publication to the DL."
          has_failures = true
       end
 
-      order = unit.order
+      order = @unit.order
       if not order.date_order_approved?
          logger.info "Order #{order.id} is not marked as approved.  Since this unit is undergoing finalization, the workflow has automatically updated this value and changed the order_status to approved."
          if !order.update(date_order_approved: Time.now, order_status: 'approved')
-            unit.update(unit_status: "error")
+            @unit.update(unit_status: "error")
             fatal_error( order.errors.full_messages.to_sentence )
          end
       end
 
       if has_failures
-         unit.update(unit_status: "error")
-         fatal_error "Unit #{unit.id} has failed the QA Unit Data Processor"
+         @unit.update(unit_status: "error")
+         fatal_error "Unit #{@unit.id} has failed the QA Unit Data Processor"
       end
    end
 
    # Perfrom QA on the unit filesystem
    private
-   def qa_filesystem(unit, src_dir)
-      logger.info "QA filesystem"
+   def qa_filesystem(src_dir)
+      logger.info "QA filesystem for #{src_dir}"
 
       has_failures = false
       tif_files = []
@@ -160,8 +169,8 @@ class FinalizeUnit < BaseJob
             max_seq_file = tif_file
          end
 
-         if tif_file !~ /^#{unit.directory}/
-            log_failure "#{tif_file} does not start with the correct unit prefix #{unit.directory}"
+         if tif_file !~ /^#{@unit.directory}/
+            log_failure "#{tif_file} does not start with the correct unit prefix #{@unit.directory}"
             has_failures = true
          end
 
@@ -182,27 +191,26 @@ class FinalizeUnit < BaseJob
       end
 
       if has_failures
-         unit.update(unit_status: "error")
          fatal_error "Unit #{unit.id} has failed the Filesystem QA."
       end
    end
 
    private
-   def check_auto_publish(unit)
-      logger.info "Checking unit #{unit.id} for auto-publish"
-      if unit.complete_scan == false
-         logger.info "Unit #{unit.id} is not a complete scan and cannot be auto-published"
+   def check_auto_publish()
+      logger.info "Checking unit #{@unit.id} for auto-publish"
+      if @unit.complete_scan == false
+         logger.info "Unit #{@unit.id} is not a complete scan and cannot be auto-published"
          return
       end
 
-      metadata = unit.metadata
+      metadata = @unit.metadata
       if metadata.is_manuscript || metadata.is_personal_item
-         logger.info "Unit #{unit.id} is for a manuscript or personal item and cannot be auto-published"
+         logger.info "Unit #{@unit.id} is for a manuscript or personal item and cannot be auto-published"
          return
       end
 
       if metadata.type != "SirsiMetadata"
-         logger.info "Unit #{unit.id} metadata is not from Sirsi and cannot be auto-published"
+         logger.info "Unit #{@unit.id} metadata is not from Sirsi and cannot be auto-published"
          return
       end
 
@@ -211,15 +219,21 @@ class FinalizeUnit < BaseJob
       sirsi_meta = metadata.becomes(SirsiMetadata)
       pub_info = Virgo.get_marc_publication_info(sirsi_meta.catalog_key)
       if !pub_info[:year].blank? && pub_info[:year].to_i < 1923
-         logger.info "Unit #{unit.id} is a candidate for auto-publishing."
+         logger.info "Unit #{@unit.id} is a candidate for auto-publishing."
          if sirsi_meta.availability_policy.nil?
             sirsi_meta.update(availability_policy_id: 1)
          end
-         unit.update(include_in_dl: true)
-         logger.info "Unit #{unit.id} successfully flagged for DL publication"
+         @unit.update(include_in_dl: true)
+         logger.info "Unit #{@unit.id} successfully flagged for DL publication"
       else
-         logger.info "Unit #{unit.id} has no date or a date after 1923 and cannot be auto-published"
+         logger.info "Unit #{@unit.id} has no date or a date after 1923 and cannot be auto-published"
       end
+   end
+
+   def fatal_error(err)
+      logger.info("OVERRIDDEN fatal_error")
+      @unit.update!(unit_status: "error")
+      super
    end
 
    # Override the normal delayed_job failure hook to pass the

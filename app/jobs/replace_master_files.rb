@@ -33,8 +33,8 @@ class ReplaceMasterFiles < BaseJob
          # update MF attributes, replace tech metadata, re-publish and archive
          curr_mf.update(filesize: fs, md5: md5)
          curr_mf.image_tech_meta.destroy if !curr_mf.image_tech_meta.nil?
-         CreateImageTechnicalMetadata.exec_now({master_file: curr_mf, source: mf_path}, self)
-         PublishToIiif.exec_now({source: mf_path, master_file_id: curr_mf.id, overwrite: true}, self)
+         TechMetadata.create(curr_mf, mf_path)
+         IIIF.publish(mf_path, curr_mf, true, logger)
 
          # archive file and validate checksum
          new_archive = File.join(archive_dir, fn)

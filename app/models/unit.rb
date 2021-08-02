@@ -99,6 +99,10 @@ class Unit < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
+   def update_dir
+      return File.join(Settings.production_mount, "finalization", "unit_update", directory)
+   end
+
    def can_finalize?
       return date_archived.nil? && project.nil? && date_dl_deliverables_ready.nil? && unit_status == 'approved'
    end

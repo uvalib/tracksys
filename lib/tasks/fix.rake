@@ -98,7 +98,7 @@ namespace :fix do
                mf.update(md5: src_md5, date_archived: Time.now, description: "tif generated from derivative jpg file")
 
                puts "Publish to IIIF"
-               PublishToIiif.publish(tif_file, mf, false)
+               IIIF.publish(tif_file, mf, false)
             end
          end
       end
@@ -623,7 +623,7 @@ namespace :fix do
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       unit.master_files.each do |master_file|
          file_source = File.join(archive_dir, master_file.filename)
-         PublishToIiif.publish( file_source, master_file, false)
+         IIIF.publish( file_source, master_file, false)
       end
    end
 end

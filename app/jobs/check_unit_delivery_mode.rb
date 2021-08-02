@@ -24,26 +24,6 @@ class CheckUnitDeliveryMode < BaseJob
       CopyUnitForProcessing.exec_now({ :unit => unit}, self)
       processing_dir = Finder.finalization_dir(unit, :process_deliverables)
 
-      # Regardless of the use, ALL masterfiles coming into tracksys must be sent to IIIF.
-      # Exception: reorders. These masterfile are already in IIIF and shouldn't be re-added.
-      if unit.reorder == false
-         logger.info("Publishing #{unit.master_files.count} to IIIF...")
-         cnt = 0
-         unit.master_files.each do |master_file|
-            file_source = File.join(processing_dir, master_file.filename)
-            PublishToIiif.exec_now({ :source => file_source, :master_file_id=> master_file.id }, self)
-            cnt += 1
-         end
-         logger.debug("#{cnt} master files published to IIIF")
-         if cnt != unit.master_files.count
-            fatal_error "Mismatch in count of master files published to IIIF"
-         end
-      end
-
-      # All non-reorder, non-throw away units go to the archive
-      if unit.reorder == false && unit.throw_away == false
-         SendUnitToArchive.exec_now({ :unit_id => unit.id }, self)
-      end
 
       # If OCR has been requested, do it AFTER archive (OCR requires tif to be in archive)
       # but before deliverable generation (deliverables require OCR text to be present)

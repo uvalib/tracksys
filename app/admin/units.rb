@@ -183,7 +183,7 @@ ActiveAdmin.register Unit do
       render "related_info", :context => self
    end
 
-   sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 } do
+   sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 && unit.done?} do
       render "bulk_actions", :context => self
    end
 
@@ -192,7 +192,7 @@ ActiveAdmin.register Unit do
    end
 
    sidebar "Digital Library Workflow", :only => [:show],
-      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl? ) } do
+      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && unit.done?  } do
       render "dl_workflow", :context=>self
    end
 
@@ -383,17 +383,6 @@ ActiveAdmin.register Unit do
       redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
    end
 
-   member_action :download_unit_xml, :method => :get do
-      unit = Unit.find(params[:id])
-      unit_dir = "%09d" % unit.id
-      source_fn = File.join(ARCHIVE_DIR, unit_dir, "#{unit_dir}.xml")
-      if File.exists? source_fn
-         send_file(source_fn)
-      else
-         render plain: "Unit XML does not exist in the archive."
-      end
-   end
-
    member_action :copy_from_archive, :method => :put do
       CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
@@ -402,12 +391,6 @@ ActiveAdmin.register Unit do
    member_action :retry_finalization, :method => :put do
       FinalizeUnit.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Finalization restarted."
-   end
-
-   member_action :send_unit_to_archive, :method => :put do
-      # added a delete flag to this request as it completes finalization. Files can go to ready to delete
-      SendUnitToArchive.exec( {unit_id: params[:id], delete: true})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
    end
 
    member_action :publish, :method => :put do
