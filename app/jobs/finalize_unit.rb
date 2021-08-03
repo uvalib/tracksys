@@ -81,7 +81,10 @@ class FinalizeUnit < BaseJob
       @unit.update(unit_status: "done")
 
       logger.info("Cleaning up finalization directories")
+      tmp_dir = File.join(Settings.production_mount, "finalization", "tmp")
+      work_dir = File.join(tmp_dir, @unit.directory)
       FileUtils.rm_rf(src_dir)
+      FileUtils.rm_rf(work_dir)
    end
 
    # Perfrom QA on unit / order settings. This is the first step in finalization
@@ -262,8 +265,6 @@ class FinalizeUnit < BaseJob
       else
          Patron.zip_deliverables(@unit, logger)
       end
-
-      raise "STOP NOW"
 
       @unit.update(date_patron_deliverables_ready: Time.now)
       logger.info("All patron deliverables created")
