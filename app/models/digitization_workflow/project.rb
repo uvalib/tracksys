@@ -513,12 +513,11 @@ class Project < ApplicationRecord
 
    private
    def manually_finalized?
-      q = "select count(b.id) from notes n "
-      q << " inner join notes_problems np on np.note_id = n.id"
-      q << " inner join problems b on b.id = np.problem_id"
-      q << " where n.project_id=#{self.id} and b.id=6"
-      result = Project.connection.execute(q).first
-      return result[0] > 0
+      last_note = self.notes.last
+      if !last_note.step.nil?
+         return last_note.step.name == "Finalize" && last_note.note_type == "problem"
+      end
+      return false
    end
 
    private

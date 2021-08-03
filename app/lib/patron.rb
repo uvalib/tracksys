@@ -1,20 +1,12 @@
 module Patron
    # Create patron deliverable and return the full path to the file
    #
-   def self.create_deliverable(unit, master_file, source, dest_dir, logger = Logger.new(STDOUT) )
+   def self.create_deliverable(unit, master_file, source, dest_dir, call_number, location, logger = Logger.new(STDOUT) )
       order_id = unit.order_id
       master_file_id = master_file.id
       actual_res = master_file.image_tech_meta.resolution
       desired_res = unit.intended_use.deliverable_resolution
       add_legal_notice = false
-      call_number = nil
-      location = nil
-
-      if unit.metadata.type == "SirsiMetadata"
-         sm = unit.metadata.becomes(SirsiMetadata)
-         call_number = sm.call_number
-         location = sm.get_full_metadata[:location]
-      end
 
       # Die if source is not tif or doesn't refer to a file
       if !(source.match(/\.tiff?$/) and File.file? source )
@@ -46,6 +38,10 @@ module Patron
 
       # format output path so it includes order number and unit number, like so: .../order123/54321/...
       dest_path = File.join(dest_dir, File.basename(source, '.*') + suffix)
+      if File.exist? dest_path
+         logger.info("Deliverable already exists at #{dest_path}")
+         return dest_path
+      end
 
       # Simple case; just a copy of tif at full resolution. No imagemagick needed
       if suffix == '.tif' && (desired_res.blank? or desired_res.to_s =~ /highest/i)

@@ -14,11 +14,19 @@ class CreatePatronDeliverables < BaseJob
       end
       FileUtils.mkdir_p(assemble_dir)
 
+      call_number = nil
+      location = nil
+      if unit.metadata.type == "SirsiMetadata"
+         sm = unit.metadata.becomes(SirsiMetadata)
+         call_number = sm.call_number
+         location = sm.get_full_metadata[:location]
+      end
+
       processing_dir = Finder.finalization_dir(unit, :process_deliverables)
       unit.master_files.each do |master_file|
          file_source = File.join(processing_dir, master_file.filename)
          logger.info "Create deliverable for MasterFile #{master_file.id} from #{file_source}"
-         deliverable_file = Patron.create_deliverable(unit, master_file, file_source, assemble_dir, logger)
+         deliverable_file = Patron.create_deliverable(unit, master_file, file_source, assemble_dir, call_number, location, logger)
          logger.info "Deliverable image created at #{deliverable_file}"
       end
 
