@@ -6,6 +6,10 @@ class FinalizeUnit < BaseJob
    def do_workflow(message)
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
       @unit =  Unit.find( message[:unit_id] )
+      if @unit.reorder
+         fatal_error("Unit directory #{unit_id} is a re-order and should not be finalized.")
+      end
+
       act = "begins"
       act = "restarts" if @unit.unit_status == "error"
       src_dir = File.join(Settings.production_mount, "finalization", @unit.directory)
@@ -43,7 +47,7 @@ class FinalizeUnit < BaseJob
 
          # Create all of the master files (and publish to IIIF) then archive the unit
          Images.import(@unit, logger)
-         if @unit.reorder == false && @unit.throw_away == false && @unit.date_archived.blank?
+         if @unit.throw_away == false && @unit.date_archived.blank?
             Archive.publish(@unit, logger)
          end
 
@@ -58,19 +62,26 @@ class FinalizeUnit < BaseJob
          if @unit.include_in_dl
             Virgo.publish(@unit, logger)
          end
+
+         # If desc is not digital collection building, create patron deliverables regardless of any other settings
+         if unit.intended_use.description != "Digital Collection Building"
+            create_patron_deliverables()
+         end
       rescue Exception => e
          fatal_error( e.message )
       end
-
-      fatal_error "STOP EARLY!"
-      # CheckUnitDeliveryMode.exec_now({ :unit_id => unit.id }, self)
 
       # At this point, finalization has completed successfully and project is done
       if !@project.nil?
          logger().info "Unit #{@unit.id} finished finalization; updating project."
          @project.finalization_success( status() )
-         @unit.update(unit_status: "done")
+      else
+         logger().info "Unit #{@unit.id} finished finalization"
       end
+      @unit.update(unit_status: "done")
+
+      logger.info("Cleaning up finalization directories")
+      FileUtils.rm_rf(src_dir)
    end
 
    # Perfrom QA on unit / order settings. This is the first step in finalization
@@ -241,6 +252,20 @@ class FinalizeUnit < BaseJob
       else
          logger.info "Unit #{@unit.id} has no date or a date after 1923 and cannot be auto-published"
       end
+   end
+
+   private
+   def create_patron_deliverables()
+      raise "STOP NOW"
+      if @unit.intended_use.deliverable_format == "pdf"
+         logger.info("Unit #{@unit.id} requires the creation of PDF patron deliverables.")
+         CreatePDFDeliverable.exec_now({ unit: unit }, self)
+      else
+         CreateUnitZip.exec_now( { unit: @unit }, self)
+      end
+
+      # check for completeness, fees and generate manifest PDF. Same for all patron deliverables
+      CheckOrderReadyForDelivery.exec_now( { order_id: @unit.order_id}, self  )
    end
 
    # Override fatail error and mark the unit as status 'error'

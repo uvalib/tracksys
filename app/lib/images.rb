@@ -4,6 +4,18 @@ module Images
       unit_path = File.join(Settings.production_mount, "finalization", unit.directory)
       logger.info "Import images from #{unit_path}"
 
+      assemble_dir = ""
+      if unit.reorder == false &&  unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
+         logger.info "This unit requires patron deliverables. Setting up working directories."
+         assemble_dir = File.join(Settings.production_mount, "finalization", "tmp", unit.directory)
+         if Dir.exist? assemble_dir
+            logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
+            FileUtils.rm_rf(assemble_dir)
+         end
+         FileUtils.mkdir_p(assemble_dir)
+         logger.info "Deliverables will be generated in #{assemble_dir}"
+      end
+
       # iterate through all of the .tif files in the unit directory
       mf_count = 0
       Dir.glob(File.join(unit_path, "**/*.tif")).sort.each do |mf_path|
@@ -54,6 +66,10 @@ module Images
          if unit.reorder == false
             logger.info("Publishing #{master_file.filename} to IIIF...")
             IIIF.publish(mf_path, master_file, false, logger)
+
+            if unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
+               deliverable_file = Patron.create_deliverable(unit, master_file, mf_path, assemble_dir, logger)
+            end
          end
 
          # Get tech metadata....
@@ -96,6 +112,11 @@ module Images
 
       logger.info("#{mf_count} master files ingested")
       unit.update(unit_extent_actual: mf_count, master_files_count: mf_count)
+
+      if unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
+         unit.update(date_patron_deliverables_ready: Time.now)
+         logger.info("All patron deliverables created")
+      end
 
       logger.info( "Images for Unit #{unit.id} successfully imported.")
    end
