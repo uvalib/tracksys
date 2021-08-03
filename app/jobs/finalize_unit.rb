@@ -32,7 +32,7 @@ class FinalizeUnit < BaseJob
          fatal_error "Unit #{@unit.id} is already finalizaing."
       elsif @unit.unit_status == "approved"
          @unit.order.update(:date_finalization_begun, Time.now)
-         logger().info("Date Finalization Begun updated for order #{@unit.order.id}")
+         logger.info("Date Finalization Begun updated for order #{@unit.order.id}")
       elsif @unit.unit_status != 'error'
          @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} has not been approved."
@@ -54,7 +54,7 @@ class FinalizeUnit < BaseJob
          # If OCR has been requested, do it AFTER archive (OCR requires tif to be in archive)
          # but before deliverable generation (deliverables require OCR text to be present)
          if @unit.ocr_master_files
-            OCR.synchronous(unit, self)
+            OCR.synchronous(@unit, self)
             @unit.reload
          end
 
@@ -64,7 +64,7 @@ class FinalizeUnit < BaseJob
          end
 
          # If desc is not digital collection building, create patron deliverables regardless of any other settings
-         if unit.intended_use.description != "Digital Collection Building"
+         if @unit.intended_use.description != "Digital Collection Building"
             create_patron_deliverables()
          end
       rescue Exception => e
@@ -256,13 +256,17 @@ class FinalizeUnit < BaseJob
 
    private
    def create_patron_deliverables()
-      raise "STOP NOW"
       if @unit.intended_use.deliverable_format == "pdf"
          logger.info("Unit #{@unit.id} requires the creation of PDF patron deliverables.")
-         CreatePDFDeliverable.exec_now({ unit: unit }, self)
+         Patron.pdf_deliverable(@unit, logger)
       else
-         CreateUnitZip.exec_now( { unit: @unit }, self)
+         Patron.zip_deliverables(@unit, logger)
       end
+
+      raise "STOP NOW"
+
+      @unit.update(date_patron_deliverables_ready: Time.now)
+      logger.info("All patron deliverables created")
 
       # check for completeness, fees and generate manifest PDF. Same for all patron deliverables
       CheckOrderReadyForDelivery.exec_now( { order_id: @unit.order_id}, self  )

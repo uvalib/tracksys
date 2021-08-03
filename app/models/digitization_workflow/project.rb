@@ -514,10 +514,9 @@ class Project < ApplicationRecord
    private
    def manually_finalized?
       last_note = self.notes.last
-      if !last_note.step.nil?
-         return last_note.step.name == "Finalize" && last_note.note_type == "problem"
-      end
-      return false
+      return false if last_note.nil?
+      return false if last_note.step.nil?
+      return last_note.step.name == "Finalize" && last_note.note_type == "problem"
    end
 
    private

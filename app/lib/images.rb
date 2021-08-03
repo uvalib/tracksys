@@ -5,15 +5,19 @@ module Images
       logger.info "Import images from #{unit_path}"
 
       assemble_dir = ""
+      call_number = nil
+      location = nil
       if unit.reorder == false &&  unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
          logger.info "This unit requires patron deliverables. Setting up working directories."
          assemble_dir = File.join(Settings.production_mount, "finalization", "tmp", unit.directory)
-         if Dir.exist? assemble_dir
-            logger.info "Removing old deliverables from assembly directory #{assemble_dir}"
-            FileUtils.rm_rf(assemble_dir)
-         end
-         FileUtils.mkdir_p(assemble_dir)
+         FileUtils.mkdir_p(assemble_dir) if !Dir.exist? assemble_dir
          logger.info "Deliverables will be generated in #{assemble_dir}"
+
+         if unit.metadata.type == "SirsiMetadata"
+            sm = unit.metadata.becomes(SirsiMetadata)
+            call_number = sm.call_number
+            location = sm.get_full_metadata[:location]
+         end
       end
 
       # iterate through all of the .tif files in the unit directory
@@ -68,7 +72,8 @@ module Images
             IIIF.publish(mf_path, master_file, false, logger)
 
             if unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
-               deliverable_file = Patron.create_deliverable(unit, master_file, mf_path, assemble_dir, logger)
+               logger.info "Create patron deliverable for #{master_file.filename}"
+               deliverable_file = Patron.create_deliverable(unit, master_file, mf_path, assemble_dir, call_number, location, logger)
             end
          end
 
@@ -112,12 +117,6 @@ module Images
 
       logger.info("#{mf_count} master files ingested")
       unit.update(unit_extent_actual: mf_count, master_files_count: mf_count)
-
-      if unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
-         unit.update(date_patron_deliverables_ready: Time.now)
-         logger.info("All patron deliverables created")
-      end
-
       logger.info( "Images for Unit #{unit.id} successfully imported.")
    end
 end

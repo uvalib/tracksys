@@ -1,6 +1,62 @@
 module Patron
-   # Create patron deliverable and return the full path to the file
-   #
+   def self.zip_deliverables(unit, logger = Logger.new(STDOUT) )
+      # Make sure order delivery dir exists and is empty
+      logger.info "Zipping deliverables for unit #{unit.id}"
+      order = unit.order
+      delivery_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
+      if !Dir.exist?(delivery_dir)
+         logger.info "Create delivery dir #{delivery_dir}"
+         FileUtils.mkdir_p delivery_dir
+      else
+         Dir.glob("#{delivery_dir}/*.zip") do |zf|
+            logger.info "Remove pre-existing zip deliverable #{zf}"
+            File.delete zf
+         end
+      end
+
+      # IF OCR was requested, generate a single text file containing all of the page OCR results
+      ocr_file = nil
+      if unit.ocr_master_files
+         assemble_dir = File.join(Settings.production_mount, "finalization", "tmp", unit.directory)
+         ocr_file_name = File.join(assemble_dir, "#{unit.id}.txt")
+         logger.info "OCR was requeseted for this unit; generate text file with OCR resuls here: #{ocr_file_name}"
+         ocr_file = File.open(ocr_file_name, "w")  # truncate existing and open for write
+         unit.master_files.each do |master_file|
+            ocr_file.write("#{master_file.filename}\n")
+            ocr_file.write("#{master_file.transcription_text}\n")
+            logger.info "Added OCR results for master file #{master_file.filename}"
+         end
+         ocr_file.close
+      end
+
+
+      # Walk each file in the unit assembly dir and add it to the zip...
+      file_num = 1
+      zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
+      tmp_dir = File.join(Settings.production_mount, "finalization", "tmp")
+      assemble_dir = File.join(tmp_dir, unit.directory)
+      logger.info "Create #{zip_file}..."
+      Dir.glob("#{assemble_dir}/*").sort.each do |f|
+         next if f == '.DS_Store' || f == '.AppleDouble'
+         # build the zip command. cd to the order directory first so unzip will generate only a unit directory
+         zip_cmd = "cd #{tmp_dir}; zip #{zip_file} #{File.join(unit.directory, File.basename(f))}"
+         logger.info "Add to zip: #{zip_cmd}"
+         `#{zip_cmd}`
+
+         # if the zip is now too big, start another
+         if (File.size(zip_file).to_f / 1024.0**3).to_i > Settings.zip_max_gb.to_i
+            file_num += 1
+            zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
+            logger.info "Create #{zip_file}"
+         end
+      end
+
+      logger.info "Unit #{unit.id} zipped into #{file_num} zip archive(s)."
+   end
+
+   def self.pdf_deliverable(unit, logger = Logger.new(STDOUT) )
+   end
+
    def self.create_deliverable(unit, master_file, source, dest_dir, call_number, location, logger = Logger.new(STDOUT) )
       order_id = unit.order_id
       master_file_id = master_file.id
