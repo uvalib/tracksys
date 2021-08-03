@@ -243,18 +243,11 @@ class Step < ApplicationRecord
          return false
       end
 
-      # Neither directory exists, this is generally a failure, but a special case exists.
-      # Files may be 20_in_process if a prior finalization failed. Accept this.
+      # Neither directory exists!
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         alt_dest_dir = Finder.finalization_dir(project.unit, :in_process)
-         if self.end? && Dir.exists?(alt_dest_dir)
-            Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
-            return true
-         else
-            Rails.logger.error("Neither source nor destination directories exist")
-            step_failed(project, "Filesystem", "<p>Neither start nor finsh directory exists</p>")
-            return false
-         end
+         Rails.logger.error("Neither source nor destination directories exist")
+         step_failed(project, "Filesystem", "<p>Neither start nor finsh directory exists</p>")
+         return false
       end
 
       # Source is gone or has the DELETE.ME file, but dest exists. No move needed

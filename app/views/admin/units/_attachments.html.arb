@@ -3,7 +3,7 @@
 div :class => "columns-none" do
   panel "Attachments", :toggle => 'show' do
      div :class=>'panel-buttons' do
-        if unit.unit_status != "approved"
+        if unit.unit_status != "approved" &&  unit.unit_status != "done"
           div do "Attachments cannot be aded to unapproved units." end
         else
           add_btn = "<span id='add-attachment' class='mf-action-button'>Add Attachment</a>"

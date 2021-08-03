@@ -183,7 +183,10 @@ ActiveAdmin.register Unit do
       render "related_info", :context => self
    end
 
-   sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 && unit.done?} do
+   sidebar :bulk_actions, :only => :show,  if: proc {
+      !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 &&
+      (unit.done?||unit.approved?) &&
+      (unit.master_files.count==0 || unit.has_xml_masterfiles?) } do
       render "bulk_actions", :context => self
    end
 
@@ -192,7 +195,7 @@ ActiveAdmin.register Unit do
    end
 
    sidebar "Digital Library Workflow", :only => [:show],
-      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && unit.done?  } do
+      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && unit.done? && (unit.in_dl? || unit.ready_for_repo?) } do
       render "dl_workflow", :context=>self
    end
 
@@ -275,8 +278,7 @@ ActiveAdmin.register Unit do
    member_action :download, :method => :get do
       unit = Unit.find(params[:id])
       att = Attachment.find(params[:attachment])
-      unit_dir = "%09d" % unit.id
-      dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
       dest_file = File.join(dest_dir, att.filename)
       if File.exist? dest_file
          send_file dest_file
@@ -288,8 +290,7 @@ ActiveAdmin.register Unit do
    member_action :remove, :method => :delete do
       unit = Unit.find(params[:id])
       att = Attachment.find(params[:attachment])
-      unit_dir = "%09d" % unit.id
-      dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
       dest_file = File.join(dest_dir, att.filename)
       if File.exist? dest_file
          FileUtils.rm(dest_file)
@@ -363,6 +364,7 @@ ActiveAdmin.register Unit do
       RecreatePatronDeliverables.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
    end
+
    member_action :regenerate_iiifman, :method=>:put do
       unit = Unit.find(params[:id])
       md_pid = unit.metadata.pid

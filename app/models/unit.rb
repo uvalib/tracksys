@@ -189,13 +189,6 @@ class Unit < ApplicationRecord
       end
    end
 
-   def patron_deliverables_available?
-      return false if self.date_patron_deliverables_ready.nil?
-      assemble_dir = Finder.finalization_dir(self, :assemble_deliverables)
-      return false if !Dir.exist? assemble_dir
-      return Dir["#{assemble_dir}/*"].length >= self.master_files.count
-   end
-
    def pick_exemplar
       # First, wipe out any lingering exemplar setting
       master_files.update_all(exemplar: false)
