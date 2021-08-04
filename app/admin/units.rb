@@ -361,8 +361,14 @@ ActiveAdmin.register Unit do
    end
 
    member_action :generate_deliverables, :method=>:put do
-      RecreatePatronDeliverables.exec({unit_id: params[:id]})
+      CreatePatronDeliverables.exec({unit_id: params[:id]})
       redirect_to "/admin/units/#{params[:id]}", :notice => "Generating unit deliverables."
+   end
+
+   member_action :complete_unit, :method=>:put do
+      unit = Unit.find(params[:id])
+      unit.update(unit_status: "done")
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit marked as done."
    end
 
    member_action :regenerate_iiifman, :method=>:put do

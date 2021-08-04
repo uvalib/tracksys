@@ -1,4 +1,4 @@
-class RecreatePatronDeliverables < BaseJob
+class CreatePatronDeliverables < BaseJob
 
    def set_originator(message)
       @status.update_attributes( :originator_type=>"Unit", :originator_id=>message[:unit_id] )

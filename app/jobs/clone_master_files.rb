@@ -53,8 +53,7 @@ class CloneMasterFiles < BaseJob
 
    def clone_master_file(unit, src_mf, new_title, page_num)
       # Create new MF records and pull tiffs from archive into in_proc for the new unit
-      # so they will be ready to be used to generate deliverables with
-      # the RecreatePatronDeliverables job
+      # so they will be ready to be used to generate deliverables with CreatePatronDeliverables job
       unit_dir = File.join(Settings.production_mount, "finalization", unit.directory)
       FileUtils.mkdir_p(unit_dir) if !Dir.exist? unit_dir
 

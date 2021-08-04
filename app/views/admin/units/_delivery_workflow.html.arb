@@ -42,6 +42,12 @@ if !current_user.viewer? && !current_user.student?
       end
    end
 
+   if unit.master_files.length > 0
+      div :class => 'workflow_button' do
+         button_to "Regenerate IIIF Manifest", regenerate_iiifman_admin_unit_path, :method => :put
+      end
+   end
+
    if unit.done?
       if unit.date_archived
          div :class => 'workflow_button' do
@@ -53,11 +59,11 @@ if !current_user.viewer? && !current_user.student?
             raw("<span class='admin-button' id='show-as-link-popup'>ArchivesSpace Link</span>")
          end
       end
-   end
-end
-
-if unit.master_files.length > 0
-   div :class => 'workflow_button' do
-      button_to "Regenerate IIIF Manifest", regenerate_iiifman_admin_unit_path, :method => :put
+   else
+      if unit.reorder && !unit.date_patron_deliverables_ready.blank?
+         div :class => 'workflow_button' do
+            button_to "Complete Unit", complete_unit_admin_unit_path, :method => :put
+         end
+      end
    end
 end
