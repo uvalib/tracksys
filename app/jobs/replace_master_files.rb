@@ -8,11 +8,9 @@ class ReplaceMasterFiles < BaseJob
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
       unit = Unit.find(message[:unit_id])
-      unit_dir = "%09d" % unit.id
-      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      archive_dir = File.join(ARCHIVE_DIR, unit.directory)
+      src_dir = File.join(Settings.production_mount, "finalization", "unit_update", unit.directory)
 
-      tif_files = []
-      src_dir = Finder.update_dir(unit)
       logger.info "Looking for replacement *.tif files in #{src_dir}"
       tif_files = Dir.glob("#{src_dir}/*.tif").sort
       if tif_files.count == 0
@@ -44,6 +42,7 @@ class ReplaceMasterFiles < BaseJob
          log_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
       end
 
-      MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
+      logger.info "Cleaning up working files"
+      FileUtils.rm_rf(src_dir)
    end
 end

@@ -13,9 +13,7 @@ class DeleteMasterFiles < BaseJob
 
       fatal_error("Cannot delete from units that have been published") if unit.in_dl?
 
-      unit_dir = "%09d" % unit.id
-      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
-      in_proc_dir = Finder.finalization_dir(unit, :in_process)
+      archive_dir = File.join(ARCHIVE_DIR, unit.directory)
 
       # first remove all of the masterfiles from & tech metadata
       # the list from the unit, archive and IIIF server
@@ -44,7 +42,7 @@ class DeleteMasterFiles < BaseJob
                   log_failure "No IIIF file found for #{del_fn}"
                end
             else
-               cloned_file = File.join(in_proc_dir, mf.filename)
+               cloned_file = File.join(Settings.production_mount, "finalization", unit.directory, mf.filename)
                if File.exist? cloned_file
                   logger.info "Removing cloned tif from in_process dir: #{cloned_file}"
                   File.delete(cloned_file)
@@ -87,7 +85,7 @@ class DeleteMasterFiles < BaseJob
             md5 = master_file_md5(mf)
             orig_fn = mf.filename
             pg_str = "%04d" % curr_page
-            new_fn = "#{unit_dir}_#{pg_str}.tif"
+            new_fn = "#{unit.directory}_#{pg_str}.tif"
             logger.info "Update MF filename from #{mf.filename} to #{new_fn}"
             mf.update(filename: new_fn)
 

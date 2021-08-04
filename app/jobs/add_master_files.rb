@@ -39,7 +39,7 @@ class AddMasterFiles < BaseJob
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       xml_files = []
       tif_files = []
-      src_dir = Finder.update_dir(unit)
+      src_dir = File.join(Settings.production_mount, "finalization", "unit_update", unit.directory)
       logger.info "Looking for new *.tif and *.xml files in #{src_dir}"
       tif_files = Dir.glob("#{src_dir}/**/*.tif").sort
       xml_files = Dir.glob("#{src_dir}/**/*.xml").sort
@@ -104,8 +104,8 @@ class AddMasterFiles < BaseJob
       cnt = unit.master_files_count
       logger.info "Updating unit master files count from #{cnt} to #{cnt+tif_files.size}"
       unit.update(master_files_count: cnt+tif_files.size)
-
-      MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
+      logger.info "Cleaning up working files"
+      FileUtils.rm_rf(src_dir)
    end
 
    private
