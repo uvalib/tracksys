@@ -5,29 +5,32 @@ class RecreatePatronDeliverables < BaseJob
    end
 
    def do_workflow(message)
-      # This workflow is only available after a successful finalize. Images will be in the archive.
-      # Move them to the finalization directory and use that to recreate deliverables
+      # this can be called as part of a re-order or after finalization. for re-orders, the images will already exist in unit_dir
       unit = Unit.find(message[:unit_id])
       unit_dir = File.join(Settings.production_mount, "finalization", unit.directory)
       assemble_dir = File.join(Settings.production_mount, "finalization", "tmp", unit.directory)
 
-      if unit.reorder
-         logger.info "Recreating deliverables for a reorder"
-         # in this case, each cloned masterfile will have a reference to the original.
-         # use this to get to the original unit and recalculate directories
-         copy_original_files(unit, unit_dir)
+      if !unit_images_available?(unit, assemble_dir)
+         if unit.reorder
+            logger.info "Creating deliverables for a reorder"
+            # in this case, each cloned masterfile will have a reference to the original.
+            # use this to get to the original unit and recalculate directories
+            copy_original_files(unit, unit_dir)
+         else
+            archive_dir = File.join(ARCHIVE_DIR, unit.directory)
+            logger.info "Creating deliverables from the archive #{archive_dir}"
+            FileUtils.cp_r  archive_dir, unit_dir
+         end
       else
-         archive_dir = File.join(ARCHIVE_DIR, unit.directory)
-         logger.info "Recreating deliverables the archive #{archive_dir}"
-         FileUtils.cp_r  archive_dir, unit_dir
+         logger.info "All files needed to generate unit #{unit.id} deliverables exist in #{unit_dir}"
       end
 
       begin
          if unit.intended_use.deliverable_format == "pdf"
-            logger.info("Unit #{unit.id} requires the re-creation of PDF patron deliverables.")
+            logger.info("Unit #{unit.id} requires the creation of PDF patron deliverables.")
             Patron.pdf_deliverable(unit, logger)
          else
-            logger.info("Unit #{unit.id} requires the re-creation of patron deliverables.")
+            logger.info("Unit #{unit.id} requires the creation of patron deliverables.")
             call_number = nil
             location = nil
             if unit.metadata.type == "SirsiMetadata"
@@ -35,6 +38,7 @@ class RecreatePatronDeliverables < BaseJob
                call_number = sm.call_number
                location = sm.get_full_metadata[:location]
             end
+            FileUtils.mkdir_p(assemble_dir) if !Dir.exist? assemble_dir
             unit.master_files.each do |mf|
                src = File.join(unit_dir, mf.filename)
                Patron.create_deliverable(unit, mf, src, assemble_dir, call_number, location, logger )
@@ -43,7 +47,7 @@ class RecreatePatronDeliverables < BaseJob
          end
 
          unit.update(date_patron_deliverables_ready: Time.now)
-         logger.info("Deliverables re-created. Date deliverables ready has been updated.")
+         logger.info("Deliverables created. Date deliverables ready has been updated.")
 
          logger.info("Cleaning up working directories")
          FileUtils.rm_rf(unit_dir)
@@ -52,6 +56,11 @@ class RecreatePatronDeliverables < BaseJob
       rescue Exception => e
          fatal_error( e.message )
       end
+   end
+
+   def unit_images_available? (unit, unit_dir)
+      return false if !Dir.exist? unit_dir
+      return Dir[File.join(unit_dir, '*.tif')].count == unit.master_files.count
    end
 
    def copy_original_files(unit, unit_dir)

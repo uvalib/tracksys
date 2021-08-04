@@ -104,7 +104,7 @@ class Unit < ApplicationRecord
    end
 
    def can_finalize?
-      return date_archived.nil? && project.nil? && date_dl_deliverables_ready.nil? && unit_status == 'approved'
+      return date_archived.nil? && project.nil? && date_dl_deliverables_ready.nil? && unit_status == 'approved' && !reorder
    end
 
    def ocr_candidate?

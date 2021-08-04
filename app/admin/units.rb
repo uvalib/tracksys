@@ -360,9 +360,9 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :regenerate_deliverables, :method=>:put do
+   member_action :generate_deliverables, :method=>:put do
       RecreatePatronDeliverables.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Generating unit deliverables."
    end
 
    member_action :regenerate_iiifman, :method=>:put do
