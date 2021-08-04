@@ -10,7 +10,7 @@ class BulkDownloadXml < BaseJob
 
       user = message[:user]
       unit = Unit.find(message[:unit_id])
-      xml_dir = Finder.xml_directory(unit, :pickup)
+      xml_dir = File.join(Settings.production_mount, "xml_metadata", "pickup", unit.directory)
       if Dir.exist? xml_dir
          logger.info "Removing old XML pickup directory #{xml_dir}"
          FileUtils.rm_rf(xml_dir)

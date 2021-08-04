@@ -35,7 +35,7 @@ class BulkUploadXml < BaseJob
 
       user = message[:user]
       unit = Unit.find(message[:unit_id])
-      xml_dir = Finder.xml_directory(unit, :dropoff)
+      xml_dir = File.join(Settings.production_mount, "xml_metadata", "dropoff", unit.directory)
       if !Dir.exist? xml_dir
          fatal_error("XML Dropoff directory #{xml_dir} does not exist")
       end
@@ -124,8 +124,8 @@ class BulkUploadXml < BaseJob
 
       # if no errors were encountered, move the upload dir to ready to delete
       if has_errors == false
-         logger.info "No errors were encountered; moving files to ready_to_delete"
-         MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: xml_dir}, self)
+         logger.info "No errors were encountered; cleaning up files"
+         FileUtils.rm_rf(xml_dir)
       end
    end
 end
