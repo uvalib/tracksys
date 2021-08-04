@@ -19,39 +19,6 @@ class SendOrderEmail < BaseJob
       order.update(date_customer_notified: Time.now)
       logger.info("Email sent to #{order.customer.email} (#{email}) for Order #{order.id}.")
 
-      # Now clean up any left over files
-      # Orders have many units, and each can have a project with a different workflow.
-      # Each workflow can have its own base directory. Move each unit individually
-      order.units.each do |unit|
-         # get the unit assembly dir
-         assemble_dir = Finder.finalization_dir(unit, :assemble_deliverables)
-         if Dir.exist? assemble_dir
-            # get delete destination; this contains the unit. Example:
-            #     /digiserv-production/ready_to_delete/delivered_orders/order_10059/49590
-            del_dest = Finder.finalization_dir(unit, :delete_from_delivered)
-            if Dir.exist?(del_dest)
-               # if a unit dir exists in the ready to delete directory, remove it
-               # as it will be replaced by the current files below
-               FileUtils.rm_rf del_dest
-            end
-
-            # strip unit ID so we don't end up with nested unit info in the del dir
-            del_dest = del_dest.split('/')[0...-1].join('/')
-            FileUtils.mkdir_p(del_dest) if !Dir.exist? del_dest
-
-            FileUtils.mv assemble_dir, del_dest
-         end
-      end
-
-      # all of the assembled files have been moved. REmove the order dir
-      assemble_order_dir = Finder.assemble_order_dir(order)
-      if Dir.exist?(assemble_order_dir) && Dir.glob(File.join(assemble_order_dir, "*/")).length == 0
-         FileUtils.rm_rf assemble_order_dir
-      end
-      logger.info "Directory the deliverables for order #{order.id} have been moved from assembly to ready to delete."
-
-      # Now that all of the above is done, the order is considered complete. Mark
-      # it as such if it is not already done
       if order.order_status != "completed"
          if !order.complete_order(user)
             logger.info("Marking order COMPLETE")

@@ -388,7 +388,9 @@ ActiveAdmin.register Unit do
 
    member_action :copy_from_archive, :method => :put do
       CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
+      unit = Unit.find(params[:id])
+      dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , unit.directory )
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{dest}."
    end
 
    member_action :retry_finalization, :method => :put do
