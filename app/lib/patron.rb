@@ -55,7 +55,6 @@ module Patron
    end
 
    def self.pdf_deliverable(unit, logger = Logger.new(STDOUT) )
-      # Source tif files reside in 30_process_deliverables. Get the dir
       finalize_dir = File.join(Settings.production_mount, "finalization", unit.directory)
       tif_files = File.join(finalize_dir, "*.tif")
 
@@ -73,7 +72,7 @@ module Patron
          FileUtils.mkdir_p(assemble_dir)
       end
 
-      # Convert all tifs in 30_process_deliverables into a single PDF
+      # Convert all tifs to a single PDF
       logger.info "Covert #{tif_files} to scaled down JPG..."
       mogrify = `which mogrify`
       mogrify.strip!
