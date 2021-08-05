@@ -53,11 +53,9 @@ class CloneMasterFiles < BaseJob
 
    def clone_master_file(unit, src_mf, new_title, page_num)
       # Create new MF records and pull tiffs from archive into in_proc for the new unit
-      # so they will be ready to be used to generate deliverables with
-      # the RecreatePatronDeliverables job
-      unit_dir = "%09d" % unit.id
-      in_proc_dir = Finder.finalization_dir(unit, :in_process)
-      FileUtils.mkdir_p(in_proc_dir) if !Dir.exist? in_proc_dir
+      # so they will be ready to be used to generate deliverables with CreatePatronDeliverables job
+      unit_dir = File.join(Settings.production_mount, "finalization", unit.directory)
+      FileUtils.mkdir_p(unit_dir) if !Dir.exist? unit_dir
 
       archive_dir = File.join(ARCHIVE_DIR, src_mf.filename.split("_")[0])
       archived_mf = File.join(archive_dir, src_mf.filename)
@@ -73,8 +71,8 @@ class CloneMasterFiles < BaseJob
 
       logger.info "Cloning master file #{src_mf.id}: #{src_mf.filename}"
       padded_page = "%04d" % page_num
-      new_fn = "#{unit_dir}_#{padded_page}.tif"
-      dest_file = File.join(in_proc_dir, new_fn)
+      new_fn = "#{unit.directory}_#{padded_page}.tif"
+      dest_file = File.join(unit_dir, new_fn)
       FileUtils.cp( archived_mf, dest_file)
       md5 = Digest::MD5.hexdigest(File.read(dest_file) )
       if md5 != src_mf.md5

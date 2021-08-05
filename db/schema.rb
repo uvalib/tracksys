@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_17_141133) do
+ActiveRecord::Schema.define(version: 2021_07_30_185233) do
 
   create_table "academic_statuses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "name"
@@ -657,7 +657,6 @@ ActiveRecord::Schema.define(version: 2021_06_17_141133) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "base_directory", default: "/Users/lf6f/dev/tracksys-dev/sandbox/digiserv-production"
     t.boolean "active", default: true
   end
 

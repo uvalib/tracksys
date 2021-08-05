@@ -1,6 +1,6 @@
 class Unit < ApplicationRecord
 
-   UNIT_STATUSES = %w[approved canceled condition copyright unapproved]
+   UNIT_STATUSES = ["approved", "canceled", "condition", "copyright", "unapproved", "finalizing", "error", "done"]
 
    # The request form requires having data stored temporarily to the unit model and
    # then concatenated into special instructions.  Those fields are:
@@ -46,6 +46,7 @@ class Unit < ApplicationRecord
    scope :approved, ->{where(:unit_status => 'approved') }
    scope :unapproved, ->{where(:unit_status => 'unapproved') }
    scope :canceled, ->{where(:unit_status => 'canceled') }
+   scope :error, ->{where(:unit_status => 'error') }
 
    def self.uncompleted_units_of_partially_completed_orders
       Unit.where(unit_status: 'approved', date_patron_deliverables_ready: nil, date_archived: nil)
@@ -98,10 +99,12 @@ class Unit < ApplicationRecord
    #------------------------------------------------------------------
    # public instance methods
    #------------------------------------------------------------------
-   def has_in_process_files?
-      in_proc_dir = Finder.finalization_dir(self, :in_process)
-      return false if !File.exist?(in_proc_dir)
-      return Dir[File.join(in_proc_dir, '**', '*')].count { |file| File.file?(file) } > 0
+   def update_dir
+      return File.join(Settings.production_mount, "finalization", "unit_update", directory)
+   end
+
+   def can_finalize?
+      return date_archived.nil? && project.nil? && date_dl_deliverables_ready.nil? && unit_status == 'approved' && !reorder
    end
 
    def ocr_candidate?
@@ -116,6 +119,14 @@ class Unit < ApplicationRecord
 
    def approved?
       return self.unit_status == "approved"
+   end
+
+   def error?
+      return self.unit_status == "error"
+   end
+
+   def done?
+      return self.unit_status == "done"
    end
 
    def canceled?
@@ -134,7 +145,7 @@ class Unit < ApplicationRecord
       self.master_files.each do |mf|
          next if mf.metadata.nil?
          next if mf.metadata.type != "XmlMetadata"
-         return true 
+         return true
       end
       return false
    end
@@ -176,13 +187,6 @@ class Unit < ApplicationRecord
       else
          return nil
       end
-   end
-
-   def patron_deliverables_available?
-      return false if self.date_patron_deliverables_ready.nil?
-      assemble_dir = Finder.finalization_dir(self, :assemble_deliverables)
-      return false if !Dir.exist? assemble_dir
-      return Dir["#{assemble_dir}/*"].length >= self.master_files.count
    end
 
    def pick_exemplar

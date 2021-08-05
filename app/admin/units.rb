@@ -183,16 +183,20 @@ ActiveAdmin.register Unit do
       render "related_info", :context => self
    end
 
-   sidebar :bulk_actions, :only => :show,  if: proc{ !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 } do
+   sidebar :bulk_actions, :only => :show,  if: proc {
+      !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 &&
+      (unit.done?||unit.approved?) &&
+      (unit.master_files.count==0 || unit.has_xml_masterfiles?) } do
       render "bulk_actions", :context => self
    end
 
-   sidebar "Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
+   sidebar "Workflow", :only => [:show],
+      if: proc{ !current_user.viewer? && !current_user.student? && unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
    end
 
    sidebar "Digital Library Workflow", :only => [:show],
-      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && (unit.ready_for_repo? || unit.in_dl? ) } do
+      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? && unit.done? && (unit.in_dl? || unit.ready_for_repo?) } do
       render "dl_workflow", :context=>self
    end
 
@@ -275,8 +279,7 @@ ActiveAdmin.register Unit do
    member_action :download, :method => :get do
       unit = Unit.find(params[:id])
       att = Attachment.find(params[:attachment])
-      unit_dir = "%09d" % unit.id
-      dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
       dest_file = File.join(dest_dir, att.filename)
       if File.exist? dest_file
          send_file dest_file
@@ -288,8 +291,7 @@ ActiveAdmin.register Unit do
    member_action :remove, :method => :delete do
       unit = Unit.find(params[:id])
       att = Attachment.find(params[:attachment])
-      unit_dir = "%09d" % unit.id
-      dest_dir = File.join(ARCHIVE_DIR, unit_dir, "attachments" )
+      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
       dest_file = File.join(dest_dir, att.filename)
       if File.exist? dest_file
          FileUtils.rm(dest_file)
@@ -359,10 +361,17 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :regenerate_deliverables, :method=>:put do
-      RecreatePatronDeliverables.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Regenerating unit deliverables."
+   member_action :generate_deliverables, :method=>:put do
+      CreatePatronDeliverables.exec({unit_id: params[:id]})
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Generating unit deliverables."
    end
+
+   member_action :complete_unit, :method=>:put do
+      unit = Unit.find(params[:id])
+      unit.update(unit_status: "done")
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit marked as done."
+   end
+
    member_action :regenerate_iiifman, :method=>:put do
       unit = Unit.find(params[:id])
       md_pid = unit.metadata.pid
@@ -378,51 +387,22 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :check_unit_delivery_mode, :method => :put do
-      CheckUnitDeliveryMode.exec( {:unit_id => params[:id]} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the checking of the unit's delivery mode."
-   end
-
-   member_action :download_unit_xml, :method => :get do
-      unit = Unit.find(params[:id])
-      unit_dir = "%09d" % unit.id
-      source_fn = File.join(ARCHIVE_DIR, unit_dir, "#{unit_dir}.xml")
-      if File.exists? source_fn
-         send_file(source_fn)
-      else
-         render plain: "Unit XML does not exist in the archive."
-      end
-   end
-
    member_action :copy_from_archive, :method => :put do
       CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{Finder.scan_from_archive_dir} under your username."
+      unit = Unit.find(params[:id])
+      dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , unit.directory )
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{dest}."
    end
 
-   member_action :import_unit_images, :method => :put do
-      ImportUnitImages.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started creation of master files."
-   end
-
-   member_action :qa_filesystem, :method => :put do
-      QaFilesystem.exec( {:unit_id => params[:id]} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA of filesystem."
-   end
-
-   member_action :qa_unit_data, :method => :put do
-      QaUnitData.exec( {:unit_id => params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at QA unit data."
-   end
-
-   member_action :send_unit_to_archive, :method => :put do
-      # added a delete flag to this request as it completes finalization. Files can go to ready to delete
-      SendUnitToArchive.exec( {unit_id: params[:id], delete: true})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Workflow started at the archiving of the unit."
+   member_action :retry_finalization, :method => :put do
+      FinalizeUnit.exec({unit_id: params[:id]})
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Finalization restarted."
    end
 
    member_action :publish, :method => :put do
-      PublishToDL.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit published to DL. It will be available tomorrow."
+      unit = Unit.find(params[:id])
+      Virgo.publish(unit, Rails.logger)
+      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo."
    end
 
    member_action :bulk_upload_xml, :method => :put do

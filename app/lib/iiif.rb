@@ -1,25 +1,9 @@
-class PublishToIiif < BaseJob
-
-   require 'fileutils'
-
-   def do_workflow(message)
-
-      raise "Parameter 'source' is required" if message[:source].blank?
-      raise "Parameter 'master_file_id' is required" if message[:master_file_id].blank?
-
-      source = message[:source]
-      master_file = MasterFile.find(message[:master_file_id])
-      overwrite = message[:overwrite] == true
-      PublishToIiif.publish(source, master_file, overwrite, logger)
-   end
-
-   # NOTE: publish logic broken out into a static method so it can be called outside 
-   # of the job framework by rake tasks
+module IIIF
    def self.publish(source, master_file, overwrite, logger = Logger.new(STDOUT))
       # Generate a checksum if one does not already exist
       if master_file.md5.nil?
          source_md5 = Digest::MD5.hexdigest(File.read(source))
-         master_file.update_attributes(:md5 => source_md5)
+         master_file.update(md5: source_md5)
       end
 
       if master_file.filename.match(".tif$")
@@ -38,13 +22,12 @@ class PublishToIiif < BaseJob
       jp2kdir = File.dirname(jp2k_path)
       if !Dir.exist?(jp2kdir)
          logger.info "IIIF destination #{jp2kdir} does not exist; creating"
-         FileUtils.mkdir_p jp2kdir 
-      else 
+         FileUtils.mkdir_p jp2kdir
+      else
          logger.info "IIIF destination #{jp2kdir} already exists"
       end
 
       if master_file.filename.match(".jp2$")
-         # write a JPEG-2000 file to the destination directory
          FileUtils.copy(source, jp2k_path)
          logger.info "Copied JPEG-2000 image using '#{source}' as input file for the creation of deliverable '#{jp2k_path}'"
 
@@ -55,10 +38,6 @@ class PublishToIiif < BaseJob
             return
          end
 
-         # # Directly invoke Ruby's garbage collection to clear memory
-         # GC.start
-
-         # generate deliverables for DL use
          executable = KDU_COMPRESS || %x( which kdu_compress ).strip
          if File.exist? executable
             logger.debug("Compressing #{source} to #{jp2k_path}...")

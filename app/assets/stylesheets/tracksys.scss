@@ -1108,6 +1108,13 @@ body.active_admin {
          background: #8daa92;
       }
 
+      &.error {
+         background: #b44;
+         font-weight: bold;
+         text-shadow: 1px 1px #444;
+      }
+
+
       &.requested {
          background: #e29b20;
       }
@@ -1115,7 +1122,7 @@ body.active_admin {
       &.canceled {
          background: #d45f53;
       }
-      &.completed {
+      &.completed, &.done {
          background: #5f53d4;
       }
    }

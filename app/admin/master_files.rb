@@ -246,8 +246,9 @@ ActiveAdmin.register MasterFile do
    member_action :download_from_archive, :method => :get do
       mf = MasterFile.find(params[:id])
       CopyArchivedFilesToProduction.exec_now( {:unit_id => mf.unit_id, :master_file_filename => mf.filename, :computing_id => current_user.computing_id })
+      dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , mf.unit.directory, mf.filename )
       redirect_to "/admin/master_files/#{params[:id]}",
-         :notice => "Master File downloaded to #{Finder.scan_from_archive_dir}/#{current_user.computing_id}/#{mf.filename}."
+         :notice => "Master File downloaded to #{dest}."
    end
 
    member_action :set_exemplar, :method => :put do

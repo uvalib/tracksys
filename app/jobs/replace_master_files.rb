@@ -8,11 +8,9 @@ class ReplaceMasterFiles < BaseJob
       raise "Parameter 'unit_id' is required" if message[:unit_id].blank?
 
       unit = Unit.find(message[:unit_id])
-      unit_dir = "%09d" % unit.id
-      archive_dir = File.join(ARCHIVE_DIR, unit_dir)
+      archive_dir = File.join(ARCHIVE_DIR, unit.directory)
+      src_dir = File.join(Settings.production_mount, "finalization", "unit_update", unit.directory)
 
-      tif_files = []
-      src_dir = Finder.update_dir(unit)
       logger.info "Looking for replacement *.tif files in #{src_dir}"
       tif_files = Dir.glob("#{src_dir}/*.tif").sort
       if tif_files.count == 0
@@ -33,8 +31,8 @@ class ReplaceMasterFiles < BaseJob
          # update MF attributes, replace tech metadata, re-publish and archive
          curr_mf.update(filesize: fs, md5: md5)
          curr_mf.image_tech_meta.destroy if !curr_mf.image_tech_meta.nil?
-         CreateImageTechnicalMetadata.exec_now({master_file: curr_mf, source: mf_path}, self)
-         PublishToIiif.exec_now({source: mf_path, master_file_id: curr_mf.id, overwrite: true}, self)
+         TechMetadata.create(curr_mf, mf_path)
+         IIIF.publish(mf_path, curr_mf, true, logger)
 
          # archive file and validate checksum
          new_archive = File.join(archive_dir, fn)
@@ -44,6 +42,7 @@ class ReplaceMasterFiles < BaseJob
          log_failure("MD5 does not match for new MF #{new_archive}") if new_md5 != md5
       end
 
-      MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
+      logger.info "Cleaning up working files"
+      FileUtils.rm_rf(src_dir)
    end
 end

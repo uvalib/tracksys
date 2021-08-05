@@ -39,7 +39,7 @@ class AddMasterFiles < BaseJob
       archive_dir = File.join(ARCHIVE_DIR, unit_dir)
       xml_files = []
       tif_files = []
-      src_dir = Finder.update_dir(unit)
+      src_dir = File.join(Settings.production_mount, "finalization", "unit_update", unit.directory)
       logger.info "Looking for new *.tif and *.xml files in #{src_dir}"
       tif_files = Dir.glob("#{src_dir}/**/*.tif").sort
       xml_files = Dir.glob("#{src_dir}/**/*.xml").sort
@@ -74,7 +74,7 @@ class AddMasterFiles < BaseJob
          master_file  = MasterFile.create(filename: fn, title: pg_num.to_s, filesize: fs, md5: md5,
             unit_id: unit.id, component_id: component_id, metadata_id: unit.metadata_id)
          logger.info "Created master file #{mf_path}"
-         CreateImageTechnicalMetadata.exec_now({master_file: master_file, source: mf_path}, self)
+         TechMetadata.create(master_file,  mf_path)
 
          # See if directories are present, and use them to generate location metadata for the file
          if !container_type.nil?
@@ -88,8 +88,7 @@ class AddMasterFiles < BaseJob
             add_xml_metadata(unit, master_file, mf_path, xml_files)
          end
 
-         # send to IIIF
-         PublishToIiif.exec_now({source: mf_path, master_file_id: master_file.id}, self)
+         IIIF.publish(mf_path, master_file, true, logger)
 
          # archive file, validate checksum and set archived date
          new_archive = File.join(archive_dir, fn)
@@ -105,8 +104,8 @@ class AddMasterFiles < BaseJob
       cnt = unit.master_files_count
       logger.info "Updating unit master files count from #{cnt} to #{cnt+tif_files.size}"
       unit.update(master_files_count: cnt+tif_files.size)
-
-      MoveCompletedDirectoryToDeleteDirectory.exec_now({unit_id: unit.id, source_dir: src_dir}, self)
+      logger.info "Cleaning up working files"
+      FileUtils.rm_rf(src_dir)
    end
 
    private

@@ -1,9 +1,11 @@
-if unit.ready_for_repo?
-   div :class => 'workflow_button' do
-      button_to "Put into Digital Library", publish_admin_unit_path(), :method => :put
-   end
-elsif unit.in_dl?
-   div :class => 'workflow_button' do
-      button_to "Publish All", publish_admin_unit_path(), :method => :put
+if unit.done?
+   if unit.ready_for_repo?
+      div :class => 'workflow_button' do
+         button_to "Put into Digital Library", publish_admin_unit_path(), :method => :put
+      end
+   elsif unit.in_dl?
+      div :class => 'workflow_button' do
+         button_to "Publish All", publish_admin_unit_path(), :method => :put
+      end
    end
 end

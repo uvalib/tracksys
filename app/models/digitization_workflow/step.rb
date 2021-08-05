@@ -41,20 +41,19 @@ class Step < ApplicationRecord
       # Make sure  directory is clean and in proper structure
       tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
       if self.name == "Scan" || self.name == "Process"
-         tgt_dir = File.join(self.workflow.base_directory, "scan", "10_raw", project.unit.directory)
+         tgt_dir = File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
       end
       return false if !validate_directory(project, tgt_dir)
 
       # Files get moved in two places; after Process and Finalization
-      # NOTE: workflow.base_directory is eoither /digiserv-production or /digiserv-migration
       if self.name == "Process"
-         src_dir =  File.join(self.workflow.base_directory, "scan", "10_raw", project.unit.directory)
+         src_dir =  File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
          tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
          return move_files( project, src_dir, tgt_dir )
       end
       if self.name == "Finalize"
          src_dir = File.join(Settings.image_qa_dir, project.unit.directory)
-         tgt_dir =  File.join(self.workflow.base_directory, "finalization", "10_dropoff", project.unit.directory)
+         tgt_dir =  File.join(Settings.production_mount, "finalization", project.unit.directory)
          return move_files( project, src_dir, tgt_dir )
       end
 
@@ -244,18 +243,11 @@ class Step < ApplicationRecord
          return false
       end
 
-      # Neither directory exists, this is generally a failure, but a special case exists.
-      # Files may be 20_in_process if a prior finalization failed. Accept this.
+      # Neither directory exists!
       if !Dir.exists?(src_dir) && !Dir.exists?(dest_dir)
-         alt_dest_dir = Finder.finalization_dir(project.unit, :in_process)
-         if self.end? && Dir.exists?(alt_dest_dir)
-            Rails.logger.info "On finalization step with in_process unit files found in #{alt_dest_dir}"
-            return true
-         else
-            Rails.logger.error("Neither source nor destination directories exist")
-            step_failed(project, "Filesystem", "<p>Neither start nor finsh directory exists</p>")
-            return false
-         end
+         Rails.logger.error("Neither source nor destination directories exist")
+         step_failed(project, "Filesystem", "<p>Neither start nor finsh directory exists</p>")
+         return false
       end
 
       # Source is gone or has the DELETE.ME file, but dest exists. No move needed

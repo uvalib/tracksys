@@ -216,7 +216,7 @@ class Project < ApplicationRecord
 
    def working_dir
       if self.current_step.name == "Process" || self.current_step.name == "Scan"
-         return File.join(self.workflow.base_directory, "scan", "10_raw", self.unit.directory)
+         return File.join(Settings.production_mount, "scan", "10_raw", self.unit.directory)
       end
       return File.join(Settings.image_qa_dir, self.unit.directory)
    end
@@ -513,11 +513,14 @@ class Project < ApplicationRecord
 
    private
    def manually_finalized?
+      # if the finalization directory for the unit does not exist, it can't be a candidate for manual validation
+      tgt_dir =  File.join(Settings.production_mount, "finalization", self.unit.directory)
+      return false if !Dir.exist?(tgt_dir)
+
       last_note = self.notes.last
-      if !last_note.step.nil?
-         return last_note.step.name == "Finalize" && last_note.note_type == "problem"
-      end
-      return false
+      return false if last_note.nil?
+      return false if last_note.step.nil?
+      return last_note.step.name == "Finalize" && last_note.note_type == "problem"
    end
 
    private

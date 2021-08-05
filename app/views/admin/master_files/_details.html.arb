@@ -17,7 +17,11 @@ div :class => 'two-column' do
          row :pid
          row :filename
          row :orientation do |master_file|
-            master_file.image_tech_meta.orientation
+            if master_file.image_tech_meta.blank?
+               "Unknown"
+            else
+               master_file.image_tech_meta.orientation
+            end
          end
          row :title
          row :description

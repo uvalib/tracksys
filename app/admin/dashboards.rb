@@ -60,8 +60,8 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
 
-         panel "Recently Published Images" do 
-            div style: "text-align:center" do 
+         panel "Recently Published Images" do
+            div style: "text-align:center" do
                span style: "display:inline-block;width: 45%", class: "btn", id: "view-virgo-published" do "View Recent Virgo Publications" end
                span style: "display:inline-block;width: 45%", class: "btn", id: "view-as-published"  do "View Recent ArchivesSpace Publications" end
             end
@@ -105,7 +105,7 @@ ActiveAdmin.register_page "Dashboard" do
                      tr do
                         td do p.project_name.truncate( 30, separator: ' ') end
                         td do p.due_on end
-                        td do p.current_step.name end
+                        td do p.current_step.name if ! p.current_step.blank? end
                         td do link_to "Details", "/admin/projects/#{p.id}" end
                      end
                   end
@@ -163,7 +163,7 @@ ActiveAdmin.register_page "Dashboard" do
             end
          end
       end
-      render 'admin/dashboard/published_popups' 
+      render 'admin/dashboard/published_popups'
    end
 
    page_action :get_yearly_stats do
