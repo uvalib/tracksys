@@ -67,20 +67,23 @@ module Images
             logger.info "Master file #{tgt_filename} already exists"
          end
 
+         if master_file.image_tech_meta.nil?
+            logger.info "Create tech metadata for  #{tgt_filename}"
+            TechMetadata.create(master_file, mf_path)
+         end
+
          if unit.reorder == false
             logger.info("Publishing #{master_file.filename} to IIIF...")
             IIIF.publish(mf_path, master_file, false, logger)
+
+            if unit.throw_away == false && unit.date_archived.blank?
+               Archive.publish(mf_path, master_file, logger)
+            end
 
             if unit.intended_use.description != "Digital Collection Building" && unit.intended_use.deliverable_format != "pdf"
                logger.info "Create patron deliverable for #{master_file.filename}"
                deliverable_file = Patron.create_deliverable(unit, master_file, mf_path, assemble_dir, call_number, location, logger)
             end
-         end
-
-         # Get tech metadata....
-         if master_file.image_tech_meta.nil?
-            logger.info "Create tech metadata for  #{tgt_filename}"
-            TechMetadata.create(master_file, mf_path)
          end
 
          # check for transcription text file
@@ -116,7 +119,10 @@ module Images
       end
 
       logger.info("#{mf_count} master files ingested")
-      unit.update(unit_extent_actual: mf_count, master_files_count: mf_count)
+      unit.update(unit_extent_actual: mf_count, master_files_count: mf_count, date_archived: Time.now)
+      logger.info "Date Archived set to #{unit.date_archived} for for unit #{unit.id}"
+      Archive.check_order_archive_complete(unit.order, logger)
+
       logger.info( "Images for Unit #{unit.id} successfully imported.")
    end
 end
