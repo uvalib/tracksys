@@ -133,6 +133,10 @@ class Unit < ApplicationRecord
       return self.unit_status == "canceled"
    end
 
+   def finalizing?
+      return self.unit_status == "finalizing"
+   end
+
    def ingested?
       return !date_dl_deliverables_ready.nil? || !date_patron_deliverables_ready.nil? || !date_archived.nil? || master_files.count > 0
    end

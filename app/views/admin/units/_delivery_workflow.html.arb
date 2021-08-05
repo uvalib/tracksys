@@ -16,7 +16,7 @@ if unit.project.nil? && unit.master_files.count == 0
    end
 end
 
-if !unit.project.nil? &&  unit.master_files.count == 0 && !unit.error?
+if !unit.project.nil? && unit.finalizing?
    div class: "admin-button-note" do
       "#{unit.project.workflow.name} workflow in-progress. No other actions available at this time."
    end
