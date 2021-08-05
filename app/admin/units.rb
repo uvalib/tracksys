@@ -190,7 +190,8 @@ ActiveAdmin.register Unit do
       render "bulk_actions", :context => self
    end
 
-   sidebar "Workflow", :only => [:show],  if: proc{ unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
+   sidebar "Workflow", :only => [:show],
+      if: proc{ !current_user.viewer? && !current_user.student? && unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
    end
 

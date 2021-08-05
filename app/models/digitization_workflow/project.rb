@@ -513,6 +513,10 @@ class Project < ApplicationRecord
 
    private
    def manually_finalized?
+      # if the finalization directory for the unit does not exist, it can't be a candidate for manual validation
+      tgt_dir =  File.join(Settings.production_mount, "finalization", self.unit.directory)
+      return false if !Dir.exist?(tgt_dir)
+
       last_note = self.notes.last
       return false if last_note.nil?
       return false if last_note.step.nil?
