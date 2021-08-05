@@ -22,19 +22,16 @@ class FinalizeUnit < BaseJob
 
       # ensure finilzation directory exists
       if !Dir.exists? src_dir
-         @unit.update(unit_status: "error")
          fatal_error("Finalization directory #{src_dir} does not exist")
       end
 
       # manage unit status
       if @unit.unit_status == "finalizing"
-         @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} is already finalizaing."
       elsif @unit.unit_status == "approved"
-         @unit.order.update(:date_finalization_begun, Time.now)
+         @unit.order.update(date_finalization_begun: Time.now)
          logger.info("Date Finalization Begun updated for order #{@unit.order.id}")
       elsif @unit.unit_status != 'error'
-         @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} has not been approved."
       end
       @unit.update(unit_status: "finalizing")
@@ -45,11 +42,8 @@ class FinalizeUnit < BaseJob
          qa_unit_data()
          qa_filesystem(src_dir)
 
-         # Create all of the master files (and publish to IIIF) then archive the unit
+         # Create all of the master files, publish to IIIF then archive the unit
          Images.import(@unit, logger)
-         if @unit.throw_away == false && @unit.date_archived.blank?
-            Archive.publish(@unit, logger)
-         end
 
          # If OCR has been requested, do it AFTER archive (OCR requires tif to be in archive)
          # but before deliverable generation (deliverables require OCR text to be present)
@@ -68,6 +62,12 @@ class FinalizeUnit < BaseJob
             create_patron_deliverables()
          end
       rescue Exception => e
+         if !@project.nil?
+            prob = Problem.find_by(label: "Finalization")
+            note = Note.create(staff_member: @project.owner, project: @project, note_type: :problem, note:  e.message , step: @project.current_step )
+            note.problems << prob
+            @project.active_assignment.update(status: :error )
+         end
          fatal_error( e.message )
       end
 
@@ -94,7 +94,6 @@ class FinalizeUnit < BaseJob
 
       # First, check if unit is assigned to metadata record. This is an immediate fail
       if @unit.metadata.nil?
-         @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} is not assigned to a metadata record."
       end
 
@@ -139,13 +138,11 @@ class FinalizeUnit < BaseJob
       if not order.date_order_approved?
          logger.info "Order #{order.id} is not marked as approved.  Since this unit is undergoing finalization, the workflow has automatically updated this value and changed the order_status to approved."
          if !order.update(date_order_approved: Time.now, order_status: 'approved')
-            @unit.update(unit_status: "error")
             fatal_error( order.errors.full_messages.to_sentence )
          end
       end
 
       if has_failures
-         @unit.update(unit_status: "error")
          fatal_error "Unit #{@unit.id} has failed the QA Unit Data Processor"
       end
    end
@@ -273,7 +270,7 @@ class FinalizeUnit < BaseJob
       CheckOrderReadyForDelivery.exec_now( { order_id: @unit.order_id}, self  )
    end
 
-   # Override fatail error and mark the unit as status 'error'
+   # Override fatal error and mark the unit as status 'error'
    def fatal_error(err)
       @unit.update!(unit_status: "error")
       super
