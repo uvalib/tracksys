@@ -216,7 +216,7 @@ class Project < ApplicationRecord
 
    def working_dir
       if self.current_step.name == "Process" || self.current_step.name == "Scan"
-         return File.join(Settings.production_mount, "scan", "10_raw", self.unit.directory)
+         return File.join(Settings.production_mount, "scan", self.unit.directory)
       end
       return File.join(Settings.image_qa_dir, self.unit.directory)
    end
@@ -269,39 +269,6 @@ class Project < ApplicationRecord
       self.update(current_step: self.current_step.fail_step, owner: step_1_owner)
    end
 
-   # Finalization of the associated unit was successful
-   #
-   def finalization_success(job)
-      Rails.logger.info("Project [#{self.project_name}] completed finalization")
-      self.update(finished_at: Time.now, owner: nil, current_step: nil)
-      processing_mins = ((Time.now - job.started_at)/60.0).round
-      qa_mins = self.active_assignment.duration_minutes
-      qa_mins = 0 if qa_mins.nil?
-      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
-      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: (processing_mins+qa_mins) )
-   end
-
-   # Finalzation of the associated unit failed
-   #
-   def finalization_failure(job)
-      Rails.logger.error("Project [#{self.project_name}] FAILED finalization")
-
-      # Fail the step and increase time spent
-      processing_mins = ((job.ended_at - job.started_at)/60.0).round
-      qa_mins = self.active_assignment.duration_minutes
-      qa_mins = 0 if qa_mins.nil?
-      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
-      self.active_assignment.update(duration_minutes: (processing_mins+qa_mins), status: :error )
-
-      # Add a problem note with a summary of the issue
-      prob = Problem.find(6) # Finalization
-      msg = "<p>#{job.error}</p>"
-      msg << "<p>Please manually correct the finalization problems. Once complete, press the Finish button for a final validation.</p>"
-      msg << "<p>Error details <a href='/admin/job_statuses/#{job.id}'>here</a></p>"
-      note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
-      note.problems << prob
-   end
-
    def assignment_finish_available?
       # can finish non-started assignment
       return false if active_assignment.blank?
@@ -335,31 +302,22 @@ class Project < ApplicationRecord
          self.active_assignment.update(duration_minutes: duration )
       end
 
-      # Clone workflow is a special case; nothing needs to be done when finishing a step
-      if self.workflow.name != "Clone"
-         # if this is detected to be a project that was manually finalized
-         # due to a finalization error, validate the finalization and exit early
-         if manually_finalized?
-            validate_manual_finalization
-            return
-         end
-
-         # Carry out end of step validation/automation. If this fails, there
-         # is nothing more to do so exit
-         if !self.current_step.finish( self )
-            return
-         end
-      end
-
-      # Special handling for last step; begin finalization and bail early
       if self.current_step.end?
-         if self.workflow.name == "Clone"
-            validate_clone_deliverables
-            return
-         else
-            self.active_assignment.update(status: :finalizing)
-            Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
-            FinalizeUnit.exec({unit_id: self.unit_id})
+         # if this is the first attempt at finalization, finish the step to perform final validation and file moves
+         if self.unit.unit_status != "error"
+            if !self.current_step.finish( self )
+               return
+            end
+         end
+
+         #... then start (or restart) finalization
+         self.active_assignment.update(status: :finalizing)
+         Rails.logger.info("Workflow [#{self.workflow.name}] is now complete. Starting Finalization.")
+         FinalizeUnit.exec({unit_id: self.unit_id})
+         return
+      else
+         # Carry out end of step validation/automation
+         if !self.current_step.finish( self )
             return
          end
       end
@@ -367,34 +325,6 @@ class Project < ApplicationRecord
       # Advance to next step
       self.active_assignment.update(finished_at: Time.now, status: :finished)
       new_step = self.current_step.next_step
-
-      # when the project moves to the final step, call finalize on the imaging service API to
-      # prepare the unit for finalization
-      if new_step.end?
-         begin
-            Rails.logger.info("Starting Finalize step, finalizing data for unit #{self.unit_id}")
-            finalize_url = "#{Settings.qa_viewer_url}/api/units/#{self.unit_id}/finalize"
-            resp = RestClient.post finalize_url, {}
-            json = JSON.parse(resp)
-            if !json['success']
-               Rails.logger.error("#{finalize_url} returned errors: #{json['problems']}")
-               msg = "<p>Prep for finalization failed</p>"
-               json['problems'].forEach do |p|
-                  msg << "<p>#{p['file']}: #{p['problem']}</p>"
-               end
-               prob = Problem.find(7) # Other
-               note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
-               note.problems << prob
-            end
-         rescue Exception => e
-            Rails.logger.error("Unable to prep unit [#{self.unit_id}] for finalization: #{e.message}")
-            msg = "<p>Prep for finalization failed</p>"
-            msg << "<p>DPG Imaging was unable to prep the unit for finalization: #{e.message}</p>"
-            note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: new_step)
-            prob = Problem.find(7) # Other
-            note.problems << prob
-         end
-      end
 
       # enforcing owner type
       if new_step.prior_owner?
@@ -424,36 +354,6 @@ class Project < ApplicationRecord
       note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
       note.problems << prob
       self.active_assignment.update(status: :error )
-   end
-
-   def validate_clone_deliverables
-      # check date delverables ready
-      if self.unit.order.date_patron_deliverables_complete.nil?
-         fail_clone_validation("Date deliverables ready not set")
-         return false
-      end
-
-      # ensure there is a properly named set of deliverables present
-      #    digiserv-delivery/patron/order_####/[order#.pdf] and unit_*.zip
-      order_dir = File.join(DELIVERY_DIR, "order_#{order.id}")
-      if !Dir.exists?(order_dir)
-         fail_clone_validation("Missing order delivery directory #{order_dir}")
-         return false
-      end
-      order_pdf = File.join(order_dir, "#{order.id}.pdf")
-      if !File.exists?(order_pdf)
-         fail_clone_validation("Missing order PDF #{order_pdf}")
-         return false
-      end
-
-      if  Dir[File.join(order_dir, "#{self.unit.id}*.zip")].count == 0
-         fail_clone_validation("No zip delivery files found")
-         return false
-      end
-
-      Rails.logger.info("Project [#{self.project_name}] completed validation of cloned files")
-      self.update(finished_at: Time.now, owner: nil, current_step: nil)
-      self.active_assignment.update(finished_at: Time.now, status: :finished)
    end
 
    def project_name
@@ -511,30 +411,47 @@ class Project < ApplicationRecord
       end
    end
 
-   private
-   def manually_finalized?
-      # if the finalization directory for the unit does not exist, it can't be a candidate for manual validation
-      tgt_dir =  File.join(Settings.production_mount, "finalization", self.unit.directory)
-      return false if !Dir.exist?(tgt_dir)
+   # Finalization of the associated unit was successful
+   #
+   def finalization_success(job)
+      Rails.logger.info("Project [#{self.project_name}] completed finalization")
+      processing_mins = ((Time.now - job.started_at)/60.0).round
+      validate_finalization(processing_mins)
+   end
 
-      last_note = self.notes.last
-      return false if last_note.nil?
-      return false if last_note.step.nil?
-      return last_note.step.name == "Finalize" && last_note.note_type == "problem"
+   # Finalzation of the associated unit failed
+   #
+   def finalization_failure(job)
+      Rails.logger.error("Project [#{self.project_name}] FAILED finalization")
+
+      # Fail the step and increase time spent
+      processing_mins = ((job.ended_at - job.started_at)/60.0).round
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(duration_minutes: (processing_mins+qa_mins), status: :error )
+
+      # Add a problem note with a summary of the issue
+      prob = Problem.find(6) # Finalization
+      msg = "<p>#{job.error}</p>"
+      msg << "<p>Please manually correct the finalization problems. Once complete, press the Finish button to restart finalization.</p>"
+      msg << "<p>Error details <a href='/admin/job_statuses/#{job.id}'>here</a></p>"
+      note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
+      note.problems << prob
    end
 
    private
    def validation_failed(reason)
       prob = Problem.find(6) # Finalization
-      msg = "<p>Validation of manual finalization failed: #{reason}</p>"
+      msg = "<p>Validation of finalization failed: #{reason}</p>"
       note = Note.create(staff_member: self.owner, project: self, note_type: :problem, note: msg, step: self.current_step )
       note.problems << prob
       self.active_assignment.update(status: :error )
    end
 
    private
-   def validate_manual_finalization
-      Rails.logger.info("Validating manually finalized unit")
+   def validate_finalization(processing_mins)
+      Rails.logger.info("Validating finalized unit")
       if !unit.throw_away
          if unit.date_archived.nil?
             validation_failed("Unit was not archived")
@@ -586,7 +503,11 @@ class Project < ApplicationRecord
 
       # Validations all passed, complete the workflow
       Rails.logger.info("Workflow [#{self.workflow.name}] is now complete")
-      self.active_assignment.update(finished_at: Time.now, status: :finished)
+      # self.active_assignment.update(finished_at: Time.now, status: :finished)
       self.update(finished_at: Time.now, owner: nil, current_step: nil)
+      qa_mins = self.active_assignment.duration_minutes
+      qa_mins = 0 if qa_mins.nil?
+      Rails.logger.info("Project [#{self.project_name}] finalization minutes: #{processing_mins}, prior minutes: #{qa_mins}")
+      self.active_assignment.update(finished_at: Time.now, status: :finished, duration_minutes: (processing_mins+qa_mins) )
    end
 end

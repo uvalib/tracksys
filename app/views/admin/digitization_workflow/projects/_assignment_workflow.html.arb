@@ -26,26 +26,27 @@ if current_user == project.owner
       if !(project.active_assignment.started? || project.active_assignment.error?)
          clazz << " disabled locked"
       else
-         # different rules apply for non-clone...
-         if project.workflow.name != "Clone"
-            metadata = project.unit.metadata
-            if project.current_step.name == "Scan" && project.workstation.nil?
-               # At first step, workstation must be set
-               clazz << " disabled locked"
-            elsif project.current_step.name == "Finalize" && (metadata.ocr_hint.nil? ||
-                  metadata.ocr_hint_id==1 && metadata.ocr_language_hint.blank? ||
-                  metadata.ocr_hint_id > 1 && project.unit.ocr_master_files )
-               # At finalize, OCR info must be set
-               clazz << " disabled locked"
-            end
+         metadata = project.unit.metadata
+         if project.current_step.name == "Scan" && project.workstation.nil?
+            # At first step, workstation must be set
+            clazz << " disabled locked"
+         elsif project.current_step.name == "Finalize" && (metadata.ocr_hint.nil? ||
+               metadata.ocr_hint_id==1 && metadata.ocr_language_hint.blank? ||
+               metadata.ocr_hint_id > 1 && project.unit.ocr_master_files )
+            # At finalize, OCR info must be set
+            clazz << " disabled locked"
          end
       end
 
+      label = "Finish"
+      if project.current_step.name == "Finalize" && project.unit.unit_status == "error"
+         label = "Retry Finalization"
+      end
       if !project.active_assignment.duration_minutes.nil?
          mins = project.active_assignment.duration_minutes
-         raw("<span class='#{clazz}' id='finish-assignment-btn' data-duration='#{mins}'>Finish</span>")
+         raw("<span class='#{clazz}' id='finish-assignment-btn' data-duration='#{mins}'>#{label}</span>")
       else
-         raw("<span class='#{clazz}' id='finish-assignment-btn' >Finish</span>")
+         raw("<span class='#{clazz}' id='finish-assignment-btn' >#{label}</span>")
       end
    end
 
@@ -59,25 +60,28 @@ if current_user == project.owner
 
    render partial: '/admin/digitization_workflow/projects/time_entry', locals: {project: project}
 
-   if project.workflow.name != "Clone"
-      if project.current_step.name == "Scan" && project.workstation.nil?
+   if project.current_step.name == "Scan" && project.workstation.nil?
+      div class: 'equipment-note' do
+         "Assignment cannot be finished until the workstation has been set."
+      end
+   elsif project.current_step.name == "Finalize"
+      if project.unit.metadata.ocr_hint.nil?
          div class: 'equipment-note' do
-            "Assignment cannot be finished until the workstation has been set."
+            "Assignment cannot be finished until the OCR hint has been set."
          end
-      elsif project.current_step.name == "Finalize"
-         if project.unit.metadata.ocr_hint.nil?
-            div class: 'equipment-note' do
-               "Assignment cannot be finished until the OCR hint has been set."
-            end
-         elsif project.unit.metadata.ocr_hint_id > 1 && project.unit.ocr_master_files
-            div class: 'equipment-note' do
-               "Cannot OCR items that are not regular text."
-            end
+      elsif project.unit.metadata.ocr_hint_id > 1 && project.unit.ocr_master_files
+         div class: 'equipment-note' do
+            "Cannot OCR items that are not regular text."
          end
-         if project.unit.metadata.ocr_hint_id==1 && project.unit.metadata.ocr_language_hint.blank?
-            div class: 'equipment-note' do
-               "Assignment cannot be finished until the OCR Language Hint has been set."
-            end
+      end
+      if project.unit.metadata.ocr_hint_id==1 && project.unit.metadata.ocr_language_hint.blank?
+         div class: 'equipment-note' do
+            "Assignment cannot be finished until the OCR Language Hint has been set."
+         end
+      end
+      if project.unit.unit_status == "error"
+         div class: 'equipment-note' do
+            "Finalization has failed. Correct the problem then click 'Retry Finalization'."
          end
       end
    end

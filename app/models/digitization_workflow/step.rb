@@ -38,16 +38,42 @@ class Step < ApplicationRecord
          return false
       end
 
+      # When finishing the final QA step, call finalize on the viewer to cleanup up and apply final metadata to each image
+      if !self.next_step.blank? && self.next_step.name == "Finalize"
+         Rails.logger.info("Finishing final QA step; prep images for finalization #{project.unit_id}")
+         begin
+            finalize_url = "#{Settings.qa_viewer_url}/api/units/#{project.unit_id}/finalize"
+            resp = RestClient::Request.execute(:method => :post, :url => finalize_url, :timeout => 60*5)
+            json = JSON.parse(resp)
+            if !json['success']
+               Rails.logger.error("#{finalize_url} returned errors: #{json['problems']}")
+               msg = "<p>Prep for finalization failed</p>"
+               json['problems'].forEach do |p|
+                  msg << "<p>#{p['file']}: #{p['problem']}</p>"
+               end
+               step_failed(project, "Other", msg)
+               return false
+            end
+            Rails.logger.info("Unit #{project.unit_id} data has been finalized")
+         rescue Exception => e
+            Rails.logger.error("Unable to prep unit [#{project.unit_id}] for finalization: #{e.message}")
+            msg = "<p>Prep for finalization failed</p>"
+            msg << "<p>DPG Imaging was unable to prep the unit for finalization: #{e.message}</p>"
+            step_failed(project, "Other", msg)
+            return false
+         end
+      end
+
       # Make sure  directory is clean and in proper structure
       tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
       if self.name == "Scan" || self.name == "Process"
-         tgt_dir = File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
+         tgt_dir = File.join(Settings.production_mount, "scan", project.unit.directory)
       end
       return false if !validate_directory(project, tgt_dir)
 
       # Files get moved in two places; after Process and Finalization
       if self.name == "Process"
-         src_dir =  File.join(Settings.production_mount, "scan", "10_raw", project.unit.directory)
+         src_dir =  File.join(Settings.production_mount, "scan", project.unit.directory)
          tgt_dir = File.join(Settings.image_qa_dir, project.unit.directory)
          return move_files( project, src_dir, tgt_dir )
       end

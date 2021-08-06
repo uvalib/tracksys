@@ -3,6 +3,9 @@ module Images
    def self.import(unit, logger = Logger.new(STDOUT))
       unit_path = File.join(Settings.production_mount, "finalization", unit.directory)
       logger.info "Import images from #{unit_path}"
+      if unit.throw_away
+         logger.info "This unit is a throw away and will not be archived."
+      end
 
       assemble_dir = ""
       call_number = nil

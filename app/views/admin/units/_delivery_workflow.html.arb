@@ -30,8 +30,8 @@ if unit.can_finalize?
 end
 
 if unit.error? && !unit.reorder
-   div :class => 'workflow_button' do
-      button_to "Retry Finalization", retry_finalization_admin_unit_path, :method => :put
+   div class: "admin-button-note" do
+      "#{unit.project.workflow.name} failed finalization. Correct the errors and use the 'Retry Finalization' button on the project page to restart finalization."
    end
 end
 
