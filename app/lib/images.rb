@@ -128,4 +128,22 @@ module Images
 
       logger.info( "Images for Unit #{unit.id} successfully imported.")
    end
+
+   def self.cleanup(unit, logger = Logger.new(STDOUT) )
+      logger.info("Cleaning up unit #{unit.directory} directories")
+      tmp_dir = File.join(Settings.production_mount, "finalization", "tmp")
+      work_dir = File.join(tmp_dir, unit.directory)
+      if Dir.exist? work_dir
+         FileUtils.rm_rf(work_dir)
+      end
+
+      src_dir = File.join(Settings.production_mount, "finalization", unit.directory)
+      del_dir =  File.join(Settings.production_mount, "ready_to_delete", unit.directory)
+      logger.info "Moving #{unit.directory} to #{del_dir}"
+      if Dir.exist? del_dir
+         logger.info "#{del_dir} already exists; cleaning it up"
+         FileUtils.rm_rf(del_dir)
+      end
+      FileUtils.mv(src_dir, del_dir, force: true)
+   end
 end
