@@ -64,6 +64,11 @@ class CreatePatronDeliverables < BaseJob
    end
 
    def copy_original_files(unit, unit_dir)
+      logger.info "Copy original unit masterfiles to #{unit_dir}"
+      if !Dir.exist? unit_dir
+         logger.info "Creating #{unit_dir}"
+         FileUtils.mkdir_p unit_dir
+      end
       unit.master_files.each do |mf|
          # Cloned files can come from many src units. Get original unit for
          # the current master file and figure out where to find it in the archive
