@@ -71,9 +71,6 @@ class Order < ApplicationRecord
    validates :order_status, :inclusion => { :in => ORDER_STATUSES,
       :message => 'must be one of these values: ' + ORDER_STATUSES.join(", ")}
 
-   # validates that an order_status cannot equal approved if any of it's Units.unit_status != "approved"
-   validate :validate_order_approval, :on => :update
-
    #------------------------------------------------------------------
    # callbacks
    #------------------------------------------------------------------
@@ -193,16 +190,6 @@ class Order < ApplicationRecord
       return Unit.where(:order_id => self.id).where('unit_status = "approved"').count > 0
    end
 
-   # A validation callback which returns to the Order#edit view the IDs of Units which are preventing the Order from being approved because they
-   # are neither approved or canceled.
-   def validate_order_approval
-      if order_status == "approved"
-         if !has_approved_units
-            errors[:order_status] << "cannot be set to approved because no units are approved"
-         end
-      end
-   end
-
    def self.due_today()
       Order.due_within(0.day.from_now)
    end
@@ -268,17 +255,17 @@ class Order < ApplicationRecord
                return false
             end
 
-            # check all NON-CANCELED units for archive date, keeping track of 
+            # check all NON-CANCELED units for archive date, keeping track of
             # latest. If all have been archived, update the order archive date and flag order as complete
             latest = nil
             units.each do |unit|
                next if unit.unit_status == "canceled"
-               if unit.date_archived.nil? 
+               if unit.date_archived.nil?
                   errors.add(:unit, "has not been archived")
                   return false
                else
-                  latest = unit.date_archived if latest.nil? 
-                  if unit.date_archived  > latest 
+                  latest = unit.date_archived if latest.nil?
+                  if unit.date_archived  > latest
                      latest = unit.date_archived
                   end
                end
