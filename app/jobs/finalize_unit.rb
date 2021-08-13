@@ -212,7 +212,7 @@ class FinalizeUnit < BaseJob
       end
 
       if has_failures
-         fatal_error "Unit #{unit.id} has failed the Filesystem QA."
+         fatal_error "Unit #{@unit.id} has failed the Filesystem QA."
       end
    end
 
