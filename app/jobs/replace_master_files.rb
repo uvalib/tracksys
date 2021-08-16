@@ -28,8 +28,27 @@ class ReplaceMasterFiles < BaseJob
             next
          end
 
-         # update MF attributes, replace tech metadata, re-publish and archive
-         curr_mf.update(filesize: fs, md5: md5)
+         # update MF attributes
+         curr_mf.filesize = fs
+         curr_mf.md5 = md5
+         cmd = "exiftool -json -iptc:headline -iptc:caption-abstract #{mf_path}"
+         exif_out = `#{cmd}`
+         if exif_out.blank?
+            log_failure "exiftool was unable to extract metadata from #{mf_path}"
+         else
+            md = JSON.parse(exif_out).first
+            if md['Headline'].blank?
+               log_failure "#{mf_path} is missing Headline"
+            else
+               curr_mf.title = md['Headline']
+            end
+            curr_mf.description = md['Caption-Abstract']
+         end
+         if !curr_mf.save
+            log_failure "Unable to save updates to #{mf_path}: #{curr_mf.errors.full_messages.to_sentence}"
+         end
+
+         #replace tech metadata, re-publish and archive
          curr_mf.image_tech_meta.destroy if !curr_mf.image_tech_meta.nil?
          TechMetadata.create(curr_mf, mf_path)
          IIIF.publish(mf_path, curr_mf, true, logger)
@@ -44,5 +63,12 @@ class ReplaceMasterFiles < BaseJob
 
       logger.info "Cleaning up working files"
       FileUtils.rm_rf(src_dir)
+      del_dir =  File.join(Settings.production_mount, "ready_to_delete", unit.directory)
+      logger.info "Moving update dir #{src_dir} to #{del_dir}"
+      if Dir.exist? del_dir
+         logger.info "#{del_dir} already exists; cleaning it up"
+         FileUtils.rm_rf(del_dir)
+      end
+      FileUtils.mv(src_dir, del_dir, force: true)
    end
 end
