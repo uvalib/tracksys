@@ -62,7 +62,6 @@ class ReplaceMasterFiles < BaseJob
       end
 
       logger.info "Cleaning up working files"
-      FileUtils.rm_rf(src_dir)
       del_dir =  File.join(Settings.production_mount, "ready_to_delete", unit.directory)
       logger.info "Moving update dir #{src_dir} to #{del_dir}"
       if Dir.exist? del_dir
