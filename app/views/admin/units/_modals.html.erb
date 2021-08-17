@@ -1,6 +1,5 @@
 <div id="dimmer">
    <%= render partial: "/admin/common/viewer_modal" %>
-   <%= render partial: "/admin/common/transform_modal", locals: {mode: :unit, unit_id: unit.id} %>
 
    <% if !unit.metadata.nil? %>
       <div id="as-modal" class="modal">
@@ -43,45 +42,6 @@
             </div>
          </div>
       </form>
-   </div>
-
-   <div id="settings-modal" class="modal">
-      <h1>Bulk Update DL Settings</h1>
-      <table class="settings">
-         <tr>
-            <td class="label">Discoverable</td>
-            <td>
-               <select id="discoverable">
-                  <option value="yes">yes</option>
-                  <option value="no">no</option>
-               </select>
-            </td>
-         </tr>
-         <tr>
-            <td class="label">Availability</td>
-            <td>
-               <select id="availability">
-                   <% AvailabilityPolicy.all.each do |p| %>
-                       <option value="<%= p.id %>"><%= p.name %></option>
-                   <% end %>
-               </select>
-            </td>
-         </tr>
-         <tr>
-            <td class="label">Rights Statement</td>
-            <td>
-               <select id="rights">
-                   <% UseRight.all.each do |p| %>
-                       <option value="<%= p.id %>"><%= p.name %></option>
-                   <% end %>
-               </select>
-            </td>
-         </tr>
-      </table>
-      <div class="buttons">
-         <input type="button" id="cancel-settings" value="Cancel"/>
-         <input type="button" id="ok-settings" value="Update"/>
-      </div>
    </div>
 
    <div id="title-modal" class="modal">

@@ -16,9 +16,6 @@ ActiveAdmin.register XmlMetadata do
    action_item :new, :only => :index do
       raw("<a href='/admin/xml_metadata/new'>New</a>") if !current_user.viewer?  && !current_user.student?
    end
-   action_item :batch_transform, :only => :index do
-      raw("<span class='action-btn' id='global-transform'>Global Transform</span>") if !current_user.viewer?  && !current_user.student?
-   end
 
    action_item :edit, only: :show do
       link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
@@ -87,9 +84,6 @@ ActiveAdmin.register XmlMetadata do
                link_to I18n.t('active_admin.edit'), edit_resource_path(xml_metadata), :class => "member_link edit_link"
             end
          end
-      end
-      div id: "dimmer" do
-         render partial: "/admin/common/transform_modal", locals: {mode: :global}
       end
    end
 
@@ -269,21 +263,6 @@ ActiveAdmin.register XmlMetadata do
 
    # ACTIONS ==================================================================
    #
-
-   # Transfmorm ALL XML metadat records in the system with the XSL file uploaded
-   #
-   collection_action :global_transform, method: :post do
-      # copy the file to /tmp so we have more control over its lifecycle
-      upload_file = params[:xslfile].tempfile.path
-      xsl_uuid =  SecureRandom.uuid
-      dest_dir = File.join(Rails.root, "tmp", "xsl")
-      FileUtils.mkdir_p dest_dir
-      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
-      FileUtils.cp(upload_file, dest)
-      BulkTransformXml.exec({user: current_user, mode: :global, xsl_file: dest, comment: params[:comment]})
-      render plain: "ok"
-   end
-
    controller do
        def update
          # create a metadata version to track this change

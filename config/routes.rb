@@ -49,32 +49,14 @@ Tracksys::Application.routes.draw do
 
   namespace :api do
      get "archivesspace/report" => "as#report"
-     get "aries/:id" => "aries#show", :constraints => { :id => /[0-9A-Za-z:_\-\.\/]+/ }
-     get "aries" => "aries#index"
      get "metadata/search" => "metadata#search"
      get "fulltext/:pid" => "fulltext#show"
      post "fulltext/:pid/ocr" => "fulltext#post_ocr"
-     get "pid/:pid" => "pid#show"
-     get "pid/:pid/type" => "pid#identify"
-     get "pid/:pid/rights" => "pid#rights"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
-     get "stylesheet/:id" => "stylesheet#show"
      get "reports" => "reports#generate"
-     put "aptrust/:id" => "ap_trust#resubmit"
-     get "manifest/:pid" => "manifest#show"
      post "callbacks/:jid/ocr" => "callbacks#ocr"
      post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
 
-     # Get a list of PIDs that have been flagged for DPLA publication
-     get "dpla" => "dpla#published"
-
-     # used by V4 tracksys-enrich
-     get "sirsi/published" => "sirsi#published"
-     get "other/published" => "other#published"
-     get "other/:id" => "other#show"
-
-     # Used by V3 and V4
-     get "sirsi/:id" => "sirsi#show"
   end
 end

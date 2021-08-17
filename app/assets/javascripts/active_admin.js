@@ -10,7 +10,6 @@
 //= require statistics
 //= require update-unit
 //= require clone-masterfiles
-//= require bulk_dl_settings
 //= require workflows
 //= require workflow-reports
 //= require annual-reports
@@ -21,7 +20,6 @@
 //= require curio
 //= require dashboard
 //= require metadata
-//= require batch-transform
 //= require master-file-locations
 //= require versions
 //= require codemirror
