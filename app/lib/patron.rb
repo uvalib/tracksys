@@ -7,11 +7,6 @@ module Patron
       if !Dir.exist?(delivery_dir)
          logger.info "Create delivery dir #{delivery_dir}"
          FileUtils.mkdir_p delivery_dir
-      else
-         Dir.glob("#{delivery_dir}/*.zip") do |zf|
-            logger.info "Remove pre-existing zip deliverable #{zf}"
-            File.delete zf
-         end
       end
 
       # IF OCR was requested, generate a single text file containing all of the page OCR results
@@ -33,6 +28,10 @@ module Patron
       # Walk each file in the unit assembly dir and add it to the zip...
       file_num = 1
       zip_file = File.join(delivery_dir, "#{unit.id}_#{file_num}.zip")
+      if File.exist? zip_file
+         logger.info "Remove pre-existing zip deliverable #{zip_file}"
+         FileUtils.rm(zip_file)
+      end
       tmp_dir = File.join(Settings.production_mount, "finalization", "tmp")
       assemble_dir = File.join(tmp_dir, unit.directory)
       logger.info "Create #{zip_file}..."
