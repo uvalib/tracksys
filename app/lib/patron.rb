@@ -54,11 +54,6 @@ module Patron
    end
 
    def self.pdf_deliverable(unit, logger = Logger.new(STDOUT) )
-      finalize_dir = File.join(Settings.production_mount, "finalization", unit.directory)
-      tif_files = File.join(finalize_dir, "*.tif")
-
-      # all of the scaled down JPEG source files will be pulled down into the
-      # assemble deliverable directory; clean up prior versions
       logger.info "Setting up assemble delivery directory to be used to build the PDF..."
       assemble_dir = File.join(Settings.production_mount, "finalization", "tmp", unit.directory)
       pdf_file = File.join(assemble_dir, "#{unit.id}.pdf")
@@ -71,17 +66,21 @@ module Patron
          FileUtils.mkdir_p(assemble_dir)
       end
 
-      # Convert all tifs to a single PDF
-      logger.info "Covert #{tif_files} to scaled down JPG..."
-      mogrify = `which mogrify`
-      mogrify.strip!
-      if !File.exist? mogrify
-         fatal_error("mogrify command not found on system!")
+      # process each tif one at a time. convert to scaled down jpg fpr PDF
+      finalize_dir = File.join(Settings.production_mount, "finalization", unit.directory)
+      Dir.glob("#{finalize_dir}/**/*.tif").each do |tif_file|
+         logger.info "Covert #{tif_file} to scaled down JPG..."
+         mogrify = `which mogrify`
+         mogrify.strip!
+         if !File.exist? mogrify
+            fatal_error("mogrify command not found on system!")
+         end
+         cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg -path #{assemble_dir} #{tif_file}"
+         logger.info("   #{cmd}")
+         `#{cmd}`
       end
-      cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg -path #{assemble_dir} #{tif_files}"
-      logger.info("   #{cmd}")
-      `#{cmd}`
 
+      logger.info "Convert all .jpg files to PDF..."
       jpg_files = File.join(assemble_dir, "*.jpg")
       logger.info "Covert #{jpg_files} to #{pdf_file}..."
       cvt = `which convert`
