@@ -183,13 +183,6 @@ ActiveAdmin.register Unit do
       render "related_info", :context => self
    end
 
-   sidebar :bulk_actions, :only => :show,  if: proc {
-      !current_user.viewer? && !current_user.student? && unit.master_files_count > 0 &&
-      (unit.done?||unit.approved?) &&
-      (unit.master_files.count==0 || unit.has_xml_masterfiles?) } do
-      render "bulk_actions", :context => self
-   end
-
    sidebar "Workflow", :only => [:show],
       if: proc{ !current_user.viewer? && !current_user.student? && unit.unit_status != "unapproved" && unit.unit_status != "canceled"}  do
       render "delivery_workflow", :context=>self
@@ -230,16 +223,6 @@ ActiveAdmin.register Unit do
 
    # MEMBER ACTIONS ============================================================
    #
-   member_action :bulk_settings_update, method: :post do
-      unit = Unit.find(params[:id])
-      rights = UseRight.find(params[:rights].to_i)
-      avail = AvailabilityPolicy.find(params[:availability].to_i)
-      unit.master_files.each do |mf|
-         mf.metadata.update(use_right: rights, availability_policy: avail)
-      end
-      render :nothing=>true
-   end
-
    member_action :clone_master_files, method: :post do
       job_id = CloneMasterFiles.exec({unit_id: params[:id], list: params[:masterfiles]})
       render plain: job_id, status: :ok
@@ -303,19 +286,6 @@ ActiveAdmin.register Unit do
    member_action :ocr, :method => :post do
       OCR.unit( Unit.find(params[:id]) )
       redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
-   end
-
-   member_action :xml_transform, :method => :post do
-      # copy the file to /tmp so we have more control over its lifecycle
-      upload_file = params[:xslfile].tempfile.path
-      xsl_uuid =  SecureRandom.uuid
-      dest_dir = File.join(Rails.root, "tmp", "xsl")
-      FileUtils.mkdir_p dest_dir
-      dest = File.join(dest_dir, "#{xsl_uuid}.xsl")
-      FileUtils.cp(upload_file, dest)
-      unit = Unit.find(params[:id])
-      BulkTransformXml.exec({user: current_user, mode: :unit, unit: unit, xsl_file: dest, comment: params[:comment]})
-      render plain: "ok"
    end
 
    member_action :attachment, :method => :post do
@@ -403,16 +373,6 @@ ActiveAdmin.register Unit do
       unit = Unit.find(params[:id])
       Virgo.publish(unit, Rails.logger)
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo."
-   end
-
-   member_action :bulk_upload_xml, :method => :put do
-      BulkUploadXml.exec({unit_id: params[:id], user: current_user})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Uploading XML for all mastefiles of unit #{params[:id]}."
-   end
-
-   member_action :bulk_download_xml, :method => :put do
-      BulkDownloadXml.exec({unit_id: params[:id], user: current_user} )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Downloading XML for unit #{params[:id]}. When complete, you will receive an email."
    end
 
    member_action :add, :method => :post do
