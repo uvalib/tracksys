@@ -7,7 +7,7 @@ module OCR
    def self.synchronous(unit, job )
       md = unit.metadata
       lang = md.ocr_language_hint
-      cb = "/api/callbacks/#{job.status.id}/synchronous_ocr"
+      cb = "#{Settings.tracksys_url}/api/callbacks/#{job.status.id}/synchronous_ocr"
       url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&force=true&callback=#{CGI.escape(cb)}"
       job.logger.info "Sending OCR request to #{url}"
       resp = RestClient.get url
@@ -46,7 +46,7 @@ module OCR
       # call GET on OCR API specifiying the PID of the unit metadata record and unit id
       md = unit.metadata
       lang = md.ocr_language_hint
-      cb = "/api/callbacks/#{status.id}/ocr"
+      cb = "#{Settings.tracksys_url}/api/callbacks/#{status.id}/ocr"
       url = "#{Settings.ocr_url}/#{md.pid}?lang=#{lang}&unit=#{unit.id}&force=true&callback=#{CGI.escape(cb)}"
       ocr_log.info "Sending OCR request to #{url}..."
       resp = RestClient.get url
@@ -71,7 +71,7 @@ module OCR
 
       # call GET on OCR API with force=true
       lang = mf.metadata.ocr_language_hint
-      cb = "/api/callbacks/#{status.id}/ocr"
+      cb = "#{Settings.tracksys_url}/api/callbacks/#{status.id}/ocr"
       url = "#{Settings.ocr_url}/#{mf.pid}?force=true&lang=#{lang}&callback=#{CGI.escape(cb)}"
       ocr_log.info "Sending OCR request to #{url}"
       resp = RestClient.get url
