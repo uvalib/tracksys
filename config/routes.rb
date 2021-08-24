@@ -50,8 +50,6 @@ Tracksys::Application.routes.draw do
   namespace :api do
      get "archivesspace/report" => "as#report"
      get "metadata/search" => "metadata#search"
-     get "fulltext/:pid" => "fulltext#show"
-     post "fulltext/:pid/ocr" => "fulltext#post_ocr"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
      get "reports" => "reports#generate"
