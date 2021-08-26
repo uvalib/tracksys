@@ -30,7 +30,12 @@ if order.order_status == 'approved' || order.order_status == 'completed'
       end
    end
    div :class => 'workflow_button' do
-      button_to "View Customer PDF", generate_pdf_notice_admin_order_path(order.id), :method => :put
+      button_to "View Customer PDF", view_pdf_notice_admin_order_path(order.id), :method => :put
+   end
+   if File.exists?(File.join("#{DELIVERY_DIR}", "order_#{order.id}"))
+      div :class => 'workflow_button' do
+         button_to "Recreate Customer PDF", recreate_pdf_notice_admin_order_path(order.id), :method => :put
+      end
    end
 elsif order.order_status == 'requested'
    div do

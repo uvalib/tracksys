@@ -56,23 +56,13 @@ class CheckOrderReadyForDelivery < BaseJob
       qa_order_fees(order)
 
       # QA was successful, generate PDF and email
-      create_pdf(order)
+      CreateOrderPDF.exec_now({:order => order}, self)
 
       # Email can be created from this job or from UI. For this
       # reason, it remain its own standalone job
       CreateOrderEmail.exec_now({:order => order}, self)
    end
 
-   private
-   def create_pdf(order)
-      logger.info("Create order PDF...")
-      pdf = generate_invoice_pdf(order)
-      order_dir = File.join("#{DELIVERY_DIR}", "order_#{order.id}")
-      Dir.mkdir(order_dir) unless File.exists?(order_dir)
-      invoice_file = File.join(order_dir, "#{order.id}.pdf")
-      pdf.render_file(invoice_file  )
-      logger.info "PDF created for order #{order.id} created at #{invoice_file}"
-   end
 
    private
    def qa_order_fees(order)

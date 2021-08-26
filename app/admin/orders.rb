@@ -314,10 +314,16 @@ ActiveAdmin.register Order do
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
    end
 
-   member_action :generate_pdf_notice, :method => :put do
+   member_action :view_pdf_notice, :method => :put do
       order = Order.find(params[:id])
       pdf = order.generate_notice
       send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
+   end
+
+   member_action :recreate_pdf_notice, :method => :put do
+      order = Order.find(params[:id])
+      CreateOrderPDF.exec_now({order: order})
+      redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
    end
 
    member_action :reset_dates, :method => :post do
