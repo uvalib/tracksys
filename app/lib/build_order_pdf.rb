@@ -7,7 +7,7 @@ module BuildOrderPDF
       customer = order.customer
       units_in_pdf = []
       order.units.each do |unit|
-         if unit.unit_status == 'approved'
+         if unit.unit_status == 'approved' || unit.unit_status == 'done'
             units_in_pdf.push(unit)
          end
       end
