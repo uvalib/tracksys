@@ -75,7 +75,7 @@ module Patron
          if !File.exist? mogrify
             fatal_error("mogrify command not found on system!")
          end
-         cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg -path #{assemble_dir} #{tif_file}"
+         cmd = "#{mogrify} -quiet -resize 1024x -density 150 -format jpg -path #{assemble_dir} #{tif_file}[0]"
          logger.info("   #{cmd}")
          `#{cmd}`
       end

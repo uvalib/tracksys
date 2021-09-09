@@ -4,7 +4,6 @@ require 'prawn/table'
 class Order < ApplicationRecord
 
    ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'await_fee']
-   include BuildOrderPDF
 
    def as_json(options)
       super(:except => [:email])
@@ -347,10 +346,6 @@ class Order < ApplicationRecord
          end
       end
       return false
-   end
-
-   def generate_notice
-       generate_invoice_pdf(self)
    end
 
    def self.upaid_customer_report

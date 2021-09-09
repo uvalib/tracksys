@@ -1,6 +1,4 @@
 class CheckOrderReadyForDelivery < BaseJob
-   include BuildOrderPDF
-
    def set_originator(message)
       @status.update_attributes( :originator_type=>"Order", :originator_id=>message[:order_id] )
    end

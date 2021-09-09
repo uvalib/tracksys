@@ -316,7 +316,7 @@ ActiveAdmin.register Order do
 
    member_action :view_pdf_notice, :method => :put do
       order = Order.find(params[:id])
-      pdf = order.generate_notice
+      pdf = BuildOrderPDF.generate_invoice_pdf(order)
       send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
    end
 
