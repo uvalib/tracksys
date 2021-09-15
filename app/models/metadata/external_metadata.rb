@@ -106,10 +106,9 @@ class ExternalMetadata < Metadata
             as_info[:published_at] = dobj[:created]
          end
 
-         # pull repo ID from external URL and use it to lookup repo name:
-         # /repositories/REPO_ID/resources/RES_ID
-         repo_id = self.external_uri.split("/")[2]
-         repo_detail = ArchivesSpace.get_repository(auth, repo_id)
+         # pull repo ID from public URL and use it to lookup repo name
+         parsed_url = ArchivesSpace.parse_public_url(url)
+         repo_detail = ArchivesSpace.get_repository(auth, parsed_url[:repo])
          as_info[:repo] = repo_detail['name']
 
 

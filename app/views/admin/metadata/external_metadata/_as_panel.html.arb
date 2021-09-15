@@ -38,7 +38,11 @@ attributes_table_for external_metadata do
          as_info[:created_by]
       end
       row("Create Time") do |xm|
-         DateTime.parse(as_info[:create_time]).strftime("%F %r")
+         if as_info[:create_time].nil?
+            "No create time found."
+         else
+            DateTime.parse(as_info[:create_time]).strftime("%F %r")
+         end
       end
       row("Publication Time") do |xm|
          if as_info[:published_at].nil?
