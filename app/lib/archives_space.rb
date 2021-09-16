@@ -75,7 +75,6 @@ module ArchivesSpace
          log.info "Looking up parent accession #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
          tgt_obj = get_accession(auth, as_info[:repo], as_info[:parent_id])
       else
-      else
          raise("Unsupported parent type: #{as_info[:parent_type] }")
       end
       return tgt_obj
