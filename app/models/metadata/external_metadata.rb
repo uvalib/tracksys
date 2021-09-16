@@ -118,12 +118,16 @@ class ExternalMetadata < Metadata
             coll = RestClient.get url, ArchivesSpace.auth_header(auth)
             coll_json = JSON.parse(coll.body)
 
-            as_info[:collection_title] = coll_json['finding_aid_title'].split("<num")[0]
+            if !coll_json['finding_aid_title'].nil?
+               as_info[:collection_title] = coll_json['finding_aid_title'].split("<num")[0]
+            end
             as_info[:id] = coll_json['id_0']
             as_info[:language] = coll_json['language']
 
          else
-            as_info[:collection_title] = tgt_obj['finding_aid_title'].split("<num")[0]
+            if !tgt_obj['finding_aid_title'].nil?
+               as_info[:collection_title] = tgt_obj['finding_aid_title'].split("<num")[0]
+            end
             as_info[:id] = tgt_obj['id_0']
             as_info[:language] = tgt_obj['language']
          end
