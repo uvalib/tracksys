@@ -31,6 +31,8 @@ module ArchivesSpace
          tgt_obj = get_resource(auth, as_info[:repo], as_info[:parent_id])
       elsif as_info[:parent_type] == "archival_objects"
          tgt_obj = get_archival_object(auth, as_info[:repo], as_info[:parent_id])
+      elsif as_info[:parent_type] == "accessions"
+         tgt_obj = get_accession(auth, as_info[:repo], as_info[:parent_id])
       else
          raise("Unsupported parent type: #{as_info[:parent_type] }")
       end
@@ -69,6 +71,10 @@ module ArchivesSpace
       elsif as_info[:parent_type] == "archival_objects"
          log.info "Looking up parent archival object #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
          tgt_obj = get_archival_object(auth, as_info[:repo], as_info[:parent_id])
+      elsif as_info[:parent_type] == "accessions"
+         log.info "Looking up parent accession #{as_info[:parent_id]} in repo #{as_info[:repo]}..."
+         tgt_obj = get_accession(auth, as_info[:repo], as_info[:parent_id])
+      else
       else
          raise("Unsupported parent type: #{as_info[:parent_type] }")
       end
@@ -135,6 +141,14 @@ module ArchivesSpace
       as = ExternalSystem.find_by(name: "ArchivesSpace")
       repo_url = "#{as.api_url}/repositories/#{repo_id}"
       out = RestClient.get repo_url, auth_header(auth)
+      return JSON.parse(out.body)
+   end
+
+
+     def self.get_accession(auth, repo_id, resource_id)
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      url = "#{as.api_url}/repositories/#{repo_id}/accessions/#{resource_id}"
+      out = RestClient.get url, auth_header(auth)
       return JSON.parse(out.body)
    end
 

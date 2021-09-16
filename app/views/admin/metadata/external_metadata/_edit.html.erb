@@ -2,7 +2,7 @@
    <%= f.inputs "External Metadata", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
       <%= f.input :external_system, :required=>true, :input_html => {:class => 'chosen-select required',  :style => 'width: 200px'} %>
       <%= f.input :external_uri, :required=>true %>
-      <li><b>IMPORTANT:</b>&nbsp;Only URIs containing /resources/ or /archival_objects/ are supported for ArchivesSpace.</li>
+      <li><b>IMPORTANT:</b>&nbsp;Only URIs containing /resources/, /accessions/ or /archival_objects/ are supported for ArchivesSpace.</li>
    <% end %>
 
    <%= f.inputs "Administrative Information", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
