@@ -19,7 +19,10 @@ module Images
          if unit.metadata.type == "SirsiMetadata"
             sm = unit.metadata.becomes(SirsiMetadata)
             call_number = sm.call_number
-            location = sm.get_full_metadata[:location]
+            marc_metadata = sm.get_full_metadata
+            if !marc_metadata.nil?
+               location = marc_metadata[:location]
+            end
          end
       end
 

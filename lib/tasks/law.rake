@@ -274,7 +274,7 @@ namespace :law do
    end
 
    def get_barcodes(catalog_key)
-      marc_xml_string = Virgo.get_marc(catalog_key)
+      marc_xml_string = Virgo.get_marc('ckey', catalog_key)
       marc = Nokogiri::XML(marc_xml_string)
       marc.remove_namespaces!
       out = []

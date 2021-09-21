@@ -45,7 +45,7 @@ module Virgo
      end
 
      begin
-         marc_string = get_marc(catalog_key)
+         marc_string = get_marc('ckey', catalog_key)
          marc_record = Nokogiri::XML(marc_string)
          marc_record.remove_namespaces!
      rescue Exception=>e
@@ -163,31 +163,38 @@ module Virgo
 
     begin
       if !catalog_key.blank?
-         marc_string = get_marc(catalog_key)
+         marc_string = get_marc('ckey', catalog_key)
       else
-         sirsi_url = "#{Settings.sirsi_url}/getMarc?barcode=#{barcode}&type=xml"
-         Rails.logger.info("external_lookup: Query SIRSI for MARC: #{sirsi_url}")
-         response = RestClient.get( sirsi_url )
-         marc_string = ""
-         if response.code.to_i == 200
-            marc_string = response.body
-         end
+         marc_string = get_marc('barcode', barcode)
       end
+
       return get_metadata_json(marc_string, barcode)
     rescue
       raise "Query to #{Settings.solr_url} with key:#{catalog_key} barcode:#{barcode} failed to return a valid result."
     end
   end
 
-  # Queries the metadata server using the hostname passed and the ID of the
-  # metadata record to look up. Returns an XML string with the SIRSI response
-  def self.get_marc(catalog_key)
-      ckey = catalog_key.gsub /\Au/, ''
-      sirsi_url = "#{Settings.sirsi_url}/getMarc?ckey=#{ckey}&type=xml"
-      Rails.logger.info("get_marc: Query SIRSI for MARC: #{sirsi_url}")
-      response = RestClient.get( sirsi_url )
-      return response.body if response.code.to_i == 200
-      return ""
+  # Queries the metadata server by key and key type. Supported key types: barcodde and ckey.
+  def self.get_marc(key_type, key)
+   if key_type != 'ckey' && key_type != 'barcode'
+      raise "invalid key type #{key_type} for marc lookup"
+   end
+
+   id = key
+   if key_type == 'ckey'
+      id = key.gsub /\Au/, ''
+   end
+
+   if id.blank?
+      raise "invalid marc lookup with blank key"
+   end
+
+   sirsi_url = "#{Settings.sirsi_url}/getMarc?#{key_type}=#{id}&type=xml"
+   Rails.logger.info("get_marc: Query SIRSI for MARC: #{sirsi_url}")
+   response = RestClient::Request.execute(method: :get, url: sirsi_url, timeout: 5 )
+
+   return response.body if response.code.to_i == 200
+   return ""
   end
 
   #-----------------------------------------------------------------------------

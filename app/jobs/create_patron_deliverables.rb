@@ -36,7 +36,10 @@ class CreatePatronDeliverables < BaseJob
             if unit.metadata.type == "SirsiMetadata"
                sm = unit.metadata.becomes(SirsiMetadata)
                call_number = sm.call_number
-               location = sm.get_full_metadata[:location]
+               marc_metadata = sm.get_full_metadata
+               if !marc_metadata.nil?
+                  location = marc_metadata[:location]
+               end
             end
             FileUtils.mkdir_p(assemble_dir) if !Dir.exist? assemble_dir
             unit.master_files.each do |mf|
