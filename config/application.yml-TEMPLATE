@@ -6,7 +6,7 @@
 delivery_url: http://digiservdelivery.lib.virginia.edu/
 virgo_url: http://search.lib.virginia.edu/catalog
 ocr_url: "http://docker1.lib.virginia.edu:8389/ocr"
-## ocr_url: "http://dockerprod1.lib.virginia.edu:8389/ocr"
+orders_url: https://dpg-orders.library.virginia.edu
 
 # Kakadu (for j2k image conversions)
 kdu_compress: /usr/bin/kakadu/kdu_compress

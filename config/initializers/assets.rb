@@ -12,11 +12,10 @@ Rails.application.config.assets.paths << Rails.root.join('node_modules')
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )
 Rails.application.config.assets.precompile += %w( request.css )
-Rails.application.config.assets.precompile += %w( request.js )
 # Rails.application.config.assets.precompile += %w( email.css )
 # Rails.application.config.assets.precompile += %w( active_admin.js )
 
-# active_admin.css active_admin.js request.css request.js email.css printable.css
+# active_admin.css active_admin.js request.css email.css printable.css
 
 # Enable the asset pipeline
 # config.assets.enabled = true
