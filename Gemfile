@@ -33,15 +33,11 @@ gem 'daemons'
 # For publishing QDC
 gem 'git'
 
-# for patron request forms
-gem 'bootstrap-datepicker-rails'
-
 gem 'whenever', :require => false   # to age off job status records
 gem "mini_magick"
 gem 'rest-client'
 gem 'prawn'
 gem 'prawn-table'
-gem 'country-select'
 
 gem 'jquery-rails'
 gem "chosen-rails", "1.8.2"

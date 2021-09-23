@@ -11,7 +11,7 @@ module Tracksys
       config.load_defaults 5.2
 
       config.autoload_paths += Dir[Rails.root.join('app', 'models', '{*/}')]
-      
+
       # config.autoload_paths << Rails.root.join('app',"models", "metadata")
       # config.autoload_paths << Rails.root.join('app',"models", "equipment")
       # config.autoload_paths << Rails.root.join('app',"models", "controlled_vocabulary")
@@ -20,9 +20,6 @@ module Tracksys
       # config.autoload_paths << Rails.root.join('app',"admin", "metadata")
       # config.autoload_paths << Rails.root.join('app',"admin", "digitization_workflow")
       # config.autoload_paths << Rails.root.join('app',"admin", "controlled_vocabulary")
-      #
-      # config.assets.paths << "#{config.root}/assets/images/request_form"
-      # config.assets.paths << "#{config.root}/assets/stylesheets/request"
 
       # Settings in config/environments/* take precedence over those specified here.
       # Application configuration should go into files in config/initializers
