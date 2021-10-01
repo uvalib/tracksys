@@ -17,7 +17,19 @@ module ArchivesSpace
       end
 
       return session
+   end
 
+   def self.lookup_object_slug(auth, repo_id, slug)
+      as = ExternalSystem.find_by(name: "ArchivesSpace")
+      repo_url = "#{as.api_url}/repositories/#{repo_id}/search?q=#{slug}&page=1"
+      out = RestClient.get repo_url, auth_header(auth)
+      json = JSON.parse(out.body)
+      hits = json['results']
+      if hits.length != 1
+         return nil
+      end
+      uri = hits[0]['uri']
+      return uri.split("/").last
    end
 
    # Lookup some brief info for the given AS public URL
@@ -131,7 +143,7 @@ module ArchivesSpace
       json = JSON.parse(out.body)
       out = []
       json.each do |repo|
-         out << {name: repo['name'], id: repo['uri'].split("/").last}
+         out << {name: repo['name'], slug: repo['slug'], id: repo['uri'].split("/").last}
       end
       return out
    end

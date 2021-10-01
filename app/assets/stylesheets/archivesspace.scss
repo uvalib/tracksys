@@ -22,6 +22,23 @@ body.active_admin {
       font-size: 0.8em;
       padding: 10px;
     }
+    p.error {
+      color: firebrick;
+      text-align: left;
+      margin: 0 0 10px 0;
+    }
+    .validated {
+      font-size: 1.15em;
+      font-weight: bold;
+      margin-left: 10px;
+      color: #999;
+    }
+    .validated.yes {
+      color: #3b3;
+    }
+    .validated.no {
+      color: #c40;
+    }
   }
 
   #dimmer #create-unit-modal {

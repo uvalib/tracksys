@@ -22,6 +22,7 @@ Tracksys::Application.routes.draw do
      post "messages" => "messages#create"
 
      # archivesSpace
+     post "archivesspace/validate" => "archivesspace#validate"
      post "archivesspace/convert" => "archivesspace#convert"
      get "archivesspace" => "archivesspace#lookup"
 

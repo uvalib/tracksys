@@ -9,6 +9,60 @@ $(document).ready(function () {
     $("#as-modal").hide();
   });
 
+  // validate URL on new/edit form
+  $("#validate-as-url").on("click", function() {
+    $("#new-ext-err").text("");
+
+    if ( $("#external_metadata_external_system_id").val() != "1" ) {
+      alert("Validate is only used for ArchivesSpace metadata");
+      return;
+    }
+    $.ajax({
+      url: "/admin/archivesspace/validate",
+      method: "POST",
+      data: { as_url: $("#external_metadata_external_uri").val() },
+      complete: function(jqXHR, textStatus) {
+        if ( textStatus != "success" ) {
+          $("#new-ext-err").text(jqXHR.responseText);
+        } else {
+          $("#external_metadata_external_uri").val(jqXHR.responseText);
+          alert("External URL is valid")
+        }
+      }
+    });
+
+  });
+
+  $("#validate-as").on("click", function() {
+    if ( $("#validate-as-link").hasClass("disabled")) return;
+
+    $("#create-as-link").addClass("disabled");
+    $("#validate-as").addClass("disabled");
+    $("#as_error").text("");
+    $("#as-valid").removeClass("yes");
+    $("#as-valid").removeClass("no");
+    $("#as-valid").html("&#10004;");
+
+    $.ajax({
+      url: "/admin/archivesspace/validate",
+      method: "POST",
+      data: { as_url: $("#as_url").val() },
+      complete: function(jqXHR, textStatus) {
+        $("#validate-as").removeClass("disabled");
+        if ( textStatus != "success" ) {
+          $("#as_error").text(jqXHR.responseText);
+          $("#as-valid").addClass("no");
+          $("#as-valid").html("&#10008;");
+        } else {
+          $("#as_url").val(jqXHR.responseText);
+          $("#as-valid").addClass("yes");
+
+          $("#create-as-link").removeClass("disabled");
+        }
+      }
+    });
+  });
+
   $("#create-as-link").on("click", function() {
     if ( $("#create-as-link").hasClass("disabled")) return;
 

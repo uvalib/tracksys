@@ -2,6 +2,12 @@
    <%= f.inputs "External Metadata", :toggle=>'show', :class => 'two-column panel meta-admin-info' do %>
       <%= f.input :external_system, :required=>true, :input_html => {:class => 'chosen-select required',  :style => 'width: 200px'} %>
       <%= f.input :external_uri, :required=>true %>
+      <li>
+         <div style="text-align: right;font-size:0.9em;margin-right:38px;">
+            <span id="validate-as-url" style="background: #07a;padding: 5px 10px;color: white;border-radius: 5px;cursor:pointer;">Validate</span>
+         </div>
+      </li>
+      <li><p style="color:firebrick" id="new-ext-err"></p></li>
       <li><b>IMPORTANT:</b>&nbsp;Only URIs containing /resources/, /accessions/ or /archival_objects/ are supported for ArchivesSpace.</li>
    <% end %>
 

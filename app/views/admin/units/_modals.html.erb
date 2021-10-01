@@ -7,24 +7,30 @@
          <div>
             <div class="content">
                <p class="as-warn">
-                  IMPORTANT: creating this link will convert the existing Sirsi Metadata record
+                  <b>IMPORTANT:</b> Creating this link will convert the existing Sirsi Metadata record
                   into an External Metadata record that points to ArchivesSpace for all information.
                   This action affects all units and master files currently associated with the existing
                   metadata record.
                </p>
                <p class="as-warn">
-                  IMPORTANT: Only ArchivesSpace public URLs that contain /resources/, /accessions/ or /archival_objects/ are supported.
-                  <br/><strong>Examples:</strong>
+                  <b>IMPORTANT:</b> Only ArchivesSpace public URLs that contain /resources/, /accessions/ or /archival_objects/ are supported.
+                  URLs must contain numeric values for repositiry and object. Symbolic names like 'uva-sc' or 'cdv_album_of_the_156th_new_york_infantry_containin'
+                  are <b>NOT</b> supported. If you only have symbolic names, use them, then click the convert button.
+                  <br/><br/><strong>Examples:</strong>
                   <br/><a href="https://archives.lib.virginia.edu/repositories/3/resources/320" target="_blank">https://archives.lib.virginia.edu/repositories/3/resources/320</a>
                   <br/><a href="https://tracksys.lib.virginia.edu/admin/external_metadata/104203" target="_blank">https://tracksys.lib.virginia.edu/admin/external_metadata/104203</a>
                </p>
                <div>
                   <label>ArchivesSpace Public URL:</label>
-                  <input type="text" name="as_url" id="as_url"/>
+                  <div style="display:flex; flex-flow:row nowrap">
+                     <input type="text" name="as_url" id="as_url"/><span id="as-valid" class="validated">&#10004;</span>
+                  </div>
                </div>
+               <p class="error" id="as_error"></p>
                <div class="buttons">
+                  <input type="button" id="validate-as" value="Convert / Validate URL"/>
                   <input type="button" id="cancel-as" value="Cancel"/>
-                  <input type="button" data-metadata-id="<%= unit.metadata.id %>" id="create-as-link" value="Submit"/>
+                  <input type="button" class="disabled" data-metadata-id="<%= unit.metadata.id %>" id="create-as-link" value="Submit"/>
                </div>
             </div>
          </div>
