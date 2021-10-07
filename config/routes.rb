@@ -41,5 +41,7 @@ Tracksys::Application.routes.draw do
      post "callbacks/:jid/ocr" => "callbacks#ocr"
      post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
 
+     post "jstor" => "jstor#finalize"
+
   end
 end
