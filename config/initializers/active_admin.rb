@@ -53,7 +53,6 @@ ActiveAdmin.setup do |config|
        menu.add label: 'Metadata', priority: 10
        menu.add label: 'Digitization Workflow', priority: 12
        menu.add label: 'Miscellaneous', priority: 15
-       menu.add label: 'Controlled Vocabulary', priority: 20
     end
   end
 

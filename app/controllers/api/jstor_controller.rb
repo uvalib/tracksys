@@ -23,9 +23,6 @@ class Api::JstorController < ApplicationController
          end
 
          count += 1
-         if count == 10
-            break
-         end
 
          csv_filename = row[1]
          base_filename = csv_filename.split(".")[0]
@@ -49,7 +46,7 @@ class Api::JstorController < ApplicationController
             if parts[0].length != 9
                if parts[0].include?("ARCH") || parts[0].include?("BSEL") || parts[0].include?("BSEL") || parts[0].include?("FBJ")|| parts[0].include?("AVRN")
                   archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{csv_filename.gsub(/jpg/, 'tif')}")
-                  Rails.logger.info "Does #{archive_file}} exist?"
+                  Rails.logger.info "Does #{archive_file} exist?"
                   if File.exist? archive_file
                      out_row << "Archived"
                      archived += 1
@@ -68,7 +65,7 @@ class Api::JstorController < ApplicationController
             # looks like a valid archive file.... see if it exists
             Rails.logger.info "#{parts[0]} looks like a valid archive directory"
             archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{csv_filename.gsub(/jpg/, 'tif')}")
-            Rails.logger.info "Does #{archive_file}} exist?"
+            Rails.logger.info "Does #{archive_file} exist?"
             if File.exist? archive_file
                out_row << "Archived"
                archived += 1
@@ -92,6 +89,7 @@ class Api::JstorController < ApplicationController
             end
             out_row << "https://iiif.lib.virginia.edu/iiif/#{mf.pid}/full/full/0/default.jpg"
             out_row << status
+            out << out_row
          end
       end
 

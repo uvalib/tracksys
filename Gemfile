@@ -23,6 +23,7 @@ gem 'mysql2'
 gem 'redis'             # for cache of AS session tokens
 gem 'ancestry'
 gem 'diffy'             # to diff XML metadata changes
+gem 'country-select'
 
 # gems for APTrust submission
 gem 'aws-sdk-s3', '~> 1'

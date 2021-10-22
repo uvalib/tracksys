@@ -1,4 +1,4 @@
-if unit.done?
+if unit.done? || unit.approved?
    if unit.ready_for_repo?
       div :class => 'workflow_button' do
          button_to "Put into Digital Library", publish_admin_unit_path(), :method => :put

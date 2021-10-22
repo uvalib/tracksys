@@ -5,9 +5,9 @@ ActiveAdmin.register Customer do
    config.per_page = [30, 50, 100, 250]
 
    # strong paramters handling
-   permit_params :first_name, :last_name, :email, :academic_status_id, :department_id,
-   primary_address: [:address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization],
-   billable_address: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone, :organization]
+   permit_params :first_name, :last_name, :email, :academic_status_id,
+   primary_address: [:address_1, :address_2, :city, :state, :post_code, :country, :phone],
+   billable_address: [:first_name, :last_name, :address_1, :address_2, :city, :state, :post_code, :country, :phone]
 
    config.clear_action_items!
    action_item :new, only: :index do
@@ -23,8 +23,6 @@ ActiveAdmin.register Customer do
    filter :last_name_or_first_name_starts_with, label: "Name"
    filter :email_starts_with, label: "Email"
    filter :agencies, :as => :select, collection: Agency.pluck(:name, :id)
-   filter :department, :as => :select, collection: Department.pluck(:name, :id)
-   filter :primary_address_organization_or_billable_address_organization_starts_with, :label => "Organization"
    filter :academic_status, :as => :select, collection: AcademicStatus.pluck(:name, :id)
 
    index :as => :table do
@@ -44,7 +42,6 @@ ActiveAdmin.register Customer do
       column :master_files do |customer|
          link_to customer.master_files_count.to_s, admin_master_files_path(:q => {:customer_id_eq => customer.id})
       end
-      column :department, :sortable => false
       column :academic_status, :sortable => false
       column("Links") do |customer|
          div do
@@ -67,7 +64,6 @@ ActiveAdmin.register Customer do
                   format_email_in_sidebar(customer.email).gsub(/\s/, "")
                end
                row :academic_status
-               row :department
             end
          end
       end
@@ -83,7 +79,6 @@ ActiveAdmin.register Customer do
                   row :country
                   row :post_code
                   row :phone
-                  row :organization
                end
             else
                "No address available."
@@ -104,7 +99,6 @@ ActiveAdmin.register Customer do
                   row :country
                   row :post_code
                   row :phone
-                  row :organization
                end
             else
                "No address available."
@@ -121,7 +115,6 @@ ActiveAdmin.register Customer do
          f.input :last_name
          f.input :email
          f.input :academic_status, :as => :select
-         f.input :department, :as => :select, :collection => Department.order(:name)
       end
 
       f.inputs "Primary Address (Required)", :class => 'inputs three-column' do
@@ -134,7 +127,6 @@ ActiveAdmin.register Customer do
                p.input :country, as: :select, collection: ActionView::Helpers::FormOptionsHelper::COUNTRIES, :input_html => {:class => 'chosen-select',  :style => 'width: 225px'}
                p.input :post_code
                p.input :phone
-               p.input :organization
             end
          end
       end
@@ -151,7 +143,6 @@ ActiveAdmin.register Customer do
                b.input :country, as: :select, collection: ActionView::Helpers::FormOptionsHelper::COUNTRIES, :input_html => {:class => 'chosen-select',  :style => 'width: 225px'}
                b.input :post_code
                b.input :phone
-               b.input :organization
             end
          end
       end
@@ -190,7 +181,7 @@ ActiveAdmin.register Customer do
             ca = params[:customer]
             @customer = Customer.create!(first_name: ca[:first_name],
                last_name: ca[:last_name], email: ca[:email],
-               academic_status_id: ca[:academic_status_id], department_id: ca[:department_id])
+               academic_status_id: ca[:academic_status_id])
             addr = params[:customer][:primary_address]
             Address.create!(addressable: @customer, address_type: "primary",
                address_1: addr[:address_1], address_2: addr[:address_s],
@@ -213,7 +204,6 @@ ActiveAdmin.register Customer do
          flash[:sucess] = "Customer #{@customer.full_name} created"
          redirect_to "/admin/customers/#{@customer.id}"
       rescue Exception => exception
-         puts "CAUGHT: #{exception.message}"
          flash[:error] = "Customer create failed. Missing required fields."
          redirect_to "/admin/customers/new"
       end
@@ -223,7 +213,7 @@ ActiveAdmin.register Customer do
             @customer = Customer.find(params[:id])
             ca = params[:customer]
             @customer.update(first_name: ca[:first_name], last_name: ca[:last_name],
-               academic_status_id: ca[:academic_status_id], department_id: ca[:department_id], email:  ca[:email])
+               academic_status_id: ca[:academic_status_id], email:  ca[:email])
 
             addr = params[:customer][:primary_address]
             if !@customer.primary_address.nil?
