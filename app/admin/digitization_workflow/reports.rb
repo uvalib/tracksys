@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "Reports" do
-   menu :parent => "Digitization Workflow", if: proc{ current_user.admin? || current_user.supervisor? }
+   menu :parent => "Digitization", if: proc{ current_user.admin? || current_user.supervisor? }
 
    content :title => 'Digitization Reports' do
       div :class => 'two-column' do

@@ -106,7 +106,7 @@ ActiveAdmin.register_page "Dashboard" do
                         td do p.project_name.truncate( 30, separator: ' ') end
                         td do p.due_on end
                         td do p.current_step.name if ! p.current_step.blank? end
-                        td do link_to "Details", "/admin/projects/#{p.id}" end
+                        td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
                      end
                   end
                end
@@ -137,7 +137,7 @@ ActiveAdmin.register_page "Dashboard" do
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "ERROR" end
-                           td do link_to "Details", "/admin/projects/#{p.id}" end
+                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
                         end
                      end
                      Project.failed_qa.order(due_on: :desc).limit(10).each do |p|
@@ -146,7 +146,7 @@ ActiveAdmin.register_page "Dashboard" do
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "FAILED QA" end
-                           td do link_to "Details", "/admin/projects/#{p.id}" end
+                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
                         end
                      end
                      Project.overdue.order(due_on: :desc).limit(10).each do |p|
@@ -155,7 +155,7 @@ ActiveAdmin.register_page "Dashboard" do
                            td do p.due_on end
                            td do p.current_step.name end
                            td do "OVERDUE" end
-                           td do link_to "Details", "/admin/projects/#{p.id}" end
+                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
                         end
                      end
                   end
