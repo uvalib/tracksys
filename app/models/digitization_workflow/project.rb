@@ -51,57 +51,8 @@ class Project < ApplicationRecord
    validates :category,  :presence => true
 
    scope :active, ->{where(finished_at: nil).reorder(due_on: :asc) }
-   # Get a list of projects per user/date/workflow/tyoe
-   #
-   def self.filter(type, staff_id, workflow, start_date, end_date, rejects_only)
-      q = "select a.* from assignments a"
-      q << " inner join projects p on a.project_id=p.id"
-      q << " inner join steps s on s.id=a.step_id"
-      q << " where p.workflow_id=#{workflow.to_i}"
-      q << " and p.finished_at >= #{sanitize(start_date)} and p.finished_at <= #{sanitize(end_date)}"
-      q << " and a.status != 5 and (s.step_type = 0 or fail_step_id is not null)"
-      # status 5 is reassignined, step types: [:start, :end, :error, :normal]
-      # step 0 = is the initial scan all of the following steps are also scan
-      # Steps with a fail step are QA
-
-      projects = []
-      # curr_project = nil
-      scan_projects = []
-      Assignment.find_by_sql(q).each do |a|
-         if type == "qa"
-            next if a.staff_member_id != staff_id
-            next if a.step.start?
-            next if !a.rejected? && rejects_only
-            projects << a.project
-         else
-            if a.step.start?
-               next if a.staff_member_id != staff_id
-               # track all of the projects this user scanned
-               scan_projects << a.project.id if !scan_projects.include? a.project.id
-               puts "scanned projects #{scan_projects}"
-            else
-               if scan_projects.include? a.project.id
-               # if a.project_id == curr_project
-                  if rejects_only == false
-                     puts "Not reject only; accept all"
-                     projects << a.project
-                  else
-                     if a.rejected?
-                        puts "rejects: #{rejects_only} status #{a.rejected?}: KEEP"
-                        projects << a.project
-                     end
-                  end
-               end
-            end
-         end
-      end
-      return projects.uniq
-   end
-
-   private
-   def self.sanitize(text)
-      return ActiveRecord::Base::connection.quote(text)
-   end
+   scope :failed_qa, ->{ joins("inner join steps s on current_step_id = s.id" ).where("step_type = 2") }
+   scope :overdue, ->{where("due_on < ? and finished_at is null", Date.today.to_s).reorder(due_on: :asc) }
 
    public
    def self.has_error
@@ -130,53 +81,9 @@ class Project < ApplicationRecord
       return name
    end
 
-   def percentage_complete
-      num_steps = self.workflow.num_steps*3 # each step has 3 parts, assigned, in-process and done
-      curr_step = 0
-      step_ids = []
-      self.assignments.joins(:step).each do |a|
-         if !a.step.error? && !step_ids.include?(a.step.id) && !a.reassigned? && !a.error?
-            # Rejections generally count as a completion as they finish the step. Per team, reject moves to a rescan.
-            # When rescan is done, the workflow proceeds to the step AFTER the one that was rejected.
-            # The exception to this is the last step. If rejected, completing the rescan returns
-            # to that step, not the next. This is the case we need to skip when computing percentage complete.
-            next if a.rejected? && a.step.fail_step.next_step == a.step
-
-            step_ids << a.step.id
-            curr_step +=1  # if an assignment is here, that is the first count: Assigned
-            curr_step +=1 if !a.started_at.nil?    # Started
-            curr_step +=1 if !a.finished_at.nil?   # Finished
-         end
-      end
-      percent =  (curr_step.to_f/num_steps.to_f*100).to_i
-      if finished? && percent != 100
-         Rails.logger.error("Project #{self.id} is finished, but percentage reported as #{percent}")
-         percent = 100
-      end
-      return percent
-   end
-
    def active_assignment
       return nil if self.assignments.count == 0
       return self.assignments.order(assigned_at: :asc).last
-   end
-
-   def status_text
-      return "Finished at #{self.finished_at.strftime('%F %r')}" if finished?
-      if assignments.count == 0
-         s = self.workflow.first_step
-         return "#{s.name}: Not assigned"
-      else
-         s = self.current_step
-         a = self.active_assignment
-         if s == a.step
-            msg = "Not started"
-            msg = "In progress" if assignments.order(assigned_at: :asc).last.started?
-            return "#{s.name}: #{msg}"
-         else
-            return "#{s.name}: Not assigned"
-         end
-      end
    end
 
    # Finalization of the associated unit was successful

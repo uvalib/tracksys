@@ -239,7 +239,9 @@ class Report
       if !filter_q.blank?
          q << " and #{filter_q}"
       end
-      q << " group by p.id  order by category_id, workflow_id"
+      # q << " group by p.id  order by category_id, workflow_id"
+      # the above fragment breaks local and on dev. order is non-determistic on prod. below seems to fix both issues
+      q << " order by p.id"
       results = Project.connection.execute(q)
 
       # build data structure to hold report
