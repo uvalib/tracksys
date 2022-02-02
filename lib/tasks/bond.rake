@@ -83,7 +83,7 @@ namespace :bond do
       puts "Parse CSV for master files..."
       csv_file = File.join(Rails.root,  "data", "BondPapers-Series1-box1-5.csv")
       cnt = 0
-      folder_count = 0
+      row_count = 0
       CSV.parse( File.read(csv_file), headers: true ).each do |row|
          # col 1: title, col 8: BOX/FOLDER, col 9: num pages, col 10: filenames with | sep
          puts "Get or create unit for #{row[0]}: #{row[1]}"
@@ -103,6 +103,10 @@ namespace :bond do
             puts "   created unit #{unit.id}"
          else
             puts "   found existing unit #{unit.id}"
+            if unit.unit_status == "done"
+               puts "   unit #{unit.id} is already done; skipping"
+               next
+            end
          end
 
          # setup working dir for processing the images for this unit
@@ -112,28 +116,30 @@ namespace :bond do
 
          # grab the list of images from row 10 and ingest each one
          puts "Get all images for #{row[8]}"
+         unit_mf_count = 0
          folder_dir = File.join(src_dir, "Box\ #{box_num}", "mss13347-b4-f#{folder_num}", "TIFF")
-         row[10].split("|").each_with_index do |fn, idx|
+         row[10].split("|").each_with_index do |src_fn, idx|
             # get source and working file names
-            src_mf_path = File.join(folder_dir, fn.strip)
+            src_fn.strip!
+            src_mf_path = File.join(folder_dir, src_fn)
             mf_seq = "%04d" % (idx+1)
             dest_fn = "#{unit.directory}_#{mf_seq}.tif"
-            work_mf = File.join(work_dir, dest_fn)
+            work_mf_path = File.join(work_dir, dest_fn)
             puts "   [#{idx+1}] ingest #{src_mf_path} as #{dest_fn}..."
 
             # source or workfile must exist
-            if File.exists?(work_mf)
+            if File.exists?(work_mf_path)
                puts "      source file has already been copied to the work dir"
             else
                if File.exists?(src_mf_path) == false
-                  abort "ERROR: source #{src_mf_path} or working #{work_mf} not found"
+                  abort "ERROR: source #{src_mf_path} or working #{work_mf_path} not found"
                else
                   # NOTE: must copy because the original files are root owned and read-only
                   puts "      copy #{src_mf_path} to "
-                  puts "           #{work_mf}"
-                  FileUtils.cp( src_mf_path, work_mf)
+                  puts "           #{work_mf_path}"
+                  FileUtils.cp( src_mf_path, work_mf_path)
                   src_md5 = Digest::MD5.hexdigest(File.read(src_mf_path) )
-                  md5 = Digest::MD5.hexdigest(File.read(work_mf) )
+                  md5 = Digest::MD5.hexdigest(File.read(work_mf_path) )
                   if src_md5 != md5
                      puts "      WARNING: src/working file checksum mismatch"
                   end
@@ -141,22 +147,63 @@ namespace :bond do
                end
             end
 
-            # from this point on, just work with work_mf
+            # from this point on, just work with work_mf_path
             #
             # create master_file record
+            master_file = MasterFile.find_by(unit_id: unit.id, filename: dest_fn )
+            if master_file.nil?
+               puts "      create new master file #{dest_fn}"
+               master_file = MasterFile.new(filename: dest_fn, unit_id: unit.id, metadata_id: md_rec.id,
+                  filesize: File.size(work_mf_path),
+                  title: "#{idx+1}",
+                  md5: Digest::MD5.hexdigest(File.read(work_mf_path) ) )
+               if idx == 0
+                  master_file.description = title
+               end
+               if !master_file.save
+                  abort "      ERROR: #{dest_fn}': #{master_file.errors.full_messages}"
+               end
+            else
+               puts "      master file #{dest_fn} already exists"
+            end
+
             # create image tech metadata
+            if master_file.image_tech_meta.nil?
+               puts "      create tech metadata for #{dest_fn}"
+               TechMetadata.create(master_file, work_mf_path)
+            end
+
             # add a tag with the original file name
+            if master_file.tags.first.nil?
+               puts "      add tag [#{src_fn}] to #{dest_fn}"
+               master_file.add_new_tag(src_fn)
+            end
+
             # publish to IIIF
+            puts "      publishing to IIIF..."
+            IIIF.publish(work_mf_path, master_file, false)
+
             # archive image
+            if unit.date_archived.blank?
+               puts "      archiving image..."
+               Archive.publish(work_mf_path, master_file)
+            end
 
             cnt += 1
+            unit_mf_count += 1
          end
 
          # all masterfiles have been added to the unit. Cleanup unit directory in finalization/tmp
+         puts "   unit COMPLETE, clean up work directory"
+         FileUtils.rm_rf(work_dir) if Dir.exist? work_dir
+         if !unit.date_archived?
+            puts "   marking unit complete and archived"
+            unit.update(date_archived: Time.now, unit_status: 'done', master_files_count: unit_mf_count)
+         end
 
-         folder_count +=1
-         break if folder_count == 1
+         row_count +=1
+         break if row_count == 1
       end
-      puts "DONE. #{cnt} master files ingested"
+      puts "DONE. #{cnt} master files ingested from #{row_count} CSV rows"
    end
 end
