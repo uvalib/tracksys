@@ -74,9 +74,6 @@ namespace :bond do
          end
       end
 
-      puts "Lookup box container type..."
-      box_type = ContainerType.find_by(name: "Box")
-
       src_dir = File.join(Settings.production_mount, "bondpapers")
       puts "Base images directory: #{src_dir}"
 
@@ -85,27 +82,56 @@ namespace :bond do
       cnt = 0
       row_count = 0
       CSV.parse( File.read(csv_file), headers: true ).each do |row|
-         # col 1: title, col 8: BOX/FOLDER, col 9: num pages, col 10: filenames with | sep
-         puts "Get or create unit for #{row[0]}: #{row[1]}"
-         bits = row[8].split(" ")
+         box_folder = row[8]
+         bits = box_folder.split(" ")
          box_num = bits[1]
          folder_num = bits[3]
-         title = row[1]
+         puts "Processing #{row[0]}: #{box_folder} - '#{row[1]}'"
+
+         # pick the target Metadata rec based on box number (lowest granulatity mf MD recs)
          md_rec = box4
          md_rec = box5 if box_num == "5"
+
+         # Grab the title and check to see if it has (n1 of n2...) to indicate
+         # that the item is scanned in multiple chunks.
+         split_item = false
+         last_part = false
+         title = row[1]
+         pos = /\(\d\sof\s\d.*\)$/ =~ title
+         if !pos.nil?
+            split_item = true
+            part = title[pos..-1].split(",")[0].gsub(/\(|\)/, "") # clean text down to 'n1 of n2'
+            parts = part.split(" ")                               # break out the parts and
+            last_part = parts[0].strip == parts[2].strip          # see if this is the last part
+            title = title[0...pos].strip  # drop the (n of n) part from the title
+
+            if last_part
+               puts "   this is the last part of a split item: #{part}"
+            elsif split_item
+               puts "   this is a split item: #{part}"
+            end
+         end
+
+         puts "   find or create unit for #{title}"
+         mf_page_num = 1
          unit = Unit.where("order_id=? and metadata_id=? and staff_notes=?", order.id, md_rec.id, title).first
          if unit.nil?
-            puts "   create unit for [#{title}]..."
+            puts "   create unit..."
             unit = Unit.create(
                metadata: md_rec, unit_status: "approved", order: order,
-               intended_use_id: 110, staff_notes: title, include_in_dl: 0
-            )
-            puts "   created unit #{unit.id}"
+               intended_use_id: 110, staff_notes: title, include_in_dl: 0)
+            puts "   ...created unit #{unit.id}"
          else
             puts "   found existing unit #{unit.id}"
             if unit.unit_status == "done"
                puts "   unit #{unit.id} is already done; skipping"
+               row_count +=1
                next
+            end
+
+            # if this is a split item, find the page num of the last MF and continue from there
+            if split_item && unit.master_files.length != 0
+               mf_page_num = unit.master_files.last.title.to_i + 1
             end
          end
 
@@ -115,17 +141,16 @@ namespace :bond do
          puts "   unit working directory #{work_dir}"
 
          # grab the list of images from row 10 and ingest each one
-         puts "Get all images for #{row[8]}"
-         unit_mf_count = 0
+         puts "   get all images..."
          folder_dir = File.join(src_dir, "Box\ #{box_num}", "mss13347-b4-f#{folder_num}", "TIFF")
-         row[10].split("|").each_with_index do |src_fn, idx|
+         row[10].split("|").each do |src_fn|
             # get source and working file names
             src_fn.strip!
             src_mf_path = File.join(folder_dir, src_fn)
-            mf_seq = "%04d" % (idx+1)
-            dest_fn = "#{unit.directory}_#{mf_seq}.tif"
+            mf_seq_str = "%04d" % (mf_page_num)
+            dest_fn = "#{unit.directory}_#{mf_seq_str}.tif"
             work_mf_path = File.join(work_dir, dest_fn)
-            puts "   [#{idx+1}] ingest #{src_mf_path} as #{dest_fn}..."
+            puts "   ingest #{src_mf_path} as #{dest_fn}..."
 
             # source or workfile must exist
             if File.exists?(work_mf_path)
@@ -149,15 +174,15 @@ namespace :bond do
 
             # from this point on, just work with work_mf_path
             #
-            # create master_file record
+            # create master_file record?
             master_file = MasterFile.find_by(unit_id: unit.id, filename: dest_fn )
             if master_file.nil?
                puts "      create new master file #{dest_fn}"
                master_file = MasterFile.new(filename: dest_fn, unit_id: unit.id, metadata_id: md_rec.id,
                   filesize: File.size(work_mf_path),
-                  title: "#{idx+1}",
+                  title: "#{mf_page_num}",
                   md5: Digest::MD5.hexdigest(File.read(work_mf_path) ) )
-               if idx == 0
+               if mf_page_num == 0
                   master_file.description = title
                end
                if !master_file.save
@@ -184,26 +209,27 @@ namespace :bond do
             IIIF.publish(work_mf_path, master_file, false)
 
             # archive image
-            if unit.date_archived.blank?
+            if master_file.date_archived.blank?
                puts "      archiving image..."
                Archive.publish(work_mf_path, master_file)
             end
 
-            cnt += 1
-            unit_mf_count += 1
+            mf_page_num += 1  # page/sequence number within unit
+            cnt += 1          # total images count
          end
 
          # all masterfiles have been added to the unit. Cleanup unit directory in finalization/tmp
-         puts "   unit COMPLETE, clean up work directory"
+         puts "   row processing complete - clean up work directory"
          FileUtils.rm_rf(work_dir) if Dir.exist? work_dir
-         if !unit.date_archived?
-            puts "   marking unit complete and archived"
-            unit.update(date_archived: Time.now, unit_status: 'done', master_files_count: unit_mf_count)
+         if split_item == false ||  split_item == true  && last_part == true
+            puts "   unit complete - update status"
+            unit.update(master_files_count: unit.master_files.count, date_archived: Time.now, unit_status: 'done')
          end
 
          row_count +=1
          break if row_count == 1
       end
+
       puts "DONE. #{cnt} master files ingested from #{row_count} CSV rows"
    end
 end
