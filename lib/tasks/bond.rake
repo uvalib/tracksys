@@ -50,6 +50,40 @@ namespace :bond do
       puts "DONE. #{cnt} locations created"
    end
 
+   desc "Dump a CSV mapping of original filename to ingested tracksys filename"
+   task :csv_mapping  => :environment do
+      type = ENV['type']
+      type = "MF" if type.nil?
+      puts "Lookup order record..."
+      order = Order.find_by(order_title: ORDER_TITLE)
+      if order.nil?
+         abort "   ERROR: Order record missing"
+      end
+
+      if type == "UNIT"
+         puts "original document, tracksys unit"
+         csv_file = File.join(Rails.root,  "data", "BondPapers-Series1-box1-5.csv")
+         cnt = 0
+         row_count = 0
+         CSV.parse( File.read(csv_file), headers: true ).each do |row|
+            title = row[1].gsub(/\(\d\sof\s\d.*\)$/, "").strip
+            u = order.units.find_by(staff_notes: title)
+            if !u.nil?
+               puts "#{row[0]},#{u.id}"
+            end
+         end
+      else
+         puts "original file, tracksys pid"
+         order.units.each do |unit|
+            unit.master_files.each do |mf|
+               tag = mf.tags.first
+               puts "#{tag.tag},#{mf.pid}"
+            end
+         end
+      end
+
+   end
+
    desc "Ingest images from folders in boxes 4 and 5"
    task :ingest_images  => :environment do
       puts "Looking up metadata records for box 4 and box 5..."
@@ -132,6 +166,7 @@ namespace :bond do
             # if this is a split item, find the page num of the last MF and continue from there
             if split_item && unit.master_files.length != 0
                mf_page_num = unit.master_files.last.title.to_i + 1
+               puts "   split item start page is #{mf_page_num}"
             end
          end
 
@@ -142,7 +177,7 @@ namespace :bond do
 
          # grab the list of images from row 10 and ingest each one
          puts "   get all images..."
-         folder_dir = File.join(src_dir, "Box\ #{box_num}", "mss13347-b4-f#{folder_num}", "TIFF")
+         folder_dir = File.join(src_dir, "Box\ #{box_num}", "mss13347-b#{box_num}-f#{folder_num}", "TIFF")
          row[10].split("|").each do |src_fn|
             # get source and working file names
             src_fn.strip!
@@ -227,7 +262,6 @@ namespace :bond do
          end
 
          row_count +=1
-         break if row_count == 1
       end
 
       puts "DONE. #{cnt} master files ingested from #{row_count} CSV rows"
