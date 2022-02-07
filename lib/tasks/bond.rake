@@ -50,6 +50,65 @@ namespace :bond do
       puts "DONE. #{cnt} locations created"
    end
 
+   desc "Fix missing title metadata on page 1 and link location data"
+   task :fix_images  => :environment do
+      box4 = SirsiMetadata.find_by(barcode: "X030098648")   # BOX 4 metadata
+      box5 = SirsiMetadata.find_by(barcode: "X030098649")   # BOX 5 metadata
+      box4_locs = Location.where(metadata_id: box4.id)
+      box5_locs = Location.where(metadata_id: box5.id)
+
+      # PARSE CSV INTO A MAP FROM COLUMN 0 (ID) to COLUMN 8 (LOCATION). Use it to look up location data for each master file.
+      puts "lookup document id to location mapping"
+      doc_loc_map = {}
+      csv_file = File.join(Rails.root,  "data", "BondPapers-Series1-box1-5.csv")
+      CSV.parse( File.read(csv_file), headers: true ).each do |row|
+         bits = row[8].split(" ")
+         box_num = bits[1]
+         folder_num = bits[3]
+         loc = nil
+         if box_num.to_i == 4
+            loc = box4_locs.find_by(folder_id: folder_num)
+         else
+            loc = box5_locs.find_by(folder_id: folder_num)
+         end
+         doc_loc_map[row[0]] = loc
+      end
+
+      puts "fix all masterfiles for order..."
+      order = Order.find_by(order_title: ORDER_TITLE)
+      title_updates = 0
+      loc_updates = 0
+      order.units.each do |unit|
+         page_one = unit.master_files.first
+         if page_one.nil?
+            puts "ERROR: unit #{unit.id} has no master files"
+            next
+         end
+         if page_one.description.blank?
+            puts "   add description to masterfile #{mf.filename}"
+            page_one.update!(description: unit.staff_notes)
+            puts "MasterFile #{page_one.pid} set to #{unit.staff_notes}"
+            title_updates += 1
+         end
+         unit.master_files.each do |mf|
+            if mf.locations.length == 0
+               # tag format: PJB85_0001.tif; make it into doc format: PJB:85
+               raw_tag = mf.tags.first.tag
+               mf_tag = raw_tag.split("_")[0].gsub(/PJB/, "PJB:")
+               loc = doc_loc_map[mf_tag]
+               if loc.nil?
+                  puts "   ERROR: unable to find matching location for #{mf.id}"
+               else
+                  puts "   masterfile #{mf.id}: #{mf.filename} #{raw_tag} = location: Box #{loc.container_id} Folder #{loc.folder_id}"
+                  mf.set_location(loc)
+                  loc_updates += 1
+               end
+            end
+         end
+      end
+      puts "DONE. updated #{title_updates} titles and #{loc_updates} locations"
+   end
+
    desc "Dump a CSV mapping of original filename to ingested tracksys filename"
    task :csv_mapping  => :environment do
       type = ENV['type']
@@ -217,7 +276,7 @@ namespace :bond do
                   filesize: File.size(work_mf_path),
                   title: "#{mf_page_num}",
                   md5: Digest::MD5.hexdigest(File.read(work_mf_path) ) )
-               if mf_page_num == 0
+               if mf_page_num == 1
                   master_file.description = title
                end
                if !master_file.save
