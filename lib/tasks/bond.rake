@@ -85,9 +85,8 @@ namespace :bond do
             next
          end
          if page_one.description.blank?
-            puts "   add description to masterfile #{mf.filename}"
             page_one.update!(description: unit.staff_notes)
-            puts "MasterFile #{page_one.pid} set to #{unit.staff_notes}"
+            puts "   masterFile #{page_one.pid} set to #{unit.staff_notes}"
             title_updates += 1
          end
          unit.master_files.each do |mf|
