@@ -51,7 +51,9 @@ ActiveAdmin.setup do |config|
     admin.site_title = "Tracksys #{TRACKSYS_VERSION}"
     admin.build_menu do |menu|
        menu.add label: 'Metadata', priority: 10
-       menu.add label: 'Digitization', priority: 12
+       menu.add label: 'Digitization', priority: 12 do |dw|
+        dw.add :label => "Projects", :url => Settings.qa_viewer_url, priority: 1,  :html_options => { :target => :blank }
+       end
        menu.add label: 'Miscellaneous', priority: 15
     end
   end
