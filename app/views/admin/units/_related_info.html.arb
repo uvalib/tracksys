@@ -16,6 +16,8 @@ attributes_table_for unit do
    row :customer
    row :agency
    row :project do |unit|
-      link_to "Project ##{unit.project.id}", "#{Settings.qa_viewer_url}/projects/#{unit.project.id}", target: "_blank"
+      if !unit.project.nil?
+         link_to "Project ##{unit.project.id}", "#{Settings.qa_viewer_url}/projects/#{unit.project.id}", target: "_blank"
+      end
    end
 end
