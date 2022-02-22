@@ -10,6 +10,7 @@
 //= require statistics
 //= require update-unit
 //= require clone-masterfiles
+//= require workflows
 //= require workflow-reports
 //= require annual-reports
 //= require equipment
