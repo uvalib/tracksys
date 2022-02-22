@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "Equipment" do
-   menu :parent => "Digitization Workflow", if: proc{ current_user.admin? || current_user.supervisor? }
+   menu :parent => "Digitization", if: proc{ current_user.admin? || current_user.supervisor? }
 
    content do
       div :class => 'workstation-container' do

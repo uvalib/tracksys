@@ -15,5 +15,7 @@ attributes_table_for unit do
    end
    row :customer
    row :agency
-   row :project
+   row :project do |unit|
+      link_to "Project ##{unit.project.id}", "#{Settings.qa_viewer_url}/projects/#{unit.project.id}", target: "_blank"
+   end
 end

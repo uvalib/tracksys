@@ -26,7 +26,7 @@ attributes_table_for order do
        "0"
      elsif order.projects.count == 1
        proj = order.projects.first
-       link_to "# #{proj.id}", "/admin/projects/#{proj.id}"
+       link_to "# #{proj.id}", "#{Settings.qa_viewer_url}/projects/#{proj.id}", target: "_blank"
      else
        link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
      end
