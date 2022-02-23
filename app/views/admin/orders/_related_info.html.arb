@@ -28,7 +28,7 @@ attributes_table_for order do
        proj = order.projects.first
        link_to "# #{proj.id}", "#{Settings.qa_viewer_url}/projects/#{proj.id}", target: "_blank"
      else
-       link_to "#{order.projects.size}", admin_projects_path(:q => {:order_id_eq => order.id})
+       link_to "#{order.projects.size}", "#{Settings.qa_viewer_url}?order=#{order.id}", target: "_blank"
      end
   end
 end
