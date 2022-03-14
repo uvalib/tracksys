@@ -53,8 +53,11 @@ ActiveAdmin.setup do |config|
        menu.add label: 'Metadata', priority: 10
        menu.add label: 'Digitization', priority: 12 do |dw|
         dw.add :label => "Projects", :url => Settings.qa_viewer_url, priority: 1,  :html_options => { :target => :blank }
+        dw.add :label => "Reports", :url => "#{Settings.reporting_url}/reports", priority: 3,  :html_options => { :target => :blank }
        end
-       menu.add label: 'Miscellaneous', priority: 15
+       menu.add label: 'Miscellaneous', priority: 15 do |dw|
+        dw.add :label => "Statistics", :url => Settings.reporting_url, priority: 16,  :html_options => { :target => :blank }
+       end
     end
   end
 

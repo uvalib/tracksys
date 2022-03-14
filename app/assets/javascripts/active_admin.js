@@ -7,12 +7,9 @@
 //= require archivesspace
 //= require order-items
 //= require transcribe
-//= require statistics
 //= require update-unit
 //= require clone-masterfiles
 //= require workflows
-//= require workflow-reports
-//= require annual-reports
 //= require equipment
 //= require skills
 //= require tags

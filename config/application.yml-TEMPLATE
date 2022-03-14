@@ -57,6 +57,9 @@ delivery_dir: /digiserv-delivery/patron
 qa_viewer_url: https://dpg-imaging.lib.virginia.edu
 image_qa_dir: /digiserv-production/dpg_imaging
 
+# Reporting
+reporting_url: https://dpg-reporting.lib.virginia.edu
+
 # V4 SIRSI instance data, used to get raw MARC
 sirsi_url: https://ils.lib.virginia.edu/uhtbin
 

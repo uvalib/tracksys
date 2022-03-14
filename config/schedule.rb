@@ -27,7 +27,3 @@ end
 every 1.day, :at => '1:00 am' do
   runner "Message.remove_deleted
 end
-
-every 1.day, :at => '3:00 am' do
-  runner "Statistic.snapshot"
-end
