@@ -1,4 +1,5 @@
 class JobStatus < ApplicationRecord
+   has_many :events
    belongs_to :originator, polymorphic: true, optional: true
    validates :status, inclusion: {
       in: ["pending", "running", "success", "failure"],
