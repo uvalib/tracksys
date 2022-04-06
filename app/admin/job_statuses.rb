@@ -103,7 +103,8 @@ ActiveAdmin.register JobStatus do
 
    controller do
        def show
-         @err_msg = JobStatus.find(params[:id]).error
+         status = JobStatus.find(params[:id])
+         @err_msg = status.error
          logpath = File.join(Rails.root,  "log", "jobs", "job_#{params[:id]}.log")
          if File.exist? logpath
             f = File.open(logpath, "r")
@@ -111,8 +112,15 @@ ActiveAdmin.register JobStatus do
             f.close
             log.gsub! /,/, ", "
             @job_log = log.split("\n")
-         else 
-            @job_log = [""]
+         else
+            @job_log = []
+            status.events.each do |e|
+               tag = "INFO"
+               tag = "ERROR" if e.level == 2
+               tag = "FATAL" if e.level == 3
+               line = "#{e.created_at.strftime('%Y-%m-%d %H:%M:%S')} : #{tag} : #{e.text.gsub(/\s/, "&nbsp;")}"
+               @job_log << line
+            end
          end
          show!
        end

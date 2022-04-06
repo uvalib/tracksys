@@ -233,8 +233,7 @@ ActiveRecord::Schema.define(version: 2022_04_05_184434) do
     t.bigint "job_status_id"
     t.integer "level"
     t.text "text"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
     t.index ["job_status_id"], name: "index_events_on_job_status_id"
   end
 
