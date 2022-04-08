@@ -116,8 +116,8 @@ ActiveAdmin.register JobStatus do
             @job_log = []
             status.events.each do |e|
                tag = "INFO"
-               tag = "ERROR" if e.level == 2
-               tag = "FATAL" if e.level == 3
+               tag = "ERROR" if e.level == "error"
+               tag = "FATAL" if e.level == "fatal"
                line = "#{e.created_at.strftime('%Y-%m-%d %H:%M:%S')} : #{tag} : #{e.text.gsub(/\s/, "&nbsp;")}"
                @job_log << line
             end
