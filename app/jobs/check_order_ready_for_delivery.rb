@@ -54,7 +54,8 @@ class CheckOrderReadyForDelivery < BaseJob
       qa_order_fees(order)
 
       # QA was successful, generate PDF and email
-      CreateOrderPDF.exec_now({:order => order}, self)
+      # CreateOrderPDF.exec_now({:order => order}, self)
+      RestClient.post "#{Settings.jobs_url}/orders/#{message[:order_id]}/pdf", nil
 
       # Email can be created from this job or from UI. For this
       # reason, it remain its own standalone job
