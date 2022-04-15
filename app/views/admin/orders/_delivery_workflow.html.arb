@@ -30,7 +30,8 @@ if order.order_status == 'approved' || order.order_status == 'completed'
       end
    end
    div :class => 'workflow_button' do
-      button_to "View Customer PDF", view_pdf_notice_admin_order_path(order.id), :method => :put
+      # button_to "View Customer PDF", view_pdf_notice_admin_order_path(order.id), :method => :put
+      button id:"view-pdf", style: "width:100%;", onclick: "window.open(\""+Settings.jobs_url+"/orders/"+order.id.to_s+"/pdf\");" do "View Customer PDF" end
    end
    if File.exists?(File.join("#{DELIVERY_DIR}", "order_#{order.id}"))
       div :class => 'workflow_button' do

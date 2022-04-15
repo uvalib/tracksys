@@ -314,15 +314,18 @@ ActiveAdmin.register Order do
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
    end
 
-   member_action :view_pdf_notice, :method => :put do
-      order = Order.find(params[:id])
-      pdf = BuildOrderPDF.generate_invoice_pdf(order)
-      send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
-   end
+   # member_action :view_pdf_notice, :method => :put do
+   #    # order = Order.find(params[:id])
+   #    # pdf = BuildOrderPDF.generate_invoice_pdf(order)
+   #    # send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
+   #    # send_data(RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf",
+   #    #    :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
+   # end
 
    member_action :recreate_pdf_notice, :method => :put do
-      order = Order.find(params[:id])
-      CreateOrderPDF.exec_now({order: order})
+      # order = Order.find(params[:id])
+      # CreateOrderPDF.exec_now({order: order})
+      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/pdf", nil
       redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
    end
 

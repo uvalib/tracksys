@@ -53,6 +53,9 @@ archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
 production_mount: /digiserv-production
 delivery_dir: /digiserv-delivery/patron
 
+# job processing service
+jobs_url: http://dockerprod1.lib.virginia.edu:8710
+
 # Scanning / QA config
 qa_viewer_url: https://dpg-imaging.lib.virginia.edu
 image_qa_dir: /digiserv-production/dpg_imaging
