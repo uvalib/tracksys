@@ -314,13 +314,13 @@ ActiveAdmin.register Order do
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
    end
 
-   # member_action :view_pdf_notice, :method => :put do
-   #    # order = Order.find(params[:id])
-   #    # pdf = BuildOrderPDF.generate_invoice_pdf(order)
-   #    # send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
-   #    # send_data(RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf",
-   #    #    :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
-   # end
+   member_action :view_pdf_notice, :method => :put do
+      # order = Order.find(params[:id])
+      # pdf = BuildOrderPDF.generate_invoice_pdf(order)
+      # send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
+      resp = RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf"
+      send_data(resp.body, :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
+   end
 
    member_action :recreate_pdf_notice, :method => :put do
       # order = Order.find(params[:id])
