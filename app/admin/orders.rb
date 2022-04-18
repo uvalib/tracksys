@@ -261,7 +261,7 @@ ActiveAdmin.register Order do
          AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
       end
 
-      SendFeeEstimateToCustomer.exec_now( {:order_id => params[:id]} )
+      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/fees", nil
       redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
    end
 
@@ -286,13 +286,12 @@ ActiveAdmin.register Order do
    end
 
    member_action :recreate_email, :method => :put do
-      order = Order.find(params[:id])
-      CreateOrderEmail.exec_now({order: order})
+      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/email", nil
       redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
    end
 
    member_action :send_order_email, :method => :put do
-      SendOrderEmail.exec_now({:order_id => params[:id], user: current_user})
+      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/email/send", nil
       redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
    end
 
@@ -315,16 +314,11 @@ ActiveAdmin.register Order do
    end
 
    member_action :view_pdf_notice, :method => :put do
-      # order = Order.find(params[:id])
-      # pdf = BuildOrderPDF.generate_invoice_pdf(order)
-      # send_data(pdf.render, :filename => "#{order.id}.pdf", :type => "application/pdf", :disposition => 'inline')
       resp = RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf"
       send_data(resp.body, :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
    end
 
    member_action :recreate_pdf_notice, :method => :put do
-      # order = Order.find(params[:id])
-      # CreateOrderPDF.exec_now({order: order})
       RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/pdf", nil
       redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
    end
