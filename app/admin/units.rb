@@ -358,7 +358,7 @@ ActiveAdmin.register Unit do
    end
 
    member_action :copy_from_archive, :method => :put do
-      CopyArchivedFilesToProduction.exec( {:unit_id => params[:id], :computing_id => current_user.computing_id })
+      RestClient.post "#{Settings.jobs_url}/units/#{params[:id]}/copy", {computeID: current_user.computing_id, filename: "all"}
       unit = Unit.find(params[:id])
       dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , unit.directory )
       redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{dest}."
