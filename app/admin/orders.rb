@@ -261,8 +261,11 @@ ActiveAdmin.register Order do
          AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
       end
 
-      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/fees", nil
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
+      if Job.submit("/orders/#{params[:id]}/fees", nil)
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send fee estimate. See job status page for details."
+      end
    end
 
    member_action :send_fee_estimate_to_alt, :method => :put do
@@ -286,13 +289,19 @@ ActiveAdmin.register Order do
    end
 
    member_action :recreate_email, :method => :put do
-      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/email", nil
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
+      if Jobs.submit("/orders/#{params[:id]}/email", nil)
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate email. Please see job status page for details."
+      end
    end
 
    member_action :send_order_email, :method => :put do
-      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/email/send", nil
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
+      if Job.submit("/orders/#{params[:id]}/email/send", nil)
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email sent to customer. Please see job status page for details."
+      end
    end
 
    member_action :send_order_alt_email, :method => :put do
@@ -314,13 +323,20 @@ ActiveAdmin.register Order do
    end
 
    member_action :view_pdf_notice, :method => :put do
-      resp = RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf"
-      send_data(resp.body, :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
+      begin
+         resp = RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf"
+         send_data(resp.body, :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
+      rescue => exception
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate PDF: #{exception.response.body}"
+      end
    end
 
    member_action :recreate_pdf_notice, :method => :put do
-      RestClient.post "#{Settings.jobs_url}/orders/#{params[:id]}/pdf", nil
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
+      if Job.submit("/orders/#{params[:id]}/pdf", nil)
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate customer PDF. See job status page for details."
+      end
    end
 
    member_action :reset_dates, :method => :post do
