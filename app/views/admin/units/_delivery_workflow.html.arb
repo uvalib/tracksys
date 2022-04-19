@@ -30,8 +30,14 @@ if unit.can_finalize?
 end
 
 if unit.error? && !unit.reorder
-   div class: "admin-button-note" do
-      "#{unit.project.workflow.name} failed finalization. Correct the errors and use the 'Retry Finalization' button on the project page to restart finalization."
+   if unit.project.nil?
+      div class: "admin-button-note" do
+         "Unit failed raw image finalization. Correct the errors and click the 'Finalize Raw Images' button to restart finalization."
+      end
+   else
+      div class: "admin-button-note" do
+         "#{unit.project.workflow.name} failed finalization. Correct the errors and use the 'Retry Finalization' button on the project page to restart finalization."
+      end
    end
 end
 
