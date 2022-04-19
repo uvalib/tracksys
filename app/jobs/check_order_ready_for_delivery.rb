@@ -54,10 +54,12 @@ class CheckOrderReadyForDelivery < BaseJob
       qa_order_fees(order)
 
       # QA was successful, generate PDF and email
+      logger.info("Generate order PDF with jobs service. This will create a new job status entry")
       RestClient.post "#{Settings.jobs_url}/orders/#{message[:order_id]}/pdf", nil
 
       # Email can be created from this job or from UI. For this
       # reason, it remain its own standalone job
+      logger.info("Generate order email with jobs service. This will create a new job status entry")
       RestClient.post "#{Settings.jobs_url}/orders/#{message[:order_id]}/email", nil
    end
 
