@@ -247,9 +247,9 @@ ActiveAdmin.register MasterFile do
       mf = MasterFile.find(params[:id])
       if Job.submit("/units/#{mf.unit_id}/copy",{computeID: current_user.computing_id, filename: mf.filename})
          dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , mf.unit.directory, mf.filename )
-         redirect_to "/admin/master_files/#{params[:id]}", :notice => "Master File downloaded to #{dest}."
+         redirect_to "/admin/units/#{mf.unit_id}", :notice => "Master File downloaded to #{dest}."
       else
-         redirect_to "/admin/master_files/#{params[:id]}", :alert => "Unable to download file. Check the job status page for details."
+         redirect_to "/admin/units/#{mf.unit_id}", :alert => "Unable to download file. Check the job status page for details."
       end
    end
 
