@@ -289,7 +289,7 @@ ActiveAdmin.register Order do
    end
 
    member_action :recreate_email, :method => :put do
-      if Jobs.submit("/orders/#{params[:id]}/email", nil)
+      if Job.submit("/orders/#{params[:id]}/email", nil)
          redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
       else
          redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate email. Please see job status page for details."
