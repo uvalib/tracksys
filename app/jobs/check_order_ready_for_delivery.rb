@@ -55,16 +55,16 @@ class CheckOrderReadyForDelivery < BaseJob
 
       # QA was successful, generate PDF and email
       logger.info("Generate order PDF with jobs service. This will create a new job status entry")
-      if Job.submit("/orders/#{message[:order_id]}/pdf", nil) == false {
+      if Job.submit("/orders/#{message[:order_id]}/pdf", nil) == false
          log_failure("Unable to generate PDF")
-      }
+      end
 
       # Email can be created from this job or from UI. For this
       # reason, it remain its own standalone job
       logger.info("Generate order email with jobs service. This will create a new job status entry")
-      if Job.submit("/orders/#{message[:order_id]}/email", nil) == false {
+      if Job.submit("/orders/#{message[:order_id]}/email", nil) == false
          log_failure("Unable to create order email")
-      }
+      end
    end
 
 
