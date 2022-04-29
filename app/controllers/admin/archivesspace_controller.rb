@@ -17,10 +17,17 @@ class Admin::ArchivesspaceController < ApplicationController
 
    # validate the form of a URL. if it is sumbolic, convert to numeric. Verify link returns good data.
    def validate
-      # format is: repositories/[repo_id]/[archival_objects|accessions|resources]/[object_id]
+      # format is: (https://archives/lib.virginia.edu)/repositories/[repo_id]/[archival_objects|accessions|resources]/[object_id]
+      # the part up to repositories is optional
       tgt = params[:as_url]
+      start_idx = tgt.index("/repositories")
+      if start_idx > 0
+         tgt = tgt[start_idx+1, tgt.length]
+      end
       parts = tgt.split("/")
-      if parts.length != 4
+      if parts.length == 5 && parts[0].blank?
+         parts.shift()
+      elsif parts.length != 4
          render plain: "URL is malformed", status:  :bad_request
          return
       end
@@ -72,7 +79,7 @@ class Admin::ArchivesspaceController < ApplicationController
       end
 
        # now join all the corrected parts of the URL and see if we can pull AS data for it
-       fixed_as = parts.join("/")
+       fixed_as = "/"+parts.join("/")
        Rails.logger.info "Validate updated URI #{fixed_as}"
        begin
          # if the url is invalid for any reason an exception will be raised
