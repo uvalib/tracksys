@@ -203,7 +203,7 @@ ActiveAdmin.register ExternalMetadata do
          PublishToAS.exec_now({metadata: metadata})
          render plain: "OK"
       rescue Exception => e
-         render plain: "Publish Failed: "+e.to_s, status: :error
+         render plain: "Publish Failed: "+e.to_s, status: :internal_server_error
       end
    end
 
