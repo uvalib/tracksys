@@ -18,7 +18,7 @@ $(function() {
       var data = { workflow: $("#workflow").val(),
               category: $("#category").val(),
               priority: $("#priority").val(),
-              condition: $("#condition").val(),
+              condition: $("#item_condition").val(),
               notes: $("#condition_notes").val(),
               due: $("#due_on").val()
       };
