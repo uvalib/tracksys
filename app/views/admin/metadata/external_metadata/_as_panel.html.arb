@@ -11,46 +11,46 @@ attributes_table_for external_metadata do
       end
    else
       row("URL") do |xm|
-         raw("<a target='_blank' href='#{as_info[:url]}'>#{xm.external_uri}</a>")
+         raw("<a target='_blank' href='#{as_info["url"]}'>#{xm.external_uri}</a>")
       end
       row("Repository") do |xm|
-         as_info[:repo]
+         as_info["repo"]
       end
       row("Collection Title") do |xm|
-         as_info[:collection_title]
+         as_info["collection_title"]
       end
       row("ID") do |xm|
-         as_info[:id]
+         as_info["id"]
       end
       row("Language") do |xm|
-         as_info[:language]
+         as_info["language"]
       end
       row("Dates") do |xm|
-         as_info[:dates]
+         as_info["dates"]
       end
       row("Title") do |xm|
-         as_info[:title]
+         as_info["title"]
       end
       row("Level") do |xm|
-         as_info[:level]
+         as_info["level"]
       end
       row("Created By") do |xm|
-         as_info[:created_by]
+         as_info["created_by"]
       end
       row("Create Time") do |xm|
-         if !as_info[:create_time].nil?
-            DateTime.parse(as_info[:create_time]).strftime("%F %r")
+         if !as_info["create_time"].nil?
+            DateTime.parse(as_info["create_time"]).strftime("%F %r")
          end
       end
       row("Publication Time") do |xm|
-         if as_info[:published_at].nil?
+         if as_info["published_at"].nil?
             if xm.master_files.count > 0
                span class: "btn as-publish" do "Publish Now" end
             else
                "No Master Files. Not Published."
             end
          else
-            DateTime.parse(as_info[:published_at]).strftime("%F %r")
+            DateTime.parse(as_info["published_at"]).strftime("%F %r")
          end
       end
    end

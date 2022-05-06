@@ -198,12 +198,10 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    member_action :as_publish, :method => :post do
-      begin
-         metadata = ExternalMetadata.find( params[:id])
-         PublishToAS.exec_now({metadata: metadata})
+      if Job.submit("/admin/archivesspace/publish", {userID: "#{current_user.id}", metadataID:params[:id] })
          render plain: "OK"
-      rescue Exception => e
-         render plain: "Publish Failed: "+e.to_s, status: :internal_server_error
+      else
+         render plain: "Publish Failed", status: :internal_server_error
       end
    end
 
@@ -211,10 +209,8 @@ ActiveAdmin.register ExternalMetadata do
       def create
          super
          if resource.external_system.name == "ArchivesSpace"
-            auth = ArchivesSpace.get_auth_session()
-            as = resource.external_system
-            url = "#{as.public_url}#{resource.external_uri}"
-            tgt_obj = ArchivesSpace.get_details(auth, url)
+            resp = RestClient.get "#{Settings.jobs_url}/archivesspace/lookup?uri=#{resource.external_uri}&pid=#{resource.pid}"
+            tgt_obj = JSON.parse(resp.body)
             title = tgt_obj['title']
             title = tgt_obj['display_string'] if title.blank?
             resource.update(title: title)
@@ -230,10 +226,8 @@ ActiveAdmin.register ExternalMetadata do
          end
          super
          if resource.external_system.name == "ArchivesSpace"
-            auth = ArchivesSpace.get_auth_session()
-            as = resource.external_system
-            url = "#{as.public_url}#{resource.external_uri}"
-            tgt_obj = ArchivesSpace.get_details(auth, url)
+            resp = RestClient.get "#{Settings.jobs_url}/archivesspace/lookup?uri=#{resource.external_uri}&pid=#{resource.pid}"
+            tgt_obj = JSON.parse(resp.body)
             title = tgt_obj['title']
             title = tgt_obj['display_string'] if title.blank?
             resource.update(title: title)

@@ -82,55 +82,8 @@ class ExternalMetadata < Metadata
 
    def get_as_metadata
       begin
-         # First, authenticate with the API. Necessary to call other methods
-         auth = ArchivesSpace.get_auth_session()
-         as = self.external_system
-         url = "#{as.public_url}#{self.external_uri}"
-         tgt_obj = ArchivesSpace.get_details(auth, url)
-
-         # build a data struct to represent the AS data
-         title = tgt_obj['title']
-         title = tgt_obj['display_string'] if title.blank?
-         as_info = {
-            title: title, created_by: tgt_obj['created_by'],
-            create_time: tgt_obj['create_time'], level: tgt_obj['level'],
-            url: url
-         }
-         dates = tgt_obj['dates'].first
-         if !dates.nil?
-            as_info[:dates] = dates['expression']
-         end
-
-         dobj = ArchivesSpace.get_digital_object(auth, tgt_obj, self.pid )
-         if !dobj.nil?
-            as_info[:published_at] = dobj[:created]
-         end
-
-         # pull repo ID from public URL and use it to lookup repo name
-         parsed_url = ArchivesSpace.parse_public_url(url)
-         repo_detail = ArchivesSpace.get_repository(auth, parsed_url[:repo])
-         as_info[:repo] = repo_detail['name']
-
-
-         if !tgt_obj['ancestors'].nil?
-            anc = tgt_obj['ancestors'].last
-            url = "#{as.api_url}#{anc['ref']}"
-            coll = RestClient.get url, ArchivesSpace.auth_header(auth)
-            coll_json = JSON.parse(coll.body)
-
-            if !coll_json['finding_aid_title'].nil?
-               as_info[:collection_title] = coll_json['finding_aid_title'].split("<num")[0]
-            end
-            as_info[:id] = coll_json['id_0']
-            as_info[:language] = coll_json['language']
-
-         else
-            if !tgt_obj['finding_aid_title'].nil?
-               as_info[:collection_title] = tgt_obj['finding_aid_title'].split("<num")[0]
-            end
-            as_info[:id] = tgt_obj['id_0']
-            as_info[:language] = tgt_obj['language']
-         end
+         resp = RestClient.get "#{Settings.jobs_url}/archivesspace/lookup?uri=#{self.external_uri}&pid=#{self.pid}"
+         as_info = JSON.parse(resp.body)
       rescue Exception => e
          logger.error "Unable to get AS info for #{self.id}: #{e.to_s}"
          as_info = {}
