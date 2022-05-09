@@ -198,10 +198,11 @@ ActiveAdmin.register ExternalMetadata do
    end
 
    member_action :as_publish, :method => :post do
-      if Job.submit("/admin/archivesspace/publish", {userID: "#{current_user.id}", metadataID:params[:id] })
+      resp = Job.submit("/admin/archivesspace/publish", {userID: "#{current_user.id}", metadataID:params[:id] })
+      if resp.success?
          render plain: "OK"
       else
-         render plain: "Publish Failed", status: :internal_server_error
+         render plain: "Publish Failed: #{resp.message}", status: :internal_server_error
       end
    end
 

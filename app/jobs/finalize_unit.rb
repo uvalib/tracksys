@@ -264,7 +264,10 @@ class FinalizeUnit < BaseJob
       logger.info("All patron deliverables created")
 
       # check for completeness, fees and generate manifest PDF. Same for all patron deliverables
-      CheckOrderReadyForDelivery.exec_now( { order_id: @unit.order_id}, self  )
+      resp = Job.submit("/orders/#{@unit.order_id}/check", nil)
+      if !resp.success?
+         logger.error("CheckOrderReadyForDelivery failed: #{err}")
+      end
    end
 
    # Override fatal error and mark the unit as status 'error'

@@ -261,10 +261,11 @@ ActiveAdmin.register Order do
          AuditEvent.create(auditable: o, event: AuditEvent.events[:status_update], staff_member: current_user, details: msg)
       end
 
-      if Job.submit("/orders/#{params[:id]}/fees", nil)
+      resp = Job.submit("/orders/#{params[:id]}/fees", nil)
+      if resp.success?
          redirect_to "/admin/orders/#{params[:id]}", :notice => "A fee estimate email has been sent to customer."
       else
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send fee estimate. See job status page for details."
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send fee estimate: #{resp.message}"
       end
    end
 
@@ -284,23 +285,29 @@ ActiveAdmin.register Order do
    end
 
    member_action :check_order_ready_for_delivery, :method => :put do
-      CheckOrderReadyForDelivery.exec( {:order_id => params[:id]})
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} is being checked to see if it is ready."
+      resp = Job.submit("/orders/#{params[:id]}/check", nil)
+      if resp.success?
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Order #{params[:id]} has been checked."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Check order #{params[:id]} failed: #{resp.message}"
+      end
    end
 
    member_action :recreate_email, :method => :put do
-      if Job.submit("/orders/#{params[:id]}/email", nil)
+      resp = Job.submit("/orders/#{params[:id]}/email", nil)
+      if resp.success?
          redirect_to "/admin/orders/#{params[:id]}", :notice => "New email generated, but not sent."
       else
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate email. Please see job status page for details."
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate email: #{resp.message}"
       end
    end
 
    member_action :send_order_email, :method => :put do
-      if Job.submit("/orders/#{params[:id]}/email/send", nil)
+      resp = Job.submit("/orders/#{params[:id]}/email/send", nil)
+      if resp.success?
          redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
       else
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email sent to customer. Please see job status page for details."
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email sent to customer: #{resp.message}"
       end
    end
 
@@ -327,15 +334,16 @@ ActiveAdmin.register Order do
          resp = RestClient.get "#{Settings.jobs_url}/orders/#{params[:id]}/pdf"
          send_data(resp.body, :filename => "#{params[:id]}.pdf", :type => "application/pdf", :disposition => 'inline')
       rescue => exception
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate PDF: #{exception.response.body}"
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate PDF: #{exception}"
       end
    end
 
    member_action :recreate_pdf_notice, :method => :put do
-      if Job.submit("/orders/#{params[:id]}/pdf", nil)
+      resp = Job.submit("/orders/#{params[:id]}/pdf", nil)
+      if resp.success?
          redirect_to "/admin/orders/#{params[:id]}", :notice => "New customer PDF has been generated."
       else
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate customer PDF. See job status page for details."
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to generate customer PDF: #{resp.message}"
       end
    end
 

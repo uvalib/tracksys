@@ -289,15 +289,11 @@ ActiveAdmin.register Unit do
    end
 
    member_action :attachment, :method => :post do
-      unit = Unit.find(params[:id])
-      filename = params[:attachment].original_filename
-      upload_file = params[:attachment].tempfile.path
-      begin
-         AttachFile.exec_now({unit: unit, filename: filename, tmpfile: upload_file, description: params[:description]})
+      success, err = Job.attach_file(params[:id], params[:attachment], params[:description])
+      if success
          render plain: "OK"
-      rescue Exception => e
-         Rails.logger.error e.to_s
-         render plain: "Attachment '#{filename}' FAILED: #{e.to_s}", status:  :internal_server_error
+      else
+         render plain: "Attachment '#{filename}' FAILED: #{err}", status:  :internal_server_error
       end
    end
 
@@ -358,10 +354,14 @@ ActiveAdmin.register Unit do
    end
 
    member_action :copy_from_archive, :method => :put do
-      Job.submit("/units/#{params[:id]}/copy", {computeID: current_user.computing_id, filename: "all"})
-      unit = Unit.find(params[:id])
-      dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , unit.directory )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{dest}."
+      resp = Job.submit("/units/#{params[:id]}/copy", {computeID: current_user.computing_id, filename: "all"})
+      if resp.success?
+         unit = Unit.find(params[:id])
+         dest = File.join(Settings.production_mount, "from_archive", current_user.computing_id , unit.directory )
+         redirect_to "/admin/units/#{params[:id]}", :notice => "Unit #{params[:id]} is now being downloaded to #{dest}."
+      else
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Copy failed: #{resp.message}"
+      end
    end
 
    member_action :retry_finalization, :method => :put do
