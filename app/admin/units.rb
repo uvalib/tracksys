@@ -384,16 +384,30 @@ ActiveAdmin.register Unit do
       end
    end
    member_action :replace, :method => :post do
-      job_id = ReplaceMasterFiles.exec({unit_id: params[:id]})
-      render plain: job_id, status: :ok
+      resp = Job.submit("/units/#{params[:id]}/masterfiles/replace", nil)
+      if resp.success?
+         render plain: resp.job_id, status: :ok
+      else
+         render plain: resp.message, status: :internal_server_error
+      end
    end
    member_action :delete, :method => :post do
-      job_id = DeleteMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames]})
-      render plain: job_id, status: :ok
+      data = {filenames: params[:filenames] }
+      resp = Job.submit("/units/#{params[:id]}/masterfiles/delete", data)
+      if resp.success?
+         render plain: resp.job_id, status: :ok
+      else
+         render plain: resp.message, status: :internal_server_error
+      end
    end
    member_action :renumber, :method => :post do
-      job_id = RenumberMasterFiles.exec({unit_id: params[:id], filenames: params[:filenames], new_start_num: params[:new_start_num]})
-      render plain: job_id, status: :ok
+      data = {filenames: params[:filenames], "startNum":  params[:new_start_num].to_i}
+      resp = Job.submit("/units/#{params[:id]}/masterfiles/renumber", data)
+      if resp.success?
+         render plain: "finished", status: :ok
+      else
+         render plain: resp.message, status: :internal_server_error
+      end
    end
    member_action :job_status, method: :get do
       job = JobStatus.find(params[:job])

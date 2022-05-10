@@ -19,7 +19,7 @@ $(function() {
                $("#working-message").hide();
                $("div.unit-mf-action-panel").show();
             } else {
-               awaitUpdateComplete(jqXHR.responseText);
+               window.location.reload();
             }
          }
       });
