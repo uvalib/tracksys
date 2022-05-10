@@ -376,8 +376,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :add, :method => :post do
-      job_id = AddMasterFiles.exec({unit_id: params[:id]})
-      render plain: job_id, status: :ok
+      resp = Job.submit("/units/#{params[:id]}/masterfiles/add", nil)
+      if resp.success?
+         render plain: resp.job_id, status: :ok
+      else
+         render plain: resp.message, status: :internal_server_error
+      end
    end
    member_action :replace, :method => :post do
       job_id = ReplaceMasterFiles.exec({unit_id: params[:id]})
@@ -393,10 +397,6 @@ ActiveAdmin.register Unit do
    end
    member_action :job_status, method: :get do
       job = JobStatus.find(params[:job])
-      job_type = params[:type]
-      type_pairings = { "add"=>"AddMasterFiles", "replace"=>"ReplaceMasterFiles", "delete"=>"DeleteMasterFiles", "renumber"=>"RenumberMasterFiles"}
-      render plain: "Invalid job", status: :bad_request and return if job.name != type_pairings[job_type]
-      render plain: "Not for this unit", status: :conflict and return if job.originator_id != params[:id].to_i
       render plain: job.status, status: :ok
    end
 

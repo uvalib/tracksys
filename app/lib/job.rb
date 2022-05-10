@@ -24,7 +24,7 @@ module Job
          @job_id
       end
       def success?
-         return status == :done
+         return status == :done || status == :running
       end
    end
 

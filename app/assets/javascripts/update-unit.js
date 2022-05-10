@@ -137,8 +137,9 @@ $(function() {
       if (action === "ocr") {
          data = { ids: $("#ocr-pages").data("ids") };
       }
+      var tgtURL = origUrl + "/" + action;
       $.ajax({
-         url: origUrl + "/" + action,
+         url: tgtURL,
          method: "POST",
          data: data,
          complete: function(jqXHR, textStatus) {
@@ -146,6 +147,7 @@ $(function() {
                alert("Update failed: " + jqXHR.responseText);
                $("#working-message").hide();
                $("div.unit-mf-action-panel").show();
+               $("#add-pages").removeClass("disabled");
             } else {
                if (action === "ocr") {
                   alert("OCR has been started on the selected master files. Check the Job Status page for updates.");
@@ -162,9 +164,10 @@ $(function() {
    var awaitUpdateComplete = function(jobId) {
       var url =  window.location.href.split("?")[0];
       var action = $("#confirm-update").data("action");
+      var tgtURL =  url+"/job_status?job="+jobId+"&type="+action;
       var tid = setInterval(function() {
          $.ajax({
-            url: url+"/job_status?job="+jobId+"&type="+action,
+            url: tgtURL,
             method: "GET",
             complete: function(jqXHR, textStatus) {
                if (textStatus != "success") {
@@ -178,7 +181,7 @@ $(function() {
                      $("#working-message").hide();
                      $("div.unit-mf-action-panel").show();
                      alert("Update failed. Please check the job status page for more information.");
-                  } else if (jqXHR.responseText == "success") {
+                  } else if (jqXHR.responseText == "finished" || jqXHR.responseText == "success") {
                      clearInterval(tid);
                      window.location.reload();
                   }
