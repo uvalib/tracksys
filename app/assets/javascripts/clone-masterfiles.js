@@ -106,7 +106,7 @@ $(function() {
 
    var copyMasterFileToCloneList = function( mfRow ) {
       var selectedUnit = $("#source-unit").val();
-      var r = "<tr class='mf-row'><td><input data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
+      var r = "<tr class='mf-row'><td><input  data-unit-id='"+selectedUnit+"' data-id='MF_ID' class='sel-cb' type='checkbox'/></td>";
       r +=    "<td>MF_FILE</td><td><span class='title'>MF_TITLE</span><span class='rename-btn'></span></td>";
       r +=    "<td class='sort'><span class='ts-icon down'></span><span class='ts-icon up'></span></td></tr>";
       r = r.replace("MF_ID", mfRow.data("id"));
@@ -233,7 +233,7 @@ $(function() {
                      clearInterval(tid);
                      toggleCloneButtons(true);
                      alert("Clone failed. Please check the job status page for more information.");
-                  } else if (jqXHR.responseText == "success") {
+                  } else if (jqXHR.responseText == "finished") {
                      clearInterval(tid);
                      window.location.reload();
                   }
@@ -252,14 +252,21 @@ $(function() {
       var list = [];
       $("#clone-masterfile-list .mf-row").each( function() {
          var cb = $(this).find(".sel-cb");
-         var id =  cb.data("id");
-         if ( id === 0) {
-            list.push({unit: cb.data("unit-id")});
+         var mfID =  cb.data("id");
+         var unitID = cb.data("unit-id");
+         if ( mfID === 0) {
+            list.push({unitID: unitID, all: true});
          } else {
-            var rec = {};
-            rec.id = $(this).find(".sel-cb").data("id");
-            rec.title =  $(this).find(".title").text();
-            list.push(rec);
+            var title = $(this).find(".title").text();
+            var recIdx = list.findIndex( r => r.unitID == unitID );
+            if (recIdx > -1) {
+               var rec =  list[recIdx]
+               rec.masterfiles.push( {id: mfID, title: title} )
+            } else {
+               rec = {unitID: unitID, masterfiles:[]};
+               rec.masterfiles.push( {id: mfID, title: title} )
+               list.push(rec);
+            }
          }
       });
 

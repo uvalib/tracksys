@@ -224,8 +224,12 @@ ActiveAdmin.register Unit do
    # MEMBER ACTIONS ============================================================
    #
    member_action :clone_master_files, method: :post do
-      job_id = CloneMasterFiles.exec({unit_id: params[:id], list: params[:masterfiles]})
-      render plain: job_id, status: :ok
+      resp = Job.submit("/units/#{params[:id]}/masterfiles/clone", params[:masterfiles])
+      if resp.success?
+         render plain: resp.job_id, status: :ok
+      else
+         render plain: resp.message, status: :internal_server_error
+      end
    end
 
    member_action :clone_status, method: :get do
