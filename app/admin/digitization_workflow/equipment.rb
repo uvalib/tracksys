@@ -47,17 +47,17 @@ ActiveAdmin.register_page "Equipment" do
          end
          if scanner
             if equipment.length > 1
-               render plain: "A workstation can only have a camera assembly or a scanner, not both", status: :error and return
+               render plain: "A workstation can only have a camera assembly or a scanner, not both", status: :bad_request and return
             end
          else
             if equipment.length < 3
-               render plain: "Incomplete camera assembly", status: :error and return
+               render plain: "Incomplete camera assembly", status: :bad_request and return
             end
             if body_cnt != 1 || back_cnt != 1
-               render plain: "Camera assembly must have 1 back and 1 body", status: :error and return
+               render plain: "Camera assembly must have 1 back and 1 body", status: :bad_request and return
             end
             if lens_cnt > 2
-               render plain: "A maximum of 2 lenses can be selected", status: :error and return
+               render plain: "A maximum of 2 lenses can be selected", status: :bad_request and return
             end
          end
          ws.equipment.clear
@@ -65,7 +65,7 @@ ActiveAdmin.register_page "Equipment" do
 
          render json: ws.equipment.order(type: :asc).to_json(only: [:id, :name, :type, :serial_number])
       else
-         render plain: "There are active projects assigned", status: :error
+         render plain: "There are active projects assigned", status: :bad_request
       end
    end
 
@@ -85,7 +85,7 @@ ActiveAdmin.register_page "Equipment" do
              html = render_to_string partial: "/admin/digitization_workflow/equipment/equipment_table", locals: {equipment: Equipment.where(type: params[:type])}
              render json: { html: html, id: e.id }
           else
-             render plain: e.errors.full_messages.to_sentence, status: :error
+             render plain: e.errors.full_messages.to_sentence, status: :internal_server_error
           end
        end
 
@@ -113,7 +113,7 @@ ActiveAdmin.register_page "Equipment" do
              e.update(status: 2)
              render plain: "OK"
           else
-             render plain: "#{e.name} is assigned to workstation #{e.workstation.name}", status: :error and return
+             render plain: "#{e.name} is assigned to workstation #{e.workstation.name}", status: :bad_request and return
           end
        end
     end

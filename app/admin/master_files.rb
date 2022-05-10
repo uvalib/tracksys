@@ -234,12 +234,11 @@ ActiveAdmin.register MasterFile do
    end
 
    member_action :deaccession, :method => :post do
-      mf = MasterFile.find(params[:id])
-      begin
-         DeaccessionMasterFile.exec_now({master_file: mf, user: current_user, note: params[:note] })
-         render :nothing=>true
-      rescue Exception=>e
-         render :plain=> "Deaccession failed: #{e.message}", :status=>:error
+      resp = Job.submit("/masterfiles/#{params[:id]}/deaccession", {computeID: current_user.computing_id, note: params[:note]})
+      if resp.success?
+         render plain: "deaccessioned", status: :ok
+      else
+         render plain: "Deaccession failed: #{resp.message}", status: :internal_server_error
       end
    end
 

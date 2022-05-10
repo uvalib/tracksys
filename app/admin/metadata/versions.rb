@@ -90,7 +90,7 @@ ActiveAdmin.register_page "Versions" do
       md = XmlMetadata.find(params[:xml_metadatum_id])
       tgt = MetadataVersion.find_by(metadata_id: md.id, version_tag: tag)
       if tgt.nil?
-         render json: { status: "failed", message:"Version not found"}, status: :error
+         render json: { status: "failed", message:"Version not found"}, status: :bad_request
          return
       end
 
