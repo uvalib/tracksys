@@ -258,9 +258,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :finalize_raw_images do
-      FinalizeUnit.exec( {unit_id: params[:id]} )
-      flash[:notice] = "Finalizing unit"
-      redirect_to "/admin/units/#{params[:id]}"
+      resp = Job.submit("/units/#{params[:id]}/finalize", nil)
+      if resp.success?
+         redirect_to "/admin/units/#{params[:id]}", :notice => "Finalizing unit"
+      else
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to finalize unit: #{resp.message}"
+      end
    end
 
    member_action :download, :method => :get do
@@ -332,8 +335,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :generate_deliverables, :method=>:put do
-      CreatePatronDeliverables.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Generating unit deliverables."
+      resp = Job.submit("/units/#{params[:id]}/deliverables", nil)
+      if resp.success?
+         redirect_to "/admin/units/#{params[:id]}", :notice => "Generating unit deliverables."
+      else
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to unit deliverables: #{resp.message}"
+      end
    end
 
    member_action :complete_unit, :method=>:put do
@@ -366,11 +373,6 @@ ActiveAdmin.register Unit do
       else
          redirect_to "/admin/units/#{params[:id]}", :alert => "Copy failed: #{resp.message}"
       end
-   end
-
-   member_action :retry_finalization, :method => :put do
-      FinalizeUnit.exec({unit_id: params[:id]})
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Finalization restarted."
    end
 
    member_action :publish, :method => :put do
