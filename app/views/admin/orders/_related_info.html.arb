@@ -7,7 +7,7 @@ attributes_table_for order do
     raw(html)
   end
   row :master_files do |order|
-    link_to "#{order.master_files.size}", admin_master_files_path(:q => {:order_id_eq => order.id})
+    link_to "#{order.master_files.count}", admin_master_files_path(:q => {:order_id_eq => order.id})
   end
   row :customer
   row :agency
@@ -18,7 +18,7 @@ attributes_table_for order do
         inv = order.invoices.first
         link_to "# #{inv.id}", "/admin/invoices/#{inv.id}"
      else
-        link_to "#{order.invoices.size}", admin_invoices_path(:q => {:order_id_eq => order.id})
+        link_to "#{order.invoices.count}", admin_invoices_path(:q => {:order_id_eq => order.id})
      end
   end
   row :projects do |order|
@@ -28,7 +28,7 @@ attributes_table_for order do
        proj = order.projects.first
        link_to "# #{proj.id}", "#{Settings.qa_viewer_url}/projects/#{proj.id}", target: "_blank"
      else
-       link_to "#{order.projects.size}", "#{Settings.qa_viewer_url}?order=#{order.id}", target: "_blank"
+       link_to "#{order.projects.count}", "#{Settings.qa_viewer_url}?order=#{order.id}", target: "_blank"
      end
   end
 end

@@ -63,7 +63,7 @@ ActiveAdmin.register MasterFile do
    end
 
    action_item :deaccession, :only => :show do
-      if master_file.is_original? && master_file.reorders.size == 0 && current_user.can_deaccession? && !master_file.deaccessioned?
+      if master_file.is_original? && master_file.reorders.count == 0 && current_user.can_deaccession? && !master_file.deaccessioned?
          link_to "Deaccession", "#", :class=>'deaccession', id: "deaccession-btn"
       end
    end
