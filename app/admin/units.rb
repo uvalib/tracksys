@@ -291,8 +291,12 @@ ActiveAdmin.register Unit do
    end
 
    member_action :ocr, :method => :post do
-      OCR.unit( Unit.find(params[:id]) )
-      redirect_to "/admin/units/#{params[:id]}", :notice => "OCR started. Check job status page for updates"
+      resp = Job.submit("/ocr", { type: "unit", id: params[:id].to_i} )
+      if resp.success?
+         redirect_to "/admin/units/#{params[:id]}", :notice => "OCR has begun. Check the job status page for updates."
+      else
+         redirect_to "/admin/units/#{params[:id]}", :alert => "OCR request failed: #{resp.message}"
+      end
    end
 
    member_action :attachment, :method => :post do

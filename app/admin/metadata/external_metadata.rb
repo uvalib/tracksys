@@ -254,5 +254,14 @@ ActiveAdmin.register ExternalMetadata do
          end
       end
 
+      before_action :get_ocr_languages, only: [:edit]
+      def get_ocr_languages
+         begin
+            resp = RestClient.get "#{Settings.jobs_url}/ocr/languages"
+            @languages = resp.body.split(",")
+         rescue => exception
+            @languages = []
+         end
+      end
    end
 end

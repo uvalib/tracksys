@@ -17,7 +17,7 @@
           <label for="external_metadata_ocr_language_hint" class="label">OCR Language Hint</label>
           <select multiple="multiple" class="chosen-select" name="external_metadata[ocr_language_hint][]"
                   id="external_metadata_ocr_language_hint" style="width:200px">
-             <% OCR.languages.each do |l| %>
+             <% @languages.each do |l| %>
                 <% selected = ""
                    selected = "selected='selected'" if !@external_metadata.ocr_language_hint.nil? && @external_metadata.ocr_language_hint.include?(l) %>
                 <option value="<%= l %>" <%= selected %> ><%= l %></option>

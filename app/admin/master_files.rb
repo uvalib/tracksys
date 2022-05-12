@@ -227,10 +227,12 @@ ActiveAdmin.register MasterFile do
    end
 
    member_action :ocr, :method => :post do
-      mf = MasterFile.find(params[:id])
-      OCR.master_file(mf)
-      redirect_to "/admin/master_files/#{mf.id}",
-         :notice => "OCR on master file #{mf.filename} has begun. Check the job status page for updates."
+      resp = Job.submit("/ocr", { type: "masterfile", id: params[:id].to_i} )
+      if resp.success?
+         redirect_to "/admin/master_files/#{params[:id]}", :notice => "OCR on master file has begun. Check the job status page for updates."
+      else
+         redirect_to "/admin/master_files/#{params[:id]}", :alert => "OCR request failed: #{resp.message}"
+      end
    end
 
    member_action :deaccession, :method => :post do

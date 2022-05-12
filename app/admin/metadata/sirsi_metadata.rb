@@ -298,6 +298,16 @@ ActiveAdmin.register SirsiMetadata do
          @sirsi_meta = {catalog_key: '', barcode: '' }
       end
 
+      before_action :get_ocr_languages, only: [:edit]
+      def get_ocr_languages
+         begin
+            resp = RestClient.get "#{Settings.jobs_url}/ocr/languages"
+            @languages = resp.body.split(",")
+         rescue => exception
+            @languages = []
+         end
+      end
+
       def external_lookup
          # look up catalog ID (passed as a parameter) in external metadata source
          begin

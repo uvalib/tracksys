@@ -264,7 +264,7 @@ ActiveAdmin.register XmlMetadata do
    # ACTIONS ==================================================================
    #
    controller do
-       def update
+      def update
          # create a metadata version to track this change
          new_xml  = params[:xml_metadata][:desc_metadata]
          if MetadataVersion.has_changes? new_xml, resource.desc_metadata
@@ -278,8 +278,19 @@ ActiveAdmin.register XmlMetadata do
             params[:xml_metadata][:ocr_language_hint] = ""
          end
          super
-       end
-    end
+      end
+
+      before_action :get_ocr_languages, only: [:edit]
+      def get_ocr_languages
+         begin
+            resp = RestClient.get "#{Settings.jobs_url}/ocr/languages"
+            @languages = resp.body.split(",")
+         rescue => exception
+            @languages = []
+         end
+      end
+   end
+
 
     before_save do |metadata|
       new_xml  = params[:xml_metadata][:desc_metadata]
