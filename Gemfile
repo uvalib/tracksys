@@ -28,7 +28,6 @@ gem 'country-select'
 # gems for APTrust submission
 gem 'aws-sdk-s3', '~> 1'
 
-gem 'delayed_job_active_record'
 gem 'daemons'
 
 # For publishing QDC
