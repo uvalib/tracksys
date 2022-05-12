@@ -270,18 +270,12 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_fee_estimate_to_alt, :method => :put do
-      order = Order.find(params[:id])
-      msg = OrderMailer.send_fee_estimate(order)
-      msg.to = [params[:email]]
-      msg.deliver
-
-      sn = order.staff_notes
-      sn << "" if sn.nil?
-      sn << " " if !sn.blank?
-      sn << "Fee information sent to alternate email address: #{params[:email]}."
-      order.update(staff_notes: sn)
-
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Fee Email sent to #{params[:email]}"
+      resp = Job.submit("/orders/#{params[:id]}/fees?alt=#{params[:email]}", nil)
+      if resp.success?
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Fee information sent to alternate email address: #{params[:email]}."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send fee estimate: #{resp.message}"
+      end
    end
 
    member_action :check_order_ready_for_delivery, :method => :put do
@@ -307,26 +301,17 @@ ActiveAdmin.register Order do
       if resp.success?
          redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
       else
-         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email sent to customer: #{resp.message}"
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email: #{resp.message}"
       end
    end
 
    member_action :send_order_alt_email, :method => :put do
-      order = Order.find(params[:id])
-      orig_email = order.email
-      msg = OrderMailer.web_delivery(order, ['holding'])
-      msg.to = [params[:email]]
-      msg.body = orig_email.to_s
-      msg.date = Time.now
-      msg.deliver
-
-      sn = order.staff_notes
-      sn = "" if sn.nil?
-      sn << " " if !sn.blank?
-      sn << "Order notification sent to alternate email address: #{params[:email]} at #{DateTime.now.strftime('%F %R')}."
-      order.update(staff_notes: sn)
-
-      redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}"
+      resp = Job.submit("/orders/#{params[:id]}/email/send?alt=#{params[:email]}", nil)
+      if resp.success?
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to #{params[:email]}."
+      else
+         redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email: #{resp.message}"
+      end
    end
 
    member_action :view_pdf_notice, :method => :put do
