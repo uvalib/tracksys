@@ -88,11 +88,4 @@ Tracksys::Application.configure do
 
    # this is the default, be needs to be explicitly set for the exception notifier
    config.action_mailer.delivery_method = :smtp
-   # Rails.application.config.middleware.use ExceptionNotification::Rack,
-   #    :email => {
-   #       :ignore_crawlers => %w{Googlebot bingbot},
-   #       :sender_address => "noreply@virginia.edu",
-   #       :exception_recipients => "lf6f@virginia.edu"
-   #    }
-
 end

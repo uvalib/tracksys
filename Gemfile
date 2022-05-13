@@ -14,7 +14,6 @@ gem 'ffi', '~> 1.15.0'
 
 #gem 'passenger', '5.1.5'
 gem 'figaro'
-gem 'exception_notification'
 
 gem 'turnout'           # Maintence page
 
@@ -22,24 +21,16 @@ gem 'annotate'
 gem 'mysql2'
 gem 'ancestry'
 gem 'diffy'             # to diff XML metadata changes
-gem 'country-select'
 
 # gems for APTrust submission
 gem 'aws-sdk-s3', '~> 1'
 
-gem 'daemons'
-
-# For publishing QDC
-gem 'git'
-
 gem 'whenever', :require => false   # to age off job status records
-gem "mini_magick"
 gem 'rest-client'
-gem 'prawn'
-gem 'prawn-table'
 
 gem 'jquery-rails'
 gem "chosen-rails", "1.8.2"
+gem "country-select", "~> 1.2"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

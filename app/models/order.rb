@@ -1,6 +1,3 @@
-require 'prawn'
-require 'prawn/table'
-
 class Order < ApplicationRecord
 
    ORDER_STATUSES = ['requested', 'deferred', 'canceled', 'approved', 'completed', 'await_fee']
