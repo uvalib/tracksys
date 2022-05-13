@@ -36,10 +36,6 @@ Tracksys::Application.routes.draw do
      get "metadata/search" => "metadata#search"
      post "xml/validate" => "xml#validate"
      post "xml/generate" => "xml#generate"
-     post "callbacks/:jid/ocr" => "callbacks#ocr"
-     post "callbacks/:jid/synchronous_ocr" => "callbacks#synchronous_ocr"
-
      post "jstor" => "jstor#finalize"
-
   end
 end
