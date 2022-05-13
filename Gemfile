@@ -20,7 +20,6 @@ gem 'turnout'           # Maintence page
 
 gem 'annotate'
 gem 'mysql2'
-gem 'redis'             # for cache of AS session tokens
 gem 'ancestry'
 gem 'diffy'             # to diff XML metadata changes
 gem 'country-select'

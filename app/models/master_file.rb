@@ -91,12 +91,12 @@ class MasterFile < ApplicationRecord
             page = MasterFile.find(mf_id).filename.split("_")[1].split(".")[0].to_i
          end
       else
-         # this master file has been assigned to a separate metadata record. the 
-         # page number in the filename does not reflect the actual page num. Count 
+         # this master file has been assigned to a separate metadata record. the
+         # page number in the filename does not reflect the actual page num. Count
          # masterfiles owned by metadata record to determine
          page = 1
-         metadata.master_files.each do |mf| 
-            if mf.id == id 
+         metadata.master_files.each do |mf|
+            if mf.id == id
                break
             else
                page += 1
@@ -145,16 +145,6 @@ class MasterFile < ApplicationRecord
 
    def sorted_set
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
-   end
-
-   def ocr_candidate?
-      return false if metadata.nil?
-      return false if metadata.ocr_hint.nil?
-      return metadata.ocr_hint.ocr_candidate
-   end
-
-   def iiif_exist?
-      return File.exist? self.iiif_file()
    end
 
    # Get full path to j2k file used by the IIIF server
