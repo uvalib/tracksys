@@ -188,11 +188,6 @@ ActiveAdmin.register Unit do
       render "delivery_workflow", :context=>self
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],
-      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? } do
-      render "dl_workflow", :context=>self
-   end
-
    # ACTION ITEMS ==============================================================
    #
    action_item :previous, :only => :show do
@@ -377,12 +372,6 @@ ActiveAdmin.register Unit do
       else
          redirect_to "/admin/units/#{params[:id]}", :alert => "Copy failed: #{resp.message}"
       end
-   end
-
-   member_action :publish, :method => :put do
-      unit = Unit.find(params[:id])
-      Virgo.publish(unit, Rails.logger)
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo."
    end
 
    member_action :add, :method => :post do
