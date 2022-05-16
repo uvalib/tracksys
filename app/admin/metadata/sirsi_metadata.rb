@@ -298,7 +298,7 @@ ActiveAdmin.register SirsiMetadata do
          @sirsi_meta = {catalog_key: '', barcode: '' }
       end
 
-      before_action :get_ocr_languages, only: [:edit]
+      before_action :get_ocr_languages, only: [:edit, :new]
       def get_ocr_languages
          begin
             resp = RestClient.get "#{Settings.jobs_url}/ocr/languages"
