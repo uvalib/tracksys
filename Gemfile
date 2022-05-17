@@ -17,7 +17,6 @@ gem 'figaro'
 
 gem 'turnout'           # Maintence page
 
-gem 'annotate'
 gem 'mysql2'
 gem 'ancestry'
 gem 'diffy'             # to diff XML metadata changes
