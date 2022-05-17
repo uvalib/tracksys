@@ -33,6 +33,7 @@ div id: "masterfile-list" do
                link_to "PDF of Selected", url, target: "_blank", id:"pdf-pages", class: "mf-action-button disabled"
             end
          end
+         span id: "assign-metadata", class: 'mf-action-button disabled' do "Assign Metadata" end
       end
    end
 
@@ -40,6 +41,14 @@ div id: "masterfile-list" do
       span id: "confirm-msg", "data-update-dir": "#{unit.update_dir}" do "replace master fiiles?" end
       div class: "button-bar" do
          raw("<span id='cancel-update' class='mf-action-button'>Cancel</span><span id='confirm-update' class='mf-action-button'>OK</span>")
+      end
+   end
+   div class: "assign-metadata" do
+      span do "Metadata ID:" end
+      input id: "metadata-id"
+      para do "Click OK to assign the above metadata to all selected masterfiles. Note: only XML and ArchivesSpace metadata IDs are supported." end
+      div class: "button-bar" do
+         raw("<span id='cancel-metadata' class='mf-action-button'>Cancel</span><span id='confirm-assign-md' class='mf-action-button'>OK</span>")
       end
    end
 

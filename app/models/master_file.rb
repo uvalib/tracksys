@@ -147,6 +147,12 @@ class MasterFile < ApplicationRecord
       master_files_sorted = self.unit.master_files.sort_by {|mf| mf.filename}
    end
 
+   def ocr_candidate?
+      return false if metadata.nil?
+      return false if metadata.ocr_hint.nil?
+      return metadata.ocr_hint.ocr_candidate
+   end
+
    # Get full path to j2k file used by the IIIF server
    def iiif_file()
       pid_parts = pid.split(":")

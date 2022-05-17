@@ -507,12 +507,16 @@ body.active_admin {
       margin-bottom: 10px;
    }
 
-   div.update-confirm {
+   div.update-confirm, div.assign-metadata {
       padding: 10px;
       border: 2px solid #66b;
       margin: 10px;
       background-color: #eaf5ff;
       display: none;
+
+      p {
+         margin: 10px 0;
+      }
 
       div.button-bar {
          text-align: right;
