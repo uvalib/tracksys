@@ -262,27 +262,23 @@ ActiveAdmin.register Unit do
    end
 
    member_action :download, :method => :get do
-      unit = Unit.find(params[:id])
-      att = Attachment.find(params[:attachment])
-      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
-      dest_file = File.join(dest_dir, att.filename)
-      if File.exist? dest_file
-         send_file dest_file
-      else
-         redirect_to "/admin/units/#{params[:id]}", :notice => "Unable to find source file for attachment!"
+      begin
+         att = Attachment.find(params[:attachment])
+         resp = RestClient.get "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         send_data(resp.body, :filename => att.filename, :disposition => 'inline')
+      rescue => exception
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to download attachment: #{exception}"
       end
    end
 
    member_action :remove, :method => :delete do
-      unit = Unit.find(params[:id])
-      att = Attachment.find(params[:attachment])
-      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
-      dest_file = File.join(dest_dir, att.filename)
-      if File.exist? dest_file
-         FileUtils.rm(dest_file)
+      begin
+         att = Attachment.find(params[:attachment])
+         RestClient.delete "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+      rescue => exception
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to delete attachment: #{exception}"
       end
-      att.destroy
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
    end
 
    member_action :ocr, :method => :post do
