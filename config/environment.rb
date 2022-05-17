@@ -15,8 +15,6 @@ end
 # Convert settings into global constants
 #
 Settings = Figaro.env
-DELIVERY_DIR = Settings.delivery_dir
-DELIVERY_URL = Settings.delivery_url
 ARCHIVE_DIR = Settings.archive_mount
 
 # Users with special privileges
