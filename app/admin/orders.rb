@@ -297,9 +297,11 @@ ActiveAdmin.register Order do
    end
 
    member_action :send_order_email, :method => :put do
+      order = Order.find(params[:id])
       resp = Job.submit("/orders/#{params[:id]}/email/send", nil)
       if resp.success?
-         redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer."
+         order.complete_order(current_user)
+         redirect_to "/admin/orders/#{params[:id]}", :notice => "Email sent to customer and order marked as complete."
       else
          redirect_to "/admin/orders/#{params[:id]}", :alert => "Unable to send email: #{resp.message}"
       end
