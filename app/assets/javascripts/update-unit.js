@@ -39,7 +39,7 @@ $(function() {
    $(".mf-checkbox").on("change", function() {
       // default to enabling all buttons. This will be updated based
       // on the status of checked checkboxes below
-      $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages").removeClass("disabled");
+      $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages, #assign-metadata").removeClass("disabled");
 
       var pdfButtonExists = $("#pdf-pages").length > 0;
       var url = "";
@@ -69,10 +69,11 @@ $(function() {
          }
       } else {
          // nothing selected; disable all buttons
-         $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages").addClass("disabled");
+         $("#ocr-pages, #pdf-pages, #del-pages, #renumber-pages", "#assign-metadata").addClass("disabled");
       }
       $("#del-pages").data("filenames", filenames);
       $("#renumber-pages").data("filenames", filenames);
+      $("#assign-metadata").data("ids", ids);
       if ( $("#ocr-pages").length > 0 ) {
          $("#ocr-pages").data("ids", ids);
       }
@@ -95,9 +96,6 @@ $(function() {
    });
 
    $("#replace-pages").on("click", function() {
-      var origUrl = window.location.href.split("?")[0];
-      var bits = origUrl.split("/");
-      var unit = bits[bits.length - 1];
       var updateDir = $("#confirm-msg").data("update-dir");
       var msg = "Replace master files with .tif files from '"+updateDir+"'?";
       $("#confirm-msg").text(msg);
@@ -109,15 +107,50 @@ $(function() {
    $("#add-pages").on("click", function() {
       var btn = $(this);
       btn.addClass("disabled");
-      var origUrl = window.location.href.split("?")[0];
-      var bits = origUrl.split("/");
-      var unit = bits[bits.length - 1];
       var updateDir = $("#confirm-msg").data("update-dir");
       var msg = "Add .tif master files from '"+updateDir+ "' to unit?";
       $("#confirm-msg").text(msg);
       $("div.update-confirm").show();
       $("#confirm-update").data("action", "add");
       $("div.unit-mf-action-panel").hide();
+   });
+
+   $("#assign-metadata").on("click", function() {
+      var btn = $(this);
+      btn.addClass("disabled");
+      $("div.assign-metadata").show();
+      $("div.unit-mf-action-panel").hide();
+   });
+   $("#cancel-metadata").on("click", function() {
+      $("div.assign-metadata").hide();
+      $("div.unit-mf-action-panel").show();
+      $("#assign-metadata").removeClass("disabled");
+   });
+   $("#confirm-assign-md").on("click", function(){
+      var origURL = window.location.href.split("?")[0];
+      $("#working-message").show();
+      $("div.update-confirm").hide();
+      var tgtURL = origURL + "/metadata";
+      var ids = $("#assign-metadata").data("ids");
+      data = { metadata: $("#metadata-id").val(), ids: ids };
+      $.ajax({
+         url: tgtURL,
+         method: "POST",
+         data: data,
+         complete: function(jqXHR, textStatus) {
+            if (textStatus != "success") {
+               alert("Assign metadata failed: " + jqXHR.responseText);
+               $("#working-message").hide();
+               $("div.unit-mf-action-panel").show();
+               $("#assign-metadata").removeClass("disabled");
+            } else {
+               alert("Metadata has been assigned")
+               $("#working-message").hide();
+               $("div.unit-mf-action-panel").show();
+               $("#assign-metadata").removeClass("disabled");
+            }
+         }
+      });
    });
 
    $("#cancel-update").on("click", function() {

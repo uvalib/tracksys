@@ -188,11 +188,6 @@ ActiveAdmin.register Unit do
       render "delivery_workflow", :context=>self
    end
 
-   sidebar "Digital Library Workflow", :only => [:show],
-      if: proc{ !unit.metadata.nil? && unit.metadata.type != "ExternalMetadata" && !current_user.viewer? && !current_user.student? } do
-      render "dl_workflow", :context=>self
-   end
-
    # ACTION ITEMS ==============================================================
    #
    action_item :previous, :only => :show do
@@ -267,27 +262,23 @@ ActiveAdmin.register Unit do
    end
 
    member_action :download, :method => :get do
-      unit = Unit.find(params[:id])
-      att = Attachment.find(params[:attachment])
-      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
-      dest_file = File.join(dest_dir, att.filename)
-      if File.exist? dest_file
-         send_file dest_file
-      else
-         redirect_to "/admin/units/#{params[:id]}", :notice => "Unable to find source file for attachment!"
+      begin
+         att = Attachment.find(params[:attachment])
+         resp = RestClient.get "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         send_data(resp.body, :filename => att.filename, :disposition => 'inline')
+      rescue => exception
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to download attachment: #{exception}"
       end
    end
 
    member_action :remove, :method => :delete do
-      unit = Unit.find(params[:id])
-      att = Attachment.find(params[:attachment])
-      dest_dir = File.join(ARCHIVE_DIR, unit.directory, "attachments" )
-      dest_file = File.join(dest_dir, att.filename)
-      if File.exist? dest_file
-         FileUtils.rm(dest_file)
+      begin
+         att = Attachment.find(params[:attachment])
+         RestClient.delete "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
+      rescue => exception
+         redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to delete attachment: #{exception}"
       end
-      att.destroy
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
    end
 
    member_action :ocr, :method => :post do
@@ -379,12 +370,6 @@ ActiveAdmin.register Unit do
       end
    end
 
-   member_action :publish, :method => :put do
-      unit = Unit.find(params[:id])
-      Virgo.publish(unit, Rails.logger)
-      redirect_to "/admin/units/#{params[:id]}", :notice => "Unit has been published to Virgo."
-   end
-
    member_action :add, :method => :post do
       resp = Job.submit("/units/#{params[:id]}/masterfiles/add", nil)
       if resp.success?
@@ -418,6 +403,52 @@ ActiveAdmin.register Unit do
       else
          render plain: resp.message, status: :internal_server_error
       end
+   end
+   member_action :metadata, :method => :post do
+      md = Metadata.find_by(id: params[:metadata])
+      if md.nil?
+         render plain: "#{params[:metadata]} is not a valid metadata ID", status: :bad_request
+         return
+      end
+      if md.type == "SirsiMetadata" || (md.type == "ExternalMetadata" && md.external_system.name != "ArchivesSpace")
+         render plain: "#{params[:metadata]} is #{md.type}. Only XML and ArchivesSpace are supported", status: :bad_request
+         return
+      end
+
+      # update all of the selected master file metadata
+      mf_list = MasterFile.where(id: params[:ids])
+      mf_list.update_all(metadata_id: params[:metadata])
+
+      begin
+         # since the target metadata masterfiles list has changed, regenerate the IIIF manifest
+         iiif_url = "#{Settings.iiif_manifest_url}/pid/#{md.pid}?refresh=true"
+         Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
+         if resp.code.to_i != 200
+            Rails.logger.error "Unable to generate IIIF manifest for #{md.pid}: #{resp.body}"
+         else
+            Rails.logger.info "IIIF manifest for #{md.pid} regenerated"
+         end
+      rescue Exception => e
+         Rails.logger.error "Unable to generate IIIF manifest for #{md.pid}: #{e}"
+      end
+
+      begin
+         # also update the unit metadata IIIF manifest as it has changed too
+         unit_mf_pid = mf_list.first.unit.metadata.pid
+         iiif_url = "#{Settings.iiif_manifest_url}/pid/#{unit_mf_pid}?refresh=true"
+         Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
+         if resp.code.to_i != 200
+            Rails.logger.error "Unable to generate IIIF manifest for #{unit_mf_pid}: #{resp.body}"
+         else
+            Rails.logger.info "IIIF manifest for #{unit_mf_pid} regenerated"
+         end
+      rescue Exception => e
+         Rails.logger.error "Unable to generate IIIF manifest for #{unit_mf_pid}: #{e}"
+      end
+
+      render plain: "ok", status: :ok
    end
    member_action :job_status, method: :get do
       job = JobStatus.find(params[:job])

@@ -261,11 +261,9 @@ ActiveAdmin.register SirsiMetadata do
       redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Materials returned from DigiServ."
    end
 
-  # Flag for publication  overnight
-  #
   member_action :publish, :method => :put do
     metadata = SirsiMetadata.find(params[:id])
-    metadata.flag_for_publication
+    metadata.publish
 
     logger.info "SirsiMetadata #{metadata.id} has been flagged for an update in the DL"
     redirect_to "/admin/sirsi_metadata/#{params[:id]}", :notice => "Item flagged for publication"

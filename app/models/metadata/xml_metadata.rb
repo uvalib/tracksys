@@ -2,7 +2,8 @@ require 'nokogiri'
 require 'open-uri'
 
 class XmlMetadata < Metadata
-   include Publishable
+
+   scope :dpla, ->{where(:dpla => true) }
 
    # Prevent setting data valid for other classes in the STI model
    validates :catalog_key, presence: false
@@ -74,5 +75,34 @@ class XmlMetadata < Metadata
       end
 
       return errors
+   end
+
+   def in_dl?
+      return self.date_dl_ingest?
+   end
+
+   def publish
+      if self.date_dl_ingest.blank?
+        if self.date_dl_update.blank?
+            self.update(date_dl_ingest: Time.now)
+        else
+            self.update(date_dl_ingest: self.date_dl_update, date_dl_update: Time.now)
+        end
+      else
+        self.update(date_dl_update: Time.now)
+      end
+
+      begin
+         iiif_url = "#{Settings.iiif_manifest_url}/pid/#{self.pid}?refresh=true"
+         Rails.logger.info "Regenerate IIIF manifest with #{iiif_url}"
+         resp = RestClient.get iiif_url
+         if resp.code.to_i != 200
+            Rails.logger.error "Unable to generate IIIF manifest: #{resp.body}"
+         else
+            Rails.logger.info "IIIF manifest regenerated"
+         end
+      rescue Exception => e
+         Rails.logger.error "Unable to generate IIIF manifest: #{e}"
+      end
    end
 end

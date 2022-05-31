@@ -261,8 +261,26 @@ ActiveAdmin.register XmlMetadata do
       end
    end
 
+   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? } do
+      if xml_metadata.in_dl?
+         div :class => 'workflow_button' do
+            button_to "Publish", "/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
+         end
+      else
+         "No options available.  Object is not in DL."
+      end
+   end
+
    # ACTIONS ==================================================================
    #
+   member_action :publish, :method => :put do
+      metadata = XmlMetadata.find(params[:id])
+      metadata.publish
+
+      logger.info "XMLMetadata #{metadata.id} has been flagged for an update in the DL"
+      redirect_to "/admin/xml_metadata/#{params[:id]}", :notice => "Item flagged for publication"
+    end
+
    controller do
       def update
          # create a metadata version to track this change

@@ -3,20 +3,8 @@
 
 # URLS
 #
-delivery_url: http://digiservdelivery.lib.virginia.edu/
 virgo_url: http://search.lib.virginia.edu/catalog
-ocr_url: "http://docker1.lib.virginia.edu:8389/ocr"
 orders_url: https://dpg-orders.library.virginia.edu
-
-# Kakadu (for j2k image conversions)
-kdu_compress: /usr/bin/kakadu/kdu_compress
-num_jp2k_threads: "2"
-
-# Saxxon settings for XSL 2.0 Transformations
-saxon_url: https://saxon-servlet.internal.lib.virginia.edu/SaxonServlet
-
-# Max size of patron zip Files
-zip_max_gb: "2"
 
 # Computing IDs of users that can access preservation (APTrust) settings
 preservation_users: lf6f
@@ -29,13 +17,6 @@ aws_bucket: "aptrust.receiving.test.virginia.edu"
 aptrust_user: APTRUST_USER
 aptrust_key: APTRUST_KEY
 aptrust_api_url: https://demo.aptrust.org/member-api/v2
-
-# redis info; used to cache AS session tokens
-redis_host: "redis.lib.virginia.edu"
-redis_port: "6379"
-redis_pass: REDIS_PASS
-redis_prefix: "tracksys"
-redis_db: "0"
 
 # Email controls; use to prevent email from being sent
 # to customer from a dev server
@@ -51,7 +32,6 @@ as_pass: as_pass
 
 archive_mount: /lib_content44/RMDS_archive/CheckSummed_archive
 production_mount: /digiserv-production
-delivery_dir: /digiserv-delivery/patron
 
 # job processing service
 jobs_url: http://dockerprod1.lib.virginia.edu:8710
@@ -71,9 +51,7 @@ iiif_manifest_url: http://localhost:8080/iiif                                   
 iiif_url: http://iiif.lib.virginia.edu/iiif                                      # IIIF image server base URL
 doviewer_url: https://doviewer.lib.virginia.edu                                  # Digital object viewer URL
 tracksys_url: http://tracksysdev.lib.virginia.edu
-index_destintion: "virgo"
 pdf_url: http://tracksys.lib.virginia.edu:8085/pdf
-rights_wrapper_url: http://rightswrapper2.lib.virginia.edu:8090/rights-wrapper
 
 # Reindex service
 #reindex_url: https://virgo4-sirsi-cache-reprocess-ws-dev.internal.lib.virginia.edu
