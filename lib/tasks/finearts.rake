@@ -3,7 +3,7 @@ namespace :finearts do
    task :import  => :environment do
       arch_csv = File.join(Rails.root, "data", "ARCH_List.csv")
       processed = []
-      progress_file = File.join(Rails.root, "tmp", "arch_processed.csv")
+      progress_file = File.join(Rails.root, "tmp", "arch_processed.txt")
       if File.exists? progress_file
          file = File.open(progress_file)
          progress_str = file.read
@@ -13,6 +13,7 @@ namespace :finearts do
       cnt = 0
       missing_order = 0
       bad_units = 0
+      max_processed = 5
       CSV.foreach(arch_csv, headers: true) do |row|
          order_id = row[0]
          from_dir = row[2]
@@ -35,16 +36,21 @@ namespace :finearts do
 
          unit_id = o.units.first.id
          puts "     unit #{unit_id}"
-         resp = Job.submit("/units/#{unit_id}/import", { from: "archive", target: from_dir} )
-         if resp.success?
+         begin
+            url = "#{Settings.jobs_url}/units/#{unit_id}/import"
+            payload =  { from: "archive", target: from_dir}
+            puts "     url #{url}, payload: #{payload.to_json}"
+            RestClient::Request.execute(method: :post, url: url, payload: payload.to_json, timeout: nil)
             processed << order_id
             cnt += 1
-         else
-            puts "ERROR: import failed - #{resp.message}"
+         rescue => exception
+            puts "ERROR: import failed - #{exception}"
             break
          end
 
-         break
+         if cnt >= max_processed
+            break
+         end
 
       end
 
