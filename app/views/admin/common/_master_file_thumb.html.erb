@@ -1,6 +1,6 @@
 <% if mf.deaccessioned? %>
    <span class="deaccessioned">Deaccessioned</span>
-<% else %>
+<% elsif !mf.metadata.nil? %>
    <% mf_id = mf.id
       meta_pid = ""
       meta_pid = mf.metadata.pid if !mf.metadata.nil?
@@ -9,4 +9,6 @@
       exemplar = " exemplar" if mf.exemplar %>
    <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled#{exemplar}", id: mf_id,
          data: {page: page, unit: mf.unit_id, metadata_pid: meta_pid, curio_url: "#{Settings.doviewer_url}"}) %>
+<% else %>
+   <%= image_tag(mf.link_to_image(:small) %>
 <% end %>
