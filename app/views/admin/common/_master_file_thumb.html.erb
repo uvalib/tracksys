@@ -10,5 +10,5 @@
    <%= image_tag(mf.link_to_image(:small), class: "do-viewer-enabled#{exemplar}", id: mf_id,
          data: {page: page, unit: mf.unit_id, metadata_pid: meta_pid, curio_url: "#{Settings.doviewer_url}"}) %>
 <% else %>
-   <%= image_tag(mf.link_to_image(:small) %>
+   <%= image_tag(mf.link_to_image(:small)) %>
 <% end %>
