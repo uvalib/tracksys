@@ -11,6 +11,7 @@ namespace :finearts do
          file.close
       end
       cnt = 0
+      already_done = 0
       missing_order = 0
       bad_units = 0
       max_processed = 5
@@ -20,6 +21,7 @@ namespace :finearts do
          puts "import #{from_dir} to order #{order_id}"
          if processed.include? order_id
             puts "     order has already been processed"
+            already_done +=1
             next
          end
          o = Order.find(order_id)
@@ -60,6 +62,6 @@ namespace :finearts do
          file.close
       end
 
-      puts "DONE. Imported #{cnt} ARCH units. #{missing_order} missing orders, #{bad_units} orders with unit problems"
+      puts "DONE. Imported #{cnt+already_done} ARCH units. #{missing_order} missing orders, #{bad_units} orders with unit problems"
    end
 end
