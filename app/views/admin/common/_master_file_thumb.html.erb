@@ -3,7 +3,7 @@
 <% elsif !mf.metadata.nil? %>
    <% mf_id = mf.id
       meta_pid = ""
-      meta_pid = mf.metadata.pid if !mf.metadata.nil?
+      meta_pid = mf.metadata.pid
       page = mf.get_page_number() %>
    <% exemplar = ""
       exemplar = " exemplar" if mf.exemplar %>
