@@ -3,25 +3,47 @@ namespace :finearts do
    task :import  => :environment do
       arch_csv = File.join(Rails.root, "data", "ARCH_List.csv")
       processed = []
+      missing = []
+      skip = []
       progress_file = File.join(Rails.root, "tmp", "arch_processed.txt")
       if File.exists? progress_file
          file = File.open(progress_file)
-         progress_str = file.read
-         processed = progress_str.split(",")
+         raw = file.read
+         processed = raw.split(",")
+         file.close
+      end
+      missing_file = File.join(Rails.root, "tmp", "arch_missing.txt")
+      if File.exists? missing_file
+         file = File.open(missing_file)
+         raw = file.read
+         missing = raw.split(",")
+         file.close
+      end
+      skip_file = File.join(Rails.root, "tmp", "arch_skip.txt")
+      if File.exists? skip_file
+         file = File.open(skip_file)
+         raw = file.read
+         skip = raw.split(",")
          file.close
       end
       cnt = 0
-      already_done = 0
       missing_order = 0
       bad_units = 0
-      max_processed = 5
+      max_processed = 5 ######## PROCESSING CHUNK SIZE
       CSV.foreach(arch_csv, headers: true) do |row|
          order_id = row[0]
          from_dir = row[2]
          puts "import #{from_dir} to order #{order_id}"
+         if skip.include? order_id
+            puts "     is on the skip list"
+            next
+         end
          if processed.include? order_id
             puts "     order has already been processed"
-            already_done +=1
+            next
+         end
+         if missing.include? order_id
+            puts "     order has already been marked as missing"
             next
          end
          o = Order.find(order_id)
@@ -33,6 +55,15 @@ namespace :finearts do
          if o.units.length != 1
             puts "ERROR: order #{order_id} has #{o.units.length} units"
             bad_units += 1
+            next
+         end
+
+         begin
+            puts "     check if #{from_dir} exists"
+            RestClient.get "#{Settings.jobs_url}/archive/exist?dir=#{from_dir}"
+         rescue => exception
+            puts "ERROR: #{from_dir} not found"
+            missing << order_id
             next
          end
 
@@ -61,7 +92,14 @@ namespace :finearts do
          file.write(processed.join(","))
          file.close
       end
+      if missing.length > 0
+         file = File.open(missing_file, File::WRONLY|File::TRUNC|File::CREAT)
+         file.write(missing.join(","))
+         file.close
+      end
 
-      puts "DONE. Imported #{cnt+already_done} ARCH units. #{missing_order} missing orders, #{bad_units} orders with unit problems"
+      puts "DONE. Imported #{processed.length} units"
+      puts "     #{missing_order} missing orders, #{missing.length} missing archive, #{bad_units} orders with unit problems"
+      puts "     #{skip.length} skipped"
    end
 end
