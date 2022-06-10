@@ -29,7 +29,7 @@ namespace :finearts do
       cnt = 0
       missing_order = 0
       bad_units = 0
-      max_processed = 5 ######## PROCESSING CHUNK SIZE
+      max_processed = 15 ######## PROCESSING CHUNK SIZE
       CSV.foreach(arch_csv, headers: true) do |row|
          order_id = row[0]
          from_dir = row[2]
@@ -60,9 +60,10 @@ namespace :finearts do
 
          begin
             puts "     check if #{from_dir} exists"
-            RestClient.get "#{Settings.jobs_url}/archive/exist?dir=#{from_dir}"
+            resp = RestClient.get "#{Settings.jobs_url}/archive/exist?dir=#{from_dir}"
+            puts "     #{resp.body}"
          rescue => exception
-            puts "ERROR: #{from_dir} not found"
+            puts "     ERROR: #{from_dir} not found"
             missing << order_id
             next
          end
