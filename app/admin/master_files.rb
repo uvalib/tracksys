@@ -166,7 +166,9 @@ ActiveAdmin.register MasterFile do
                class: "do-viewer-enabled", id: mf_id,
                data: { page: page, metadata_pid: md_pid, unit: uid, curio_url: Settings.doviewer_url } )
          else
-            image_tag( master_file.link_to_image(:medium) )
+            link_to(master_file.link_to_image(:full), target: "_blank") do
+               image_tag( master_file.link_to_image(:medium) )
+            end
          end
       end
       if !current_user.viewer? && !current_user.student? && !master_file.deaccessioned? && master_file.ocr_candidate?
