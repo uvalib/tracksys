@@ -1,4 +1,47 @@
 namespace :finearts do
+   desc "import ORDER of finearts masterfiles from params"
+   task :order  => :environment do
+      order_id = ENV['order']
+      from_dir = ENV['dir']
+
+      puts "import #{from_dir} to order #{order_id}"
+      o = Order.find(order_id)
+      if o.nil?
+         abort "ERROR: order #{order_id} not found"
+      end
+      if o.units.length != 1
+         abort "ERROR: order #{order_id} has #{o.units.length} units"
+      end
+
+      begin
+         unit_id = o.units.first.id
+         url = "#{Settings.jobs_url}/units/#{unit_id}/import"
+         payload =  { from: "archive", target: from_dir}
+         puts "     url #{url}, payload: #{payload.to_json}"
+         RestClient::Request.execute(method: :post, url: url, payload: payload.to_json, timeout: nil)
+         puts "DONE"
+      rescue => exception
+         puts "ERROR: import failed - #{exception}"
+         break
+      end
+   end
+
+   desc "import UNIT of finearts masterfiles from params"
+   task :unit  => :environment do
+      unit_id = ENV['unit']
+      from_dir = ENV['dir']
+      begin
+         url = "#{Settings.jobs_url}/units/#{unit_id}/import"
+         payload =  { from: "archive", target: from_dir}
+         puts "     url #{url}, payload: #{payload.to_json}"
+         RestClient::Request.execute(method: :post, url: url, payload: payload.to_json, timeout: nil)
+         puts "DONE"
+      rescue => exception
+         puts "ERROR: import failed - #{exception}"
+         break
+      end
+   end
+
    desc "import finearts masterfiles from CSV/Archive"
    task :import  => :environment do
       arch_csv = File.join(Rails.root, "data", "ARCH_List.csv")
