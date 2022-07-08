@@ -11,25 +11,43 @@ class Api::JstorController < ApplicationController
       unknown = 0
       not_found = 0
       archived = 0
+      fnidx = -1
       CSV.parse((params[:file].read)).each do |row|
-         out_row = row
+         out_row = []
+
          if header
             header = false
+            out_row << "Filename"
+            out_row << "MasterFile PID"
             out_row << "Virgo URL"
             out_row << "IIIF URL"
             out_row << "Status"
             out << out_row
+            row.each do |rn, idx|
+               if rn.downcase == "filename"
+                  fnidx = idx
+                  break
+               end
+            end
             next
+         end
+
+         if fnidx == -1
+            render plain: "CSV file is missing the Filename column", status: :bad_request
+            return
          end
 
          count += 1
 
          csv_filename = row[1]
-         base_filename = csv_filename.split(".")[0]
+
+         base_filename = File.basename(csv_filename, File.extname(csv_filename))
          Rails.logger.info "Check for masterfile #{base_filename}%"
          mf = MasterFile.where("filename like ?", "#{base_filename}%").first
          if mf.nil?
             Rails.logger.info "Masterfile #{base_filename}% NOT FOUND"
+            out_row << csv_filename
+            out_row << "N/A"  # not in TS, no PID
             out_row << "N/A"  # not in virgo
             out_row << "N/A"  # not in IIIF
 
@@ -45,7 +63,7 @@ class Api::JstorController < ApplicationController
             Rails.logger.info "Check unit part of filename #{parts[0]}"
             if parts[0].length != 9
                if parts[0].include?("ARCH") || parts[0].include?("BSEL") || parts[0].include?("BSEL") || parts[0].include?("FBJ")|| parts[0].include?("AVRN")
-                  archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{csv_filename.gsub(/jpg/, 'tif')}")
+                  archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{base_filename}.tif")
                   Rails.logger.info "Does #{archive_file} exist?"
                   if File.exist? archive_file
                      out_row << "Archived"
@@ -77,6 +95,8 @@ class Api::JstorController < ApplicationController
             out << out_row
          else
             # found master file in tracksys
+            out_row << mf.filename
+            out_row << mf.pid
             status = ""
             if mf.unit.include_in_dl
                out_row << "https://search.lib.virginia.edu/sources/images/items/#{mf.metadata.pid}"
@@ -93,12 +113,8 @@ class Api::JstorController < ApplicationController
          end
       end
 
-      csv_string = CSV.generate do |csv|
-         out.each { |row| csv << row}
-      end
-
       Rails.logger.info "JSTOR SUMMARY: Total #{count} items in CSV. Unknown: #{unknown}, Not Found: #{not_found}, TrackSys: #{tracksys}, Virgo: #{virgo}"
 
-      send_data(csv_string, :type => 'text/csv; charset=utf-8; header=present', :filename => params[:file].original_filename)
+      send_data(out, :type => 'text/csv; charset=utf-8; header=present', :filename => params[:file].original_filename)
    end
 end
