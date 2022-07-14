@@ -42,7 +42,7 @@ class Api::JstorController < ApplicationController
          csv_filename = row[1]
 
          base_filename = File.basename(csv_filename, File.extname(csv_filename))
-         Rails.logger.info "Check for masterfile #{base_filename}%"
+         # Rails.logger.info "Check for masterfile #{base_filename}%"
          mf = MasterFile.where("filename like ?", "#{base_filename}%").first
          if mf.nil?
             Rails.logger.info "Masterfile #{base_filename}% NOT FOUND"
@@ -60,7 +60,7 @@ class Api::JstorController < ApplicationController
                next
             end
 
-            Rails.logger.info "Check unit part of filename #{parts[0]}"
+            # Rails.logger.info "Check unit part of filename #{parts[0]}"
             if parts[0].length != 9
                if parts[0].include?("ARCH") || parts[0].include?("BSEL") || parts[0].include?("BSEL") || parts[0].include?("FBJ")|| parts[0].include?("AVRN")
                   archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{base_filename}.tif")
@@ -81,7 +81,7 @@ class Api::JstorController < ApplicationController
             end
 
             # looks like a valid archive file.... see if it exists
-            Rails.logger.info "#{parts[0]} looks like a valid archive directory"
+            # Rails.logger.info "#{parts[0]} looks like a valid archive directory"
             archive_file = File.join(ARCHIVE_DIR, "#{parts[0]}", "#{csv_filename.gsub(/jpg/, 'tif')}")
             Rails.logger.info "Does #{archive_file} exist?"
             if File.exist? archive_file
