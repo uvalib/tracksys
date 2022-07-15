@@ -114,7 +114,10 @@ class Api::JstorController < ApplicationController
       end
 
       Rails.logger.info "JSTOR SUMMARY: Total #{count} items in CSV. Unknown: #{unknown}, Not Found: #{not_found}, TrackSys: #{tracksys}, Virgo: #{virgo}"
+      csv_string = CSV.generate do |csv|
+         out.each { |row| csv << row}
+      end
 
-      send_data(out, :type => 'text/csv; charset=utf-8; header=present', :filename => params[:file].original_filename)
+      send_data(csv_string, :type => 'text/csv; charset=utf-8; header=present', :filename => params[:file].original_filename)
    end
 end
