@@ -42,6 +42,9 @@ class SirsiMetadata < Metadata
    def in_dl?
       return self.date_dl_ingest?
    end
+   def can_publish?
+      return self.units.where("include_in_dl=?", true).count > 0
+   end
 
    def physical_virgo_url
       return "#{Settings.virgo_url}/#{self.catalog_key}"

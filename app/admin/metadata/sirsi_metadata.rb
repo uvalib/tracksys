@@ -239,7 +239,7 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? } do
-     if sirsi_metadata.in_dl?
+     if sirsi_metadata.in_dl? || sirsi_metadata.can_publish?
         div :class => 'workflow_button' do
            button_to "Publish", "/admin/sirsi_metadata/#{sirsi_metadata.id}/publish", :method => :put
         end

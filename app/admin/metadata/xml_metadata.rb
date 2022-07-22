@@ -262,7 +262,7 @@ ActiveAdmin.register XmlMetadata do
    end
 
    sidebar "Digital Library Workflow", :only => [:show],  if: proc{ !current_user.viewer? && !current_user.student? } do
-      if xml_metadata.in_dl?
+      if xml_metadata.in_dl? || xml_metadata.can_publish?
          div :class => 'workflow_button' do
             button_to "Publish", "/admin/xml_metadata/#{xml_metadata.id}/publish", :method => :put
          end
