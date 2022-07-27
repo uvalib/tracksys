@@ -12,6 +12,9 @@ $(function() {
    });
 
    var getMasterFiles = function( page ) {
+      $("#source-masterfile-list .cloned").removeClass("cloned");
+      $("#source-masterfile-list .sel-cb").prop('checked', false);
+
       $("#source-masterfile-list").data("page", page );
       var selectedUnit = $("#source-unit").val();
       $("#curr-page").blur();
@@ -37,17 +40,27 @@ $(function() {
             }
             $("#source-masterfile-list tbody").empty();
             var template = "<tr class='CLASS' data-id='MF_ID'>";
-            template += "<td><input class='sel-cb' type='checkbox'/></td>";
+            template += "<td><input class='sel-cb' type='checkbox' DISABLED/></td>";
             template += "<td class='mf-file'>MF_FILE</td><td class='mf-title'>MF_TITLE</td><td><img src='MF_IMAGE'/></td></tr>";
             $.each(json.masterfiles, function(idx,val) {
                var rowClass = "mf-row";
+               var cloned = false
                if ( $("#clone-masterfile-list .sel-cb[data-id='"+val.id+"']").length > 0 ) {
+                  cloned = true
                   rowClass += " cloned";
                }
-               if ( $("#clone-masterfile-list .sel-cb[data-unit-id='"+selectedUnit+"']").length > 0 ) {
+               if ( $("#clone-masterfile-list .sel-cb[data-unit-id='"+selectedUnit+"']").length > 0 &&
+                    $("#clone-masterfile-list .sel-cb[data-id='0']").length > 0 )  {
+                  cloned = true
                   rowClass += " cloned";
                }
                var r = template;
+               if (cloned) {
+                  r = r.replace("DISABLED", "disabled");
+               } else {
+                  r = r.replace("DISABLED", "");
+               }
+               console.log("CLASS "+rowClass)
                r = r.replace("CLASS",rowClass);
                r = r.replace(/MF_ID/g, val.id);
                r = r.replace(/MF_FILE/g, val.filename);
@@ -85,6 +98,7 @@ $(function() {
    });
    $(".clone-btn.next").on("click", function() {
       if ( $(this).hasClass("disabled") ) return;
+
       var pg = parseInt( $("#source-masterfile-list").data("page"), 10);
       var max = parseInt($("#max-page").text(),10);
       pg += 1;
