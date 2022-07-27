@@ -264,7 +264,7 @@ ActiveAdmin.register Unit do
    member_action :download, :method => :get do
       begin
          att = Attachment.find(params[:attachment])
-         resp = RestClient.get "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         resp = RestClient.get "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{URI.encode(att.filename)}"
          send_data(resp.body, :filename => att.filename, :disposition => 'inline')
       rescue => exception
          redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to download attachment: #{exception}"
@@ -274,7 +274,7 @@ ActiveAdmin.register Unit do
    member_action :remove, :method => :delete do
       begin
          att = Attachment.find(params[:attachment])
-         RestClient.delete "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{att.filename}"
+         RestClient.delete "#{Settings.jobs_url}/units/#{params[:id]}/attachments/#{URI.encode(att.filename)}"
          redirect_to "/admin/units/#{params[:id]}", :notice => "Attachment deleted"
       rescue => exception
          redirect_to "/admin/units/#{params[:id]}", :alert => "Unable to delete attachment: #{exception}"
