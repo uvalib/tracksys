@@ -1,4 +1,50 @@
 namespace :finearts do
+   desc "import BATCH of finearts masterfiles from params"
+   task :batch  => :environment do
+      batch = [
+         {order: 7824, dir: "20141007ARCH"},
+         {order: 7825, dir: "20141008ARCH"},
+         {order: 7826, dir: "20141009ARCH"},
+         {order: 8067, dir: "20141204ARCH"},
+         {order: 8068, dir: "20150119ARCH"},
+         {order: 8086, dir: "20150207ARCH"},
+         {order: 8087, dir: "20150208ARCH"},
+         {order: 8088, dir: "20150218ARCH"},
+         {order: 8232, dir: "20150441ARCH"},
+         {order: 8255, dir: "20150435ARCH"},
+         {order: 8360, dir: "20150223ARCH"},
+         {order: 8500, dir: "20150501ARCH"},
+         {order: 8611, dir: "20150501ARCH"},
+         {order: 8849, dir: "20151107ARCH"},
+         {order: 9457, dir: "20160915ARCH"},
+      ]
+
+      batch.each do |data|
+         order_id = data[:order]
+         from_dir = data[:dir]
+         puts "import #{from_dir} to order #{order_id}"
+         o = Order.find(order_id)
+         if o.nil?
+            abort "ERROR: order #{order_id} not found"
+         end
+         if o.units.length != 1
+            abort "ERROR: order #{order_id} has #{o.units.length} units"
+         end
+
+         begin
+            unit_id = o.units.first.id
+            url = "#{Settings.jobs_url}/units/#{unit_id}/import"
+            payload =  { from: "archive", target: from_dir}
+            puts "     url #{url}, payload: #{payload.to_json}"
+            RestClient::Request.execute(method: :post, url: url, payload: payload.to_json, timeout: nil)
+            puts "DONE"
+         rescue => exception
+            puts "ERROR: import failed - #{exception}"
+            break
+         end
+      end
+   end
+
    desc "import ORDER of finearts masterfiles from params"
    task :order  => :environment do
       order_id = ENV['order']

@@ -39,11 +39,13 @@ class Invoice < ApplicationRecord
    def self.past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date)
+         .where("date_fee_declined is null")
          .joins(:order).where("orders.fee is not null and orders.fee > 0")
    end
    def self.notified_past_due()
       date=30.days.ago
       where("date_fee_paid is NULL").where("date_invoice < ?", date).where("date_second_notice_sent is not NULL")
+         .where("date_fee_declined is null")
          .joins(:order).where("orders.fee is not null and orders.fee > 0")
    end
 end
