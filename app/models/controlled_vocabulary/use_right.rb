@@ -1,7 +1,7 @@
 class UseRight < ApplicationRecord
    has_many :metadata, :source=>:metadata, :class_name => 'Metadata'
    validates :name, :uniqueness => true
-   has_many :master_files, :through=>:metadata
+   has_many :master_files, -> { distinct }, :through=>:metadata
 
    def uses
       uses = []

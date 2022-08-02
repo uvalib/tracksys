@@ -17,10 +17,10 @@ class Order < ApplicationRecord
    has_many :invoices, :dependent => :destroy
    has_many :units, :inverse_of => :order
 
-   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata") }, :through => :units, :source=>:metadata
-   has_many :xml_metadata, ->{where(type: "XmlMetadata") }, :through => :units, :source=>:metadata
-   has_many :master_files, :through => :units
-   has_many :projects, :through=> :units
+   has_many :sirsi_metadata, ->{ where(type: "SirsiMetadata").distinct }, :through => :units, :source=>:metadata
+   has_many :xml_metadata, ->{where(type: "XmlMetadata").distinct }, :through => :units, :source=>:metadata
+   has_many :master_files, -> { distinct }, :through => :units
+   has_many :projects, -> { distinct }, :through=> :units
 
    has_one :academic_status, :through => :customer
    has_one :department, :through => :customer

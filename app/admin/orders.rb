@@ -348,5 +348,9 @@ ActiveAdmin.register Order do
       def get_audit_log
          @audit_log = AuditEvent.where(auditable: resource)
       end
+      def apply_filtering(chain)
+         super
+         @search.result(distinct: true)
+      end
    end
 end

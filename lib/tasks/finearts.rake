@@ -88,6 +88,100 @@ namespace :finearts do
       end
    end
 
+
+   desc "import FKL masterfiles from CSV/Archive"
+   task :fkl  => :environment do
+      order_id = ENV['order']
+      abort "order is required" if order_id.nil?
+      order = Order.find(order_id)
+      abort "order not found" if order.nil?
+
+      md = XmlMetadata.find_by(title: "Fine Arts Library Archived Images, 2005-2009")
+      abort "Metadata record not found" if md.nil?
+
+      arch_csv = File.join(Rails.root, "data", "FKL_files.csv")
+      processed = []
+      missing = []
+      progress_file = File.join(Rails.root, "tmp", "fkl_processed.txt")
+      if File.exists? progress_file
+         file = File.open(progress_file)
+         raw = file.read
+         processed = raw.split(",")
+         file.close
+      end
+      missing_file = File.join(Rails.root, "tmp", "fkl_missing.txt")
+      if File.exists? missing_file
+         file = File.open(missing_file)
+         raw = file.read
+         missing = raw.split(",")
+         file.close
+      end
+      max_processed = 1 ######## PROCESSING CHUNK SIZE
+      cnt = 0
+      CSV.foreach(arch_csv, headers: false) do |row|
+         from_dir = row[0].strip
+         puts "INGEST [#{from_dir}]"
+         if processed.include? from_dir
+            puts "     this item has already been processed"
+            next
+         end
+         if missing.include? from_dir
+            puts "     this item has already been marked as missing"
+            next
+         end
+
+         unit = order.units.find_by(staff_notes: from_dir)
+         if unit.nil?
+            puts "     creating new unit for item"
+            unit = Unit.create!(order: order, metadata: md, intended_use_id: 110, include_in_dl: 0, unit_status: "approved", staff_notes: from_dir)
+         end
+         unit_id = unit.id
+         puts "     unit #{unit_id}"
+
+         begin
+            puts "     check if #{from_dir} exists: #{Settings.jobs_url}/archive/exist?dir=#{from_dir}"
+            resp = RestClient.get "#{Settings.jobs_url}/archive/exist?dir=#{from_dir}"
+            puts "     #{resp.body}"
+         rescue => exception
+            puts exception
+            puts "     ERROR: #{from_dir} not found"
+            missing << from_dir
+            next
+         end
+
+         begin
+            url = "#{Settings.jobs_url}/units/#{unit_id}/import"
+            payload =  { from: "archive", target: from_dir}
+            puts "     url #{url}, payload: #{payload.to_json}"
+            RestClient::Request.execute(method: :post, url: url, payload: payload.to_json, timeout: nil)
+            processed << from_dir
+            cnt += 1
+         rescue => exception
+            puts "ERROR: import failed - #{exception}"
+            break
+         end
+
+         if cnt >= max_processed
+            break
+         end
+
+      end
+
+      if processed.length > 0
+         file = File.open(progress_file, File::WRONLY|File::TRUNC|File::CREAT)
+         file.write(processed.join(","))
+         file.close
+      end
+      if missing.length > 0
+         file = File.open(missing_file, File::WRONLY|File::TRUNC|File::CREAT)
+         file.write(missing.join(","))
+         file.close
+      end
+
+      puts "DONE. Imported #{processed.length} items"
+      puts "     #{missing.length} missing archive"
+   end
+
    desc "import finearts masterfiles from CSV/Archive"
    task :import  => :environment do
       arch_csv = File.join(Rails.root, "data", "ARCH_List.csv")

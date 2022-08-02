@@ -16,7 +16,7 @@ class Unit < ApplicationRecord
    belongs_to :order, :counter_cache => true, :inverse_of => :units
 
    has_many :master_files
-   has_many :components, :through => :master_files
+   has_many :components, -> { distinct }, :through => :master_files
    has_many :job_statuses, :as => :originator, :dependent => :destroy
    has_many :attachments, :dependent=>:destroy
 
@@ -24,7 +24,7 @@ class Unit < ApplicationRecord
    has_one :customer, :through => :order
    has_one :department, :through => :order
    has_one :project
-   has_many :notes, :through => :project
+   has_many :notes, -> { distinct }, :through => :project
 
    delegate :title, :to=>:metadata, :allow_nil => true, :prefix => true
    delegate :date_due, :to => :order, :allow_nil => true, :prefix => true

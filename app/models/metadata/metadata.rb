@@ -15,11 +15,11 @@ class Metadata < ApplicationRecord
 
    has_many :master_files
    has_many :units
-   has_many :orders, :through => :units
+   has_many :orders, -> { distinct }, :through => :units
    has_many :job_statuses, :as => :originator, :dependent => :destroy
 
-   has_many :agencies, :through => :orders
-   has_many :customers, :through => :orders
+   has_many :agencies, -> { distinct }, :through => :orders
+   has_many :customers, -> { distinct }, :through => :orders
    has_many :checkouts
 
    #------------------------------------------------------------------

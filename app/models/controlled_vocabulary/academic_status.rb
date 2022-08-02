@@ -3,9 +3,9 @@ class AcademicStatus < ApplicationRecord
   # relationships
   #------------------------------------------------------------------
   has_many :customers
-  has_many :orders, :through => :customers
-  has_many :units, :through => :orders
-  has_many :master_files, :through => :units
+  has_many :orders, -> { distinct }, :through => :customers
+  has_many :units, -> { distinct }, :through => :orders
+  has_many :master_files, -> { distinct }, :through => :units
 
   validates :name, :presence => true
 
