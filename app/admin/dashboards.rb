@@ -18,18 +18,6 @@ ActiveAdmin.register_page "Dashboard" do
                   td do link_to "#{Order.overdue.count}", admin_orders_path(:order => 'date_due_desc', :page => '1', :scope => 'overdue') end
                end
                tr do
-                  td do "Invoices Overdue (30 days or more)" end
-                  td do link_to "#{Invoice.past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'past_due') end
-               end
-               tr do
-                  td do "Invoices Overdue (2nd notice)" end
-                  td do link_to "#{Invoice.notified_past_due.count}", admin_invoices_path(:order => 'date_invoice_desc', :page => '1', :scope => 'notified_past_due') end
-               end
-               tr do
-                  td do "Customers with unpaid orders" end
-                  td do link_to "#{Customer.has_unpaid_invoices.count}", admin_customers_path(:customer => 'id_desc', :page => '1', :scope => 'has_unpaid_invoices')  end
-               end
-               tr do
                   td do "Total unpaid invoices" end
                   td do
                      link_to "#{number_to_currency(Order.unpaid.to_a.sum(&:fee), :precision => 0)}",
@@ -42,10 +30,6 @@ ActiveAdmin.register_page "Dashboard" do
          panel "Recent Job Status Summary", :namespace => :admin, :toggle => 'show' do
             table do
                tr do
-                  td do "Pending Jobs" end
-                  td do link_to "#{JobStatus.jobs_count('pending')}", admin_job_statuses_path(:q => {:status => 'pending'} ) end
-               end
-               tr do
                   td do "Running Jobs" end
                   td do link_to "#{JobStatus.jobs_count('running')}", admin_job_statuses_path(:q => {:status_eq => 'running'} ) end
                end
@@ -57,13 +41,6 @@ ActiveAdmin.register_page "Dashboard" do
                   td do "Failed Jobs" end
                   td do link_to "#{JobStatus.jobs_count("failure")}", admin_job_statuses_path(:q => {:status_eq => 'failure'} ) end
                end
-            end
-         end
-
-         panel "Recently Published Images" do
-            div style: "text-align:center" do
-               span style: "display:inline-block;width: 45%", class: "btn", id: "view-virgo-published" do "View Recent Virgo Publications" end
-               span style: "display:inline-block;width: 45%", class: "btn", id: "view-as-published"  do "View Recent ArchivesSpace Publications" end
             end
          end
 
@@ -82,7 +59,9 @@ ActiveAdmin.register_page "Dashboard" do
                end
             end
          end
+      end
 
+      div :class => 'two-column' do
          panel "PID Finder" do
             render 'admin/dashboard/pid_finder'
          end
@@ -90,86 +69,6 @@ ActiveAdmin.register_page "Dashboard" do
             render 'admin/dashboard/master_file_finder'
          end
       end
-
-      div :class => 'two-column' do
-         panel "My Projects", :toggle => 'show' do
-            if current_user.projects.count > 0
-               table do
-                  tr do
-                     th do "Name" end
-                     th do "Due On" end
-                     th do "Current Step" end
-                     th do "Link" end
-                  end
-                  current_user.projects.order(due_on: :desc).each do |p|
-                     tr do
-                        td do p.project_name.truncate( 30, separator: ' ') end
-                        td do p.due_on end
-                        td do p.current_step.name if ! p.current_step.blank? end
-                        td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
-                     end
-                  end
-               end
-            else
-               div do
-                  "No projects are currently assigned to you"
-               end
-            end
-         end
-         if !current_user.viewer? && !current_user.student?
-            panel "Problem Projects", :toggle => 'show' do
-               if Project.has_error.count == 0 && Project.failed_qa.count == 0 && Project.overdue.count == 0
-                  div do
-                     "There are no problems with any active projects"
-                  end
-               else
-                  table do
-                     tr do
-                        th do "Name" end
-                        th do "Due On" end
-                        th do "STEP" end
-                        th do "Status" end
-                        th do "Link" end
-                     end
-                     Project.has_error.order(due_on: :desc).limit(10).each do |p|
-                        tr do
-                           td do p.project_name.truncate( 30, separator: ' ') end
-                           td do p.due_on end
-                           td do p.current_step.name end
-                           td do "ERROR" end
-                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
-                        end
-                     end
-                     Project.failed_qa.order(due_on: :desc).limit(10).each do |p|
-                        tr do
-                           td do p.project_name.truncate( 30, separator: ' ') end
-                           td do p.due_on end
-                           td do p.current_step.name end
-                           td do "FAILED QA" end
-                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
-                        end
-                     end
-                     Project.overdue.order(due_on: :desc).limit(10).each do |p|
-                        tr do
-                           td do p.project_name.truncate( 30, separator: ' ') end
-                           td do p.due_on end
-                           td do p.current_step.name end
-                           td do "OVERDUE" end
-                           td do link_to "Details", "#{Settings.qa_viewer_url}/projects/#{p.id}", target: "_blank" end
-                        end
-                     end
-                  end
-               end
-            end
-         end
-      end
-      render 'admin/dashboard/published_popups'
-   end
-
-   page_action :get_yearly_stats do
-      CreateStatsReport.exec( {:user_id=>current_user.id, :year => params[:year]} )
-      flash[:notice] = "Stats Report Being Created. You will receive an email when report is ready."
-      redirect_to "/admin/dashboard"
    end
 
    page_action :master_file_lookup do
