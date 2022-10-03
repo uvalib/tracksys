@@ -38,11 +38,6 @@ ActiveAdmin.register StaffMember do
          div do
            link_to I18n.t('active_admin.edit'), edit_resource_path(staff_member), :class => "member_link edit_link"
          end
-         if current_user.id != staff_member.id
-            div do
-              link_to "Act As", "/admin/staff_members/#{staff_member.id}/act_as", :class => "member_link edit_link", :method=>"POST"
-            end
-         end
       end
     end
   end
@@ -72,16 +67,5 @@ ActiveAdmin.register StaffMember do
     end
 
     f.actions
-  end
-
-  member_action :exit, :method => :post do
-     session.delete(:act_as)
-      redirect_to "/admin/staff_members"
-  end
-
-  member_action :act_as, :method => :post do
-     u = StaffMember.find(params[:id])
-     session[:act_as] = u.computing_id
-     redirect_to "/admin/staff_members", :notice => "You are now acting as #{u.full_name}."
   end
 end

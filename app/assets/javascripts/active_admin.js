@@ -13,7 +13,6 @@
 //= require equipment
 //= require skills
 //= require tags
-//= require messages
 //= require curio
 //= require metadata
 //= require master-file-locations

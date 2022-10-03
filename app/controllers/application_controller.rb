@@ -1,21 +1,7 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery
 
-   helper_method :current_user, :acting_as_user?, :check_messages?
-
-   def acting_as_user?
-      return !session[:act_as].nil?
-   end
-
-   # Only check for messages on pagereloads every to minutes
-   def check_messages?
-      if session[:last_msg_read].nil?
-         return true
-      end
-
-      delta_mins = (Time.now - session[:last_msg_read])/60.0
-      return delta_mins > 10
-   end
+   helper_method :current_user
 
    def current_user
       computing_id = request.env['HTTP_REMOTE_USER'].to_s
@@ -28,9 +14,6 @@ class ApplicationController < ActionController::Base
             logger.error("No staff found with ID #{computing_id}")
             return nil?
          end
-      end
-      if @curr_user.admin? && !session[:act_as].nil?
-         @curr_user = StaffMember.find_by(computing_id: session[:act_as])
       end
       return @curr_user
    end

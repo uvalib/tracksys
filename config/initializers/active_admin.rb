@@ -1,7 +1,7 @@
 ActiveAdmin.setup do |config|
   # View a list of all the elements you can override
   # https://github.com/gregbell/active_admin/blob/master/lib/active_admin/view_factory.rb
-  config.view_factory.register utility_navigation: HeaderUserInfo
+  #config.view_factory.register utility_navigation: HeaderUserInfo
 
   # == Site Title
   #

@@ -13,13 +13,6 @@ module ActiveAdmin
                   script src: "//cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.3/jquery.panzoom.js", type: "text/javascript"
                end
             end
-
-            def build(*args)
-               super(*args)
-               within body do
-                  render 'admin/common/message_popup'
-               end
-            end
          end
 
          # Prepend will add this module in front of AcriveAdmin::Views::Pages::Base in the class heirarchy,

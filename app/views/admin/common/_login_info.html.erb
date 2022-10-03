@@ -1,9 +1,0 @@
-<div id="login-info">
-   <%= link_to "#{user.full_name}", "/admin/staff_members/#{user.id}" %>
-   <a href="/admin/messages">
-      <div class="user-messages">
-         <span class="message-cnt"><%= user.messages.where(read: 0).count %></span>
-         <span class="message-icon"></span>
-      </div>
-   </a>
-</div>
