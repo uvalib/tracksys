@@ -18,7 +18,19 @@ class Admin::ArchivesspaceController < ApplicationController
          resp = RestClient.get "#{Settings.jobs_url}/archivesspace/validate?url=#{params[:as_url]}"
          render plain: resp.body
       rescue => exception
-         render plain: "Validate Failed: #{exception.response.body}", status: :internal_server_error
+         render plain: "Validate Failed: #{exception.to_s}", status: :internal_server_error
+      end
+   end
+
+   def lookup
+      Rails.logger.info "ArchivesSpace lookup: #{params[:uri]}"
+      begin
+         resp = RestClient.get "#{Settings.jobs_url}/archivesspace/lookup?uri=#{params[:uri]}"
+         as_info = JSON.parse(resp.body)
+         Rails.logger.info "AS response: #{as_info}"
+         render json: as_info
+      rescue => exception
+         render plain: "Lookup Failed: #{exception.to_s}", status: :internal_server_error
       end
    end
 end

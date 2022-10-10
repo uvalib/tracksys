@@ -23,6 +23,7 @@ Tracksys::Application.routes.draw do
 
      # archivesSpace
      post "archivesspace/validate" => "archivesspace#validate"
+     get "archivesspace/lookup" => "archivesspace#lookup"
      post "archivesspace/convert" => "archivesspace#convert"
 
      # Weird. The file /admin/equipment is made with register_page so it

@@ -265,38 +265,38 @@ $(function() {
    });
 
    $("span.as-lookup").on("click", function() {
-     if ($("span.as-lookup").hasClass("disabled") ) return;
-     var url = $("#as-url").val();
-     if (url === "") return;
+      if ($("span.as-lookup").hasClass("disabled") ) return;
+      var url = $("#as-url").val();
+      if (url === "") return;
 
-     $("span.as-lookup").addClass("disabled");
+      $("span.as-lookup").addClass("disabled");
 
-     $.ajax({
-        url: "/admin/archivesspace?uri="+url,
-        method: "GET",
-        complete: function(jqXHR, textStatus) {
-           $("span.as-lookup").removeClass("disabled");
-           if ( textStatus === "success" ) {
-             $("#as-repository").text(jqXHR.responseJSON.repository);
-             $("#collection-row").hide();
-             if ( jqXHR.responseJSON.collection ) {
-               $("#collection-row").show();
-               $("#as-collection").text(jqXHR.responseJSON.collection);
-             }
-             $("#as-title").text(jqXHR.responseJSON.title);
-             $("#as-id").text(jqXHR.responseJSON.id);
-             $("#tgt_as_uri").val(jqXHR.responseJSON.uri);
-             $("#tgt_as_title").val(jqXHR.responseJSON.title);
-           } else {
-             $("#as-repository").text("Unable to find specified URL");
-             $("#as-collection").text("");
-             $("#as-title").text("");
-             $("#as-id").text("");
-             $("#tgt_as_uri").val("");
-             $("#tgt_as_title").val("");
-           }
-        }
-     });
+      $.ajax({
+         url: "/admin/archivesspace/lookup?uri="+url,
+         method: "GET",
+         complete: function(jqXHR, textStatus) {
+            $("span.as-lookup").removeClass("disabled");
+            if ( textStatus === "success" ) {
+               $("#as-repository").text(jqXHR.responseJSON.repo);
+               $("#collection-row").hide();
+               if ( jqXHR.responseJSON.collection_title ) {
+                  $("#collection-row").show();
+                  $("#as-collection").text(jqXHR.responseJSON.collection_title);
+               }
+               $("#as-title").text(jqXHR.responseJSON.title);
+               $("#as-id").text(jqXHR.responseJSON.id);
+               $("#tgt_as_uri").val(jqXHR.responseJSON.url);
+               $("#tgt_as_title").val(jqXHR.responseJSON.title);
+            } else {
+               $("#as-repository").text("Unable to find specified URL");
+               $("#as-collection").text("");
+               $("#as-title").text("");
+               $("#as-id").text("");
+               $("#tgt_as_uri").val("");
+               $("#tgt_as_title").val("");
+            }
+         }
+      });
    });
 
    // Ajax CONVERT form submission hooks; handle before submit, success and error
