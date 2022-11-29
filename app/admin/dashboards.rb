@@ -2,6 +2,17 @@ ActiveAdmin.register_page "Dashboard" do
    menu :priority => 1
 
    content do
+      panel "New Tracksys Version"  do
+         span do
+            "The new version of Tracksys can be found at: "
+         end
+         span do
+            link_to "https://tracksys2.lib.virginia.edu", "https://tracksys2.lib.virginia.edu/"
+         end
+         div do
+            "Please use it as the primary version. If errors or missing functionality are encountered, revert back to this version and report the issue."
+         end
+      end
       div :class => 'two-column' do
          panel "Outstanding Orders", :toggle => 'show' do
             table do
