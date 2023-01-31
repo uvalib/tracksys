@@ -12,7 +12,7 @@ ActiveAdmin.register Order do
       :date_customer_notified, :email
 
    # eager load to preven n+1 queries, and improve performance
-   includes :department, :agency, :customer, :academic_status
+   includes :agency, :customer, :academic_status
 
    collection_action :autocomplete, method: :get do
       suggestions = []
@@ -36,7 +36,6 @@ ActiveAdmin.register Order do
       column :units_count
       column :master_files_count
       column("Customer") {|order| order.customer.full_name }
-      column("Department") {|order| order.customer.department.name if !order.customer.department.blank?}
       column("Acedemic Status") {|order| order.customer.academic_status.name}
       column("Charged Fee") {|order| order.fee}
    end
@@ -78,7 +77,6 @@ ActiveAdmin.register Order do
    filter :date_customer_notified
    filter :staff_notes_contains, :label=>"Staff Notes"
    filter :special_instructions_contains, :label=>"Special Instructions"
-   filter :department, :as => :select
    filter :agency, :as => :select
 
    # INDEX ====================================================================

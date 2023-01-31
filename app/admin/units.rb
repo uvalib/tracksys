@@ -3,7 +3,7 @@ ActiveAdmin.register Unit do
    config.per_page = [30, 50, 100, 250]
 
    # eager load to preven n+1 queries, and improve performance
-   includes :metadata, :order, :department, :agency
+   includes :metadata, :order, :agency
 
    # strong paramters handling
    permit_params :unit_status, :unit_extent_estimated, :unit_extent_actual, :special_instructions, :staff_notes,
@@ -31,7 +31,6 @@ ActiveAdmin.register Unit do
    filter :date_archived
    filter :date_dl_deliverables_ready
    filter :intended_use, :as => :select
-   filter :department, :as => :select
    filter :reorder, :as => :select
    filter :complete_scan, :as => :select
    filter :master_files_count, :as => :numeric

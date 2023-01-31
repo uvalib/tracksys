@@ -8,7 +8,7 @@ ActiveAdmin.register MasterFile do
    includes :metadata, :unit, :customer
 
    # strong paramters handling
-   permit_params :filename, :title, :description, :creation_date, :primary_author,
+   permit_params :filename, :title, :description, :creation_date,
       :date_archived, :md5, :filesize, :unit_id,
       :transcription_text, :pid, :metadata_id, :date_dl_update, :date_dl_ingest
 
@@ -340,7 +340,6 @@ ActiveAdmin.register MasterFile do
      column("Date DL Ingest") {|master_file| format_date(master_file.date_dl_ingest)}
      column("Date DL Update") {|master_file| format_date(master_file.date_dl_update)}
      column :creation_date
-     column :primary_author
      column("Intended Use") do |mf|
         if mf.unit.intended_use.nil?
            "N/A"
