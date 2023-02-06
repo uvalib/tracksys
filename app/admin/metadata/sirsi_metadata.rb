@@ -19,13 +19,6 @@ ActiveAdmin.register SirsiMetadata do
      raw("<a href='/admin/sirsi_metadata/new'>New</a>") if !current_user.viewer? && !current_user.student?
   end
 
-  action_item :checkout, only: :show do
-     if !current_user.viewer? && !current_user.student? && !resource.checked_out?
-        raw("<a href='/admin/sirsi_metadata/#{resource.id}/checkout' rel='nofollow' data-method='put'>Checkout Materials</a>")
-     else
-        raw("<a href='/admin/sirsi_metadata/#{resource.id}/checkin' rel='nofollow' data-method='put'>Return Materials</a>")
-     end
-  end
   action_item :edit, only: :show do
      link_to "Edit", edit_resource_path  if !current_user.viewer? && !current_user.student?
   end
@@ -126,11 +119,6 @@ ActiveAdmin.register SirsiMetadata do
   end
 
   show :title => proc { truncate(@sirsi_meta[:title], :length => 60) } do
-     if sirsi_metadata.checked_out?
-      div class: "columns-none checkout-notice" do
-         "- Checked out on #{sirsi_metadata.last_checkout} -"
-      end
-    end
     div :class => 'two-column' do
       panel "Metadata Details" do
         render '/admin/metadata/sirsi_metadata/sirsi_meta'
@@ -164,9 +152,6 @@ ActiveAdmin.register SirsiMetadata do
           row :ocr_language_hint
           row ("Date Created") do |sirsi_metadata|
             sirsi_metadata.created_at
-          end
-          row ("Checked Out?") do |sirsi_metadata|
-             render partial: "/admin/metadata/sirsi_metadata/checkout_log", locals: {metadata: sirsi_metadata}
           end
           row ("Preservation Tier") do |sm|
              if sm.preservation_tier.blank?

@@ -133,13 +133,6 @@ ActiveAdmin.register XmlMetadata do
                      "#{sm.preservation_tier.name}: #{sm.preservation_tier.description}"
                   end
                end
-               row ("Version History") do |sm|
-                  if sm.has_versions?
-                     link_to "#{sm.metadata_versions.count}", "/admin/xml_metadata/#{sm.id}/versions"
-                  else
-                     "None"
-                  end
-               end
             end
          end
          if !xml_metadata.ap_trust_status.nil? && current_user.can_set_preservation?
