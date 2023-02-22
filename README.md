@@ -1,5 +1,8 @@
 # Welcome to Tracksys
 
+** This code is no longer maintained and is now a read-only archive. The service has been re-implemented here: **
+https://github.com/uvalib/tracksys2
+
 ## Installation
 
 ### Ruby
@@ -30,5 +33,5 @@
 
 NOTE: Spring is included as a gem to speed up the development environment, but it must not
       be used or installed on production. If it is, rails console will hang. Always use bundler commands
-      like this: bundle install/update  --without development test. 
+      like this: bundle install/update  --without development test.
 
